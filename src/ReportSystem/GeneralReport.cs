@@ -1,14 +1,15 @@
 using System;
 using System.Data;
 using MySql.Data.MySqlClient;
+using Inforoom.ReportSystem.RatingReport;
 
 
-namespace Inforoom.RatingReport
+namespace Inforoom.ReportSystem
 {
 	/// <summary>
-	/// Summary description for CombineReport.
+	/// Summary description for GeneralReport.
 	/// </summary>
-	public class CombineReport
+	public class GeneralReport
 	{
 
 		public const string colCombineReportCode = "CombineReportCode";
@@ -24,7 +25,7 @@ namespace Inforoom.RatingReport
 		Rating[] Ratings;
 		DataTable[] dtRes;
 
-		public CombineReport(int ID, int ClientCode, MySqlConnection Conn)
+		public GeneralReport(int ID, int ClientCode, MySqlConnection Conn)
 		{
 			combineReportID = ID;
 			clientCode = ClientCode;
