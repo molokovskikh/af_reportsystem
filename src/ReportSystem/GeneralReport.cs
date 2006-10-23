@@ -1,79 +1,257 @@
 using System;
 using System.Data;
 using MySql.Data.MySqlClient;
-using Inforoom.ReportSystem.RatingReport;
-
+using Inforoom.ReportSystem.RatingReports;
+using Inforoom.ReportSystem;
+using System.Collections.Generic;
+using ExecuteTemplate;
+using System.Runtime.Remoting;
+using System.IO;
+using ICSharpCode.SharpZipLib;
+using LumiSoft.Net.Mime;
+using Zip = ICSharpCode.SharpZipLib.Zip;
 
 namespace Inforoom.ReportSystem
 {
+
+	//Содержит названия полей, используемых при создании общего очета
+	public sealed class GeneralReportColumns
+	{
+		public const string GeneralReportCode = "GeneralReportCode";
+		public const string FirmCode = "FirmCode";
+		public const string Allow = "Allow";
+		public const string EMailAddress = "EMailAddress";
+		public const string EMailSubject = "EMailSubject";
+		public const string ShortName = "ShortName";
+	}
+
 	/// <summary>
 	/// Summary description for GeneralReport.
 	/// </summary>
 	public class GeneralReport
 	{
+		public ulong _generalReportID;
+		public int _firmCode;
 
-		public const string colCombineReportCode = "CombineReportCode";
-		public const string colFirmCode = "ClientsData_FirmCode";
-		public const string colAllow = "Allow";
+		private string _eMailAddress;
+		private string _eMailSubject;
 
-		public int combineReportID;
-		public int clientCode;
+		private MySqlConnection _conn;
 
-		MySqlConnection conn;
-		DataTable dtReports;
+		private string _directoryName;
+		private string _mainFileName;
 
-		Rating[] Ratings;
-		DataTable[] dtRes;
+		//таблица отчетов, которая существует в общем отчете
+		DataTable _dtReports;
 
-		public GeneralReport(int ID, int ClientCode, MySqlConnection Conn)
+		List<BaseReport> _reports;
+
+		public GeneralReport(ulong GeneralReportID, int FirmCode, string EMailAddress, string EMailSubject, MySqlConnection Conn)
 		{
-			combineReportID = ID;
-			clientCode = ClientCode;
-			conn = Conn;
+			_reports = new List<BaseReport>();
+			_generalReportID = GeneralReportID;
+			_firmCode = FirmCode;
+			_conn = Conn;
+			_eMailAddress = EMailAddress;
+			_eMailSubject = EMailSubject;
 
-			dtReports = new DataTable();
+			bool addContacts = false;
+			ulong contactsCode = 0;
 
-			//Формируем запрос и заполняем таблицу дочерних отчетов
-			MySqlDataAdapter daReports = new MySqlDataAdapter(String.Format("select * from usersettings.Reports where {0} = ?{0}", Rating.colCombineReportCode), conn);
-			daReports.SelectCommand.Parameters.Add(Rating.colCombineReportCode, combineReportID);
-			daReports.Fill(dtReports);
+			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn, true, false);
 
-			if (dtReports.Rows.Count > 0)
+			if ((_dtReports != null) && (_dtReports.Rows.Count > 0))
 			{
-				Ratings = new Rating[dtReports.Rows.Count];
-				dtRes = new DataTable[dtReports.Rows.Count];
-
-				DataRow dr;
-				for(int i = 0; i < dtReports.Rows.Count; i++)
+				foreach (DataRow drGReport in _dtReports.Rows)
 				{
-					dr = dtReports.Rows[i];
-					Ratings[i] = new Rating(Convert.ToInt32(dr[Rating.colReportCode]), 0, dr[Rating.colReportCaption].ToString(), conn);
+					//Создаем отчеты и добавляем их в список отчетов
+					BaseReport bs = (BaseReport)Activator.CreateInstance(
+						GetReportTypeByCode((ulong)drGReport[BaseReportColumns.colReportTypeCode]),
+						new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], drGReport[BaseReportColumns.colReportCaption].ToString(), _conn });
+					_reports.Add(bs);
+
+					//Если в отчетах содержится или комбинированый или специальный отчет, то добавляем в отчеты Контакты
+					if (!addContacts)
+					{
+						addContacts = (bs is CombReport) || (bs is SpecReport);
+						if (addContacts)
+							contactsCode = (ulong)drGReport[BaseReportColumns.colReportCode];
+					}
 				}
 			}
 			else
 				throw new Exception("У комбинированного отчета нет дочерних отчетов.");
+
+			if (addContacts)
+				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn));
 		}
 
-		public int ReportCount{
-			get
+		//Производится построение отчетов
+		public void ProcessReports()
+		{
+			_directoryName = Path.GetTempPath() + "gr" + _generalReportID.ToString();
+			if (Directory.Exists(_directoryName))
+				Directory.Delete(_directoryName, true);
+			Directory.CreateDirectory(_directoryName);
+
+			_mainFileName = _directoryName + "\\" + "gr" + _generalReportID.ToString() + ".xls";
+
+			foreach (BaseReport bs in _reports)
 			{
-				return Ratings.Length;
+				bs.ProcessReport();
+			}
+
+			foreach (BaseReport bs in _reports)
+			{
+				bs.ReportToFile(_mainFileName);
+			}
+
+			string ResFileName = ArchFile();
+
+			//TODO: Это надо потом включить
+			//if (!String.IsNullOrEmpty(_eMailAddress))
+			//    MailWithAttach(ResFileName);
+		}
+
+		private void MailWithAttach(string archFileName)
+		{ 
+			Mime message = new Mime(); 
+			MimeEntity mainEntry = message.MainEntity; 
+
+			mainEntry.From = new AddressList(); 
+			mainEntry.From.Add(new MailboxAddress("АК Инфорум", "report@analit.net")); 
+
+			mainEntry.To = new LumiSoft.Net.Mime.AddressList();
+#if (TESTING)
+			mainEntry.To.Parse("s.morozov@analit.net");
+			//mainEntry.To.Parse("msv-sergey@yandex.ru");
+#else
+			mainEntry.To.Parse(_eMailAddress); 
+#endif
+
+			mainEntry.Subject = _eMailSubject; 
+
+			mainEntry.ContentType = MediaType_enum.Multipart_mixed;
+
+			MimeEntity textEntity = mainEntry.ChildEntities.Add();
+			textEntity.ContentType = MediaType_enum.Text_plain;
+			textEntity.ContentTransferEncoding = ContentTransferEncoding_enum.QuotedPrintable;
+			textEntity.DataText = String.Empty; 
+
+			MimeEntity attachmentEntity = mainEntry.ChildEntities.Add(); 
+			attachmentEntity.ContentType = MediaType_enum.Application_octet_stream; 
+			attachmentEntity.ContentDisposition = ContentDisposition_enum.Attachment; 
+			attachmentEntity.ContentTransferEncoding = ContentTransferEncoding_enum.Base64; 
+			attachmentEntity.ContentDisposition_FileName = System.IO.Path.GetFileName(archFileName); 
+			attachmentEntity.DataFromFile(archFileName);
+
+			int SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID("box.analit.net", null, null, message);
+
+			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID), ProcessLog, 0, _conn, true, false);
+		}
+
+		class ProcessLogArgs : ExecuteArgs
+		{
+			public int _smtpID;
+			public string _MessageID;
+
+			public ProcessLogArgs(int smtpID, string MessageID)
+			{
+				_smtpID = smtpID;
+				_MessageID = MessageID;
 			}
 		}
 
-		public string GetReportCaption(int Index)
+		private int ProcessLog(ProcessLogArgs e)
 		{
-			return Ratings[Index].reportCaption;
+			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs (LogTime, GeneralReportCode, SMTPID, MessageID) 
+values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
+			e.DataAdapter.SelectCommand.Parameters.Add("GeneralReportCode", _generalReportID);
+			e.DataAdapter.SelectCommand.Parameters.Add("SMTPID", e._smtpID);
+			e.DataAdapter.SelectCommand.Parameters.Add("MessageID", e._MessageID);
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			return 0;
 		}
 
-		public DataTable GetReportTable(int Index)
+		private string ArchFile()
 		{
-			return dtRes[Index];
+			MemoryStream ZipOutputStream = new MemoryStream();			
+			Zip.ZipOutputStream ZipInputStream = new Zip.ZipOutputStream(ZipOutputStream);
+			string ZipEntryName;
+
+			string[] files = Directory.GetFiles(_directoryName);
+
+			foreach (string fileName in files)
+			{
+				ZipEntryName = Path.GetFileName(fileName);
+				Zip.ZipEntry ZipObject = new Zip.ZipEntry(ZipEntryName);
+				FileStream MySqlFileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 10240);
+				byte[] MySqlFileByteArray = new byte[MySqlFileStream.Length];
+				MySqlFileStream.Read(MySqlFileByteArray, 0, Convert.ToInt32(MySqlFileStream.Length));
+				ZipInputStream.SetLevel(9);
+				ZipObject.DateTime = DateTime.Now;
+				ZipInputStream.PutNextEntry(ZipObject);
+				ZipInputStream.Write(MySqlFileByteArray, 0, Convert.ToInt32(MySqlFileStream.Length));
+				MySqlFileStream.Close();
+				ZipInputStream.Finish();
+			}
+
+#if (TESTING)
+			string ResDirPath = "C:\\Temp\\Reports\\";
+#else
+			string ResDirPath = "\\\\isrv\\FTP\\OptBox\\";
+#endif
+
+			string resArchFileName = Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip");
+
+			ResDirPath += _firmCode.ToString("0000") + "\\Reports\\";
+
+			if (!(Directory.Exists(ResDirPath)))
+			{
+				Directory.CreateDirectory(ResDirPath);
+			}
+
+			if (File.Exists(ResDirPath + resArchFileName))
+			{
+				File.Delete(ResDirPath + resArchFileName);
+			}
+
+			FileStream ResultFile = new FileStream(_directoryName + "\\" + resArchFileName, FileMode.CreateNew);
+			ResultFile.Write(ZipOutputStream.ToArray(), 0, Convert.ToInt32(ZipOutputStream.Length));
+			ZipInputStream.Close();
+			ZipOutputStream.Close();
+			ResultFile.Close();
+
+			File.Copy(_directoryName + "\\" + resArchFileName, ResDirPath + resArchFileName);
+
+			return _directoryName + "\\" + resArchFileName;
 		}
 
-		public void ExportToExcel()
+		//Выбираем отчеты из базы
+		private DataTable GetReports(ExecuteArgs e)
 		{
+			e.DataAdapter.SelectCommand.CommandText = String.Format("select * from reports.Reports where {0} = ?{0}", GeneralReportColumns.GeneralReportCode);
+			e.DataAdapter.SelectCommand.Parameters.Add(GeneralReportColumns.GeneralReportCode, _generalReportID);
+			DataTable res = new DataTable();
+			e.DataAdapter.Fill(res);
+			return res;
 		}
 
+		private Type GetReportTypeByCode(ulong ReportTypeCode)
+		{
+			switch(ReportTypeCode)
+			{
+				case 1:
+					return typeof(CombReport);
+				case 2:
+					return typeof(SpecReport);
+				case 5:
+					return typeof(DefReport);
+				case 6:
+					return typeof(RatingReport);
+				default:
+					throw new Exception(String.Format("Неизвестный тип отчета : {0}", ReportTypeCode));
+			}
+		}
 	}
 }

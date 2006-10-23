@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Data;
 
-namespace Inforoom.RatingReport
+namespace Inforoom.ReportSystem.RatingReports
 {
 	public class RatingComparer : IComparer  
 	{

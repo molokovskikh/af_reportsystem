@@ -37,7 +37,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TESTING</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
@@ -82,21 +82,30 @@
       <HintPath>..\..\..\..\..\..\..\Program Files\Aspose\Aspose.Excel\\bin\Aspose.Excel.dll</HintPath>
       <AssemblyFolderKey>hklm\dn\aspose.excel</AssemblyFolderKey>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <Name>ICSharpCode.SharpZipLib</Name>
-      <HintPath>..\..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
+    <Reference Include="ExecuteTemplate, Version=1.0.7.98, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\ExecuteTemplate.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Office.Interop.Excel">
-      <Name>Microsoft.Office.Interop.Excel</Name>
-      <HintPath>..\..\..\..\..\..\..\Program Files\Office XP PIAs\Microsoft.Office.Interop.Excel.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.81.0.1407, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data">
-      <Name>MySql.Data</Name>
-      <HintPath>..\..\lib\MySql.Data.dll</HintPath>
+    <Reference Include="LumiSoft.Net, Version=2.0.2476.26832, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\LumiSoft.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=10.0.4504.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Microsoft.Office.Interop.Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=1.0.7.20230, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
@@ -115,21 +124,32 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CombineReport.cs">
+    <Compile Include="CombReport.cs" />
+    <Compile Include="ContactsReport.cs" />
+    <Compile Include="DefReport.cs" />
+    <Compile Include="GeneralReport.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CommandLineUtils.cs" />
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="BaseReport.cs" />
+    <Compile Include="ProviderReport.cs" />
     <Compile Include="Rating.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RatingField.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SpecReport.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -8,13 +8,15 @@ using Aspose.Excel;
 using ICSharpCode.SharpZipLib.Zip;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
+using Inforoom.ReportSystem.RatingReports;
+using ExecuteTemplate;
 
-namespace Inforoom.RatingReport
+namespace Inforoom.ReportSystem
 {
 	/// <summary>
-	/// Summary description for Rating.
+	/// Summary description for RatingReport.
 	/// </summary>
-	public class Rating
+	public class RatingReport : BaseReport
 	{
 		public const string colReportCode = "ReportCode";
 		public const string colCombineReportCode = "CombineReports_CombineReportCode";
@@ -41,56 +43,61 @@ namespace Inforoom.RatingReport
 		System.Data.DataTable dtProperties;
 
 
-		public Rating(int ID, int ClientCode, string ReportCaption, MySqlConnection Conn)
-		{
-			reportID = ID;
-			clientCode = ClientCode;
-			reportCaption = ReportCaption;
-			conn = Conn;
-
-			dtProperties = new System.Data.DataTable();
-			MySqlDataAdapter da = new MySqlDataAdapter(
-				String.Format("select * from usersettings.ReportProperties where {0} = ?{1}", RatingField.colReportCode, RatingField.colReportCode), conn);
-			da.SelectCommand.Parameters.Add(RatingField.colReportCode, reportID);
-			da.Fill(dtProperties);
-
-			DataRow[] dr;
-
-			dr = dtProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, fromProperty));
-			if (1 == dr.Length)
-				dtFrom = DateTime.ParseExact(dr[0][RatingField.colPropertyValue].ToString(), MySQLDateFormat, null);
-			else
-				throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", fromProperty, dr.Length));
-
-			dr = dtProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, toProperty));
-			if (1 == dr.Length)
-				dtTo = DateTime.ParseExact(dr[0][RatingField.colPropertyValue].ToString(), MySQLDateFormat, null);
-			else
-				throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", toProperty, dr.Length));
-
-			dr = dtProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, junkProperty));
-			if (1 == dr.Length)
-				JunkState = Convert.ToInt32(dr[0][RatingField.colPropertyValue]);
-			else
-				throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", junkProperty, dr.Length));
-
-			allField = new ArrayList(9);
-		    selectField = new ArrayList(9);
-			allField.Add(new RatingField("c.FullCode", "concat(c.Name, ' ', c.Form) as FullName", "FullName", "FullName", "Наименование и форма выпуска"));
-			allField.Add(new RatingField("c.ShortCode", "c.Name as PosName", "PosName", "ShortName", "Наименование"));
-			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель"));
-			allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион"));
-			allField.Add(new RatingField("ftg.ftg", "ftg.Name as FTGName", "FTGName", "FTG", "Фармгруппа"));
-
-			foreach(RatingField rf in allField)
-			{
-				if (rf.LoadFromDB(dtProperties))
-					selectField.Add(rf);
-			}
-
-			selectField.Sort(new RatingComparer());
-
+		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
+			: base(ReportCode, ReportCaption, Conn)
+		{ 
 		}
+
+		//public RatingReport(int GeneralReportID, int FirmCode, string ReportCaption, MySqlConnection Conn)
+		//{
+		//    reportID = GeneralReportID;
+		//    clientCode = FirmCode;
+		//    reportCaption = ReportCaption;
+		//    _conn = Conn;
+
+		//    dtProperties = new System.Data.DataTable();
+		//    MySqlDataAdapter da = new MySqlDataAdapter(
+		//        String.Format("select * from usersettings.ReportProperties where {0} = ?{1}", RatingField.colReportCode, RatingField.colReportCode), _conn);
+		//    da.SelectCommand.Parameters.Add(RatingField.colReportCode, reportID);
+		//    da.Fill(dtProperties);
+
+		//    DataRow[] dr;
+
+		//    dr = dtProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, fromProperty));
+		//    if (1 == dr.Length)
+		//        dtFrom = DateTime.ParseExact(dr[0][RatingField.colPropertyValue].ToString(), MySQLDateFormat, null);
+		//    else
+		//        throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", fromProperty, dr.Length));
+
+		//    dr = dtProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, toProperty));
+		//    if (1 == dr.Length)
+		//        dtTo = DateTime.ParseExact(dr[0][RatingField.colPropertyValue].ToString(), MySQLDateFormat, null);
+		//    else
+		//        throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", toProperty, dr.Length));
+
+		//    dr = dtProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, junkProperty));
+		//    if (1 == dr.Length)
+		//        JunkState = Convert.ToInt32(dr[0][RatingField.colPropertyValue]);
+		//    else
+		//        throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", junkProperty, dr.Length));
+
+		//    allField = new ArrayList(9);
+		//    selectField = new ArrayList(9);
+		//    allField.Add(new RatingField("c.FullCode", "concat(c.Name, ' ', c.Form) as FullName", "FullName", "FullName", "Наименование и форма выпуска"));
+		//    allField.Add(new RatingField("c.ShortCode", "c.Name as PosName", "PosName", "ShortName", "Наименование"));
+		//    allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель"));
+		//    allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион"));
+		//    allField.Add(new RatingField("ftg.ftg", "ftg.Name as FTGName", "FTGName", "FTG", "Фармгруппа"));
+
+		//    foreach(RatingField rf in allField)
+		//    {
+		//        if (rf.LoadFromDB(dtProperties))
+		//            selectField.Add(rf);
+		//    }
+
+		//    selectField.Sort(new RatingComparer());
+
+		//}
 
 		public System.Data.DataTable GetReport()
 		{
@@ -101,7 +108,7 @@ namespace Inforoom.RatingReport
 
 			SelectCommand = String.Concat(SelectCommand, "Sum(ol.cost*ol.Quantity) as Cost, Sum(ol.Quantity) as PosOrder ");
 			SelectCommand = String.Concat(
-				SelectCommand, "from orders.OrdersHead oh, orders.OrdersList ol, farm.Catalog c, farm.CatalogFirmCr cfc, usersettings.clientsdata cd, farm.regions rg, usersettings.pricesdata pd, usersettings.clientsdata prov where ol.OrderID = oh.RowID and c.FullCode = ol.FullCode and cfc.CodeFirmCr = if(ol.CodeFirmCr,  ol.CodeFirmCr, 1) and cd.FirmCode = oh.ClientCode and rg.RegionCode = oh.RegionCode and pd.PriceCode = oh.PriceCode and prov.FirmCode = pd.FirmCode");
+				SelectCommand, "from orders.OrdersHead oh, orders.OrdersList ol, farm.Catalog c, farm.CatalogFirmCr cfc, usersettings.clientsdata cd, farm.regions rg, usersettings.pricesdata pd, usersettings.clientsdata prov where ol.OrderID = oh.RowID and c.FullCode = ol.FullCode and cfc.CodeFirmCr = if(ol.CodeFirmCr,  ol.CodeFirmCr, 1) and cd.FirmCode = oh.FirmCode and rg.RegionCode = oh.RegionCode and pd.PriceCode = oh.PriceCode and prov.FirmCode = pd.FirmCode");
 
 			foreach(RatingField rf in selectField)
 			{
@@ -200,7 +207,7 @@ namespace Inforoom.RatingReport
 			ws.Cells.ImportDataTable(dtRes, true, "A3");
 			for(int i = 0; i<dtRes.Columns.Count; i++)
 			  ws.AutoFitColumn(i);
-			string ShortName =  "Rating" + clientCode.ToString() + ".xls";
+			string ShortName =  "RatingReport" + clientCode.ToString() + ".xls";
 			string FileName = System.IO.Path.GetTempPath() + ShortName;
 			ex.Save(FileName);
 			ws = null;
@@ -279,7 +286,7 @@ namespace Inforoom.RatingReport
 //			string ResDirPath = @"\\iserv\FTP\OptBox\"
 			string ResDirPath = @"C:\Temp\Reports\";
 			string ClientCodeStr = clientCode.ToString();
-			string ResFileName = "Rating" + ClientCodeStr + ".zip";
+			string ResFileName = "RatingReport" + ClientCodeStr + ".zip";
 			if (ClientCodeStr.Length < 3)
 				ClientCodeStr = "0" + ClientCodeStr;
             ResDirPath += ClientCodeStr + @"\Reports\";
@@ -301,6 +308,12 @@ namespace Inforoom.RatingReport
 
 		}
 
+		public override void GenerateReport(ExecuteArgs e)
+		{ 
+		}
 
+		public override void ReportToFile(string FileName)
+		{ 
+		}
 	}
 }
