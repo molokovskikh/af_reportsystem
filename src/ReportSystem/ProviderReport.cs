@@ -21,7 +21,7 @@ namespace Inforoom.ReportSystem
 		public override void ReportToFile(string FileName)
 		{ }
 
-		//Получили список действующих прайс-листов для интересующего клиента
+		//Получили список действующих прайс-листов для интересующего клиента, должен существовать параметр "ClientCode"
 		protected void GetActivePricesT(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -122,6 +122,7 @@ WHERE   DisabledByAgency                                            = 0
 
 		}
 
+		//Получили список предложений для интересующего клиента, должен существовать параметр "ClientCode"
 		protected void GetAllCoreT(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"select FirmSegment from usersettings.clientsdata where FirmCode = ?ClientCode";
@@ -136,6 +137,7 @@ create temporary table AllCoreT
  PriceCode int unsigned,
  RegionCode int unsigned,
  FullCode int unsigned,
+ ShortCode int unsigned,
  CodeFirmCr int unsigned,
  SynonymCode int unsigned,
  SynonymFirmCrCode int unsigned,
@@ -175,6 +177,7 @@ SELECT
         ActivePricesT.PriceCode,
         ActivePricesT.regioncode,
         core0.fullcode,
+        core0.Shortcode,
         codefirmcr,
         synonymcode,
         SynonymFirmCrCode,
@@ -196,10 +199,9 @@ SELECT
 FROM    farm.core0,
         ActivePricesT
 WHERE   core0.firmcode = ActivePricesT.CostCode
-        AND not AlowInt
+        AND not ActivePricesT.AlowInt
         AND not ActivePricesT.DisabledByClient
-        AND Actual
-        AND not DisabledByClient
+        AND ActivePricesT.Actual
         AND BaseCost is not null
         AND ActivePricesT.CostType=1;
 INSERT
@@ -209,6 +211,7 @@ SELECT
         ActivePricesT.PriceCode,
         ActivePricesT.regioncode,
         core0.fullcode,
+        core0.Shortcode,
         codefirmcr,
         synonymcode,
         SynonymFirmCrCode,
@@ -231,14 +234,17 @@ FROM    farm.core0,
         ActivePricesT,
         farm.corecosts
 WHERE   core0.firmcode = ActivePricesT.PriceCode
-        AND not AlowInt
+        AND not ActivePricesT.AlowInt
         AND not ActivePricesT.DisabledByClient
-        AND Actual
-        AND not DisabledByClient
+        AND ActivePricesT.Actual
         AND corecosts.cost is not null
         AND corecosts.Core_Id=core0.id
         and corecosts.PC_CostCode=ActivePricesT.CostCode
         AND ActivePricesT.CostType=0;
+UPDATE AllCoreT
+        SET cost =MinCost
+WHERE   MinCost  >cost
+        AND MinCost is not null;
 ";
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			}
@@ -251,6 +257,7 @@ SELECT  core1.id,
         ActivePricesT.PriceCode,
         ActivePricesT.regioncode,
         core1.fullcode,
+        core1.Shortcode,
         codefirmcr,
         synonymcode,
         SynonymFirmCrCode,
@@ -272,10 +279,9 @@ SELECT  core1.id,
 FROM    farm.core1,
         ActivePricesT
 WHERE   core1.firmcode = ActivePricesT.CostCode
-        AND not AlowInt
+        AND not ActivePricesT.AlowInt
         AND not ActivePricesT.DisabledByClient
-        AND Actual
-        AND not DisabledByClient
+        AND ActivePricesT.Actual
         AND BaseCost is not null;
 UPDATE AllCoreT
         SET cost =MinCost
@@ -283,7 +289,6 @@ WHERE   MinCost  >cost
         AND MinCost is not null;
 ";
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-
 			}
 		}
 	}

@@ -24,8 +24,8 @@ namespace Inforoom.ReportSystem
 		 * 
 		 */
 
-		private int _reportType;
-		private int _showPercents;
+		protected int _reportType;
+		protected int _showPercents;
 
 		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
@@ -36,6 +36,7 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			//Выбираем 
 			GetActivePricesT(e);
 			GetAllCoreT(e);
 
@@ -98,7 +99,7 @@ and AllCoreT.pricecode = ActivePricesT.pricecode
 and AllCoreT.RegionCode = ActivePricesT.RegionCode 
 and catalogfirmcr.codefirmcr = AllCoreT.codefirmcr 
 group by catalog.FullCode, Cfc
-order by catalog.FullCode, Cfc";
+order by 2, 5";
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 
 			e.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, DateCurPrice, FirmName from ActivePricesT order by PosCount DESC";
@@ -113,8 +114,10 @@ order by catalog.FullCode, Cfc";
 			FormatExcel(FileName);
 		}
 
-		protected void Calculate()
+		protected virtual void Calculate()
 		{
+			//Кол-во первых фиксированных колонок
+			int FirstColumnCount;
 			DataTable dtCore = _dsReport.Tables["Core"];
 			DataTable dtPrices = _dsReport.Tables["Prices"];
 
@@ -124,6 +127,8 @@ order by catalog.FullCode, Cfc";
 			dtRes.Columns.Add("FirmCr");
 			dtRes.Columns.Add("MinCost", typeof(decimal));
 			dtRes.Columns.Add("LeaderName");
+			FirstColumnCount = dtRes.Columns.Count;
+
 			int PriceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
@@ -131,7 +136,7 @@ order by catalog.FullCode, Cfc";
 				if (_showPercents == 0)
 					dtRes.Columns.Add("Quantity" + PriceIndex.ToString());
 				else
-					dtRes.Columns.Add("Percents" + PriceIndex.ToString(), typeof(decimal));
+					dtRes.Columns.Add("Percents" + PriceIndex.ToString(), typeof(double));
 				PriceIndex++;
 			}
 
@@ -154,20 +159,27 @@ order by catalog.FullCode, Cfc";
 				if (drsMin.Length > 0)
 					newrow["LeaderName"] = drsMin[0]["FirmName"];
 
-				drsMin = dtCore.Select("FullCode = " + drCatalog["FullCode"].ToString() + "and Cfc = " + drCatalog["Cfc"].ToString());
+				//Выбираем позиции и сортируем по возрастанию цен
+				drsMin = dtCore.Select("FullCode = " + drCatalog["FullCode"].ToString() + "and Cfc = " + drCatalog["Cfc"].ToString(), "Cost asc");
 				foreach (DataRow dtPos in drsMin)
 				{
 					DataRow dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"].ToString() + " and RegionCode = " + dtPos["RegionCode"].ToString())[0];
 					PriceIndex = dtPrices.Rows.IndexOf(dr);
-					newrow[4 + PriceIndex * 2] = dtPos["Cost"];
-					if ((_reportType == 2) || (_reportType == 4))
+
+					//Если мы еще не установили значение у поставщика, то делаем это
+					//раньше вставляли последнее значение, которое было максимальным
+					if (newrow[FirstColumnCount + PriceIndex * 2] is DBNull)
 					{
-						if (_showPercents == 0)
-							newrow[4 + PriceIndex * 2 + 1] = dtPos["Quantity"];
-						else
+						newrow[FirstColumnCount + PriceIndex * 2] = dtPos["Cost"];
+						if ((_reportType == 2) || (_reportType == 4))
 						{
-							decimal mincost = (decimal)newrow["MinCost"], pricecost = Convert.ToDecimal(dtPos["Cost"]);
-							newrow[4 + PriceIndex * 2 + 1] = ((pricecost - mincost) * 100) / pricecost;
+							if (_showPercents == 0)
+								newrow[FirstColumnCount + PriceIndex * 2 + 1] = dtPos["Quantity"];
+							else
+							{
+								double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
+								newrow[FirstColumnCount + PriceIndex * 2 + 1] = ((pricecost - mincost) * 100) / pricecost;
+							}
 						}
 					}
 				}
@@ -189,51 +201,41 @@ order by catalog.FullCode, Cfc";
 
 					try
 					{
-						ws.Name = _reportCaption;
+						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
+						//Форматируем заголовок отчета
 						ws.Cells[2, 1] = "Наименование";
 						((MSExcel.Range)ws.Cells[2, 1]).ColumnWidth = 20;
 						ws.Cells[2, 2] = "Производитель";
 						((MSExcel.Range)ws.Cells[2, 2]).ColumnWidth = 10;
 						ws.Cells[2, 3] = "Мин. Цена";
 						((MSExcel.Range)ws.Cells[2, 3]).ColumnWidth = 6;
-						ws.Cells[2, 4] = "Лидер";
-						((MSExcel.Range)ws.Cells[2, 4]).ColumnWidth = 9;
 						((MSExcel.Range)ws.Cells[1, 1]).Clear();
 						((MSExcel.Range)ws.Cells[1, 2]).Clear();
 						((MSExcel.Range)ws.Cells[1, 3]).Clear();
-						((MSExcel.Range)ws.Cells[1, 4]).Clear();
+						
+						//Форматируем колонку "Лидер" и шапку для фирм
+						FormatLeaderAndPrices(ws);
 
-						int PriceIndex = 0;
-						foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
-						{
-							//Устанавливаем название фирмы
-							ws.Cells[1, 5 + PriceIndex * 2] = drPrice["FirmName"].ToString();
-							((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2]).ColumnWidth = 8;
-
-							//Устанавливаем дату фирмы
-							ws.Cells[1, 5 + PriceIndex * 2 + 1] = drPrice["DateCurPrice"].ToString();
-							((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2 + 1]).ColumnWidth = 4;
-
-							ws.Cells[2, 5 + PriceIndex * 2] = "Цена";
-							if (_showPercents == 0)
-								ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Кол-во";
-							else
-								ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Разница в %";
-
-							PriceIndex++;
-						}
-
+						//рисуем границы на всю таблицу
 						ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count + 1, _dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+						//Устанавливаем цвет колонки "Мин Цена"
 						ws.get_Range("C2", "C" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSeaGreen);
-						ws.get_Range("D2", "D" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSkyBlue);
+
+						//Устанавливаем шрифт листа
 						ws.Rows.Font.Size = 8;
 						ws.Rows.Font.Name = "Arial Narrow";
 						ws.Activate();
-						((MSExcel.Range)ws.get_Range(ws.Cells[2, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count - 1, _dsReport.Tables["Results"].Columns.Count])).Select();
+
+						//Устанавливаем АвтоФильтр на все колонки
+						((MSExcel.Range)ws.get_Range(ws.Cells[2, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count, _dsReport.Tables["Results"].Columns.Count])).Select();
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
+
+						//Замораживаем некоторые колонки и столбцы
 						((MSExcel.Range)ws.get_Range("E3", System.Reflection.Missing.Value)).Select();
 						exApp.ActiveWindow.FreezePanes = true;
+
+						//Объединяем несколько ячеек, чтобы в них написать текст
 						((MSExcel.Range)ws.get_Range("A1:D1", System.Reflection.Missing.Value)).Select();
 						((MSExcel.Range)exApp.Selection).Merge(null);
 						if (_reportType < 3)
@@ -260,6 +262,35 @@ order by catalog.FullCode, Cfc";
 				catch { }
 				exApp = null;
 			}
+		}
+
+		protected virtual void FormatLeaderAndPrices(MSExcel._Worksheet ws)
+		{
+			ws.Cells[2, 4] = "Лидер";
+			((MSExcel.Range)ws.Cells[2, 4]).ColumnWidth = 9;
+			((MSExcel.Range)ws.Cells[1, 4]).Clear();
+
+			int PriceIndex = 0;
+			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
+			{
+				//Устанавливаем название фирмы
+				ws.Cells[1, 5 + PriceIndex * 2] = drPrice["FirmName"].ToString();
+				((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2]).ColumnWidth = 8;
+
+				//Устанавливаем дату фирмы
+				ws.Cells[1, 5 + PriceIndex * 2 + 1] = drPrice["DateCurPrice"].ToString();
+				((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2 + 1]).ColumnWidth = 4;
+
+				ws.Cells[2, 5 + PriceIndex * 2] = "Цена";
+				if (_showPercents == 0)
+					ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Кол-во";
+				else
+					ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Разница в %";
+
+				PriceIndex++;
+			}
+			//Устанавливаем цвет колонки "Лидер"
+			ws.get_Range("D2", "D" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSkyBlue);
 		}
 
 	}

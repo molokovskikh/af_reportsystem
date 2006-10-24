@@ -23,10 +23,18 @@ namespace Inforoom.ReportSystem
 	//Общий класс для работы с отчетам
 	public abstract class BaseReport
 	{
+		//Максимальное значение строки в колонках, необходимо для вывода в Excel, все, что будет больше будет помечаться как memо
+		public const int MaxStringSize = 250;
+
+		public const int MaxListName = 26;
+
 		protected DataSet _dsReport;
 
 		protected ulong _reportCode;
 		protected string _reportCaption;
+
+		//Таблица с загруженными свойствами отчета
+		protected DataTable dtReportProperties;
 
 		protected MySqlConnection _conn;
 
@@ -35,30 +43,53 @@ namespace Inforoom.ReportSystem
 
 		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 		{
+			//TODO: У каждого класса должна быть проверка необходимых параметров для отчета
 			_reportParams = new Dictionary<string, object>();
 			_reportCode = ReportCode;
 			_reportCaption = ReportCaption;
 			_dsReport = new DataSet();
 			_conn = Conn;
 
-			DataTable dtReportProperties = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReportProperties, null, _conn, true, false);
+			dtReportProperties = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReportProperties, null, _conn, true, false);
 
 			foreach (DataRow drProperty in dtReportProperties.Rows)
 			{
-				if (_reportParams.ContainsKey(drProperty[BaseReportColumns.colPropertyName].ToString()))
+				string currentPropertyName = drProperty[BaseReportColumns.colPropertyName].ToString();
+
+				if (_reportParams.ContainsKey(currentPropertyName))
 				{
-					if (_reportParams[drProperty[BaseReportColumns.colPropertyName].ToString()] is int)
+					//Если объект уже существует и он int или List<int>
+					if ((_reportParams[currentPropertyName] is int) || (_reportParams[currentPropertyName] is List<int>))
 					{
-						int v = (int)_reportParams[drProperty[BaseReportColumns.colPropertyName].ToString()];
-						List<int> l = new List<int>();
-						l.Add(v);
-						_reportParams[drProperty[BaseReportColumns.colPropertyName].ToString()] = l;
+						if (_reportParams[currentPropertyName] is int)
+						{
+							List<int> l = new List<int>();
+							l.Add((int)_reportParams[currentPropertyName]);
+							_reportParams[currentPropertyName] = l;
+						}
+						((List<int>)_reportParams[currentPropertyName]).
+							Add(int.Parse(drProperty[BaseReportColumns.colPropertyValue].ToString()));
 					}
-					((List<int>)_reportParams[drProperty[BaseReportColumns.colPropertyName].ToString()]).
-						Add(int.Parse(drProperty[BaseReportColumns.colPropertyValue].ToString()));
+					else
+					{
+						if (_reportParams[currentPropertyName] is string)
+						{
+							List<string> l = new List<string>();
+							l.Add((string)_reportParams[currentPropertyName]);
+							_reportParams[currentPropertyName] = l;
+						}
+						((List<string>)_reportParams[currentPropertyName]).
+							Add(drProperty[BaseReportColumns.colPropertyValue].ToString());
+					}
 				}
 				else
-					_reportParams.Add(drProperty[BaseReportColumns.colPropertyName].ToString(), int.Parse(drProperty[BaseReportColumns.colPropertyValue].ToString()));
+				{
+					int tempVal;
+					if (int.TryParse(drProperty[BaseReportColumns.colPropertyValue].ToString(), out tempVal))
+						_reportParams.Add(currentPropertyName, tempVal);
+					else
+						_reportParams.Add(currentPropertyName, drProperty[BaseReportColumns.colPropertyValue].ToString());
+				}
 			}
 
 		}
@@ -91,20 +122,20 @@ namespace Inforoom.ReportSystem
 
 		protected void DataTableToExcel(DataTable dtExport, string ExlFileName)
 		{
-			string tmp = "testRep";
-			tmp = _reportCaption;
-			tmp = "rep" + _reportCode.ToString();
+			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти
+			string generatedListName = "testRep";
+			generatedListName = _reportCaption;
+			generatedListName = "rep" + _reportCode.ToString();
 			OleDbConnection ExcellCon = new OleDbConnection();
 			try
 			{
 				ExcellCon.ConnectionString = @"
 Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + ExlFileName + 
 @";Mode=Share Deny None;Extended Properties=""Excel 8.0;HDR=no"";";
-				string CreateSQL = "create table [" + tmp + "] (";
+				string CreateSQL = "create table [" + generatedListName + "] (";
 				for (int i = 0; i < dtExport.Columns.Count; i++)
 				{ 
 					CreateSQL += "[F" + (i+1).ToString() + "] ";
-					//CreateSQL += "[" + dtExport.Columns[i].ColumnName + "] ";
 					dtExport.Columns[i].ColumnName = "F" + (i + 1).ToString();
 					if (dtExport.Columns[i].DataType == typeof(int))
 						CreateSQL += " int";
@@ -112,7 +143,13 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 						if (dtExport.Columns[i].DataType == typeof(decimal))
 							CreateSQL += " currency";
 						else
-							CreateSQL += " char(250)";
+							if (dtExport.Columns[i].DataType == typeof(double))
+								CreateSQL += " real";
+							else
+								if ((dtExport.Columns[i].DataType == typeof(string)) && (dtExport.Columns[i].MaxLength > -1) && (dtExport.Columns[i].MaxLength <= MaxStringSize))
+									CreateSQL += String.Format(" char({0})", MaxStringSize);
+								else
+									CreateSQL += " memo";
 					if (i == dtExport.Columns.Count - 1)
 						CreateSQL += ");";
 					else
@@ -121,7 +158,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 				OleDbCommand cmd = new OleDbCommand(CreateSQL, ExcellCon);
 				ExcellCon.Open();
 				cmd.ExecuteNonQuery();
-				OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + tmp + "]", ExcellCon);
+				OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + generatedListName + "]", ExcellCon);
 				OleDbCommandBuilder cdExcel = new OleDbCommandBuilder(daExcel);
 				cdExcel.QuotePrefix = "[";
 				cdExcel.QuoteSuffix = "]";

@@ -82,19 +82,20 @@ namespace Inforoom.ReportSystem
 			else
 				throw new Exception("У комбинированного отчета нет дочерних отчетов.");
 
-			if (addContacts)
-				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn));
+			//TODO: надо потом включить
+			//if (addContacts)
+			//    _reports.Add(new ContactsReport(contactsCode, "Контакты", _conn));
 		}
 
 		//Производится построение отчетов
 		public void ProcessReports()
 		{
-			_directoryName = Path.GetTempPath() + "gr" + _generalReportID.ToString();
+			_directoryName = Path.GetTempPath() + "Rep" + _generalReportID.ToString();
 			if (Directory.Exists(_directoryName))
 				Directory.Delete(_directoryName, true);
 			Directory.CreateDirectory(_directoryName);
 
-			_mainFileName = _directoryName + "\\" + "gr" + _generalReportID.ToString() + ".xls";
+			_mainFileName = _directoryName + "\\" + "Rep" + _generalReportID.ToString() + ".xls";
 
 			foreach (BaseReport bs in _reports)
 			{
@@ -248,7 +249,11 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
 				case 5:
 					return typeof(DefReport);
 				case 6:
+					return typeof(CombShortReport);
+				case 7:
 					return typeof(RatingReport);
+				case 8:
+					return typeof(SpecShortReport);
 				default:
 					throw new Exception(String.Format("Неизвестный тип отчета : {0}", ReportTypeCode));
 			}

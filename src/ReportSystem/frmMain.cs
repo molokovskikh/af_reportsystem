@@ -32,10 +32,6 @@ namespace Inforoom.ReportSystem
 			// Required for Windows Form Designer support
 			//
 			InitializeComponent();
-
-			//
-			// TODO: Add any constructor code after InitializeComponent call
-			//
 		}
 
 		/// <summary>
@@ -149,7 +145,7 @@ namespace Inforoom.ReportSystem
 				MailMessage message = new MailMessage(From, MessageTo, Subject, Body);
 				SmtpClient Client = new SmtpClient("box.analit.net");
 				//TODO: Это потом надо удалить
-				message.CC.Add("morozov@analit.net");
+				//message.CC.Add("morozov@analit.net");
 				message.IsBodyHtml = false;
 				message.BodyEncoding = System.Text.Encoding.UTF8;
 				Client.Send(message);

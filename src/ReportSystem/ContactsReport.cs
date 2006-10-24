@@ -44,8 +44,9 @@ order by PosCount DESC";
 				Worksheet ws;
 				try
 				{
-					ws = (Worksheet)wb.Worksheets.Add(System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
+					ws = (Worksheet)wb.Worksheets.Add(System.Reflection.Missing.Value, wb.Worksheets[wb.Worksheets.Count], System.Reflection.Missing.Value, System.Reflection.Missing.Value);
 					ContactsToExcel(_dsReport.Tables["Contacts"], ws);
+					((_Worksheet)wb.Worksheets[1]).Activate();
 					//wb.SaveAs(FileName, XlFileFormat.xlExcel7, null, null, null, null, XlSaveAsAccessMode.xlShared, null, null, null, null, null);
 					//ws.SaveAs(FileName, XlFileFormat.xlExcel7, null, null, null, null, null, null, null, null);
 					wb.Save();
