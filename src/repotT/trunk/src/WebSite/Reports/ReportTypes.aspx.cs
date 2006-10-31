@@ -94,10 +94,6 @@ public partial class Reports_ReportTypes : System.Web.UI.Page
         {
             DS = ((DataSet)Session[DSReports]);
         }
-        if (dgvReportTypes.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
     }
 
     private void PostData()
@@ -303,5 +299,12 @@ SET
         dgvReportTypes.DataSource = DS;
         dgvReportTypes.DataBind();
 
+    }
+    protected void dgvReportTypes_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (dgvReportTypes.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 }

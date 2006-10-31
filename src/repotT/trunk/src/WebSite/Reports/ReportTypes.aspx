@@ -11,7 +11,7 @@
     <div align="right"><a href="base.aspx">Назад</a></div>
     <div align=center>
         <strong style="font-size:small;">Типы отчетов&nbsp;</strong><br/>
-        <asp:GridView ID="dgvReportTypes" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReportTypes_RowCommand" OnRowDeleting="dgvReportTypes_RowDeleting">
+        <asp:GridView ID="dgvReportTypes" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReportTypes_RowCommand" OnRowDeleting="dgvReportTypes_RowDeleting" OnRowDataBound="dgvReportTypes_RowDataBound">
             <Columns>
                 <asp:BoundField DataField="RTCode" HeaderText="Код" Visible="False" />
                 <asp:TemplateField HeaderText="Наименование отчета">
