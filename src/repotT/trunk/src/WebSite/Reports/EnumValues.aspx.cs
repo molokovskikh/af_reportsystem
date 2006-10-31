@@ -52,10 +52,6 @@ WHERE ID = ?evPECode
         }
         else
             DS = ((DataSet)Session[DSEnumValues]);
-        if (dgvEnumValues.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
     }
 
     private void PostData()
@@ -167,6 +163,7 @@ WHERE PropertyEnumID = ?evPECode
                 DS.Tables[dtEnumValues.TableName].DefaultView[dr.RowIndex][evDisplayValue.ColumnName] = ((TextBox)dr.FindControl("tbDisplayValue")).Text;
         }
     }
+
     protected void btnApply_Click(object sender, EventArgs e)
     {
         CopyChangesToTable();
@@ -255,5 +252,12 @@ SET
             MyCn.Close();
             MyCn.Dispose();
         }
+    }
+    protected void dgvEnumValues_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (dgvEnumValues.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 }

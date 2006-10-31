@@ -13,7 +13,7 @@
         <strong style="font-size:small;">Значения перечислимого типа&nbsp;"</strong>
         <asp:Label ID="lblEnumName" runat="server" Font-Bold="True"></asp:Label>
         <strong style="font-size:small;">"</strong><br />
-        <asp:GridView ID="dgvEnumValues" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvEnumValues_RowCommand" OnRowDeleting="dgvEnumValues_RowDeleting">
+        <asp:GridView ID="dgvEnumValues" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvEnumValues_RowCommand" OnRowDeleting="dgvEnumValues_RowDeleting" OnRowDataBound="dgvEnumValues_RowDataBound">
             <Columns>
                 <asp:BoundField DataField="evID" HeaderText="Код" Visible="False" />
                 <asp:TemplateField HeaderText="Значение">
