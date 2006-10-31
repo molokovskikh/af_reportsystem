@@ -8,6 +8,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
+    <div align="right"><a href="base.aspx">Назад</a></div>
     <div align=center>
             <strong style="font-size:small;">Настройка параметров отчета&nbsp;"</strong>
             <asp:Label ID="lblReportName" runat="server" Font-Bold="True"></asp:Label>
@@ -49,8 +50,6 @@
                     <asp:TemplateField HeaderText="Хранимая процедура">
                         <ItemTemplate>
                             <asp:TextBox ID="tbProc" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PStoredProc")%>'></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rtbProc" runat="server" ControlToValidate="tbProc"
-                                ErrorMessage='Поле "Хранимая процедура" должно быть заполнено'>*</asp:RequiredFieldValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
                 <asp:TemplateField>

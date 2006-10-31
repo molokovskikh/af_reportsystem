@@ -423,7 +423,7 @@ SET
             CopyChangesToTable();
 
             DataRow dr = DS.Tables[dtProperties.TableName].NewRow();
-            dr[POptional.ColumnName] = 1;
+            dr[POptional.ColumnName] = 0;
             DS.Tables[dtProperties.TableName].Rows.Add(dr);
 
             dgvProperties.DataSource = DS;
