@@ -8,6 +8,7 @@
 </head>
 <body>
     <form id="form1" method="post" runat="server">
+    <div align="right"><a href="base.aspx">Назад</a></div>
     <div align=center>
         <strong style="font-size:small;">Типы отчетов&nbsp;</strong><br/>
         <asp:GridView ID="dgvReportTypes" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReportTypes_RowCommand" OnRowDeleting="dgvReportTypes_RowDeleting">

@@ -8,6 +8,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
+    <div align="right"><a href="base.aspx">Назад</a></div>
     <div align=center>
         <strong style="font-size:small;">Значения перечислимого типа&nbsp;"</strong>
         <asp:Label ID="lblEnumName" runat="server" Font-Bold="True"></asp:Label>
