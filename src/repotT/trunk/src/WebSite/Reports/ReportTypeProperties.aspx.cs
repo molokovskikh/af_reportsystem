@@ -382,39 +382,42 @@ SET
 
     protected void dgvProperties_RowDataBound(object sender, GridViewRowEventArgs e)
     {
-        if (e.Row.Cells[4].FindControl("ddlType") != null)
-        {
-            DropDownList ddlTypes = ((DropDownList)e.Row.Cells[4].FindControl("ddlType"));
-            ddlTypes.DataSource = dtParamTypes;
-            ddlTypes.DataTextField = "ptDisplayName";
-            ddlTypes.DataValueField = "ptName";
-            if (!(((DataRowView)e.Row.DataItem)[PType.ColumnName] is DBNull))
-                ddlTypes.SelectedValue = ((DataRowView)e.Row.DataItem)[PType.ColumnName].ToString();
-            else
-                ddlTypes.SelectedValue = "INT";
-            ddlTypes.DataBind();
+		if (e.Row.RowType == DataControlRowType.DataRow)
+		{
+			if (e.Row.Cells[4].FindControl("ddlType") != null)
+			{
+				DropDownList ddlTypes = ((DropDownList)e.Row.Cells[4].FindControl("ddlType"));
+				ddlTypes.DataSource = dtParamTypes;
+				ddlTypes.DataTextField = "ptDisplayName";
+				ddlTypes.DataValueField = "ptName";
+				if (!(((DataRowView)e.Row.DataItem)[PType.ColumnName] is DBNull))
+					ddlTypes.SelectedValue = ((DataRowView)e.Row.DataItem)[PType.ColumnName].ToString();
+				else
+					ddlTypes.SelectedValue = "INT";
+				ddlTypes.DataBind();
 
-            if (((DropDownList)(e.Row.Cells[4].FindControl("ddlType"))).SelectedValue == "ENUM")
-            {
-                ((DropDownList)(e.Row.Cells[4].FindControl("ddlEnum"))).Visible = true;
-                ((Button)(e.Row.Cells[4].FindControl("btnEditType"))).Visible = true;
-            }
-            else
-            {
-                ((DropDownList)(e.Row.Cells[4].FindControl("ddlEnum"))).Visible = false;
-                ((Button)(e.Row.Cells[4].FindControl("btnEditType"))).Visible = false;
-            }
-        }
-        if (e.Row.Cells[4].FindControl("ddlEnum") != null)
-        {
-            DropDownList ddlEnums = ((DropDownList)e.Row.Cells[4].FindControl("ddlEnum"));
-            ddlEnums.DataSource = dtEnumTypes;
-            ddlEnums.DataTextField = "etName";
-            ddlEnums.DataValueField = "etID";
-            if (!(((DataRowView)e.Row.DataItem)[PEnumID.ColumnName]is DBNull))
-                ddlEnums.SelectedValue = ((DataRowView)e.Row.DataItem)[PEnumID.ColumnName].ToString();
-            ddlEnums.DataBind();
-        }
+				if (((DropDownList)(e.Row.Cells[4].FindControl("ddlType"))).SelectedValue == "ENUM")
+				{
+					((DropDownList)(e.Row.Cells[4].FindControl("ddlEnum"))).Visible = true;
+					((Button)(e.Row.Cells[4].FindControl("btnEditType"))).Visible = true;
+				}
+				else
+				{
+					((DropDownList)(e.Row.Cells[4].FindControl("ddlEnum"))).Visible = false;
+					((Button)(e.Row.Cells[4].FindControl("btnEditType"))).Visible = false;
+				}
+			}
+			if (e.Row.Cells[4].FindControl("ddlEnum") != null)
+			{
+				DropDownList ddlEnums = ((DropDownList)e.Row.Cells[4].FindControl("ddlEnum"));
+				ddlEnums.DataSource = dtEnumTypes;
+				ddlEnums.DataTextField = "etName";
+				ddlEnums.DataValueField = "etID";
+				if (!(((DataRowView)e.Row.DataItem)[PEnumID.ColumnName] is DBNull))
+					ddlEnums.SelectedValue = ((DataRowView)e.Row.DataItem)[PEnumID.ColumnName].ToString();
+				ddlEnums.DataBind();
+			}
+		}
     }
     protected void dgvProperties_RowCommand(object sender, GridViewCommandEventArgs e)
     {
