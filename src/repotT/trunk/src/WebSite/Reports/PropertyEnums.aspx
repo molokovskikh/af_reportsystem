@@ -8,6 +8,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
+    <div align="right"><a href="base.aspx">Назад</a></div>
     <div align=center>
             <strong style="font-size:small;">Список типов</strong><br/>
         <asp:GridView ID="dgvEnums" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvEnums_RowCommand" OnRowDeleting="dgvEnums_RowDeleting">

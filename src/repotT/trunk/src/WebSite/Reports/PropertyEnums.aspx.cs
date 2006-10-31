@@ -147,7 +147,7 @@ FROM
 UPDATE 
     testreports.property_enums 
 SET 
-    ReportTypeName = ?eName
+    EnumName = ?eName
 WHERE ID = ?eID", MyCn, trans);
 
             UpdCmd.Parameters.Clear();
