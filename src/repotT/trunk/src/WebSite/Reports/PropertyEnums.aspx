@@ -11,7 +11,7 @@
     <div align="right"><a href="base.aspx">Назад</a></div>
     <div align=center>
             <strong style="font-size:small;">Список типов</strong><br/>
-        <asp:GridView ID="dgvEnums" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvEnums_RowCommand" OnRowDeleting="dgvEnums_RowDeleting">
+        <asp:GridView ID="dgvEnums" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvEnums_RowCommand" OnRowDeleting="dgvEnums_RowDeleting" OnRowDataBound="dgvEnums_RowDataBound">
             <Columns>
                 <asp:BoundField DataField="eID" HeaderText="Код" Visible="False" />
                 <asp:TemplateField HeaderText="Наименование">
