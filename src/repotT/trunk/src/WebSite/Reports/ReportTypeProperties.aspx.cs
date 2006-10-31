@@ -82,10 +82,6 @@ WHERE ReportTypeCode = ?rtCode
         }
         else
             DS = ((DataSet)Session[DSReportTypes]);
-        if (dgvProperties.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
     }
 
     private void PostData()
@@ -211,6 +207,7 @@ INSERT INTO
 SET 
     PropertyName = ?PName,
     DisplayName = ?PDisplayName,
+    PropertyType = ?PType,
     PropertyEnumID = ?PEnumID,
     Optional = ?POptional,
     SelectStoredProcedure = ?PStoredProc,
@@ -418,7 +415,12 @@ SET
 				ddlEnums.DataBind();
 			}
 		}
+        if (dgvProperties.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
+
     protected void dgvProperties_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         if (e.CommandName == "Add")
