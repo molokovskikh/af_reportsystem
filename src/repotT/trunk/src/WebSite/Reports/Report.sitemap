@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<siteMap xmlns="http://schemas.microsoft.com/AspNet/SiteMap-File-1.0" >
+    <siteMapNode url="base.aspx" title="Настройка отчетов"  description="">
+      <siteMapNode url="ReportTypes.aspx" title="Редактирование типов отчетов"  description="">
+        <siteMapNode url="ReportTypeProperties.aspx">
+          <siteMapNode url="EnumValues.aspx"/>
+        </siteMapNode>
+      </siteMapNode>
+      <siteMapNode url="PropertyEnums" title="Редактирование перечислимых типов"  description="">
+        <siteMapNode url="EnumValues.aspx"/>
+      </siteMapNode>
+    </siteMapNode>
+</siteMap>
