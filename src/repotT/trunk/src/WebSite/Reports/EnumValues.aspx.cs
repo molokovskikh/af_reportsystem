@@ -52,6 +52,10 @@ WHERE ID = ?evPECode
         }
         else
             DS = ((DataSet)Session[DSEnumValues]);
+        if (dgvEnumValues.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 
     private void PostData()
@@ -141,6 +145,8 @@ WHERE PropertyEnumID = ?evPECode
             DS.Tables[dtEnumValues.TableName].Rows.Add(DS.Tables[dtEnumValues.TableName].NewRow());
             dgvEnumValues.DataSource = DS;
             dgvEnumValues.DataBind();
+
+            btnApply.Visible = true;
         }
     }
 
@@ -252,12 +258,13 @@ SET
             MyCn.Close();
             MyCn.Dispose();
         }
-    }
-    protected void dgvEnumValues_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
         if (dgvEnumValues.Rows.Count > 0)
             btnApply.Visible = true;
         else
             btnApply.Visible = false;
+    }
+
+    protected void dgvEnumValues_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
     }
 }

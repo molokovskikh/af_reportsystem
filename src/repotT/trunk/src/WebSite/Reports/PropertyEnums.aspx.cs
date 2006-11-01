@@ -40,6 +40,10 @@ public partial class Reports_PropertyEnums : System.Web.UI.Page
         {
             DS = ((DataSet)Session[DSEnums]);
         }
+        if (dgvEnums.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 
     private void PostData()
@@ -111,6 +115,8 @@ FROM
 
             dgvEnums.DataSource = DS;
             dgvEnums.DataBind();
+
+            btnApply.Visible = true;
         }
     }
 
@@ -206,13 +212,13 @@ SET
             MyCn.Close();
             MyCn.Dispose();
         }
-
-    }
-    protected void dgvEnums_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
         if (dgvEnums.Rows.Count > 0)
             btnApply.Visible = true;
         else
             btnApply.Visible = false;
+    }
+
+    protected void dgvEnums_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
     }
 }

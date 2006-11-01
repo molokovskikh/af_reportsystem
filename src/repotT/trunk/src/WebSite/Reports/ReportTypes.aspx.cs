@@ -94,6 +94,10 @@ public partial class Reports_ReportTypes : System.Web.UI.Page
         {
             DS = ((DataSet)Session[DSReports]);
         }
+        if (dgvReportTypes.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 
     private void PostData()
@@ -235,28 +239,13 @@ SET
             MyCn.Close();
             MyCn.Dispose();
         }
+        if (dgvReportTypes.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 
-    protected void dgReportTypes_ItemCommand(object source, DataGridCommandEventArgs e)
-    {
-        if (e.CommandName == "Add")
-        {
-            CopyChangesToTable();
-            DataRow dr = DS.Tables[dtReportTypes.TableName].NewRow();
-            dr[RTName.ColumnName] = String.Empty;
-            dr[RTPrefix.ColumnName] = String.Empty;
-            dr[RTSubject.ColumnName] = String.Empty;
-            dr[RTClass.ColumnName] = String.Empty;
-            DS.Tables[dtReportTypes.TableName].Rows.Add(dr);
-        }
-        else if (e.CommandName == "Delete")
-        {
-            CopyChangesToTable();
-            DS.Tables[dtReportTypes.TableName].DefaultView[e.Item.ItemIndex].Delete();
-        }
-    }
-
-    private void CopyChangesToTable()
+     private void CopyChangesToTable()
     {
         foreach (GridViewRow dr in dgvReportTypes.Rows)
         {
@@ -289,6 +278,8 @@ SET
 
             dgvReportTypes.DataSource = DS;
             dgvReportTypes.DataBind();
+
+            btnApply.Visible = true;
         }
 
     }
@@ -300,11 +291,8 @@ SET
         dgvReportTypes.DataBind();
 
     }
+
     protected void dgvReportTypes_RowDataBound(object sender, GridViewRowEventArgs e)
     {
-        if (dgvReportTypes.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
     }
 }

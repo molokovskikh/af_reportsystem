@@ -82,6 +82,10 @@ WHERE ReportTypeCode = ?rtCode
         }
         else
             DS = ((DataSet)Session[DSReportTypes]);
+        if (dgvProperties.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 
     private void PostData()
@@ -269,6 +273,10 @@ SET
             MyCn.Close();
             MyCn.Dispose();
         }
+        if (dgvProperties.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 
     private void CopyChangesToTable()
@@ -415,10 +423,6 @@ SET
 				ddlEnums.DataBind();
 			}
 		}
-        if (dgvProperties.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
     }
 
     protected void dgvProperties_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -433,6 +437,8 @@ SET
 
             dgvProperties.DataSource = DS;
             dgvProperties.DataBind();
+
+            btnApply.Visible = true;
         }
     }
 
