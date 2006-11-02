@@ -9,8 +9,9 @@
 <body>
     <form id="form1" runat="server">
     <div align="center" style="font-size: 10pt">
-        <asp:HyperLink ID="hlReports" runat="server" NavigateUrl="ReportTypes.aspx">Редактирование типов отчетов</asp:HyperLink><br />
-        <asp:HyperLink ID="hlEnums" runat="server" NavigateUrl="PropertyEnums.aspx">Редактирование перечислимых типов</asp:HyperLink></div>
+        <asp:HyperLink ID="hlReportTypes" runat="server" NavigateUrl="ReportTypes.aspx">Редактирование типов отчетов</asp:HyperLink><br />
+        <asp:HyperLink ID="hlEnums" runat="server" NavigateUrl="PropertyEnums.aspx">Редактирование перечислимых типов</asp:HyperLink><br />
+        <asp:HyperLink ID="hlReports" runat="server" NavigateUrl="GeneralReports.aspx">Редактирование отчетов</asp:HyperLink></div>
     </form>
 </body>
 </html>
