@@ -28,11 +28,9 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
     private DataColumn GRFileName;
     private DataColumn GRArchName;
     private DataColumn GRAllow;
-    private DataTable dtReports;
-    private DataColumn RGeneralReportCode;
-    private DataColumn RReportCode;
-    private DataColumn RCaption;
-    private DataColumn RRTCode;
+    private DataTable dtClients;
+    private DataColumn CCaption;
+    private DataColumn CFirmCode;
 
     private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
 
@@ -100,21 +98,19 @@ FROM
         this.GRFileName = new System.Data.DataColumn();
         this.GRArchName = new System.Data.DataColumn();
         this.GRAllow = new System.Data.DataColumn();
-        this.dtReports = new System.Data.DataTable();
-        this.RGeneralReportCode = new System.Data.DataColumn();
-        this.RReportCode = new System.Data.DataColumn();
-        this.RCaption = new System.Data.DataColumn();
-        this.RRTCode = new System.Data.DataColumn();
+        this.dtClients = new System.Data.DataTable();
+        this.CCaption = new System.Data.DataColumn();
+        this.CFirmCode = new System.Data.DataColumn();
         ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtReports)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtClients)).BeginInit();
         // 
         // DS
         // 
         this.DS.DataSetName = "NewDataSet";
         this.DS.Tables.AddRange(new System.Data.DataTable[] {
             this.dtGeneralReports,
-            this.dtReports});
+            this.dtClients});
         // 
         // dtGeneralReports
         // 
@@ -176,36 +172,24 @@ FROM
         this.GRAllow.ColumnName = "GRAllow";
         this.GRAllow.DataType = typeof(byte);
         // 
-        // dtReports
+        // dtClients
         // 
-        this.dtReports.Columns.AddRange(new System.Data.DataColumn[] {
-            this.RGeneralReportCode,
-            this.RReportCode,
-            this.RCaption,
-            this.RRTCode});
-        this.dtReports.TableName = "dtReports";
+        this.dtClients.Columns.AddRange(new System.Data.DataColumn[] {
+            this.CCaption,
+            this.CFirmCode});
+        this.dtClients.TableName = "dtClients";
         // 
-        // RGeneralReportCode
+        // CCaption
         // 
-        this.RGeneralReportCode.ColumnName = "RGeneralReportCode";
-        this.RGeneralReportCode.DataType = typeof(long);
+        this.CCaption.ColumnName = "CCaption";
         // 
-        // RReportCode
+        // CFirmCode
         // 
-        this.RReportCode.ColumnName = "RReportCode";
-        this.RReportCode.DataType = typeof(long);
-        // 
-        // RCaption
-        // 
-        this.RCaption.ColumnName = "RCaption";
-        // 
-        // RRTCode
-        // 
-        this.RRTCode.ColumnName = "RRTCode";
-        this.RRTCode.DataType = typeof(long);
+        this.CFirmCode.ColumnName = "CFirmCode";
+        this.CFirmCode.DataType = typeof(long);
         ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtReports)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtClients)).EndInit();
 
     }
 
@@ -242,21 +226,18 @@ FROM
         MyCmd.Connection = MyCn;
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("Name", "%" + Name + "%");
-        DS.Tables[dtReports.TableName].Clear();
+        MyCmd.Parameters.Add("Name", "'%" + Name + "%'");
+        DS.Tables[dtClients.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT 
-    r.GeneralReportCode as RGeneralReportCode,
-    ReportCode as RReportCode,
-    concat(ReportCode, '.', ReportCaption) as RCaption,
-    ReportTypeCode as RRTCode
+    cd.FirmCode as CFirmCode,
+    concat(cd.FirmCode, '.', cd.ShortName) as CCaption
 FROM 
-     testreports.general_reports gr, testreports.reports r
+     testreports.general_reports gr, usersettings.clientsdata cd
 WHERE 
-    gr.GeneralReportCode = r.GeneralReportCode
-    and r.ReportCaption like ?Name
+     cd.ShortName like ?Name
 ";
-        MyDA.Fill(DS, dtReports.TableName);
+        MyDA.Fill(DS, DS.Tables[dtClients.TableName].TableName);
         MyCn.Close();
 
         Session.Add(DSReports, DS);
@@ -285,7 +266,7 @@ WHERE
 
     protected void btnSearch_Click(object sender, EventArgs e)
     {
-        FillDDL(((TextBox)(((Button)sender).Parent).FindControl("tbSearch")).Text);
+        FillDDL(((TextBox)(((Button)sender).Parent).FindControl("tbSearch")).Text); 
     }
 
     protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -295,11 +276,133 @@ WHERE
             if (e.Row.Cells[0].FindControl("ddlName") != null)
             {
                 DropDownList ddlNames = ((DropDownList)e.Row.Cells[0].FindControl("ddlName"));
-                ddlNames.DataSource = dtReports;
-                ddlNames.DataTextField = "RCaption";
-                ddlNames.DataValueField = "RReportCode";
+                ddlNames.DataSource = dtClients;
+                ddlNames.DataTextField = "CCaption";
+                ddlNames.DataValueField = "CFirmCode";
                 ddlNames.DataBind();
             }
         }
+    }
+    protected void btnApply_Click(object sender, EventArgs e)
+    {
+        CopyChangesToTable();
+
+        MySqlTransaction trans;
+        MyCn.Open();
+        trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
+        try
+        {
+            MySqlCommand UpdCmd = new MySqlCommand(@"
+UPDATE 
+    testreports.general_reports 
+SET 
+    Allow = ?GRAllow,
+    EMailAddress = ?GRAddress,
+    EMailSubject = ?GRSubject,
+    ReportFileName = ?GRFileName,
+    ReportArchName = ?GRArchName,
+WHERE GeneralReportCode = ?GRCode", MyCn, trans);
+
+            UpdCmd.Parameters.Clear();
+            UpdCmd.Parameters.Add(new MySqlParameter("GRAllow", MySqlDbType.Byte));
+            UpdCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
+            UpdCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("GRAddress", MySqlDbType.VarString));
+            UpdCmd.Parameters["GRAddress"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GRAddress"].SourceColumn = GRAddress.ColumnName;
+            UpdCmd.Parameters["GRAddress"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("GRSubject", MySqlDbType.VarString));
+            UpdCmd.Parameters["GRSubject"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GRSubject"].SourceColumn = GRSubject.ColumnName;
+            UpdCmd.Parameters["GRSubject"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("GRFileName", MySqlDbType.VarString));
+            UpdCmd.Parameters["GRFileName"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GRFileName"].SourceColumn = GRFileName.ColumnName;
+            UpdCmd.Parameters["GRFileName"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("GRArchName", MySqlDbType.VarString));
+            UpdCmd.Parameters["GRArchName"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GRArchName"].SourceColumn = GRArchName.ColumnName;
+            UpdCmd.Parameters["GRArchName"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("GRCode", MySqlDbType.Int64));
+            UpdCmd.Parameters["GRCode"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GRCode"].SourceColumn = GRCode.ColumnName;
+            UpdCmd.Parameters["GRCode"].SourceVersion = DataRowVersion.Current;
+
+            MySqlCommand DelCmd = new MySqlCommand(@"
+DELETE from testreports.general_reports 
+WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
+
+            DelCmd.Parameters.Clear();
+            DelCmd.Parameters.Add(new MySqlParameter("GRDelCode", MySqlDbType.Int64));
+            DelCmd.Parameters["GRDelCode"].Direction = ParameterDirection.Input;
+            DelCmd.Parameters["GRDelCode"].SourceColumn = GRCode.ColumnName;
+            DelCmd.Parameters["GRDelCode"].SourceVersion = DataRowVersion.Original;
+
+            MySqlCommand InsCmd = new MySqlCommand(@"
+INSERT INTO 
+    testreports.general_reports 
+SET 
+    Allow = ?GRAllow,
+    EMailAddress = ?GRAddress,
+    EMailSubject = ?GRSubject,
+    ReportFileName = ?GRFileName,
+    ReportArchName = ?GRArchName,
+", MyCn, trans);
+
+            InsCmd.Parameters.Clear();
+            InsCmd.Parameters.Add(new MySqlParameter("GRAllow", MySqlDbType.Byte));
+            InsCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
+            InsCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("GRAddress", MySqlDbType.VarString));
+            InsCmd.Parameters["GRAddress"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["GRAddress"].SourceColumn = GRAddress.ColumnName;
+            InsCmd.Parameters["GRAddress"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("GRSubject", MySqlDbType.VarString));
+            InsCmd.Parameters["GRSubject"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["GRSubject"].SourceColumn = GRSubject.ColumnName;
+            InsCmd.Parameters["GRSubject"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("GRFileName", MySqlDbType.VarString));
+            InsCmd.Parameters["GRFileName"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["GRFileName"].SourceColumn = GRFileName.ColumnName;
+            InsCmd.Parameters["GRFileName"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("GRArchName", MySqlDbType.VarString));
+            InsCmd.Parameters["GRArchName"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["GRArchName"].SourceColumn = GRArchName.ColumnName;
+            InsCmd.Parameters["GRArchName"].SourceVersion = DataRowVersion.Current;
+
+            MyDA.UpdateCommand = UpdCmd;
+            MyDA.DeleteCommand = DelCmd;
+            MyDA.InsertCommand = InsCmd;
+
+            string strHost = HttpContext.Current.Request.UserHostAddress;
+            string strUser = HttpContext.Current.User.Identity.Name;
+            if (strUser.StartsWith("ANALIT\\"))
+            {
+                strUser = strUser.Substring(7);
+            }
+            MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
+
+            MyDA.Update(DS, DS.Tables[dtGeneralReports.TableName].TableName);
+
+            trans.Commit();
+
+            PostData();
+        }
+        catch (Exception err)
+        {
+            trans.Rollback();
+        }
+        finally
+        {
+            MyCmd.Dispose();
+            MyCn.Close();
+            MyCn.Dispose();
+        }
+        if (dgvReports.Rows.Count > 0)
+            btnApply.Visible = true;
+        else
+            btnApply.Visible = false;
     }
 }

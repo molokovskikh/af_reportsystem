@@ -1,13 +1,6 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="GeneralReports.aspx.cs" Inherits="Reports_GeneralReports" Theme="Main" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="GeneralReports.aspx.cs" Inherits="Reports_GeneralReports" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" >
-<head runat="server">
-    <title>Настройка отчетов</title>
-</head>
-<body>
-    <form id="form1" runat="server">
+<asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align="center">
         <strong style="font-size:small;">Настройка отчетов</strong><br/>
         <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReports_RowCommand" OnRowDeleting="dgvReports_RowDeleting" OnRowDataBound="dgvReports_RowDataBound">
@@ -49,7 +42,7 @@
                             ID="rfvArch" runat="server" ControlToValidate="tbArch" ErrorMessage='Поле "Имя архива отчета" должно быть заполнено'>*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:HyperLinkField HeaderText="Отчеты" Text="..." />
+                <asp:HyperLinkField HeaderText="Отчеты" Text="..." DataNavigateUrlFields="GRRTCode" DataNavigateUrlFormatString="Reports.aspx?r={0}" />
                 <asp:TemplateField>
 				<HeaderTemplate>
 					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
@@ -58,13 +51,12 @@
 					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
 				</ItemTemplate>
                 </asp:TemplateField>
+                <asp:BoundField DataField="GRRTCode" Visible="False" />
             </Columns>
    			<EmptyDataTemplate>
 				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить отчет" />
 			</EmptyDataTemplate>
         </asp:GridView>
-        <asp:Button ID="btnApply" runat="server" Text="Применить" />
+        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" />
     </div>
-    </form>
-</body>
-</html>
+</asp:Content>
