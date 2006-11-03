@@ -1,14 +1,6 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="EnumValues.aspx.cs" Inherits="Reports_EnumValues" Theme="Main" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="EnumValues.aspx.cs" Inherits="Reports_EnumValues" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" >
-<head runat="server">
-    <title>Настройка отчетов</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-    <div align="right"><a href="base.aspx">Назад</a></div>
+<asp:Content runat="server" ID="ReportEnumValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>
         <strong style="font-size:small;">Значения перечислимого типа&nbsp;"</strong>
         <asp:Label ID="lblEnumName" runat="server" Font-Bold="True"></asp:Label>
@@ -45,6 +37,4 @@
         </asp:GridView>
         <asp:Button ID="btnApply" runat="server" OnClick="btnApply_Click" Text="Применить" />
     </div>
-    </form>
-</body>
-</html>
+</asp:Content>
