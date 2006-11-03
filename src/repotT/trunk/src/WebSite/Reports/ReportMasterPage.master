@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
-    <title>Untitled Page</title>
+    <title>Настройка отчетов</title>
 </head>
 <body>
     <form id="form1" runat="server">
@@ -14,7 +14,7 @@
         </asp:SiteMapPath>        
         <hr color="#DADADA"/>
 
-        <asp:contentplaceholder id="ContentPlaceHolder1" runat="server">
+        <asp:contentplaceholder id="ReportContentPlaceHolder" runat="server">
         </asp:contentplaceholder>
     </div>
     </form>
