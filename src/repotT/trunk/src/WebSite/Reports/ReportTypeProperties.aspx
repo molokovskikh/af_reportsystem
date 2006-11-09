@@ -2,9 +2,7 @@
 
 <asp:Content runat="server" ID="ReportTypePropertiesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>
-            <strong style="font-size:small;">Настройка параметров отчета&nbsp;"</strong>
-            <asp:Label ID="lblReportName" runat="server" Font-Bold="True"></asp:Label>
-            <strong style="font-size:small;">"</strong><br />
+            <strong style="font-size:small;">Настройка параметров отчета&nbsp;"<asp:Label ID="lblReportName" runat="server" Font-Bold="True"></asp:Label>"</strong><br />
             <asp:GridView ID="dgvProperties" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvProperties_RowCommand" OnRowDataBound="dgvProperties_RowDataBound" OnRowDeleting="dgvProperties_RowDeleting">
                 <Columns>
                     <asp:BoundField DataField="PID" Visible="False" />
