@@ -1,0 +1,52 @@
+Виды отчетов:
+ - торговое наименование
+ - торговое наименование и форма выпуска
+ - поставщик
+ - Аптека (клиент)
+ - Регион
+ - изготовитель
+ - МНН
+ - АТС
+ - Фарм групп
+
+
+Выводить:
+ - Сумма
+ - доля суммы на рынке в %
+ - заказ
+ - доля заказа от общего заказа в %
+
+
+Чтобы была дополнительная фильтрация
+  - учитывать Junk
+  - не учитывать Junk
+  - только Junk
+
+
+select c.FullCode, concat(c.Name, ' ', c.Form), Sum(ol.cost*ol.Quantity) as Cost, Sum(ol.Quantity) as PosOrder
+from
+  OrdersHead oh,                -- заголовки заказа
+  OrdersList ol,                -- позиции заказа
+  farm.Catalog c,               -- Отсечка по наименованию и форме выпуска
+  farm.CatalogFirmCr cfc,       -- Отсечка по изготовителю
+  usersettings.clientsdata cd,  -- Отсечка по аптекам
+  farm.regions rg,              -- Отсечка по регионам
+  usersettings.pricesdata pd,   -- Отсечка по прайсам
+  usersettings.clientsdata prov,-- Отсечка по поставщикам
+  farm.mnn mnn,                 -- Отсечка по MNN
+  farm.atc4 atc4,               -- Отсечка по ATC4
+  farm.ftg ftg                  -- Отсечка по фармгруппам
+where
+        ol.OrderID = oh.RowID
+and c.FullCode = ol.FullCode
+and cfc.CodeFirmCr = if(ol.CodeFirmCr,  ol.CodeFirmCr, 1)
+and cd.FirmCode = oh.ClientCode
+and rg.RegionCode = oh.RegionCode
+and pd.PriceCode = oh.PriceCode
+and prov.FirmCode = pd.FirmCode
+and mnn.mnn = c.mnn
+and atc4.katc4 = c.atc4
+and ftg.ftg = c.ftg
+and oh.WriteTime > '2005-02-13'
+group by c.FullCode
+
