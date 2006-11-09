@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <data>
   <value type="dict" struct-name="db.workbench.Workbench">
-    <value type="string" key="_id">{3A4EE81E-60B0-4149-B6CA-354B08B02352}</value>
+    <value type="string" key="_id">{10EFC0B3-9B9B-49AD-A574-93F7763F30B3}</value>
     <value type="dict" struct-name="db.mysql.Catalog" key="catalog">
       <value type="string" key="_id">{C4DB50D4-32AD-46FD-B73F-DB6A5002ED25}</value>
       <value type="list" content-type="string" content-struct-name="db.CharacterSet" key="characterSets" option="ref">
@@ -149,6 +149,46 @@
                   <value type="string" key="oldName">EMailSubject</value>
                   <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
                 </value>
+                <value type="dict" struct-name="db.mysql.Column">
+                  <value type="string" key="_id">{1C923775-2F6F-47D4-97CD-9EE188EE4C22}</value>
+                  <value type="int" key="autoIncrement">0</value>
+                  <value type="list" content-type="dict" content-struct-name="db.CheckConstraint" key="checks"/>
+                  <value type="string" key="comment">&#x418;&#x43C;&#x44F; &#x444;&#x430;&#x439;&#x43B;&#x430;, &#x432; &#x43A;&#x43E;&#x442;&#x43E;&#x440;&#x44B;&#x439; &#x431;&#x443;&#x434;&#x435;&#x442; &#x444;&#x43E;&#x440;&#x43C;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x442;&#x44C;&#x441;&#x44F; &#x43E;&#x442;&#x447;&#x435;&#x442;, &#x435;&#x441;&#x43B;&#x438; &#x43D;&#x435; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43B;&#x435;&#x43D;&#x43E;, &#x442;&#x43E; &#x433;&#x435;&#x43D;&#x435;&#x440;&#x438;&#x440;&#x443;&#x435;&#x442;&#x441;&#x44F; &#x430;&#x432;&#x442;&#x43E;&#x43C;&#x430;&#x442;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;.</value>
+                  <value type="string" key="datatypeExplicitParams"></value>
+                  <value type="string" key="datatypeName">VARCHAR</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
+                  <value type="list" content-type="string" key="flags"/>
+                  <value type="int" key="isNullable">1</value>
+                  <value type="int" key="length">255</value>
+                  <value type="string" key="name">ReportFileName</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{9E315C85-469C-4893-B424-C69FD765599B}</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
+                  <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
+                  <value type="string" key="structuredDatatype" option="ref"></value>
+                </value>
+                <value type="dict" struct-name="db.mysql.Column">
+                  <value type="string" key="_id">{36FDB4DB-5778-4C6A-ACF5-89609F1EF227}</value>
+                  <value type="int" key="autoIncrement">0</value>
+                  <value type="list" content-type="dict" content-struct-name="db.CheckConstraint" key="checks"/>
+                  <value type="string" key="comment">&#x418;&#x43C;&#x44F; &#x430;&#x440;&#x445;&#x438;&#x432;&#x430;, &#x432; &#x43A;&#x43E;&#x442;&#x43E;&#x440;&#x44B;&#x439; &#x431;&#x443;&#x434;&#x435;&#x442; &#x430;&#x440;&#x445;&#x438;&#x432;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x442;&#x44C;&#x441;&#x44F; &#x43E;&#x442;&#x447;&#x435;&#x442;, &#x435;&#x441;&#x43B;&#x438; &#x43D;&#x435; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43B;&#x435;&#x43D;&#x43E;, &#x442;&#x43E; &#x433;&#x435;&#x43D;&#x435;&#x440;&#x438;&#x440;&#x443;&#x435;&#x442;&#x441;&#x44F; &#x430;&#x432;&#x442;&#x43E;&#x43C;&#x430;&#x442;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;.</value>
+                  <value type="string" key="datatypeExplicitParams"></value>
+                  <value type="string" key="datatypeName">VARCHAR</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
+                  <value type="list" content-type="string" key="flags"/>
+                  <value type="int" key="isNullable">1</value>
+                  <value type="int" key="length">255</value>
+                  <value type="string" key="name">ReportArchName</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{9E315C85-469C-4893-B424-C69FD765599B}</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
+                  <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
+                  <value type="string" key="structuredDatatype" option="ref"></value>
+                </value>
               </value>
               <value type="string" key="comment">InnoDB free: 866304 kB; (`FirmCode`) REFER `usersettings/clientsdata`(`FirmCode`</value>
               <value type="string" key="defaultCharacterSetName">cp1251</value>
@@ -213,7 +253,7 @@
                 </value>
               </value>
               <value type="int" key="isTemporary">0</value>
-              <value type="string" key="name">generalreports</value>
+              <value type="string" key="name">general_reports</value>
               <value type="string" key="nextAutoInc">49</value>
               <value type="string" key="oldName">generalreports</value>
               <value type="string" key="owner" option="ref">{EE4915C7-6323-4921-A371-58A23B08F0B5}</value>
@@ -225,13 +265,15 @@
                 <value type="int">1</value>
               </value>
               <value type="string" key="rowFormat">Compact</value>
-              <value type="string" key="sql">DROP TABLE IF EXISTS `testreports`.`generalreports`;&#13;
-CREATE TABLE `testreports`.`generalreports` (&#13;
+              <value type="string" key="sql">DROP TABLE IF EXISTS `testreports`.`general_reports`;&#13;
+CREATE TABLE `testreports`.`general_reports` (&#13;
   `GeneralReportCode` BIGINT unsigned NOT NULL AUTO_INCREMENT,&#13;
   `FirmCode` INT(11) unsigned NOT NULL DEFAULT '0',&#13;
-  `Allow` BIT unsigned NULL DEFAULT '0',&#13;
+  `Allow` BIT NOT NULL DEFAULT 0,&#13;
   `EMailAddress` VARCHAR(255) NULL,&#13;
   `EMailSubject` VARCHAR(255) NULL,&#13;
+  `ReportFileName` VARCHAR(255) NULL,&#13;
+  `ReportArchName` VARCHAR(255) NULL,&#13;
   PRIMARY KEY (`GeneralReportCode`),&#13;
   INDEX `FirmCode` (`FirmCode`),&#13;
   CONSTRAINT `FirmCode` FOREIGN KEY `FirmCode` (`FirmCode`)&#13;
@@ -269,13 +311,13 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
                 <value type="dict" struct-name="db.mysql.Column">
                   <value type="string" key="_id">{62D03FC9-F3EB-4671-B182-AD8EFB2D087D}</value>
                   <value type="int" key="autoIncrement">0</value>
-                  <value type="string" key="comment"></value>
+                  <value type="string" key="comment">&#x421;&#x441;&#x44B;&#x43B;&#x43A;&#x430; &#x43D;&#x430; &#x43E;&#x442;&#x447;&#x435;&#x442;</value>
                   <value type="string" key="datatypeExplicitParams"></value>
                   <value type="string" key="datatypeName">BIGINT</value>
-                  <value type="string" key="defaultValue">'0'</value>
-                  <value type="int" key="defaultValueIsNull">0</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
                   <value type="list" content-type="string" key="flags">
-                    <value type="string">unsigned</value>
+                    <value type="string">UNSIGNED</value>
                   </value>
                   <value type="int" key="isNullable">0</value>
                   <value type="int" key="length">0</value>
@@ -289,30 +331,38 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
                   <value type="string" key="_id">{DFBD6A1D-671C-4952-8C56-EFB70F97FD03}</value>
                   <value type="int" key="autoIncrement">0</value>
                   <value type="string" key="collationName">cp1251_general_ci</value>
-                  <value type="string" key="comment"></value>
-                  <value type="string" key="datatypeName">VARCHAR</value>
-                  <value type="string" key="defaultValue">''</value>
-                  <value type="int" key="defaultValueIsNull">0</value>
-                  <value type="list" content-type="string" key="flags"/>
+                  <value type="string" key="comment">&#x421;&#x441;&#x44B;&#x43B;&#x43A;&#x430; &#x43D;&#x430; &#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440; &#x43E;&#x442;&#x447;&#x435;&#x442;&#x430;</value>
+                  <value type="string" key="datatypeExplicitParams"></value>
+                  <value type="string" key="datatypeName">BIGINT</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
+                  <value type="list" content-type="string" key="flags">
+                    <value type="string">UNSIGNED</value>
+                  </value>
                   <value type="int" key="isNullable">0</value>
-                  <value type="int" key="length">255</value>
-                  <value type="string" key="name">PropertyName</value>
+                  <value type="int" key="length">0</value>
+                  <value type="string" key="name">PropertyID</value>
                   <value type="string" key="oldName">PropertyName</value>
-                  <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
+                  <value type="string" key="simpleType" option="ref">{B96B522A-48FE-431F-A0B4-D5E1B733FE3F}</value>
                 </value>
                 <value type="dict" struct-name="db.mysql.Column">
                   <value type="string" key="_id">{D3E18D11-F373-4D77-A9E1-B491EA9615E1}</value>
                   <value type="int" key="autoIncrement">0</value>
                   <value type="string" key="collationName">cp1251_general_ci</value>
-                  <value type="string" key="comment"></value>
+                  <value type="string" key="comment">&#x417;&#x43D;&#x430;&#x447;&#x435;&#x43D;&#x438;&#x435; &#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440;&#x430;</value>
+                  <value type="string" key="datatypeExplicitParams"></value>
                   <value type="string" key="datatypeName">VARCHAR</value>
-                  <value type="string" key="defaultValue">''</value>
-                  <value type="int" key="defaultValueIsNull">0</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
                   <value type="list" content-type="string" key="flags"/>
                   <value type="int" key="isNullable">0</value>
                   <value type="int" key="length">255</value>
                   <value type="string" key="name">PropertyValue</value>
                   <value type="string" key="oldName">PropertyValue</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
                   <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
                 </value>
               </value>
@@ -336,6 +386,28 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
                   </value>
                   <value type="string" key="referedTable" option="ref">{E0C34AA9-8A7E-40D3-A226-DF557CA7CF7C}</value>
                   <value type="string" key="referedTableName">reports</value>
+                  <value type="string" key="updateRule">CASCADE</value>
+                </value>
+                <value type="dict" struct-name="db.ForeignKey">
+                  <value type="string" key="_id">{B9F857CC-5D5A-409E-A47D-DCD36697F3F3}</value>
+                  <value type="list" content-type="string" content-struct-name="db.Column" key="columns" option="ref">
+                    <value type="string">{DFBD6A1D-671C-4952-8C56-EFB70F97FD03}</value>
+                  </value>
+                  <value type="string" key="comment"></value>
+                  <value type="int" key="deferability">0</value>
+                  <value type="string" key="deleteRule">CASCADE</value>
+                  <value type="string" key="name">FK_RP_PropertyID</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{BB4F958F-D005-4D35-AD56-D3AFB6448736}</value>
+                  <value type="list" content-type="string" key="referedColumnNames">
+                    <value type="string"></value>
+                  </value>
+                  <value type="list" content-type="string" content-struct-name="db.Column" key="referedColumns" option="ref">
+                    <value type="string">{AA164627-14D0-4E39-B66C-A15B89725E56}</value>
+                  </value>
+                  <value type="string" key="referedTable" option="ref">{A350AEA2-B489-4542-994D-6BBA5FF49295}</value>
+                  <value type="string" key="referedTableName">report_type_properties</value>
+                  <value type="string" key="referedTableSchemaName">testreports</value>
                   <value type="string" key="updateRule">CASCADE</value>
                 </value>
               </value>
@@ -381,7 +453,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
                 </value>
               </value>
               <value type="int" key="isTemporary">0</value>
-              <value type="string" key="name">reportproperties</value>
+              <value type="string" key="name">report_properties</value>
               <value type="string" key="nextAutoInc">153</value>
               <value type="string" key="oldName">reportproperties</value>
               <value type="string" key="owner" option="ref">{EE4915C7-6323-4921-A371-58A23B08F0B5}</value>
@@ -393,16 +465,20 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
                 <value type="int">1</value>
               </value>
               <value type="string" key="rowFormat">Compact</value>
-              <value type="string" key="sql">DROP TABLE IF EXISTS `testreports`.`reportproperties`;&#13;
-CREATE TABLE `testreports`.`reportproperties` (&#13;
-  `ID` INT(10) unsigned NOT NULL AUTO_INCREMENT,&#13;
-  `ReportCode` BIGINT unsigned NOT NULL DEFAULT '0',&#13;
-  `PropertyName` VARCHAR(255) NOT NULL,&#13;
+              <value type="string" key="sql">DROP TABLE IF EXISTS `testreports`.`report_properties`;&#13;
+CREATE TABLE `testreports`.`report_properties` (&#13;
+  `ID` BIGINT unsigned NOT NULL AUTO_INCREMENT,&#13;
+  `ReportCode` BIGINT UNSIGNED NOT NULL,&#13;
+  `PropertyID` BIGINT UNSIGNED NOT NULL,&#13;
   `PropertyValue` VARCHAR(255) NOT NULL,&#13;
   PRIMARY KEY (`ID`),&#13;
   INDEX `ReportCode` (`ReportCode`),&#13;
   CONSTRAINT `ReportCode` FOREIGN KEY `ReportCode` (`ReportCode`)&#13;
     REFERENCES `testreports`.`reports` (`ReportCode`)&#13;
+    ON DELETE CASCADE&#13;
+    ON UPDATE CASCADE,&#13;
+  CONSTRAINT `FK_RP_PropertyID` FOREIGN KEY `FK_RP_PropertyID` (`PropertyID`)&#13;
+    REFERENCES `testreports`.`report_type_properties` (`ID`)&#13;
     ON DELETE CASCADE&#13;
     ON UPDATE CASCADE&#13;
 )&#13;
@@ -614,7 +690,7 @@ CREATE TABLE `testreports`.`reports` (&#13;
   INDEX `ReportTypeCode` (`ReportTypeCode`),&#13;
   INDEX `GeneralReportCode` (`GeneralReportCode`),&#13;
   CONSTRAINT `GeneralReportCode` FOREIGN KEY `GeneralReportCode` (`GeneralReportCode`)&#13;
-    REFERENCES `testreports`.`generalreports` (`GeneralReportCode`)&#13;
+    REFERENCES `testreports`.`general_reports` (`GeneralReportCode`)&#13;
     ON DELETE CASCADE&#13;
     ON UPDATE CASCADE,&#13;
   CONSTRAINT `ReportTypeCode` FOREIGN KEY `ReportTypeCode` (`ReportTypeCode`)&#13;
@@ -1069,12 +1145,12 @@ datetime - &#x434;&#x430;&#x442;&#x430; &#x438; &#x432;&#x440;&#x435;&#x43C;&#x4
               <value type="string" key="sql">DROP TABLE IF EXISTS `testreports`.`report_type_properties`;&#13;
 CREATE TABLE `testreports`.`report_type_properties` (&#13;
   `ID` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,&#13;
-  `ReportTypeCode` BIGINT NOT NULL,&#13;
+  `ReportTypeCode` BIGINT UNSIGNED NOT NULL,&#13;
   `PropertyName` VARCHAR(255) NOT NULL,&#13;
   `DisplayName` VARCHAR(255) NOT NULL,&#13;
   `PropertyType` ENUM('BOOL', 'INT', 'ENUM', 'LIST', 'STRING', 'DATETIME') NOT NULL DEFAULT 'int',&#13;
   `Optional` BIT NOT NULL DEFAULT 0,&#13;
-  `PropertyEnumID` BIGINT NULL,&#13;
+  `PropertyEnumID` BIGINT UNSIGNED NULL,&#13;
   `SelectStoredProcedure` VARCHAR(255) NULL,&#13;
   PRIMARY KEY (`ID`),&#13;
   CONSTRAINT `FK_RTP_ReportTypeCode` FOREIGN KEY `FK_RTP_ReportTypeCode` (`ReportTypeCode`)&#13;
@@ -1390,12 +1466,183 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="sql">DROP TABLE IF EXISTS `testreports`.`enum_values`;&#13;
 CREATE TABLE `testreports`.`enum_values` (&#13;
   `ID` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,&#13;
-  `PropertyEnumID` BIGINT NOT NULL,&#13;
+  `PropertyEnumID` BIGINT UNSIGNED NOT NULL,&#13;
   `Value` INT NOT NULL,&#13;
   `DisplayValue` VARCHAR(255) NOT NULL,&#13;
   PRIMARY KEY (`ID`),&#13;
   CONSTRAINT `EnumID` FOREIGN KEY `EnumID` (`PropertyEnumID`)&#13;
     REFERENCES `testreports`.`property_enums` (`ID`)&#13;
+    ON DELETE CASCADE&#13;
+    ON UPDATE CASCADE&#13;
+)&#13;
+ENGINE = InnoDB&#13;
+CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
+              <value type="string" key="tableDataDir"></value>
+              <value type="string" key="tableEngine">InnoDB</value>
+              <value type="string" key="tableIndexDir"></value>
+              <value type="string" key="temporaryScope"></value>
+              <value type="list" content-type="dict" content-struct-name="db.mysql.Trigger" key="triggers"/>
+            </value>
+            <value type="dict" struct-name="db.mysql.Table">
+              <value type="string" key="_id">{E8EBDF8E-06D7-46D0-A327-7B85E13AA291}</value>
+              <value type="string" key="avgRowLength"></value>
+              <value type="int" key="checksum">0</value>
+              <value type="list" content-type="dict" content-struct-name="db.mysql.Column" key="columns">
+                <value type="dict" struct-name="db.mysql.Column">
+                  <value type="string" key="_id">{A4FD5B9F-E483-4362-90DB-0527C4BD6BF7}</value>
+                  <value type="int" key="autoIncrement">1</value>
+                  <value type="string" key="characterSetName"></value>
+                  <value type="list" content-type="dict" content-struct-name="db.CheckConstraint" key="checks"/>
+                  <value type="string" key="collationName"></value>
+                  <value type="string" key="comment"></value>
+                  <value type="string" key="datatypeExplicitParams"></value>
+                  <value type="string" key="datatypeName">BIGINT</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
+                  <value type="list" content-type="string" key="flags">
+                    <value type="string">UNSIGNED</value>
+                  </value>
+                  <value type="int" key="isNullable">0</value>
+                  <value type="int" key="length">0</value>
+                  <value type="string" key="name">ID</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{E8EBDF8E-06D7-46D0-A327-7B85E13AA291}</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
+                  <value type="string" key="simpleType" option="ref">{B96B522A-48FE-431F-A0B4-D5E1B733FE3F}</value>
+                  <value type="string" key="structuredDatatype" option="ref"></value>
+                  <value type="int" key="unsigned">1</value>
+                </value>
+                <value type="dict" struct-name="db.mysql.Column">
+                  <value type="string" key="_id">{0614ACA9-1F1A-4C60-ABA6-66C298D4DEAA}</value>
+                  <value type="int" key="autoIncrement">0</value>
+                  <value type="string" key="characterSetName"></value>
+                  <value type="list" content-type="dict" content-struct-name="db.CheckConstraint" key="checks"/>
+                  <value type="string" key="collationName"></value>
+                  <value type="string" key="comment">&#x421;&#x441;&#x44B;&#x43B;&#x43A;&#x430; &#x43D;&#x430; &#x43A;&#x43E;&#x43D;&#x43A;&#x440;&#x435;&#x442;&#x43D;&#x44B;&#x439; &#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440; &#x43E;&#x442;&#x447;&#x435;&#x442;&#x430;.</value>
+                  <value type="string" key="datatypeExplicitParams"></value>
+                  <value type="string" key="datatypeName">BIGINT</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
+                  <value type="list" content-type="string" key="flags">
+                    <value type="string">UNSIGNED</value>
+                  </value>
+                  <value type="int" key="isNullable">0</value>
+                  <value type="int" key="length">0</value>
+                  <value type="string" key="name">ReportPropertyID</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{E8EBDF8E-06D7-46D0-A327-7B85E13AA291}</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
+                  <value type="string" key="simpleType" option="ref">{B96B522A-48FE-431F-A0B4-D5E1B733FE3F}</value>
+                  <value type="string" key="structuredDatatype" option="ref"></value>
+                </value>
+                <value type="dict" struct-name="db.mysql.Column">
+                  <value type="string" key="_id">{18A1D208-B23A-49BB-A603-77280DB32DEF}</value>
+                  <value type="int" key="autoIncrement">0</value>
+                  <value type="list" content-type="dict" content-struct-name="db.CheckConstraint" key="checks"/>
+                  <value type="string" key="comment">&#x417;&#x43D;&#x430;&#x447;&#x435;&#x43D;&#x438;&#x435; &#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440;&#x430;</value>
+                  <value type="string" key="datatypeExplicitParams"></value>
+                  <value type="string" key="datatypeName">VARCHAR</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
+                  <value type="list" content-type="string" key="flags"/>
+                  <value type="int" key="isNullable">0</value>
+                  <value type="int" key="length">255</value>
+                  <value type="string" key="name">Value</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{E8EBDF8E-06D7-46D0-A327-7B85E13AA291}</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
+                  <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
+                  <value type="string" key="structuredDatatype" option="ref"></value>
+                </value>
+              </value>
+              <value type="string" key="comment"></value>
+              <value type="int" key="commentedOut">0</value>
+              <value type="string" key="defaultCharacterSetName">cp1251</value>
+              <value type="string" key="defaultCollationName">cp1251_general_ci</value>
+              <value type="int" key="delayKeyWrite">0</value>
+              <value type="list" content-type="dict" content-struct-name="db.ForeignKey" key="foreignKeys">
+                <value type="dict" struct-name="db.ForeignKey">
+                  <value type="string" key="_id">{0D3481ED-C20A-4649-AE74-23E3FAEA347C}</value>
+                  <value type="list" content-type="string" content-struct-name="db.Column" key="columns" option="ref">
+                    <value type="string">{0614ACA9-1F1A-4C60-ABA6-66C298D4DEAA}</value>
+                  </value>
+                  <value type="string" key="comment"></value>
+                  <value type="int" key="deferability">0</value>
+                  <value type="string" key="deleteRule">CASCADE</value>
+                  <value type="string" key="name">FK_RPV_ReportPropertyID</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{E8EBDF8E-06D7-46D0-A327-7B85E13AA291}</value>
+                  <value type="list" content-type="string" key="referedColumnNames">
+                    <value type="string"></value>
+                  </value>
+                  <value type="list" content-type="string" content-struct-name="db.Column" key="referedColumns" option="ref">
+                    <value type="string">{5CE59623-3C39-4DC9-85BD-76246118BC03}</value>
+                  </value>
+                  <value type="string" key="referedTable" option="ref">{BB4F958F-D005-4D35-AD56-D3AFB6448736}</value>
+                  <value type="string" key="referedTableName">report_properties</value>
+                  <value type="string" key="referedTableSchemaName">testreports</value>
+                  <value type="string" key="updateRule">CASCADE</value>
+                </value>
+              </value>
+              <value type="list" content-type="dict" content-struct-name="db.mysql.Index" key="indices">
+                <value type="dict" struct-name="db.Index">
+                  <value type="string" key="_id">{E131F9EE-6868-4DE5-9450-B9FAE78BED24}</value>
+                  <value type="list" content-type="dict" content-struct-name="db.IndexColumn" key="columns">
+                    <value type="dict" struct-name="db.IndexColumn">
+                      <value type="string" key="_id">{90EF9FA7-F1CE-4EE9-888E-5922C9C1B162}</value>
+                      <value type="int" key="columnLength">0</value>
+                      <value type="string" key="comment"></value>
+                      <value type="int" key="descend">0</value>
+                      <value type="string" key="name">new_column</value>
+                      <value type="string" key="owner" option="ref">{E131F9EE-6868-4DE5-9450-B9FAE78BED24}</value>
+                      <value type="string" key="referedColumn" option="ref">{A4FD5B9F-E483-4362-90DB-0527C4BD6BF7}</value>
+                      <value type="string" key="storedFunction"></value>
+                    </value>
+                  </value>
+                  <value type="string" key="comment"></value>
+                  <value type="int" key="deferability">0</value>
+                  <value type="string" key="indexType">PRIMARY</value>
+                  <value type="int" key="isPrimary">1</value>
+                  <value type="string" key="name">PRIMARY</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{E8EBDF8E-06D7-46D0-A327-7B85E13AA291}</value>
+                  <value type="int" key="unique">1</value>
+                </value>
+              </value>
+              <value type="int" key="isSystem">0</value>
+              <value type="int" key="isTemporary">0</value>
+              <value type="string" key="maxRows"></value>
+              <value type="string" key="mergeInsert"></value>
+              <value type="string" key="mergeUnion"></value>
+              <value type="string" key="minRows"></value>
+              <value type="string" key="name">report_property_values</value>
+              <value type="string" key="nextAutoInc"></value>
+              <value type="string" key="oldName">table_01</value>
+              <value type="string" key="owner" option="ref">{EE4915C7-6323-4921-A371-58A23B08F0B5}</value>
+              <value type="string" key="packKeys"></value>
+              <value type="string" key="password"></value>
+              <value type="string" key="primaryKey" option="ref">{E131F9EE-6868-4DE5-9450-B9FAE78BED24}</value>
+              <value type="string" key="raidChunkSize"></value>
+              <value type="string" key="raidChunks"></value>
+              <value type="string" key="raidType"></value>
+              <value type="list" content-type="int" key="routineExpandedHeights">
+                <value type="int">130</value>
+              </value>
+              <value type="list" content-type="int" key="routineExpandedStates">
+                <value type="int">1</value>
+              </value>
+              <value type="string" key="rowFormat"></value>
+              <value type="string" key="sql">DROP TABLE IF EXISTS `testreports`.`report_property_values`;&#13;
+CREATE TABLE `testreports`.`report_property_values` (&#13;
+  `ID` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,&#13;
+  `ReportPropertyID` BIGINT UNSIGNED NOT NULL,&#13;
+  `Value` VARCHAR(255) NOT NULL,&#13;
+  PRIMARY KEY (`ID`),&#13;
+  CONSTRAINT `FK_RPV_ReportPropertyID` FOREIGN KEY `FK_RPV_ReportPropertyID` (`ReportPropertyID`)&#13;
+    REFERENCES `testreports`.`report_properties` (`ID`)&#13;
     ON DELETE CASCADE&#13;
     ON UPDATE CASCADE&#13;
 )&#13;
@@ -1460,52 +1707,52 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
     </value>
     <value type="dict" key="customData"/>
     <value type="dict" struct-name="db.workbench.Model" key="model">
-      <value type="string" key="_id">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
-      <value type="string" key="currentView" option="ref">{721AB737-70C9-4A06-AD88-F654A2429745}</value>
+      <value type="string" key="_id">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+      <value type="string" key="currentView" option="ref">{6C1195E3-8B52-4367-B8AE-721E656F8F47}</value>
       <value type="list" content-type="dict" content-struct-name="model.Marker" key="markers">
         <value type="dict" struct-name="model.Marker">
-          <value type="string" key="_id">{7C5BAFE8-24A9-44B9-AF90-1E5EF417BBC4}</value>
+          <value type="string" key="_id">{29A5B578-11B5-4275-BEAD-3BB59B326A78}</value>
           <value type="string" key="name">Marker10</value>
-          <value type="string" key="view" option="ref">{721AB737-70C9-4A06-AD88-F654A2429745}</value>
+          <value type="string" key="view" option="ref">{6C1195E3-8B52-4367-B8AE-721E656F8F47}</value>
           <value type="int" key="x">0</value>
           <value type="int" key="y">0</value>
           <value type="real" key="zoom">0.750000</value>
         </value>
       </value>
       <value type="dict" struct-name="db.workbench.ModelInfo" key="properties">
-        <value type="string" key="_id">{B869034D-8225-413F-8A03-3F11137AB036}</value>
+        <value type="string" key="_id">{7972D4BB-F085-4C30-A1F8-C626FBFD50B8}</value>
         <value type="string" key="author"></value>
         <value type="string" key="dateChanged">Nov 01, 2006</value>
         <value type="string" key="dateCreated">Nov 01, 2006</value>
         <value type="string" key="description"></value>
         <value type="string" key="modelName">New Model</value>
         <value type="string" key="name">Properties</value>
-        <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+        <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
         <value type="string" key="project">Name of the project</value>
         <value type="string" key="version">1.0</value>
       </value>
       <value type="list" content-type="dict" content-struct-name="model.View" key="views">
         <value type="dict" struct-name="db.workbench.View">
-          <value type="string" key="_id">{721AB737-70C9-4A06-AD88-F654A2429745}</value>
+          <value type="string" key="_id">{6C1195E3-8B52-4367-B8AE-721E656F8F47}</value>
           <value type="string" key="connectionLayoutClass">default</value>
           <value type="string" key="description"></value>
           <value type="string" key="elementLayoutClass">default</value>
           <value type="list" content-type="dict" content-struct-name="model.Element" key="elements">
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{03065F03-24BB-4A7C-B9D9-8543002D6CCB}</value>
+              <value type="string" key="_id">{0814F7E6-CBD1-4FEC-BBC4-0459632D92E4}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
               <value type="int" key="expanded">1</value>
               <value type="int" key="foreignKeysExpanded">0</value>
               <value type="string" key="group" option="ref"></value>
-              <value type="real" key="height">256.000000</value>
+              <value type="real" key="height">308.000000</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">10.000000</value>
               <value type="int" key="locked">0</value>
-              <value type="string" key="name">generalreports</value>
+              <value type="string" key="name">general_reports</value>
               <value type="string" key="table" option="ref">{9E315C85-469C-4893-B424-C69FD765599B}</value>
               <value type="real" key="top">10.000000</value>
               <value type="int" key="triggersExpanded">1</value>
@@ -1513,28 +1760,28 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">306.666656</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{30C729D6-0C3A-435B-9E0F-E65EF70D1F6C}</value>
+              <value type="string" key="_id">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
               <value type="int" key="expanded">1</value>
               <value type="int" key="foreignKeysExpanded">0</value>
               <value type="string" key="group" option="ref"></value>
-              <value type="real" key="height">230.000031</value>
+              <value type="real" key="height">229.999969</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="layoutClass"></value>
-              <value type="real" key="left">132.912354</value>
+              <value type="real" key="left">38.245682</value>
               <value type="int" key="locked">0</value>
-              <value type="string" key="name">reportproperties</value>
+              <value type="string" key="name">report_properties</value>
               <value type="string" key="table" option="ref">{BB4F958F-D005-4D35-AD56-D3AFB6448736}</value>
-              <value type="real" key="top">301.014130</value>
+              <value type="real" key="top">335.680817</value>
               <value type="int" key="triggersExpanded">1</value>
               <value type="int" key="visible">1</value>
-              <value type="real" key="width">321.333344</value>
+              <value type="real" key="width">321.333359</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{94E5580D-CF2C-44CB-A6B1-0576798B1704}</value>
+              <value type="string" key="_id">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1543,7 +1790,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">229.999990</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">747.172302</value>
               <value type="int" key="locked">0</value>
@@ -1555,7 +1802,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">254.666687</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{1BAE4694-72CA-4744-BBB0-33E9854BCBA9}</value>
+              <value type="string" key="_id">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1564,7 +1811,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">255.999969</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">911.733948</value>
               <value type="int" key="locked">0</value>
@@ -1576,28 +1823,28 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">349.333435</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{262A0ACE-80A2-4312-9609-A661E8F22A42}</value>
+              <value type="string" key="_id">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
               <value type="string" key="color">blue</value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
               <value type="int" key="expanded">1</value>
               <value type="int" key="foreignKeysExpanded">0</value>
               <value type="string" key="group" option="ref"></value>
-              <value type="real" key="height">333.999939</value>
+              <value type="real" key="height">334.000000</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="layoutClass"></value>
-              <value type="real" key="left">723.999939</value>
+              <value type="real" key="left">922.666565</value>
               <value type="int" key="locked">0</value>
               <value type="string" key="name">report_type_properties</value>
               <value type="string" key="table" option="ref">{A350AEA2-B489-4542-994D-6BBA5FF49295}</value>
-              <value type="real" key="top">709.333313</value>
+              <value type="real" key="top">692.000000</value>
               <value type="int" key="triggersExpanded">1</value>
               <value type="int" key="visible">1</value>
-              <value type="real" key="width">345.333313</value>
+              <value type="real" key="width">345.333435</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{89D95AF7-05AB-47C6-881B-AFFD93AD3F12}</value>
+              <value type="string" key="_id">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
               <value type="string" key="color">blue</value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1606,60 +1853,82 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">178.000000</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="layoutClass"></value>
-              <value type="real" key="left">117.333328</value>
+              <value type="real" key="left">61.333328</value>
               <value type="int" key="locked">0</value>
               <value type="string" key="name">property_enums</value>
               <value type="string" key="table" option="ref">{8F0DB091-93B4-43F4-83CA-57EE2FC88DB2}</value>
-              <value type="real" key="top">569.333313</value>
+              <value type="real" key="top">661.333313</value>
               <value type="int" key="triggersExpanded">1</value>
               <value type="int" key="visible">1</value>
               <value type="real" key="width">288.000046</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{37FBC76F-A457-4284-8967-D3EAD080572B}</value>
+              <value type="string" key="_id">{988A3C92-0683-44D4-9B08-014753BB2768}</value>
               <value type="string" key="color">blue</value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
               <value type="int" key="expanded">1</value>
               <value type="int" key="foreignKeysExpanded">0</value>
               <value type="string" key="group" option="ref"></value>
-              <value type="real" key="height">230.000000</value>
+              <value type="real" key="height">230.000061</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="layoutClass"></value>
-              <value type="real" key="left">110.666664</value>
+              <value type="real" key="left">41.333321</value>
               <value type="int" key="locked">0</value>
               <value type="string" key="name">enum_values</value>
               <value type="string" key="table" option="ref">{90427452-12E2-4FEA-B237-5479B7F44F7D}</value>
-              <value type="real" key="top">841.333374</value>
+              <value type="real" key="top">890.666687</value>
               <value type="int" key="triggersExpanded">1</value>
               <value type="int" key="visible">1</value>
               <value type="real" key="width">319.999992</value>
+            </value>
+            <value type="dict" struct-name="db.workbench.TableElement">
+              <value type="string" key="_id">{11DC52C4-D4B6-4F6F-989D-6BAD942CEF62}</value>
+              <value type="string" key="color">blue</value>
+              <value type="int" key="columnsExpanded">1</value>
+              <value type="int" key="enabled">0</value>
+              <value type="int" key="expanded">1</value>
+              <value type="int" key="foreignKeysExpanded">0</value>
+              <value type="string" key="group" option="ref"></value>
+              <value type="real" key="height">204.000000</value>
+              <value type="int" key="indicesExpanded">0</value>
+              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layoutClass"></value>
+              <value type="real" key="left">651.999939</value>
+              <value type="int" key="locked">0</value>
+              <value type="string" key="name">report_property_values</value>
+              <value type="string" key="table" option="ref">{E8EBDF8E-06D7-46D0-A327-7B85E13AA291}</value>
+              <value type="real" key="top">354.666626</value>
+              <value type="int" key="triggersExpanded">1</value>
+              <value type="int" key="visible">1</value>
+              <value type="real" key="width">160.000000</value>
             </value>
           </value>
           <value type="real" key="height">7000.000000</value>
           <value type="list" content-type="dict" content-struct-name="model.Layer" key="layers">
             <value type="dict" struct-name="db.workbench.Layer">
-              <value type="string" key="_id">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+              <value type="string" key="_id">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
               <value type="string" key="color"></value>
               <value type="string" key="description"></value>
               <value type="list" content-type="string" content-struct-name="model.Element" key="elements" option="ref">
-                <value type="string">{03065F03-24BB-4A7C-B9D9-8543002D6CCB}</value>
-                <value type="string">{30C729D6-0C3A-435B-9E0F-E65EF70D1F6C}</value>
-                <value type="string">{94E5580D-CF2C-44CB-A6B1-0576798B1704}</value>
-                <value type="string">{1BAE4694-72CA-4744-BBB0-33E9854BCBA9}</value>
-                <value type="string">{262A0ACE-80A2-4312-9609-A661E8F22A42}</value>
-                <value type="string">{89D95AF7-05AB-47C6-881B-AFFD93AD3F12}</value>
-                <value type="string">{37FBC76F-A457-4284-8967-D3EAD080572B}</value>
+                <value type="string">{0814F7E6-CBD1-4FEC-BBC4-0459632D92E4}</value>
+                <value type="string">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
+                <value type="string">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
+                <value type="string">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
+                <value type="string">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
+                <value type="string">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
+                <value type="string">{988A3C92-0683-44D4-9B08-014753BB2768}</value>
+                <value type="string">{11DC52C4-D4B6-4F6F-989D-6BAD942CEF62}</value>
               </value>
               <value type="int" key="enabled">0</value>
               <value type="list" content-type="dict" content-struct-name="model.Group" key="groups"/>
               <value type="real" key="height">0.000000</value>
               <value type="real" key="left">0.000000</value>
               <value type="string" key="name">root</value>
-              <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
               <value type="list" content-type="string" content-struct-name="model.Layer" key="subLayers" option="ref"/>
               <value type="real" key="top">0.000000</value>
               <value type="int" key="visible">0</value>
@@ -1667,10 +1936,10 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
             </value>
           </value>
           <value type="string" key="name">Main View</value>
-          <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+          <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
           <value type="list" content-type="dict" content-struct-name="db.workbench.Relationship" key="relationships">
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{FB414951-0EE6-4F9B-B273-9B0093A116B5}</value>
+              <value type="string" key="_id">{BCA92E5C-31A5-4F2B-9BC6-4D48D4DE0462}</value>
               <value type="string" key="caption">ReportCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1680,18 +1949,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{30C729D6-0C3A-435B-9E0F-E65EF70D1F6C}</value>
+              <value type="string" key="endTable" option="ref">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
               <value type="string" key="name">reports_reportproperties</value>
-              <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{94E5580D-CF2C-44CB-A6B1-0576798B1704}</value>
+              <value type="string" key="startTable" option="ref">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{3D83494A-1872-4B21-8531-CB8BC80093DA}</value>
+              <value type="string" key="_id">{038842C2-4B25-4794-834A-CFEA33A651AA}</value>
               <value type="string" key="caption">GeneralReportCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1701,18 +1970,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{94E5580D-CF2C-44CB-A6B1-0576798B1704}</value>
+              <value type="string" key="endTable" option="ref">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
               <value type="string" key="name">generalreports_reports</value>
-              <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{03065F03-24BB-4A7C-B9D9-8543002D6CCB}</value>
+              <value type="string" key="startTable" option="ref">{0814F7E6-CBD1-4FEC-BBC4-0459632D92E4}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{5A8245F9-B071-4684-A6BD-FCCE98178BEA}</value>
+              <value type="string" key="_id">{B06B397D-2343-49BD-A402-474D89909918}</value>
               <value type="string" key="caption">ReportTypeCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1722,18 +1991,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{94E5580D-CF2C-44CB-A6B1-0576798B1704}</value>
+              <value type="string" key="endTable" option="ref">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
               <value type="string" key="name">reporttypes_reports</value>
-              <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{1BAE4694-72CA-4744-BBB0-33E9854BCBA9}</value>
+              <value type="string" key="startTable" option="ref">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{E01A89CE-A323-4104-97F1-24D70168A9B6}</value>
+              <value type="string" key="_id">{30B1E9A0-D7EA-46C6-8DA9-9CE991E6B9FE}</value>
               <value type="string" key="caption">ReportTypeCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1743,18 +2012,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{262A0ACE-80A2-4312-9609-A661E8F22A42}</value>
+              <value type="string" key="endTable" option="ref">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
               <value type="string" key="name">reporttypes_report_type_properties</value>
-              <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{1BAE4694-72CA-4744-BBB0-33E9854BCBA9}</value>
+              <value type="string" key="startTable" option="ref">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{3793988B-1F16-4F22-B41E-15A90D0A36BE}</value>
+              <value type="string" key="_id">{ADD49EF9-AC3D-4248-AC02-03F301EA7C32}</value>
               <value type="string" key="caption">EnumID</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1764,18 +2033,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{37FBC76F-A457-4284-8967-D3EAD080572B}</value>
+              <value type="string" key="endTable" option="ref">{988A3C92-0683-44D4-9B08-014753BB2768}</value>
               <value type="string" key="name">property_enums_enum_values</value>
-              <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{89D95AF7-05AB-47C6-881B-AFFD93AD3F12}</value>
+              <value type="string" key="startTable" option="ref">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{2BE4A59E-6514-4887-B267-A6FBB585FE9B}</value>
+              <value type="string" key="_id">{A5504D22-0733-4EB0-8095-E9E2BCBBC878}</value>
               <value type="string" key="caption">PropertyEnumID</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1785,18 +2054,60 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{262A0ACE-80A2-4312-9609-A661E8F22A42}</value>
+              <value type="string" key="endTable" option="ref">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
               <value type="string" key="name">property_enums_report_type_properties</value>
-              <value type="string" key="owner" option="ref">{8A6F6D02-F7BD-45CA-B2BE-C77A93EDE175}</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{89D95AF7-05AB-47C6-881B-AFFD93AD3F12}</value>
+              <value type="string" key="startTable" option="ref">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
+            </value>
+            <value type="dict" struct-name="db.workbench.Relationship">
+              <value type="string" key="_id">{BBDECF32-C3AF-41F8-8D4E-088846C6E00A}</value>
+              <value type="string" key="caption">FK_RP_PropertyID</value>
+              <value type="real" key="captionXOffs">0.000000</value>
+              <value type="real" key="captionYOffs">30.000000</value>
+              <value type="string" key="comment"></value>
+              <value type="string" key="endCaption"></value>
+              <value type="real" key="endCaptionXOffs">0.000000</value>
+              <value type="real" key="endCaptionYOffs">0.000000</value>
+              <value type="int" key="endMandatory">1</value>
+              <value type="int" key="endMany">1</value>
+              <value type="string" key="endTable" option="ref">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
+              <value type="string" key="name">report_type_properties_report_properties</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="startCaption"></value>
+              <value type="real" key="startCaptionXOffs">0.000000</value>
+              <value type="real" key="startCaptionYOffs">0.000000</value>
+              <value type="int" key="startMandatory">1</value>
+              <value type="int" key="startMany">0</value>
+              <value type="string" key="startTable" option="ref">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
+            </value>
+            <value type="dict" struct-name="db.workbench.Relationship">
+              <value type="string" key="_id">{6976ECE4-02B6-4261-83A6-9B4CDA0E6F10}</value>
+              <value type="string" key="caption">FK_RP_ReportPropertyID</value>
+              <value type="real" key="captionXOffs">0.000000</value>
+              <value type="real" key="captionYOffs">30.000000</value>
+              <value type="string" key="comment"></value>
+              <value type="string" key="endCaption"></value>
+              <value type="real" key="endCaptionXOffs">0.000000</value>
+              <value type="real" key="endCaptionYOffs">0.000000</value>
+              <value type="int" key="endMandatory">1</value>
+              <value type="int" key="endMany">1</value>
+              <value type="string" key="endTable" option="ref">{11DC52C4-D4B6-4F6F-989D-6BAD942CEF62}</value>
+              <value type="string" key="name">report_properties_report_property_values</value>
+              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="startCaption"></value>
+              <value type="real" key="startCaptionXOffs">0.000000</value>
+              <value type="real" key="startCaptionYOffs">0.000000</value>
+              <value type="int" key="startMandatory">1</value>
+              <value type="int" key="startMany">0</value>
+              <value type="string" key="startTable" option="ref">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
             </value>
           </value>
-          <value type="string" key="rootLayer" option="ref">{E5C05AC9-4C17-4E9C-A4FD-7D8FBA4DE068}</value>
+          <value type="string" key="rootLayer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
           <value type="list" content-type="dict" content-struct-name="model.Element" key="selection"/>
           <value type="real" key="width">10000.000000</value>
           <value type="real" key="x">0.000000</value>
