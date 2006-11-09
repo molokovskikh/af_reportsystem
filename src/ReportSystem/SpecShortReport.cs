@@ -12,6 +12,7 @@ namespace Inforoom.ReportSystem
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{
+			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}
 
 		protected override void Calculate()
@@ -27,7 +28,10 @@ namespace Inforoom.ReportSystem
 		}
 
 		protected override void FormatLeaderAndPrices(MSExcel._Worksheet ws)
-		{ 
+		{
+			//Выравниваем все колонки по ширине
+			//ws.Columns.AutoFit();
+			//((MSExcel.Range)ws.Columns[1, _dsReport.Tables["Results"].Columns.Count]).AutoFit();
 		}
 	}
 }

@@ -13,6 +13,7 @@ namespace Inforoom.ReportSystem
 		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{
+			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}
 
 		protected override void Calculate()
@@ -24,7 +25,14 @@ namespace Inforoom.ReportSystem
 		}
 
 		protected override void FormatLeaderAndPrices(MSExcel._Worksheet ws)
-		{ 
+		{
+			//Выравниваем все колонки по ширине
+			//for (int i = 1; i <= _dsReport.Tables["Results"].Columns.Count; i++)
+			//    ((MSExcel.Range)ws.Columns[i, Type.Missing]).AutoFit();
+			//((MSExcel.Range)ws.get_Range(ws.Cells[1, 1], ws.Cells[1, _dsReport.Tables["Results"].Columns.Count])).EntireColumn.AutoFit();
+			//((MSExcel.Range)ws.Columns.get_Range(ws.Columns[1, Type.Missing], ws.Columns[_dsReport.Tables["Results"].Columns.Count, Type.Missing])).EntireColumn.AutoFit();
+			//ws.Columns.AutoFit();
+			//((MSExcel.Range)ws.Columns[1, _dsReport.Tables["Results"].Columns.Count]).AutoFit();
 		}
 
 	}

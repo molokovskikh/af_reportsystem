@@ -27,9 +27,12 @@ namespace Inforoom.ReportSystem
 		protected int _reportType;
 		protected int _showPercents;
 
+		protected string reportCaptionPreffix;
+
 		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{
+			reportCaptionPreffix = "Комбинированный отчет";
 			_reportType = (int)_reportParams["ReportType"];
 			_showPercents = (int)_reportParams["ShowPercents"];
 		}
@@ -153,7 +156,7 @@ order by 2, 5";
 				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
 
 				drsMin = dtCore.Select(
-					"FullCode = " + drCatalog["FullCode"].ToString() + 
+					"FullCode = " + drCatalog["FullCode"].ToString() +
 					" and Cfc = " + drCatalog["Cfc"].ToString() + 
 					" and Cost = " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
 				if (drsMin.Length > 0)
@@ -178,7 +181,7 @@ order by 2, 5";
 							else
 							{
 								double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
-								newrow[FirstColumnCount + PriceIndex * 2 + 1] = ((pricecost - mincost) * 100) / pricecost;
+								newrow[FirstColumnCount + PriceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
 					}
@@ -239,9 +242,9 @@ order by 2, 5";
 						((MSExcel.Range)ws.get_Range("A1:D1", System.Reflection.Missing.Value)).Select();
 						((MSExcel.Range)exApp.Selection).Merge(null);
 						if (_reportType < 3)
-							exApp.ActiveCell.FormulaR1C1 = "Комбинированный отчет без учета производителя создан " + DateTime.Now.ToString();
+							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
 						else
-							exApp.ActiveCell.FormulaR1C1 = "Комбинированный отчет с учетом производителя создан " + DateTime.Now.ToString();
+							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
 					}
 					finally
 					{

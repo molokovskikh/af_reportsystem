@@ -73,7 +73,7 @@ namespace Inforoom.ReportSystem
 					//Если в отчетах содержится или комбинированый или специальный отчет, то добавляем в отчеты Контакты
 					if (!addContacts)
 					{
-						addContacts = (bs is CombReport) || (bs is SpecReport);
+						addContacts = (bs.GetType() == typeof(CombReport)) || (bs.GetType() == typeof(SpecReport));
 						if (addContacts)
 							contactsCode = (ulong)drGReport[BaseReportColumns.colReportCode];
 					}
@@ -82,9 +82,8 @@ namespace Inforoom.ReportSystem
 			else
 				throw new Exception("У комбинированного отчета нет дочерних отчетов.");
 
-			//TODO: надо потом включить
-			//if (addContacts)
-			//    _reports.Add(new ContactsReport(contactsCode, "Контакты", _conn));
+			if (addContacts)
+			    _reports.Add(new ContactsReport(contactsCode, "Контакты", _conn));
 		}
 
 		//Производится построение отчетов
@@ -109,9 +108,8 @@ namespace Inforoom.ReportSystem
 
 			string ResFileName = ArchFile();
 
-			//TODO: Это надо потом включить
-			//if (!String.IsNullOrEmpty(_eMailAddress))
-			//    MailWithAttach(ResFileName);
+			if (!String.IsNullOrEmpty(_eMailAddress))
+			    MailWithAttach(ResFileName);
 		}
 
 		private void MailWithAttach(string archFileName)

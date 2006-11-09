@@ -39,7 +39,6 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			else
 				_reportParams.Add("ClientCode", ClientCode);
 
-			//TODO: ¬озможно здесь надо работать со всеми прайс-листами, а не только с теми, кто в работе
 			//¬ыбираем 
 			GetActivePricesT(e);
 			GetAllCoreT(e);

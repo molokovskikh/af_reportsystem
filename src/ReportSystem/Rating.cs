@@ -4,7 +4,7 @@ using System.IO;
 using System.Collections;
 using System.Data;
 using MySql.Data.MySqlClient;
-using Aspose.Excel;
+//using Aspose.Excel;
 using ICSharpCode.SharpZipLib.Zip;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
@@ -83,6 +83,7 @@ namespace Inforoom.ReportSystem
 
 		public void ExportToExcel(System.Data.DataTable dtRes)
 		{
+/*
 			Aspose.Excel.Excel ex = new Excel();
 			while (ex.Worksheets.Count > 1)
 				ex.Worksheets.RemoveAt(0);
@@ -97,6 +98,7 @@ namespace Inforoom.ReportSystem
 			ex.Save(FileName);
 			ws = null;
 			ex = null;
+ */ 
 
 			//return;
 
@@ -152,7 +154,7 @@ namespace Inforoom.ReportSystem
 */			
 		
 
-
+/*
 			MemoryStream ZipOutputStream = new MemoryStream();
             ZipOutputStream ZipInputStream = new ZipOutputStream(ZipOutputStream);
 			ZipEntry ZipObject = new ZipEntry(ShortName);
@@ -190,6 +192,7 @@ namespace Inforoom.ReportSystem
             ResultFile.Close();
 			
 			File.Delete(FileName);
+ */ 
 
 		}
 

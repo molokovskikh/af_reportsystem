@@ -20,16 +20,17 @@ namespace Inforoom.ReportSystem
 		protected int SourcePC, SourceRegionCode, FirmCode;
 		protected string CustomerFirmName;
 
+		protected string reportCaptionPreffix;
+
 		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{
+			reportCaptionPreffix = "Специальный отчет";
 			_reportType = (int)_reportParams["ReportType"];
-			//_showPercents = (int)_reportParams["ShowPercents"];
+			_showPercents = (int)_reportParams["ShowPercents"];
 			_reportIsFull = (int)_reportParams["ReportIsFull"];
 			_reportSortedByPrice = (int)_reportParams["ReportSortedByPrice"];
-			//_clientCode = (int)_reportParams["ClientCode"];
-			_clientCode = 1885;
-			_reportParams["ClientCode"] = 1885;
+			_clientCode = (int)_reportParams["ClientCode"];
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -51,7 +52,6 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.Add("ReportCode", _reportCode);
 			FirmCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
-			FirmCode = 39;
 
 			//Получаем код прайс-листа, регион и название поставщика, для которого делаем отчет
 			e.DataAdapter.SelectCommand.CommandText = @"select FirmName, PriceCode, RegionCode from ActivePricesT where FirmCode = ?FirmCode limit 1";
@@ -128,9 +128,6 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			dtRes.Rows.Add(newrow);
 			newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
-			//TODO: Еще одна колонка добавлена для тестов, потом удалить
-			newrow = dtRes.NewRow();
-			dtRes.Rows.Add(newrow);
 
 			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows)
 			{
@@ -155,13 +152,16 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				if (newrow["LeaderName"] is DBNull)
 				{
 					//Устанавливаем разность между ценой SourcePC и минимальной ценой
-					newrow["Differ"] = (decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"];
-					newrow["DifferPercents"] = Convert.ToDouble((((decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"]) * 100) / (decimal)newrow["CustomerCost"]);
+					if (!(newrow["CustomerCost"] is DBNull))
+					{
+						newrow["Differ"] = (decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"];
+						newrow["DifferPercents"] = Convert.ToDouble((((decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"]) * 100) / (decimal)newrow["CustomerCost"]);
+					}
 
 					//Выбираем позиции с минимальной ценой, отличные от SourcePC
 					drsMin = dtCore.Select(
 						"FullCode = " + drCatalog["FullCode"].ToString() +
-						((_reportType <= 2) ? String.Empty : " and Cfc = " + drCatalog["Cfc"].ToString()) +
+						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
 						" and Cost = " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
 					if (drsMin.Length > 0)
 					{
@@ -184,7 +184,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 					drsMin = dtCore.Select(
 						"FullCode = " + drCatalog["FullCode"].ToString() +
 						" and PriceCode <> " + SourcePC.ToString() +
-						((_reportType <= 2) ? String.Empty : " and Cfc = " + drCatalog["Cfc"].ToString()) +
+						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
 						" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat),
 						"Cost asc");
 					if (drsMin.Length > 0)
@@ -197,7 +197,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				//Выбираем позиции и сортируем по возрастанию цен
 				drsMin = dtCore.Select(
 					"FullCode = " + drCatalog["FullCode"].ToString() +
-					((_reportType <= 2) ? String.Empty : "and Cfc = " + drCatalog["Cfc"].ToString()), 
+					((_reportType <= 2) ? String.Empty : "and CodeFirmCr = " + drCatalog["Cfc"].ToString()), 
 					"Cost asc");
 				foreach (DataRow dtPos in drsMin)
 				{
@@ -219,7 +219,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 								else
 								{
 									double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
-									newrow[FirstColumnCount + PriceIndex * 2 + 1] = ((pricecost - mincost) * 100) / pricecost;
+									newrow[FirstColumnCount + PriceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 								}
 							}
 						}
@@ -266,9 +266,6 @@ and RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.Parameters.Add("SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			//TODO: надо потом удалить
-			e.DataAdapter.SelectCommand.CommandText = "select * from TmpSourceCodes";
-			e.DataAdapter.Fill(_dsReport, "TmpSourceCodes");
 			e.DataAdapter.SelectCommand.CommandText = "select * from AllCoreT";
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
@@ -375,11 +372,11 @@ select
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
 			if (_reportType <= 2)
 				SqlCommandText += @"
-  ifnull(sfc.Synonym, Cfc.FirmCr) as FirmCr,
+  '-' as FirmCr,
   0 As Cfc ";
 			else
 				SqlCommandText += @"
-  '-' as FirmCr,
+  ifnull(sfc.Synonym, Cfc.FirmCr) as FirmCr,
   cfc.codefirmcr As Cfc ";
 
 			SqlCommandText += @"
@@ -413,7 +410,7 @@ from
 where 
       c.fullcode = c0.fullcode
   and cfc.codefirmcr=c0.codefirmcr
-  and (( ( (c0.PriceCode <> c1.PriceCode) or (c0.RegionCode <> c1.RegionCode) ) and (c0.Junk =0) and (c0.Await=0) )
+  and (( ( (c0.PriceCode <> c1.PriceCode) or (c0.RegionCode <> c1.RegionCode) or (c1.id is null) ) and (c0.Junk =0) and (c0.Await=0) )
       or ( (c0.PriceCode = c1.PriceCode) and (c0.RegionCode = c1.RegionCode) and (c0.RowId = c1.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
@@ -502,7 +499,7 @@ order by c.FullCode, Cfc, c1.Code";
 						ws.Activate();
 
 						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[4, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count, _dsReport.Tables["Results"].Columns.Count])).Select();
+						((MSExcel.Range)ws.get_Range(ws.Cells[3, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count, _dsReport.Tables["Results"].Columns.Count])).Select();
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Замораживаем некоторые колонки и столбцы
@@ -513,9 +510,9 @@ order by c.FullCode, Cfc, c1.Code";
 						((MSExcel.Range)ws.get_Range("A1:J2", System.Reflection.Missing.Value)).Select();
 						((MSExcel.Range)exApp.Selection).Merge(null);
 						if (_reportType < 3)
-							exApp.ActiveCell.FormulaR1C1 = "Комбинированный отчет без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 						else
-							exApp.ActiveCell.FormulaR1C1 = "Комбинированный отчет с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 
 					}
 					finally
