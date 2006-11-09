@@ -5,11 +5,11 @@
         <strong style="font-size:small;">Настройка отчетов</strong><br/>
         <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReports_RowCommand" OnRowDeleting="dgvReports_RowDeleting" OnRowDataBound="dgvReports_RowDataBound">
             <Columns>
+                <asp:BoundField DataField="GRCode" HeaderText="Код" />
                 <asp:TemplateField HeaderText="Клиент">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbSearch" runat="server" Width="79px"></asp:TextBox>
-                        <asp:Button ID="btnSearch" runat="server" Text="Найти" OnClick="btnSearch_Click" />
-                        <asp:DropDownList ID="ddlNames" runat="server">
+                        <asp:Label ID="lblFirmName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.GRFirmName") %>'></asp:Label><asp:TextBox ID="tbSearch" runat="server" Width="79px" Visible="False"></asp:TextBox><asp:Button ID="btnSearch" runat="server" Text="Найти" OnClick="btnSearch_Click" Visible="False" />
+                        <asp:DropDownList ID="ddlNames" runat="server" Visible="False">
                         </asp:DropDownList>
                     </ItemTemplate>
                 </asp:TemplateField>
@@ -42,7 +42,7 @@
                             ID="rfvArch" runat="server" ControlToValidate="tbArch" ErrorMessage='Поле "Имя архива отчета" должно быть заполнено'>*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:HyperLinkField HeaderText="Отчеты" Text="..." DataNavigateUrlFields="GRRTCode" DataNavigateUrlFormatString="Reports.aspx?r={0}" />
+                <asp:HyperLinkField HeaderText="Отчеты" Text="..." DataNavigateUrlFields="GRCode" DataNavigateUrlFormatString="Reports.aspx?r={0}" />
                 <asp:TemplateField>
 				<HeaderTemplate>
 					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
@@ -51,7 +51,7 @@
 					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
 				</ItemTemplate>
                 </asp:TemplateField>
-                <asp:BoundField DataField="GRRTCode" Visible="False" />
+                <asp:BoundField DataField="GRCode" Visible="False" />
             </Columns>
    			<EmptyDataTemplate>
 				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить отчет" />

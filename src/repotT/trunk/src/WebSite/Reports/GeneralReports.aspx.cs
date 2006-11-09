@@ -31,6 +31,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
     private DataTable dtClients;
     private DataColumn CCaption;
     private DataColumn CFirmCode;
+    private DataColumn GRFirmName;
 
     private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
 
@@ -66,14 +67,16 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
         MyCmd.CommandText = @"
 SELECT 
     gr.GeneralReportCode as GRCode,
-    FirmCode as GRFirmCode,
+    gr.FirmCode as GRFirmCode,
+    concat(cd.FirmCode, '.', cd.ShortName) as GRFirmName,
     Allow as GRAllow,
     EMailAddress as GRAddress,
     EMailSubject as GRSubject,
     ReportFileName as GRFileName,
     ReportArchName as GRArchName
 FROM 
-    testreports.general_reports gr
+    testreports.general_reports gr, usersettings.clientsdata cd
+WHERE cd.FirmCode=gr.FirmCode
 ";
         MyDA.Fill(DS, dtGeneralReports.TableName);
         MyCn.Close();
@@ -101,6 +104,7 @@ FROM
         this.dtClients = new System.Data.DataTable();
         this.CCaption = new System.Data.DataColumn();
         this.CFirmCode = new System.Data.DataColumn();
+        this.GRFirmName = new System.Data.DataColumn();
         ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtClients)).BeginInit();
@@ -124,7 +128,8 @@ FROM
             this.GRSubject,
             this.GRFileName,
             this.GRArchName,
-            this.GRAllow});
+            this.GRAllow,
+            this.GRFirmName});
         this.dtGeneralReports.TableName = "dtGeneralReports";
         // 
         // GRCode
@@ -187,6 +192,10 @@ FROM
         // 
         this.CFirmCode.ColumnName = "CFirmCode";
         this.CFirmCode.DataType = typeof(long);
+        // 
+        // GRFirmName
+        // 
+        this.GRFirmName.ColumnName = "GRFirmName";
         ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtClients)).EndInit();
@@ -226,20 +235,21 @@ FROM
         MyCmd.Connection = MyCn;
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("Name", "'%" + Name + "%'");
+        MyCmd.Parameters.Add("Name", "%" + Name + "%");
         DS.Tables[dtClients.TableName].Clear();
         MyCmd.CommandText = @"
-SELECT 
+SELECT
     cd.FirmCode as CFirmCode,
+    cd.ShortName,
     concat(cd.FirmCode, '.', cd.ShortName) as CCaption
-FROM 
-     testreports.general_reports gr, usersettings.clientsdata cd
-WHERE 
-     cd.ShortName like ?Name
+FROM
+     usersettings.clientsdata cd
+ WHERE
+  cd.ShortName like ?Name
+Order by FirmCode, ShortName
 ";
         MyDA.Fill(DS, DS.Tables[dtClients.TableName].TableName);
         MyCn.Close();
-
         Session.Add(DSReports, DS);
     }
 
@@ -247,6 +257,12 @@ WHERE
     {
         foreach (GridViewRow dr in dgvReports.Rows)
         {
+            if (((DropDownList)dr.FindControl("ddlNames")).SelectedValue != String.Empty)
+            {
+                if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRFirmCode.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlNames")).SelectedValue)
+                    DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRFirmCode.ColumnName] = ((DropDownList)dr.FindControl("ddlNames")).SelectedValue;
+            }
+
             if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked).ToString())
                 DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
 
@@ -266,23 +282,44 @@ WHERE
 
     protected void btnSearch_Click(object sender, EventArgs e)
     {
-        FillDDL(((TextBox)(((Button)sender).Parent).FindControl("tbSearch")).Text); 
+        FillDDL(((TextBox)(((Button)sender).Parent).FindControl("tbSearch")).Text);
+        DropDownList ddlNames = (DropDownList)(((Button)sender).Parent).FindControl("ddlNames");
+        ddlNames.DataSource = DS.Tables[dtClients.TableName];
+        ddlNames.DataTextField = "CCaption";
+        ddlNames.DataValueField = "CFirmCode";
+        ddlNames.DataBind();
     }
 
     protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            if (e.Row.Cells[0].FindControl("ddlName") != null)
+            if (((Label)e.Row.Cells[1].FindControl("lblFirmName")).Text != "")
             {
-                DropDownList ddlNames = ((DropDownList)e.Row.Cells[0].FindControl("ddlName"));
-                ddlNames.DataSource = dtClients;
-                ddlNames.DataTextField = "CCaption";
-                ddlNames.DataValueField = "CFirmCode";
-                ddlNames.DataBind();
+                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnSearch")).Visible = false;
+                ((DropDownList)e.Row.Cells[1].FindControl("ddlNames")).Visible = false;
+                ((Label)e.Row.Cells[1].FindControl("lblFirmName")).Visible = true;
+                e.Row.Cells[7].Enabled = true;
+            }
+            else
+            {
+                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = true;
+                ((Button)e.Row.Cells[1].FindControl("btnSearch")).Visible = true;
+
+                DropDownList ddlReports = ((DropDownList)e.Row.Cells[0].FindControl("ddlNames"));
+                ddlReports.Visible = true;
+                e.Row.Cells[7].Enabled = false;
+                //FillDDL();
+                //ddlReports.DataSource = DS.Tables[dtTypes.TableName];
+                //ddlReports.DataTextField = "ReportTypeName";
+                //ddlReports.DataValueField = "ReportTypeCode";
+                //ddlReports.DataBind();
+                ((Label)e.Row.Cells[1].FindControl("lblFirmName")).Visible = false;
             }
         }
     }
+
     protected void btnApply_Click(object sender, EventArgs e)
     {
         CopyChangesToTable();
@@ -296,14 +333,19 @@ WHERE
 UPDATE 
     testreports.general_reports 
 SET 
+    FirmCode = ?GRFirmCode,
     Allow = ?GRAllow,
     EMailAddress = ?GRAddress,
     EMailSubject = ?GRSubject,
     ReportFileName = ?GRFileName,
-    ReportArchName = ?GRArchName,
+    ReportArchName = ?GRArchName
 WHERE GeneralReportCode = ?GRCode", MyCn, trans);
 
             UpdCmd.Parameters.Clear();
+            UpdCmd.Parameters.Add(new MySqlParameter("GRFirmCode", MySqlDbType.Int64));
+            UpdCmd.Parameters["GRFirmCode"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GRFirmCode"].SourceColumn = GRFirmCode.ColumnName;
+            UpdCmd.Parameters["GRFirmCode"].SourceVersion = DataRowVersion.Current;
             UpdCmd.Parameters.Add(new MySqlParameter("GRAllow", MySqlDbType.Byte));
             UpdCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
@@ -343,11 +385,12 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 INSERT INTO 
     testreports.general_reports 
 SET 
+    FirmCode = ?GRFirmCode,
     Allow = ?GRAllow,
     EMailAddress = ?GRAddress,
     EMailSubject = ?GRSubject,
     ReportFileName = ?GRFileName,
-    ReportArchName = ?GRArchName,
+    ReportArchName = ?GRArchName
 ", MyCn, trans);
 
             InsCmd.Parameters.Clear();
@@ -355,6 +398,10 @@ SET
             InsCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
             InsCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("GRFirmCode", MySqlDbType.Int64));
+            InsCmd.Parameters["GRFirmCode"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["GRFirmCode"].SourceColumn = GRFirmCode.ColumnName;
+            InsCmd.Parameters["GRFirmCode"].SourceVersion = DataRowVersion.Current;
             InsCmd.Parameters.Add(new MySqlParameter("GRAddress", MySqlDbType.VarString));
             InsCmd.Parameters["GRAddress"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["GRAddress"].SourceColumn = GRAddress.ColumnName;
