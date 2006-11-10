@@ -13,6 +13,18 @@ public partial class Reports_ReportMasterPage : System.Web.UI.MasterPage
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+        SiteMap.Providers[ReportSiteMapPath.SiteMapProvider].SiteMapResolve += new SiteMapResolveEventHandler(this.ExpandForumPath);
+    }
 
+    protected SiteMapNode ExpandForumPath(Object sender, SiteMapResolveEventArgs e)
+    {
+        SiteMapNode currentNode = e.Provider.CurrentNode.Clone(true);
+
+        if (currentNode.Key.Equals(e.Context.Request.ApplicationPath + "/reports/reportproperties.aspx", StringComparison.OrdinalIgnoreCase))
+        {
+            currentNode.ParentNode.Url += "?r=" + e.Context.Request["r"];
+        }
+
+        return currentNode;
     }
 }
