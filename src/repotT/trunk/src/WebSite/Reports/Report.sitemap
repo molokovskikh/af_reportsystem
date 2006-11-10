@@ -10,6 +10,9 @@
         <siteMapNode url="~/Reports/EnumValues.aspx" title="Редактирование значений"  description=""/>
       </siteMapNode>
       <siteMapNode url="~/Reports/GeneralReports.aspx" title="Редактирование отчетов"  description="">
+        <siteMapNode url="~/Reports/Reports.aspx" title="Настройка отчетов"  description="">
+          <siteMapNode url="~/Reports/ReportProperties.aspx" title="Настройка параметров отчета"  description=""/>
+        </siteMapNode>
       </siteMapNode>
     </siteMapNode>
 </siteMap>
