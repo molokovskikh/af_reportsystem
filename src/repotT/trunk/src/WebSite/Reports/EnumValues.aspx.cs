@@ -32,6 +32,8 @@ public partial class Reports_EnumValues : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (Request["e"] == null)
+            Response.Redirect("PropertyEnums.aspx");
         if (!(Page.IsPostBack))
         {
             MyCn.Open();
