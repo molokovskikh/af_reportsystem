@@ -31,6 +31,12 @@
                                 Text=">>" Width="22px" />
                         </ItemTemplate>
                     </asp:TemplateField>
+                    <asp:TemplateField HeaderText="Значение по умолчанию">
+                        <ItemTemplate>
+                            <asp:TextBox ID="tbDefault" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PDefaultValue")%>'></asp:TextBox><asp:RequiredFieldValidator
+                                ID="rfvDefault" runat="server" ControlToValidate="tbDefault" ErrorMessage='Поле "Значение по умолчанию" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        </ItemTemplate>
+                    </asp:TemplateField>
                     <asp:BoundField DataField="PEnumID" Visible="False" />
                     <asp:TemplateField HeaderText="Опциональный">
                         <ItemTemplate>

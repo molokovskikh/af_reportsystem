@@ -29,6 +29,7 @@ public partial class Reports_ReportTypeProperties : System.Web.UI.Page
     private DataColumn PStoredProc;
     public DataTable dtParamTypes;
     public DataTable dtEnumTypes;
+    private DataColumn PDefaultValue;
 
     private const string DSReportTypes = "Inforoom.Reports.ReportTypeProperties.DSReportTypes";
 
@@ -100,9 +101,10 @@ WHERE ReportTypeCode = ?rtCode
         MyCmd.CommandText = @"
 SELECT 
     ID as PID,
-    ReportTypeCode as RTCode,
+    ReportTypeCode as PRTCode,
     PropertyName as PName,
     DisplayName as PDisplayName,
+    DefaultValue as PDefaultValue,
     PropertyType as PType,
     Optional as POptional,
     PropertyEnumID as PEnumID,
@@ -159,6 +161,7 @@ UPDATE
 SET 
     PropertyName = ?PName,
     DisplayName = ?PDisplayName,
+    DefaultValue = ?PDefaultValue,
     PropertyType = ?PType,
     Optional = ?POptional,
     PropertyEnumID = ?PEnumID,
@@ -174,6 +177,10 @@ WHERE ID = ?PID", MyCn, trans);
             UpdCmd.Parameters["PDisplayName"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["PDisplayName"].SourceColumn = PDisplayName.ColumnName;
             UpdCmd.Parameters["PDisplayName"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("PDefaultValue", MySqlDbType.VarString));
+            UpdCmd.Parameters["PDefaultValue"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["PDefaultValue"].SourceColumn = PDefaultValue.ColumnName;
+            UpdCmd.Parameters["PDefaultValue"].SourceVersion = DataRowVersion.Current;
             UpdCmd.Parameters.Add(new MySqlParameter("PType", MySqlDbType.VarString));
             UpdCmd.Parameters["PType"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["PType"].SourceColumn = PType.ColumnName;
@@ -211,6 +218,7 @@ INSERT INTO
 SET 
     PropertyName = ?PName,
     DisplayName = ?PDisplayName,
+    DefaultValue = ?PDefaultValue,
     PropertyType = ?PType,
     PropertyEnumID = ?PEnumID,
     Optional = ?POptional,
@@ -227,7 +235,11 @@ SET
             InsCmd.Parameters["PDisplayName"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["PDisplayName"].SourceColumn = PDisplayName.ColumnName;
             InsCmd.Parameters["PDisplayName"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("PType", MySqlDbType.Int64));
+            InsCmd.Parameters.Add(new MySqlParameter("PDefaultValue", MySqlDbType.VarString));
+            InsCmd.Parameters["PDefaultValue"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["PDefaultValue"].SourceColumn = PDefaultValue.ColumnName;
+            InsCmd.Parameters["PDefaultValue"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("PType", MySqlDbType.VarString));
             InsCmd.Parameters["PType"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["PType"].SourceColumn = PType.ColumnName;
             InsCmd.Parameters["PType"].SourceVersion = DataRowVersion.Current;
@@ -235,7 +247,7 @@ SET
             InsCmd.Parameters["POptional"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["POptional"].SourceColumn = POptional.ColumnName;
             InsCmd.Parameters["POptional"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("PEnumID", MySqlDbType.VarString));
+            InsCmd.Parameters.Add(new MySqlParameter("PEnumID", MySqlDbType.Int64));
             InsCmd.Parameters["PEnumID"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["PEnumID"].SourceColumn = PEnumID.ColumnName;
             InsCmd.Parameters["PEnumID"].SourceVersion = DataRowVersion.Current;
@@ -288,6 +300,9 @@ SET
 
             if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDisplayName.ColumnName].ToString() != ((TextBox)dr.FindControl("tbDisplayName")).Text)
                 DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDisplayName.ColumnName] = ((TextBox)dr.FindControl("tbDisplayName")).Text;
+            
+            if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDefaultValue.ColumnName].ToString() != ((TextBox)dr.FindControl("tbDefault")).Text)
+                DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDefaultValue.ColumnName] = ((TextBox)dr.FindControl("tbDefault")).Text;
 
             if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PType.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlType")).SelectedValue)
                 DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PType.ColumnName] = ((DropDownList)dr.FindControl("ddlType")).SelectedValue;
@@ -323,6 +338,7 @@ SET
         this.POptional = new System.Data.DataColumn();
         this.PEnumID = new System.Data.DataColumn();
         this.PStoredProc = new System.Data.DataColumn();
+        this.PDefaultValue = new System.Data.DataColumn();
         ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtProperties)).BeginInit();
         // 
@@ -342,7 +358,8 @@ SET
             this.PType,
             this.POptional,
             this.PEnumID,
-            this.PStoredProc});
+            this.PStoredProc,
+            this.PDefaultValue});
         this.dtProperties.TableName = "dtProperties";
         // 
         // PID
@@ -380,6 +397,10 @@ SET
         // PStoredProc
         // 
         this.PStoredProc.ColumnName = "PStoredProc";
+        // 
+        // PDefaultValue
+        // 
+        this.PDefaultValue.ColumnName = "PDefaultValue";
         ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtProperties)).EndInit();
 
@@ -433,6 +454,9 @@ SET
 
             DataRow dr = DS.Tables[dtProperties.TableName].NewRow();
             dr[POptional.ColumnName] = 0;
+            dr[PEnumID.ColumnName] = DBNull.Value;
+            dr[PStoredProc.ColumnName] = String.Empty;
+
             DS.Tables[dtProperties.TableName].Rows.Add(dr);
 
             dgvProperties.DataSource = DS;
