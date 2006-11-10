@@ -10,10 +10,10 @@
                         </asp:DropDownList>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:TemplateField HeaderText="Наименование">
+                <asp:TemplateField HeaderText="Имя листа">
                     <ItemTemplate>
                         <asp:TextBox ID="tbCaption" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportCaption")%>'></asp:TextBox><asp:RequiredFieldValidator
-                            ID="rfvCaption" runat="server" ControlToValidate="tbCaption" ErrorMessage='Поле "Наименование" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                            ID="rfvCaption" runat="server" ControlToValidate="tbCaption" ErrorMessage='Поле "Имя листа" должно быть заполнено'>*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:HyperLinkField HeaderText="Параметры" Text="..." DataNavigateUrlFields="RReportCode" DataNavigateUrlFormatString="ReportProperties.aspx?rp={0}" />
