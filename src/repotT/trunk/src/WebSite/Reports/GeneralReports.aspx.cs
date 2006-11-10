@@ -68,7 +68,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 SELECT 
     gr.GeneralReportCode as GRCode,
     gr.FirmCode as GRFirmCode,
-    concat(cd.FirmCode, '.', cd.ShortName) as GRFirmName,
+    convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251) as GRFirmName,
     Allow as GRAllow,
     EMailAddress as GRAddress,
     EMailSubject as GRSubject,
@@ -241,7 +241,7 @@ WHERE cd.FirmCode=gr.FirmCode
 SELECT
     cd.FirmCode as CFirmCode,
     cd.ShortName,
-    concat(cd.FirmCode, '.', cd.ShortName) as CCaption
+    convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251) as CCaption
 FROM
      usersettings.clientsdata cd
  WHERE
