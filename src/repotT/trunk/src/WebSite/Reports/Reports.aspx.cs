@@ -35,6 +35,15 @@ public partial class Reports_Reports : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if ((Request["r"] == null))
+        {
+            Response.Redirect("GeneralReports.aspx");
+        }
+        else
+        {
+            ((HyperLinkField)dgvReports.Columns[2]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"].ToString();
+        }
+
         if (!(Page.IsPostBack))
         {
 //            MyCn.Open();
