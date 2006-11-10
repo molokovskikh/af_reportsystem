@@ -77,6 +77,7 @@ SELECT
 FROM 
     testreports.general_reports gr, usersettings.clientsdata cd
 WHERE cd.FirmCode=gr.FirmCode
+Order by gr.GeneralReportCode
 ";
         MyDA.Fill(DS, dtGeneralReports.TableName);
         MyCn.Close();

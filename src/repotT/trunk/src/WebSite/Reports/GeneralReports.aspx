@@ -32,14 +32,12 @@
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Имя файла отчета">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbFile" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRFileName")%>'></asp:TextBox><asp:RequiredFieldValidator
-                            ID="rfvFile" runat="server" ControlToValidate="tbFile" ErrorMessage='Поле "Имя файла отчета" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbFile" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRFileName")%>'></asp:TextBox>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Имя архива отчета">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbArch" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRArchName")%>'></asp:TextBox><asp:RequiredFieldValidator
-                            ID="rfvArch" runat="server" ControlToValidate="tbArch" ErrorMessage='Поле "Имя архива отчета" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbArch" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRArchName")%>'></asp:TextBox>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:HyperLinkField HeaderText="Отчеты" Text="..." DataNavigateUrlFields="GRCode" DataNavigateUrlFormatString="Reports.aspx?r={0}" />

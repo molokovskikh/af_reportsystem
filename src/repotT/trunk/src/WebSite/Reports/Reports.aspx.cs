@@ -92,6 +92,7 @@ FROM
 WHERE
     r.reportTypeCode = rt.ReportTypeCode
 AND GeneralReportCode = ?rCode
+Order by r.ReportCode
 ";
         MyDA.Fill(DS, dtReports.TableName);
 
