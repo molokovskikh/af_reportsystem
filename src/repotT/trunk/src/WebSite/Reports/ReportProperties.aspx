@@ -10,7 +10,8 @@
                 <asp:TemplateField HeaderText="Значение">
                     <ItemTemplate>
                         <asp:CheckBox ID="chbValue" runat="server" Visible="False" />
-                        <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PPropertyValue")%>'></asp:TextBox>
+                        <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PPropertyValue")%>'></asp:TextBox><asp:RequiredFieldValidator
+                            ID="rfvValue" runat="server" ControlToValidate="tbValue" ErrorMessage='Поле "Значение" должно быть заполнено'>*</asp:RequiredFieldValidator>
                         <asp:DropDownList ID="ddlValue" runat="server" Visible="False">
                         </asp:DropDownList>
                         <asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyType") %>'  Visible="False"></asp:Label>

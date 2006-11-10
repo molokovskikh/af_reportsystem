@@ -36,6 +36,8 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     {
         if (Request["rp"] == null)
             Response.Redirect("Reports.aspx");
+        if (Request["r"] == null)
+            Response.Redirect("GeneralReports.aspx");
         if (!(Page.IsPostBack))
         {
             MyCn.Open();
