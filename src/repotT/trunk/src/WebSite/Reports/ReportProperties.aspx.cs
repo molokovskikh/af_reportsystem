@@ -13,7 +13,7 @@ using MySql.Data.MySqlClient;
 
 public partial class Reports_ReportProperties : System.Web.UI.Page
 {
-    protected MySqlConnection MyCn = new MySqlConnection("server=testSQL.analit.net; user id=system; password=123;");
+    protected MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
     protected MySqlCommand MyCmd = new MySqlCommand();
     private MySqlDataAdapter MyDA = new MySqlDataAdapter();
     private DataSet DS;
@@ -24,6 +24,12 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     private DataColumn PPropertyValue;
     private DataColumn PPropertyEnumID;
     public DataTable dtEnumValues;
+    private DataColumn PStoredProc;
+    DataTable dtProcResult;
+    private DataTable dtClient;
+    private DataColumn CFirmCode;
+    private DataColumn CReportCaption;
+    Int64 FirmCode;
 
     private const string DSParams = "Inforoom.Reports.ReportProperties.DSParams";
 
@@ -46,19 +52,29 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
             MyCmd.Parameters.Clear();
             MyCmd.Parameters.Add("rp", Request["rp"]);
             MyCmd.CommandText = @"
-SELECT 
-    ReportCaption
-FROM 
-    testreports.reports rt
-WHERE ReportCode = ?rp
+SELECT
+    rt.ReportCaption as CReportCaption, 
+    gr.FirmCode as CFirmCode
+FROM
+    testreports.reports rt, testreports.general_reports gr
+WHERE gr.GeneralReportCode=rt.GeneralReportCode
+AND ReportCode = ?rp
 ";
-            lblReport.Text = MyCmd.ExecuteScalar().ToString();
+            MyDA.Fill(DS, dtClient.TableName);
+            lblReport.Text = DS.Tables[dtClient.TableName].Rows[0][CReportCaption.ColumnName].ToString();
+            FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
+
             MyCn.Close();
 
             PostData();
         }
         else
+        {
             DS = ((DataSet)Session[DSParams]);
+            FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
+        }
+        //lblReport.Text = DS.Tables[dtClient.TableName].Rows[0][CReportCaption.ColumnName].ToString();
+        //FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
         if (dgvNonOptional.Rows.Count > 0)
             btnApply.Visible = true;
         else
@@ -77,15 +93,18 @@ WHERE ReportCode = ?rp
         DS.Tables[dtNonOptimalParams.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
-rp.ID as PID,
-rtp.DisplayName as PParamName,
-rtp.PropertyType as PPropertyType,
-rp.PropertyValue as PPropertyValue,
-rtp.PropertyEnumID as PPropertyEnumID
-FROM testreports.report_properties rp, testreports.report_type_properties rtp
-where rp.propertyID = rtp.ID
-and Optional=0
-and rp.reportCode=?rp
+    rp.ID as PID,
+    rtp.DisplayName as PParamName,
+    rtp.PropertyType as PPropertyType,
+    rp.PropertyValue as PPropertyValue,
+    rtp.PropertyEnumID as PPropertyEnumID,
+    rtp.selectstoredprocedure as PStoredProc
+FROM 
+    testreports.report_properties rp, testreports.report_type_properties rtp
+WHERE 
+    rp.propertyID = rtp.ID
+AND Optional=0
+AND rp.reportCode=?rp
 ";
         MyDA.Fill(DS, dtNonOptimalParams.TableName);
 
@@ -106,14 +125,20 @@ and rp.reportCode=?rp
         this.PPropertyType = new System.Data.DataColumn();
         this.PPropertyValue = new System.Data.DataColumn();
         this.PPropertyEnumID = new System.Data.DataColumn();
+        this.PStoredProc = new System.Data.DataColumn();
+        this.dtClient = new System.Data.DataTable();
+        this.CFirmCode = new System.Data.DataColumn();
+        this.CReportCaption = new System.Data.DataColumn();
         ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtNonOptimalParams)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
         // 
         // DS
         // 
         this.DS.DataSetName = "NewDataSet";
         this.DS.Tables.AddRange(new System.Data.DataTable[] {
-            this.dtNonOptimalParams});
+            this.dtNonOptimalParams,
+            this.dtClient});
         // 
         // dtNonOptimalParams
         // 
@@ -122,7 +147,8 @@ and rp.reportCode=?rp
             this.PParamName,
             this.PPropertyType,
             this.PPropertyValue,
-            this.PPropertyEnumID});
+            this.PPropertyEnumID,
+            this.PStoredProc});
         this.dtNonOptimalParams.TableName = "dtNonOptimalParams";
         // 
         // PID
@@ -146,8 +172,29 @@ and rp.reportCode=?rp
         // 
         this.PPropertyEnumID.ColumnName = "PPropertyEnumID";
         this.PPropertyEnumID.DataType = typeof(long);
+        // 
+        // PStoredProc
+        // 
+        this.PStoredProc.ColumnName = "PStoredProc";
+        // 
+        // dtClient
+        // 
+        this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
+            this.CFirmCode,
+            this.CReportCaption});
+        this.dtClient.TableName = "dtClient";
+        // 
+        // CFirmCode
+        // 
+        this.CFirmCode.ColumnName = "CFirmCode";
+        this.CFirmCode.DataType = typeof(long);
+        // 
+        // CReportCaption
+        // 
+        this.CReportCaption.ColumnName = "CReportCaption";
         ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtNonOptimalParams)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
 
     }
 
@@ -155,10 +202,14 @@ and rp.reportCode=?rp
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
+            ((Button)e.Row.Cells[1].FindControl("btnFind")).CommandArgument = e.Row.RowIndex.ToString();
+
             if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "BOOL")
             {
                 ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
                 ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = true;
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Checked = Convert.ToBoolean(Convert.ToInt32(((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName]));
             }
@@ -166,6 +217,8 @@ and rp.reportCode=?rp
             {
                 ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
 
                 DropDownList ddlValues = ((DropDownList)e.Row.Cells[1].FindControl("ddlValue"));
                 ddlValues.Visible = true;
@@ -177,11 +230,43 @@ and rp.reportCode=?rp
                     ddlValues.SelectedValue = ((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString();
                 ddlValues.DataBind();
             }
+            else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "INT")
+            {
+                if (((DataRowView)e.Row.DataItem)[PStoredProc.ColumnName].ToString() == String.Empty)
+                {
+                    ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = true;
+                    ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                    ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                    ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                }
+                else
+                {
+                    ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+                    ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                    ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = true;
+                    ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = true;
+                    ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = true;
+
+                    if (((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName] != String.Empty)
+                    {
+                        FillDDL(((DataRowView)e.Row.DataItem)[PStoredProc.ColumnName].ToString(), FirmCode, "", ((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString());
+                        DropDownList ddlValues = ((DropDownList)e.Row.Cells[1].FindControl("ddlValue"));
+                        ddlValues.DataSource = dtProcResult;
+                        ddlValues.DataTextField = "DisplayValue";
+                        ddlValues.DataValueField = "ID";
+                        ddlValues.DataBind();
+
+                    }
+                }
+            }
             else
             {
                 ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = true;
                 ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
             }
         }
     }
@@ -201,12 +286,14 @@ and rp.reportCode=?rp
         MyCmd.Parameters.Add("PEID", PropertyEnumID);
         MyCmd.CommandText = @"
 SELECT distinct
-Value as evValue,
-DisplayValue as evName
-FROM testreports.report_type_properties rtp, testreports.Property_Enums pe, testreports.Enum_Values ev
-where rtp.PropertyEnumID = pe.ID
-and pe.ID = ev.PropertyEnumID
-and rtp.PropertyEnumID=?PEID
+    Value as evValue,
+    DisplayValue as evName
+FROM 
+    testreports.report_type_properties rtp, testreports.Property_Enums pe, testreports.Enum_Values ev
+WHERE 
+    rtp.PropertyEnumID = pe.ID
+AND pe.ID = ev.PropertyEnumID
+AND rtp.PropertyEnumID=?PEID
 ";
         MyDA.Fill(dtEnumValues);
 
@@ -292,4 +379,60 @@ WHERE ID = ?PID", MyCn, trans);
             }
         }
     }
+
+    private void FillDDL(string proc, Int64 fc, string filter, string id)
+    {
+        string db = String.Empty;
+        try
+        {
+            if (MyCn.State != ConnectionState.Open)
+                MyCn.Open();
+            dtProcResult = new DataTable();
+            db = MyCn.Database;
+            MyCn.ChangeDatabase("testreports");
+            MyCmd.Connection = MyCn;
+            MyDA.SelectCommand = MyCmd;
+            MyCmd.Parameters.Clear();
+            MyCmd.Parameters.Add("inFirmCode", fc);
+            MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
+            MyCmd.Parameters.Add("inFilter", filter);
+            MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
+            if(id == String.Empty)
+                MyCmd.Parameters.Add("inID", DBNull.Value);
+            else
+                MyCmd.Parameters.Add("inID", Convert.ToInt64(id));
+            MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
+            MyCmd.CommandText = proc;
+            MyCmd.CommandType = CommandType.StoredProcedure;
+            MyDA.Fill(dtProcResult);
+        }
+        catch(Exception e)
+        {
+        }
+        finally
+        {
+            if (db != String.Empty)
+                MyCn.ChangeDatabase(db);
+            MyCmd.Dispose();
+            MyCmd.CommandType = CommandType.Text;
+            MyCn.Close();
+        }
+    }
+
+    protected void dgvNonOptional_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "Find")
+        {
+            CopyChangesToTable();
+
+            FillDDL(DS.Tables[dtNonOptimalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
+            DropDownList ddlValues = ((DropDownList)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("ddlValue"));
+            ddlValues.DataSource = dtProcResult;
+            ddlValues.DataTextField = "DisplayValue";
+            ddlValues.DataValueField = "ID";
+            ddlValues.DataBind();
+        }
+        
+    }
+
 }
