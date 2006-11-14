@@ -10,11 +10,23 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using System.Configuration;
 
-
+public enum GridViewFields : int
+{
+    PID,
+    PRTCode,
+    PName,
+    PDisplayName,
+    PType,
+    PDefaultValue,
+    PEnumID,
+    POptional,
+    PStoredProc
+}
 public partial class Reports_ReportTypeProperties : System.Web.UI.Page
 {
-    protected MySqlConnection MyCn = new MySqlConnection("server=testSQL.analit.net; user id=system; password=123;");
+    protected MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
     protected MySqlCommand MyCmd = new MySqlCommand();
     private MySqlDataAdapter MyDA = new MySqlDataAdapter();
     private DataSet DS;
@@ -96,6 +108,7 @@ WHERE ReportTypeCode = ?rtCode
         MyCmd.Connection = MyCn;
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
+        MyCmd.CommandType = CommandType.Text;
         MyCmd.Parameters.Add("rtCode", Request["rtc"]);
         DS.Tables[dtProperties.TableName].Clear();
         MyCmd.CommandText = @"
@@ -148,14 +161,16 @@ from
 
     protected void btnApply_Click(object sender, EventArgs e)
     {
-        CopyChangesToTable();
-
-        MySqlTransaction trans;
-        MyCn.Open();
-        trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-        try
+        if (Page.IsValid)
         {
-            MySqlCommand UpdCmd = new MySqlCommand(@"
+            CopyChangesToTable();
+
+            MySqlTransaction trans;
+            MyCn.Open();
+            trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
+            try
+            {
+                MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
     testreports.report_type_properties 
 SET 
@@ -168,51 +183,51 @@ SET
     SelectStoredProcedure = ?PStoredProc
 WHERE ID = ?PID", MyCn, trans);
 
-            UpdCmd.Parameters.Clear();
-            UpdCmd.Parameters.Add(new MySqlParameter("PName", MySqlDbType.VarString));
-            UpdCmd.Parameters["PName"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PName"].SourceColumn = PName.ColumnName;
-            UpdCmd.Parameters["PName"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("PDisplayName", MySqlDbType.VarString));
-            UpdCmd.Parameters["PDisplayName"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PDisplayName"].SourceColumn = PDisplayName.ColumnName;
-            UpdCmd.Parameters["PDisplayName"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("PDefaultValue", MySqlDbType.VarString));
-            UpdCmd.Parameters["PDefaultValue"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PDefaultValue"].SourceColumn = PDefaultValue.ColumnName;
-            UpdCmd.Parameters["PDefaultValue"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("PType", MySqlDbType.VarString));
-            UpdCmd.Parameters["PType"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PType"].SourceColumn = PType.ColumnName;
-            UpdCmd.Parameters["PType"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("POptional", MySqlDbType.Byte));
-            UpdCmd.Parameters["POptional"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["POptional"].SourceColumn = POptional.ColumnName;
-            UpdCmd.Parameters["POptional"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("PEnumID", MySqlDbType.Int64));
-            UpdCmd.Parameters["PEnumID"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PEnumID"].SourceColumn = PEnumID.ColumnName;
-            UpdCmd.Parameters["PEnumID"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("PStoredProc", MySqlDbType.VarString));
-            UpdCmd.Parameters["PStoredProc"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PStoredProc"].SourceColumn = PStoredProc.ColumnName;
-            UpdCmd.Parameters["PStoredProc"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("PID", MySqlDbType.Int64));
-            UpdCmd.Parameters["PID"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PID"].SourceColumn = PID.ColumnName;
-            UpdCmd.Parameters["PID"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Clear();
+                UpdCmd.Parameters.Add(new MySqlParameter("PName", MySqlDbType.VarString));
+                UpdCmd.Parameters["PName"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["PName"].SourceColumn = PName.ColumnName;
+                UpdCmd.Parameters["PName"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Add(new MySqlParameter("PDisplayName", MySqlDbType.VarString));
+                UpdCmd.Parameters["PDisplayName"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["PDisplayName"].SourceColumn = PDisplayName.ColumnName;
+                UpdCmd.Parameters["PDisplayName"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Add(new MySqlParameter("PDefaultValue", MySqlDbType.VarString));
+                UpdCmd.Parameters["PDefaultValue"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["PDefaultValue"].SourceColumn = PDefaultValue.ColumnName;
+                UpdCmd.Parameters["PDefaultValue"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Add(new MySqlParameter("PType", MySqlDbType.VarString));
+                UpdCmd.Parameters["PType"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["PType"].SourceColumn = PType.ColumnName;
+                UpdCmd.Parameters["PType"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Add(new MySqlParameter("POptional", MySqlDbType.Byte));
+                UpdCmd.Parameters["POptional"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["POptional"].SourceColumn = POptional.ColumnName;
+                UpdCmd.Parameters["POptional"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Add(new MySqlParameter("PEnumID", MySqlDbType.Int64));
+                UpdCmd.Parameters["PEnumID"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["PEnumID"].SourceColumn = PEnumID.ColumnName;
+                UpdCmd.Parameters["PEnumID"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Add(new MySqlParameter("PStoredProc", MySqlDbType.VarString));
+                UpdCmd.Parameters["PStoredProc"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["PStoredProc"].SourceColumn = PStoredProc.ColumnName;
+                UpdCmd.Parameters["PStoredProc"].SourceVersion = DataRowVersion.Current;
+                UpdCmd.Parameters.Add(new MySqlParameter("PID", MySqlDbType.Int64));
+                UpdCmd.Parameters["PID"].Direction = ParameterDirection.Input;
+                UpdCmd.Parameters["PID"].SourceColumn = PID.ColumnName;
+                UpdCmd.Parameters["PID"].SourceVersion = DataRowVersion.Current;
 
-            MySqlCommand DelCmd = new MySqlCommand(@"
+                MySqlCommand DelCmd = new MySqlCommand(@"
 DELETE from testreports.report_type_properties 
 WHERE ID = ?PDelID", MyCn, trans);
 
-            DelCmd.Parameters.Clear();
-            DelCmd.Parameters.Add(new MySqlParameter("PDelID", MySqlDbType.Int64));
-            DelCmd.Parameters["PDelID"].Direction = ParameterDirection.Input;
-            DelCmd.Parameters["PDelID"].SourceColumn = PID.ColumnName;
-            DelCmd.Parameters["PDelID"].SourceVersion = DataRowVersion.Original;
+                DelCmd.Parameters.Clear();
+                DelCmd.Parameters.Add(new MySqlParameter("PDelID", MySqlDbType.Int64));
+                DelCmd.Parameters["PDelID"].Direction = ParameterDirection.Input;
+                DelCmd.Parameters["PDelID"].SourceColumn = PID.ColumnName;
+                DelCmd.Parameters["PDelID"].SourceVersion = DataRowVersion.Original;
 
-            MySqlCommand InsCmd = new MySqlCommand(@"
+                MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
     testreports.report_type_properties 
 SET 
@@ -226,97 +241,101 @@ SET
     ReportTypeCode = ?rtc
 ", MyCn, trans);
 
-            InsCmd.Parameters.Clear();
-            InsCmd.Parameters.Add(new MySqlParameter("PName", MySqlDbType.VarString));
-            InsCmd.Parameters["PName"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["PName"].SourceColumn = PName.ColumnName;
-            InsCmd.Parameters["PName"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("PDisplayName", MySqlDbType.VarString));
-            InsCmd.Parameters["PDisplayName"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["PDisplayName"].SourceColumn = PDisplayName.ColumnName;
-            InsCmd.Parameters["PDisplayName"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("PDefaultValue", MySqlDbType.VarString));
-            InsCmd.Parameters["PDefaultValue"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["PDefaultValue"].SourceColumn = PDefaultValue.ColumnName;
-            InsCmd.Parameters["PDefaultValue"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("PType", MySqlDbType.VarString));
-            InsCmd.Parameters["PType"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["PType"].SourceColumn = PType.ColumnName;
-            InsCmd.Parameters["PType"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("POptional", MySqlDbType.Byte));
-            InsCmd.Parameters["POptional"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["POptional"].SourceColumn = POptional.ColumnName;
-            InsCmd.Parameters["POptional"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("PEnumID", MySqlDbType.Int64));
-            InsCmd.Parameters["PEnumID"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["PEnumID"].SourceColumn = PEnumID.ColumnName;
-            InsCmd.Parameters["PEnumID"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("PStoredProc", MySqlDbType.VarString));
-            InsCmd.Parameters["PStoredProc"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["PStoredProc"].SourceColumn = PStoredProc.ColumnName;
-            InsCmd.Parameters["PStoredProc"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("rtc", Request["rtc"]));
+                InsCmd.Parameters.Clear();
+                InsCmd.Parameters.Add(new MySqlParameter("PName", MySqlDbType.VarString));
+                InsCmd.Parameters["PName"].Direction = ParameterDirection.Input;
+                InsCmd.Parameters["PName"].SourceColumn = PName.ColumnName;
+                InsCmd.Parameters["PName"].SourceVersion = DataRowVersion.Current;
+                InsCmd.Parameters.Add(new MySqlParameter("PDisplayName", MySqlDbType.VarString));
+                InsCmd.Parameters["PDisplayName"].Direction = ParameterDirection.Input;
+                InsCmd.Parameters["PDisplayName"].SourceColumn = PDisplayName.ColumnName;
+                InsCmd.Parameters["PDisplayName"].SourceVersion = DataRowVersion.Current;
+                InsCmd.Parameters.Add(new MySqlParameter("PDefaultValue", MySqlDbType.VarString));
+                InsCmd.Parameters["PDefaultValue"].Direction = ParameterDirection.Input;
+                InsCmd.Parameters["PDefaultValue"].SourceColumn = PDefaultValue.ColumnName;
+                InsCmd.Parameters["PDefaultValue"].SourceVersion = DataRowVersion.Current;
+                InsCmd.Parameters.Add(new MySqlParameter("PType", MySqlDbType.VarString));
+                InsCmd.Parameters["PType"].Direction = ParameterDirection.Input;
+                InsCmd.Parameters["PType"].SourceColumn = PType.ColumnName;
+                InsCmd.Parameters["PType"].SourceVersion = DataRowVersion.Current;
+                InsCmd.Parameters.Add(new MySqlParameter("POptional", MySqlDbType.Byte));
+                InsCmd.Parameters["POptional"].Direction = ParameterDirection.Input;
+                InsCmd.Parameters["POptional"].SourceColumn = POptional.ColumnName;
+                InsCmd.Parameters["POptional"].SourceVersion = DataRowVersion.Current;
+                InsCmd.Parameters.Add(new MySqlParameter("PEnumID", MySqlDbType.Int64));
+                InsCmd.Parameters["PEnumID"].Direction = ParameterDirection.Input;
+                InsCmd.Parameters["PEnumID"].SourceColumn = PEnumID.ColumnName;
+                InsCmd.Parameters["PEnumID"].SourceVersion = DataRowVersion.Current;
+                InsCmd.Parameters.Add(new MySqlParameter("PStoredProc", MySqlDbType.VarString));
+                InsCmd.Parameters["PStoredProc"].Direction = ParameterDirection.Input;
+                InsCmd.Parameters["PStoredProc"].SourceColumn = PStoredProc.ColumnName;
+                InsCmd.Parameters["PStoredProc"].SourceVersion = DataRowVersion.Current;
+                InsCmd.Parameters.Add(new MySqlParameter("rtc", Request["rtc"]));
 
-            MyDA.UpdateCommand = UpdCmd;
-            MyDA.DeleteCommand = DelCmd;
-            MyDA.InsertCommand = InsCmd;
+                MyDA.UpdateCommand = UpdCmd;
+                MyDA.DeleteCommand = DelCmd;
+                MyDA.InsertCommand = InsCmd;
 
-            string strHost = HttpContext.Current.Request.UserHostAddress;
-            string strUser = HttpContext.Current.User.Identity.Name;
-            if (strUser.StartsWith("ANALIT\\"))
-            {
-                strUser = strUser.Substring(7);
+                string strHost = HttpContext.Current.Request.UserHostAddress;
+                string strUser = HttpContext.Current.User.Identity.Name;
+                if (strUser.StartsWith("ANALIT\\"))
+                {
+                    strUser = strUser.Substring(7);
+                }
+                MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
+
+                MyDA.Update(DS, DS.Tables[dtProperties.TableName].TableName);
+
+                trans.Commit();
+
+                PostData();
             }
-            MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
-
-            MyDA.Update(DS, DS.Tables[dtProperties.TableName].TableName);
-
-            trans.Commit();
-
-            PostData();
+            catch (Exception err)
+            {
+                trans.Rollback();
+            }
+            finally
+            {
+                MyCmd.Dispose();
+                MyCn.Close();
+                MyCn.Dispose();
+            }
+            if (dgvProperties.Rows.Count > 0)
+                btnApply.Visible = true;
+            else
+                btnApply.Visible = false;
         }
-        catch (Exception err)
-        {
-            trans.Rollback();
-        }
-        finally
-        {
-            MyCmd.Dispose();
-            MyCn.Close();
-            MyCn.Dispose();
-        }
-        if (dgvProperties.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
     }
 
     private void CopyChangesToTable()
     {
         foreach (GridViewRow dr in dgvProperties.Rows)
         {
-            if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PName.ColumnName].ToString() != ((TextBox)dr.FindControl("tbName")).Text)
-                DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PName.ColumnName] = ((TextBox)dr.FindControl("tbName")).Text;
+            if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex].Row.RowState == DataRowState.Added)
+            {
+                if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PName.ColumnName].ToString() != ((TextBox)dr.FindControl("tbName")).Text)
+                    DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PName.ColumnName] = ((TextBox)dr.FindControl("tbName")).Text;
 
-            if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDisplayName.ColumnName].ToString() != ((TextBox)dr.FindControl("tbDisplayName")).Text)
-                DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDisplayName.ColumnName] = ((TextBox)dr.FindControl("tbDisplayName")).Text;
-            
+                if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDisplayName.ColumnName].ToString() != ((TextBox)dr.FindControl("tbDisplayName")).Text)
+                    DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDisplayName.ColumnName] = ((TextBox)dr.FindControl("tbDisplayName")).Text;
+
+                if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PType.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlType")).SelectedValue)
+                    DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PType.ColumnName] = ((DropDownList)dr.FindControl("ddlType")).SelectedValue;
+
+                if (((DropDownList)dr.FindControl("ddlType")).SelectedValue == "ENUM")
+                {
+                    if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlEnum")).SelectedValue)
+                        DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName] = ((DropDownList)dr.FindControl("ddlEnum")).SelectedValue;
+                }
+                else
+                {
+                    if (!(DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName].ToString() is DBNull))
+                        DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName] = DBNull.Value;
+                }
+            }
+
             if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDefaultValue.ColumnName].ToString() != ((TextBox)dr.FindControl("tbDefault")).Text)
                 DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PDefaultValue.ColumnName] = ((TextBox)dr.FindControl("tbDefault")).Text;
-
-            if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PType.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlType")).SelectedValue)
-                DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PType.ColumnName] = ((DropDownList)dr.FindControl("ddlType")).SelectedValue;
-
-            if (((DropDownList)dr.FindControl("ddlType")).SelectedValue == "ENUM")
-            {
-                if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlEnum")).SelectedValue)
-                    DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName] = ((DropDownList)dr.FindControl("ddlEnum")).SelectedValue;
-            }
-            else
-            {
-                if (!(DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName].ToString() is DBNull))
-                    DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName] = DBNull.Value;
-            }
 
             if (DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][POptional.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbOptional")).Checked).ToString())
                 DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][POptional.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbOptional")).Checked);
@@ -410,39 +429,84 @@ SET
     {
 		if (e.Row.RowType == DataControlRowType.DataRow)
 		{
-			if (e.Row.Cells[4].FindControl("ddlType") != null)
-			{
-				DropDownList ddlTypes = ((DropDownList)e.Row.Cells[4].FindControl("ddlType"));
-				ddlTypes.DataSource = dtParamTypes;
-				ddlTypes.DataTextField = "ptDisplayName";
-				ddlTypes.DataValueField = "ptName";
-				if (!(((DataRowView)e.Row.DataItem)[PType.ColumnName] is DBNull))
-					ddlTypes.SelectedValue = ((DataRowView)e.Row.DataItem)[PType.ColumnName].ToString();
-				else
-					ddlTypes.SelectedValue = "INT";
-				ddlTypes.DataBind();
+            if (((Label)e.Row.Cells[(int)GridViewFields.PName].FindControl("lblName")).Text != "")
+            {
+                ((TextBox)e.Row.Cells[(int)GridViewFields.PName].FindControl("tbName")).Visible = false;
+                ((Label)e.Row.Cells[(int)GridViewFields.PName].FindControl("lblName")).Visible = true;
 
-				if (((DropDownList)(e.Row.Cells[4].FindControl("ddlType"))).SelectedValue == "ENUM")
-				{
-					((DropDownList)(e.Row.Cells[4].FindControl("ddlEnum"))).Visible = true;
-					((Button)(e.Row.Cells[4].FindControl("btnEditType"))).Visible = true;
-				}
-				else
-				{
-					((DropDownList)(e.Row.Cells[4].FindControl("ddlEnum"))).Visible = false;
-					((Button)(e.Row.Cells[4].FindControl("btnEditType"))).Visible = false;
-				}
-			}
-			if (e.Row.Cells[4].FindControl("ddlEnum") != null)
-			{
-				DropDownList ddlEnums = ((DropDownList)e.Row.Cells[4].FindControl("ddlEnum"));
-				ddlEnums.DataSource = dtEnumTypes;
-				ddlEnums.DataTextField = "etName";
-				ddlEnums.DataValueField = "etID";
-				if (!(((DataRowView)e.Row.DataItem)[PEnumID.ColumnName] is DBNull))
-					ddlEnums.SelectedValue = ((DataRowView)e.Row.DataItem)[PEnumID.ColumnName].ToString();
-				ddlEnums.DataBind();
-			}
+                ((TextBox)e.Row.Cells[(int)GridViewFields.PDisplayName].FindControl("tbDisplayName")).Visible = false;
+                ((Label)e.Row.Cells[(int)GridViewFields.PDisplayName].FindControl("lblDisplayName")).Visible = true;
+
+                ((CheckBox)e.Row.Cells[(int)GridViewFields.POptional].FindControl("chbOptional")).Visible = false;
+                ((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Visible = true;
+
+                if (((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text == "0")
+                    ((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text = "Нет";
+                else
+                    ((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text = "Да";
+
+                ((DropDownList)(e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlEnum"))).Visible = false;
+                ((Button)(e.Row.Cells[(int)GridViewFields.PType].FindControl("btnEditType"))).Visible = false;
+                ((DropDownList)(e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlType"))).Visible = false;
+
+                ((Label)(e.Row.Cells[(int)GridViewFields.PType].FindControl("lblType"))).Visible = true;
+
+                DataRow[] dtr = dtParamTypes.Select("ptName = '" + ((DataRowView)e.Row.DataItem)[PType.ColumnName] + "'");
+                if (dtr.Length > 0)
+                {
+                    ((Label)(e.Row.Cells[(int)GridViewFields.PType].FindControl("lblType"))).Text = dtr[0]["ptDisplayName"].ToString();
+                    if (dtr[0]["ptName"].ToString() == "ENUM")
+                    {
+                        dtr = dtEnumTypes.Select("etID = " + ((DataRowView)e.Row.DataItem)[PEnumID.ColumnName]);
+                        ((Label)(e.Row.Cells[(int)GridViewFields.PType].FindControl("lblType"))).Text += " - " + dtr[0]["etName"].ToString();
+                    }
+                }
+            }
+            else
+            {
+                ((TextBox)e.Row.Cells[(int)GridViewFields.PName].FindControl("tbName")).Visible = true;
+                ((Label)e.Row.Cells[(int)GridViewFields.PName].FindControl("lblName")).Visible = false;
+
+                ((TextBox)e.Row.Cells[(int)GridViewFields.PDisplayName].FindControl("tbDisplayName")).Visible = true;
+                ((Label)e.Row.Cells[(int)GridViewFields.PDisplayName].FindControl("lblDisplayName")).Visible = false;
+
+                ((CheckBox)e.Row.Cells[(int)GridViewFields.POptional].FindControl("chbOptional")).Visible = true;
+                ((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Visible = false;
+                ((Label)(e.Row.Cells[(int)GridViewFields.PType].FindControl("lblType"))).Visible = false;
+
+                ((DropDownList)(e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlEnum"))).Visible = true;
+                    DropDownList ddlTypes = ((DropDownList)e.Row.Cells[4].FindControl("ddlType"));
+                    ddlTypes.DataSource = dtParamTypes;
+                    ddlTypes.DataTextField = "ptDisplayName";
+                    ddlTypes.DataValueField = "ptName";
+                    if (!(((DataRowView)e.Row.DataItem)[PType.ColumnName] is DBNull))
+                        ddlTypes.SelectedValue = ((DataRowView)e.Row.DataItem)[PType.ColumnName].ToString();
+                    else
+                        ddlTypes.SelectedValue = "INT";
+                    ddlTypes.DataBind();
+
+                    if (((DropDownList)(e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlType"))).SelectedValue == "ENUM")
+                    {
+                        ((DropDownList)(e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlEnum"))).Visible = true;
+                        ((Button)(e.Row.Cells[(int)GridViewFields.PType].FindControl("btnEditType"))).Visible = true;
+                    }
+                    else
+                    {
+                        ((DropDownList)(e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlEnum"))).Visible = false;
+                        ((Button)(e.Row.Cells[(int)GridViewFields.PType].FindControl("btnEditType"))).Visible = false;
+                    }
+
+                if (e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlEnum") != null)
+                {
+                    DropDownList ddlEnums = ((DropDownList)e.Row.Cells[4].FindControl("ddlEnum"));
+                    ddlEnums.DataSource = dtEnumTypes;
+                    ddlEnums.DataTextField = "etName";
+                    ddlEnums.DataValueField = "etID";
+                    if (!(((DataRowView)e.Row.DataItem)[PEnumID.ColumnName] is DBNull))
+                        ddlEnums.SelectedValue = ((DataRowView)e.Row.DataItem)[PEnumID.ColumnName].ToString();
+                    ddlEnums.DataBind();
+                }
+            }
 		}
     }
 
@@ -493,5 +557,48 @@ SET
             ((Button)(((DropDownList)sender).Parent).FindControl("btnEditType")).Visible = false;
         }
 
+    }
+
+    protected void cvProc_ServerValidate(object source, ServerValidateEventArgs args)
+    {
+        TextBox tbProc = (TextBox)(((CustomValidator)source).Parent).FindControl("tbProc");
+        string db = String.Empty;
+        if ((tbProc).Text != String.Empty)
+        {
+            DataTable dt = new DataTable();
+
+            try
+            {
+                if (MyCn.State != ConnectionState.Open)
+                    MyCn.Open();
+
+                db = MyCn.Database;
+                MyCn.ChangeDatabase("testreports");
+                MyCmd.Connection = MyCn;
+                MyDA.SelectCommand = MyCmd;
+                MyCmd.Parameters.Clear();
+                MyCmd.Parameters.Add("inFirmCode", 1912);
+                MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
+                MyCmd.Parameters.Add("inFilter", "");
+                MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
+                MyCmd.CommandText = tbProc.Text;
+                MyCmd.CommandType = CommandType.StoredProcedure;
+                MyDA.Fill(dt);
+
+                args.IsValid = true;
+            }
+            catch
+            {
+                args.IsValid = false;
+            }
+            finally
+            {
+                if(db!=String.Empty)
+                    MyCn.ChangeDatabase(db);
+                MyCmd.Dispose();
+                MyCn.Close();
+                //MyCn.Dispose();
+            }
+        }
     }
 }
