@@ -13,7 +13,7 @@ using MySql.Data.MySqlClient;
 
 public partial class Reports_ReportTypes : System.Web.UI.Page
 {
-    protected MySqlConnection MyCn = new MySqlConnection("server=testSQL.analit.net; user id=system; password=123;");
+    protected MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
     protected MySqlCommand MyCmd = new MySqlCommand();
     private DataSet DS;
     private DataTable dtReportTypes;
