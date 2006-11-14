@@ -20,14 +20,14 @@
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="E-mail">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbEMail" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRAddress")%>'></asp:TextBox><asp:RequiredFieldValidator
-                            ID="rfvEMail" runat="server" ControlToValidate="tbEMail" ErrorMessage='Поле "E-mail" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbEMail" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRAddress")%>'></asp:TextBox><asp:RegularExpressionValidator
+                            ID="revEMail" runat="server" ControlToValidate="tbEMail" ErrorMessage="E-mail введен неверно"
+                            ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*">*</asp:RegularExpressionValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Тема письма">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbSubject" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRSubject")%>'></asp:TextBox><asp:RequiredFieldValidator
-                            ID="rfvSubject" runat="server" ControlToValidate="tbSubject" ErrorMessage='Поле "Тема письма" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbSubject" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRSubject")%>'></asp:TextBox>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Имя файла отчета">

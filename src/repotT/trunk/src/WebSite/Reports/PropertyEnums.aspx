@@ -8,9 +8,8 @@
                 <asp:BoundField DataField="eID" HeaderText="Код" Visible="False" />
                 <asp:TemplateField HeaderText="Наименование">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbEnumName" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.eName")%>'></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvEnumName" runat="server" ControlToValidate="tbEnumName"
-                            ErrorMessage='Поле "Наименование" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbEnumName" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.eName")%>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvEnumName" runat="server" ControlToValidate="tbEnumName"
+                            ErrorMessage='Поле "Наименование" должно быть заполнено' ValidationGroup="vgTypes">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:HyperLinkField HeaderText="Список значений" Text="..." DataNavigateUrlFields="eID" DataNavigateUrlFormatString="EnumValues.aspx?e={0}" />
@@ -27,6 +26,6 @@
 				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить тип" />
 			</EmptyDataTemplate>
         </asp:GridView>
-        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" />
+        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgTypes" />
     </div>
 </asp:Content>

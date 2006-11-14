@@ -13,7 +13,7 @@
                 <asp:TemplateField HeaderText="Имя листа">
                     <ItemTemplate>
                         <asp:TextBox ID="tbCaption" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportCaption")%>'></asp:TextBox><asp:RequiredFieldValidator
-                            ID="rfvCaption" runat="server" ControlToValidate="tbCaption" ErrorMessage='Поле "Имя листа" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                            ID="rfvCaption" runat="server" ControlToValidate="tbCaption" ErrorMessage='Поле "Имя листа" должно быть заполнено' ValidationGroup="vgReps">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:HyperLinkField HeaderText="Параметры" Text="..." DataNavigateUrlFields="RReportCode" DataNavigateUrlFormatString="ReportProperties.aspx?rp={0}" />
@@ -30,5 +30,5 @@
 				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить отчет" />
 			</EmptyDataTemplate>
         </asp:GridView>
-        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" /></div>
+        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgReps" /></div>
 </asp:Content>

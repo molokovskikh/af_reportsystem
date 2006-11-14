@@ -10,16 +10,14 @@
                 <asp:BoundField DataField="evID" HeaderText="Код" Visible="False" />
                 <asp:TemplateField HeaderText="Значение">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.evValue")%>'></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvValue" runat="server" ControlToValidate="tbValue"
-                            ErrorMessage='Поле "Значение" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.evValue")%>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvValue" runat="server" ControlToValidate="tbValue"
+                            ErrorMessage='Поле "Значение" должно быть заполнено' ValidationGroup="vgEnums">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Отображаемое значение">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbDisplayValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.evDisplayValue")%>'></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvDisplayValue" runat="server" ControlToValidate="tbDisplayValue"
-                            ErrorMessage='Поле "Отображаемое значение" должно быть заполнено'>*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbDisplayValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.evDisplayValue")%>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvDisplayValue" runat="server" ControlToValidate="tbDisplayValue"
+                            ErrorMessage='Поле "Отображаемое значение" должно быть заполнено' ValidationGroup="vgEnums">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField>
@@ -35,6 +33,6 @@
 				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить значение" />
 			</EmptyDataTemplate>
         </asp:GridView>
-        <asp:Button ID="btnApply" runat="server" OnClick="btnApply_Click" Text="Применить" />
+        <asp:Button ID="btnApply" runat="server" OnClick="btnApply_Click" Text="Применить" ValidationGroup="vgEnums" />
     </div>
 </asp:Content>
