@@ -25,6 +25,7 @@ public partial class Reports_Reports : System.Web.UI.Page
     private DataTable dtTypes;
     private DataColumn ReportTypeName;
     private DataColumn ReportTypeCode;
+    private DataColumn REnabled;
 
     private const string DSReports = "Inforoom.Reports.Reports.DSReports";
 
@@ -41,7 +42,7 @@ public partial class Reports_Reports : System.Web.UI.Page
         }
         else
         {
-            ((HyperLinkField)dgvReports.Columns[2]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"].ToString();
+            ((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"].ToString();
         }
 
         if (!(Page.IsPostBack))
@@ -86,7 +87,8 @@ SELECT
     ReportTypeName as RReportTypeName,
     ReportCode as RReportCode,
     r.ReportTypeCode as RReportTypeCode,
-    ReportCaption as RReportCaption
+    ReportCaption as RReportCaption,
+    r.Enabled as REnabled
 FROM
     testreports.reports r, testreports.reporttypes rt
 WHERE
@@ -136,6 +138,7 @@ FROM
         this.dtTypes = new System.Data.DataTable();
         this.ReportTypeName = new System.Data.DataColumn();
         this.ReportTypeCode = new System.Data.DataColumn();
+        this.REnabled = new System.Data.DataColumn();
         ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtReports)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtTypes)).BeginInit();
@@ -153,7 +156,8 @@ FROM
             this.RReportCode,
             this.RReportTypeCode,
             this.RReportCaption,
-            this.RReportTypeName});
+            this.RReportTypeName,
+            this.REnabled});
         this.dtReports.TableName = "dtReports";
         // 
         // RReportCode
@@ -189,6 +193,11 @@ FROM
         // 
         this.ReportTypeCode.ColumnName = "ReportTypeCode";
         this.ReportTypeCode.DataType = typeof(long);
+        // 
+        // REnabled
+        // 
+        this.REnabled.ColumnName = "REnabled";
+        this.REnabled.DataType = typeof(byte);
         ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtReports)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtTypes)).EndInit();
@@ -223,6 +232,10 @@ FROM
 
             if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportCaption.ColumnName].ToString() != ((TextBox)dr.FindControl("tbCaption")).Text)
                 DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportCaption.ColumnName] = ((TextBox)dr.FindControl("tbCaption")).Text;
+
+            if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked).ToString())
+                DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked);
+
         }
     }
 
@@ -267,7 +280,8 @@ UPDATE
 SET 
     ReportCaption = ?RReportCaption,
     ReportTypeCode = ?RReportTypeCode,
-    GeneralReportCode = ?RGeneralReportCode
+    GeneralReportCode = ?RGeneralReportCode,
+    Enabled = ?REnabled
 WHERE ReportCode = ?RReportCode", MyCn, trans);
 
             UpdCmd.Parameters.Clear();
@@ -283,6 +297,10 @@ WHERE ReportCode = ?RReportCode", MyCn, trans);
             UpdCmd.Parameters["RReportCode"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["RReportCode"].SourceColumn = RReportCode.ColumnName;
             UpdCmd.Parameters["RReportCode"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("REnabled", MySqlDbType.Byte));
+            UpdCmd.Parameters["REnabled"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["REnabled"].SourceColumn = REnabled.ColumnName;
+            UpdCmd.Parameters["REnabled"].SourceVersion = DataRowVersion.Current;
             UpdCmd.Parameters.Add(new MySqlParameter("RGeneralReportCode", Request["r"]));
 
             MySqlCommand DelCmd = new MySqlCommand(@"
@@ -301,7 +319,8 @@ INSERT INTO
 SET 
     ReportCaption = ?RReportCaption,
     ReportTypeCode = ?RReportTypeCode,
-    GeneralReportCode = ?RGeneralReportCode
+    GeneralReportCode = ?RGeneralReportCode,
+    Enabled = ?REnabled
 ", MyCn, trans);
 
             InsCmd.Parameters.Clear();
@@ -313,6 +332,10 @@ SET
             InsCmd.Parameters["RReportTypeCode"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["RReportTypeCode"].SourceColumn = RReportTypeCode.ColumnName;
             InsCmd.Parameters["RReportTypeCode"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("REnabled", MySqlDbType.Byte));
+            InsCmd.Parameters["REnabled"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["REnabled"].SourceColumn = REnabled.ColumnName;
+            InsCmd.Parameters["REnabled"].SourceVersion = DataRowVersion.Current;
             InsCmd.Parameters.Add(new MySqlParameter("RGeneralReportCode", Request["r"]));
 
             MyDA.UpdateCommand = UpdCmd;
