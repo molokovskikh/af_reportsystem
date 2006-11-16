@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <data>
   <value type="dict" struct-name="db.workbench.Workbench">
-    <value type="string" key="_id">{10EFC0B3-9B9B-49AD-A574-93F7763F30B3}</value>
+    <value type="string" key="_id">{25E3278D-1BFB-4B12-98B4-DF5576D77C43}</value>
     <value type="dict" struct-name="db.mysql.Catalog" key="catalog">
       <value type="string" key="_id">{C4DB50D4-32AD-46FD-B73F-DB6A5002ED25}</value>
       <value type="list" content-type="string" content-struct-name="db.CharacterSet" key="characterSets" option="ref">
@@ -1042,6 +1042,26 @@ datetime - &#x434;&#x430;&#x442;&#x430; &#x438; &#x432;&#x440;&#x435;&#x43C;&#x4
                   <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
                   <value type="string" key="structuredDatatype" option="ref"></value>
                 </value>
+                <value type="dict" struct-name="db.mysql.Column">
+                  <value type="string" key="_id">{A40FB8A6-BDE6-4DB6-B0BC-47D20FB4F055}</value>
+                  <value type="int" key="autoIncrement">0</value>
+                  <value type="list" content-type="dict" content-struct-name="db.CheckConstraint" key="checks"/>
+                  <value type="string" key="comment">&#x417;&#x43D;&#x430;&#x447;&#x435;&#x43D;&#x438;&#x435; &#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440;&#x430; &#x43F;&#x43E; &#x443;&#x43C;&#x43E;&#x43B;&#x447;&#x430;&#x43D;&#x438;&#x44E;</value>
+                  <value type="string" key="datatypeExplicitParams"></value>
+                  <value type="string" key="datatypeName">VARCHAR</value>
+                  <value type="string" key="defaultValue"></value>
+                  <value type="int" key="defaultValueIsNull">1</value>
+                  <value type="list" content-type="string" key="flags"/>
+                  <value type="int" key="isNullable">1</value>
+                  <value type="int" key="length">255</value>
+                  <value type="string" key="name">DefaultValue</value>
+                  <value type="string" key="oldName"></value>
+                  <value type="string" key="owner" option="ref">{A350AEA2-B489-4542-994D-6BBA5FF49295}</value>
+                  <value type="int" key="precision">0</value>
+                  <value type="int" key="scale">0</value>
+                  <value type="string" key="simpleType" option="ref">{7198A7BD-968D-4BD9-B85C-4DE7504F0D83}</value>
+                  <value type="string" key="structuredDatatype" option="ref"></value>
+                </value>
               </value>
               <value type="string" key="comment"></value>
               <value type="int" key="commentedOut">0</value>
@@ -1152,6 +1172,7 @@ CREATE TABLE `testreports`.`report_type_properties` (&#13;
   `Optional` BIT NOT NULL DEFAULT 0,&#13;
   `PropertyEnumID` BIGINT UNSIGNED NULL,&#13;
   `SelectStoredProcedure` VARCHAR(255) NULL,&#13;
+  `DefaultValue` VARCHAR(255) NULL,&#13;
   PRIMARY KEY (`ID`),&#13;
   CONSTRAINT `FK_RTP_ReportTypeCode` FOREIGN KEY `FK_RTP_ReportTypeCode` (`ReportTypeCode`)&#13;
     REFERENCES `testreports`.`reporttypes` (`ReportTypeCode`)&#13;
@@ -1707,39 +1728,39 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
     </value>
     <value type="dict" key="customData"/>
     <value type="dict" struct-name="db.workbench.Model" key="model">
-      <value type="string" key="_id">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
-      <value type="string" key="currentView" option="ref">{6C1195E3-8B52-4367-B8AE-721E656F8F47}</value>
+      <value type="string" key="_id">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
+      <value type="string" key="currentView" option="ref">{776919F4-37BD-44E6-B069-60D24359F15B}</value>
       <value type="list" content-type="dict" content-struct-name="model.Marker" key="markers">
         <value type="dict" struct-name="model.Marker">
-          <value type="string" key="_id">{29A5B578-11B5-4275-BEAD-3BB59B326A78}</value>
+          <value type="string" key="_id">{35CD324D-2D09-4612-8281-75A3287E129C}</value>
           <value type="string" key="name">Marker10</value>
-          <value type="string" key="view" option="ref">{6C1195E3-8B52-4367-B8AE-721E656F8F47}</value>
+          <value type="string" key="view" option="ref">{776919F4-37BD-44E6-B069-60D24359F15B}</value>
           <value type="int" key="x">0</value>
           <value type="int" key="y">0</value>
           <value type="real" key="zoom">0.750000</value>
         </value>
       </value>
       <value type="dict" struct-name="db.workbench.ModelInfo" key="properties">
-        <value type="string" key="_id">{7972D4BB-F085-4C30-A1F8-C626FBFD50B8}</value>
+        <value type="string" key="_id">{33E2921A-FC5F-4A1D-8D51-623762622C0B}</value>
         <value type="string" key="author"></value>
-        <value type="string" key="dateChanged">Nov 01, 2006</value>
-        <value type="string" key="dateCreated">Nov 01, 2006</value>
+        <value type="string" key="dateChanged">Nov 10, 2006</value>
+        <value type="string" key="dateCreated">Nov 10, 2006</value>
         <value type="string" key="description"></value>
         <value type="string" key="modelName">New Model</value>
         <value type="string" key="name">Properties</value>
-        <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+        <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
         <value type="string" key="project">Name of the project</value>
         <value type="string" key="version">1.0</value>
       </value>
       <value type="list" content-type="dict" content-struct-name="model.View" key="views">
         <value type="dict" struct-name="db.workbench.View">
-          <value type="string" key="_id">{6C1195E3-8B52-4367-B8AE-721E656F8F47}</value>
+          <value type="string" key="_id">{776919F4-37BD-44E6-B069-60D24359F15B}</value>
           <value type="string" key="connectionLayoutClass">default</value>
           <value type="string" key="description"></value>
           <value type="string" key="elementLayoutClass">default</value>
           <value type="list" content-type="dict" content-struct-name="model.Element" key="elements">
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{0814F7E6-CBD1-4FEC-BBC4-0459632D92E4}</value>
+              <value type="string" key="_id">{C46FF27E-2CFB-4D00-A01A-21E36D4C6E07}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1748,7 +1769,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">308.000000</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">10.000000</value>
               <value type="int" key="locked">0</value>
@@ -1760,7 +1781,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">306.666656</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
+              <value type="string" key="_id">{542D26DD-4B58-46E0-B1CA-552E1280E32D}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1769,7 +1790,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">229.999969</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">38.245682</value>
               <value type="int" key="locked">0</value>
@@ -1781,7 +1802,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">321.333359</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
+              <value type="string" key="_id">{EFF947D8-D83C-48AD-B8B8-965533ECD339}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1790,7 +1811,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">229.999990</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">747.172302</value>
               <value type="int" key="locked">0</value>
@@ -1802,7 +1823,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">254.666687</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
+              <value type="string" key="_id">{800C0C89-F7AE-4E5A-AC0E-F12A344D41E0}</value>
               <value type="string" key="color"></value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1811,7 +1832,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">255.999969</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">911.733948</value>
               <value type="int" key="locked">0</value>
@@ -1823,16 +1844,16 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">349.333435</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
+              <value type="string" key="_id">{643ADA56-8C56-441B-9034-E52B6BBF7C1E}</value>
               <value type="string" key="color">blue</value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
               <value type="int" key="expanded">1</value>
               <value type="int" key="foreignKeysExpanded">0</value>
               <value type="string" key="group" option="ref"></value>
-              <value type="real" key="height">334.000000</value>
+              <value type="real" key="height">360.000000</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">922.666565</value>
               <value type="int" key="locked">0</value>
@@ -1844,7 +1865,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">345.333435</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
+              <value type="string" key="_id">{92CA49C2-AEBF-4496-8B6C-B3C0CCB774BA}</value>
               <value type="string" key="color">blue</value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1853,7 +1874,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">178.000000</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">61.333328</value>
               <value type="int" key="locked">0</value>
@@ -1865,7 +1886,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">288.000046</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{988A3C92-0683-44D4-9B08-014753BB2768}</value>
+              <value type="string" key="_id">{79742D5B-CD06-4D3D-B643-4B7070A6CB0F}</value>
               <value type="string" key="color">blue</value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1874,7 +1895,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">230.000061</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">41.333321</value>
               <value type="int" key="locked">0</value>
@@ -1886,7 +1907,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="width">319.999992</value>
             </value>
             <value type="dict" struct-name="db.workbench.TableElement">
-              <value type="string" key="_id">{11DC52C4-D4B6-4F6F-989D-6BAD942CEF62}</value>
+              <value type="string" key="_id">{427C1D4E-2F68-4AE3-A3DE-1AC084F36B32}</value>
               <value type="string" key="color">blue</value>
               <value type="int" key="columnsExpanded">1</value>
               <value type="int" key="enabled">0</value>
@@ -1895,7 +1916,7 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="string" key="group" option="ref"></value>
               <value type="real" key="height">204.000000</value>
               <value type="int" key="indicesExpanded">0</value>
-              <value type="string" key="layer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="layer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="layoutClass"></value>
               <value type="real" key="left">651.999939</value>
               <value type="int" key="locked">0</value>
@@ -1910,25 +1931,25 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
           <value type="real" key="height">7000.000000</value>
           <value type="list" content-type="dict" content-struct-name="model.Layer" key="layers">
             <value type="dict" struct-name="db.workbench.Layer">
-              <value type="string" key="_id">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+              <value type="string" key="_id">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
               <value type="string" key="color"></value>
               <value type="string" key="description"></value>
               <value type="list" content-type="string" content-struct-name="model.Element" key="elements" option="ref">
-                <value type="string">{0814F7E6-CBD1-4FEC-BBC4-0459632D92E4}</value>
-                <value type="string">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
-                <value type="string">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
-                <value type="string">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
-                <value type="string">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
-                <value type="string">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
-                <value type="string">{988A3C92-0683-44D4-9B08-014753BB2768}</value>
-                <value type="string">{11DC52C4-D4B6-4F6F-989D-6BAD942CEF62}</value>
+                <value type="string">{C46FF27E-2CFB-4D00-A01A-21E36D4C6E07}</value>
+                <value type="string">{542D26DD-4B58-46E0-B1CA-552E1280E32D}</value>
+                <value type="string">{EFF947D8-D83C-48AD-B8B8-965533ECD339}</value>
+                <value type="string">{800C0C89-F7AE-4E5A-AC0E-F12A344D41E0}</value>
+                <value type="string">{643ADA56-8C56-441B-9034-E52B6BBF7C1E}</value>
+                <value type="string">{92CA49C2-AEBF-4496-8B6C-B3C0CCB774BA}</value>
+                <value type="string">{79742D5B-CD06-4D3D-B643-4B7070A6CB0F}</value>
+                <value type="string">{427C1D4E-2F68-4AE3-A3DE-1AC084F36B32}</value>
               </value>
               <value type="int" key="enabled">0</value>
               <value type="list" content-type="dict" content-struct-name="model.Group" key="groups"/>
               <value type="real" key="height">0.000000</value>
               <value type="real" key="left">0.000000</value>
               <value type="string" key="name">root</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="list" content-type="string" content-struct-name="model.Layer" key="subLayers" option="ref"/>
               <value type="real" key="top">0.000000</value>
               <value type="int" key="visible">0</value>
@@ -1936,10 +1957,10 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
             </value>
           </value>
           <value type="string" key="name">Main View</value>
-          <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+          <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
           <value type="list" content-type="dict" content-struct-name="db.workbench.Relationship" key="relationships">
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{BCA92E5C-31A5-4F2B-9BC6-4D48D4DE0462}</value>
+              <value type="string" key="_id">{490712D7-8A3C-4C7A-8749-D8B488AC2F1C}</value>
               <value type="string" key="caption">ReportCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1949,18 +1970,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
+              <value type="string" key="endTable" option="ref">{542D26DD-4B58-46E0-B1CA-552E1280E32D}</value>
               <value type="string" key="name">reports_reportproperties</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
+              <value type="string" key="startTable" option="ref">{EFF947D8-D83C-48AD-B8B8-965533ECD339}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{038842C2-4B25-4794-834A-CFEA33A651AA}</value>
+              <value type="string" key="_id">{79B21FF4-1579-44A8-BAEE-5BA0E4ABA6C9}</value>
               <value type="string" key="caption">GeneralReportCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1970,18 +1991,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
+              <value type="string" key="endTable" option="ref">{EFF947D8-D83C-48AD-B8B8-965533ECD339}</value>
               <value type="string" key="name">generalreports_reports</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{0814F7E6-CBD1-4FEC-BBC4-0459632D92E4}</value>
+              <value type="string" key="startTable" option="ref">{C46FF27E-2CFB-4D00-A01A-21E36D4C6E07}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{B06B397D-2343-49BD-A402-474D89909918}</value>
+              <value type="string" key="_id">{6448AF59-D23B-4E0B-A593-165CE677A0C6}</value>
               <value type="string" key="caption">ReportTypeCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -1991,18 +2012,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{F58DDF90-55BD-438F-AF77-3AA2B46743BF}</value>
+              <value type="string" key="endTable" option="ref">{EFF947D8-D83C-48AD-B8B8-965533ECD339}</value>
               <value type="string" key="name">reporttypes_reports</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
+              <value type="string" key="startTable" option="ref">{800C0C89-F7AE-4E5A-AC0E-F12A344D41E0}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{30B1E9A0-D7EA-46C6-8DA9-9CE991E6B9FE}</value>
+              <value type="string" key="_id">{A73D3823-DDA3-4C59-A52F-6EE4CDF38B4B}</value>
               <value type="string" key="caption">ReportTypeCode</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -2012,18 +2033,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
+              <value type="string" key="endTable" option="ref">{643ADA56-8C56-441B-9034-E52B6BBF7C1E}</value>
               <value type="string" key="name">reporttypes_report_type_properties</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{242AAD33-DBB5-4683-A59A-F232C7B98281}</value>
+              <value type="string" key="startTable" option="ref">{800C0C89-F7AE-4E5A-AC0E-F12A344D41E0}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{ADD49EF9-AC3D-4248-AC02-03F301EA7C32}</value>
+              <value type="string" key="_id">{C346BB97-49A8-41E8-86EF-98BE3E4F332E}</value>
               <value type="string" key="caption">EnumID</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -2033,18 +2054,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{988A3C92-0683-44D4-9B08-014753BB2768}</value>
+              <value type="string" key="endTable" option="ref">{79742D5B-CD06-4D3D-B643-4B7070A6CB0F}</value>
               <value type="string" key="name">property_enums_enum_values</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
+              <value type="string" key="startTable" option="ref">{92CA49C2-AEBF-4496-8B6C-B3C0CCB774BA}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{A5504D22-0733-4EB0-8095-E9E2BCBBC878}</value>
+              <value type="string" key="_id">{950B32BB-B113-4123-A2E5-C7CF750E6A28}</value>
               <value type="string" key="caption">PropertyEnumID</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -2054,18 +2075,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
+              <value type="string" key="endTable" option="ref">{643ADA56-8C56-441B-9034-E52B6BBF7C1E}</value>
               <value type="string" key="name">property_enums_report_type_properties</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{71B1FD2F-803D-478F-8F7C-212EA7AC8833}</value>
+              <value type="string" key="startTable" option="ref">{92CA49C2-AEBF-4496-8B6C-B3C0CCB774BA}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{BBDECF32-C3AF-41F8-8D4E-088846C6E00A}</value>
+              <value type="string" key="_id">{067AFF4A-CA62-4ABB-B3D4-D5A7712F9A92}</value>
               <value type="string" key="caption">FK_RP_PropertyID</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -2075,18 +2096,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
+              <value type="string" key="endTable" option="ref">{542D26DD-4B58-46E0-B1CA-552E1280E32D}</value>
               <value type="string" key="name">report_type_properties_report_properties</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{06E703A8-8972-4A62-9A23-66FE1F85069C}</value>
+              <value type="string" key="startTable" option="ref">{643ADA56-8C56-441B-9034-E52B6BBF7C1E}</value>
             </value>
             <value type="dict" struct-name="db.workbench.Relationship">
-              <value type="string" key="_id">{6976ECE4-02B6-4261-83A6-9B4CDA0E6F10}</value>
+              <value type="string" key="_id">{9A07F90C-8F18-4797-A42D-8E060E6F015C}</value>
               <value type="string" key="caption">FK_RP_ReportPropertyID</value>
               <value type="real" key="captionXOffs">0.000000</value>
               <value type="real" key="captionYOffs">30.000000</value>
@@ -2096,18 +2117,18 @@ CHARACTER SET cp1251 COLLATE cp1251_general_ci;</value>
               <value type="real" key="endCaptionYOffs">0.000000</value>
               <value type="int" key="endMandatory">1</value>
               <value type="int" key="endMany">1</value>
-              <value type="string" key="endTable" option="ref">{11DC52C4-D4B6-4F6F-989D-6BAD942CEF62}</value>
+              <value type="string" key="endTable" option="ref">{427C1D4E-2F68-4AE3-A3DE-1AC084F36B32}</value>
               <value type="string" key="name">report_properties_report_property_values</value>
-              <value type="string" key="owner" option="ref">{C0902BB5-5514-492D-B87A-4BCED52BB3B2}</value>
+              <value type="string" key="owner" option="ref">{5CA0B77B-642F-46DE-88D1-3E516D424865}</value>
               <value type="string" key="startCaption"></value>
               <value type="real" key="startCaptionXOffs">0.000000</value>
               <value type="real" key="startCaptionYOffs">0.000000</value>
               <value type="int" key="startMandatory">1</value>
               <value type="int" key="startMany">0</value>
-              <value type="string" key="startTable" option="ref">{404E2EB0-788C-4F45-B5D5-DCAC5B1E32E2}</value>
+              <value type="string" key="startTable" option="ref">{542D26DD-4B58-46E0-B1CA-552E1280E32D}</value>
             </value>
           </value>
-          <value type="string" key="rootLayer" option="ref">{C5A89882-2BB6-48CF-8094-E75EA0B3BE50}</value>
+          <value type="string" key="rootLayer" option="ref">{50401CDF-39AA-482C-AF82-9C2DA429D7B2}</value>
           <value type="list" content-type="dict" content-struct-name="model.Element" key="selection"/>
           <value type="real" key="width">10000.000000</value>
           <value type="real" key="x">0.000000</value>
