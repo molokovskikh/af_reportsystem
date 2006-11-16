@@ -244,19 +244,22 @@ AND rp.reportCode=?rp
                 {
                     ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
                     ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
-                    ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = true;
-                    ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = true;
-                    ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = true;
 
-                    if (((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName] != String.Empty)
+                    if (((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString() != String.Empty)
                     {
-                        FillDDL(((DataRowView)e.Row.DataItem)[PStoredProc.ColumnName].ToString(), FirmCode, "", ((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString());
-                        DropDownList ddlValues = ((DropDownList)e.Row.Cells[1].FindControl("ddlValue"));
-                        ddlValues.DataSource = dtProcResult;
-                        ddlValues.DataTextField = "DisplayValue";
-                        ddlValues.DataValueField = "ID";
-                        ddlValues.DataBind();
+                        ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = true;
+                        ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                        ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
 
+                        FillDDL(((DataRowView)e.Row.DataItem)[PStoredProc.ColumnName].ToString(), FirmCode, "", ((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString());
+                        ShowSearchedParam(((DropDownList)e.Row.Cells[1].FindControl("ddlValue")), ((TextBox)e.Row.Cells[1].FindControl("tbSearch")), ((Button)e.Row.Cells[1].FindControl("btnFind")));
+
+                    }
+                    else
+                    {
+                        ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible =false;
+                        ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = true;
+                        ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = true;
                     }
                 }
             }
@@ -424,15 +427,51 @@ WHERE ID = ?PID", MyCn, trans);
         if (e.CommandName == "Find")
         {
             CopyChangesToTable();
+            DropDownList ddlValues = ((DropDownList)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("ddlValue"));
+            TextBox tbFind = ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
+            Button btnFind = ((Button)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
 
             FillDDL(DS.Tables[dtNonOptimalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
-            DropDownList ddlValues = ((DropDownList)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("ddlValue"));
-            ddlValues.DataSource = dtProcResult;
-            ddlValues.DataTextField = "DisplayValue";
-            ddlValues.DataValueField = "ID";
-            ddlValues.DataBind();
+            ShowSearchedParam(ddlValues, tbFind, btnFind);
         }
         
     }
 
+    protected void ddlValue_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if(((DropDownList)sender).SelectedValue == "-1")
+        {
+            ((DropDownList)sender).Visible = false;
+            ((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Visible = true;
+            ((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Text = string.Empty;
+            ((Button)((DropDownList)sender).Parent.FindControl("btnFind")).Visible = true;
+        }
+    }
+
+    private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn)
+    {
+        if (dtProcResult.Rows.Count > 0)
+        {
+            ddl.Visible = true;
+            tb.Visible = false;
+            btn.Visible = false;
+            ddl.DataSource = dtProcResult;
+            ddl.DataTextField = "DisplayValue";
+            ddl.DataValueField = "ID";
+            ddl.DataBind();
+            ListItem li = new ListItem();
+            li.Text = "<изменить>";
+            li.Value = "-1";
+            ddl.Items.Insert(0, li);
+            ddl.SelectedIndex = 1;
+        }
+        else
+        {
+            ddl.Visible = false;
+            tb.Visible = true;
+            tb.Text = String.Empty;
+            btn.Visible = true;
+        }
+
+    }
 }

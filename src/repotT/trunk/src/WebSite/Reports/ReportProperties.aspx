@@ -13,7 +13,7 @@
                         <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PPropertyValue")%>'></asp:TextBox>
                         <asp:TextBox ID="tbSearch"  SkinID="searchTexBoxSkin" runat="server" Width="30%"></asp:TextBox>
                         <asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" />
-                        <asp:DropDownList ID="ddlValue" runat="server" Visible="False"></asp:DropDownList>
+                        <asp:DropDownList ID="ddlValue" runat="server" Visible="False" AutoPostBack="True" OnSelectedIndexChanged="ddlValue_SelectedIndexChanged"></asp:DropDownList>
                         <asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyType") %>'  Visible="False"></asp:Label>
                     </ItemTemplate>
                 </asp:TemplateField>
