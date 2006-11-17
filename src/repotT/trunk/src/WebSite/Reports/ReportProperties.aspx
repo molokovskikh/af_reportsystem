@@ -15,6 +15,7 @@
                         <asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" />
                         <asp:DropDownList ID="ddlValue" runat="server" Visible="False" AutoPostBack="True" OnSelectedIndexChanged="ddlValue_SelectedIndexChanged"></asp:DropDownList>
                         <asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyType") %>'  Visible="False"></asp:Label>
+                        <asp:Button ID="btnListValue" runat="server" Text="..." CommandName="ShowValues" />
                     </ItemTemplate>
                 </asp:TemplateField>
             </Columns>

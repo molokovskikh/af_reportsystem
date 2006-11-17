@@ -203,12 +203,14 @@ AND rp.reportCode=?rp
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
             ((Button)e.Row.Cells[1].FindControl("btnFind")).CommandArgument = e.Row.RowIndex.ToString();
+            ((Button)e.Row.Cells[1].FindControl("btnListValue")).CommandArgument = ((DataRowView)e.Row.DataItem)[PID.ColumnName].ToString();
 
             if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "BOOL")
             {
                 ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
                 ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
                 ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
                 ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = true;
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Checked = Convert.ToBoolean(Convert.ToInt32(((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName]));
@@ -219,6 +221,8 @@ AND rp.reportCode=?rp
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
                 ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
                 ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+
 
                 DropDownList ddlValues = ((DropDownList)e.Row.Cells[1].FindControl("ddlValue"));
                 ddlValues.Visible = true;
@@ -239,11 +243,15 @@ AND rp.reportCode=?rp
                     ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
                     ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
                     ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+
                 }
                 else
                 {
                     ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
                     ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+
 
                     if (((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString() != String.Empty)
                     {
@@ -263,6 +271,17 @@ AND rp.reportCode=?rp
                     }
                 }
             }
+            else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "LIST")
+            {
+                ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = true;
+
+                ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+                ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+
+            }
             else
             {
                 ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = true;
@@ -270,6 +289,7 @@ AND rp.reportCode=?rp
                 ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
                 ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
                 ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
             }
         }
     }
@@ -434,7 +454,11 @@ WHERE ID = ?PID", MyCn, trans);
             FillDDL(DS.Tables[dtNonOptimalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
             ShowSearchedParam(ddlValues, tbFind, btnFind);
         }
-        
+        else if (e.CommandName == "ShowValues")
+        {
+            string url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}", Request["r"], Request["rp"], e.CommandArgument);
+            Response.Redirect(url);
+        }
     }
 
     protected void ddlValue_SelectedIndexChanged(object sender, EventArgs e)
@@ -473,5 +497,10 @@ WHERE ID = ?PID", MyCn, trans);
             btn.Visible = true;
         }
 
+    }
+    protected void btnListValue_Click(object sender, EventArgs e)
+    {
+        string url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}", Request["r"], Request["rp"]);
+        Response.Redirect(url);
     }
 }
