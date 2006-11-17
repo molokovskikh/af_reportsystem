@@ -11,7 +11,9 @@
       </siteMapNode>
       <siteMapNode url="~/Reports/GeneralReports.aspx" title="Редактирование отчетов"  description="">
         <siteMapNode url="~/Reports/Reports.aspx" title="Настройка отчетов"  description="">
-          <siteMapNode url="~/Reports/ReportProperties.aspx" title="Настройка параметров отчета"  description=""/>
+          <siteMapNode url="~/Reports/ReportProperties.aspx" title="Настройка параметров отчета"  description="">
+            <siteMapNode url="~/Reports/ReportPropertyValues.aspx" title="Редактирование значений списка"  description=""/>
+          </siteMapNode>
         </siteMapNode>
       </siteMapNode>
     </siteMapNode>
