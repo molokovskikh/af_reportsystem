@@ -17,7 +17,7 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     protected MySqlCommand MyCmd = new MySqlCommand();
     private MySqlDataAdapter MyDA = new MySqlDataAdapter();
     private DataSet DS;
-    private DataTable dtNonOptimalParams;
+    private DataTable dtNonOptionalParams;
     private DataColumn PID;
     private DataColumn PParamName;
     private DataColumn PPropertyType;
@@ -30,6 +30,15 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     private DataColumn CFirmCode;
     private DataColumn CReportCaption;
     Int64 FirmCode;
+    private DataTable dtOptionalParams;
+    private DataColumn OPID;
+    private DataColumn OPParamName;
+    private DataColumn OPPropertyType;
+    private DataColumn OPPropertyValue;
+    private DataColumn OPPropertyEnumID;
+    private DataColumn OPStoredProc;
+    private DataTable dtDDLOptionalParams;
+    private DataColumn OPrtpID;
 
     private const string DSParams = "Inforoom.Reports.ReportProperties.DSParams";
 
@@ -83,6 +92,12 @@ AND ReportCode = ?rp
 
     private void PostData()
     {
+        FillNonOptimal();
+        FillOptimal();
+    }
+
+    private void FillNonOptimal()
+    {
         if (MyCn.State != ConnectionState.Open)
             MyCn.Open();
         MyCmd.Connection = MyCn;
@@ -90,7 +105,7 @@ AND ReportCode = ?rp
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
         MyCmd.Parameters.Add("rp", Request["rp"]);
-        DS.Tables[dtNonOptimalParams.TableName].Clear();
+        DS.Tables[dtNonOptionalParams.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
     rp.ID as PID,
@@ -106,20 +121,56 @@ WHERE
 AND Optional=0
 AND rp.reportCode=?rp
 ";
-        MyDA.Fill(DS, dtNonOptimalParams.TableName);
+        MyDA.Fill(DS, dtNonOptionalParams.TableName);
 
         MyCn.Close();
 
         dgvNonOptional.DataSource = DS;
-        dgvNonOptional.DataMember = DS.Tables[dtNonOptimalParams.TableName].TableName;
+        dgvNonOptional.DataMember = DS.Tables[dtNonOptionalParams.TableName].TableName;
         dgvNonOptional.DataBind();
+        Session[DSParams] = DS;
+    }
+
+    private void FillOptimal()
+    {
+        if (MyCn.State != ConnectionState.Open)
+            MyCn.Open();
+        MyCmd.Connection = MyCn;
+
+        MyDA.SelectCommand = MyCmd;
+        MyCmd.Parameters.Clear();
+        MyCmd.Parameters.Add("rp", Request["rp"]);
+        DS.Tables[dtOptionalParams.TableName].Clear();
+        MyCmd.CommandText = @"
+SELECT
+    rp.ID as OPID,
+    rtp.ID as OPrtpID,
+    rtp.DisplayName as OPParamName,
+    rtp.PropertyType as OPPropertyType,
+    rp.PropertyValue as OPPropertyValue,
+    rtp.PropertyEnumID as OPPropertyEnumID,
+    rtp.selectstoredprocedure as OPStoredProc
+FROM 
+    testreports.report_properties rp, testreports.report_type_properties rtp
+WHERE 
+    rp.propertyID = rtp.ID
+AND Optional=1
+AND rp.reportCode=?rp
+";
+        MyDA.Fill(DS, dtOptionalParams.TableName);
+
+        MyCn.Close();
+
+        dgvOptional.DataSource = DS;
+        dgvOptional.DataMember = DS.Tables[dtOptionalParams.TableName].TableName;
+        dgvOptional.DataBind();
         Session[DSParams] = DS;
     }
 
     private void InitializeComponent()
     {
         this.DS = new System.Data.DataSet();
-        this.dtNonOptimalParams = new System.Data.DataTable();
+        this.dtNonOptionalParams = new System.Data.DataTable();
         this.PID = new System.Data.DataColumn();
         this.PParamName = new System.Data.DataColumn();
         this.PPropertyType = new System.Data.DataColumn();
@@ -129,27 +180,37 @@ AND rp.reportCode=?rp
         this.dtClient = new System.Data.DataTable();
         this.CFirmCode = new System.Data.DataColumn();
         this.CReportCaption = new System.Data.DataColumn();
+        this.dtOptionalParams = new System.Data.DataTable();
+        this.OPID = new System.Data.DataColumn();
+        this.OPParamName = new System.Data.DataColumn();
+        this.OPPropertyType = new System.Data.DataColumn();
+        this.OPPropertyValue = new System.Data.DataColumn();
+        this.OPPropertyEnumID = new System.Data.DataColumn();
+        this.OPStoredProc = new System.Data.DataColumn();
+        this.OPrtpID = new System.Data.DataColumn();
         ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtNonOptimalParams)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).BeginInit();
         // 
         // DS
         // 
         this.DS.DataSetName = "NewDataSet";
         this.DS.Tables.AddRange(new System.Data.DataTable[] {
-            this.dtNonOptimalParams,
-            this.dtClient});
+            this.dtNonOptionalParams,
+            this.dtClient,
+            this.dtOptionalParams});
         // 
-        // dtNonOptimalParams
+        // dtNonOptionalParams
         // 
-        this.dtNonOptimalParams.Columns.AddRange(new System.Data.DataColumn[] {
+        this.dtNonOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
             this.PID,
             this.PParamName,
             this.PPropertyType,
             this.PPropertyValue,
             this.PPropertyEnumID,
             this.PStoredProc});
-        this.dtNonOptimalParams.TableName = "dtNonOptimalParams";
+        this.dtNonOptionalParams.TableName = "dtNonOptionalParams";
         // 
         // PID
         // 
@@ -192,9 +253,53 @@ AND rp.reportCode=?rp
         // CReportCaption
         // 
         this.CReportCaption.ColumnName = "CReportCaption";
+        // 
+        // dtOptionalParams
+        // 
+        this.dtOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
+            this.OPID,
+            this.OPParamName,
+            this.OPPropertyType,
+            this.OPPropertyValue,
+            this.OPPropertyEnumID,
+            this.OPStoredProc,
+            this.OPrtpID});
+        this.dtOptionalParams.TableName = "dtOptionalParams";
+        // 
+        // OPID
+        // 
+        this.OPID.ColumnName = "OPID";
+        this.OPID.DataType = typeof(long);
+        // 
+        // OPParamName
+        // 
+        this.OPParamName.ColumnName = "OPParamName";
+        // 
+        // OPPropertyType
+        // 
+        this.OPPropertyType.ColumnName = "OPPropertyType";
+        // 
+        // OPPropertyValue
+        // 
+        this.OPPropertyValue.ColumnName = "OPPropertyValue";
+        // 
+        // OPPropertyEnumID
+        // 
+        this.OPPropertyEnumID.ColumnName = "OPPropertyEnumID";
+        this.OPPropertyEnumID.DataType = typeof(long);
+        // 
+        // OPStoredProc
+        // 
+        this.OPStoredProc.ColumnName = "OPStoredProc";
+        // 
+        // OPrtpID
+        // 
+        this.OPrtpID.ColumnName = "OPrtpID";
+        this.OPrtpID.DataType = typeof(long);
         ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtNonOptimalParams)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).EndInit();
         ((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).EndInit();
 
     }
 
@@ -323,44 +428,130 @@ AND rtp.PropertyEnumID=?PEID
         MyCn.Close();
     }
 
-    protected void btnApply_Click(object sender, EventArgs e)
+    private void ApplyNonOptimal(MySqlTransaction trans)
     {
-        CopyChangesToTable();
-
-        MySqlTransaction trans;
-        MyCn.Open();
-        trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-        try
-        {
-            MySqlCommand UpdCmd = new MySqlCommand(@"
+        MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
     testreports.report_properties 
 SET 
     PropertyValue = ?PPropertyValue
 WHERE ID = ?PID", MyCn, trans);
 
-            UpdCmd.Parameters.Clear();
-            UpdCmd.Parameters.Add(new MySqlParameter("PID", MySqlDbType.Int64));
-            UpdCmd.Parameters["PID"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PID"].SourceColumn = PID.ColumnName;
-            UpdCmd.Parameters["PID"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("PPropertyValue", MySqlDbType.VarString));
-            UpdCmd.Parameters["PPropertyValue"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["PPropertyValue"].SourceColumn = PPropertyValue.ColumnName;
-            UpdCmd.Parameters["PPropertyValue"].SourceVersion = DataRowVersion.Current;
+        UpdCmd.Parameters.Clear();
+        UpdCmd.Parameters.Add(new MySqlParameter("PID", MySqlDbType.Int64));
+        UpdCmd.Parameters["PID"].Direction = ParameterDirection.Input;
+        UpdCmd.Parameters["PID"].SourceColumn = PID.ColumnName;
+        UpdCmd.Parameters["PID"].SourceVersion = DataRowVersion.Current;
+        UpdCmd.Parameters.Add(new MySqlParameter("PPropertyValue", MySqlDbType.VarString));
+        UpdCmd.Parameters["PPropertyValue"].Direction = ParameterDirection.Input;
+        UpdCmd.Parameters["PPropertyValue"].SourceColumn = PPropertyValue.ColumnName;
+        UpdCmd.Parameters["PPropertyValue"].SourceVersion = DataRowVersion.Current;
 
-            MyDA.UpdateCommand = UpdCmd;
+        MyDA.UpdateCommand = UpdCmd;
 
-            string strHost = HttpContext.Current.Request.UserHostAddress;
-            string strUser = HttpContext.Current.User.Identity.Name;
-            if (strUser.StartsWith("ANALIT\\"))
+        string strHost = HttpContext.Current.Request.UserHostAddress;
+        string strUser = HttpContext.Current.User.Identity.Name;
+        if (strUser.StartsWith("ANALIT\\"))
+        {
+            strUser = strUser.Substring(7);
+        }
+        MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
+
+        MyDA.Update(DS, DS.Tables[dtNonOptionalParams.TableName].TableName);
+    }
+
+    private void ApplyOptimal(MySqlTransaction trans)
+    {
+        MySqlCommand UpdCmd = new MySqlCommand(@"
+UPDATE 
+    testreports.report_properties 
+SET 
+    PropertyValue = ?OPPropertyValue
+WHERE ID = ?OPID", MyCn, trans);
+
+        UpdCmd.Parameters.Clear();
+        UpdCmd.Parameters.Add(new MySqlParameter("OPID", MySqlDbType.Int64));
+        UpdCmd.Parameters["OPID"].Direction = ParameterDirection.Input;
+        UpdCmd.Parameters["OPID"].SourceColumn = OPID.ColumnName;
+        UpdCmd.Parameters["OPID"].SourceVersion = DataRowVersion.Current;
+        UpdCmd.Parameters.Add(new MySqlParameter("OPPropertyValue", MySqlDbType.VarString));
+        UpdCmd.Parameters["OPPropertyValue"].Direction = ParameterDirection.Input;
+        UpdCmd.Parameters["OPPropertyValue"].SourceColumn = OPPropertyValue.ColumnName;
+        UpdCmd.Parameters["OPPropertyValue"].SourceVersion = DataRowVersion.Current;
+
+        MySqlCommand InsCmd = new MySqlCommand(@"
+INSERT 
+    testreports.report_properties 
+SET 
+    ReportCode = ?rp,
+    PropertyID = ?OPrtpID,
+    PropertyValue = ?OPPropertyValue
+", MyCn, trans);
+
+        InsCmd.Parameters.Clear();
+        InsCmd.Parameters.Add(new MySqlParameter("OPID", MySqlDbType.Int64));
+        InsCmd.Parameters["OPID"].Direction = ParameterDirection.Input;
+        InsCmd.Parameters["OPID"].SourceColumn = OPID.ColumnName;
+        InsCmd.Parameters["OPID"].SourceVersion = DataRowVersion.Current;
+        InsCmd.Parameters.Add(new MySqlParameter("OPPropertyValue", MySqlDbType.VarString));
+        InsCmd.Parameters["OPPropertyValue"].Direction = ParameterDirection.Input;
+        InsCmd.Parameters["OPPropertyValue"].SourceColumn = OPPropertyValue.ColumnName;
+        InsCmd.Parameters["OPPropertyValue"].SourceVersion = DataRowVersion.Current;
+        InsCmd.Parameters.Add(new MySqlParameter("OPrtpID", MySqlDbType.Int64));
+        InsCmd.Parameters["OPrtpID"].Direction = ParameterDirection.Input;
+        InsCmd.Parameters["OPrtpID"].SourceColumn = OPrtpID.ColumnName;
+        InsCmd.Parameters["OPrtpID"].SourceVersion = DataRowVersion.Current;
+        InsCmd.Parameters.Add(new MySqlParameter("rp", Request["rp"]));
+
+        MySqlCommand DelCmd = new MySqlCommand(@"
+DELETE FROM 
+    testreports.report_properties 
+WHERE ID = ?OPID", MyCn, trans);
+
+        DelCmd.Parameters.Clear();
+        DelCmd.Parameters.Add(new MySqlParameter("OPID", MySqlDbType.Int64));
+        DelCmd.Parameters["OPID"].Direction = ParameterDirection.Input;
+        DelCmd.Parameters["OPID"].SourceColumn = OPID.ColumnName;
+        DelCmd.Parameters["OPID"].SourceVersion = DataRowVersion.Original;
+
+        MyDA.UpdateCommand = UpdCmd;
+        MyDA.InsertCommand = InsCmd;
+        MyDA.DeleteCommand = DelCmd;
+
+        string strHost = HttpContext.Current.Request.UserHostAddress;
+        string strUser = HttpContext.Current.User.Identity.Name;
+        if (strUser.StartsWith("ANALIT\\"))
+        {
+            strUser = strUser.Substring(7);
+        }
+        MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
+
+        MyDA.Update(DS, DS.Tables[dtOptionalParams.TableName].TableName);
+
+    }
+
+    protected void btnApply_Click(object sender, EventArgs e)
+    {
+        CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+        CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+
+        MyCn.Open();
+        foreach (DataRow dr in DS.Tables[dtOptionalParams.TableName].Rows)
+        {
+            if (dr.RowState == DataRowState.Added)
             {
-                strUser = strUser.Substring(7);
+                dr[OPPropertyValue.ColumnName] = MySqlHelper.ExecuteScalar(MyCn, "SELECT DefaultValue FROM report_type_properties WHERE ID=" + dr[OPrtpID.ColumnName].ToString());
             }
-            MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
+        }
+        MyCn.Close();
 
-            MyDA.Update(DS, DS.Tables[dtNonOptimalParams.TableName].TableName);
-
+        MySqlTransaction trans;
+        MyCn.Open();
+        trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
+        try
+        {
+            ApplyNonOptimal(trans);
+            ApplyOptimal(trans);
             trans.Commit();
 
             PostData();
@@ -381,24 +572,35 @@ WHERE ID = ?PID", MyCn, trans);
             btnApply.Visible = false;
     }
 
-    private void CopyChangesToTable()
+    private void CopyChangesToTable(GridView dgv, DataTable dt, string Column)
     {
-        foreach (GridViewRow dr in dgvNonOptional.Rows)
+        foreach (GridViewRow dr in dgv.Rows)
         {
             if (((DropDownList)dr.FindControl("ddlValue")).Visible == true)
             {
-                if (DS.Tables[dtNonOptimalParams.TableName].DefaultView[dr.RowIndex][PPropertyValue.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlValue")).SelectedValue)
-                    DS.Tables[dtNonOptimalParams.TableName].DefaultView[dr.RowIndex][PPropertyValue.ColumnName] = ((DropDownList)dr.FindControl("ddlValue")).SelectedValue;
+                if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((DropDownList)dr.FindControl("ddlValue")).SelectedValue)
+                    DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = ((DropDownList)dr.FindControl("ddlValue")).SelectedValue;
             }
             else if (((CheckBox)dr.FindControl("chbValue")).Visible == true)
             {
-                if (DS.Tables[dtNonOptimalParams.TableName].DefaultView[dr.RowIndex][PPropertyValue.ColumnName].ToString() != ((CheckBox)dr.FindControl("chbValue")).Checked.ToString())
-                    DS.Tables[dtNonOptimalParams.TableName].DefaultView[dr.RowIndex][PPropertyValue.ColumnName] = Convert.ToInt32(((CheckBox)dr.FindControl("chbValue")).Checked).ToString();
+                if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((CheckBox)dr.FindControl("chbValue")).Checked.ToString())
+                    DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = Convert.ToInt32(((CheckBox)dr.FindControl("chbValue")).Checked).ToString();
             }
             else if (((TextBox)dr.FindControl("tbValue")).Visible == true)
             {
-                if (DS.Tables[dtNonOptimalParams.TableName].DefaultView[dr.RowIndex][PPropertyValue.ColumnName].ToString() != ((TextBox)dr.FindControl("tbValue")).Text)
-                    DS.Tables[dtNonOptimalParams.TableName].DefaultView[dr.RowIndex][PPropertyValue.ColumnName] = ((TextBox)dr.FindControl("tbValue")).Text;
+                if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((TextBox)dr.FindControl("tbValue")).Text)
+                    DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = ((TextBox)dr.FindControl("tbValue")).Text;
+            }
+
+            if (dgv == dgvOptional)
+            {
+                if (((DropDownList)dr.FindControl("ddlName")).Visible == true)
+                {
+                    if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][OPrtpID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlName")).SelectedValue)
+                    {
+                        DS.Tables[dt.TableName].DefaultView[dr.RowIndex][OPrtpID.ColumnName] = ((DropDownList)dr.FindControl("ddlName")).SelectedValue;
+                    }
+                }
             }
         }
     }
@@ -446,12 +648,14 @@ WHERE ID = ?PID", MyCn, trans);
     {
         if (e.CommandName == "Find")
         {
-            CopyChangesToTable();
+            CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+            CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+
             DropDownList ddlValues = ((DropDownList)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("ddlValue"));
             TextBox tbFind = ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
             Button btnFind = ((Button)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
 
-            FillDDL(DS.Tables[dtNonOptimalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
+            FillDDL(DS.Tables[dtNonOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
             ShowSearchedParam(ddlValues, tbFind, btnFind);
         }
         else if (e.CommandName == "ShowValues")
@@ -498,9 +702,225 @@ WHERE ID = ?PID", MyCn, trans);
         }
 
     }
+
     protected void btnListValue_Click(object sender, EventArgs e)
     {
         string url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}", Request["r"], Request["rp"]);
         Response.Redirect(url);
+    }
+
+    protected void dgvOptional_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "Find")
+        {
+            CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+            CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+
+            DropDownList ddlValues = ((DropDownList)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("ddlValue"));
+            TextBox tbFind = ((TextBox)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
+            Button btnFind = ((Button)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
+
+            FillDDL(DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
+            ShowSearchedParam(ddlValues, tbFind, btnFind);
+        }
+        else if (e.CommandName == "ShowValues")
+        {
+            string url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}", Request["r"], Request["rp"], e.CommandArgument);
+            Response.Redirect(url);
+        }
+        else if (e.CommandName == "Add")
+        {
+            bool AddedExist = false;
+            foreach (DataRow dr in DS.Tables[dtOptionalParams.TableName].Rows)
+            {
+                if (dr.RowState == DataRowState.Added)
+                {
+                    AddedExist = true;
+                    break;
+                }
+            }
+            if (!AddedExist)
+            {
+                CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+                CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+
+                DataRow dr = DS.Tables[dtOptionalParams.TableName].NewRow();
+                //dr[GRAllow.ColumnName] = 0;
+                DS.Tables[dtOptionalParams.TableName].Rows.Add(dr);
+
+                dgvOptional.DataSource = DS;
+
+                dgvOptional.DataBind();
+
+                btnApply.Visible = true;
+            }
+        }
+    }
+
+    private void FillDDLOptimal()
+    {
+        if (MyCn.State != ConnectionState.Open)
+            MyCn.Open();
+        MyCmd.Connection = MyCn;
+
+        dtDDLOptionalParams = new DataTable("DDLOptionalParams");
+        dtDDLOptionalParams.Columns.Add("opID", typeof(int));
+        dtDDLOptionalParams.Columns.Add("opName", typeof(string));
+        dtDDLOptionalParams.Columns.Add("opRemove", typeof(byte));
+
+        MyDA.SelectCommand = MyCmd;
+        MyCmd.CommandText = @"
+Select
+    rtp.ID as opID,
+    rtp.DisplayName as opName
+FROM
+    testreports.report_type_properties rtp
+WHERE
+Optional=1";
+        MyDA.Fill(dtDDLOptionalParams);
+
+        MyCn.Close();
+
+        foreach (DataRow dr in dtDDLOptionalParams.Rows)
+        {
+            DataRow[] dtr = DS.Tables[dtOptionalParams.TableName].Select(OPrtpID.ColumnName + "=" + dr["opID"].ToString());
+            if (dtr.Length > 0)
+                dr["opRemove"] = 1;
+            else
+                dr["opRemove"] = 0;
+        }
+
+        DataRow[] dtrRemove = dtDDLOptionalParams.Select("opRemove = 1");
+        for(int i=0; i<dtrRemove.Length; i++)
+        {
+            if (dtDDLOptionalParams.Select("opID=" + dtrRemove[i]["opID"]).Length > 0)
+            {
+                if (dtrRemove[i]["opRemove"].ToString() == "1")
+                    dtDDLOptionalParams.Rows.Remove(dtrRemove[i]);
+            }
+        }
+        dtDDLOptionalParams.AcceptChanges();
+    }
+
+    protected void dgvOptional_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            if (((Label)e.Row.Cells[0].FindControl("lblName")).Text == String.Empty)
+            {
+                DropDownList ddlName = ((DropDownList)e.Row.Cells[0].FindControl("ddlName"));
+                ddlName.Visible = true;
+                ((Label)e.Row.Cells[0].FindControl("lblName")).Visible = false;
+                FillDDLOptimal();
+                ddlName.DataSource = dtDDLOptionalParams;
+                ddlName.DataTextField = "opName";
+                ddlName.DataValueField = "opID";
+                ddlName.DataBind();
+            }
+            else
+            {
+                ((DropDownList)e.Row.Cells[0].FindControl("ddlName")).Visible = false;
+                ((Label)e.Row.Cells[0].FindControl("lblName")).Visible = true; 
+
+                ((Button)e.Row.Cells[1].FindControl("btnFind")).CommandArgument = e.Row.RowIndex.ToString();
+                ((Button)e.Row.Cells[1].FindControl("btnListValue")).CommandArgument = ((DataRowView)e.Row.DataItem)[OPID.ColumnName].ToString();
+
+                if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "BOOL")
+                {
+                    ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+                    ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+                    ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                    ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = true;
+                    ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Checked = Convert.ToBoolean(Convert.ToInt32(((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName]));
+                }
+                else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "ENUM")
+                {
+                    ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+                    ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                    ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+
+
+                    DropDownList ddlValues = ((DropDownList)e.Row.Cells[1].FindControl("ddlValue"));
+                    ddlValues.Visible = true;
+                    FillDDL(Convert.ToInt64(((DataRowView)e.Row.DataItem)[OPPropertyEnumID.ColumnName]));
+                    ddlValues.DataSource = dtEnumValues;
+                    ddlValues.DataTextField = "evName";
+                    ddlValues.DataValueField = "evValue";
+                    if (!(((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName] is DBNull))
+                        ddlValues.SelectedValue = ((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName].ToString();
+                    ddlValues.DataBind();
+                }
+                else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "INT")
+                {
+                    if (((DataRowView)e.Row.DataItem)[OPStoredProc.ColumnName].ToString() == String.Empty)
+                    {
+                        ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = true;
+                        ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                        ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                        ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                        ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                        ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+
+                    }
+                    else
+                    {
+                        ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+                        ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                        ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+
+
+                        if (((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName].ToString() != String.Empty)
+                        {
+                            ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = true;
+                            ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                            ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+
+                            FillDDL(((DataRowView)e.Row.DataItem)[OPStoredProc.ColumnName].ToString(), FirmCode, "", ((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName].ToString());
+                            ShowSearchedParam(((DropDownList)e.Row.Cells[1].FindControl("ddlValue")), ((TextBox)e.Row.Cells[1].FindControl("tbSearch")), ((Button)e.Row.Cells[1].FindControl("btnFind")));
+
+                        }
+                        else
+                        {
+                            ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                            ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = true;
+                            ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = true;
+                        }
+                    }
+                }
+                else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "LIST")
+                {
+                    ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = true;
+
+                    ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+                    ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                    ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                    ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+
+                }
+                else
+                {
+                    ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = true;
+                    ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+                    ((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+                    ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+                    ((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+                }
+            }
+        }    
+    }
+
+    protected void dgvOptional_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    {
+        CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+        CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+        DS.Tables[dtOptionalParams.TableName].DefaultView[e.RowIndex].Delete();
+        dgvOptional.DataSource = DS;
+        dgvOptional.DataBind();
     }
 }
