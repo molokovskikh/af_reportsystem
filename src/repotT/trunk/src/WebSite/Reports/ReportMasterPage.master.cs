@@ -24,6 +24,10 @@ public partial class Reports_ReportMasterPage : System.Web.UI.MasterPage
         {
             currentNode.ParentNode.Url += "?r=" + e.Context.Request["r"];
         }
+        if (currentNode.Key.Equals(e.Context.Request.ApplicationPath + "/reports/reportpropertyvalues.aspx", StringComparison.OrdinalIgnoreCase))
+        {
+            currentNode.ParentNode.Url += "?r=" + e.Context.Request["r"] + "&rp=" + e.Context.Request["rp"];
+        }
 
         return currentNode;
     }
