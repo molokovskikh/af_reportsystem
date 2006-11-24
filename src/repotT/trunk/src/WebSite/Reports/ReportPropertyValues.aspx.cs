@@ -34,7 +34,9 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
     private DataColumn LName;
     private DataColumn LReportPropertyID;
 
-    private const string DSValues = "Inforoom.Reports.ReportValues.DSValues";
+    int PP;
+    private const string DSValues = "Inforoom.Reports.ReportPropertyValues.DSValues";
+    private const string PPCN = "Inforoom.Reports.ReportPropertyValues.PP";
 
     protected void Page_Init(object sender, System.EventArgs e)
     {
@@ -51,6 +53,19 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
             Response.Redirect("ReportProperties.aspx");
         if (!(Page.IsPostBack))
         {
+            try
+            {
+                PP = Convert.ToInt32(Request.Cookies[PPCN].Value);
+            }
+            catch
+            {
+                PP = 10;
+            }
+            dgvListValues.PageSize = PP;
+            ddlPages.Text = PP.ToString();
+            Response.Cookies[PPCN].Value = PP.ToString();
+            Response.Cookies[PPCN].Expires = DateTime.Now.AddYears(2);
+
             MyCn.Open();
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
@@ -86,7 +101,6 @@ and rp.ID=?rpv
             FirmCode = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LFirmCode.ColumnName]);
             ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
         }
-        dgvListValues.DataBind();
         if (dgvListValues.Rows.Count > 0)
             btnApply.Visible = true;
         else
@@ -97,7 +111,10 @@ and rp.ID=?rpv
     {
         FillFromProc();
         FillEnabled();
-
+        Session[DSValues] = DS;
+        dgvListValues.DataSource = DS;
+        dgvListValues.DataMember = DS.Tables[dtProcResult.TableName].TableName;
+        dgvListValues.DataBind();
     }
 
     private void FillEnabled()
@@ -123,7 +140,13 @@ WHERE
 
         MyCn.Close();
 
-        Session[DSValues] = DS;
+        foreach (DataRow drEnabled in DS.Tables[dtEnabledValues.TableName].Rows)
+        {
+            DataRow[] dr = DS.Tables[dtProcResult.TableName].Select("ID = " + drEnabled[EVName.ColumnName].ToString());
+            if(dr.Length > 0)
+                dr[0][Enabled.ColumnName] = 1;
+        }
+        DS.Tables[dtProcResult.TableName].AcceptChanges();
     }
 
     private bool ShowEnabled(String id)
@@ -189,6 +212,7 @@ WHERE
         // 
         this.Enabled.ColumnName = "Enabled";
         this.Enabled.DataType = typeof(byte);
+        this.Enabled.DefaultValue = ((byte)(0));
         // 
         // dtEnabledValues
         // 
@@ -241,8 +265,7 @@ WHERE
 
     protected void btnSearch_Click(object sender, EventArgs e)
     {
-        FillFromProc();
-        dgvListValues.DataBind();
+        ShowData();
     }
 
     private void FillFromProc()
@@ -268,10 +291,6 @@ WHERE
             MyCmd.CommandType = CommandType.StoredProcedure;
             MyDA.Fill(DS, dtProcResult.TableName);
 
-            dgvListValues.DataSource = DS;
-            dgvListValues.DataMember = DS.Tables[dtProcResult.TableName].TableName;
-//            dgvListValues.DataBind();
-            Session[DSValues] = DS;
         }
         catch (Exception ex)
         {
@@ -286,48 +305,161 @@ WHERE
         }
     }
 
-    protected void dgvListValues_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            ((DataRowView)e.Row.DataItem)[Enabled.ColumnName] = Convert.ToByte(ShowEnabled(((DataRowView)e.Row.DataItem)[DisplayValue.ColumnName].ToString()));
-            ((CheckBox)e.Row.Cells[0].FindControl("chbEnabled")).Checked = Convert.ToBoolean(((DataRowView)e.Row.DataItem)[Enabled.ColumnName]);
-            if (chbShowEnabled.Checked)
-            {
-                if (!((CheckBox)e.Row.Cells[0].FindControl("chbEnabled")).Checked)
-                    e.Row.Visible = false;
-            }
-        }
-    }
-
     private void CopyChangesToTable()
     {
+        CheckBox cb;
+        DataRow[] drProc;
+        HtmlInputHidden ih;
         foreach (GridViewRow dr in dgvListValues.Rows)
         {
-            if (((CheckBox)dr.FindControl("chbEnabled")).Visible == true)
+            if (dr.Visible == true)
             {
-                if (DS.Tables[dtProcResult.TableName].DefaultView[dr.RowIndex][Enabled.ColumnName].ToString() != ((CheckBox)dr.FindControl("chbEnabled")).Checked.ToString())
-                    DS.Tables[dtProcResult.TableName].DefaultView[dr.RowIndex][Enabled.ColumnName] = Convert.ToInt32(((CheckBox)dr.FindControl("chbEnabled")).Checked).ToString();
+                ih = (HtmlInputHidden)dr.FindControl("RowID");
+                cb = (CheckBox)dr.FindControl("chbEnabled");
+                drProc = DS.Tables[dtProcResult.TableName].Select("ID = " + ih.Value);
+                if (drProc.Length == 1)
+                {
+                    if (Convert.ToBoolean(drProc[0][Enabled.ColumnName]) != cb.Checked)
+                        drProc[0][Enabled.ColumnName] = Convert.ToInt32(cb.Checked);
+                }
             }
-        }
+        } 
     }
 
     protected void btnApply_Click(object sender, EventArgs e)
     {
         CopyChangesToTable();
+        string ins = String.Empty;
+        string del = String.Empty;
 
         foreach (DataRow dr in DS.Tables[dtProcResult.TableName].Rows)
         {
             if (dr.RowState == DataRowState.Modified)
             {
-
-                //((DataRowVersion)((DataRowView)dr.ItemArray).RowVersion)
+                if (dr[Enabled.ColumnName, DataRowVersion.Original].ToString() == dr[Enabled.ColumnName, DataRowVersion.Current].ToString())
+                    dr.RejectChanges();
             }
+        }
+
+        MySqlTransaction trans;
+        MyCn.Open();
+        trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
+        try
+        {
+            MySqlCommand UpdCmd = new MySqlCommand(@"
+insert into report_property_values
+(ReportPropertyID, Value)
+select r.ID, ?Value
+from
+  report_properties r
+where
+ r.ID = ?RPID
+ and ?Enabled = 1;
+delete from report_property_values
+where
+    ReportPropertyID = ?RPID
+and Value = ?Value
+and ?Enabled = 0;", MyCn, trans);
+
+            UpdCmd.Parameters.Clear();
+            UpdCmd.Parameters.Add(new MySqlParameter("Value", MySqlDbType.Int64));
+            UpdCmd.Parameters["Value"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["Value"].SourceColumn = ID.ColumnName;
+            UpdCmd.Parameters["Value"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("Enabled", MySqlDbType.Byte));
+            UpdCmd.Parameters["Enabled"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["Enabled"].SourceColumn = Enabled.ColumnName;
+            UpdCmd.Parameters["Enabled"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("RPID", ReportPropertyID));
+
+            MyDA.UpdateCommand = UpdCmd;
+
+            string strHost = HttpContext.Current.Request.UserHostAddress;
+            string strUser = HttpContext.Current.User.Identity.Name;
+            if (strUser.StartsWith("ANALIT\\"))
+            {
+                strUser = strUser.Substring(7);
+            }
+            MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
+
+            MyDA.Update(DS, DS.Tables[dtProcResult.TableName].TableName);
+
+            trans.Commit();
+
+            DS.Tables[dtProcResult.TableName].AcceptChanges();
+            PostData();
+        }
+        catch (Exception err)
+        {
+            trans.Rollback();
+        }
+        finally
+        {
+            MyCmd.Dispose();
+            MyCn.Close();
+            MyCn.Dispose();
         }
 
         if (dgvListValues.Rows.Count > 0)
             btnApply.Visible = true;
         else
             btnApply.Visible = false;
+    }
+
+    protected void chbShowEnabled_CheckedChanged(object sender, EventArgs e)
+    {
+        ShowData();
+    }
+
+    protected void ddlPages_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ShowData();
+    }
+
+    protected void dgvListValues_PageIndexChanging(object sender, GridViewPageEventArgs e)
+    {
+        dgvListValues.DataSource = DS;
+        dgvListValues.DataMember = dtProcResult.TableName;
+        dgvListValues.PageIndex = e.NewPageIndex;
+        dgvListValues.DataBind();
+    }
+
+    private void ShowData()
+    {
+        CopyChangesToTable();
+        PP = Convert.ToInt32(ddlPages.SelectedValue);
+        dgvListValues.PageSize = PP;
+        if (dgvListValues.PageCount - 1 <= dgvListValues.PageIndex)
+            dgvListValues.PageIndex = 0;
+        string Filter = String.Empty;
+        if (tbSearch.Text == String.Empty)
+            Filter += String.Empty;
+        else
+            Filter = "DisplayValue like '%" + tbSearch.Text + "%'";
+
+        if (!chbShowEnabled.Checked)
+        {
+            Filter += String.Empty;
+        }
+        else
+        {
+            if (Filter != String.Empty)
+                Filter += " and ";
+            Filter += "Enabled = 1";
+        }
+
+        DS.Tables[dtProcResult.TableName].DefaultView.RowFilter = Filter;
+
+        if (Filter != String.Empty)
+            dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
+        else
+        {
+            dgvListValues.DataSource = DS;
+            dgvListValues.DataMember = dtProcResult.TableName;
+        }
+
+        dgvListValues.DataBind();
+        Response.Cookies[PPCN].Value = PP.ToString();
+        Response.Cookies[PPCN].Expires = DateTime.Now.AddYears(2);
     }
 }
