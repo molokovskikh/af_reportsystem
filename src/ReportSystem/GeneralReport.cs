@@ -203,7 +203,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
 
 			string resArchFileName = Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip");
 
-			ResDirPath += _firmCode.ToString("0000") + "\\Reports\\";
+			ResDirPath += _firmCode.ToString("000") + "\\Reports\\";
 
 			if (!(Directory.Exists(ResDirPath)))
 			{
