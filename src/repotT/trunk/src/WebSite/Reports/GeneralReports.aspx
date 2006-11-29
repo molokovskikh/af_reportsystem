@@ -41,6 +41,7 @@
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:HyperLinkField HeaderText="Отчеты" Text="..." DataNavigateUrlFields="GRCode" DataNavigateUrlFormatString="Reports.aspx?r={0}" />
+                <asp:HyperLinkField HeaderText="Расписание" Text="..." DataNavigateUrlFields="GRCode" DataNavigateUrlFormatString="Schedule.aspx?r={0}" />
                 <asp:TemplateField>
 				<HeaderTemplate>
 					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
