@@ -92,7 +92,7 @@
                 </asp:TemplateField>
             </Columns>
    			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить отчет" />
+				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить расписание" />
 			</EmptyDataTemplate>
         </asp:GridView>
         <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgPassword" />
