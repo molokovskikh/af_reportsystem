@@ -11,6 +11,7 @@ using System.Web.UI.HtmlControls;
 using TaskScheduler;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using System.DirectoryServices;
 
 public partial class Reports_schedule : System.Web.UI.Page
 {
@@ -38,7 +39,6 @@ public partial class Reports_schedule : System.Web.UI.Page
     private DataColumn SStartHour;
     private DataColumn SStartMinute;
     private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
-    private const string SessionCurrentTask = "Inforoom.Reports.Schedule.CurrentTask";
 
     protected void Page_Init(object sender, System.EventArgs e)
     {
@@ -49,6 +49,13 @@ public partial class Reports_schedule : System.Web.UI.Page
     {
         if (Request["r"] == null)
             Response.Redirect("GeneralReports.aspx");
+
+        taskName = "GR" + Request["r"];
+        asWorkDir = System.Configuration.ConfigurationManager.AppSettings["asWorkDir"];
+        asApp = System.Configuration.ConfigurationManager.AppSettings["asApp"];
+        asComp = System.Configuration.ConfigurationManager.AppSettings["asComp"];
+        st = new ScheduledTasks(asComp);
+        currentTask = FindTask(st);
 
         if (!Page.IsPostBack)
         {
@@ -67,24 +74,14 @@ and gr.GeneralReportCode = ?r
 ";
             lblClient.Text = MyCmd.ExecuteScalar().ToString();
             MyCn.Close();
-            asWorkDir = System.Configuration.ConfigurationManager.AppSettings["asWorkDir"];
-            asApp = System.Configuration.ConfigurationManager.AppSettings["asApp"];
-            asComp = System.Configuration.ConfigurationManager.AppSettings["asComp"];
 
-            taskName = asApp + " /gr:" + Request["r"];
-            taskName = "GR" + Request["r"];
             lblWork.Text = taskName;
 
-            st = new ScheduledTasks(asComp);
-            //        st = new ScheduledTasks();
-            ListTasks(st);
-
-            currentTask = FindTask(st);
             lblWork.Text = currentTask.ApplicationName + " " + currentTask.Parameters;
             lblFolder.Text = currentTask.WorkingDirectory;
-            if (currentTask.Flags == TaskFlags.Disabled)
+            if ((currentTask.Flags & TaskFlags.Disabled) > 0)
                 chbAllow.Checked = false;
-            else if (currentTask.Flags == 0)
+            else 
                 chbAllow.Checked = true;
             tbComment.Text = currentTask.Comment;
             tbUserName.Text = currentTask.AccountName;
@@ -98,7 +95,7 @@ and gr.GeneralReportCode = ?r
                 dr[SStartMinute.ColumnName] = ((WeeklyTrigger)(trigger)).StartMinute;
                 //               dr[SStart.ColumnName] = ((WeeklyTrigger)(trigger)).StartHour + ":" + ((WeeklyTrigger)(trigger)).StartMinute;
                 days = ((WeeklyTrigger)(trigger)).WeekDays;
-                days = days | DaysOfTheWeek.Friday | DaysOfTheWeek.Thursday;
+                //days = days | DaysOfTheWeek.Friday | DaysOfTheWeek.Thursday;
                 System.Diagnostics.Debug.WriteLine(days);
 
                 SetWeekDays(dr, DaysOfTheWeek.Monday, days);
@@ -116,12 +113,12 @@ and gr.GeneralReportCode = ?r
             dgvSchedule.DataMember = dtSchedule.TableName;
             dgvSchedule.DataBind();
             Session[DSSchedule] = DS;
-            Session[SessionCurrentTask] = currentTask;
+            //Закончили работу с задачами
+            st.Dispose();
         }
         else
         {
             DS = ((DataSet)Session[DSSchedule]);
-            currentTask = ((Task)Session[SessionCurrentTask]);
         }
     }
 
@@ -153,7 +150,6 @@ and gr.GeneralReportCode = ?r
             t = CreateNewTask(st);
             t = st.OpenTask(taskName);
         }
-        taskNames = st.GetTaskNames();
         return t;
     }
 
@@ -170,18 +166,6 @@ and gr.GeneralReportCode = ?r
         return t;
     }
 
-    static void ListTasks(ScheduledTasks st)
-    {
-        string[] taskNames = st.GetTaskNames();
-        // Open each task, dump info to console
-        foreach (string name in taskNames)
-        {
-            Task t = st.OpenTask(name);
-            Console.WriteLine("  [" + name + "]");
-            Console.WriteLine("  " + t.ToString());
-            t.Close();
-        }
-    }
     protected void btnApply_Click(object sender, EventArgs e)
     {
         if (this.IsValid)
@@ -191,6 +175,8 @@ and gr.GeneralReportCode = ?r
             SaveTriggers();
             SaveTaskChanges();
         }
+        //Закончили работу с задачами
+        st.Dispose();
     }
 
     private void CopyChangesToTable()
@@ -223,13 +209,17 @@ and gr.GeneralReportCode = ?r
     {
         currentTask.Comment = tbComment.Text;
         if (!chbAllow.Checked)
-            currentTask.Flags = TaskFlags.Disabled;
+            currentTask.Flags = currentTask.Flags | TaskFlags.Disabled;
         else
-            currentTask.Flags = 0;
-        currentTask.SetAccountInformation(tbUserName.Text, tbPassword.Text);
+            currentTask.Flags = currentTask.Flags & (~TaskFlags.Disabled);
+        if (String.IsNullOrEmpty(tbUserName.Text))
+            currentTask.SetAccountInformation("", null);
+        else
+            if (!String.IsNullOrEmpty(tbPassword.Text))
+                currentTask.SetAccountInformation(tbUserName.Text, tbPassword.Text);
  
         currentTask.Save();
-        //currentTask.Close();
+        currentTask.Close();
     }
 
     private void SaveTriggers()
@@ -398,6 +388,37 @@ and gr.GeneralReportCode = ?r
     protected void btnExecute_Click(object sender, EventArgs e)
     {
         if (this.IsValid)
+        {
             currentTask.Run();
+        }
+        currentTask.Close();
+        //Закончили работу с задачами
+        st.Dispose();
+    }
+
+    bool IsUserExist(string domain, string login, string password)
+    {
+        DirectoryEntry entry = null;
+        string path = "LDAP://" + domain;
+        try
+        {
+            entry = new DirectoryEntry(path, login, password);
+            path = entry.Name;
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+        finally
+        {
+            if (entry != null)
+                entry.Dispose();
+        }
+    }
+
+    protected void CustomValidator1_ServerValidate(object source, ServerValidateEventArgs args)
+    {
+        args.IsValid = (String.IsNullOrEmpty(tbPassword.Text)) || IsUserExist("analit", tbUserName.Text, tbPassword.Text);
     }
 }

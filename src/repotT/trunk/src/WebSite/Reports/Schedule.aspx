@@ -33,8 +33,10 @@
             <asp:Label ID="Label7" runat="server" Text="Подтверждение пароля:" SkinID="scheduleLabelSkin"></asp:Label>
             <asp:TextBox ID="tbAcceptPassword" runat="server" SkinID="passwordTexBoxSkin" TextMode="Password"></asp:TextBox>
             <asp:CompareValidator ID="cvPassword" runat="server" ControlToCompare="tbPassword"
-             ControlToValidate="tbAcceptPassword" ErrorMessage="CompareValidator" ValidationGroup="vgPassword">Некорректный ввод пароля</asp:CompareValidator>
-        </td></tr>
+             ControlToValidate="tbAcceptPassword" ErrorMessage="CompareValidator" ValidationGroup="vgPassword" Display="Dynamic">Некорректный ввод пароля</asp:CompareValidator>
+            <asp:CustomValidator ID="cvUserInAD" runat="server" ControlToValidate="tbPassword"
+                Display="Dynamic" ErrorMessage="CustomValidator" OnServerValidate="CustomValidator1_ServerValidate"
+                ValidationGroup="vgPassword">Некорректный ввод пароля</asp:CustomValidator></td></tr>
     </table>
     </font>
     <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" ValidationGroup="vgPassword" OnClick="btnExecute_Click" /><br /><br />
