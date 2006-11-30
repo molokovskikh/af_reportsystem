@@ -10,7 +10,6 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-using System.Configuration;
 
 public enum GridViewFields : int
 {
@@ -290,9 +289,10 @@ SET
 
                 PostData();
             }
-            catch (Exception err)
+            catch
             {
                 trans.Rollback();
+                throw;
             }
             finally
             {
@@ -329,8 +329,7 @@ SET
                 }
                 else
                 {
-                    if (!(DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName].ToString() is DBNull))
-                        DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName] = DBNull.Value;
+                    DS.Tables[dtProperties.TableName].DefaultView[dr.RowIndex][PEnumID.ColumnName] = DBNull.Value;
                 }
             }
 

@@ -22,7 +22,7 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
     Int64 ReportPropertyID;
     private DataSet DS;
     private DataTable dtProcResult;
-    private DataColumn ID;
+    private DataColumn PRID;
     private DataColumn DisplayValue;
     private DataColumn Enabled;
     private DataTable dtEnabledValues;
@@ -167,7 +167,7 @@ WHERE
     {
         this.DS = new System.Data.DataSet();
         this.dtProcResult = new System.Data.DataTable();
-        this.ID = new System.Data.DataColumn();
+        this.PRID = new System.Data.DataColumn();
         this.DisplayValue = new System.Data.DataColumn();
         this.Enabled = new System.Data.DataColumn();
         this.dtEnabledValues = new System.Data.DataTable();
@@ -194,15 +194,15 @@ WHERE
         // dtProcResult
         // 
         this.dtProcResult.Columns.AddRange(new System.Data.DataColumn[] {
-            this.ID,
+            this.PRID,
             this.DisplayValue,
             this.Enabled});
         this.dtProcResult.TableName = "dtProcResult";
         // 
-        // ID
+        // PRID
         // 
-        this.ID.ColumnName = "ID";
-        this.ID.DataType = typeof(long);
+        this.PRID.ColumnName = "ID";
+        this.PRID.DataType = typeof(long);
         // 
         // DisplayValue
         // 
@@ -292,7 +292,7 @@ WHERE
             MyDA.Fill(DS, dtProcResult.TableName);
 
         }
-        catch (Exception ex)
+        catch 
         {
         }
         finally
@@ -364,7 +364,7 @@ and ?Enabled = 0;", MyCn, trans);
             UpdCmd.Parameters.Clear();
             UpdCmd.Parameters.Add(new MySqlParameter("Value", MySqlDbType.Int64));
             UpdCmd.Parameters["Value"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["Value"].SourceColumn = ID.ColumnName;
+            UpdCmd.Parameters["Value"].SourceColumn = PRID.ColumnName;
             UpdCmd.Parameters["Value"].SourceVersion = DataRowVersion.Current;
             UpdCmd.Parameters.Add(new MySqlParameter("Enabled", MySqlDbType.Byte));
             UpdCmd.Parameters["Enabled"].Direction = ParameterDirection.Input;
@@ -389,9 +389,10 @@ and ?Enabled = 0;", MyCn, trans);
             DS.Tables[dtProcResult.TableName].AcceptChanges();
             PostData();
         }
-        catch (Exception err)
+        catch 
         {
             trans.Rollback();
+            throw;
         }
         finally
         {

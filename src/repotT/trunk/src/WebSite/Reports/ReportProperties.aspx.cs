@@ -556,9 +556,10 @@ WHERE ID = ?OPID", MyCn, trans);
 
             PostData();
         }
-        catch (Exception err)
+        catch 
         {
             trans.Rollback();
+            throw;
         }
         finally
         {
@@ -631,7 +632,7 @@ WHERE ID = ?OPID", MyCn, trans);
             MyCmd.CommandType = CommandType.StoredProcedure;
             MyDA.Fill(dtProcResult);
         }
-        catch(Exception e)
+        catch
         {
         }
         finally

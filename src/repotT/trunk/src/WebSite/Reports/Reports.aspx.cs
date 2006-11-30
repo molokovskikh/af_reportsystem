@@ -356,9 +356,10 @@ SET
 
             PostData();
         }
-        catch (Exception err)
+        catch 
         {
             trans.Rollback();
+            throw;
         }
         finally
         {
