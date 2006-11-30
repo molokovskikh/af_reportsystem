@@ -632,9 +632,6 @@ WHERE ID = ?OPID", MyCn, trans);
             MyCmd.CommandType = CommandType.StoredProcedure;
             MyDA.Fill(dtProcResult);
         }
-        catch
-        {
-        }
         finally
         {
             if (db != String.Empty)

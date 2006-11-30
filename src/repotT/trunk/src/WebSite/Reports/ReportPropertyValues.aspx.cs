@@ -292,9 +292,6 @@ WHERE
             MyDA.Fill(DS, dtProcResult.TableName);
 
         }
-        catch 
-        {
-        }
         finally
         {
             if (db != String.Empty)
