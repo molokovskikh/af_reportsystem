@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Data;
+using System.Collections.Generic;
 
 namespace Inforoom.ReportSystem.RatingReports
 {
@@ -20,13 +21,6 @@ namespace Inforoom.ReportSystem.RatingReports
 	/// </summary>
 	public class RatingField
 	{
-		//Название поля "Номер отчета" в таблице
-		public const string colReportCode = "Reports_ReportCode";
-		//Название поля "Наименование свойства" в таблице
-		public const string colPropertyName = "PropertyName";
-		//Название поля "Значение свойства" в таблице
-		public const string colPropertyValue = "PropertyValue";
-
 		public const string positionSuffix = "Position";
 		public const string visibleSuffix = "Visible";
 		public const string equalSuffix = "Equal";
@@ -48,9 +42,9 @@ namespace Inforoom.ReportSystem.RatingReports
 		public bool visible;
 
 		//Значения, которым может быть равно primaryField
-		public int[] equalValues = null;
+		public ulong[] equalValues = null;
 		//Значения, которым не может быть равно primaryField
-		public int[] nonEqualValues = null;
+		public ulong[] nonEqualValues = null;
 
 
 
@@ -65,44 +59,29 @@ namespace Inforoom.ReportSystem.RatingReports
 			visible = false;
 		}
 
-		public bool LoadFromDB(DataTable dtProperties)
+		public bool LoadFromDB(Inforoom.ReportSystem.RatingReport Parent)		
 		{
-			DataRow[] dr = dtProperties.Select(String.Format("{0} like '{1}*'", colPropertyName, reportPropertyPreffix));
-			if (dr.Length > 0)
+			//Если Position и Visible существует, то тогда читаем параметр
+			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix) && Parent.reportParamExists(reportPropertyPreffix + visibleSuffix))
 			{
-				dr = dtProperties.Select(String.Format("{0} like '{1}{2}'", colPropertyName, reportPropertyPreffix, positionSuffix));
-				if (dr.Length == 1)
-					position = Convert.ToInt32(dr[0][colPropertyValue]);
-				else
-					throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", positionSuffix, dr.Length));
+				position = (int)Parent.getReportParam(reportPropertyPreffix + positionSuffix);
+				visible = (bool)Parent.getReportParam(reportPropertyPreffix + visibleSuffix);
 
-				dr = dtProperties.Select(String.Format("{0} like '{1}{2}'", colPropertyName, reportPropertyPreffix, visibleSuffix));
-				if (dr.Length == 1)
-					visible = ("1" == dr[0][colPropertyValue].ToString() ? true : false);
-				else
-					throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", visibleSuffix, dr.Length));
-
-				dr = dtProperties.Select(String.Format("{0} like '{1}{2}'", colPropertyName, reportPropertyPreffix, equalSuffix));
-				if (dr.Length > 0)
+				if (Parent.reportParamExists(reportPropertyPreffix + equalSuffix))
 				{
-					equalValues = new int[dr.Length];
-					for(int i = 0; i<dr.Length; i++)
-						equalValues[i] = Convert.ToInt32(dr[i][colPropertyValue]);
+					equalValues = ((List<ulong>)Parent.getReportParam(reportPropertyPreffix + equalSuffix)).ToArray();
 				}
 
-				dr = dtProperties.Select(String.Format("{0} like '{1}{2}'", colPropertyName, reportPropertyPreffix, nonEqualSuffix));
-				if (dr.Length > 0)
+				if (Parent.reportParamExists(reportPropertyPreffix + nonEqualSuffix))
 				{
-					nonEqualValues = new int[dr.Length];
-					for(int i = 0; i<dr.Length; i++)
-						nonEqualValues[i] = Convert.ToInt32(dr[i][colPropertyValue]);
+					nonEqualValues = ((List<ulong>)Parent.getReportParam(reportPropertyPreffix + nonEqualSuffix)).ToArray();
 				}
 
 				return true;
-
 			}
 			else
 				return false;
+
 		}
 
 		private string GetAllValues(Array al)

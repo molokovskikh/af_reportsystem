@@ -16,8 +16,12 @@ namespace Inforoom.ReportSystem
 		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{
-			_reportType = (int)_reportParams["ReportType"];
-			_priceCode = (int)_reportParams["PriceCode"];
+		}
+
+		public override void ReadReportParams()
+		{
+			_reportType = (int)getReportParam("ReportType");
+			_priceCode = (int)getReportParam("PriceCode");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -26,18 +30,16 @@ namespace Inforoom.ReportSystem
 select 
   gr.FirmCode 
 from 
-  reports.reports r,
-  reports.generalreports gr
+  testreports.reports r,
+  testreports.general_reports gr
 where
     r.ReportCode = ?ReportCode
 and gr.GeneralReportCode = r.GeneralReportCode";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.Add("ReportCode", _reportCode);
 			int ClientCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
-			if (_reportParams.ContainsKey("ClientCode"))
-				_reportParams["ClientCode"] = ClientCode;
-			else
-				_reportParams.Add("ClientCode", ClientCode);
+			//Устанавливаем код клиента, как код фирмы, относительно которой генерируется отчет
+			_clientCode = ClientCode;
 
 			//Выбираем 
 			GetActivePricesT(e);

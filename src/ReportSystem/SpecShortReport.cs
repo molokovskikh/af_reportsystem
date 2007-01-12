@@ -15,6 +15,12 @@ namespace Inforoom.ReportSystem
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}
 
+		public override void ReadReportParams()
+		{
+			_reportType = (int)getReportParam("ReportType");
+			_clientCode = (int)getReportParam("ClientCode");
+		}
+
 		protected override void Calculate()
 		{
 			base.Calculate();

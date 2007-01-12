@@ -25,7 +25,7 @@ namespace Inforoom.ReportSystem
 		 */
 
 		protected int _reportType;
-		protected int _showPercents;
+		protected bool _showPercents;
 
 		protected string reportCaptionPreffix;
 
@@ -33,8 +33,13 @@ namespace Inforoom.ReportSystem
 			: base(ReportCode, ReportCaption, Conn)
 		{
 			reportCaptionPreffix = "Комбинированный отчет";
-			_reportType = (int)_reportParams["ReportType"];
-			_showPercents = (int)_reportParams["ShowPercents"];
+		}
+
+		public override void ReadReportParams()
+		{
+			_reportType = (int)getReportParam("ReportType");
+			_showPercents = (bool)getReportParam("ShowPercents");
+			_clientCode = (int)getReportParam("ClientCode");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -136,7 +141,7 @@ order by 2, 5";
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
 				dtRes.Columns.Add("Cost" + PriceIndex.ToString(), typeof(decimal));
-				if (_showPercents == 0)
+				if (!_showPercents)
 					dtRes.Columns.Add("Quantity" + PriceIndex.ToString());
 				else
 					dtRes.Columns.Add("Percents" + PriceIndex.ToString(), typeof(double));
@@ -176,7 +181,7 @@ order by 2, 5";
 						newrow[FirstColumnCount + PriceIndex * 2] = dtPos["Cost"];
 						if ((_reportType == 2) || (_reportType == 4))
 						{
-							if (_showPercents == 0)
+							if (!_showPercents)
 								newrow[FirstColumnCount + PriceIndex * 2 + 1] = dtPos["Quantity"];
 							else
 							{
@@ -285,7 +290,7 @@ order by 2, 5";
 				((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2 + 1]).ColumnWidth = 4;
 
 				ws.Cells[2, 5 + PriceIndex * 2] = "Цена";
-				if (_showPercents == 0)
+				if (!_showPercents)
 					ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Кол-во";
 				else
 					ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Разница в %";

@@ -23,6 +23,8 @@ namespace Inforoom.ReportSystem
 		public const string EMailAddress = "EMailAddress";
 		public const string EMailSubject = "EMailSubject";
 		public const string ShortName = "ShortName";
+		public const string ReportFileName = "ReportFileName";
+		public const string ReportArchName = "ReportArchName";
 	}
 
 	/// <summary>
@@ -36,6 +38,9 @@ namespace Inforoom.ReportSystem
 		private string _eMailAddress;
 		private string _eMailSubject;
 
+		private string _reportFileName;
+		private string _reportArchName;
+
 		private MySqlConnection _conn;
 
 		private string _directoryName;
@@ -46,7 +51,7 @@ namespace Inforoom.ReportSystem
 
 		List<BaseReport> _reports;
 
-		public GeneralReport(ulong GeneralReportID, int FirmCode, string EMailAddress, string EMailSubject, MySqlConnection Conn)
+		public GeneralReport(ulong GeneralReportID, int FirmCode, string EMailAddress, string EMailSubject, MySqlConnection Conn, string ReportFileName, string ReportArchName)
 		{
 			_reports = new List<BaseReport>();
 			_generalReportID = GeneralReportID;
@@ -54,6 +59,8 @@ namespace Inforoom.ReportSystem
 			_conn = Conn;
 			_eMailAddress = EMailAddress;
 			_eMailSubject = EMailSubject;
+			_reportFileName = ReportFileName;
+			_reportArchName = ReportArchName;
 
 			bool addContacts = false;
 			ulong contactsCode = 0;
@@ -64,18 +71,25 @@ namespace Inforoom.ReportSystem
 			{
 				foreach (DataRow drGReport in _dtReports.Rows)
 				{
-					//Создаем отчеты и добавляем их в список отчетов
-					BaseReport bs = (BaseReport)Activator.CreateInstance(
-						GetReportTypeByCode((ulong)drGReport[BaseReportColumns.colReportTypeCode]),
-						new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], drGReport[BaseReportColumns.colReportCaption].ToString(), _conn });
-					_reports.Add(bs);
-
-					//Если в отчетах содержится или комбинированый или специальный отчет, то добавляем в отчеты Контакты
-					if (!addContacts)
+					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled]))
 					{
-						addContacts = (bs.GetType() == typeof(CombReport)) || (bs.GetType() == typeof(SpecReport));
-						if (addContacts)
-							contactsCode = (ulong)drGReport[BaseReportColumns.colReportCode];
+						//Создаем отчеты и добавляем их в список отчетов
+						BaseReport bs = (BaseReport)Activator.CreateInstance(
+							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
+							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], drGReport[BaseReportColumns.colReportCaption].ToString(), _conn });
+						_reports.Add(bs);
+
+						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
+						if (String.IsNullOrEmpty(_eMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
+							_eMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
+
+						//Если в отчетах содержится или комбинированый или специальный отчет, то добавляем в отчеты Контакты
+						if (!addContacts)
+						{
+							addContacts = (bs.GetType() == typeof(CombReport)) || (bs.GetType() == typeof(SpecReport));
+							if (addContacts)
+								contactsCode = (ulong)drGReport[BaseReportColumns.colReportCode];
+						}
 					}
 				}
 			}
@@ -94,7 +108,7 @@ namespace Inforoom.ReportSystem
 				Directory.Delete(_directoryName, true);
 			Directory.CreateDirectory(_directoryName);
 
-			_mainFileName = _directoryName + "\\" + "Rep" + _generalReportID.ToString() + ".xls";
+			_mainFileName = _directoryName + "\\" + ((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + _generalReportID.ToString() + ".xls") : _reportFileName);
 
 			foreach (BaseReport bs in _reports)
 			{
@@ -201,7 +215,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
 			string ResDirPath = "\\\\isrv\\FTP\\OptBox\\";
 #endif
 
-			string resArchFileName = Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip");
+			string resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
 
 			ResDirPath += _firmCode.ToString("000") + "\\Reports\\";
 
@@ -229,11 +243,28 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
 		//Выбираем отчеты из базы
 		private DataTable GetReports(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = String.Format("select * from reports.Reports where {0} = ?{0}", GeneralReportColumns.GeneralReportCode);
+			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+select
+  * 
+from
+  testreports.Reports r,
+  testreports.reporttypes rt
+where
+    r.{0} = ?{0}
+and rt.ReportTypeCode = r.ReportTypeCode", 
+				 GeneralReportColumns.GeneralReportCode);
 			e.DataAdapter.SelectCommand.Parameters.Add(GeneralReportColumns.GeneralReportCode, _generalReportID);
 			DataTable res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;
+		}
+
+		private Type GetReportTypeByName(string ReportTypeClassName)
+		{
+			Type t = Type.GetType(ReportTypeClassName);
+			if (t == null)
+				throw new Exception(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
+			return t;
 		}
 
 		private Type GetReportTypeByCode(ulong ReportTypeCode)

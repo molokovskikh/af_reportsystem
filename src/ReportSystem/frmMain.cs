@@ -142,7 +142,13 @@ namespace Inforoom.ReportSystem
 		{
 			try
 			{
-				MailMessage message = new MailMessage(From, MessageTo, Subject, Body);
+				MailMessage message = new MailMessage(From, 
+#if (TESTING)
+				"s.morozov@analit.net",
+#else
+					MessageTo, 
+#endif
+					Subject, Body);
 				SmtpClient Client = new SmtpClient("box.analit.net");
 				message.IsBodyHtml = false;
 				message.BodyEncoding = System.Text.Encoding.UTF8;
@@ -189,7 +195,7 @@ namespace Inforoom.ReportSystem
 						//Формируем запрос
 						sqlSelectReports =
 @"SELECT  cr.*, cd.ShortName  
-FROM    reports.generalreports cr, 
+FROM    testreports.general_reports cr, 
         usersettings.clientsdata cd  
 WHERE   cr.FirmCode         =cd.firmcode  
         AND cd.firmstatus   =1  
@@ -221,7 +227,9 @@ WHERE   cr.FirmCode         =cd.firmcode
 										Convert.ToInt32(drReport[GeneralReportColumns.FirmCode]),
 										drReport[GeneralReportColumns.EMailAddress].ToString(),
 										drReport[GeneralReportColumns.EMailSubject].ToString(),
-										mc);
+										mc,
+										drReport[GeneralReportColumns.ReportFileName].ToString(),
+										drReport[GeneralReportColumns.ReportArchName].ToString());
 									gr.ProcessReports();
 								}
 								catch (Exception ex)

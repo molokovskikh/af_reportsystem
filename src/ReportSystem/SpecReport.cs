@@ -12,10 +12,9 @@ namespace Inforoom.ReportSystem
 	public class SpecReport : ProviderReport
 	{
 		protected int _reportType;
-		protected int _showPercents;
-		protected int _reportIsFull;
-		protected int _reportSortedByPrice;
-		protected int _clientCode;
+		protected bool _showPercents;
+		protected bool _reportIsFull;
+		protected bool _reportSortedByPrice;
 
 		protected int SourcePC, SourceRegionCode, FirmCode;
 		protected string CustomerFirmName;
@@ -26,11 +25,15 @@ namespace Inforoom.ReportSystem
 			: base(ReportCode, ReportCaption, Conn)
 		{
 			reportCaptionPreffix = "Специальный отчет";
-			_reportType = (int)_reportParams["ReportType"];
-			_showPercents = (int)_reportParams["ShowPercents"];
-			_reportIsFull = (int)_reportParams["ReportIsFull"];
-			_reportSortedByPrice = (int)_reportParams["ReportSortedByPrice"];
-			_clientCode = (int)_reportParams["ClientCode"];
+		}
+
+		public override void ReadReportParams()
+		{
+			_reportType = (int)getReportParam("ReportType");
+			_showPercents = (bool)getReportParam("ShowPercents");
+			_reportIsFull = (bool)getReportParam("ReportIsFull");
+			_reportSortedByPrice = (bool)getReportParam("ReportSortedByPrice");
+			_clientCode = (int)getReportParam("ClientCode");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -44,8 +47,8 @@ namespace Inforoom.ReportSystem
 select 
   gr.FirmCode 
 from 
-  reports.reports r,
-  reports.generalreports gr
+  testreports.reports r,
+  testreports.general_reports gr
 where
     r.ReportCode = ?ReportCode
 and gr.GeneralReportCode = r.GeneralReportCode";
@@ -109,7 +112,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			{
 				dtRes.Columns.Add("Cost" + PriceIndex.ToString(), typeof(decimal));
 				dtRes.Columns["Cost" + PriceIndex.ToString()].Caption = "Цена";
-				if (_showPercents == 0)
+				if (!_showPercents)
 				{
 					dtRes.Columns.Add("Quantity" + PriceIndex.ToString());
 					dtRes.Columns["Quantity" + PriceIndex.ToString()].Caption = "Кол-во";
@@ -214,7 +217,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 							newrow[FirstColumnCount + PriceIndex * 2] = dtPos["Cost"];
 							if ((_reportType == 2) || (_reportType == 4))
 							{
-								if (_showPercents == 0)
+								if (!_showPercents)
 									newrow[FirstColumnCount + PriceIndex * 2 + 1] = dtPos["Quantity"];
 								else
 								{
@@ -386,7 +389,7 @@ from
   farm.CatalogFirmCr cfc,";
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
-			if (_reportIsFull == 1)
+			if (_reportIsFull)
 			{
 				if (_reportType <= 2)
 					SqlCommandText += @"
@@ -414,7 +417,7 @@ where
       or ( (c0.PriceCode = c1.PriceCode) and (c0.RegionCode = c1.RegionCode) and (c0.RowId = c1.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
-			if (_reportIsFull == 0)
+			if (!_reportIsFull)
 			{
 				if (_reportType <= 2)
 					SqlCommandText += @"
@@ -425,7 +428,7 @@ and c1.fullcode=c0.fullcode and c1.codefirmcr=c0.codefirmcr ";
 			}
 			SqlCommandText += @"
 group by c1.Code, c.FullCode, Cfc";
-			if ((_reportIsFull == 0) && (_reportSortedByPrice == 1))
+			if ((!_reportIsFull) && (_reportSortedByPrice))
 				SqlCommandText += @"
 order by c1.ID";
 			else
@@ -561,7 +564,7 @@ order by c.FullCode, Cfc, c1.Code";
 				//((MSExcel.Range)ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
 
 				ws.Cells[3, ColumnPrefix + PriceIndex * 2] = "Цена";
-				if (_showPercents == 0)
+				if (!_showPercents)
 					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Кол-во";
 				else
 					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Разница в %";

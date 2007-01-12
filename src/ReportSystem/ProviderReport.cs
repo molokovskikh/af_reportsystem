@@ -9,6 +9,9 @@ namespace Inforoom.ReportSystem
 	//Вспомогательный отчет, создаваемый по заказу поставщиков
 	public class ProviderReport : BaseReport
 	{
+		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
+		protected int _clientCode;
+
 		public ProviderReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{ 
@@ -21,7 +24,10 @@ namespace Inforoom.ReportSystem
 		public override void ReportToFile(string FileName)
 		{ }
 
-		//Получили список действующих прайс-листов для интересующего клиента, должен существовать параметр "ClientCode"
+		public override void ReadReportParams()
+		{}
+
+		//Получили список действующих прайс-листов для интересующего клиента
 		protected void GetActivePricesT(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -117,17 +123,17 @@ WHERE   DisabledByAgency                                            = 0
         and iui.regioncode                                          = intersection.regioncode
         and regions.regioncode                                      = intersection.regioncode;";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.Add("ClientCode", (int)_reportParams["ClientCode"]);
+			e.DataAdapter.SelectCommand.Parameters.Add("ClientCode", _clientCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 		}
 
-		//Получили список предложений для интересующего клиента, должен существовать параметр "ClientCode"
+		//Получили список предложений для интересующего клиента
 		protected void GetAllCoreT(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"select FirmSegment from usersettings.clientsdata where FirmCode = ?ClientCode";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.Add("ClientCode", (int)_reportParams["ClientCode"]);
+			e.DataAdapter.SelectCommand.Parameters.Add("ClientCode", _clientCode);
 			int ClientSegment = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS AllCoreT;

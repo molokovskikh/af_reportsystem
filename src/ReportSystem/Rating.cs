@@ -22,9 +22,6 @@ namespace Inforoom.ReportSystem
 		public const string toProperty = "ToDate";
 		public const string junkProperty = "JunkState";
 
-		public const string MySQLDateFormat = "yyyy-MM-dd";
-
-
 		public int reportID;
 		public int clientCode;
 		public string reportCaption;
@@ -38,28 +35,13 @@ namespace Inforoom.ReportSystem
 		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{
-			DataRow[] dr;
+		}
 
-			dr = dtReportProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, fromProperty));
-			if (1 == dr.Length)
-				dtFrom = DateTime.ParseExact(dr[0][RatingField.colPropertyValue].ToString(), MySQLDateFormat, null);
-			else
-				throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", fromProperty, dr.Length));
-
-			dr = dtReportProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, toProperty));
-			if (1 == dr.Length)
-				dtTo = DateTime.ParseExact(dr[0][RatingField.colPropertyValue].ToString(), MySQLDateFormat, null);
-			else
-				throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", toProperty, dr.Length));
-
-			dr = dtReportProperties.Select(String.Format("{0} = '{1}'", RatingField.colPropertyName, junkProperty));
-			if (dr.Length == 0)
-				JunkState = 0;
-			else
-				if (1 == dr.Length)
-					JunkState = Convert.ToInt32(dr[0][RatingField.colPropertyValue]);
-				else
-					throw new Exception(String.Format("Кол-во значений {0} не равно 1 ({1})", junkProperty, dr.Length));
+		public override void ReadReportParams()
+		{
+			dtFrom = (DateTime)getReportParam(fromProperty);
+			dtTo = (DateTime)getReportParam(toProperty);
+			JunkState = (int)getReportParam(junkProperty);
 
 			allField = new ArrayList(9);
 			selectField = new ArrayList(9);
@@ -73,12 +55,11 @@ namespace Inforoom.ReportSystem
 
 			foreach (RatingField rf in allField)
 			{
-				if (rf.LoadFromDB(dtReportProperties))
+				if (rf.LoadFromDB(this))
 					selectField.Add(rf);
 			}
 
 			selectField.Sort(new RatingComparer());
-
 		}
 
 		public void ExportToExcel(System.Data.DataTable dtRes)
