@@ -211,6 +211,7 @@ FROM
             CopyChangesToTable();
 
             DataRow dr = DS.Tables[dtReports.TableName].NewRow();
+			dr[REnabled.ColumnName] = 0;
             DS.Tables[dtReports.TableName].Rows.Add(dr);
             dgvReports.DataSource = DS;
             dgvReports.DataBind();
