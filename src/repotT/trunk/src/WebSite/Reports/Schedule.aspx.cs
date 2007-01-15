@@ -22,7 +22,9 @@ public partial class Reports_schedule : System.Web.UI.Page
     string asWorkDir = String.Empty;
     string asApp = String.Empty;
     string asComp = String.Empty;
-    ScheduledTasks st = null;
+	string ScheduleUserName = String.Empty;
+	string SchedulePassword = String.Empty;
+	ScheduledTasks st = null;
     string taskName = String.Empty;
     private DataSet DS;
     private DataTable dtSchedule;
@@ -40,6 +42,9 @@ public partial class Reports_schedule : System.Web.UI.Page
     private DataColumn SStartMinute;
     private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
 
+	private const string StatusRunning = "Выполнить задание";
+	private const string StatusNotRunning = "Выполняется...";
+
     protected void Page_Init(object sender, System.EventArgs e)
     {
         InitializeComponent();
@@ -54,8 +59,12 @@ public partial class Reports_schedule : System.Web.UI.Page
         asWorkDir = System.Configuration.ConfigurationManager.AppSettings["asWorkDir"];
         asApp = System.Configuration.ConfigurationManager.AppSettings["asApp"];
         asComp = System.Configuration.ConfigurationManager.AppSettings["asComp"];
-        st = new ScheduledTasks(asComp);
+		ScheduleUserName = System.Configuration.ConfigurationManager.AppSettings["asScheduleUserName"];
+		SchedulePassword = System.Configuration.ConfigurationManager.AppSettings["asSchedulePassword"];
+		st = new ScheduledTasks(asComp);
         currentTask = FindTask(st);
+		btnExecute.Enabled = currentTask.Status != TaskStatus.Running;
+		btnExecute.Text = (btnExecute.Enabled) ? StatusRunning : StatusNotRunning;
 
         if (!Page.IsPostBack)
         {
@@ -159,7 +168,10 @@ and gr.GeneralReportCode = ?r
         
         t.ApplicationName = asApp;
         t.Parameters = "/gr:" + Request["r"];
-        t.SetAccountInformation(String.Empty, null);
+		if (String.IsNullOrEmpty(ScheduleUserName))
+			t.SetAccountInformation(String.Empty, null);
+		else
+			t.SetAccountInformation(ScheduleUserName, SchedulePassword);
         t.WorkingDirectory = asWorkDir;
         t.Save();
         t.Close();
@@ -387,9 +399,11 @@ and gr.GeneralReportCode = ?r
     }
     protected void btnExecute_Click(object sender, EventArgs e)
     {
-        if (this.IsValid)
+		if (this.IsValid && (currentTask.Status != TaskStatus.Running))
         {
             currentTask.Run();
+			btnExecute.Enabled = false;
+			btnExecute.Text = StatusRunning;
         }
         currentTask.Close();
         //Закончили работу с задачами
