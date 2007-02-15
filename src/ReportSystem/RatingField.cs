@@ -86,9 +86,9 @@ namespace Inforoom.ReportSystem.RatingReports
 
 		private string GetAllValues(Array al)
 		{
-			string Res = "( " + ((int)(al.GetValue(0))).ToString();
+			string Res = "( " + al.GetValue(0).ToString();
 			for(int i = 1; i < al.Length; i++)
-				Res = String.Concat(Res, ", ", ((int)(al.GetValue(i))).ToString());
+				Res = String.Concat(Res, ", ", al.GetValue(i).ToString());
 			Res = String.Concat(Res, ")");
 			return Res;
 		}

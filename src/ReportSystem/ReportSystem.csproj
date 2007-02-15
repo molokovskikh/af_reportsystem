@@ -126,6 +126,7 @@
     </Compile>
     <Compile Include="CombReport.cs" />
     <Compile Include="CombShortReport.cs" />
+    <Compile Include="CombToPlainReport.cs" />
     <Compile Include="ContactsReport.cs" />
     <Compile Include="DefReport.cs" />
     <Compile Include="GeneralReport.cs">
@@ -136,6 +137,11 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="BaseReport.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="ProviderReport.cs" />
     <Compile Include="Rating.cs">
       <SubType>Code</SubType>
@@ -152,6 +158,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
