@@ -124,6 +124,9 @@ namespace Inforoom.ReportSystem
 
 			if (!String.IsNullOrEmpty(_eMailAddress))
 			    MailWithAttach(ResFileName);
+
+			if (Directory.Exists(_directoryName))
+				Directory.Delete(_directoryName, true);
 		}
 
 		private void MailWithAttach(string archFileName)

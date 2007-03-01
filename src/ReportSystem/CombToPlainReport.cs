@@ -101,7 +101,9 @@ and cd.FirmCode = ActivePricesT.FirmCode
 				try
 				{
 					File.Copy(_sharePath + _filename, FileName, true);
+#if !DEBUG
 					File.Delete(_sharePath + _filename);
+#endif
 					CopySucces = true;
 				}
 				catch (Exception e)
