@@ -43,7 +43,9 @@ select
   c.form,
   AllCoreT.code,
   replace( replace( replace(s.synonym, '\t', ''), '\r', ''), '\n', '') as synonym,
-  cfc.firmcr,
+  -- Вместо каталожного наименования призводителя берется синоним
+  -- cfc.firmcr,
+  sfc.synonym,
   AllCoreT.volume,
   AllCoreT.note,
   AllCoreT.period,
@@ -74,11 +76,13 @@ from
   farm.catalog c,
   farm.catalogfirmcr cfc,
   farm.synonym s,
+  farm.synonymfirmcr sfc,
   usersettings.regionaldata rd,
   usersettings.clientsdata cd
 where
   c.FullCode = AllCoreT.fullcode 
 and s.synonymcode = AllCoreT.synonymcode
+and sfc.SynonymFirmCrCode = AllCoreT.SynonymFirmCrCode
 and cfc.codefirmcr = AllCoreT.codefirmcr
 and ActivePricesT.PriceCode = AllCoreT.PriceCode
 and ActivePricesT.RegionCode = AllCoreT.RegionCode
