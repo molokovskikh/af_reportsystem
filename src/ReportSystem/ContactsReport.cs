@@ -18,6 +18,11 @@ namespace Inforoom.ReportSystem
 		{ 
 		}
 
+		public override void ReadReportParams()
+		{
+			_clientCode = (int)getReportParam("ClientCode");
+		}
+
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			GetActivePricesT(e);

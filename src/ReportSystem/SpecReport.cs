@@ -236,6 +236,149 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 		protected void GetSourceCodes(ExecuteArgs e)
 		{
+			int EnabledPrice = Convert.ToInt32(
+				MySqlHelper.ExecuteScalar(
+					e.DataAdapter.SelectCommand.Connection,
+					"select not ActivePricesT.DisabledByClient from ActivePricesT where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
+					new MySqlParameter("SourcePC", SourcePC),
+					new MySqlParameter("SourceRegionCode", SourceRegionCode)));
+			if (EnabledPrice == 0)
+			{
+				e.DataAdapter.SelectCommand.CommandText = @"select FirmSegment from usersettings.clientsdata where FirmCode = ?ClientCode";
+				e.DataAdapter.SelectCommand.Parameters.Clear();
+				e.DataAdapter.SelectCommand.Parameters.Add("ClientCode", _clientCode);
+				int ClientSegment = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
+				if (ClientSegment == 0)
+				{
+					e.DataAdapter.SelectCommand.CommandText = @"
+INSERT
+INTO    AllCoreT
+SELECT
+        core0.id,
+        ActivePricesT.PriceCode,
+        ActivePricesT.regioncode,
+        core0.fullcode,
+        core0.Shortcode,
+        codefirmcr,
+        synonymcode,
+        SynonymFirmCrCode,
+        code,
+        codecr,
+        unit,
+        volume,
+        length(junk) >0,
+        length(Await)>0,
+        quantity,
+        note,
+        period,
+        doc,
+        RegistryCost,
+        VitallyImportant,
+        RequestRatio,
+        MinBoundCost,
+        round(BaseCost*ActivePricesT.UpCost,2)
+FROM    farm.core0,
+        ActivePricesT
+WHERE   core0.firmcode = ActivePricesT.CostCode
+        AND not ActivePricesT.AlowInt
+        and ActivePricesT.PriceCode = ?SourcePC 
+        and ActivePricesT.RegionCode = ?SourceRegionCode 
+        AND ActivePricesT.Actual
+        AND BaseCost is not null
+        AND ActivePricesT.CostType=1;
+INSERT
+INTO    AllCoreT
+SELECT
+        core0.id,
+        ActivePricesT.PriceCode,
+        ActivePricesT.regioncode,
+        core0.fullcode,
+        core0.Shortcode,
+        codefirmcr,
+        synonymcode,
+        SynonymFirmCrCode,
+        code,
+        codecr,
+        unit,
+        volume,
+        length(junk) >0,
+        length(Await)>0,
+        quantity,
+        note,
+        period,
+        doc,
+        RegistryCost,
+        VitallyImportant,
+        RequestRatio,
+        MinBoundCost,
+        round(corecosts.cost*ActivePricesT.UpCost,2)
+FROM    farm.core0,
+        ActivePricesT,
+        farm.corecosts
+WHERE   core0.firmcode = ActivePricesT.PriceCode
+        AND not ActivePricesT.AlowInt
+        and ActivePricesT.PriceCode = ?SourcePC 
+        and ActivePricesT.RegionCode = ?SourceRegionCode 
+        AND ActivePricesT.Actual
+        AND corecosts.cost is not null
+        AND corecosts.Core_Id=core0.id
+        and corecosts.PC_CostCode=ActivePricesT.CostCode
+        AND ActivePricesT.CostType=0;
+";
+				}
+				else
+				{
+					e.DataAdapter.SelectCommand.CommandText = @"
+INSERT
+INTO    AllCoreT
+SELECT  core1.id,
+        ActivePricesT.PriceCode,
+        ActivePricesT.regioncode,
+        core1.fullcode,
+        core1.Shortcode,
+        codefirmcr,
+        synonymcode,
+        SynonymFirmCrCode,
+        code,
+        codecr,
+        unit,
+        volume,
+        length(junk) >0,
+        length(Await)>0,
+        quantity,
+        note,
+        period,
+        doc,
+        RegistryCost,
+        VitallyImportant,
+        RequestRatio,
+        MinBoundCost,
+        round(BaseCost*ActivePricesT.UpCost,2)
+FROM    farm.core1,
+        ActivePricesT
+WHERE   core1.firmcode = ActivePricesT.CostCode
+        AND not ActivePricesT.AlowInt
+        AND not ActivePricesT.DisabledByClient
+        and ActivePricesT.PriceCode = ?SourcePC 
+        and ActivePricesT.RegionCode = ?SourceRegionCode 
+        AND ActivePricesT.Actual
+        AND BaseCost is not null;
+";
+				}
+				e.DataAdapter.SelectCommand.CommandText += @"
+UPDATE AllCoreT
+        SET cost =MinCost
+WHERE   MinCost  >cost
+        AND MinCost is not null
+        and PriceCode = ?SourcePC
+        and RegionCode = ?SourceRegionCode;
+";
+				e.DataAdapter.SelectCommand.Parameters.Clear();
+				e.DataAdapter.SelectCommand.Parameters.Add("SourcePC", SourcePC);
+				e.DataAdapter.SelectCommand.Parameters.Add("SourceRegionCode", SourceRegionCode);
+				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			}
+
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;
 CREATE temporary table TmpSourceCodes( 
@@ -278,8 +421,8 @@ select
 from 
   ActivePricesT 
 where 
-  PriceCode <> ?SourcePC
-or RegionCode <> ?SourceRegionCode
+  (PriceCode <> ?SourcePC or RegionCode <> ?SourceRegionCode)
+  and not ActivePricesT.DisabledByClient
 order by PosCount DESC";
 			e.DataAdapter.SelectCommand.Parameters.Add("SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.Add("SourceRegionCode", SourceRegionCode);
