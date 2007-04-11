@@ -179,72 +179,76 @@ create temporary table AllCoreT
 INSERT
 INTO    AllCoreT
 SELECT
-        core0.id,
+        c.id,
         ActivePricesT.PriceCode,
         ActivePricesT.regioncode,
-        core0.fullcode,
-        core0.Shortcode,
-        codefirmcr,
-        synonymcode,
-        SynonymFirmCrCode,
-        code,
-        codecr,
-        unit,
-        volume,
-        length(junk) >0,
-        length(Await)>0,
-        quantity,
-        note,
-        period,
-        doc,
-        RegistryCost,
-        VitallyImportant,
-        RequestRatio,
-        MinBoundCost,
-        round(BaseCost*ActivePricesT.UpCost,2)
-FROM    farm.core0,
+        c.fullcode,
+        cat.Shortcode,
+        c.codefirmcr,
+        c.synonymcode,
+        c.SynonymFirmCrCode,
+        c.code,
+        c.codecr,
+        c.unit,
+        c.volume,
+        length(c.junk) >0,
+        length(c.Await)>0,
+        c.quantity,
+        c.note,
+        c.period,
+        c.doc,
+        c.RegistryCost,
+        c.VitallyImportant,
+        c.RequestRatio,
+        c.MinBoundCost,
+        round(c.BaseCost*ActivePricesT.UpCost,2)
+FROM    farm.core0 c,
+        farm.catalog cat,   
         ActivePricesT
-WHERE   core0.firmcode = ActivePricesT.CostCode
+WHERE   c.firmcode = ActivePricesT.CostCode
         AND not ActivePricesT.AlowInt
         AND not ActivePricesT.DisabledByClient
         AND ActivePricesT.Actual
-        AND BaseCost is not null
+        and cat.fullcode = c.fullcode
+        AND c.BaseCost is not null
         AND ActivePricesT.CostType=1;
 INSERT
 INTO    AllCoreT
 SELECT
-        core0.id,
+        c.id,
         ActivePricesT.PriceCode,
         ActivePricesT.regioncode,
-        core0.fullcode,
-        core0.Shortcode,
-        codefirmcr,
-        synonymcode,
-        SynonymFirmCrCode,
-        code,
-        codecr,
-        unit,
-        volume,
-        length(junk) >0,
-        length(Await)>0,
-        quantity,
-        note,
-        period,
-        doc,
-        RegistryCost,
-        VitallyImportant,
-        RequestRatio,
-        MinBoundCost,
+        c.fullcode,
+        cat.Shortcode,
+        c.codefirmcr,
+        c.synonymcode,
+        c.SynonymFirmCrCode,
+        c.code,
+        c.codecr,
+        c.unit,
+        c.volume,
+        length(c.junk) >0,
+        length(c.Await)>0,
+        c.quantity,
+        c.note,
+        c.period,
+        c.doc,
+        c.RegistryCost,
+        c.VitallyImportant,
+        c.RequestRatio,
+        c.MinBoundCost,
         round(corecosts.cost*ActivePricesT.UpCost,2)
-FROM    farm.core0,
+FROM    farm.core0 c,
+        farm.catalog cat,   
         ActivePricesT,
         farm.corecosts
-WHERE   core0.firmcode = ActivePricesT.PriceCode
+WHERE   c.firmcode = ActivePricesT.PriceCode
         AND not ActivePricesT.AlowInt
         AND not ActivePricesT.DisabledByClient
         AND ActivePricesT.Actual
         AND corecosts.cost is not null
-        AND corecosts.Core_Id=core0.id
+        and cat.fullcode = c.fullcode
+        AND corecosts.Core_Id=c.id
         and corecosts.PC_CostCode=ActivePricesT.CostCode
         AND ActivePricesT.CostType=0;
 UPDATE AllCoreT
@@ -259,36 +263,38 @@ WHERE   MinCost  >cost
 				e.DataAdapter.SelectCommand.CommandText = @"
 INSERT
 INTO    AllCoreT
-SELECT  core1.id,
+SELECT  c.id,
         ActivePricesT.PriceCode,
         ActivePricesT.regioncode,
-        core1.fullcode,
-        core1.Shortcode,
-        codefirmcr,
-        synonymcode,
-        SynonymFirmCrCode,
-        code,
-        codecr,
-        unit,
-        volume,
-        length(junk) >0,
-        length(Await)>0,
-        quantity,
-        note,
-        period,
-        doc,
-        RegistryCost,
-        VitallyImportant,
-        RequestRatio,
-        MinBoundCost,
-        round(BaseCost*ActivePricesT.UpCost,2)
-FROM    farm.core1,
+        c.fullcode,
+        cat.Shortcode,
+        c.codefirmcr,
+        c.synonymcode,
+        c.SynonymFirmCrCode,
+        c.code,
+        c.codecr,
+        c.unit,
+        c.volume,
+        length(c.junk) >0,
+        length(c.Await)>0,
+        c.quantity,
+        c.note,
+        c.period,
+        c.doc,
+        c.RegistryCost,
+        c.VitallyImportant,
+        c.RequestRatio,
+        c.MinBoundCost,
+        round(c.BaseCost*ActivePricesT.UpCost,2)
+FROM    farm.core1 c,
+        farm.catalog cat,   
         ActivePricesT
-WHERE   core1.firmcode = ActivePricesT.CostCode
+WHERE   c.firmcode = ActivePricesT.CostCode
         AND not ActivePricesT.AlowInt
         AND not ActivePricesT.DisabledByClient
         AND ActivePricesT.Actual
-        AND BaseCost is not null;
+        and cat.fullcode = c.fullcode
+        AND c.BaseCost is not null;
 UPDATE AllCoreT
         SET cost =MinCost
 WHERE   MinCost  >cost
