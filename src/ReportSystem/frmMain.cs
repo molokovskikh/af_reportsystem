@@ -162,14 +162,14 @@ namespace Inforoom.ReportSystem
 		//Сообщение о глобальной ошибке, возникшей в результате работы программы
 		private void MailGlobalErr(string ErrDesc)
 		{
-			Mail("service@analit.net", "service@analit.net", "Ошибка при запуске программы отчетов", 
+			Mail(Properties.Settings.Default.ErrorFrom, Properties.Settings.Default.ErrorReportMail, "Ошибка при запуске программы отчетов", 
 				String.Format("Параметры запуска : {0}\r\nОшибка : {1}", String.Join("  ", Environment.GetCommandLineArgs()), ErrDesc));
 		}
 
 		//Сообщение об ошибке, возникшей в результате построения общего отчета
 		private void MailGeneralReportErr(string ErrDesc, string ShortName, ulong GeneralReportCode)
 		{
-			Mail("service@analit.net", "service@analit.net", "Ошибка при запуске отчетa для " + ShortName,
+			Mail(Properties.Settings.Default.ErrorFrom, Properties.Settings.Default.ErrorReportMail, "Ошибка при запуске отчетa для " + ShortName,
 				String.Format("Код отчета : {0}\r\nОшибка : {1}", GeneralReportCode, ErrDesc));
 		}
 

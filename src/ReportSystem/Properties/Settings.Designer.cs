@@ -31,5 +31,23 @@ namespace Inforoom.ReportSystem.Properties {
                 return ((string)(this["DBDumpPath"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("service@analit.net")]
+        public string ErrorFrom {
+            get {
+                return ((string)(this["ErrorFrom"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("tech@analit.net")]
+        public string ErrorReportMail {
+            get {
+                return ((string)(this["ErrorReportMail"]));
+            }
+        }
     }
 }

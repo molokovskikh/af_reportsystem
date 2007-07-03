@@ -77,11 +77,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Aspose.Excel">
-      <Name>Aspose.Excel</Name>
-      <HintPath>..\..\..\..\..\..\..\Program Files\Aspose\Aspose.Excel\\bin\Aspose.Excel.dll</HintPath>
-      <AssemblyFolderKey>hklm\dn\aspose.excel</AssemblyFolderKey>
-    </Reference>
     <Reference Include="ExecuteTemplate, Version=1.0.7.98, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\ExecuteTemplate.dll</HintPath>
