@@ -11,5 +11,8 @@
     <Setting Name="ErrorReportMail" Type="System.String" Scope="Application">
       <Value Profile="(Default)">tech@analit.net</Value>
     </Setting>
+    <Setting Name="FTPOptBoxPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\\acdcserv\FTP\OptBox\</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

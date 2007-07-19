@@ -215,7 +215,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
 #if (TESTING)
 			string ResDirPath = "C:\\Temp\\Reports\\";
 #else
-			string ResDirPath = "\\\\isrv\\FTP\\OptBox\\";
+			string ResDirPath = Properties.Settings.Default.FTPOptBoxPath;
 #endif
 
 			string resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
