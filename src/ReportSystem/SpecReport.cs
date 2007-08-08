@@ -358,7 +358,7 @@ SELECT  c.id,
         c.RequestRatio,
         c.MinBoundCost,
         round(c.BaseCost*ActivePricesT.UpCost,2)
-FROM    farm.core1 c,
+FROM    farm.core0 c,
         farm.catalog cat,   
         ActivePricesT
 WHERE   c.firmcode = ActivePricesT.CostCode
