@@ -5,8 +5,7 @@ using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using Microsoft.Office.Interop.Excel;
 using System.Data;
-//using MSExcel = Microsoft.Office.Interop.Excel;
-
+using System.IO;
 
 namespace Inforoom.ReportSystem
 {
@@ -44,7 +43,7 @@ order by PosCount DESC";
 			Application exApp = new ApplicationClass();
 			try
 			{
-				//Workbook wb = exApp.Workbooks.Add(System.Reflection.Missing.Value);
+				exApp.DisplayAlerts = false;
 				Workbook wb = exApp.Workbooks.Open(FileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
 				Worksheet ws;
 				try
@@ -52,9 +51,7 @@ order by PosCount DESC";
 					ws = (Worksheet)wb.Worksheets.Add(System.Reflection.Missing.Value, wb.Worksheets[wb.Worksheets.Count], System.Reflection.Missing.Value, System.Reflection.Missing.Value);
 					ContactsToExcel(_dsReport.Tables["Contacts"], ws);
 					((_Worksheet)wb.Worksheets[1]).Activate();
-					//wb.SaveAs(FileName, XlFileFormat.xlExcel7, null, null, null, null, XlSaveAsAccessMode.xlShared, null, null, null, null, null);
-					//ws.SaveAs(FileName, XlFileFormat.xlExcel7, null, null, null, null, null, null, null, null);
-					wb.Save();
+					wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
 				}
 				finally
 				{

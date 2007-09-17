@@ -304,6 +304,7 @@ and prov.FirmCode = pd.FirmCode");
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try
 			{
+				exApp.DisplayAlerts = false;
 				MSExcel.Workbook wb = exApp.Workbooks.Open(FileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
 				MSExcel._Worksheet ws;
 				try
@@ -339,7 +340,7 @@ and prov.FirmCode = pd.FirmCode");
 					}
 					finally
 					{
-						wb.Save();
+						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
 					}
 				}
 				finally

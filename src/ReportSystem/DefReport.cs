@@ -4,6 +4,7 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using MSExcel = Microsoft.Office.Interop.Excel;
+using System.IO;
 
 namespace Inforoom.ReportSystem
 {
@@ -188,6 +189,7 @@ order by ctlg.Name,  ctlg.Form,  cfcr.FirmCr;";
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try
 			{
+				exApp.DisplayAlerts = false;
 				MSExcel.Workbook wb = exApp.Workbooks.Open(FileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
 				MSExcel._Worksheet ws;
 				try
@@ -243,8 +245,8 @@ order by ctlg.Name,  ctlg.Form,  cfcr.FirmCr;";
 						exApp.ActiveWindow.FreezePanes = true;
 					}
 					finally
-					{
-						wb.Save();
+					{ 
+						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
 					}
 				}
 				finally
