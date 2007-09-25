@@ -76,18 +76,18 @@ SELECT  null,
         ifnull(ParentSynonym, pricesdata.pricecode) PriceSynonymCode,
         Intersection.RegionCode,
         AlowInt,
-        iui.lastsent< DateLastForm,
+        iui.lastsent< pui.DateLastForm,
         (1+pricesdata.UpCost/100)*(1+pricesregionaldata.UpCost/100) *(1+(intersection.FirmCostCorr+intersection.PublicCostCorr)/100),
         iui.MaxSynonymCode,
         iui.MaxSynonymFirmCrCode,
         DisabledByClient,
-        to_days(now())-to_days(formrules.datecurprice)< formrules.maxold,
+        to_days(now())-to_days(pui.datecurprice)< formrules.maxold,
         pricesdata.CostType,
         intersection.PublicCostCorr,
-        date_sub(if(datelastform > DateCurPrice, DateCurPrice, DatePrevPrice), interval time_to_sec(date_sub(now(), interval unix_timestamp() second)) second),
+        date_sub(if(pui.datelastform > pui.DateCurPrice, pui.DateCurPrice, pui.DatePrevPrice), interval time_to_sec(date_sub(now(), interval unix_timestamp() second)) second),
         regions.region,
         concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', farm.regions.Region) as FirmName,
-        formrules.PosNum,
+        pui.RowCount,
         intersection.FirmCategory
 FROM    intersection,
         clientsdata,
@@ -97,11 +97,13 @@ FROM    intersection,
         clientsdata as AClientsData,
         farm.formrules,
         intersection_update_info iui,
+        usersettings.price_update_info pui,
         farm.regions
 WHERE   DisabledByAgency                                            = 0
         and intersection.clientcode                                 = ?ClientCode
         and retclientsset.clientcode                                = intersection.clientcode
         and formrules.firmcode                                      = pricesdata.pricecode
+        and pui.pricecode                                           = pricesdata.pricecode
         and pricesdata.pricecode                                    = intersection.pricecode
         and clientsdata.firmcode                                    = pricesdata.firmcode
         and clientsdata.firmstatus                                  = 1
