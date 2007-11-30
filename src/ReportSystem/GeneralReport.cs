@@ -65,7 +65,7 @@ namespace Inforoom.ReportSystem
 			bool addContacts = false;
 			ulong contactsCode = 0;
 
-			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn, true, false);
+			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn, true, null, false, null);
 
 			if ((_dtReports != null) && (_dtReports.Rows.Count > 0))
 			{
@@ -163,7 +163,7 @@ namespace Inforoom.ReportSystem
 
 			int SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID("box.analit.net", null, null, message);
 
-			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID), ProcessLog, 0, _conn, true, false);
+			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID), ProcessLog, 0, _conn, true, null, false, null);
 		}
 
 		class ProcessLogArgs : ExecuteArgs
@@ -182,9 +182,9 @@ namespace Inforoom.ReportSystem
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs (LogTime, GeneralReportCode, SMTPID, MessageID) 
 values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
-			e.DataAdapter.SelectCommand.Parameters.Add("GeneralReportCode", _generalReportID);
-			e.DataAdapter.SelectCommand.Parameters.Add("SMTPID", e._smtpID);
-			e.DataAdapter.SelectCommand.Parameters.Add("MessageID", e._MessageID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("GeneralReportCode", _generalReportID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SMTPID", e._smtpID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("MessageID", e._MessageID);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			return 0;
 		}
@@ -256,7 +256,7 @@ where
     r.{0} = ?{0}
 and rt.ReportTypeCode = r.ReportTypeCode", 
 				 GeneralReportColumns.GeneralReportCode);
-			e.DataAdapter.SelectCommand.Parameters.Add(GeneralReportColumns.GeneralReportCode, _generalReportID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue(GeneralReportColumns.GeneralReportCode, _generalReportID);
 			DataTable res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;

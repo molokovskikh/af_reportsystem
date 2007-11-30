@@ -35,8 +35,8 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			//Выбираем 
-			GetActivePricesT(e);
-			GetAllCoreT(e);
+			GetOffers(e);
+
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select
   -- наименование
@@ -44,29 +44,29 @@ select
   -- форма выпуска
   replace( replace( replace(c.form, '\t', ''), '\r', ''), '\n', '') as form,
   -- код поставщика
-  replace( replace( replace(AllCoreT.code, '\t', ''), '\r', ''), '\n', '') as code,
+  replace( replace( replace(Core.code, '\t', ''), '\r', ''), '\n', '') as code,
   -- синоним
   replace( replace( replace(s.synonym, '\t', ''), '\r', ''), '\n', '') as synonym,
   -- синоним производителя
   replace( replace( replace(sfc.synonym, '\t', ''), '\r', ''), '\n', '') as sfcsynonym,
   -- упаковка
-  replace( replace( replace(AllCoreT.volume, '\t', ''), '\r', ''), '\n', '') as volume,
+  replace( replace( replace(Core.volume, '\t', ''), '\r', ''), '\n', '') as volume,
   -- применчание
-  replace( replace( replace(AllCoreT.note, '\t', ''), '\r', ''), '\n', '') as note,
+  replace( replace( replace(Core.note, '\t', ''), '\r', ''), '\n', '') as note,
   -- срок годности
-  AllCoreT.period,
+  Core.period,
   -- признак уценки
-  if(AllCoreT.junk, '1', '0'),
+  if(Core.junk, '1', '0'),
   -- наименование прайс-листа
   pd.PriceName,
   -- регион
-  ActivePricesT.Region,
+  regions.Region,
   -- дата прайс-листа
-  date_add(ActivePricesT.DateCurPrice, interval time_to_sec(date_sub(now(), interval unix_timestamp() second)) second) as DateCurPrice, 
+  date_add(ActivePrices.PriceDate, interval time_to_sec(date_sub(now(), interval unix_timestamp() second)) second) as DateCurPrice, 
   -- цена препарата
-  AllCoreT.Cost,
+  Core.Cost,
   -- кол-во препарата
-  AllCoreT.Quantity,
+  Core.Quantity,
   -- краткое название прайс-листа
   cd.ShortName,
   -- региональный телефон техподдержки
@@ -78,13 +78,14 @@ select
   -- УРЛ
   cd.Url, 
   -- открытая наценка
-  round(ActivePricesT.PublicCostCorr, 3) 
+  round(ActivePrices.PublicUpCost, 3) 
 INTO OUTFILE 'results/{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
 from 
-  AllCoreT,
-  ActivePricesT,
+  Core,
+  ActivePrices,
+  farm.regions,
   farm.catalog c,
   farm.catalogfirmcr cfc,
   farm.synonym s,
@@ -93,16 +94,17 @@ from
   usersettings.clientsdata cd,
   usersettings.pricesdata pd
 where
-  c.FullCode = AllCoreT.fullcode 
-and s.synonymcode = AllCoreT.synonymcode
-and sfc.SynonymFirmCrCode = AllCoreT.SynonymFirmCrCode
-and cfc.codefirmcr = AllCoreT.codefirmcr
-and ActivePricesT.PriceCode = AllCoreT.PriceCode
-and ActivePricesT.RegionCode = AllCoreT.RegionCode
-and rd.regioncode = AllCoreT.RegionCode
-and rd.FirmCode = ActivePricesT.FirmCode
-and cd.FirmCode = ActivePricesT.FirmCode
-and pd.PriceCode = ActivePricesT.PriceCode
+  c.FullCode = Core.fullcode 
+and s.synonymcode = Core.synonymcode
+and sfc.SynonymFirmCrCode = Core.SynonymFirmCrCode
+and cfc.codefirmcr = Core.codefirmcr
+and ActivePrices.PriceCode = Core.PriceCode
+and ActivePrices.RegionCode = Core.RegionCode
+and regions.RegionCode = ActivePrices.RegionCode
+and rd.regioncode = Core.RegionCode
+and rd.FirmCode = ActivePrices.FirmCode
+and cd.FirmCode = ActivePrices.FirmCode
+and pd.PriceCode = ActivePrices.PriceCode
 ",
 			_filename,
 			(char)9

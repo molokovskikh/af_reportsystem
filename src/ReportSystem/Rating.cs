@@ -232,6 +232,7 @@ and prov.FirmCode = pd.FirmCode");
 
 			Debug.WriteLine(SelectCommand);
 			System.Data.DataTable SelectTable = new System.Data.DataTable();
+
 			e.DataAdapter.SelectCommand.CommandText = SelectCommand;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(SelectTable);

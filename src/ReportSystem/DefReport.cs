@@ -11,7 +11,21 @@ namespace Inforoom.ReportSystem
 	//Дефектурный отчет
 	public class DefReport : ProviderReport
 	{
-		protected int _reportType;
+		protected enum DefReportType
+		{
+			//Отчет только по наименованию
+			ByName = 1,
+			//Отчет по наименованию и форме выпуска
+			ByNameAndForm = 2,
+			//по наименованию и форме выпуска с учетом производителя
+			ByNameAndFormAndFirmCr = 3,
+			//по продуктам
+			ByProduct = 4,
+			//по продуктам с учетом производителя
+			ByProductAndFirmCr = 5
+		}
+
+		protected DefReportType _reportType;
 		protected int _priceCode;
 
 		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
@@ -21,7 +35,17 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-			_reportType = (int)getReportParam("ReportType");
+
+			int tmpReportType = (int)getReportParam("ReportType");
+			Array v = Enum.GetValues(typeof(DefReportType));
+			if (((int)v.GetValue(0) <= tmpReportType) && (tmpReportType <= (int)v.GetValue(v.Length - 1)))
+				_reportType = (DefReportType)tmpReportType;
+			else
+				throw new ArgumentOutOfRangeException("ReportType", tmpReportType, "Значение параметра не входит в область допустимых значений.");
+
+			//todo:Потом это удалить
+			_reportType = DefReportType.ByNameAndForm;
+
 			_priceCode = (int)getReportParam("PriceCode");
 		}
 
@@ -37,14 +61,13 @@ where
     r.ReportCode = ?ReportCode
 and gr.GeneralReportCode = r.GeneralReportCode";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.Add("ReportCode", _reportCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("ReportCode", _reportCode);
 			int ClientCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 			//Устанавливаем код клиента, как код фирмы, относительно которой генерируется отчет
 			_clientCode = ClientCode;
 
 			//Выбираем 
-			GetActivePricesT(e);
-			GetAllCoreT(e);
+			GetOffers(e);
 
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 
@@ -52,129 +75,401 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 			switch (_reportType)
 			{
-				case 1:
+
+				case DefReportType.ByName:
 					{
 						SelectCommandText = @"
-drop temporary table IF EXISTS SummaryT;
-CREATE temporary table SummaryT ( 
-  STShortCode int Unsigned, 
-  key STShortCode(STShortCode))engine=MEMORY PACK_KEYS = 0;
-INSERT INTO SummaryT 
-select distinct ShortCode As STShortCode 
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  NameId int Unsigned, 
+  key NameId(NameId))engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct Catalog.NameId 
 from 
-  ActivePricesT apt, 
-  AllCoreT c 
-where apt.PriceCode <> ?SourcePC 
-and apt.PriceCode=c.PriceCode;
+  ActivePrices apt, 
+  Core c,
+  Catalogs.Products,
+  Catalogs.Catalog 
+where 
+    apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and Products.Id = c.ProductId
+and Catalog.Id = products.CatalogId;
 
-drop temporary table IF EXISTS OtherShortCodeT;
-CREATE temporary table OtherShortCodeT ( 
-  OShortCode int Unsigned, 
-  key OShortCode(OShortCode))engine=MEMORY PACK_KEYS = 0;
-INSERT INTO OtherShortCodeT 
-select distinct c.ShortCode As OShortCode 
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  NameId int Unsigned, 
+  key NameId(NameId))engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct Catalog.NameId 
 from 
-  AllCoreT c 
-  left join SummaryT st on st.STShortCode=c.ShortCode 
-where c.PriceCode=?SourcePC 
-and st.STShortCode is NULL;
-
-select distinct c.Code, ctlg.Name 
-from 
- (
-  farm.Catalog ctlg, 
-  OtherShortCodeT osct 
- )
-  left join AllCoreT c on c.ShortCode=osct.OShortCode and c.PriceCode = ?SourcePC 
-where ctlg.ShortCode=osct.OShortCode ;";
-						break;
-					}
-				case 2:
-					{
-						SelectCommandText = @"
-drop temporary table IF EXISTS SummaryT;
-CREATE temporary table SummaryT ( 
-  STFullCode int Unsigned, 
-  key STFullCode(STFullCode))engine=MEMORY PACK_KEYS = 0;
-INSERT INTO SummaryT 
-select distinct FullCode As STFullCode 
-from 
-  ActivePricesT apt, 
-  AllCoreT c 
-where apt.PriceCode <> ?SourcePC 
-and apt.PriceCode=c.PriceCode;
-
-drop temporary table IF EXISTS OtherFullCodeT;
-CREATE temporary table OtherFullCodeT ( 
-  OFullCode int Unsigned, 
-  key OFullCode(OFullCode) ) engine=MEMORY PACK_KEYS = 0;
-INSERT INTO OtherFullCodeT 
-select distinct c.FullCode As OFullCode 
-from 
-  AllCoreT c 
-  left join SummaryT st on st.STFullCode=c.FullCode 
-where c.PriceCode=?SourcePC 
-and st.STFullCode is NULL;
-
-select  c.Code, ctlg.Name, ctlg.Form 
-from 
- (
-  farm.catalog ctlg, 
-  OtherFullCodeT ofct 
- )
-  left join AllCoreT c on c.FullCode=ofct.OFullCode and c.PriceCode = ?SourcePC 
-where ctlg.FullCode = ofct.OFullCode;";
-						break;
-					}
-				case 3:
-					{
-						SelectCommandText = @"
-drop temporary table IF EXISTS SummaryT;
-CREATE temporary table SummaryT ( 
-  STFullCode int Unsigned, 
-  STCodeFirmCr int Unsigned, 
-  key STFullCode(STFullCode), 
-  key STCodeFirmCr(STCodeFirmCr) )engine=MEMORY PACK_KEYS = 0;
-INSERT INTO SummaryT 
-select distinct FullCode As STFullCode, CodeFirmCr As STCodeFirmCr 
-from 
-  ActivePricesT apt, 
-  AllCoreT c 
-where apt.PriceCode <> ?SourcePC 
-and apt.PriceCode=c.PriceCode;
-
-drop temporary table IF EXISTS OtherFullCodeT;
-CREATE temporary table OtherFullCodeT ( 
-  OFullCode int Unsigned, 
-  OCodeFirmCr int Unsigned, 
-  key OFullCode(OFullCode), 
-  key OCodeFirmCr(OCodeFirmCr) )engine=MEMORY PACK_KEYS = 0;
-INSERT INTO OtherFullCodeT 
-select distinct c.FullCode As OFullCode, c.CodeFirmCr As OCodeFirmCr 
-from 
-  AllCoreT c 
-  left join SummaryT st on st.STFullCode=c.FullCode and st.STCodeFirmCr=c.CodeFirmCr 
+  (
+  Core c, 
+  Catalogs.Products,
+  Catalogs.Catalog 
+  )
+  left join SummaryByPrices st on st.NameId = Catalog.NameId 
 where 
     c.PriceCode=?SourcePC 
-and st.STFullCode is NULL;
+and st.NameId is NULL
+and Products.Id = c.ProductId
+and Catalog.Id = products.CatalogId;
 
-select distinct c.Code, ctlg.Name,  ctlg.Form,  cfcr.FirmCr 
+select distinct FarmCore.Code, CatalogNames.Name 
 from 
  (
-  farm.CatalogFirmCr cfcr, 
-  OtherFullCodeT ofct, 
-  farm.catalog ctlg 
+  OtherByPrice,
+  catalogs.CatalogNames,
+  catalogs.catalog,
+  catalogs.products
  )
-  left join AllCoreT c on c.FullCode=ofct.OFullCode and c.CodeFirmCr=ofct.OCodeFirmCr and c.PriceCode = ?SourcePC 
+  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
+  left join farm.Core0 FarmCore on FarmCore.Id = c.Id 
 where 
-    ctlg.FullCode=ofct.OFullCode 
-and ofct.OCodeFirmCr=cfcr.CodeFirmCr 
-order by ctlg.Name,  ctlg.Form,  cfcr.FirmCr;";
+    CatalogNames.Id = OtherByPrice.NameId
+and catalog.NameId = CatalogNames.Id
+and products.CatalogId = catalog.Id
+order by CatalogNames.Name;";
 						break;
 					}
+
+				case DefReportType.ByNameAndForm:
+					{
+						SelectCommandText = @"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  CatalogId int Unsigned, 
+  key CatalogId(CatalogId)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct Products.CatalogId 
+from 
+  ActivePrices apt, 
+  Core c, 
+  Catalogs.Products
+where 
+    apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and Products.Id = c.ProductId;
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  CatalogId int Unsigned, 
+  key CatalogId(CatalogId) ) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct Products.CatalogId
+from 
+  (
+  Core c, 
+  Catalogs.Products
+  )
+  left join SummaryByPrices st on st.CatalogId = Products.CatalogId 
+where 
+    c.PriceCode=?SourcePC 
+and st.CatalogId is NULL
+and Products.Id = c.ProductId;
+
+select distinct FarmCore.Code, CatalogNames.Name, CatalogForms.Form 
+from 
+ (
+  OtherByPrice,
+  catalogs.catalog,
+  catalogs.CatalogNames,
+  catalogs.CatalogForms,
+  catalogs.products
+ )
+  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
+  left join farm.Core0 FarmCore on FarmCore.Id = c.Id 
+where 
+    catalog.Id = OtherByPrice.CatalogId
+and CatalogNames.Id = catalog.NameId
+and CatalogForms.Id = catalog.FormId
+and products.CatalogId = catalog.Id
+order by CatalogNames.Name, CatalogForms.Form;";
+						break;
+					}
+
+				case DefReportType.ByNameAndFormAndFirmCr:
+					{
+						SelectCommandText = @"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  CatalogId int Unsigned, 
+  CodeFirmCr int Unsigned, 
+  key CatalogId(CatalogId),
+  key CodeFirmCr(CodeFirmCr)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct Products.CatalogId, FarmCore.CodeFirmCr 
+from 
+  ActivePrices apt, 
+  Core c,
+  farm.Core0 FarmCore, 
+  Catalogs.Products
+where 
+    apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and Products.Id = c.ProductId
+and FarmCore.Id = c.Id;
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  CatalogId int Unsigned, 
+  CodeFirmCr int Unsigned, 
+  key CatalogId(CatalogId),
+  key CodeFirmCr(CodeFirmCr) ) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct Products.CatalogId, FarmCore.CodeFirmCr
+from 
+  (
+  Core c, 
+  farm.Core0 FarmCore, 
+  Catalogs.Products
+  )
+  left join SummaryByPrices st on st.CatalogId = Products.CatalogId and st.CodeFirmCr = FarmCore.CodeFirmCr
+where 
+    c.PriceCode=?SourcePC 
+and st.CatalogId is NULL
+and Products.Id = c.ProductId
+and FarmCore.Id = c.Id;
+
+select distinct FarmCore.Code, CatalogNames.Name, CatalogForms.Form, CatalogFirmCr.FirmCr 
+from 
+ (
+  OtherByPrice,
+  catalogs.catalog,
+  catalogs.CatalogNames,
+  catalogs.CatalogForms,
+  farm.CatalogFirmCr,
+  catalogs.products
+ )
+  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
+  left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr
+where 
+    catalog.Id = OtherByPrice.CatalogId
+and CatalogNames.Id = catalog.NameId
+and CatalogForms.Id = catalog.FormId
+and products.CatalogId = catalog.Id
+and CatalogFirmCr.CodeFirmCr = OtherByPrice.CodeFirmCr
+order by CatalogNames.Name, CatalogForms.Form, CatalogFirmCr.FirmCr;";
+						break;
+					}
+
+				case DefReportType.ByProduct:
+					{
+						SelectCommandText = @"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  ProductId int Unsigned, 
+  key ProductId(ProductId)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct c.ProductId
+from 
+  ActivePrices apt, 
+  Core c
+where 
+    apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode;
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  ProductId int Unsigned, 
+  key ProductId(ProductId)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct c.ProductId
+from 
+  Core c
+  left join SummaryByPrices st on st.ProductId = c.ProductId
+where 
+    c.PriceCode=?SourcePC 
+and st.ProductId is NULL;
+
+select 
+  distinct 
+  FarmCore.Code, 
+  CatalogNames.Name,
+  catalogs.GetFullForm(OtherByPrice.ProductId) as FullForm
+from 
+ (
+  OtherByPrice,
+  catalogs.catalog,
+  catalogs.CatalogNames,
+  catalogs.products
+ )
+  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
+  left join farm.Core0 FarmCore on FarmCore.Id = c.Id
+where 
+    products.Id = OtherByPrice.ProductId
+and catalog.Id = products.CatalogId
+and CatalogNames.Id = catalog.NameId
+order by CatalogNames.Name, FullForm;
+";
+						break;
+					}
+
+				case DefReportType.ByProductAndFirmCr:
+					{
+						SelectCommandText = @"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  ProductId int Unsigned, 
+  CodeFirmCr int Unsigned, 
+  key ProductId(ProductId),
+  key CodeFirmCr(CodeFirmCr)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct c.ProductId, FarmCore.CodeFirmCr 
+from 
+  ActivePrices apt, 
+  Core c,
+  farm.Core0 FarmCore
+where 
+    apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and FarmCore.Id = c.Id;
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  ProductId int Unsigned, 
+  CodeFirmCr int Unsigned, 
+  key ProductId(ProductId),
+  key CodeFirmCr(CodeFirmCr) ) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct c.ProductId, FarmCore.CodeFirmCr
+from 
+  (
+  Core c, 
+  farm.Core0 FarmCore
+  )
+  left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = FarmCore.CodeFirmCr
+where 
+    c.PriceCode=?SourcePC 
+and st.ProductId is NULL
+and FarmCore.Id = c.Id;
+
+select 
+  distinct 
+  FarmCore.Code, 
+  CatalogNames.Name,
+  catalogs.GetFullForm(OtherByPrice.ProductId) as FullForm,
+  CatalogFirmCr.FirmCr 
+from 
+ (
+  OtherByPrice,
+  catalogs.catalog,
+  catalogs.CatalogNames,
+  farm.CatalogFirmCr,
+  catalogs.products
+ )
+  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
+  left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr
+where 
+    products.Id = OtherByPrice.ProductId
+and catalog.Id = products.CatalogId
+and CatalogNames.Id = catalog.NameId
+and CatalogFirmCr.CodeFirmCr = OtherByPrice.CodeFirmCr
+order by CatalogNames.Name, FullForm, CatalogFirmCr.FirmCr;
+";
+						/*
+drop temporary table IF EXISTS DistinctProducts;
+CREATE temporary table DistinctProducts ( 
+  Code varchar(20),
+  ProductId int Unsigned, 
+  CodeFirmCr int Unsigned, 
+  key DistinctProductsIdx(ProductId, CodeFirmCr, Code)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO DistinctProducts 
+select 
+  distinct 
+  FarmCore.Code, 
+  OtherByPrice.ProductId,
+  OtherByPrice.CodeFirmCr
+from 
+  OtherByPrice
+  left join Core c on c.ProductId = OtherByPrice.ProductId and c.PriceCode = ?SourcePC 
+  left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr;
+
+select 
+#distinct 
+  DistinctProducts.Code, 
+#DistinctProducts.ProductId,
+  CatalogNames.Name, 
+  CatalogForms.Form, 
+#PropertyValues.Id,
+#ifnull(PropertyValues.Value, '?'),
+ concat(CatalogForms.Form, ' ',
+cast(GROUP_CONCAT(ifnull(PropertyValues.Value, '?')
+    order by PropertyValues.PropertyId, PropertyValues.Id
+    SEPARATOR ', '
+  ) as char)
+  ) as Form2,
+
+  CatalogFirmCr.FirmCr 
+from 
+ (
+  DistinctProducts,
+  catalogs.catalog,
+  catalogs.CatalogNames,
+  catalogs.CatalogForms,
+  farm.CatalogFirmCr,
+  catalogs.products
+ )
+  left join catalogs.ProductProperties on ProductProperties.ProductId = Products.Id
+  left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
+where 
+    products.Id = DistinctProducts.ProductId
+and CatalogNames.Id = catalog.NameId
+and CatalogForms.Id = catalog.FormId
+and products.CatalogId = catalog.Id
+and CatalogFirmCr.CodeFirmCr = DistinctProducts.CodeFirmCr
+group by DistinctProducts.Code, DistinctProducts.ProductId, DistinctProducts.CodeFirmCr
+order by CatalogNames.Name, CatalogForms.Form, CatalogFirmCr.FirmCr;
+						 
+						 */
+						/*
+select 
+#distinct 
+  FarmCore.Code, 
+  OtherByPrice.ProductId,
+  CatalogNames.Name, 
+  CatalogForms.Form, 
+  PropertyValues.Id,
+  ifnull(PropertyValues.Value, '?'),
+  cast(GROUP_CONCAT(ifnull(PropertyValues.Value, ' ')
+    order by PropertyValues.PropertyId, PropertyValues.Id
+    SEPARATOR ', '
+  ) as char) as Properties,
+  concat(CatalogForms.Form, ' ',
+cast(GROUP_CONCAT(ifnull(PropertyValues.Value, ' ')
+    order by PropertyValues.PropertyId, PropertyValues.Id
+    SEPARATOR ', '
+  ) as char)
+  ) as Form2,
+  CatalogFirmCr.FirmCr 
+from 
+ (
+  OtherByPrice,
+  catalogs.catalog,
+  catalogs.CatalogNames,
+  catalogs.CatalogForms,
+  farm.CatalogFirmCr,
+  catalogs.products
+ )
+  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
+  left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr
+  left join catalogs.ProductProperties on ProductProperties.ProductId = Products.Id
+  left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
+where 
+    products.Id = OtherByPrice.ProductId
+and CatalogNames.Id = catalog.NameId
+and CatalogForms.Id = catalog.FormId
+and products.CatalogId = catalog.Id
+and CatalogFirmCr.CodeFirmCr = OtherByPrice.CodeFirmCr
+#group by FarmCore.Code, Products.Id, CatalogFirmCr.FirmCr
+order by CatalogNames.Name, CatalogForms.Form, CatalogFirmCr.FirmCr;
+						 */
+						break;
+					}
+
 			}
 			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
-			e.DataAdapter.SelectCommand.Parameters.Add("SourcePC", _priceCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", _priceCode);
 			e.DataAdapter.Fill(_dsReport, "Results");
 		}
 
@@ -209,13 +504,27 @@ order by ctlg.Name,  ctlg.Form,  cfcr.FirmCr;";
 
 						switch (_reportType)
 						{
-							case 2:
+							case DefReportType.ByNameAndForm:
 								{
 									ws.Cells[1, 3] = "Форма выпуска";
 									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
 									break;
 								}
-							case 3:
+							case DefReportType.ByNameAndFormAndFirmCr:
+								{
+									ws.Cells[1, 3] = "Форма выпуска";
+									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
+									ws.Cells[1, 4] = "Производитель";
+									((MSExcel.Range)ws.Columns[4, Type.Missing]).AutoFit();
+									break;
+								}
+							case DefReportType.ByProduct:
+								{
+									ws.Cells[1, 3] = "Форма выпуска";
+									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
+									break;
+								}
+							case DefReportType.ByProductAndFirmCr:
 								{
 									ws.Cells[1, 3] = "Форма выпуска";
 									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();

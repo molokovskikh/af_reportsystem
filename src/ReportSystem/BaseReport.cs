@@ -62,7 +62,7 @@ namespace Inforoom.ReportSystem
 			_dsReport = new DataSet();
 			_conn = Conn;
 
-			DataSet dsTab = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, _conn, true, false);
+			DataSet dsTab = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, _conn, true, null, false, null);
 			dtReportProperties = dsTab.Tables["ReportProperties"];
 			dtReportPropertyValues = dsTab.Tables["ReportPropertyValues"];
 
@@ -152,47 +152,6 @@ namespace Inforoom.ReportSystem
 			}
 
 			ReadReportParams();
-
-			//foreach (DataRow drProperty in dtReportProperties.Rows)
-			//{
-			//    string currentPropertyName = drProperty[BaseReportColumns.colPropertyName].ToString();
-
-			//    if (_reportParams.ContainsKey(currentPropertyName))
-			//    {
-			//        //Если объект уже существует и он int или List<int>
-			//        if ((_reportParams[currentPropertyName] is int) || (_reportParams[currentPropertyName] is List<int>))
-			//        {
-			//            if (_reportParams[currentPropertyName] is int)
-			//            {
-			//                List<int> l = new List<int>();
-			//                l.Add((int)_reportParams[currentPropertyName]);
-			//                _reportParams[currentPropertyName] = l;
-			//            }
-			//            ((List<int>)_reportParams[currentPropertyName]).
-			//                Add(int.Parse(drProperty[BaseReportColumns.colPropertyValue].ToString()));
-			//        }
-			//        else
-			//        {
-			//            if (_reportParams[currentPropertyName] is string)
-			//            {
-			//                List<string> l = new List<string>();
-			//                l.Add((string)_reportParams[currentPropertyName]);
-			//                _reportParams[currentPropertyName] = l;
-			//            }
-			//            ((List<string>)_reportParams[currentPropertyName]).
-			//                Add(drProperty[BaseReportColumns.colPropertyValue].ToString());
-			//        }
-			//    }
-			//    else
-			//    {
-			//        int tempVal;
-			//        if (int.TryParse(drProperty[BaseReportColumns.colPropertyValue].ToString(), out tempVal))
-			//            _reportParams.Add(currentPropertyName, tempVal);
-			//        else
-			//            _reportParams.Add(currentPropertyName, drProperty[BaseReportColumns.colPropertyValue].ToString());
-			//    }
-			//}
-
 		}
 
 		//Выбираем отчеты из базы
@@ -209,7 +168,8 @@ from
 where
     rp.{0} = ?{0}
 and rtp.ID = rp.PropertyID", BaseReportColumns.colReportCode);
-			e.DataAdapter.SelectCommand.Parameters.Add(BaseReportColumns.colReportCode, _reportCode);
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue(BaseReportColumns.colReportCode, _reportCode);
 			DataTable res = new DataTable("ReportProperties");
 			e.DataAdapter.Fill(res);
 			ds.Tables.Add(res);
@@ -223,7 +183,8 @@ from
 where
     rp.{0} = ?{0}
 and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
-			e.DataAdapter.SelectCommand.Parameters.Add(BaseReportColumns.colReportCode, _reportCode);
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue(BaseReportColumns.colReportCode, _reportCode);
 			res = new DataTable("ReportPropertyValues");
 			e.DataAdapter.Fill(res);
 			ds.Tables.Add(res);
@@ -237,7 +198,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 
 		public void ProcessReport()
 		{
-			bool res = MethodTemplate.ExecuteMethod<ExecuteArgs, bool>(new ExecuteArgs(), ProcessReportExec, false, _conn, true, false);
+			bool res = MethodTemplate.ExecuteMethod<ExecuteArgs, bool>(new ExecuteArgs(), ProcessReportExec, false, _conn, true, null, false, null);
 		}
 
 		protected bool ProcessReportExec(ExecuteArgs e)

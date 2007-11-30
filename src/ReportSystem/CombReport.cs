@@ -46,23 +46,21 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			//Выбираем 
-			GetActivePricesT(e);
-			GetAllCoreT(e);
+			GetOffers(e);
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select 
-  catalog.FullCode as FullCode, 
-  left(concat(Catalog.Name, ' ', Catalog.Form), 250) as Name, 
-  AllCoreT.Cost as Cost,
-  ActivePricesT.FirmName,
-  -- round(if(basecost*ActivePricesT.UpCost<minboundcost, minboundcost, basecost*ActivePricesT.UpCost*exchange), 2) as Cost, 
-  AllCoreT.Quantity, 
-  AllCoreT.RegionCode, 
-  AllCoreT.PriceCode, 
+  catalog.Id as FullCode, 
+  left(concat(catalognames.Name, ' ', catalogforms.Form), 250) as Name, 
+  Core.Cost as Cost,
+  ActivePrices.FirmName,
+  FarmCore.Quantity, 
+  Core.RegionCode, 
+  Core.PriceCode, 
   left(farm.CatalogFirmCr.FirmCr, 250) as FirmCr, ";
 			if (_reportType > 2)
 			{
-				e.DataAdapter.SelectCommand.CommandText += "AllCoreT.codefirmcr";
+				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr";
 			}
 			else
 			{
@@ -71,26 +69,34 @@ select
 			e.DataAdapter.SelectCommand.CommandText += @"
 As Cfc 
 from 
-  AllCoreT, 
-  farm.catalog, 
-  ActivePricesT, 
+  Core, 
+  farm.core0 FarmCore,
+  catalogs.products,
+  catalogs.catalog,
+  catalogs.catalognames,
+  catalogs.catalogforms,
+  ActivePrices, 
   farm.CatalogFirmCr 
 where 
-    catalog.fullcode = AllCoreT.fullcode 
-and AllCoreT.pricecode = ActivePricesT.pricecode 
-and AllCoreT.RegionCode = ActivePricesT.RegionCode 
-and catalogfirmcr.codefirmcr = AllCoreT.codefirmcr 
-order by catalog.FullCode, Cfc, PosCount DESC";
+    FarmCore.id = Core.Id
+and products.id = core.productid
+and catalog.id = products.catalogid
+and catalognames.id = catalog.NameId
+and catalogforms.id = catalog.FormId
+and Core.pricecode = ActivePrices.pricecode 
+and Core.RegionCode = ActivePrices.RegionCode 
+and catalogfirmcr.codefirmcr = FarmCore.codefirmcr 
+order by catalog.Id, Cfc, PositionCount DESC";
 			e.DataAdapter.Fill(_dsReport, "Core");
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select   
-  catalog.FullCode as FullCode, 
-  left(concat(Catalog.Name, ' ', Catalog.Form), 250) as Name, 
-  min(AllCoreT.Cost) as MinCost, ";
+  catalog.Id as FullCode, 
+  left(concat(catalognames.Name, ' ', catalogforms.Form), 250) as Name, 
+  min(Core.Cost) as MinCost, ";
 			if (_reportType > 2)
 			{
-				e.DataAdapter.SelectCommand.CommandText += "AllCoreT.codefirmcr as Cfc, left(farm.CatalogFirmCr.FirmCr, 250) as FirmCr ";
+				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(farm.CatalogFirmCr.FirmCr, 250) as FirmCr ";
 			}
 			else
 			{
@@ -98,20 +104,28 @@ select
 			}
 			e.DataAdapter.SelectCommand.CommandText += @"
 from 
-  AllCoreT, 
-  farm.catalog, 
-  ActivePricesT, 
+  Core, 
+  farm.core0 FarmCore,
+  catalogs.products,
+  catalogs.catalog,
+  catalogs.catalognames,
+  catalogs.catalogforms,
+  ActivePrices, 
   farm.CatalogFirmCr 
 where 
-    catalog.fullcode = AllCoreT.fullcode 
-and AllCoreT.pricecode = ActivePricesT.pricecode 
-and AllCoreT.RegionCode = ActivePricesT.RegionCode 
-and catalogfirmcr.codefirmcr = AllCoreT.codefirmcr 
-group by catalog.FullCode, Cfc
+    FarmCore.id = Core.Id
+and products.id = core.productid
+and catalog.id = products.catalogid
+and catalognames.id = catalog.NameId
+and catalogforms.id = catalog.FormId
+and Core.pricecode = ActivePrices.pricecode 
+and Core.RegionCode = ActivePrices.RegionCode 
+and catalogfirmcr.codefirmcr = FarmCore.codefirmcr 
+group by catalog.Id, Cfc
 order by 2, 5";
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 
-			e.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, DateCurPrice, FirmName from ActivePricesT order by PosCount DESC";
+			e.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, PriceDate, FirmName from ActivePrices order by PositionCount DESC";
 			e.DataAdapter.Fill(_dsReport, "Prices");
 
 			Calculate();
@@ -288,7 +302,7 @@ order by 2, 5";
 				((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2]).ColumnWidth = 8;
 
 				//Устанавливаем дату фирмы
-				ws.Cells[1, 5 + PriceIndex * 2 + 1] = drPrice["DateCurPrice"].ToString();
+				ws.Cells[1, 5 + PriceIndex * 2 + 1] = drPrice["PriceDate"].ToString();
 				((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2 + 1]).ColumnWidth = 4;
 
 				ws.Cells[2, 5 + PriceIndex * 2] = "Цена";

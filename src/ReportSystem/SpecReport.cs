@@ -40,8 +40,7 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			//Выбираем 
-			GetActivePricesT(e);
-			GetAllCoreT(e);
+			GetOffers(e);
 
 			//Получили код поставщика, для которого делается отчет
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -54,13 +53,13 @@ where
     r.ReportCode = ?ReportCode
 and gr.GeneralReportCode = r.GeneralReportCode";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.Add("ReportCode", _reportCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("ReportCode", _reportCode);
 			FirmCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 
 			//Получаем код прайс-листа, регион и название поставщика, для которого делаем отчет
-			e.DataAdapter.SelectCommand.CommandText = @"select FirmName, PriceCode, RegionCode from ActivePricesT where FirmCode = ?FirmCode limit 1";
+			e.DataAdapter.SelectCommand.CommandText = @"select FirmName, PriceCode, RegionCode from ActivePrices where FirmCode = ?FirmCode limit 1";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.Add("FirmCode", FirmCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("FirmCode", FirmCode);
 			DataTable dtCustomer = new DataTable();
 			e.DataAdapter.Fill(dtCustomer);
 			SourcePC = Convert.ToInt32(dtCustomer.Rows[0]["PriceCode"]);
@@ -81,6 +80,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			//Кол-во первых фиксированных колонок
 			int FirstColumnCount;
 
+			//todo: посмотреть почему здесь используется таблицы AllCoreT и Prices
 			DataTable dtCore = _dsReport.Tables["AllCoreT"];
 			DataTable dtPrices = _dsReport.Tables["Prices"];
 
@@ -240,24 +240,24 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			int EnabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
-					"select not ActivePricesT.DisabledByClient from ActivePricesT where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
+					"select not ActivePrices.DisabledByClient from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
 					new MySqlParameter("SourcePC", SourcePC),
 					new MySqlParameter("SourceRegionCode", SourceRegionCode)));
 			if (EnabledPrice == 0)
 			{
 				e.DataAdapter.SelectCommand.CommandText = @"select FirmSegment from usersettings.clientsdata where FirmCode = ?ClientCode";
 				e.DataAdapter.SelectCommand.Parameters.Clear();
-				e.DataAdapter.SelectCommand.Parameters.Add("ClientCode", _clientCode);
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
 				int ClientSegment = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 				if (ClientSegment == 0)
 				{
 					e.DataAdapter.SelectCommand.CommandText = @"
 INSERT
-INTO    AllCoreT
+INTO    Core
 SELECT
         c.id,
-        ActivePricesT.PriceCode,
-        ActivePricesT.regioncode,
+        ActivePrices.PriceCode,
+        ActivePrices.regioncode,
         c.fullcode,
         cat.Shortcode,
         c.codefirmcr,
@@ -277,24 +277,24 @@ SELECT
         c.VitallyImportant,
         c.RequestRatio,
         c.MinBoundCost,
-        round(c.BaseCost*ActivePricesT.UpCost,2)
+        round(c.BaseCost*ActivePrices.UpCost,2)
 FROM    farm.core0 c,
         farm.catalog cat,   
-        ActivePricesT
-WHERE   c.firmcode = ActivePricesT.CostCode
-        AND not ActivePricesT.AlowInt
-        and ActivePricesT.PriceCode = ?SourcePC 
-        and ActivePricesT.RegionCode = ?SourceRegionCode 
-        AND ActivePricesT.Actual
+        ActivePrices
+WHERE   c.firmcode = ActivePrices.CostCode
+        AND not ActivePrices.AlowInt
+        and ActivePrices.PriceCode = ?SourcePC 
+        and ActivePrices.RegionCode = ?SourceRegionCode 
+        AND ActivePrices.Actual
         AND c.BaseCost is not null
         and cat.fullcode = c.fullcode
-        AND ActivePricesT.CostType=1;
+        AND ActivePrices.CostType=1;
 INSERT
-INTO    AllCoreT
+INTO    Core
 SELECT
         c.id,
-        ActivePricesT.PriceCode,
-        ActivePricesT.regioncode,
+        ActivePrices.PriceCode,
+        ActivePrices.regioncode,
         c.fullcode,
         cat.Shortcode,
         c.codefirmcr,
@@ -314,31 +314,31 @@ SELECT
         c.VitallyImportant,
         c.RequestRatio,
         c.MinBoundCost,
-        round(corecosts.cost*ActivePricesT.UpCost,2)
+        round(corecosts.cost*ActivePrices.UpCost,2)
 FROM    farm.core0 c,
         farm.catalog cat,   
-        ActivePricesT,
+        ActivePrices,
         farm.corecosts
-WHERE   c.firmcode = ActivePricesT.PriceCode
-        AND not ActivePricesT.AlowInt
-        and ActivePricesT.PriceCode = ?SourcePC 
-        and ActivePricesT.RegionCode = ?SourceRegionCode 
-        AND ActivePricesT.Actual
+WHERE   c.firmcode = ActivePrices.PriceCode
+        AND not ActivePrices.AlowInt
+        and ActivePrices.PriceCode = ?SourcePC 
+        and ActivePrices.RegionCode = ?SourceRegionCode 
+        AND ActivePrices.Actual
         AND corecosts.cost is not null
         AND corecosts.Core_Id=c.id
         and cat.fullcode = c.fullcode
-        and corecosts.PC_CostCode=ActivePricesT.CostCode
-        AND ActivePricesT.CostType=0;
+        and corecosts.PC_CostCode=ActivePrices.CostCode
+        AND ActivePrices.CostType=0;
 ";
 				}
 				else
 				{
 					e.DataAdapter.SelectCommand.CommandText = @"
 INSERT
-INTO    AllCoreT
+INTO    Core
 SELECT  c.id,
-        ActivePricesT.PriceCode,
-        ActivePricesT.regioncode,
+        ActivePrices.PriceCode,
+        ActivePrices.regioncode,
         c.fullcode,
         cat.Shortcode,
         c.codefirmcr,
@@ -358,22 +358,22 @@ SELECT  c.id,
         c.VitallyImportant,
         c.RequestRatio,
         c.MinBoundCost,
-        round(c.BaseCost*ActivePricesT.UpCost,2)
+        round(c.BaseCost*ActivePrices.UpCost,2)
 FROM    farm.core0 c,
         farm.catalog cat,   
-        ActivePricesT
-WHERE   c.firmcode = ActivePricesT.CostCode
-        AND not ActivePricesT.AlowInt
-        AND not ActivePricesT.DisabledByClient
-        and ActivePricesT.PriceCode = ?SourcePC 
-        and ActivePricesT.RegionCode = ?SourceRegionCode 
+        ActivePrices
+WHERE   c.firmcode = ActivePrices.CostCode
+        AND not ActivePrices.AlowInt
+        AND not ActivePrices.DisabledByClient
+        and ActivePrices.PriceCode = ?SourcePC 
+        and ActivePrices.RegionCode = ?SourceRegionCode 
         and cat.fullcode = c.fullcode
-        AND ActivePricesT.Actual
+        AND ActivePrices.Actual
         AND c.BaseCost is not null;
 ";
 				}
 				e.DataAdapter.SelectCommand.CommandText += @"
-UPDATE AllCoreT
+UPDATE Core
         SET cost =MinCost
 WHERE   MinCost  >cost
         AND MinCost is not null
@@ -381,8 +381,8 @@ WHERE   MinCost  >cost
         and RegionCode = ?SourceRegionCode;
 ";
 				e.DataAdapter.SelectCommand.Parameters.Clear();
-				e.DataAdapter.SelectCommand.Parameters.Add("SourcePC", SourcePC);
-				e.DataAdapter.SelectCommand.Parameters.Add("SourceRegionCode", SourceRegionCode);
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			}
 
@@ -410,29 +410,30 @@ Select
   RegionCode,
   Code, Cost, FullCode, Codefirmcr, SynonymCode, SynonymFirmCrCode 
 FROM 
-  AllCoreT 
+  Core 
 WHERE 
     PriceCode = ?SourcePC 
 and RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.Add("SourcePC", SourcePC);
-			e.DataAdapter.SelectCommand.Parameters.Add("SourceRegionCode", SourceRegionCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			e.DataAdapter.SelectCommand.CommandText = "select * from AllCoreT";
+			e.DataAdapter.SelectCommand.CommandText = "select * from Core";
+			//todo: изменить заполнение в другую таблицу
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select 
-  PriceCode, RegionCode, DateCurPrice, FirmName, Region 
+  PriceCode, RegionCode, PriceDate, FirmName
 from 
-  ActivePricesT 
+  ActivePrices 
 where 
   (PriceCode <> ?SourcePC or RegionCode <> ?SourceRegionCode)
-  and not ActivePricesT.DisabledByClient
-order by PosCount DESC";
-			e.DataAdapter.SelectCommand.Parameters.Add("SourcePC", SourcePC);
-			e.DataAdapter.SelectCommand.Parameters.Add("SourceRegionCode", SourceRegionCode);
+  and not ActivePrices.DisabledByClient
+order by PositionCount DESC";
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.Fill(_dsReport, "Prices");
 		}
 
@@ -467,7 +468,7 @@ order by PosCount DESC";
 						"farm.catalogcurrency cc," & _
 						"farm.catalog c," & _
 						"farm.CatalogFirmCr cfc," & _
-						"ActivePricesT apt,"
+						"ActivePrices apt,"
 
 					If IsFull Then
 						If ReportType > 2 Then
@@ -543,18 +544,18 @@ from
 			{
 				if (_reportType <= 2)
 					SqlCommandText += @"
-  AllCoreT c0 
+  Core c0 
  )
   left join TmpSourceCodes c1 on c1.fullcode=c0.fullcode ";
 				else
 					SqlCommandText += @"
-  AllCoreT c0 
+  Core c0 
  )
   left join TmpSourceCodes c1 on c1.fullcode=c0.fullcode and c1.codefirmcr=c0.codefirmcr";
 			}
 			else
 					SqlCommandText += @"
-  AllCoreT c0, 
+  Core c0, 
   TmpSourceCodes c1
  )";
 				SqlCommandText += @"
@@ -711,7 +712,7 @@ order by c.FullCode, Cfc, c1.Code";
 				((MSExcel.Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2]).ColumnWidth = 6;
 
 				//Устанавливаем дату фирмы
-				ws.Cells[2, ColumnPrefix + PriceIndex * 2] = drPrice["DateCurPrice"].ToString();
+				ws.Cells[2, ColumnPrefix + PriceIndex * 2] = drPrice["PriceDate"].ToString();
 				//((MSExcel.Range)ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
 
 				ws.Cells[3, ColumnPrefix + PriceIndex * 2] = "Цена";

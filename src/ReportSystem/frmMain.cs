@@ -214,7 +214,7 @@ WHERE   cr.FirmCode         =cd.firmcode
 						}
 
 						//Выбирает отчеты согласно фильтру
-						DataTable dtGeneralReports = MethodTemplate.ExecuteMethod<ReportsExecuteArgs, DataTable>(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc, true, false);
+						DataTable dtGeneralReports = MethodTemplate.ExecuteMethod<ReportsExecuteArgs, DataTable>(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc, true, null, false, null);
 
 						if (dtGeneralReports != null)
 						{

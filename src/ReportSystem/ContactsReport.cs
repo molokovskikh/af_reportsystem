@@ -24,16 +24,19 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			GetActivePricesT(e);
+			GetActivePrices(e);
+
 			e.DataAdapter.SelectCommand.CommandText = @"
-select FirmName, PublicCostCorr, Region, ContactInfo 
+select at.FirmName, at.PublicUpCost, regions.Region, rd.ContactInfo 
 from 
-  ActivePricesT at,
+  ActivePrices at,
+  farm.regions,
   usersettings.Regionaldata rd
 where
-  at.FirmCode = rd.FirmCode
-  and at.RegionCode = rd.RegionCode
-order by PosCount DESC";
+    at.FirmCode = rd.FirmCode
+and regions.RegionCode = at.RegionCode
+and at.RegionCode = rd.RegionCode
+order by PositionCount DESC";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(_dsReport, "Contacts");
 		}
@@ -100,7 +103,7 @@ order by PosCount DESC";
 				}
 				wsContacts.Cells[StartPosition, 1] = TmpFirmName;
 				wsContacts.Cells[StartPosition + 1, 1] = SrcRow["Region"].ToString();
-				wsContacts.Cells[StartPosition + 2, 1] = "Скидка = " + SrcRow["PublicCostCorr"].ToString();
+				wsContacts.Cells[StartPosition + 2, 1] = "Скидка = " + SrcRow["PublicUpCost"].ToString();
 				SplitCount = 0;
 				if (!(SrcRow["ContactInfo"] is DBNull))
 				{
