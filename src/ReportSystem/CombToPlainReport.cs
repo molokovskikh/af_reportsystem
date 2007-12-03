@@ -40,23 +40,23 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select
   -- наименование
-  replace( replace( replace(c.name, '\t', ''), '\r', ''), '\n', '') as name,
+  replace( replace( replace(catalognames.name, '\t', ''), '\r', ''), '\n', '') as name,
   -- форма выпуска
-  replace( replace( replace(c.form, '\t', ''), '\r', ''), '\n', '') as form,
+  replace( replace( replace(catalogforms.form, '\t', ''), '\r', ''), '\n', '') as form,
   -- код поставщика
-  replace( replace( replace(Core.code, '\t', ''), '\r', ''), '\n', '') as code,
+  replace( replace( replace(FarmCore.code, '\t', ''), '\r', ''), '\n', '') as code,
   -- синоним
   replace( replace( replace(s.synonym, '\t', ''), '\r', ''), '\n', '') as synonym,
   -- синоним производителя
   replace( replace( replace(sfc.synonym, '\t', ''), '\r', ''), '\n', '') as sfcsynonym,
   -- упаковка
-  replace( replace( replace(Core.volume, '\t', ''), '\r', ''), '\n', '') as volume,
+  replace( replace( replace(FarmCore.volume, '\t', ''), '\r', ''), '\n', '') as volume,
   -- применчание
-  replace( replace( replace(Core.note, '\t', ''), '\r', ''), '\n', '') as note,
+  replace( replace( replace(FarmCore.note, '\t', ''), '\r', ''), '\n', '') as note,
   -- срок годности
-  Core.period,
+  FarmCore.period,
   -- признак уценки
-  if(Core.junk, '1', '0'),
+  if(FarmCore.junk, '1', '0'),
   -- наименование прайс-листа
   pd.PriceName,
   -- регион
@@ -66,7 +66,7 @@ select
   -- цена препарата
   Core.Cost,
   -- кол-во препарата
-  Core.Quantity,
+  FarmCore.Quantity,
   -- краткое название прайс-листа
   cd.ShortName,
   -- региональный телефон техподдержки
@@ -86,7 +86,11 @@ from
   Core,
   ActivePrices,
   farm.regions,
-  farm.catalog c,
+  Farm.Core0 FarmCore,
+  catalogs.products,
+  catalogs.catalog,
+  catalogs.catalognames,
+  catalogs.catalogforms,
   farm.catalogfirmcr cfc,
   farm.synonym s,
   farm.synonymfirmcr sfc,
@@ -94,10 +98,10 @@ from
   usersettings.clientsdata cd,
   usersettings.pricesdata pd
 where
-  c.FullCode = Core.fullcode 
-and s.synonymcode = Core.synonymcode
-and sfc.SynonymFirmCrCode = Core.SynonymFirmCrCode
-and cfc.codefirmcr = Core.codefirmcr
+    FarmCore.Id = Core.Id 
+and s.synonymcode = FarmCore.synonymcode
+and sfc.SynonymFirmCrCode = FarmCore.SynonymFirmCrCode
+and cfc.codefirmcr = FarmCore.codefirmcr
 and ActivePrices.PriceCode = Core.PriceCode
 and ActivePrices.RegionCode = Core.RegionCode
 and regions.RegionCode = ActivePrices.RegionCode
@@ -105,6 +109,10 @@ and rd.regioncode = Core.RegionCode
 and rd.FirmCode = ActivePrices.FirmCode
 and cd.FirmCode = ActivePrices.FirmCode
 and pd.PriceCode = ActivePrices.PriceCode
+and products.id = Core.ProductId
+and catalog.id = products.catalogid
+and catalognames.id = catalog.nameid
+and catalogforms.id = catalog.formid
 ",
 			_filename,
 			(char)9

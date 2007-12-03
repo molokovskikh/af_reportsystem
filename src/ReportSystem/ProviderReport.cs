@@ -37,7 +37,7 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.CommandText = "usersettings.GetActivePrices";
 			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCodeParam", _clientCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.Text;
 
@@ -64,8 +64,8 @@ and regions.RegionCode = activeprices.RegionCode";
 			e.DataAdapter.SelectCommand.CommandText = "usersettings.GetOffers";
 			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCodeParam", _clientCode);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("FreshOnly", 0);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?FreshOnly", 0);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.Text;
 

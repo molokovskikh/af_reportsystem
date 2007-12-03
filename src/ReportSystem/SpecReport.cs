@@ -66,6 +66,13 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			SourceRegionCode = Convert.ToInt32(dtCustomer.Rows[0]["RegionCode"]);
 			CustomerFirmName = dtCustomer.Rows[0]["FirmName"].ToString();
 
+			e.DataAdapter.SelectCommand.CommandText = "usersettings.GetPrices";
+			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeIn", _clientCode);
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.Text;
+
 			//Получили предложения интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes(e);
 
@@ -145,7 +152,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				if (!(drCatalog["ID"] is DBNull))
 				{
 					newrow["Code"] = drCatalog["Code"];
-					drsMin = dtCore.Select("RowID = " + drCatalog["ID"].ToString());
+					drsMin = dtCore.Select("ID = " + drCatalog["ID"].ToString());
 					newrow["CustomerCost"] = Convert.ToDecimal(drsMin[0]["Cost"]);
 					newrow["CustomerQuantity"] = drsMin[0]["Quantity"];
 					if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
@@ -164,7 +171,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 					//Выбираем позиции с минимальной ценой, отличные от SourcePC
 					drsMin = dtCore.Select(
-						"FullCode = " + drCatalog["FullCode"].ToString() +
+						"productid = " + drCatalog["productid"].ToString() +
 						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
 						" and Cost = " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
 					if (drsMin.Length > 0)
@@ -186,7 +193,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				{
 					//Ищем первую цену, которая будет больше минимальной цены
 					drsMin = dtCore.Select(
-						"FullCode = " + drCatalog["FullCode"].ToString() +
+						"productid = " + drCatalog["productid"].ToString() +
 						" and PriceCode <> " + SourcePC.ToString() +
 						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
 						" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat),
@@ -200,7 +207,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 				//Выбираем позиции и сортируем по возрастанию цен
 				drsMin = dtCore.Select(
-					"FullCode = " + drCatalog["FullCode"].ToString() +
+					"productid = " + drCatalog["productid"].ToString() +
 					((_reportType <= 2) ? String.Empty : "and CodeFirmCr = " + drCatalog["Cfc"].ToString()), 
 					"Cost asc");
 				foreach (DataRow dtPos in drsMin)
@@ -237,12 +244,19 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 		protected void GetSourceCodes(ExecuteArgs e)
 		{
-			int EnabledPrice = Convert.ToInt32(
+			e.DataAdapter.SelectCommand.CommandText = @"select *#not Prices.DisabledByClient 
+from Prices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode";
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
+			int EnabledPrice = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
+			/*
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
-					"select not ActivePrices.DisabledByClient from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
+					"select not Prices.DisabledByClient from Prices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
 					new MySqlParameter("SourcePC", SourcePC),
 					new MySqlParameter("SourceRegionCode", SourceRegionCode)));
+			 */
 			if (EnabledPrice == 0)
 			{
 				e.DataAdapter.SelectCommand.CommandText = @"select FirmSegment from usersettings.clientsdata where FirmCode = ?ClientCode";
@@ -251,127 +265,70 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				int ClientSegment = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 				if (ClientSegment == 0)
 				{
-					e.DataAdapter.SelectCommand.CommandText = @"
-INSERT
-INTO    Core
-SELECT
-        c.id,
-        ActivePrices.PriceCode,
-        ActivePrices.regioncode,
-        c.fullcode,
-        cat.Shortcode,
-        c.codefirmcr,
-        c.synonymcode,
-        c.SynonymFirmCrCode,
-        c.code,
-        c.codecr,
-        c.unit,
-        c.volume,
-        length(c.junk) >0,
-        length(c.Await)>0,
-        c.quantity,
-        c.note,
-        c.period,
-        c.doc,
-        c.RegistryCost,
-        c.VitallyImportant,
-        c.RequestRatio,
-        c.MinBoundCost,
-        round(c.BaseCost*ActivePrices.UpCost,2)
-FROM    farm.core0 c,
-        farm.catalog cat,   
-        ActivePrices
-WHERE   c.firmcode = ActivePrices.CostCode
-        AND not ActivePrices.AlowInt
-        and ActivePrices.PriceCode = ?SourcePC 
-        and ActivePrices.RegionCode = ?SourceRegionCode 
-        AND ActivePrices.Actual
-        AND c.BaseCost is not null
-        and cat.fullcode = c.fullcode
-        AND ActivePrices.CostType=1;
-INSERT
-INTO    Core
-SELECT
-        c.id,
-        ActivePrices.PriceCode,
-        ActivePrices.regioncode,
-        c.fullcode,
-        cat.Shortcode,
-        c.codefirmcr,
-        c.synonymcode,
-        c.SynonymFirmCrCode,
-        c.code,
-        c.codecr,
-        c.unit,
-        c.volume,
-        length(c.junk) >0,
-        length(c.Await)>0,
-        c.quantity,
-        c.note,
-        c.period,
-        c.doc,
-        c.RegistryCost,
-        c.VitallyImportant,
-        c.RequestRatio,
-        c.MinBoundCost,
-        round(corecosts.cost*ActivePrices.UpCost,2)
-FROM    farm.core0 c,
-        farm.catalog cat,   
-        ActivePrices,
-        farm.corecosts
-WHERE   c.firmcode = ActivePrices.PriceCode
-        AND not ActivePrices.AlowInt
-        and ActivePrices.PriceCode = ?SourcePC 
-        and ActivePrices.RegionCode = ?SourceRegionCode 
-        AND ActivePrices.Actual
-        AND corecosts.cost is not null
-        AND corecosts.Core_Id=c.id
-        and cat.fullcode = c.fullcode
-        and corecosts.PC_CostCode=ActivePrices.CostCode
-        AND ActivePrices.CostType=0;
+e.DataAdapter.SelectCommand.CommandText = @"
+insert into Core
+(Id, PriceCode, RegionCode, ProductId, Cost)
+select
+  FarmCore.Id,
+  ActivePrices.PriceCode,
+  ActivePrices.Regioncode,
+  FarmCore.ProductId,
+  if(FarmCore.MinBoundCost is null, round(FarmCore.BaseCost*ActivePrices.UpCost,2), if(FarmCore.MinBoundCost > round(FarmCore.BaseCost*ActivePrices.UpCost,2), FarmCore.MinBoundCost, round(FarmCore.BaseCost*ActivePrices.UpCost,2)))
+FROM    
+  farm.core0 FarmCore,
+  ActivePrices
+WHERE   
+    FarmCore.Pricecode = ActivePrices.CostCode
+and ActivePrices.PriceCode = ?SourcePC 
+and ActivePrices.RegionCode = ?SourceRegionCode 
+AND FarmCore.BaseCost is not null
+AND ActivePrices.CostType=1;
+
+insert into Core
+(Id, PriceCode, RegionCode, ProductId, Cost)
+select
+  FarmCore.Id,
+  ActivePrices.PriceCode,
+  ActivePrices.Regioncode,
+  FarmCore.ProductId,
+  if(FarmCore.MinBoundCost is null, round(corecosts.cost*ActivePrices.UpCost,2), if(FarmCore.MinBoundCost > round(corecosts.cost*ActivePrices.UpCost,2), FarmCore.MinBoundCost, round(corecosts.cost*ActivePrices.UpCost,2)))
+FROM    
+  farm.core0 FarmCore,
+  ActivePrices,
+  farm.corecosts
+WHERE   
+    FarmCore.Pricecode = ActivePrices.CostCode
+and ActivePrices.PriceCode = ?SourcePC 
+and ActivePrices.RegionCode = ?SourceRegionCode 
+AND corecosts.cost is not null
+AND corecosts.Core_Id=FarmCore.id
+and corecosts.PC_CostCode=ActivePrices.CostCode
+AND ActivePrices.CostType=0;
 ";
 				}
 				else
 				{
 					e.DataAdapter.SelectCommand.CommandText = @"
-INSERT
-INTO    Core
-SELECT  c.id,
-        ActivePrices.PriceCode,
-        ActivePrices.regioncode,
-        c.fullcode,
-        cat.Shortcode,
-        c.codefirmcr,
-        c.synonymcode,
-        c.SynonymFirmCrCode,
-        c.code,
-        c.codecr,
-        c.unit,
-        c.volume,
-        length(c.junk) >0,
-        length(c.Await)>0,
-        c.quantity,
-        c.note,
-        c.period,
-        c.doc,
-        c.RegistryCost,
-        c.VitallyImportant,
-        c.RequestRatio,
-        c.MinBoundCost,
-        round(c.BaseCost*ActivePrices.UpCost,2)
-FROM    farm.core0 c,
-        farm.catalog cat,   
-        ActivePrices
-WHERE   c.firmcode = ActivePrices.CostCode
-        AND not ActivePrices.AlowInt
-        AND not ActivePrices.DisabledByClient
-        and ActivePrices.PriceCode = ?SourcePC 
-        and ActivePrices.RegionCode = ?SourceRegionCode 
-        and cat.fullcode = c.fullcode
-        AND ActivePrices.Actual
-        AND c.BaseCost is not null;
+insert into Core
+(Id, PriceCode, RegionCode, ProductId, Cost)
+select
+  FarmCore.Id,
+  ActivePrices.PriceCode,
+  ActivePrices.Regioncode,
+  FarmCore.ProductId,
+  if(FarmCore.MinBoundCost is null, round(FarmCore.BaseCost*ActivePrices.UpCost,2), if(FarmCore.MinBoundCost > round(FarmCore.BaseCost*ActivePrices.UpCost,2), FarmCore.MinBoundCost, round(FarmCore.BaseCost*ActivePrices.UpCost,2)))
+FROM    
+  farm.core0 FarmCore,
+  ActivePrices
+WHERE   
+    FarmCore.Pricecode = ActivePrices.CostCode
+and ActivePrices.PriceCode = ?SourcePC 
+and ActivePrices.RegionCode = ?SourceRegionCode 
+AND FarmCore.BaseCost is not null
+AND ActivePrices.CostType=1;
 ";
 				}
+/*
 				e.DataAdapter.SelectCommand.CommandText += @"
 UPDATE Core
         SET cost =MinCost
@@ -380,6 +337,7 @@ WHERE   MinCost  >cost
         and PriceCode = ?SourcePC
         and RegionCode = ?SourceRegionCode;
 ";
+*/
 				e.DataAdapter.SelectCommand.Parameters.Clear();
 				e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
 				e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
@@ -394,44 +352,64 @@ CREATE temporary table TmpSourceCodes(
   RegionCode int(32) unsigned, 
   Code char(20), 
   BaseCost decimal(8,2) unsigned, 
-  FullCode int(32) unsigned, 
+  ProductId int(32) unsigned, 
   CodeFirmCr int(32) unsigned, 
   SynonymCode int(32) unsigned, 
   SynonymFirmCrCode int(32) unsigned, 
   key ID(ID), 
-  key FullCode(FullCode), 
+  key productid(productid), 
   key CodeFirmCr(CodeFirmCr), 
   key SynonymFirmCrCode(SynonymFirmCrCode), 
   key SynonymCode(SynonymCode))engine=MEMORY PACK_KEYS = 0;
   INSERT INTO TmpSourceCodes 
 Select 
-  RowID, 
-  PriceCode,
-  RegionCode,
-  Code, Cost, FullCode, Codefirmcr, SynonymCode, SynonymFirmCrCode 
+  Core.ID, 
+  Core.PriceCode,
+  Core.RegionCode,
+  FarmCore.Code,
+  Core.Cost,
+  Core.ProductId,
+  FarmCore.CodeFirmCr,
+  FarmCore.SynonymCode,
+  FarmCore.SynonymFirmCrCode
 FROM 
-  Core 
+  Core,
+  farm.core0 FarmCore
 WHERE 
-    PriceCode = ?SourcePC 
-and RegionCode = ?SourceRegionCode;";
+    Core.PriceCode = ?SourcePC 
+and FarmCore.id = Core.Id
+and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			e.DataAdapter.SelectCommand.CommandText = "select * from Core";
+e.DataAdapter.SelectCommand.CommandText = @"
+select 
+  Core.*,
+  FarmCore.CodeFirmCr,
+  FarmCore.Quantity 
+from 
+  Core,
+  farm.core0 FarmCore
+where
+  FarmCore.Id = core.id";
+
 			//todo: изменить заполнение в другую таблицу
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select 
-  PriceCode, RegionCode, PriceDate, FirmName
+  ActivePrices.PriceCode, ActivePrices.RegionCode, ActivePrices.PriceDate, ActivePrices.FirmName
 from 
-  ActivePrices 
+  ActivePrices, Prices 
 where 
-  (PriceCode <> ?SourcePC or RegionCode <> ?SourceRegionCode)
-  and not ActivePrices.DisabledByClient
-order by PositionCount DESC";
+  (ActivePrices.PriceCode <> ?SourcePC or ActivePrices.RegionCode <> ?SourceRegionCode)
+  and not Prices.DisabledByClient
+  and Prices.PriceCode = ActivePrices.PriceCode
+  and Prices.RegionCode = ActivePrices.RegionCode
+order by ActivePrices.PositionCount DESC";
+			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.Fill(_dsReport, "Prices");
@@ -516,8 +494,8 @@ order by PositionCount DESC";
 select 
   c1.ID,
   c1.Code,
-  c.FullCode as FullCode,
-  ifnull(s.Synonym, concat(C.Name, ' ', C.Form)) as FullName,
+  c1.ProductId,
+  ifnull(s.Synonym, concat(catalognames.Name, ' ', catalogforms.Form)) as FullName,
   -- c0.cost, -- здесь должна быть минимальная цена
   -- c0.cost, -- здесь должна быть минимальная цена
   min(c0.cost) As MinCost, -- здесь должна быть минимальная цена
@@ -536,7 +514,11 @@ select
 			SqlCommandText += @"
 from 
  (
-  farm.catalog c,
+  catalogs.products,
+  catalogs.catalog,
+  catalogs.catalognames,
+  catalogs.catalogforms,
+  farm.core0 FarmCore,
   farm.CatalogFirmCr cfc,";
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
@@ -546,12 +528,12 @@ from
 					SqlCommandText += @"
   Core c0 
  )
-  left join TmpSourceCodes c1 on c1.fullcode=c0.fullcode ";
+  left join TmpSourceCodes c1 on c1.productid=c0.productid ";
 				else
 					SqlCommandText += @"
   Core c0 
  )
-  left join TmpSourceCodes c1 on c1.fullcode=c0.fullcode and c1.codefirmcr=c0.codefirmcr";
+  left join TmpSourceCodes c1 on c1.productid=c0.productid and c1.codefirmcr=FarmCore.codefirmcr";
 			}
 			else
 					SqlCommandText += @"
@@ -562,29 +544,33 @@ from
   left join farm.synonym s on s.SynonymCode = c1.SynonymCode 
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c1.SynonymFirmCrCode
 where 
-      c.fullcode = c0.fullcode
-  and cfc.codefirmcr=c0.codefirmcr
-  and (( ( (c0.PriceCode <> c1.PriceCode) or (c0.RegionCode <> c1.RegionCode) or (c1.id is null) ) and (c0.Junk =0) and (c0.Await=0) )
-      or ( (c0.PriceCode = c1.PriceCode) and (c0.RegionCode = c1.RegionCode) and (c0.RowId = c1.id) ) )";
+      products.id = c0.productid 
+  and catalog.id = products.catalogid
+  and catalognames.id = catalog.nameid
+  and catalogforms.id = catalog.formid
+  and FarmCore.Id = c0.Id
+  and cfc.codefirmcr=FarmCore.codefirmcr
+  and (( ( (c0.PriceCode <> c1.PriceCode) or (c0.RegionCode <> c1.RegionCode) or (c1.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
+      or ( (c0.PriceCode = c1.PriceCode) and (c0.RegionCode = c1.RegionCode) and (c0.Id = c1.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
 			if (!_reportIsFull)
 			{
 				if (_reportType <= 2)
 					SqlCommandText += @"
-and c1.fullcode=c0.fullcode ";
+and c1.productid=c0.productid ";
 				else
 					SqlCommandText += @"
-and c1.fullcode=c0.fullcode and c1.codefirmcr=c0.codefirmcr ";
+and c1.productid=c0.productid and c1.codefirmcr=FarmCore.codefirmcr ";
 			}
 			SqlCommandText += @"
-group by c1.Code, c.FullCode, Cfc";
+group by c1.Code, c0.productid, Cfc";
 			if ((!_reportIsFull) && (_reportSortedByPrice))
 				SqlCommandText += @"
 order by c1.ID";
 			else
 				SqlCommandText += @"
-order by c.FullCode, Cfc, c1.Code";
+order by c0.productid, Cfc, c1.Code";
 			e.DataAdapter.SelectCommand.CommandText = SqlCommandText;
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 		}
