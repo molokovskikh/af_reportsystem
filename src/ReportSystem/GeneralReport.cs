@@ -163,7 +163,10 @@ namespace Inforoom.ReportSystem
 
 			int SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID("box.analit.net", null, null, message);
 
+#if (TESTING)
+#else
 			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID), ProcessLog, 0, _conn, true, null, false, null);
+#endif
 		}
 
 		class ProcessLogArgs : ExecuteArgs

@@ -27,6 +27,8 @@ namespace Inforoom.ReportSystem
 
 		protected int _reportType;
 		protected bool _showPercents;
+		//–асчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производитс€ по продуктам (ProductId)
+		protected bool _calculateByCatalog;
 
 		protected string reportCaptionPreffix;
 
@@ -41,6 +43,7 @@ namespace Inforoom.ReportSystem
 			_reportType = (int)getReportParam("ReportType");
 			_showPercents = (bool)getReportParam("ShowPercents");
 			_clientCode = (int)getReportParam("ClientCode");
+			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -48,16 +51,19 @@ namespace Inforoom.ReportSystem
 			//¬ыбираем 
 			GetOffers(e);
 
-			e.DataAdapter.SelectCommand.CommandText = @"
-select 
-  catalog.Id as FullCode, 
-  left(concat(catalognames.Name, ' ', catalogforms.Form), 250) as Name, 
+			e.DataAdapter.SelectCommand.CommandText = "select " ;
+
+			if (_calculateByCatalog)
+				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
+			else
+				e.DataAdapter.SelectCommand.CommandText += "products.Id as CatalogCode, ";
+
+			e.DataAdapter.SelectCommand.CommandText += @"
   Core.Cost as Cost,
   ActivePrices.FirmName,
   FarmCore.Quantity, 
   Core.RegionCode, 
-  Core.PriceCode, 
-  left(farm.CatalogFirmCr.FirmCr, 250) as FirmCr, ";
+  Core.PriceCode, ";
 			if (_reportType > 2)
 			{
 				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr";
@@ -75,8 +81,7 @@ from
   catalogs.catalog,
   catalogs.catalognames,
   catalogs.catalogforms,
-  ActivePrices, 
-  farm.CatalogFirmCr 
+  ActivePrices
 where 
     FarmCore.id = Core.Id
 and products.id = core.productid
@@ -85,14 +90,16 @@ and catalognames.id = catalog.NameId
 and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode 
-and catalogfirmcr.codefirmcr = FarmCore.codefirmcr 
-order by catalog.Id, Cfc, PositionCount DESC";
+order by CatalogCode, Cfc, PositionCount DESC";
 			e.DataAdapter.Fill(_dsReport, "Core");
 
-			e.DataAdapter.SelectCommand.CommandText = @"
-select   
-  catalog.Id as FullCode, 
-  left(concat(catalognames.Name, ' ', catalogforms.Form), 250) as Name, 
+			e.DataAdapter.SelectCommand.CommandText = "select  ";   
+			if (_calculateByCatalog)
+				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(concat(catalognames.Name, ' ', catalogforms.Form), 250) as Name, ";
+			else
+				e.DataAdapter.SelectCommand.CommandText += "products.Id as CatalogCode, left(concat(catalognames.Name, ' ', catalogs.GetFullForm(products.Id)), 250) as Name, ";
+
+			e.DataAdapter.SelectCommand.CommandText += @"
   min(Core.Cost) as MinCost, ";
 			if (_reportType > 2)
 			{
@@ -121,7 +128,7 @@ and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode 
 and catalogfirmcr.codefirmcr = FarmCore.codefirmcr 
-group by catalog.Id, Cfc
+group by CatalogCode, Cfc
 order by 2, 5";
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 
@@ -176,14 +183,14 @@ order by 2, 5";
 				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
 
 				drsMin = dtCore.Select(
-					"FullCode = " + drCatalog["FullCode"].ToString() +
+					"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
 					" and Cfc = " + drCatalog["Cfc"].ToString() + 
 					" and Cost = " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
 				if (drsMin.Length > 0)
 					newrow["LeaderName"] = drsMin[0]["FirmName"];
 
 				//¬ыбираем позиции и сортируем по возрастанию цен
-				drsMin = dtCore.Select("FullCode = " + drCatalog["FullCode"].ToString() + "and Cfc = " + drCatalog["Cfc"].ToString(), "Cost asc");
+				drsMin = dtCore.Select("CatalogCode = " + drCatalog["CatalogCode"].ToString() + "and Cfc = " + drCatalog["Cfc"].ToString(), "Cost asc");
 				foreach (DataRow dtPos in drsMin)
 				{
 					DataRow dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"].ToString() + " and RegionCode = " + dtPos["RegionCode"].ToString())[0];

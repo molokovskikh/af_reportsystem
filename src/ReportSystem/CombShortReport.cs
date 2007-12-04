@@ -19,8 +19,8 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			_reportType = (int)getReportParam("ReportType");
-			_showPercents = (bool)getReportParam("ShowPercents");
 			_clientCode = (int)getReportParam("ClientCode");
+			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 		}
 
 		protected override void Calculate()

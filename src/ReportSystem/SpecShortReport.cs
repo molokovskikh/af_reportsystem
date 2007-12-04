@@ -19,6 +19,7 @@ namespace Inforoom.ReportSystem
 		{
 			_reportType = (int)getReportParam("ReportType");
 			_clientCode = (int)getReportParam("ClientCode");
+			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 		}
 
 		protected override void Calculate()
