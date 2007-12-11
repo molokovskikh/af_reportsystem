@@ -167,7 +167,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 					//¬ыбираем позиции с минимальной ценой, отличные от SourcePC
 					drsMin = dtCore.Select(
-						"CatalogId = " + drCatalog["CatalogId"].ToString() +
+						"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
 						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
 						" and Cost = " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
 					if (drsMin.Length > 0)
@@ -189,7 +189,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				{
 					//»щем первую цену, котора€ будет больше минимальной цены
 					drsMin = dtCore.Select(
-						"CatalogId = " + drCatalog["CatalogId"].ToString() +
+						"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
 						" and PriceCode <> " + SourcePC.ToString() +
 						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
 						" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat),
@@ -203,7 +203,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 				//¬ыбираем позиции и сортируем по возрастанию цен
 				drsMin = dtCore.Select(
-					"CatalogId = " + drCatalog["CatalogId"].ToString() +
+					"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
 					((_reportType <= 2) ? String.Empty : "and CodeFirmCr = " + drCatalog["Cfc"].ToString()), 
 					"Cost asc");
 				foreach (DataRow dtPos in drsMin)
@@ -295,13 +295,13 @@ AND ActivePrices.CostType=0;
 			}
 
 			//ƒобавл€ем к таблице Core поле CatalogCode и заполн€ем его
-			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogId int unsigned, add key CatalogId(CatalogId);";
+			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText = "update Core, catalogs.products set Core.CatalogId = products.CatalogId where products.Id = Core.ProductId;";
+				e.DataAdapter.SelectCommand.CommandText = "update Core, catalogs.products set Core.CatalogCode = products.CatalogId where products.Id = Core.ProductId;";
 			else
-				e.DataAdapter.SelectCommand.CommandText = "update Core set CatalogId = ProductId;";
+				e.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -312,12 +312,12 @@ CREATE temporary table TmpSourceCodes(
   RegionCode int(32) unsigned, 
   Code char(20), 
   BaseCost decimal(8,2) unsigned, 
-  CatalogId int(32) unsigned, 
+  CatalogCode int(32) unsigned, 
   CodeFirmCr int(32) unsigned, 
   SynonymCode int(32) unsigned, 
   SynonymFirmCrCode int(32) unsigned, 
   key ID(ID), 
-  key CatalogId(CatalogId), 
+  key CatalogCode(CatalogCode), 
   key CodeFirmCr(CodeFirmCr), 
   key SynonymFirmCrCode(SynonymFirmCrCode), 
   key SynonymCode(SynonymCode))engine=MEMORY PACK_KEYS = 0;
@@ -353,11 +353,11 @@ and Core.RegionCode = ?SourceRegionCode;";
 e.DataAdapter.SelectCommand.CommandText = @"
 select 
   Core.Id,
-  Core.PriceCode,
-  Core.RegionCode,
-  Core.CatalogId,
+  Core.CatalogCode,
   FarmCore.CodeFirmCr,
   Core.Cost,
+  Core.PriceCode,
+  Core.RegionCode,
   FarmCore.Quantity 
 from 
   Core,
@@ -388,7 +388,7 @@ order by ActivePrices.PositionCount DESC";
 select 
   SourcePrice.ID,
   SourcePrice.Code,
-  AllPrices.CatalogId, ";
+  AllPrices.CatalogCode, ";
 			if (_calculateByCatalog)
 				SqlCommandText += " ifnull(s.Synonym, concat(catalognames.Name, ' ', catalogforms.Form)) as FullName, ";
 			else
@@ -424,12 +424,12 @@ from
 					SqlCommandText += @"
   Core AllPrices 
  )
-  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogId=AllPrices.CatalogId ";
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 				else
 					SqlCommandText += @"
   Core AllPrices 
  )
-  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogId=AllPrices.CatalogId and SourcePrice.codefirmcr=FarmCore.codefirmcr";
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr";
 			}
 			else
 					SqlCommandText += @"
@@ -454,13 +454,13 @@ where
 			{
 				if (_reportType <= 2)
 					SqlCommandText += @"
-and SourcePrice.CatalogId=AllPrices.CatalogId ";
+and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 				else
 					SqlCommandText += @"
-and SourcePrice.CatalogId=AllPrices.CatalogId and SourcePrice.codefirmcr=FarmCore.codefirmcr ";
+and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr ";
 			}
 			SqlCommandText += @"
-group by SourcePrice.Code, AllPrices.CatalogId, Cfc";
+group by SourcePrice.Code, AllPrices.CatalogCode, Cfc";
 			if ((!_reportIsFull) && (_reportSortedByPrice))
 				SqlCommandText += @"
 order by SourcePrice.ID";

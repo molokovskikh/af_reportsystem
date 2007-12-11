@@ -4,12 +4,12 @@ using System.IO;
 using System.Collections;
 using System.Data;
 using MySql.Data.MySqlClient;
-//using Aspose.Excel;
 using ICSharpCode.SharpZipLib.Zip;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using Inforoom.ReportSystem.RatingReports;
 using ExecuteTemplate;
+using System.Collections.Generic;
 
 namespace Inforoom.ReportSystem
 {
@@ -21,6 +21,7 @@ namespace Inforoom.ReportSystem
      	public const string fromProperty = "FromDate";
 		public const string toProperty = "ToDate";
 		public const string junkProperty = "JunkState";
+		public const string reportIntervalProperty = "ReportInterval";
 
 		public int reportID;
 		public int clientCode;
@@ -31,6 +32,7 @@ namespace Inforoom.ReportSystem
 		public DateTime dtFrom;
 		public DateTime dtTo;
 		public int JunkState;
+		private int _reportInterval;
 
 		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
@@ -39,14 +41,19 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-			dtFrom = (DateTime)getReportParam(fromProperty);
-			dtTo = (DateTime)getReportParam(toProperty);
 			JunkState = (int)getReportParam(junkProperty);
+			_reportInterval = (int)getReportParam(reportIntervalProperty);
+			dtTo = DateTime.Now;
+			//От текущей даты вычитаем интервал - дата начала отчета
+			dtFrom = dtTo.AddDays( - _reportInterval ).Date;
+			//К текущей дате прибавляем один день - дата окончания отчета
+			dtTo = dtTo.AddDays(1).Date;
 
 			allField = new ArrayList(9);
 			selectField = new ArrayList(9);
-			allField.Add(new RatingField("c.FullCode", "concat(c.Name, ' ', c.Form) as FullName", "FullName", "FullName", "Наименование и форма выпуска"));
-			allField.Add(new RatingField("c.ShortCode", "c.Name as PosName", "PosName", "ShortName", "Наименование"));
+			allField.Add(new RatingField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска"));
+			allField.Add(new RatingField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска"));
+			allField.Add(new RatingField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование"));
 			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель"));
 			allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион"));
 			allField.Add(new RatingField("prov.FirmCode", "prov.ShortName as FirmShortName", "FirmShortName", "FirmCode", "Поставщик"));
@@ -62,122 +69,7 @@ namespace Inforoom.ReportSystem
 			selectField.Sort(new RatingComparer());
 		}
 
-		public void ExportToExcel(System.Data.DataTable dtRes)
-		{
-/*
-			Aspose.Excel.Excel ex = new Excel();
-			while (ex.Worksheets.Count > 1)
-				ex.Worksheets.RemoveAt(0);
-			Aspose.Excel.Worksheet ws = ex.Worksheets[0];
-			ws.Name = "Отчет";
-			ws.Cells.Clear();
-			ws.Cells.ImportDataTable(dtRes, true, "A3");
-			for(int i = 0; i<dtRes.Columns.Count; i++)
-			  ws.AutoFitColumn(i);
-			string ShortName =  "RatingReport" + clientCode.ToString() + ".xls";
-			string FileName = System.IO.Path.GetTempPath() + ShortName;
-			ex.Save(FileName);
-			ws = null;
-			ex = null;
- */ 
-
-			//return;
-
-/*
-			MSExcel.Application exap = new MSExcel.Application();
-			try
-			{
-//				MSExcel._Workbook exWB = (MSExcel._Workbook)exap.Workbooks.Open("C:\\TEMP\\TempWarn.xls", Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value);
-				MSExcel._Workbook exWB = (MSExcel._Workbook)exap.Workbooks.Open("C:\\TEMP\\1.xls", Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value);
-//				MSExcel._Workbook exWB = exap.Workbooks.Add(Missing.Value);
-				MSExcel._Worksheet exWS;
-				try
-				{
-//					exWS = (MSExcel.Worksheet)exWB.ActiveSheet;
-//					if (exWS.Name != "Отчет")
-//					{
-//						exWS.Delete();
-//					}
-
-//					((MSExcel._Worksheet)exWB.Worksheets[1]).Delete();
-
-
-					exWS = (MSExcel._Worksheet)exWB.Worksheets[1];
-//					exWS = (MSExcel.Worksheet)exWB.Sheets[1];
-					exWS.Cells.Clear();
-					exWS.Delete();
-					exWS = null;
-//					if (exWS.Name == "Отчет")
-//					{
-//						exWS.Unprotect(Missing.Value);
-//						exWS.Delete();
-//					}
-
-//					exWS.Rows.Font.Size = 8;
-//					exWS.Rows.Font.Name = "Arial Narrow";
-
-//					exWB.SaveAs("C:\\TEMP\\TempWarn.xls", MSExcel.XlFileFormat.xlWorkbookNormal, Missing.Value, Missing.Value, Missing.Value, Missing.Value, MSExcel.XlSaveAsAccessMode.xlNoChange, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value);
-
-				}
-				finally
-				{
-					exWS = null;
-					exWB.Close(MSExcel.XlSaveAction.xlSaveChanges, Missing.Value, Missing.Value);
-					exWB = null;
-				}
-			}
-			finally
-			{
-				exap.Quit();
-				exap = null;
-				GC.Collect();
-			}
-*/			
-		
-
-/*
-			MemoryStream ZipOutputStream = new MemoryStream();
-            ZipOutputStream ZipInputStream = new ZipOutputStream(ZipOutputStream);
-			ZipEntry ZipObject = new ZipEntry(ShortName);
-			FileStream MySqlFileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 10240);
-			byte[] MySqlFileByteArray = new byte[MySqlFileStream.Length];
-
-			MySqlFileStream.Read(MySqlFileByteArray, 0, Convert.ToInt32(MySqlFileStream.Length));
-
-			ZipInputStream.SetLevel(9);
-			ZipObject.DateTime = DateTime.Now;
-            ZipInputStream.PutNextEntry(ZipObject);
-            ZipInputStream.Write(MySqlFileByteArray, 0, Convert.ToInt32(MySqlFileStream.Length));
-			MySqlFileStream.Close();
-            ZipInputStream.Finish();
-
-//			string ResDirPath = @"\\iserv\FTP\OptBox\"
-			string ResDirPath = @"C:\Temp\Reports\";
-			string ClientCodeStr = clientCode.ToString();
-			string ResFileName = "RatingReport" + ClientCodeStr + ".zip";
-			if (ClientCodeStr.Length < 3)
-				ClientCodeStr = "0" + ClientCodeStr;
-            ResDirPath += ClientCodeStr + @"\Reports\";
-
-			if (!Directory.Exists(ResDirPath))
-				Directory.CreateDirectory(ResDirPath);
-
-			if (File.Exists(ResDirPath + ResFileName))
-				File.Delete(ResDirPath + ResFileName);
-
-			FileStream ResultFile = new FileStream(ResDirPath + ResFileName, FileMode.CreateNew);
-	        ResultFile.Write(ZipOutputStream.ToArray(), 0, Convert.ToInt32(ZipOutputStream.Length));
-
-            ZipOutputStream.Close();
-            ZipInputStream.Close();
-            ResultFile.Close();
-			
-			File.Delete(FileName);
- */ 
-
-		}
-
-		public override void GenerateReport(ExecuteArgs e)
+    	public override void GenerateReport(ExecuteArgs e)
 		{
 			string SelectCommand = "select ";
 			foreach (RatingField rf in selectField)
@@ -189,8 +81,11 @@ namespace Inforoom.ReportSystem
 				SelectCommand, @"
 from 
   orders.OrdersHead oh, 
-  orders.OrdersList ol, 
-  farm.Catalog c, 
+  orders.OrdersList ol,
+  catalogs.products p,
+  catalogs.catalog c,
+  catalogs.catalognames cn,
+  catalogs.catalogforms cf, 
   farm.CatalogFirmCr cfc, 
   usersettings.clientsdata cd, 
   farm.regions rg, 
@@ -198,8 +93,13 @@ from
   usersettings.clientsdata prov 
 where 
     ol.OrderID = oh.RowID 
-and c.FullCode = ol.FullCode 
-and cfc.CodeFirmCr = if(ol.CodeFirmCr,  ol.CodeFirmCr, 1) 
+and oh.deleted = 0
+and oh.processed = 1
+and p.Id = ol.ProductId
+and c.Id = p.CatalogId
+and cn.id = c.NameId
+and cf.Id = c.FormId
+and cfc.CodeFirmCr = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
 and cd.FirmCode = oh.ClientCode 
 and rg.RegionCode = oh.RegionCode 
 and pd.PriceCode = oh.PriceCode 
@@ -221,17 +121,32 @@ and prov.FirmCode = pd.FirmCode");
 
 			SelectCommand = String.Concat(SelectCommand, String.Format(" and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
 			SelectCommand = String.Concat(SelectCommand, String.Format(" and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
-			SelectCommand = String.Concat(SelectCommand, " group by ", ((RatingField)selectField[0]).primaryField);
-			string Sort = ((RatingField)selectField[0]).outputField;
-			for (int i = 1; i < selectField.Count; i++)
-				if (((RatingField)selectField[i]).visible)
-				{
-					SelectCommand = String.Concat(SelectCommand, ", ", ((RatingField)selectField[i]).primaryField);
-					Sort = String.Concat(Sort, ", ", ((RatingField)selectField[i]).outputField);
-				}
 
+			//Применяем группировку и сортировку
+			List<string> GroupByList = new List<string>();
+			List<string> OrderByList = new List<string>();
+			foreach (RatingField rf in selectField)
+				if (rf.visible)
+				{
+					GroupByList.Add(rf.primaryField);
+					OrderByList.Add(rf.outputField);
+				}
+			SelectCommand = String.Concat(SelectCommand, " group by ", String.Join(",", GroupByList.ToArray()));
+			SelectCommand = String.Concat(SelectCommand, " order by ", String.Join(",", OrderByList.ToArray()));
+ 
+			//string Sort = ((RatingField)selectField[0]).outputField;
+			//for (int i = 1; i < selectField.Count; i++)
+			//    if (((RatingField)selectField[i]).visible)
+			//    {
+			//        SelectCommand = String.Concat(SelectCommand, ", ", ((RatingField)selectField[i]).primaryField);
+			//        Sort = String.Concat(Sort, ", ", ((RatingField)selectField[i]).outputField);
+			//    }
+
+#if DEBUG
 			Debug.WriteLine(SelectCommand);
-			System.Data.DataTable SelectTable = new System.Data.DataTable();
+#endif
+
+			DataTable SelectTable = new DataTable();
 
 			e.DataAdapter.SelectCommand.CommandText = SelectCommand;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
@@ -288,7 +203,7 @@ and prov.FirmCode = pd.FirmCode");
 				res.EndLoadData();
 			}
 
-			res.DefaultView.Sort = Sort;
+			//res.DefaultView.Sort = Sort;
 			res = res.DefaultView.ToTable();
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
