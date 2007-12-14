@@ -76,7 +76,14 @@ namespace Inforoom.ReportSystem
 				if (rf.visible)
 					SelectCommand = String.Concat(SelectCommand, rf.primaryField, ", ", rf.viewField, ", ");
 
-			SelectCommand = String.Concat(SelectCommand, "Sum(ol.cost*ol.Quantity) as Cost, Sum(ol.Quantity) as PosOrder ");
+			SelectCommand = String.Concat(SelectCommand, @"
+Sum(ol.cost*ol.Quantity) as Cost, 
+Sum(ol.Quantity) as PosOrder, 
+Min(ol.Cost) as MinCost,
+Avg(ol.Cost) as AvgCost,
+Max(ol.Cost) as MaxCost,
+Count(distinct oh.RowId) as DistinctOrderId,
+Count(distinct oh.ClientCode) as DistinctClientCode ");
 			SelectCommand = String.Concat(
 				SelectCommand, @"
 from 
@@ -87,7 +94,8 @@ from
   catalogs.catalognames cn,
   catalogs.catalogforms cf, 
   farm.CatalogFirmCr cfc, 
-  usersettings.clientsdata cd, 
+  usersettings.clientsdata cd,
+  usersettings.retclientsset rcs, 
   farm.regions rg, 
   usersettings.pricesdata pd, 
   usersettings.clientsdata prov 
@@ -100,7 +108,10 @@ and c.Id = p.CatalogId
 and cn.id = c.NameId
 and cf.Id = c.FormId
 and cfc.CodeFirmCr = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
-and cd.FirmCode = oh.ClientCode 
+and cd.FirmCode = oh.ClientCode
+and cd.BillingCode <> 921
+and rcs.ClientCode = oh.ClientCode
+and rcs.InvisibleOnFirm = 0 
 and rg.RegionCode = oh.RegionCode 
 and pd.PriceCode = oh.PriceCode 
 and prov.FirmCode = pd.FirmCode");
@@ -134,14 +145,6 @@ and prov.FirmCode = pd.FirmCode");
 			SelectCommand = String.Concat(SelectCommand, " group by ", String.Join(",", GroupByList.ToArray()));
 			SelectCommand = String.Concat(SelectCommand, " order by ", String.Join(",", OrderByList.ToArray()));
  
-			//string Sort = ((RatingField)selectField[0]).outputField;
-			//for (int i = 1; i < selectField.Count; i++)
-			//    if (((RatingField)selectField[i]).visible)
-			//    {
-			//        SelectCommand = String.Concat(SelectCommand, ", ", ((RatingField)selectField[i]).primaryField);
-			//        Sort = String.Concat(Sort, ", ", ((RatingField)selectField[i]).outputField);
-			//    }
-
 #if DEBUG
 			Debug.WriteLine(SelectCommand);
 #endif
@@ -178,6 +181,16 @@ and prov.FirmCode = pd.FirmCode");
 			dc.Caption = "Заказ";
 			dc = res.Columns.Add("PosOrderPercent", typeof(System.Double));
 			dc.Caption = "Доля от общего заказа в %";
+			dc = res.Columns.Add("MinCost", typeof(System.Decimal));
+			dc.Caption = "Минимальная цена";
+			dc = res.Columns.Add("AvgCost", typeof(System.Decimal));
+			dc.Caption = "Средняя цена";
+			dc = res.Columns.Add("MaxCost", typeof(System.Decimal));
+			dc.Caption = "Максимальная цена";
+			dc = res.Columns.Add("DistinctOrderId", typeof(System.Int32));
+			dc.Caption = "Кол-во уникальных заказов";
+			dc = res.Columns.Add("DistinctClientCode", typeof(System.Int32));
+			dc.Caption = "Кол-во уникальных клиентов";
 
 			DataRow newrow;
 			try
@@ -192,6 +205,11 @@ and prov.FirmCode = pd.FirmCode");
 							newrow[rf.outputField] = dr[rf.outputField];
 					newrow["Cost"] = Convert.ToDecimal(dr["Cost"]);
 					newrow["PosOrder"] = Convert.ToInt32(dr["PosOrder"]);
+					newrow["MinCost"] = Convert.ToDecimal(dr["MinCost"]);
+					newrow["AvgCost"] = Convert.ToDecimal(dr["AvgCost"]);
+					newrow["MaxCost"] = Convert.ToDecimal(dr["MaxCost"]);
+					newrow["DistinctOrderId"] = Convert.ToInt32(dr["DistinctOrderId"]);
+					newrow["DistinctClientCode"] = Convert.ToInt32(dr["DistinctClientCode"]);
 					newrow["CostPercent"] = Decimal.Round(((decimal)newrow["Cost"] * 100) / Cost, 2);
 					newrow["PosOrderPercent"] = Decimal.Round((Convert.ToDecimal(newrow["PosOrder"]) * 100) / Convert.ToDecimal(PosOrder), 2);
 
@@ -203,7 +221,6 @@ and prov.FirmCode = pd.FirmCode");
 				res.EndLoadData();
 			}
 
-			//res.DefaultView.Sort = Sort;
 			res = res.DefaultView.ToTable();
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
