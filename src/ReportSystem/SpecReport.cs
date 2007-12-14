@@ -42,9 +42,6 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			//¬ыбираем 
-			GetOffers(e);
-
 			//ѕолучили код поставщика, дл€ которого делаетс€ отчет
 			e.DataAdapter.SelectCommand.CommandText = @"
 select 
@@ -59,15 +56,47 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("ReportCode", _reportCode);
 			FirmCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 
+			//ѕолучили таблицу всех прайс-листов дл€ данного клиента
+			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices";
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+
+			e.DataAdapter.SelectCommand.CommandText = "usersettings.GetPrices";
+			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeIN", _clientCode);
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.Text;
+
 			//ѕолучаем код прайс-листа, регион и название поставщика, дл€ которого делаем отчет
-			e.DataAdapter.SelectCommand.CommandText = @"select FirmName, PriceCode, RegionCode from ActivePrices where FirmCode = ?FirmCode limit 1";
+			e.DataAdapter.SelectCommand.CommandText = @"
+select 
+  concat(clientsdata.ShortName, '(', Prices.PriceName, ') - ', regions.Region) as FirmName, 
+  Prices.PriceCode, 
+  Prices.RegionCode 
+from 
+  Prices,
+  usersettings.clientsdata, 
+  farm.regions 
+where 
+    Prices.FirmCode = ?FirmCode 
+and clientsdata.FirmCode = prices.FirmCode
+and regions.RegionCode = prices.RegionCode
+limit 1";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("FirmCode", FirmCode);
 			DataTable dtCustomer = new DataTable();
 			e.DataAdapter.Fill(dtCustomer);
-			SourcePC = Convert.ToInt32(dtCustomer.Rows[0]["PriceCode"]);
-			SourceRegionCode = Convert.ToInt32(dtCustomer.Rows[0]["RegionCode"]);
-			CustomerFirmName = dtCustomer.Rows[0]["FirmName"].ToString();
+			if (dtCustomer.Rows.Count == 1)
+			{
+				SourcePC = Convert.ToInt32(dtCustomer.Rows[0]["PriceCode"]);
+				SourceRegionCode = Convert.ToInt32(dtCustomer.Rows[0]["RegionCode"]);
+				CustomerFirmName = dtCustomer.Rows[0]["FirmName"].ToString();
+			}
+			else
+				throw new Exception(String.Format("ƒл€ клиента є {0} не доступен какой-либо прайс-лист поставщика є {1}.", _clientCode, FirmCode));
+
+			//¬ыбираем 
+			GetOffers(e);
 
 			//ѕолучили предложени€ интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes(e);
@@ -144,15 +173,21 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
 				newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
 
-				//≈сли есть ID, то предложение SourcePC существует
+				//≈сли есть ID, то мы можем заполнить поле Code и, возможно, остальные пол€   предложение SourcePC существует
 				if (!(drCatalog["ID"] is DBNull))
 				{
 					newrow["Code"] = drCatalog["Code"];
+					//ѕроизводим поиск предложени€ по данной позиции по интересующему прайс-листу
 					drsMin = dtCore.Select("ID = " + drCatalog["ID"].ToString());
-					newrow["CustomerCost"] = Convert.ToDecimal(drsMin[0]["Cost"]);
-					newrow["CustomerQuantity"] = drsMin[0]["Quantity"];
-					if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
-						newrow["LeaderName"] = "+";
+					//≈сли в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
+					//¬ этом случае данные пол€ не заполн€етс€ и в сравнении такой прайс-лист не участвует
+					if ((drsMin.Length > 0) && !(drsMin[0]["Cost"] is DBNull))
+					{
+						newrow["CustomerCost"] = Convert.ToDecimal(drsMin[0]["Cost"]);
+						newrow["CustomerQuantity"] = drsMin[0]["Quantity"];
+						if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
+							newrow["LeaderName"] = "+";
+					}
 				}
 
 				//≈сли им€ лидера неустановлено, то выставл€ем им€ лидера
@@ -201,7 +236,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 					}
 				}
 
-				//¬ыбираем позиции и сортируем по возрастанию цен
+				//¬ыбираем позиции и сортируем по возрастанию цен дл€ того, чтобы по каждому прайс-листы выбрать минимальную цену по одному и тому же CatalogCode
 				drsMin = dtCore.Select(
 					"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
 					((_reportType <= 2) ? String.Empty : "and CodeFirmCr = " + drCatalog["Cfc"].ToString()), 
@@ -245,54 +280,6 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 					"select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
 					new MySqlParameter("SourcePC", SourcePC),
 					new MySqlParameter("SourceRegionCode", SourceRegionCode)));
-			if (EnabledPrice == 0)
-			{
-				e.DataAdapter.SelectCommand.CommandText = @"
-insert into Core
-(Id, PriceCode, RegionCode, ProductId, Cost)
-select
-  FarmCore.Id,
-  ActivePrices.PriceCode,
-  ActivePrices.Regioncode,
-  FarmCore.ProductId,
-  if(FarmCore.MinBoundCost is null, round(FarmCore.BaseCost*ActivePrices.UpCost,2), if(FarmCore.MinBoundCost > round(FarmCore.BaseCost*ActivePrices.UpCost,2), FarmCore.MinBoundCost, round(FarmCore.BaseCost*ActivePrices.UpCost,2)))
-FROM    
-  farm.core0 FarmCore,
-  ActivePrices
-WHERE   
-    FarmCore.Pricecode = ActivePrices.CostCode
-and ActivePrices.PriceCode = ?SourcePC 
-and ActivePrices.RegionCode = ?SourceRegionCode 
-AND FarmCore.BaseCost is not null
-AND ActivePrices.CostType=1;
-
-insert into Core
-(Id, PriceCode, RegionCode, ProductId, Cost)
-select
-  FarmCore.Id,
-  ActivePrices.PriceCode,
-  ActivePrices.Regioncode,
-  FarmCore.ProductId,
-  if(FarmCore.MinBoundCost is null, round(corecosts.cost*ActivePrices.UpCost,2), if(FarmCore.MinBoundCost > round(corecosts.cost*ActivePrices.UpCost,2), FarmCore.MinBoundCost, round(corecosts.cost*ActivePrices.UpCost,2)))
-FROM    
-  farm.core0 FarmCore,
-  ActivePrices,
-  farm.corecosts
-WHERE   
-    FarmCore.Pricecode = ActivePrices.CostCode
-and ActivePrices.PriceCode = ?SourcePC 
-and ActivePrices.RegionCode = ?SourceRegionCode 
-AND corecosts.cost is not null
-AND corecosts.Core_Id=FarmCore.id
-and corecosts.PC_CostCode=ActivePrices.CostCode
-AND ActivePrices.CostType=0;
-";
-
-				e.DataAdapter.SelectCommand.Parameters.Clear();
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-			}
 
 			//ƒобавл€ем к таблице Core поле CatalogCode и заполн€ем его
 			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
@@ -320,8 +307,38 @@ CREATE temporary table TmpSourceCodes(
   key CatalogCode(CatalogCode), 
   key CodeFirmCr(CodeFirmCr), 
   key SynonymFirmCrCode(SynonymFirmCrCode), 
-  key SynonymCode(SynonymCode))engine=MEMORY PACK_KEYS = 0;
-  INSERT INTO TmpSourceCodes 
+  key SynonymCode(SynonymCode))engine=MEMORY PACK_KEYS = 0;";
+
+			if (EnabledPrice == 0)
+			{
+				//≈сли прайс-лист не включен клиентом или прайс-лист ассортиментный, то добавл€ем его в таблицу источников TmpSourceCodes, но с ценами NULL
+				e.DataAdapter.SelectCommand.CommandText += @"
+INSERT INTO TmpSourceCodes 
+Select 
+  FarmCore.ID, 
+  FarmCore.PriceCode,
+  ?SourceRegionCode as RegionCode,
+  FarmCore.Code,
+  NULL,";
+				if (_calculateByCatalog)
+					e.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
+				else
+					e.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
+				e.DataAdapter.SelectCommand.CommandText += @"
+  FarmCore.CodeFirmCr,
+  FarmCore.SynonymCode,
+  FarmCore.SynonymFirmCrCode
+FROM 
+  farm.core0 FarmCore,
+  catalogs.products
+WHERE 
+    FarmCore.PriceCode = ?SourcePC 
+and products.id = FarmCore.ProductId;";
+			}
+			else
+			{
+				e.DataAdapter.SelectCommand.CommandText += @"
+INSERT INTO TmpSourceCodes 
 Select 
   Core.ID, 
   Core.PriceCode,
@@ -345,7 +362,9 @@ WHERE
 and FarmCore.id = Core.Id
 and products.id = Core.ProductId
 and Core.RegionCode = ?SourceRegionCode;";
-			e.DataAdapter.SelectCommand.Parameters.Clear();
+			}
+
+  			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();

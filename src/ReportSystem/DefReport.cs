@@ -43,9 +43,6 @@ namespace Inforoom.ReportSystem
 			else
 				throw new ArgumentOutOfRangeException("ReportType", tmpReportType, "Значение параметра не входит в область допустимых значений.");
 
-			//todo:Потом это удалить
-			_reportType = DefReportType.ByNameAndForm;
-
 			_priceCode = (int)getReportParam("PriceCode");
 		}
 
