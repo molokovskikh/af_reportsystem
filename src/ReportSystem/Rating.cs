@@ -22,6 +22,7 @@ namespace Inforoom.ReportSystem
 		public const string toProperty = "ToDate";
 		public const string junkProperty = "JunkState";
 		public const string reportIntervalProperty = "ReportInterval";
+		public const string byPreviousMonthProperty = "ByPreviousMonth";
 
 		public int reportID;
 		public int clientCode;
@@ -31,6 +32,7 @@ namespace Inforoom.ReportSystem
 
 		public DateTime dtFrom;
 		public DateTime dtTo;
+		public bool ByPreviousMonth;
 		public int JunkState;
 		private int _reportInterval;
 
@@ -42,12 +44,22 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			JunkState = (int)getReportParam(junkProperty);
-			_reportInterval = (int)getReportParam(reportIntervalProperty);
-			dtTo = DateTime.Now;
-			//От текущей даты вычитаем интервал - дата начала отчета
-			dtFrom = dtTo.AddDays( - _reportInterval ).Date;
-			//К текущей дате прибавляем один день - дата окончания отчета
-			dtTo = dtTo.AddDays(1).Date;
+			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
+			if (ByPreviousMonth)
+			{
+				dtTo = DateTime.Now;
+				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;
+				dtFrom = dtTo.AddMonths(-1).Date;
+			}
+			else
+			{
+				_reportInterval = (int)getReportParam(reportIntervalProperty);
+				dtTo = DateTime.Now;
+				//От текущей даты вычитаем интервал - дата начала отчета
+				dtFrom = dtTo.AddDays(-_reportInterval).Date;
+				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
+				dtTo = dtTo.Date;
+			}
 
 			allField = new ArrayList(9);
 			selectField = new ArrayList(9);
