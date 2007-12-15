@@ -169,7 +169,7 @@ where
     rp.{0} = ?{0}
 and rtp.ID = rp.PropertyID", BaseReportColumns.colReportCode);
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue(BaseReportColumns.colReportCode, _reportCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + BaseReportColumns.colReportCode, _reportCode);
 			DataTable res = new DataTable("ReportProperties");
 			e.DataAdapter.Fill(res);
 			ds.Tables.Add(res);
@@ -184,7 +184,7 @@ where
     rp.{0} = ?{0}
 and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue(BaseReportColumns.colReportCode, _reportCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + BaseReportColumns.colReportCode, _reportCode);
 			res = new DataTable("ReportPropertyValues");
 			e.DataAdapter.Fill(res);
 			ds.Tables.Add(res);

@@ -6,6 +6,7 @@ using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
+using System.Configuration;
 
 namespace Inforoom.ReportSystem
 {
@@ -20,6 +21,7 @@ namespace Inforoom.ReportSystem
 		protected bool _calculateByCatalog;
 
 		protected int SourcePC, SourceRegionCode, FirmCode;
+		protected int _priceCode;
 		protected string CustomerFirmName;
 
 		protected string reportCaptionPreffix;
@@ -38,12 +40,16 @@ namespace Inforoom.ReportSystem
 			_reportSortedByPrice = (bool)getReportParam("ReportSortedByPrice");
 			_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
+			_priceCode = (int)getReportParam("PriceCode");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			//Получили код поставщика, для которого делается отчет
-			e.DataAdapter.SelectCommand.CommandText = @"
+			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
+			if (_priceCode == 0)
+			{
+				//Получили код поставщика, для которого делается отчет
+				e.DataAdapter.SelectCommand.CommandText = @"
 select 
   gr.FirmCode 
 from 
@@ -52,23 +58,23 @@ from
 where
     r.ReportCode = ?ReportCode
 and gr.GeneralReportCode = r.GeneralReportCode";
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("ReportCode", _reportCode);
-			FirmCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
+				e.DataAdapter.SelectCommand.Parameters.Clear();
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", _reportCode);
+				FirmCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 
-			//Получили таблицу всех прайс-листов для данного клиента
-			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				//Получили таблицу всех прайс-листов для данного клиента
+				e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices";
+				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			e.DataAdapter.SelectCommand.CommandText = "usersettings.GetPrices";
-			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeIN", _clientCode);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
-			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.Text;
+				e.DataAdapter.SelectCommand.CommandText = "usersettings.GetPrices";
+				e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+				e.DataAdapter.SelectCommand.Parameters.Clear();
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeIN", _clientCode);
+				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.Text;
 
-			//Получаем код прайс-листа, регион и название поставщика, для которого делаем отчет
-			e.DataAdapter.SelectCommand.CommandText = @"
+				//Получаем код прайс-листа, регион и название поставщика, для которого делаем отчет
+				e.DataAdapter.SelectCommand.CommandText = @"
 select 
   concat(clientsdata.ShortName, '(', Prices.PriceName, ') - ', regions.Region) as FirmName, 
   Prices.PriceCode, 
@@ -82,18 +88,68 @@ where
 and clientsdata.FirmCode = prices.FirmCode
 and regions.RegionCode = prices.RegionCode
 limit 1";
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("FirmCode", FirmCode);
-			DataTable dtCustomer = new DataTable();
-			e.DataAdapter.Fill(dtCustomer);
-			if (dtCustomer.Rows.Count == 1)
-			{
-				SourcePC = Convert.ToInt32(dtCustomer.Rows[0]["PriceCode"]);
-				SourceRegionCode = Convert.ToInt32(dtCustomer.Rows[0]["RegionCode"]);
-				CustomerFirmName = dtCustomer.Rows[0]["FirmName"].ToString();
+				e.DataAdapter.SelectCommand.Parameters.Clear();
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?FirmCode", FirmCode);
+				DataTable dtCustomer = new DataTable();
+				e.DataAdapter.Fill(dtCustomer);
+
+				if (dtCustomer.Rows.Count == 1)
+				{
+					SourcePC = Convert.ToInt32(dtCustomer.Rows[0]["PriceCode"]);
+					SourceRegionCode = Convert.ToInt32(dtCustomer.Rows[0]["RegionCode"]);
+					CustomerFirmName = dtCustomer.Rows[0]["FirmName"].ToString();
+				}
+				else
+				{
+					string ClientShortName = Convert.ToString(
+						MySqlHelper.ExecuteScalar(
+							e.DataAdapter.SelectCommand.Connection,
+							"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode",
+							new MySqlParameter("?FirmCode", _clientCode)));
+					string FirmShortName = Convert.ToString(
+						MySqlHelper.ExecuteScalar(
+							e.DataAdapter.SelectCommand.Connection,
+							"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode",
+							new MySqlParameter("?FirmCode", FirmCode)));
+					throw new Exception(String.Format("Для клиента {0} ({1}) не доступен какой-либо прайс-лист поставщика {2} ({3}).", ClientShortName, _clientCode, FirmShortName, FirmCode));
+				}
 			}
 			else
-				throw new Exception(String.Format("Для клиента № {0} не доступен какой-либо прайс-лист поставщика № {1}.", _clientCode, FirmCode));
+			{
+				DataRow drPrice = MySqlHelper.ExecuteDataRow(
+					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+					@"
+select 
+  concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
+  pricesdata.PriceCode, 
+  clientsdata.RegionCode 
+from 
+  usersettings.pricesdata, 
+  usersettings.clientsdata, 
+  farm.regions 
+where 
+    pricesdata.PriceCode = ?PriceCode
+and clientsdata.FirmCode = pricesdata.FirmCode
+and regions.RegionCode = clientsdata.RegionCode
+limit 1", new MySqlParameter("?PriceCode", _priceCode));
+				if (drPrice != null)
+				{
+					SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
+					SourceRegionCode = Convert.ToInt32(drPrice["RegionCode"]);
+					CustomerFirmName = drPrice["FirmName"].ToString();
+				}
+				else
+					throw new Exception(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+			}
+
+			//Проверка актуальности прайс-листа
+			int ActualPrice = Convert.ToInt32(
+				MySqlHelper.ExecuteScalar(
+					e.DataAdapter.SelectCommand.Connection,
+					"select pui.PriceCode from usersettings.price_update_info pui, farm.formrules fr where pui.PriceCode = ?SourcePC and fr.FirmCode = pui.PriceCode and (to_days(now())-to_days(pui.datecurprice)) < fr.MaxOld",
+					new MySqlParameter("?SourcePC", SourcePC)));
+			if (ActualPrice == 0)
+				throw new Exception(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
 
 			//Выбираем 
 			GetOffers(e);
@@ -278,8 +334,8 @@ limit 1";
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
 					"select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
-					new MySqlParameter("SourcePC", SourcePC),
-					new MySqlParameter("SourceRegionCode", SourceRegionCode)));
+					new MySqlParameter("?SourcePC", SourcePC),
+					new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
 
 			//Добавляем к таблице Core поле CatalogCode и заполняем его
 			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
@@ -329,8 +385,11 @@ Select
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
 FROM 
+  (
   farm.core0 FarmCore,
   catalogs.products
+  )
+  left join farm.corecosts cc on cc.Core_Id = FarmCore.id and cc.PC_CostCode = FarmCore.PriceCode
 WHERE 
     FarmCore.PriceCode = ?SourcePC 
 and products.id = FarmCore.ProductId;";
@@ -365,8 +424,8 @@ and Core.RegionCode = ?SourceRegionCode;";
 			}
 
   			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 e.DataAdapter.SelectCommand.CommandText = @"
@@ -396,8 +455,8 @@ where
   (ActivePrices.PriceCode <> ?SourcePC or ActivePrices.RegionCode <> ?SourceRegionCode)
 order by ActivePrices.PositionCount DESC";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", SourcePC);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourceRegionCode", SourceRegionCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.Fill(_dsReport, "Prices");
 		}
 

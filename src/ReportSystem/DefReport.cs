@@ -5,6 +5,8 @@ using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
+using System.Data;
+using System.Configuration;
 
 namespace Inforoom.ReportSystem
 {
@@ -44,11 +46,15 @@ namespace Inforoom.ReportSystem
 				throw new ArgumentOutOfRangeException("ReportType", tmpReportType, "Значение параметра не входит в область допустимых значений.");
 
 			_priceCode = (int)getReportParam("PriceCode");
+			_clientCode = (int)getReportParam("ClientCode");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"
+			//Если код клиента равен 0, то он не установлен в параметрах, поэтому берем код клиента, для которого делается отчет
+			if (_clientCode == 0)
+			{
+				e.DataAdapter.SelectCommand.CommandText = @"
 select 
   gr.FirmCode 
 from 
@@ -57,15 +63,67 @@ from
 where
     r.ReportCode = ?ReportCode
 and gr.GeneralReportCode = r.GeneralReportCode";
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("ReportCode", _reportCode);
-			int ClientCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
-			//Устанавливаем код клиента, как код фирмы, относительно которой генерируется отчет
-			_clientCode = ClientCode;
+				e.DataAdapter.SelectCommand.Parameters.Clear();
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", _reportCode);
+				int ClientCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
+				//Устанавливаем код клиента, как код фирмы, относительно которой генерируется отчет
+				_clientCode = ClientCode;
+			}
+
+			if (_priceCode == 0)
+				throw new Exception("В отчете не установлен параметр \"Прайс-лист\".");
+
+			string CustomerFirmName;
+			DataRow drPrice = MySqlHelper.ExecuteDataRow(
+				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+				@"
+select 
+  concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
+  pricesdata.PriceCode, 
+  clientsdata.RegionCode 
+from 
+  usersettings.pricesdata, 
+  usersettings.clientsdata, 
+  farm.regions 
+where 
+    pricesdata.PriceCode = ?PriceCode
+and clientsdata.FirmCode = pricesdata.FirmCode
+and regions.RegionCode = clientsdata.RegionCode
+limit 1", new MySqlParameter("?PriceCode", _priceCode));
+			if (drPrice != null)
+			{
+				CustomerFirmName = drPrice["FirmName"].ToString();
+			}
+			else
+				throw new Exception(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+
+			//Проверка актуальности прайс-листа
+			int ActualPrice = Convert.ToInt32(
+				MySqlHelper.ExecuteScalar(
+					e.DataAdapter.SelectCommand.Connection,
+					"select pui.PriceCode from usersettings.price_update_info pui, farm.formrules fr where pui.PriceCode = ?SourcePC and fr.FirmCode = pui.PriceCode and (to_days(now())-to_days(pui.datecurprice)) < fr.MaxOld",
+					new MySqlParameter("?SourcePC", _priceCode)));
+			if (ActualPrice == 0)
+				throw new Exception(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, _priceCode));
 
 			//Выбираем 
 			GetOffers(e);
 
+			int EnabledPrice = Convert.ToInt32(
+				MySqlHelper.ExecuteScalar(
+					e.DataAdapter.SelectCommand.Connection,
+					"select PriceCode from ActivePrices where PriceCode = ?PriceCode",
+					new MySqlParameter("?PriceCode", _priceCode)));
+			if (EnabledPrice == 0)
+			{
+				string ClientShortName = Convert.ToString(
+					MySqlHelper.ExecuteScalar(
+						e.DataAdapter.SelectCommand.Connection,
+						"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode",
+						new MySqlParameter("?FirmCode", _clientCode)));
+				throw new Exception(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
+			}
+			
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 
 			string SelectCommandText = String.Empty;
@@ -369,7 +427,7 @@ order by CatalogNames.Name, FullForm, CatalogFirmCr.FirmCr;
 
 			}
 			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SourcePC", _priceCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
 			e.DataAdapter.Fill(_dsReport, "Results");
 		}
 

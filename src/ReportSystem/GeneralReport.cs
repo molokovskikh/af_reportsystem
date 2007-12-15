@@ -185,9 +185,9 @@ namespace Inforoom.ReportSystem
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs (LogTime, GeneralReportCode, SMTPID, MessageID) 
 values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("GeneralReportCode", _generalReportID);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("SMTPID", e._smtpID);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("MessageID", e._MessageID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", _generalReportID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SMTPID", e._smtpID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?MessageID", e._MessageID);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			return 0;
 		}
@@ -259,7 +259,7 @@ where
     r.{0} = ?{0}
 and rt.ReportTypeCode = r.ReportTypeCode", 
 				 GeneralReportColumns.GeneralReportCode);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue(GeneralReportColumns.GeneralReportCode, _generalReportID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + GeneralReportColumns.GeneralReportCode, _generalReportID);
 			DataTable res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;
