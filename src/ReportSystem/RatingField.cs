@@ -5,17 +5,6 @@ using System.Collections.Generic;
 
 namespace Inforoom.ReportSystem.RatingReports
 {
-	public class RatingComparer : IComparer  
-	{
-
-		// Calls CaseInsensitiveComparer.Compare with the parameters reversed.
-		int IComparer.Compare( Object x, Object y )  
-		{
-			return ( ((RatingField)x).position - ((RatingField)y).position );
-		}
-
-	}
-
 	/// <summary>
 	/// Summary description for RatingField.
 	/// </summary>
@@ -40,55 +29,65 @@ namespace Inforoom.ReportSystem.RatingReports
 		public int position;
 		//Ѕудет ли это поле видно в запросе
 		public bool visible;
+		//—писок таблиц дл€ отображени€ выбранных и исключенных значений пол€
+		public string tableList;
+		//условие дл€ where, которое начинаетс€ с and, дл€ отображени€ выбранных и исключенных значений пол€. ћожет быть неустановленным
+		public string whereList;
 
 		//«начени€, которым может быть равно primaryField
-		public ulong[] equalValues = null;
+		public List<ulong> equalValues = null;
 		//«начени€, которым не может быть равно primaryField
-		public ulong[] nonEqualValues = null;
+		public List<ulong> nonEqualValues = null;
 
 
 
-		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption)
+		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition)
 		{
 			primaryField = PrimaryField;
 			viewField = ViewField;
 			outputField = OutputField;
 			reportPropertyPreffix = Preffix;
 			outputCaption = OutputCaption;
-			position = -1;
+			position = DefaultPosition;
 			visible = false;
+			if (String.IsNullOrEmpty(TableList))
+				throw new ArgumentException("ѕараметр не может быть null или пустой строкой.", "TableList");
+			tableList = TableList;
+			whereList = WhereList;
 		}
 
-		public bool LoadFromDB(Inforoom.ReportSystem.RatingReport Parent)		
+		public bool LoadFromDB(RatingReport Parent)		
 		{
-			//≈сли Position и Visible существует, то тогда читаем параметр
+			bool fieldIsSelected = false;
+
+			//≈сли Position и Visible существует, то тогда параметр должен отображатьс€ в заголовке отчета и по этому параметру будет группировка
 			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix) && Parent.reportParamExists(reportPropertyPreffix + visibleSuffix))
 			{
 				position = (int)Parent.getReportParam(reportPropertyPreffix + positionSuffix);
 				visible = (bool)Parent.getReportParam(reportPropertyPreffix + visibleSuffix);
-
-				if (Parent.reportParamExists(reportPropertyPreffix + equalSuffix))
-				{
-					equalValues = ((List<ulong>)Parent.getReportParam(reportPropertyPreffix + equalSuffix)).ToArray();
-				}
-
-				if (Parent.reportParamExists(reportPropertyPreffix + nonEqualSuffix))
-				{
-					nonEqualValues = ((List<ulong>)Parent.getReportParam(reportPropertyPreffix + nonEqualSuffix)).ToArray();
-				}
-
-				return true;
+				fieldIsSelected = true;
 			}
-			else
-				return false;
 
+			if (Parent.reportParamExists(reportPropertyPreffix + equalSuffix))
+			{
+				equalValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + equalSuffix);
+				fieldIsSelected = true;
+			}
+
+			if (Parent.reportParamExists(reportPropertyPreffix + nonEqualSuffix))
+			{
+				nonEqualValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + nonEqualSuffix);
+				fieldIsSelected = true;
+			}
+
+			return fieldIsSelected;
 		}
 
-		private string GetAllValues(Array al)
+		private string GetAllValues(List<ulong> ValuesList)
 		{
-			string Res = "( " + al.GetValue(0).ToString();
-			for(int i = 1; i < al.Length; i++)
-				Res = String.Concat(Res, ", ", al.GetValue(i).ToString());
+			string Res = "( " + ValuesList[0].ToString();
+			for(int i = 1; i < ValuesList.Count; i++)
+				Res = String.Concat(Res, ", ", ValuesList[i].ToString());
 			Res = String.Concat(Res, ")");
 			return Res;
 		}
@@ -96,6 +95,18 @@ namespace Inforoom.ReportSystem.RatingReports
 		public string GetEqualValues()
 		{
 			return String.Format("({0} in {1})", primaryField, GetAllValues(equalValues));
+		}
+
+		public string GetEqualValuesSQL()
+		{
+			return String.Format("select {0} from {1} where ({2} in {3}) {4} order by {5}",
+				viewField, tableList, primaryField, GetAllValues(equalValues), whereList, outputField);
+		}
+
+		public string GetNonEqualValuesSQL()
+		{
+			return String.Format("select {0} from {1} where ({2} in {3}) {4} order by {5}",
+				viewField, tableList, primaryField, GetAllValues(nonEqualValues), whereList, outputField);
 		}
 
 		public string GetNonEqualValues()

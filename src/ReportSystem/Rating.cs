@@ -18,23 +18,23 @@ namespace Inforoom.ReportSystem
 	/// </summary>
 	public class RatingReport : BaseReport
 	{
-     	public const string fromProperty = "FromDate";
-		public const string toProperty = "ToDate";
-		public const string junkProperty = "JunkState";
-		public const string reportIntervalProperty = "ReportInterval";
-		public const string byPreviousMonthProperty = "ByPreviousMonth";
+		private const string fromProperty = "FromDate";
+		private const string toProperty = "ToDate";
+		private const string junkProperty = "JunkState";
+		private const string reportIntervalProperty = "ReportInterval";
+		private const string byPreviousMonthProperty = "ByPreviousMonth";
 
-		public int reportID;
-		public int clientCode;
-		public string reportCaption;
-		public ArrayList allField;
-		public ArrayList selectField;
+		private List<RatingField> allField;
+		private List<RatingField> selectField;
 
-		public DateTime dtFrom;
-		public DateTime dtTo;
-		public bool ByPreviousMonth;
-		public int JunkState;
+		private DateTime dtFrom;
+		private DateTime dtTo;
+		private bool ByPreviousMonth;
+		private int JunkState;
 		private int _reportInterval;
+
+		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
+		private List<string> filter;
 
 		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
@@ -43,6 +43,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			filter = new List<string>();
 			JunkState = (int)getReportParam(junkProperty);
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
 			if (ByPreviousMonth)
@@ -60,17 +61,18 @@ namespace Inforoom.ReportSystem
 				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
 				dtTo = dtTo.Date;
 			}
+			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 
-			allField = new ArrayList(9);
-			selectField = new ArrayList(9);
-			allField.Add(new RatingField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска"));
-			allField.Add(new RatingField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска"));
-			allField.Add(new RatingField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование"));
-			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель"));
-			allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион"));
-			allField.Add(new RatingField("prov.FirmCode", "prov.ShortName as FirmShortName", "FirmShortName", "FirmCode", "Поставщик"));
-			allField.Add(new RatingField("pd.PriceCode", "pd.PriceName as PriceName", "PriceName", "PriceCode", "Прайс-лист"));
-			allField.Add(new RatingField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека"));
+			allField = new List<RatingField>();
+			selectField = new List<RatingField>();
+			allField.Add(new RatingField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска", "catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0));
+			allField.Add(new RatingField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска", "catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and cn.id = c.NameId and cf.Id = c.FormId", 0));
+			allField.Add(new RatingField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0));
+			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель", "farm.CatalogFirmCr cfc", null, 1));
+			allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", null, 2));
+			allField.Add(new RatingField("prov.FirmCode", "prov.ShortName as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "usersettings.clientsdata prov", null, 3));
+			allField.Add(new RatingField("pd.PriceCode", "pd.PriceName as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd", null, 4));
+			allField.Add(new RatingField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5));
 
 			foreach (RatingField rf in allField)
 			{
@@ -78,7 +80,10 @@ namespace Inforoom.ReportSystem
 					selectField.Add(rf);
 			}
 
-			selectField.Sort(new RatingComparer());
+			if (!selectField.Exists(delegate(RatingField x) { return x.visible; }))
+				throw new Exception("Не выбраны поля для отображения в заголовке отчета.");
+
+			selectField.Sort(delegate(RatingField x, RatingField y) { return (x.position - y.position); });
 		}
 
     	public override void GenerateReport(ExecuteArgs e)
@@ -130,20 +135,26 @@ and prov.FirmCode = pd.FirmCode");
 
 			foreach (RatingField rf in selectField)
 			{
-				if ((null != rf.equalValues) && (rf.equalValues.Length > 0))
-					SelectCommand = String.Concat(SelectCommand, " and ", rf.GetEqualValues());
-				if ((null != rf.nonEqualValues) && (rf.nonEqualValues.Length > 0))
-					SelectCommand = String.Concat(SelectCommand, " and ", rf.GetNonEqualValues());
+				if ((rf.equalValues != null) && (rf.equalValues.Count > 0))
+				{
+					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
+					filter.Add(String.Format("Список выбранных значений поля '{0}': {1}", rf.outputCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
+				}
+				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
+				{
+					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
+					filter.Add(String.Format("Список исключенных значений поля '{0}': {1}", rf.outputCaption, GetValuesFromSQL(e, rf.GetNonEqualValuesSQL())));
+				}
 			}
 
 			if (1 == JunkState)
-				SelectCommand = String.Concat(SelectCommand, " and (ol.Junk = 0)");
+				SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and (ol.Junk = 0)");
 			else
 				if (2 == JunkState)
-					SelectCommand = String.Concat(SelectCommand, " and (ol.Junk = 1)");
+					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and (ol.Junk = 1)");
 
-			SelectCommand = String.Concat(SelectCommand, String.Format(" and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
-			SelectCommand = String.Concat(SelectCommand, String.Format(" and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
+			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
+			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
 
 			//Применяем группировку и сортировку
 			List<string> GroupByList = new List<string>();
@@ -154,8 +165,8 @@ and prov.FirmCode = pd.FirmCode");
 					GroupByList.Add(rf.primaryField);
 					OrderByList.Add(rf.outputField);
 				}
-			SelectCommand = String.Concat(SelectCommand, " group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, " order by ", String.Join(",", OrderByList.ToArray()));
+			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
+			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by ", String.Join(",", OrderByList.ToArray()));
  
 #if DEBUG
 			Debug.WriteLine(SelectCommand);
@@ -233,9 +244,26 @@ and prov.FirmCode = pd.FirmCode");
 				res.EndLoadData();
 			}
 
+			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
+			for (int i = 0; i < filter.Count; i++)
+				res.Rows.InsertAt(res.NewRow(), 0);
+
 			res = res.DefaultView.ToTable();
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
+		}
+
+		private string GetValuesFromSQL(ExecuteArgs e, string SQL)
+		{
+			List<string> valuesList = new List<string>();
+			e.DataAdapter.SelectCommand.CommandText = SQL;
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			DataTable dtValues = new DataTable();
+			e.DataAdapter.Fill(dtValues);
+			foreach (DataRow dr in dtValues.Rows)
+				valuesList.Add(dr[0].ToString());
+
+			return String.Join(", ", valuesList.ToArray());
 		}
 
 		public override void ReportToFile(string FileName)
@@ -263,12 +291,13 @@ and prov.FirmCode = pd.FirmCode");
 						DataTable res = _dsReport.Tables["Results"];
 						for (int i = 0; i < res.Columns.Count; i++)
 						{
-							ws.Cells[1, i + 1] = res.Columns[i].Caption;
+							ws.Cells[1, i + 1] = "";
+							ws.Cells[1 + filter.Count, i + 1] = res.Columns[i].Caption;
 							((MSExcel.Range)ws.Columns[i + 1, Type.Missing]).AutoFit();
 						}
 
 						//рисуем границы на всю таблицу
-						ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count + 1, _dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+						ws.get_Range(ws.Cells[1 + filter.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
 
 						//Устанавливаем шрифт листа
 						ws.Rows.Font.Size = 8;
@@ -276,11 +305,14 @@ and prov.FirmCode = pd.FirmCode");
 						ws.Activate();
 
 						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count+1, _dsReport.Tables["Results"].Columns.Count])).Select();
+						((MSExcel.Range)ws.get_Range(ws.Cells[1 + filter.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count])).Select();
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
+						for (int i = 0; i < filter.Count; i++)
+							ws.Cells[1 + i, 1] = filter[i];
+
 						//Замораживаем некоторые колонки и столбцы
-						((MSExcel.Range)ws.get_Range("A2", System.Reflection.Missing.Value)).Select();
+						((MSExcel.Range)ws.get_Range("A" + (2 + filter.Count).ToString(), System.Reflection.Missing.Value)).Select();
 						exApp.ActiveWindow.FreezePanes = true;
 					}
 					finally
