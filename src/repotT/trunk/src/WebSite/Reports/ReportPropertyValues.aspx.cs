@@ -36,6 +36,8 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
 
     int PP;
     private const string DSValues = "Inforoom.Reports.ReportPropertyValues.DSValues";
+	private DataColumn LReportCaption;
+	private DataColumn LReportType;
     private const string PPCN = "Inforoom.Reports.ReportPropertyValues.PP";
 
     protected void Page_Init(object sender, System.EventArgs e)
@@ -74,20 +76,31 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
             MyCmd.Parameters.Add("r", Request["r"]);
             MyCmd.CommandText = @"
 select
- rtp.displayname as LName,
- rtp.selectstoredprocedure as LProc,
- gr.FirmCode as LFirmCode,
- rp.ID as LReportPropertyID
-from report_properties rp, report_type_properties rtp, reports r, general_reports gr
-where rtp.ID=rp.PropertyID
+  rtp.displayname as LName,
+  rtp.selectstoredprocedure as LProc,
+  gr.FirmCode as LFirmCode,
+  rp.ID as LReportPropertyID,
+  r.ReportCaption LReportCaption,
+  rt.ReportTypeName LReportType
+from 
+  report_properties rp, 
+  report_type_properties rtp, 
+  reports r, 
+  general_reports gr,
+  reporttypes rt
+where 
+    rtp.ID=rp.PropertyID
 and rtp.ReportTypeCode = r.ReportTypeCode
 and r.generalreportcode=gr.generalreportcode
 and gr.generalreportcode=?r
 and rp.ID=?rpv
+and rt.ReportTypeCode = r.ReportTypeCode
 ";
             MyDA.Fill(DS, dtList.TableName);
             lblListName.Text = DS.Tables[dtList.TableName].Rows[0][LName.ColumnName].ToString();
-            ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
+			lblReportCaption.Text = DS.Tables[dtList.TableName].Rows[0][LReportCaption.ColumnName].ToString();
+			lblReportType.Text = DS.Tables[dtList.TableName].Rows[0][LReportType.ColumnName].ToString();
+			ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
             FirmCode = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LFirmCode.ColumnName]);
             ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
 
@@ -112,9 +125,7 @@ and rp.ID=?rpv
         FillFromProc();
         FillEnabled();
         Session[DSValues] = DS;
-        dgvListValues.DataSource = DS;
-        dgvListValues.DataMember = DS.Tables[dtProcResult.TableName].TableName;
-        dgvListValues.DataBind();
+		ApplyFilter();
     }
 
     private void FillEnabled()
@@ -165,101 +176,113 @@ WHERE
 
     private void InitializeComponent()
     {
-        this.DS = new System.Data.DataSet();
-        this.dtProcResult = new System.Data.DataTable();
-        this.PRID = new System.Data.DataColumn();
-        this.DisplayValue = new System.Data.DataColumn();
-        this.Enabled = new System.Data.DataColumn();
-        this.dtEnabledValues = new System.Data.DataTable();
-        this.EVID = new System.Data.DataColumn();
-        this.EVName = new System.Data.DataColumn();
-        this.dtList = new System.Data.DataTable();
-        this.LFirmCode = new System.Data.DataColumn();
-        this.LProc = new System.Data.DataColumn();
-        this.LName = new System.Data.DataColumn();
-        this.LReportPropertyID = new System.Data.DataColumn();
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtProcResult)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtEnabledValues)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtList)).BeginInit();
-        // 
-        // DS
-        // 
-        this.DS.DataSetName = "NewDataSet";
-        this.DS.Tables.AddRange(new System.Data.DataTable[] {
+		this.DS = new System.Data.DataSet();
+		this.dtProcResult = new System.Data.DataTable();
+		this.PRID = new System.Data.DataColumn();
+		this.DisplayValue = new System.Data.DataColumn();
+		this.Enabled = new System.Data.DataColumn();
+		this.dtEnabledValues = new System.Data.DataTable();
+		this.EVID = new System.Data.DataColumn();
+		this.EVName = new System.Data.DataColumn();
+		this.dtList = new System.Data.DataTable();
+		this.LFirmCode = new System.Data.DataColumn();
+		this.LProc = new System.Data.DataColumn();
+		this.LName = new System.Data.DataColumn();
+		this.LReportPropertyID = new System.Data.DataColumn();
+		this.LReportCaption = new System.Data.DataColumn();
+		this.LReportType = new System.Data.DataColumn();
+		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtProcResult)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtEnabledValues)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtList)).BeginInit();
+		// 
+		// DS
+		// 
+		this.DS.DataSetName = "NewDataSet";
+		this.DS.Tables.AddRange(new System.Data.DataTable[] {
             this.dtProcResult,
             this.dtEnabledValues,
             this.dtList});
-        // 
-        // dtProcResult
-        // 
-        this.dtProcResult.Columns.AddRange(new System.Data.DataColumn[] {
+		// 
+		// dtProcResult
+		// 
+		this.dtProcResult.Columns.AddRange(new System.Data.DataColumn[] {
             this.PRID,
             this.DisplayValue,
             this.Enabled});
-        this.dtProcResult.TableName = "dtProcResult";
-        // 
-        // PRID
-        // 
-        this.PRID.ColumnName = "ID";
-        this.PRID.DataType = typeof(long);
-        // 
-        // DisplayValue
-        // 
-        this.DisplayValue.ColumnName = "DisplayValue";
-        // 
-        // Enabled
-        // 
-        this.Enabled.ColumnName = "Enabled";
-        this.Enabled.DataType = typeof(byte);
-        this.Enabled.DefaultValue = ((byte)(0));
-        // 
-        // dtEnabledValues
-        // 
-        this.dtEnabledValues.Columns.AddRange(new System.Data.DataColumn[] {
+		this.dtProcResult.TableName = "dtProcResult";
+		// 
+		// PRID
+		// 
+		this.PRID.ColumnName = "ID";
+		this.PRID.DataType = typeof(long);
+		// 
+		// DisplayValue
+		// 
+		this.DisplayValue.ColumnName = "DisplayValue";
+		// 
+		// Enabled
+		// 
+		this.Enabled.ColumnName = "Enabled";
+		this.Enabled.DataType = typeof(byte);
+		this.Enabled.DefaultValue = ((byte)(0));
+		// 
+		// dtEnabledValues
+		// 
+		this.dtEnabledValues.Columns.AddRange(new System.Data.DataColumn[] {
             this.EVID,
             this.EVName});
-        this.dtEnabledValues.TableName = "dtEnabledValues";
-        // 
-        // EVID
-        // 
-        this.EVID.ColumnName = "EVID";
-        this.EVID.DataType = typeof(long);
-        // 
-        // EVName
-        // 
-        this.EVName.ColumnName = "EVName";
-        // 
-        // dtList
-        // 
-        this.dtList.Columns.AddRange(new System.Data.DataColumn[] {
+		this.dtEnabledValues.TableName = "dtEnabledValues";
+		// 
+		// EVID
+		// 
+		this.EVID.ColumnName = "EVID";
+		this.EVID.DataType = typeof(long);
+		// 
+		// EVName
+		// 
+		this.EVName.ColumnName = "EVName";
+		// 
+		// dtList
+		// 
+		this.dtList.Columns.AddRange(new System.Data.DataColumn[] {
             this.LFirmCode,
             this.LProc,
             this.LName,
-            this.LReportPropertyID});
-        this.dtList.TableName = "dtList";
-        // 
-        // LFirmCode
-        // 
-        this.LFirmCode.ColumnName = "LFirmCode";
-        this.LFirmCode.DataType = typeof(long);
-        // 
-        // LProc
-        // 
-        this.LProc.ColumnName = "LProc";
-        // 
-        // LName
-        // 
-        this.LName.ColumnName = "LName";
-        // 
-        // LReportPropertyID
-        // 
-        this.LReportPropertyID.ColumnName = "LReportPropertyID";
-        this.LReportPropertyID.DataType = typeof(long);
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtProcResult)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtEnabledValues)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtList)).EndInit();
+            this.LReportPropertyID,
+            this.LReportCaption,
+            this.LReportType});
+		this.dtList.TableName = "dtList";
+		// 
+		// LFirmCode
+		// 
+		this.LFirmCode.ColumnName = "LFirmCode";
+		this.LFirmCode.DataType = typeof(long);
+		// 
+		// LProc
+		// 
+		this.LProc.ColumnName = "LProc";
+		// 
+		// LName
+		// 
+		this.LName.ColumnName = "LName";
+		// 
+		// LReportPropertyID
+		// 
+		this.LReportPropertyID.ColumnName = "LReportPropertyID";
+		this.LReportPropertyID.DataType = typeof(long);
+		// 
+		// LReportCaption
+		// 
+		this.LReportCaption.ColumnName = "LReportCaption";
+		// 
+		// LReportType
+		// 
+		this.LReportType.ColumnName = "LReportType";
+		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtProcResult)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtEnabledValues)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtList)).EndInit();
 
     }
 
@@ -283,7 +306,7 @@ WHERE
             MyCmd.Parameters.Clear();
             MyCmd.Parameters.Add("inFirmCode", FirmCode);
             MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
-            MyCmd.Parameters.Add("inFilter", tbSearch.Text);
+            MyCmd.Parameters.Add("inFilter", null);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
             MyCmd.Parameters.Add("inID", null);
             MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
@@ -422,42 +445,55 @@ and ?Enabled = 0;", MyCn, trans);
         dgvListValues.DataBind();
     }
 
+	private void ApplyFilter()
+	{
+		PP = Convert.ToInt32(ddlPages.SelectedValue);
+		dgvListValues.PageSize = PP;
+		if (dgvListValues.PageCount - 1 <= dgvListValues.PageIndex)
+			dgvListValues.PageIndex = 0;
+		string Filter = String.Empty;
+		if (tbSearch.Text == String.Empty)
+			Filter += String.Empty;
+		else
+			Filter = "DisplayValue like '%" + tbSearch.Text + "%'";
+
+		if (!chbShowEnabled.Checked)
+		{
+			Filter += String.Empty;
+		}
+		else
+		{
+			if (Filter != String.Empty)
+				Filter += " and ";
+			Filter += "Enabled = 1";
+		}
+
+		DS.Tables[dtProcResult.TableName].DefaultView.RowFilter = Filter;
+
+		if (Filter != String.Empty)
+		{
+			dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
+			dgvListValues.DataMember = null;
+		}
+		else
+		{
+			dgvListValues.DataSource = DS;
+			dgvListValues.DataMember = dtProcResult.TableName;
+		}
+
+		dgvListValues.DataBind();
+		Response.Cookies[PPCN].Value = PP.ToString();
+		Response.Cookies[PPCN].Expires = DateTime.Now.AddYears(2);
+	}
+
     private void ShowData()
     {
         CopyChangesToTable();
-        PP = Convert.ToInt32(ddlPages.SelectedValue);
-        dgvListValues.PageSize = PP;
-        if (dgvListValues.PageCount - 1 <= dgvListValues.PageIndex)
-            dgvListValues.PageIndex = 0;
-        string Filter = String.Empty;
-        if (tbSearch.Text == String.Empty)
-            Filter += String.Empty;
-        else
-            Filter = "DisplayValue like '%" + tbSearch.Text + "%'";
-
-        if (!chbShowEnabled.Checked)
-        {
-            Filter += String.Empty;
-        }
-        else
-        {
-            if (Filter != String.Empty)
-                Filter += " and ";
-            Filter += "Enabled = 1";
-        }
-
-        DS.Tables[dtProcResult.TableName].DefaultView.RowFilter = Filter;
-
-        if (Filter != String.Empty)
-            dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
-        else
-        {
-            dgvListValues.DataSource = DS;
-            dgvListValues.DataMember = dtProcResult.TableName;
-        }
-
-        dgvListValues.DataBind();
-        Response.Cookies[PPCN].Value = PP.ToString();
-        Response.Cookies[PPCN].Expires = DateTime.Now.AddYears(2);
+		ApplyFilter();
     }
+
+	protected void tbSearch_TextChanged(object sender, EventArgs e)
+	{
+		ShowData();
+	}
 }

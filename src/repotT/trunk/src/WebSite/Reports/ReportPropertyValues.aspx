@@ -2,9 +2,8 @@
 
 <asp:Content runat="server" ID="ReportPropertyValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align="center">
-            <strong style="font-size:small;">Редактирование значений списка "<asp:Label ID="lblListName" runat="server"
-            Text="Label"></asp:Label>"</strong><br/>
-        <asp:TextBox ID="tbSearch" runat="server"></asp:TextBox>
+            <strong style="font-size:small;">Редактирование значений списка "<asp:Label ID="lblListName" runat="server" Text="Label"/>" отчета "<asp:Label ID="lblReportCaption" runat="server" Text="Label"/>" типа отчета "<asp:Label ID="lblReportType" runat="server" Text="Label"/>"</strong><br/>
+        <asp:TextBox ID="tbSearch" runat="server" OnTextChanged="tbSearch_TextChanged"></asp:TextBox>
         <asp:Button ID="btnSearch" runat="server" OnClick="btnSearch_Click" Text="Найти" /><br />
         &nbsp; &nbsp;&nbsp;
         <asp:Label ID="Label1" runat="server" Text="На странице:"></asp:Label><asp:DropDownList

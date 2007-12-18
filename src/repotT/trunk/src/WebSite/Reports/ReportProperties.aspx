@@ -2,8 +2,7 @@
 
 <asp:Content runat="server" ID="ReportPropertiesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align="center">
-        <strong style="font-size:small;">Настройка параметров отчета "<asp:Label ID="lblReport" runat="server"
-            Text="Label"></asp:Label>"</strong><br/>
+        <strong style="font-size:small;">Настройка параметров отчета "<asp:Label ID="lblReport" runat="server" Text="Label"/>" типа отчета "<asp:Label ID="lblReportType" runat="server" Text="Label"/>"</strong><br/>
         <asp:GridView ID="dgvNonOptional" runat="server" AutoGenerateColumns="False" OnRowDataBound="dgvNonOptional_RowDataBound" OnRowCommand="dgvNonOptional_RowCommand" Caption="Не опциональные">
             <Columns>
                 <asp:BoundField DataField="PParamName" HeaderText="Наименование параметра" />

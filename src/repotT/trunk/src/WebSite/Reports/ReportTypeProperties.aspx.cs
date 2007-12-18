@@ -578,7 +578,7 @@ SET
                 MyCmd.Parameters.Clear();
                 MyCmd.Parameters.Add("inFirmCode", 1912);
                 MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
-                MyCmd.Parameters.Add("inFilter", "");
+                MyCmd.Parameters.Add("inFilter", null);
                 MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
                 MyCmd.CommandText = tbProc.Text;
                 MyCmd.CommandType = CommandType.StoredProcedure;

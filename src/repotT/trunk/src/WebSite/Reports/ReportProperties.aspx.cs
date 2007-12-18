@@ -39,6 +39,7 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     private DataColumn OPStoredProc;
     private DataTable dtDDLOptionalParams;
     private DataColumn OPrtpID;
+	private DataColumn CReportType;
 
     private const string DSParams = "Inforoom.Reports.ReportProperties.DSParams";
 
@@ -63,14 +64,19 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
             MyCmd.CommandText = @"
 SELECT
     rt.ReportCaption as CReportCaption, 
-    gr.FirmCode as CFirmCode
+    gr.FirmCode as CFirmCode,
+    rts.ReportTypeName as CReportType
 FROM
-    testreports.reports rt, testreports.general_reports gr
+    testreports.reports rt, 
+    testreports.general_reports gr,
+    testreports.reporttypes rts
 WHERE gr.GeneralReportCode=rt.GeneralReportCode
 AND ReportCode = ?rp
+and rts.ReportTypeCode = rt.ReportTypeCode
 ";
             MyDA.Fill(DS, dtClient.TableName);
             lblReport.Text = DS.Tables[dtClient.TableName].Rows[0][CReportCaption.ColumnName].ToString();
+			lblReportType.Text = DS.Tables[dtClient.TableName].Rows[0][CReportType.ColumnName].ToString();
             FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
 
             MyCn.Close();
@@ -82,8 +88,6 @@ AND ReportCode = ?rp
             DS = ((DataSet)Session[DSParams]);
             FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
         }
-        //lblReport.Text = DS.Tables[dtClient.TableName].Rows[0][CReportCaption.ColumnName].ToString();
-        //FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
         if (dgvNonOptional.Rows.Count > 0)
             btnApply.Visible = true;
         else
@@ -169,94 +173,96 @@ AND rp.reportCode=?rp
 
     private void InitializeComponent()
     {
-        this.DS = new System.Data.DataSet();
-        this.dtNonOptionalParams = new System.Data.DataTable();
-        this.PID = new System.Data.DataColumn();
-        this.PParamName = new System.Data.DataColumn();
-        this.PPropertyType = new System.Data.DataColumn();
-        this.PPropertyValue = new System.Data.DataColumn();
-        this.PPropertyEnumID = new System.Data.DataColumn();
-        this.PStoredProc = new System.Data.DataColumn();
-        this.dtClient = new System.Data.DataTable();
-        this.CFirmCode = new System.Data.DataColumn();
-        this.CReportCaption = new System.Data.DataColumn();
-        this.dtOptionalParams = new System.Data.DataTable();
-        this.OPID = new System.Data.DataColumn();
-        this.OPParamName = new System.Data.DataColumn();
-        this.OPPropertyType = new System.Data.DataColumn();
-        this.OPPropertyValue = new System.Data.DataColumn();
-        this.OPPropertyEnumID = new System.Data.DataColumn();
-        this.OPStoredProc = new System.Data.DataColumn();
-        this.OPrtpID = new System.Data.DataColumn();
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).BeginInit();
-        // 
-        // DS
-        // 
-        this.DS.DataSetName = "NewDataSet";
-        this.DS.Tables.AddRange(new System.Data.DataTable[] {
+		this.DS = new System.Data.DataSet();
+		this.dtNonOptionalParams = new System.Data.DataTable();
+		this.PID = new System.Data.DataColumn();
+		this.PParamName = new System.Data.DataColumn();
+		this.PPropertyType = new System.Data.DataColumn();
+		this.PPropertyValue = new System.Data.DataColumn();
+		this.PPropertyEnumID = new System.Data.DataColumn();
+		this.PStoredProc = new System.Data.DataColumn();
+		this.dtClient = new System.Data.DataTable();
+		this.CFirmCode = new System.Data.DataColumn();
+		this.CReportCaption = new System.Data.DataColumn();
+		this.dtOptionalParams = new System.Data.DataTable();
+		this.OPID = new System.Data.DataColumn();
+		this.OPParamName = new System.Data.DataColumn();
+		this.OPPropertyType = new System.Data.DataColumn();
+		this.OPPropertyValue = new System.Data.DataColumn();
+		this.OPPropertyEnumID = new System.Data.DataColumn();
+		this.OPStoredProc = new System.Data.DataColumn();
+		this.OPrtpID = new System.Data.DataColumn();
+		this.CReportType = new System.Data.DataColumn();
+		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).BeginInit();
+		// 
+		// DS
+		// 
+		this.DS.DataSetName = "NewDataSet";
+		this.DS.Tables.AddRange(new System.Data.DataTable[] {
             this.dtNonOptionalParams,
             this.dtClient,
             this.dtOptionalParams});
-        // 
-        // dtNonOptionalParams
-        // 
-        this.dtNonOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
+		// 
+		// dtNonOptionalParams
+		// 
+		this.dtNonOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
             this.PID,
             this.PParamName,
             this.PPropertyType,
             this.PPropertyValue,
             this.PPropertyEnumID,
             this.PStoredProc});
-        this.dtNonOptionalParams.TableName = "dtNonOptionalParams";
-        // 
-        // PID
-        // 
-        this.PID.ColumnName = "PID";
-        this.PID.DataType = typeof(long);
-        // 
-        // PParamName
-        // 
-        this.PParamName.ColumnName = "PParamName";
-        // 
-        // PPropertyType
-        // 
-        this.PPropertyType.ColumnName = "PPropertyType";
-        // 
-        // PPropertyValue
-        // 
-        this.PPropertyValue.ColumnName = "PPropertyValue";
-        // 
-        // PPropertyEnumID
-        // 
-        this.PPropertyEnumID.ColumnName = "PPropertyEnumID";
-        this.PPropertyEnumID.DataType = typeof(long);
-        // 
-        // PStoredProc
-        // 
-        this.PStoredProc.ColumnName = "PStoredProc";
-        // 
-        // dtClient
-        // 
-        this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
+		this.dtNonOptionalParams.TableName = "dtNonOptionalParams";
+		// 
+		// PID
+		// 
+		this.PID.ColumnName = "PID";
+		this.PID.DataType = typeof(long);
+		// 
+		// PParamName
+		// 
+		this.PParamName.ColumnName = "PParamName";
+		// 
+		// PPropertyType
+		// 
+		this.PPropertyType.ColumnName = "PPropertyType";
+		// 
+		// PPropertyValue
+		// 
+		this.PPropertyValue.ColumnName = "PPropertyValue";
+		// 
+		// PPropertyEnumID
+		// 
+		this.PPropertyEnumID.ColumnName = "PPropertyEnumID";
+		this.PPropertyEnumID.DataType = typeof(long);
+		// 
+		// PStoredProc
+		// 
+		this.PStoredProc.ColumnName = "PStoredProc";
+		// 
+		// dtClient
+		// 
+		this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
             this.CFirmCode,
-            this.CReportCaption});
-        this.dtClient.TableName = "dtClient";
-        // 
-        // CFirmCode
-        // 
-        this.CFirmCode.ColumnName = "CFirmCode";
-        this.CFirmCode.DataType = typeof(long);
-        // 
-        // CReportCaption
-        // 
-        this.CReportCaption.ColumnName = "CReportCaption";
-        // 
-        // dtOptionalParams
-        // 
-        this.dtOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
+            this.CReportCaption,
+            this.CReportType});
+		this.dtClient.TableName = "dtClient";
+		// 
+		// CFirmCode
+		// 
+		this.CFirmCode.ColumnName = "CFirmCode";
+		this.CFirmCode.DataType = typeof(long);
+		// 
+		// CReportCaption
+		// 
+		this.CReportCaption.ColumnName = "CReportCaption";
+		// 
+		// dtOptionalParams
+		// 
+		this.dtOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
             this.OPID,
             this.OPParamName,
             this.OPPropertyType,
@@ -264,42 +270,46 @@ AND rp.reportCode=?rp
             this.OPPropertyEnumID,
             this.OPStoredProc,
             this.OPrtpID});
-        this.dtOptionalParams.TableName = "dtOptionalParams";
-        // 
-        // OPID
-        // 
-        this.OPID.ColumnName = "OPID";
-        this.OPID.DataType = typeof(long);
-        // 
-        // OPParamName
-        // 
-        this.OPParamName.ColumnName = "OPParamName";
-        // 
-        // OPPropertyType
-        // 
-        this.OPPropertyType.ColumnName = "OPPropertyType";
-        // 
-        // OPPropertyValue
-        // 
-        this.OPPropertyValue.ColumnName = "OPPropertyValue";
-        // 
-        // OPPropertyEnumID
-        // 
-        this.OPPropertyEnumID.ColumnName = "OPPropertyEnumID";
-        this.OPPropertyEnumID.DataType = typeof(long);
-        // 
-        // OPStoredProc
-        // 
-        this.OPStoredProc.ColumnName = "OPStoredProc";
-        // 
-        // OPrtpID
-        // 
-        this.OPrtpID.ColumnName = "OPrtpID";
-        this.OPrtpID.DataType = typeof(long);
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).EndInit();
+		this.dtOptionalParams.TableName = "dtOptionalParams";
+		// 
+		// OPID
+		// 
+		this.OPID.ColumnName = "OPID";
+		this.OPID.DataType = typeof(long);
+		// 
+		// OPParamName
+		// 
+		this.OPParamName.ColumnName = "OPParamName";
+		// 
+		// OPPropertyType
+		// 
+		this.OPPropertyType.ColumnName = "OPPropertyType";
+		// 
+		// OPPropertyValue
+		// 
+		this.OPPropertyValue.ColumnName = "OPPropertyValue";
+		// 
+		// OPPropertyEnumID
+		// 
+		this.OPPropertyEnumID.ColumnName = "OPPropertyEnumID";
+		this.OPPropertyEnumID.DataType = typeof(long);
+		// 
+		// OPStoredProc
+		// 
+		this.OPStoredProc.ColumnName = "OPStoredProc";
+		// 
+		// OPrtpID
+		// 
+		this.OPrtpID.ColumnName = "OPrtpID";
+		this.OPrtpID.DataType = typeof(long);
+		// 
+		// CReportType
+		// 
+		this.CReportType.ColumnName = "CReportType";
+		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).EndInit();
 
     }
 
@@ -767,14 +777,19 @@ WHERE ID = ?OPID", MyCn, trans);
         dtDDLOptionalParams.Columns.Add("opRemove", typeof(byte));
 
         MyDA.SelectCommand = MyCmd;
+		MyCmd.Parameters.Clear();
+		MyCmd.Parameters.Add("?ReportCode", Request["rp"]);
         MyCmd.CommandText = @"
 Select
     rtp.ID as opID,
     rtp.DisplayName as opName
 FROM
-    testreports.report_type_properties rtp
+    testreports.report_type_properties rtp,
+    testreports.reports r
 WHERE
-Optional=1";
+    rtp.Optional=1
+and r.ReportCode = ?ReportCode
+and rtp.ReportTypeCode = r.ReportTypeCode";
         MyDA.Fill(dtDDLOptionalParams);
 
         MyCn.Close();
