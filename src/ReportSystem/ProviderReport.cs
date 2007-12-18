@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
+using System.Data;
+using System.Configuration;
 
 namespace Inforoom.ReportSystem
 {
@@ -57,6 +59,17 @@ and regions.RegionCode = activeprices.RegionCode";
 		//Получили список предложений для интересующего клиента
 		protected void GetOffers(ExecuteArgs e)
 		{
+			//Проверка существования и отключения клиента
+			DataRow drClient = MySqlHelper.ExecuteDataRow(
+				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+				"select FirmCode, FirmStatus, ShortName from usersettings.clientsdata cd where cd.FirmCode = ?FirmCode",
+				new MySqlParameter("?FirmCode", _clientCode));
+			if (drClient == null)
+				throw new Exception(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
+			else
+				if (Convert.ToByte(drClient["FirmStatus"]) == 0)
+					throw new Exception(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", drClient["ShortName"], _clientCode));
+
 			//удаление временных таблиц
 			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();

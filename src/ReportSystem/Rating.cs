@@ -4,7 +4,6 @@ using System.IO;
 using System.Collections;
 using System.Data;
 using MySql.Data.MySqlClient;
-using ICSharpCode.SharpZipLib.Zip;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using Inforoom.ReportSystem.RatingReports;
@@ -24,7 +23,7 @@ namespace Inforoom.ReportSystem
 		private const string reportIntervalProperty = "ReportInterval";
 		private const string byPreviousMonthProperty = "ByPreviousMonth";
 
-		private List<RatingField> allField;
+		protected List<RatingField> allField;
 		private List<RatingField> selectField;
 
 		private DateTime dtFrom;
@@ -34,15 +33,29 @@ namespace Inforoom.ReportSystem
 		private int _reportInterval;
 
 		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
-		private List<string> filter;
+		protected List<string> filter;
 
 		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
 			: base(ReportCode, ReportCaption, Conn)
 		{
 		}
 
+		protected void FillRatingFields()
+		{
+			allField = new List<RatingField>();
+			allField.Add(new RatingField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска", "catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие продукты", "Следующие продукты исключены из отчета"));
+			allField.Add(new RatingField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска", "catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета"));
+			allField.Add(new RatingField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета"));
+			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель", "farm.CatalogFirmCr cfc", null, 1, "В отчет включены следующие производители", "Следующие производители исключены из отчета"));
+			allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", null, 2, "В отчет включены следующие регионы", "Следующие регионы исключены из отчета"));
+			allField.Add(new RatingField("prov.FirmCode", "concat(prov.ShortName, ' - ', rg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "usersettings.clientsdata prov, farm.regions rg", "and prov.RegionCode = rg.RegionCode", 3, "В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета"));
+			allField.Add(new RatingField("pd.PriceCode", "concat(prov.ShortName , ' (', pd.PriceName, ') - ', rg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, usersettings.clientsdata prov, farm.regions rg", "and prov.FirmCode = pd.FirmCode and prov.RegionCode = rg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета"));
+			allField.Add(new RatingField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета"));
+		}
+
 		public override void ReadReportParams()
 		{
+			FillRatingFields();
 			filter = new List<string>();
 			JunkState = (int)getReportParam(junkProperty);
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
@@ -63,17 +76,7 @@ namespace Inforoom.ReportSystem
 			}
 			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 
-			allField = new List<RatingField>();
 			selectField = new List<RatingField>();
-			allField.Add(new RatingField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска", "catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0));
-			allField.Add(new RatingField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска", "catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and cn.id = c.NameId and cf.Id = c.FormId", 0));
-			allField.Add(new RatingField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0));
-			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель", "farm.CatalogFirmCr cfc", null, 1));
-			allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", null, 2));
-			allField.Add(new RatingField("prov.FirmCode", "prov.ShortName as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "usersettings.clientsdata prov", null, 3));
-			allField.Add(new RatingField("pd.PriceCode", "pd.PriceName as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd", null, 4));
-			allField.Add(new RatingField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5));
-
 			foreach (RatingField rf in allField)
 			{
 				if (rf.LoadFromDB(this))
@@ -138,12 +141,12 @@ and prov.FirmCode = pd.FirmCode");
 				if ((rf.equalValues != null) && (rf.equalValues.Count > 0))
 				{
 					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
-					filter.Add(String.Format("Список выбранных значений поля '{0}': {1}", rf.outputCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
+					filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
 				}
 				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
 				{
 					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
-					filter.Add(String.Format("Список исключенных значений поля '{0}': {1}", rf.outputCaption, GetValuesFromSQL(e, rf.GetNonEqualValuesSQL())));
+					filter.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetValuesFromSQL(e, rf.GetNonEqualValuesSQL())));
 				}
 			}
 
@@ -253,7 +256,7 @@ and prov.FirmCode = pd.FirmCode");
 			_dsReport.Tables.Add(res);
 		}
 
-		private string GetValuesFromSQL(ExecuteArgs e, string SQL)
+		protected string GetValuesFromSQL(ExecuteArgs e, string SQL)
 		{
 			List<string> valuesList = new List<string>();
 			e.DataAdapter.SelectCommand.CommandText = SQL;

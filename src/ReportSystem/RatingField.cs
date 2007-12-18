@@ -39,9 +39,12 @@ namespace Inforoom.ReportSystem.RatingReports
 		//Значения, которым не может быть равно primaryField
 		public List<ulong> nonEqualValues = null;
 
+		public string equalValuesCaption;
+		public string nonEqualValuesCaption;
 
 
-		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition)
+
+		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption)
 		{
 			primaryField = PrimaryField;
 			viewField = ViewField;
@@ -54,9 +57,11 @@ namespace Inforoom.ReportSystem.RatingReports
 				throw new ArgumentException("Параметр не может быть null или пустой строкой.", "TableList");
 			tableList = TableList;
 			whereList = WhereList;
+			equalValuesCaption = EqualValuesCaption;
+			nonEqualValuesCaption = NonEqualValuesCaption;
 		}
 
-		public bool LoadFromDB(RatingReport Parent)		
+		public bool LoadFromDB(BaseReport Parent)		
 		{
 			bool fieldIsSelected = false;
 
