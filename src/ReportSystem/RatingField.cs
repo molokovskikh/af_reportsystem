@@ -11,7 +11,6 @@ namespace Inforoom.ReportSystem.RatingReports
 	public class RatingField
 	{
 		public const string positionSuffix = "Position";
-		public const string visibleSuffix = "Visible";
 		public const string equalSuffix = "Equal";
 		public const string nonEqualSuffix = "NonEqual";
 
@@ -65,11 +64,11 @@ namespace Inforoom.ReportSystem.RatingReports
 		{
 			bool fieldIsSelected = false;
 
-			//≈сли Position и Visible существует, то тогда параметр должен отображатьс€ в заголовке отчета и по этому параметру будет группировка
-			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix) && Parent.reportParamExists(reportPropertyPreffix + visibleSuffix))
+			//≈сли Position существует, то тогда параметр должен отображатьс€ в заголовке отчета и по этому параметру будет группировка
+			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix))
 			{
 				position = (int)Parent.getReportParam(reportPropertyPreffix + positionSuffix);
-				visible = (bool)Parent.getReportParam(reportPropertyPreffix + visibleSuffix);
+				visible = true;
 				fieldIsSelected = true;
 			}
 
