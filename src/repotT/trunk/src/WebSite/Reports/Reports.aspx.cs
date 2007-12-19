@@ -47,21 +47,6 @@ public partial class Reports_Reports : System.Web.UI.Page
 
         if (!(Page.IsPostBack))
         {
-//            MyCn.Open();
-//            MyCmd.Connection = MyCn;
-//            MyDA.SelectCommand = MyCmd;
-//            MyCmd.Parameters.Clear();
-////            MyCmd.Parameters.Add("rCode", Request["r"]);
-//            MyCmd.CommandText = @"
-//SELECT 
-//    ReportTypeName,
-//    ReportTypeCode
-//FROM 
-//    testreports.reporttypes 
-//";
-            
-////            //lblEnumName.Text = MyCmd.ExecuteScalar().ToString();
-//            MyCn.Close();
             PostData();
         }
         else
@@ -98,7 +83,6 @@ Order by r.ReportCode
 ";
         MyDA.Fill(DS, dtReports.TableName);
 
-        //lblEnumName.Text = MyCmd.ExecuteScalar().ToString();
         MyCn.Close();
 
         dgvReports.DataSource = DS;
@@ -119,7 +103,8 @@ SELECT
     ReportTypeName,
     ReportTypeCode
 FROM 
-    testreports.reporttypes 
+    testreports.reporttypes
+order by ReportTypeName 
 ";
         MyDA.Fill(DS, DS.Tables[dtTypes.TableName].TableName);
         MyCn.Close();
@@ -244,7 +229,6 @@ FROM
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            //if (e.Row.Cells[0].Text != "&nbsp;")
             if (((Label)e.Row.Cells[0].FindControl("lblReports")).Text != "")
             {
                 ((DropDownList)e.Row.Cells[0].FindControl("ddlReports")).Visible = false;
