@@ -176,14 +176,20 @@ and pd.FirmCode = " + sourceFirmCode.ToString() +
 sum(if(pd.firmcode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
 sum(if(pd.firmcode = {0}, ol.quantity, NULL)) SourceFirmCodeRows,
 Avg(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeAvgCost,
+Count(distinct if(pd.firmcode = {0}, oh.RowId, NULL)) as SourceFirmDistinctOrderId,
+Count(distinct if(pd.firmcode = {0}, oh.ClientCode, NULL)) as SourceFirmDistinctClientCode,
 
 sum(if(pd.firmcode in ({1}), ol.cost*ol.quantity, NULL)) as RivalsSum,
 sum(if(pd.firmcode in ({1}), ol.quantity, NULL)) RivalsRows,
 Avg(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsAvgCost,
+Count(distinct if(pd.firmcode in ({1}), oh.RowId, NULL)) as RivalsDistinctOrderId,
+Count(distinct if(pd.firmcode in ({1}), oh.ClientCode, NULL)) as RivalsDistinctClientCode,
 
 sum(ol.cost*ol.quantity) as AllSum,
 sum(ol.quantity) AllRows,
-Avg(ol.cost) as AllAvgCost ", sourceFirmCode, businessRivalsList));
+Avg(ol.cost) as AllAvgCost,
+Count(distinct oh.RowId) as AllDistinctOrderId,
+Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
 			SelectCommand = String.Concat(
 				SelectCommand, @"
 from 
@@ -285,6 +291,10 @@ and prov.FirmCode = pd.FirmCode");
 			dc.Caption = "Кол-во по постащику";
 			dc = res.Columns.Add("SourceFirmCodeAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по поставщику";
+			dc = res.Columns.Add("SourceFirmDistinctOrderId", typeof(System.Int32));
+			dc.Caption = "Кол-во заявок по препарату по поставщику";
+			dc = res.Columns.Add("SourceFirmDistinctClientCode", typeof(System.Int32));
+			dc.Caption = "Кол-во клиентов, заказавших препарат, по постащику";
 
 			dc = res.Columns.Add("RivalsSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по конкурентам";
@@ -292,6 +302,10 @@ and prov.FirmCode = pd.FirmCode");
 			dc.Caption = "Кол-во по конкурентам";
 			dc = res.Columns.Add("RivalsAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по конкурентам";
+			dc = res.Columns.Add("RivalsDistinctOrderId", typeof(System.Int32));
+			dc.Caption = "Кол-во заявок по препарату по конкурентам";
+			dc = res.Columns.Add("RivalsDistinctClientCode", typeof(System.Int32));
+			dc.Caption = "Кол-во клиентов, заказавших препарат, по конкурентам";
 
 			dc = res.Columns.Add("AllSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по всем";
@@ -299,6 +313,10 @@ and prov.FirmCode = pd.FirmCode");
 			dc.Caption = "Кол-во по всем";
 			dc = res.Columns.Add("AllAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по всем";
+			dc = res.Columns.Add("AllDistinctOrderId", typeof(System.Int32));
+			dc.Caption = "Кол-во заявок по препарату по всем";
+			dc = res.Columns.Add("AllDistinctClientCode", typeof(System.Int32));
+			dc.Caption = "Кол-во клиентов, заказавших препарат, по всем";
 
 			DataRow newrow;
 			try
@@ -318,14 +336,20 @@ and prov.FirmCode = pd.FirmCode");
 					newrow["SourceFirmCodeSum"] = (dr["SourceFirmCodeSum"] is DBNull) ? dr["SourceFirmCodeSum"] : Convert.ToDecimal(dr["SourceFirmCodeSum"]);
 					newrow["SourceFirmCodeRows"] = (dr["SourceFirmCodeRows"] is DBNull) ? dr["SourceFirmCodeRows"] : Convert.ToInt32(dr["SourceFirmCodeRows"]);
 					newrow["SourceFirmCodeAvgCost"] = (dr["SourceFirmCodeAvgCost"] is DBNull) ? dr["SourceFirmCodeAvgCost"] : Convert.ToDecimal(dr["SourceFirmCodeAvgCost"]);
+					newrow["SourceFirmDistinctOrderId"] = (dr["SourceFirmDistinctOrderId"] is DBNull) ? dr["SourceFirmDistinctOrderId"] : Convert.ToInt32(dr["SourceFirmDistinctOrderId"]);
+					newrow["SourceFirmDistinctClientCode"] = (dr["SourceFirmDistinctClientCode"] is DBNull) ? dr["SourceFirmDistinctClientCode"] : Convert.ToInt32(dr["SourceFirmDistinctClientCode"]);
 
 					newrow["RivalsSum"] = (dr["RivalsSum"] is DBNull) ? dr["RivalsSum"] : Convert.ToDecimal(dr["RivalsSum"]);
 					newrow["RivalsRows"] = (dr["RivalsRows"] is DBNull) ? dr["RivalsRows"] : Convert.ToInt32(dr["RivalsRows"]);
 					newrow["RivalsAvgCost"] = (dr["RivalsAvgCost"] is DBNull) ? dr["RivalsAvgCost"] : Convert.ToDecimal(dr["RivalsAvgCost"]);
+					newrow["RivalsDistinctOrderId"] = (dr["RivalsDistinctOrderId"] is DBNull) ? dr["RivalsDistinctOrderId"] : Convert.ToInt32(dr["RivalsDistinctOrderId"]);
+					newrow["RivalsDistinctClientCode"] = (dr["RivalsDistinctClientCode"] is DBNull) ? dr["RivalsDistinctClientCode"] : Convert.ToInt32(dr["RivalsDistinctClientCode"]);
 
 					newrow["AllSum"] = Convert.ToDecimal(dr["AllSum"]);
 					newrow["AllRows"] = Convert.ToInt32(dr["AllRows"]);
 					newrow["AllAvgCost"] = Convert.ToDecimal(dr["AllAvgCost"]);
+					newrow["AllDistinctOrderId"] = Convert.ToInt32(dr["AllDistinctOrderId"]);
+					newrow["AllDistinctClientCode"] = Convert.ToInt32(dr["AllDistinctClientCode"]);
 
 					res.Rows.Add(newrow);
 				}
