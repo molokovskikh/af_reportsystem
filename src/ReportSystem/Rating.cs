@@ -43,14 +43,15 @@ namespace Inforoom.ReportSystem
 		protected void FillRatingFields()
 		{
 			allField = new List<RatingField>();
-			allField.Add(new RatingField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска", "catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие продукты", "Следующие продукты исключены из отчета"));
-			allField.Add(new RatingField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска", "catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета"));
-			allField.Add(new RatingField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета"));
-			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель", "farm.CatalogFirmCr cfc", null, 1, "В отчет включены следующие производители", "Следующие производители исключены из отчета"));
+			allField.Add(new RatingField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска", "catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие продукты", "Следующие продукты исключены из отчета", 40));
+			allField.Add(new RatingField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска", "catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета", 40));
+			allField.Add(new RatingField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета", 40));
+			allField.Add(new RatingField("cfc.CodeFirmCr", "cfc.FirmCr as FirmCr", "FirmCr", "FirmCr", "Производитель", "farm.CatalogFirmCr cfc", null, 1, "В отчет включены следующие производители", "Следующие производители исключены из отчета", 15));
 			allField.Add(new RatingField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", null, 2, "В отчет включены следующие регионы", "Следующие регионы исключены из отчета"));
-			allField.Add(new RatingField("prov.FirmCode", "concat(prov.ShortName, ' - ', rg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "usersettings.clientsdata prov, farm.regions rg", "and prov.RegionCode = rg.RegionCode", 3, "В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета"));
-			allField.Add(new RatingField("pd.PriceCode", "concat(prov.ShortName , ' (', pd.PriceName, ') - ', rg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, usersettings.clientsdata prov, farm.regions rg", "and prov.FirmCode = pd.FirmCode and prov.RegionCode = rg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета"));
-			allField.Add(new RatingField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета"));
+			allField.Add(new RatingField("prov.FirmCode", "concat(prov.ShortName, ' - ', rg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "usersettings.clientsdata prov, farm.regions rg", "and prov.RegionCode = rg.RegionCode", 3, "В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета", 10));
+			allField.Add(new RatingField("pd.PriceCode", "concat(prov.ShortName , ' (', pd.PriceName, ') - ', rg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, usersettings.clientsdata prov, farm.regions rg", "and prov.FirmCode = pd.FirmCode and prov.RegionCode = rg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета", 10));
+			allField.Add(new RatingField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
+			allField.Add(new RatingField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", null, 6, "В отчет включены следующие плательщики", "Следующие плательщики исключены из отчета"));
 		}
 
 		public override void ReadReportParams()
@@ -118,7 +119,8 @@ from
   usersettings.retclientsset rcs, 
   farm.regions rg, 
   usersettings.pricesdata pd, 
-  usersettings.clientsdata prov 
+  usersettings.clientsdata prov,
+  billing.payers
 where 
     ol.OrderID = oh.RowID 
 and oh.deleted = 0
@@ -130,6 +132,7 @@ and cf.Id = c.FormId
 and cfc.CodeFirmCr = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
 and cd.FirmCode = oh.ClientCode
 and cd.BillingCode <> 921
+and payers.PayerId = cd.BillingCode
 and rcs.ClientCode = oh.ClientCode
 and rcs.InvisibleOnFirm = 0 
 and rg.RegionCode = oh.RegionCode 
@@ -197,6 +200,8 @@ and prov.FirmCode = pd.FirmCode");
 				{
 					dc = res.Columns.Add(rf.outputField, SelectTable.Columns[rf.outputField].DataType);
 					dc.Caption = rf.outputCaption;
+					if (rf.width.HasValue)
+						dc.ExtendedProperties.Add("Width", rf.width);
 				}
 			}
 			dc = res.Columns.Add("Cost", typeof(System.Decimal));
@@ -214,13 +219,14 @@ and prov.FirmCode = pd.FirmCode");
 			dc = res.Columns.Add("MaxCost", typeof(System.Decimal));
 			dc.Caption = "Максимальная цена";
 			dc = res.Columns.Add("DistinctOrderId", typeof(System.Int32));
-			dc.Caption = "Кол-во уникальных заказов";
+			dc.Caption = "Кол-во заявок по препарату";
 			dc = res.Columns.Add("DistinctClientCode", typeof(System.Int32));
-			dc.Caption = "Кол-во уникальных клиентов";
+			dc.Caption = "Кол-во клиентов, заказавших препарат";
 
 			DataRow newrow;
 			try
 			{
+				int visbleCount = selectField.FindAll(delegate(RatingField x) { return x.visible; }).Count;
 				res.BeginLoadData();
 				foreach (DataRow dr in SelectTable.Rows)
 				{
@@ -229,13 +235,13 @@ and prov.FirmCode = pd.FirmCode");
 					foreach (RatingField rf in selectField)
 						if (rf.visible)
 							newrow[rf.outputField] = dr[rf.outputField];
-					newrow["Cost"] = Convert.ToDecimal(dr["Cost"]);
-					newrow["PosOrder"] = Convert.ToInt32(dr["PosOrder"]);
-					newrow["MinCost"] = Convert.ToDecimal(dr["MinCost"]);
-					newrow["AvgCost"] = Convert.ToDecimal(dr["AvgCost"]);
-					newrow["MaxCost"] = Convert.ToDecimal(dr["MaxCost"]);
-					newrow["DistinctOrderId"] = Convert.ToInt32(dr["DistinctOrderId"]);
-					newrow["DistinctClientCode"] = Convert.ToInt32(dr["DistinctClientCode"]);
+
+					for (int i = (visbleCount * 2); i < SelectTable.Columns.Count; i++)
+					{
+						if (!(dr[SelectTable.Columns[i].ColumnName] is DBNull))
+							newrow[SelectTable.Columns[i].ColumnName] = Convert.ChangeType(dr[SelectTable.Columns[i].ColumnName], res.Columns[SelectTable.Columns[i].ColumnName].DataType);
+					}
+
 					newrow["CostPercent"] = Decimal.Round(((decimal)newrow["Cost"] * 100) / Cost, 2);
 					newrow["PosOrderPercent"] = Decimal.Round((Convert.ToDecimal(newrow["PosOrder"]) * 100) / Convert.ToDecimal(PosOrder), 2);
 
@@ -296,7 +302,12 @@ and prov.FirmCode = pd.FirmCode");
 						{
 							ws.Cells[1, i + 1] = "";
 							ws.Cells[1 + filter.Count, i + 1] = res.Columns[i].Caption;
-							((MSExcel.Range)ws.Columns[i + 1, Type.Missing]).AutoFit();
+							if (res.Columns[i].ExtendedProperties.ContainsKey("Width"))
+								((MSExcel.Range)ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)res.Columns[i].ExtendedProperties["Width"]).Value;
+							else
+								((MSExcel.Range)ws.Columns[i + 1, Type.Missing]).AutoFit();
+							if (res.Columns[i].ExtendedProperties.ContainsKey("Color"))
+								ws.get_Range(ws.Cells[1 + filter.Count, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)res.Columns[i].ExtendedProperties["Color"]);
 						}
 
 						//рисуем границы на всю таблицу

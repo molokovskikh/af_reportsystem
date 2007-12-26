@@ -32,6 +32,8 @@ namespace Inforoom.ReportSystem.RatingReports
 		public string tableList;
 		//условие дл€ where, которое начинаетс€ с and, дл€ отображени€ выбранных и исключенных значений пол€. ћожет быть неустановленным
 		public string whereList;
+		//ширина колонки при выводе в Excel
+		public int? width;
 
 		//«начени€, которым может быть равно primaryField
 		public List<ulong> equalValues = null;
@@ -43,7 +45,12 @@ namespace Inforoom.ReportSystem.RatingReports
 
 
 
-		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption)
+		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption) :
+			this(PrimaryField, ViewField, OutputField, Preffix, OutputCaption, TableList, WhereList, DefaultPosition, EqualValuesCaption, NonEqualValuesCaption, null)
+		{
+		}
+
+		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption, int? Width)
 		{
 			primaryField = PrimaryField;
 			viewField = ViewField;
@@ -58,6 +65,7 @@ namespace Inforoom.ReportSystem.RatingReports
 			whereList = WhereList;
 			equalValuesCaption = EqualValuesCaption;
 			nonEqualValuesCaption = NonEqualValuesCaption;
+			width = Width;
 		}
 
 		public bool LoadFromDB(BaseReport Parent)		

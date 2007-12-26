@@ -9,6 +9,7 @@ using System.Reflection;
 using Inforoom.ReportSystem.RatingReports;
 using ExecuteTemplate;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace Inforoom.ReportSystem
 {
@@ -166,28 +167,36 @@ and pd.FirmCode = " + sourceFirmCode.ToString() +
 			}
 
 			string SelectCommand = "select ";
-			if (showCode)
-				SelectCommand += " ProviderCodes.Code, ";
+
 			foreach (RatingField rf in selectField)
 				if (rf.visible)
 					SelectCommand = String.Concat(SelectCommand, rf.primaryField, ", ", rf.viewField, ", ");
 
+			if (showCode)
+				SelectCommand += " ProviderCodes.Code, ";
+
 			SelectCommand = String.Concat(SelectCommand, String.Format(@"
 sum(if(pd.firmcode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
 sum(if(pd.firmcode = {0}, ol.quantity, NULL)) SourceFirmCodeRows,
+Min(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMinCost,
 Avg(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeAvgCost,
+Max(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMaxCost,
 Count(distinct if(pd.firmcode = {0}, oh.RowId, NULL)) as SourceFirmDistinctOrderId,
 Count(distinct if(pd.firmcode = {0}, oh.ClientCode, NULL)) as SourceFirmDistinctClientCode,
 
 sum(if(pd.firmcode in ({1}), ol.cost*ol.quantity, NULL)) as RivalsSum,
 sum(if(pd.firmcode in ({1}), ol.quantity, NULL)) RivalsRows,
+Min(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsMinCost,
 Avg(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsAvgCost,
+Max(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsMaxCost,
 Count(distinct if(pd.firmcode in ({1}), oh.RowId, NULL)) as RivalsDistinctOrderId,
 Count(distinct if(pd.firmcode in ({1}), oh.ClientCode, NULL)) as RivalsDistinctClientCode,
 
 sum(ol.cost*ol.quantity) as AllSum,
 sum(ol.quantity) AllRows,
+Min(ol.cost) as AllMinCost,
 Avg(ol.cost) as AllAvgCost,
+Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
 			SelectCommand = String.Concat(
@@ -282,45 +291,81 @@ and prov.FirmCode = pd.FirmCode");
 				{
 					dc = res.Columns.Add(rf.outputField, SelectTable.Columns[rf.outputField].DataType);
 					dc.Caption = rf.outputCaption;
+					if (rf.width.HasValue)
+						dc.ExtendedProperties.Add("Width", rf.width);
 				}
 			}
 
 			dc = res.Columns.Add("SourceFirmCodeSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по поставщику";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
 			dc = res.Columns.Add("SourceFirmCodeRows", typeof(System.Int32));
 			dc.Caption = "Кол-во по постащику";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc = res.Columns.Add("SourceFirmCodeMinCost", typeof(System.Decimal));
+			dc.Caption = "Минимальная цена по поставщику";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
 			dc = res.Columns.Add("SourceFirmCodeAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по поставщику";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc = res.Columns.Add("SourceFirmCodeMaxCost", typeof(System.Decimal));
+			dc.Caption = "Максимальная цена по поставщику";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
 			dc = res.Columns.Add("SourceFirmDistinctOrderId", typeof(System.Int32));
 			dc.Caption = "Кол-во заявок по препарату по поставщику";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
 			dc = res.Columns.Add("SourceFirmDistinctClientCode", typeof(System.Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по постащику";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
 
 			dc = res.Columns.Add("RivalsSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по конкурентам";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc = res.Columns.Add("RivalsRows", typeof(System.Int32));
 			dc.Caption = "Кол-во по конкурентам";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc = res.Columns.Add("RivalsMinCost", typeof(System.Decimal));
+			dc.Caption = "Минимальная цена по конкурентам";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc = res.Columns.Add("RivalsAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по конкурентам";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc = res.Columns.Add("RivalsMaxCost", typeof(System.Decimal));
+			dc.Caption = "Максимальная цена по конкурентам";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc = res.Columns.Add("RivalsDistinctOrderId", typeof(System.Int32));
 			dc.Caption = "Кол-во заявок по препарату по конкурентам";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc = res.Columns.Add("RivalsDistinctClientCode", typeof(System.Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по конкурентам";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 
 			dc = res.Columns.Add("AllSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по всем";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc = res.Columns.Add("AllRows", typeof(System.Int32));
 			dc.Caption = "Кол-во по всем";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc = res.Columns.Add("AllMinCost", typeof(System.Decimal));
+			dc.Caption = "Минимальная цена по всем";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc = res.Columns.Add("AllAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по всем";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc = res.Columns.Add("AllMaxCost", typeof(System.Decimal));
+			dc.Caption = "Максимальная цена по всем";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc = res.Columns.Add("AllDistinctOrderId", typeof(System.Int32));
 			dc.Caption = "Кол-во заявок по препарату по всем";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc = res.Columns.Add("AllDistinctClientCode", typeof(System.Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по всем";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 
 			DataRow newrow;
 			try
 			{
+				int visbleCount = selectField.FindAll(delegate(RatingField x) { return x.visible; }).Count;
 				res.BeginLoadData();
 				foreach (DataRow dr in SelectTable.Rows)
 				{
@@ -330,26 +375,11 @@ and prov.FirmCode = pd.FirmCode");
 						if (rf.visible)
 							newrow[rf.outputField] = dr[rf.outputField];
 
-					if (showCode)
-						newrow["Code"] = dr["Code"];
-
-					newrow["SourceFirmCodeSum"] = (dr["SourceFirmCodeSum"] is DBNull) ? dr["SourceFirmCodeSum"] : Convert.ToDecimal(dr["SourceFirmCodeSum"]);
-					newrow["SourceFirmCodeRows"] = (dr["SourceFirmCodeRows"] is DBNull) ? dr["SourceFirmCodeRows"] : Convert.ToInt32(dr["SourceFirmCodeRows"]);
-					newrow["SourceFirmCodeAvgCost"] = (dr["SourceFirmCodeAvgCost"] is DBNull) ? dr["SourceFirmCodeAvgCost"] : Convert.ToDecimal(dr["SourceFirmCodeAvgCost"]);
-					newrow["SourceFirmDistinctOrderId"] = (dr["SourceFirmDistinctOrderId"] is DBNull) ? dr["SourceFirmDistinctOrderId"] : Convert.ToInt32(dr["SourceFirmDistinctOrderId"]);
-					newrow["SourceFirmDistinctClientCode"] = (dr["SourceFirmDistinctClientCode"] is DBNull) ? dr["SourceFirmDistinctClientCode"] : Convert.ToInt32(dr["SourceFirmDistinctClientCode"]);
-
-					newrow["RivalsSum"] = (dr["RivalsSum"] is DBNull) ? dr["RivalsSum"] : Convert.ToDecimal(dr["RivalsSum"]);
-					newrow["RivalsRows"] = (dr["RivalsRows"] is DBNull) ? dr["RivalsRows"] : Convert.ToInt32(dr["RivalsRows"]);
-					newrow["RivalsAvgCost"] = (dr["RivalsAvgCost"] is DBNull) ? dr["RivalsAvgCost"] : Convert.ToDecimal(dr["RivalsAvgCost"]);
-					newrow["RivalsDistinctOrderId"] = (dr["RivalsDistinctOrderId"] is DBNull) ? dr["RivalsDistinctOrderId"] : Convert.ToInt32(dr["RivalsDistinctOrderId"]);
-					newrow["RivalsDistinctClientCode"] = (dr["RivalsDistinctClientCode"] is DBNull) ? dr["RivalsDistinctClientCode"] : Convert.ToInt32(dr["RivalsDistinctClientCode"]);
-
-					newrow["AllSum"] = Convert.ToDecimal(dr["AllSum"]);
-					newrow["AllRows"] = Convert.ToInt32(dr["AllRows"]);
-					newrow["AllAvgCost"] = Convert.ToDecimal(dr["AllAvgCost"]);
-					newrow["AllDistinctOrderId"] = Convert.ToInt32(dr["AllDistinctOrderId"]);
-					newrow["AllDistinctClientCode"] = Convert.ToInt32(dr["AllDistinctClientCode"]);
+					for (int i = (visbleCount * 2); i < SelectTable.Columns.Count; i++)
+					{
+						if (!(dr[SelectTable.Columns[i].ColumnName] is DBNull))
+							newrow[SelectTable.Columns[i].ColumnName] = Convert.ChangeType(dr[SelectTable.Columns[i].ColumnName], res.Columns[SelectTable.Columns[i].ColumnName].DataType);
+					}
 
 					res.Rows.Add(newrow);
 				}
