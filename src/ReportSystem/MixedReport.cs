@@ -214,8 +214,9 @@ from
   usersettings.retclientsset rcs, 
   farm.regions rg, 
   usersettings.pricesdata pd, 
-  usersettings.clientsdata prov 
-  )"+
+  usersettings.clientsdata prov,
+  billing.payers 
+  )" +
 	((showCode) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + (((firmCrField != null) ? " and ProviderCodes.CodeFirmCr = " + firmCrField.primaryField : String.Empty)) : String.Empty) +
 @"
 where 
@@ -231,6 +232,7 @@ and cf.Id = c.FormId
 and cfc.CodeFirmCr = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
 and cd.FirmCode = oh.ClientCode
 and cd.BillingCode <> 921
+and payers.PayerId = cd.BillingCode
 and rcs.ClientCode = oh.ClientCode
 and rcs.InvisibleOnFirm = 0 
 and rg.RegionCode = oh.RegionCode 
