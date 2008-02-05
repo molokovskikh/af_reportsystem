@@ -185,15 +185,17 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));
 			dtRes.Columns.Add("CustomerQuantity");
 			dtRes.Columns["CustomerQuantity"].Caption = "Количество";
 			dtRes.Columns.Add("MinCost", typeof(decimal));
-			dtRes.Columns["MinCost"].Caption = "min";
+			dtRes.Columns["MinCost"].Caption = "Мин. цена";
 			dtRes.Columns.Add("LeaderName");
 			dtRes.Columns["LeaderName"].Caption = "Лидер";
 			dtRes.Columns.Add("Differ", typeof(decimal));
 			dtRes.Columns["Differ"].Caption = "Разница";
 			dtRes.Columns.Add("DifferPercents", typeof(double));
 			dtRes.Columns["DifferPercents"].Caption = "% разницы";
+			dtRes.Columns.Add("AvgCost", typeof(decimal));
+			dtRes.Columns["AvgCost"].Caption = "Средняя цена";
 			dtRes.Columns.Add("MaxCost", typeof(decimal));
-			dtRes.Columns["MaxCost"].Caption = "max";
+			dtRes.Columns["MaxCost"].Caption = "Макс. цена";
 			FirstColumnCount = dtRes.Columns.Count;
 
 			int PriceIndex = 0;
@@ -227,6 +229,7 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));
 				newrow["FullName"] = drCatalog["FullName"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
 				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
+				newrow["AvgCost"] = Convert.ToDecimal(drCatalog["AvgCost"]);
 				newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
 
 				//Если есть ID, то мы можем заполнить поле Code и, возможно, остальные поля   предложение SourcePC существует
@@ -473,6 +476,7 @@ select
 				SqlCommandText += " ifnull(s.Synonym, concat(catalognames.Name, ' ', catalogs.GetFullForm(AllPrices.productid))) as FullName, ";
 			SqlCommandText += @"
   min(AllPrices.cost) As MinCost, -- здесь должна быть минимальная цена
+  avg(AllPrices.cost) As AvgCost, -- здесь должна быть средняя цена
   max(AllPrices.cost) As MaxCost, -- здесь должна быть минимальная цена";
 
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
@@ -578,7 +582,7 @@ order by FullName, FirmCr";
 						}
 
 						for (int i = 1; i <= 2; i++)
-							for (int j = 1; j <= 10;j++ )
+							for (int j = 1; j <= 11;j++ )
 								((MSExcel.Range)ws.Cells[i, j]).Clear();
 
 						//Код
@@ -618,11 +622,11 @@ order by FullName, FirmCr";
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Замораживаем некоторые колонки и столбцы
-						((MSExcel.Range)ws.get_Range("K4", System.Reflection.Missing.Value)).Select();
+						((MSExcel.Range)ws.get_Range("L4", System.Reflection.Missing.Value)).Select();
 						exApp.ActiveWindow.FreezePanes = true;
 
 						//Объединяем несколько ячеек, чтобы в них написать текст
-						((MSExcel.Range)ws.get_Range("A1:J2", System.Reflection.Missing.Value)).Select();
+						((MSExcel.Range)ws.get_Range("A1:K2", System.Reflection.Missing.Value)).Select();
 						((MSExcel.Range)exApp.Selection).Merge(null);
 						if (_reportType < 3)
 							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
@@ -653,16 +657,19 @@ order by FullName, FirmCr";
 
 		protected virtual void FormatLeaderAndPrices(MSExcel._Worksheet ws)
 		{
-			int ColumnPrefix = 11;
+			int ColumnPrefix = 12;
 			//Разница
 			((MSExcel.Range)ws.Cells[3, 8]).ColumnWidth = 6;
 			ws.Cells[3, 8] = "Разница";
 			//% разницы
 			((MSExcel.Range)ws.Cells[3, 9]).ColumnWidth = 4;
 			ws.Cells[3, 9] = "% разницы";
-			//max
+			//средняя
 			((MSExcel.Range)ws.Cells[3, 10]).ColumnWidth = 6;
-			ws.Cells[3, 10] = "max";
+			ws.Cells[3, 10] = "Средняя цена";
+			//max
+			((MSExcel.Range)ws.Cells[3, 11]).ColumnWidth = 6;
+			ws.Cells[3, 11] = "Макс. цена";
 
 			int PriceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)

@@ -100,7 +100,9 @@ order by CatalogCode, Cfc, PositionCount DESC";
 				e.DataAdapter.SelectCommand.CommandText += "products.Id as CatalogCode, left(concat(catalognames.Name, ' ', catalogs.GetFullForm(products.Id)), 250) as Name, ";
 
 			e.DataAdapter.SelectCommand.CommandText += @"
-  min(Core.Cost) as MinCost, ";
+  min(Core.Cost) as MinCost, 
+  avg(Core.Cost) as AvgCost, 
+  max(Core.Cost) as MaxCost, ";
 			if (_reportType > 2)
 			{
 				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(farm.CatalogFirmCr.FirmCr, 250) as FirmCr ";
@@ -156,6 +158,8 @@ order by 2, 5";
 			dtRes.Columns.Add("FullName");
 			dtRes.Columns.Add("FirmCr");
 			dtRes.Columns.Add("MinCost", typeof(decimal));
+			dtRes.Columns.Add("AvgCost", typeof(decimal));
+			dtRes.Columns.Add("MaxCost", typeof(decimal));
 			dtRes.Columns.Add("LeaderName");
 			FirstColumnCount = dtRes.Columns.Count;
 
@@ -181,6 +185,8 @@ order by 2, 5";
 				newrow["FullName"] = drCatalog["Name"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
 				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
+				newrow["AvgCost"] = Convert.ToDecimal(drCatalog["AvgCost"]);
+				newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
 
 				drsMin = dtCore.Select(
 					"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
@@ -239,7 +245,7 @@ order by 2, 5";
 						((MSExcel.Range)ws.Cells[2, 1]).ColumnWidth = 20;
 						ws.Cells[2, 2] = "Производитель";
 						((MSExcel.Range)ws.Cells[2, 2]).ColumnWidth = 10;
-						ws.Cells[2, 3] = "Мин. Цена";
+						ws.Cells[2, 3] = "Мин. цена";
 						((MSExcel.Range)ws.Cells[2, 3]).ColumnWidth = 6;
 						((MSExcel.Range)ws.Cells[1, 1]).Clear();
 						((MSExcel.Range)ws.Cells[1, 2]).Clear();
@@ -263,11 +269,11 @@ order by 2, 5";
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Замораживаем некоторые колонки и столбцы
-						((MSExcel.Range)ws.get_Range("E3", System.Reflection.Missing.Value)).Select();
+						((MSExcel.Range)ws.get_Range("G3", System.Reflection.Missing.Value)).Select();
 						exApp.ActiveWindow.FreezePanes = true;
 
 						//Объединяем несколько ячеек, чтобы в них написать текст
-						((MSExcel.Range)ws.get_Range("A1:D1", System.Reflection.Missing.Value)).Select();
+						((MSExcel.Range)ws.get_Range("A1:F1", System.Reflection.Missing.Value)).Select();
 						((MSExcel.Range)exApp.Selection).Merge(null);
 						if (_reportType < 3)
 							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
@@ -297,31 +303,39 @@ order by 2, 5";
 
 		protected virtual void FormatLeaderAndPrices(MSExcel._Worksheet ws)
 		{
-			ws.Cells[2, 4] = "Лидер";
-			((MSExcel.Range)ws.Cells[2, 4]).ColumnWidth = 9;
+			int ColumnPrefix = 7;
+
+			ws.Cells[2, 4] = "Средняя цена";
+			((MSExcel.Range)ws.Cells[2, 4]).ColumnWidth = 6;
 			((MSExcel.Range)ws.Cells[1, 4]).Clear();
+			ws.Cells[2, 5] = "Макс. цена";
+			((MSExcel.Range)ws.Cells[2, 5]).ColumnWidth = 6;
+			((MSExcel.Range)ws.Cells[1, 5]).Clear();
+			ws.Cells[2, 6] = "Лидер";
+			((MSExcel.Range)ws.Cells[2, 6]).ColumnWidth = 9;
+			((MSExcel.Range)ws.Cells[1, 6]).Clear();
 
 			int PriceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
 				//Устанавливаем название фирмы
-				ws.Cells[1, 5 + PriceIndex * 2] = drPrice["FirmName"].ToString();
-				((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2]).ColumnWidth = 8;
+				ws.Cells[1, ColumnPrefix + PriceIndex * 2] = drPrice["FirmName"].ToString();
+				((MSExcel.Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2]).ColumnWidth = 8;
 
 				//Устанавливаем дату фирмы
-				ws.Cells[1, 5 + PriceIndex * 2 + 1] = drPrice["PriceDate"].ToString();
-				((MSExcel.Range)ws.Cells[1, 5 + PriceIndex * 2 + 1]).ColumnWidth = 4;
+				ws.Cells[1, ColumnPrefix + PriceIndex * 2 + 1] = drPrice["PriceDate"].ToString();
+				((MSExcel.Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
 
-				ws.Cells[2, 5 + PriceIndex * 2] = "Цена";
+				ws.Cells[2, ColumnPrefix + PriceIndex * 2] = "Цена";
 				if (!_showPercents)
-					ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Кол-во";
+					ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1] = "Кол-во";
 				else
-					ws.Cells[2, 5 + PriceIndex * 2 + 1] = "Разница в %";
+					ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1] = "Разница в %";
 
 				PriceIndex++;
 			}
 			//Устанавливаем цвет колонки "Лидер"
-			ws.get_Range("D2", "D" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSkyBlue);
+			ws.get_Range("F2", "F" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSkyBlue);
 		}
 
 	}
