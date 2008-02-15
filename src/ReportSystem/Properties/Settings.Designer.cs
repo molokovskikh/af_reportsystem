@@ -58,5 +58,14 @@ namespace Inforoom.ReportSystem.Properties {
                 return ((string)(this["FTPOptBoxPath"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("mail.adc.analit.net")]
+        public string SMTPHost {
+            get {
+                return ((string)(this["SMTPHost"]));
+            }
+        }
     }
 }

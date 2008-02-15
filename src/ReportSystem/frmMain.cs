@@ -10,6 +10,7 @@ using System.Configuration;
 using System.Net.Mail;
 using Inforoom.Common;
 using ExecuteTemplate;
+using Inforoom.ReportSystem.Properties;
 
 namespace Inforoom.ReportSystem
 {
@@ -149,7 +150,7 @@ namespace Inforoom.ReportSystem
 					MessageTo, 
 #endif
 					Subject, Body);
-				SmtpClient Client = new SmtpClient("box.analit.net");
+				SmtpClient Client = new SmtpClient(Settings.Default.SMTPHost);
 				message.IsBodyHtml = false;
 				message.BodyEncoding = System.Text.Encoding.UTF8;
 				Client.Send(message);

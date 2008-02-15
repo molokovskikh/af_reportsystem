@@ -10,6 +10,7 @@ using System.IO;
 using ICSharpCode.SharpZipLib;
 using LumiSoft.Net.Mime;
 using Zip = ICSharpCode.SharpZipLib.Zip;
+using Inforoom.ReportSystem.Properties;
 
 namespace Inforoom.ReportSystem
 {
@@ -161,7 +162,7 @@ namespace Inforoom.ReportSystem
 			attachmentEntity.ContentDisposition_FileName = System.IO.Path.GetFileName(archFileName); 
 			attachmentEntity.DataFromFile(archFileName);
 
-			int SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID("box.analit.net", null, null, message);
+			int SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 
 #if (TESTING)
 #else
