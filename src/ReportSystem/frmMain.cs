@@ -196,7 +196,7 @@ namespace Inforoom.ReportSystem
 						//Формируем запрос
 						sqlSelectReports =
 @"SELECT  cr.*, cd.ShortName  
-FROM    testreports.general_reports cr, 
+FROM    reports.general_reports cr, 
         usersettings.clientsdata cd  
 WHERE   cr.FirmCode         =cd.firmcode  
         AND cd.firmstatus   =1  

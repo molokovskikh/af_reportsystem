@@ -163,8 +163,8 @@ namespace Inforoom.ReportSystem
 select
   * 
 from 
-  testreports.Report_Properties rp,
-  testreports.report_type_properties rtp
+  reports.Report_Properties rp,
+  reports.report_type_properties rtp
 where
     rp.{0} = ?{0}
 and rtp.ID = rp.PropertyID", BaseReportColumns.colReportCode);
@@ -178,8 +178,8 @@ and rtp.ID = rp.PropertyID", BaseReportColumns.colReportCode);
 select
   rpv.*
 from
-  testreports.Report_Properties rp,
-  testreports.report_property_values rpv
+  reports.Report_Properties rp,
+  reports.report_property_values rpv
 where
     rp.{0} = ?{0}
 and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);

@@ -254,8 +254,8 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
 select
   * 
 from
-  testreports.Reports r,
-  testreports.reporttypes rt
+  reports.Reports r,
+  reports.reporttypes rt
 where
     r.{0} = ?{0}
 and rt.ReportTypeCode = r.ReportTypeCode", 

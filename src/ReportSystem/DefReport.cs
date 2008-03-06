@@ -58,8 +58,8 @@ namespace Inforoom.ReportSystem
 select 
   gr.FirmCode 
 from 
-  testreports.reports r,
-  testreports.general_reports gr
+  reports.reports r,
+  reports.general_reports gr
 where
     r.ReportCode = ?ReportCode
 and gr.GeneralReportCode = r.GeneralReportCode";
