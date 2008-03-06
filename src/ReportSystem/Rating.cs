@@ -134,7 +134,7 @@ and cd.FirmCode = oh.ClientCode
 and cd.BillingCode <> 921
 and payers.PayerId = cd.BillingCode
 and rcs.ClientCode = oh.ClientCode
-and rcs.InvisibleOnFirm = 0 
+and rcs.InvisibleOnFirm < 2 
 and rg.RegionCode = oh.RegionCode 
 and pd.PriceCode = oh.PriceCode 
 and prov.FirmCode = pd.FirmCode");
