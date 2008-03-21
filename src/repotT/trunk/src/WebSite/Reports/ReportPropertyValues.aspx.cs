@@ -83,11 +83,11 @@ select
   r.ReportCaption LReportCaption,
   rt.ReportTypeName LReportType
 from 
-  report_properties rp, 
-  report_type_properties rtp, 
-  reports r, 
-  general_reports gr,
-  reporttypes rt
+  reports.report_properties rp, 
+  reports.report_type_properties rtp, 
+  reports.reports r, 
+  reports.general_reports gr,
+  reports.reporttypes rt
 where 
     rtp.ID=rp.PropertyID
 and rtp.ReportTypeCode = r.ReportTypeCode
@@ -113,11 +113,8 @@ and rt.ReportTypeCode = r.ReportTypeCode
             ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
             FirmCode = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LFirmCode.ColumnName]);
             ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
-        }
-        if (dgvListValues.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+			dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
+		}
     }
 
     private void PostData()
@@ -143,7 +140,7 @@ SELECT
     rpv.ID as EVID,
     rpv.Value as EVName
 FROM 
-    testreports.report_property_values rpv
+    reports.report_property_values rpv
 WHERE 
     ReportPropertyID = ?rpv
 ";
@@ -299,7 +296,7 @@ WHERE
             if (MyCn.State != ConnectionState.Open)
                 MyCn.Open();
             db = MyCn.Database;
-            MyCn.ChangeDatabase("testreports");
+            MyCn.ChangeDatabase("reports");
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             DS.Tables[dtProcResult.TableName].Clear();
@@ -367,15 +364,15 @@ WHERE
         try
         {
             MySqlCommand UpdCmd = new MySqlCommand(@"
-insert into report_property_values
+insert into reports.report_property_values
 (ReportPropertyID, Value)
 select r.ID, ?Value
 from
-  report_properties r
+  reports.report_properties r
 where
  r.ID = ?RPID
  and ?Enabled = 1;
-delete from report_property_values
+delete from reports.report_property_values
 where
     ReportPropertyID = ?RPID
 and Value = ?Value
@@ -439,8 +436,7 @@ and ?Enabled = 0;", MyCn, trans);
 
     protected void dgvListValues_PageIndexChanging(object sender, GridViewPageEventArgs e)
     {
-        dgvListValues.DataSource = DS;
-        dgvListValues.DataMember = dtProcResult.TableName;
+		CopyChangesToTable();
         dgvListValues.PageIndex = e.NewPageIndex;
         dgvListValues.DataBind();
     }
@@ -470,18 +466,15 @@ and ?Enabled = 0;", MyCn, trans);
 
 		DS.Tables[dtProcResult.TableName].DefaultView.RowFilter = Filter;
 
-		if (Filter != String.Empty)
-		{
-			dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
-			dgvListValues.DataMember = null;
-		}
-		else
-		{
-			dgvListValues.DataSource = DS;
-			dgvListValues.DataMember = dtProcResult.TableName;
-		}
+		dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
 
 		dgvListValues.DataBind();
+
+		if (dgvListValues.Rows.Count > 0)
+			btnApply.Visible = true;
+		else
+			btnApply.Visible = false;
+
 		Response.Cookies[PPCN].Value = PP.ToString();
 		Response.Cookies[PPCN].Expires = DateTime.Now.AddYears(2);
 	}
@@ -495,5 +488,19 @@ and ?Enabled = 0;", MyCn, trans);
 	protected void tbSearch_TextChanged(object sender, EventArgs e)
 	{
 		ShowData();
+	}
+
+	protected void cbSet_CheckedChanged(object sender, EventArgs e)
+	{
+		foreach (DataRowView dr in DS.Tables[dtProcResult.TableName].DefaultView)
+			dr[Enabled.ColumnName] = ((CheckBox)sender).Checked;
+		ApplyFilter();
+	}
+
+	protected void dgvListValues_DataBound(object sender, EventArgs e)
+	{
+		CheckBox cb = (CheckBox)dgvListValues.HeaderRow.Cells[0].FindControl("cbSet");
+		DataRow[] drs = ((DataView)dgvListValues.DataSource).ToTable().Select("Enabled = 1");
+		cb.Checked = (drs.Length == ((DataView)dgvListValues.DataSource).Count);
 	}
 }

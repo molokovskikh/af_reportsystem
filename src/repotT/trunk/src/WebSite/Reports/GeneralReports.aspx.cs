@@ -75,7 +75,7 @@ SELECT
     ReportFileName as GRFileName,
     ReportArchName as GRArchName
 FROM 
-    testreports.general_reports gr, usersettings.clientsdata cd
+    reports.general_reports gr, usersettings.clientsdata cd
 WHERE cd.FirmCode=gr.FirmCode
 Order by gr.GeneralReportCode
 ";
@@ -332,7 +332,7 @@ Order by FirmCode, ShortName
         {
             MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.general_reports 
+    reports.general_reports 
 SET 
     FirmCode = ?GRFirmCode,
     Allow = ?GRAllow,
@@ -373,7 +373,7 @@ WHERE GeneralReportCode = ?GRCode", MyCn, trans);
             UpdCmd.Parameters["GRCode"].SourceVersion = DataRowVersion.Current;
 
             MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from testreports.general_reports 
+DELETE from reports.general_reports 
 WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 
             DelCmd.Parameters.Clear();
@@ -384,7 +384,7 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 
             MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
-    testreports.general_reports 
+    reports.general_reports 
 SET 
     FirmCode = ?GRFirmCode,
     Allow = ?GRAllow,

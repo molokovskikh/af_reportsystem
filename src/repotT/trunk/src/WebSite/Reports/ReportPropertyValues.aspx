@@ -14,9 +14,12 @@
             <asp:ListItem>100</asp:ListItem>
         </asp:DropDownList>
         <asp:CheckBox ID="chbShowEnabled" runat="server" AutoPostBack="True" Text="Только включенные" OnCheckedChanged="chbShowEnabled_CheckedChanged" /><br />
-        <asp:GridView ID="dgvListValues" runat="server" AutoGenerateColumns="False" AllowPaging="True" OnPageIndexChanging="dgvListValues_PageIndexChanging">
+        <asp:GridView ID="dgvListValues" runat="server" AutoGenerateColumns="False" AllowPaging="True" OnPageIndexChanging="dgvListValues_PageIndexChanging" OnDataBound="dgvListValues_DataBound">
             <Columns>
                 <asp:TemplateField HeaderText="Включено">
+                    <HeaderTemplate>
+                        <asp:CheckBox ID="cbSet" runat="server" Text="Все включено" AutoPostBack="True" OnCheckedChanged="cbSet_CheckedChanged"/>
+                    </HeaderTemplate>
                     <ItemTemplate>
                         <asp:CheckBox ID="chbEnabled" runat="server" Checked='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Enabled"))%>' />
                         <input type="hidden" runat="server" id="RowID" value='<%#DataBinder.Eval(Container, "DataItem.ID")%>' />

@@ -77,7 +77,7 @@ public partial class Reports_schedule : System.Web.UI.Page
 SELECT
     convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251)
 FROM
-    testreports.general_reports gr, usersettings.clientsdata cd
+    reports.general_reports gr, usersettings.clientsdata cd
 WHERE cd.FirmCode=gr.FirmCode
 and gr.GeneralReportCode = ?r
 ";

@@ -84,7 +84,7 @@ public partial class Reports_ReportTypeProperties : System.Web.UI.Page
 SELECT 
     ReportTypeName
 FROM 
-    testreports.reporttypes rt
+    reports.reporttypes rt
 WHERE ReportTypeCode = ?rtCode
 ";
             lblReportName.Text = MyCmd.ExecuteScalar().ToString();
@@ -122,7 +122,7 @@ SELECT
     PropertyEnumID as PEnumID,
     SelectStoredProcedure as PStoredProc
 FROM 
-    testreports.report_type_properties rtc
+    reports.report_type_properties rtc
 WHERE ReportTypeCode = ?rtCode
 ";
         MyDA.Fill(DS, dtProperties.TableName);
@@ -150,7 +150,7 @@ SELECT
     ID as etID,
     EnumName as etName
 from
-    testreports.property_enums";
+    reports.property_enums";
 
         MyDA.SelectCommand = MyCmd;
         MyDA.Fill(dtEnumTypes);
@@ -171,7 +171,7 @@ from
             {
                 MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.report_type_properties 
+    reports.report_type_properties 
 SET 
     PropertyName = ?PName,
     DisplayName = ?PDisplayName,
@@ -217,7 +217,7 @@ WHERE ID = ?PID", MyCn, trans);
                 UpdCmd.Parameters["PID"].SourceVersion = DataRowVersion.Current;
 
                 MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from testreports.report_type_properties 
+DELETE from reports.report_type_properties 
 WHERE ID = ?PDelID", MyCn, trans);
 
                 DelCmd.Parameters.Clear();
@@ -228,7 +228,7 @@ WHERE ID = ?PDelID", MyCn, trans);
 
                 MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
-    testreports.report_type_properties 
+    reports.report_type_properties 
 SET 
     PropertyName = ?PName,
     DisplayName = ?PDisplayName,
@@ -572,7 +572,7 @@ SET
                     MyCn.Open();
 
                 db = MyCn.Database;
-                MyCn.ChangeDatabase("testreports");
+                MyCn.ChangeDatabase("reports");
                 MyCmd.Connection = MyCn;
                 MyDA.SelectCommand = MyCmd;
                 MyCmd.Parameters.Clear();

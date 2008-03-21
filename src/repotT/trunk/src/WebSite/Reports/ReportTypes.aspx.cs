@@ -116,7 +116,7 @@ SELECT
     AlternateSubject as RTSubject,
     ReportClassName as RTClass
 FROM 
-    testreports.reporttypes rt
+    reports.reporttypes rt
 ";
         MyDA.Fill(DS, dtReportTypes.TableName);
         MyCn.Close();
@@ -140,7 +140,7 @@ FROM
         {
             MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.reporttypes 
+    reports.reporttypes 
 SET 
     ReportTypeName = ?RTName,
     ReportTypeFilePrefix = ?RTPrefix,
@@ -171,7 +171,7 @@ WHERE ReportTypeCode = ?RTCode", MyCn, trans);
             UpdCmd.Parameters["RTCode"].SourceVersion = DataRowVersion.Current;
 
             MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from testreports.reporttypes 
+DELETE from reports.reporttypes 
 WHERE ReportTypeCode = ?RTDelCode", MyCn, trans);
 
             DelCmd.Parameters.Clear();
@@ -182,7 +182,7 @@ WHERE ReportTypeCode = ?RTDelCode", MyCn, trans);
 
             MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
-    testreports.reporttypes 
+    reports.reporttypes 
 SET 
     ReportTypeName = ?RTName,
     ReportTypeFilePrefix = ?RTPrefix,

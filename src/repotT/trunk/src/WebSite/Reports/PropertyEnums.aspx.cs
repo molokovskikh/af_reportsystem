@@ -59,7 +59,7 @@ SELECT
     ID as eID,
     EnumName as eName
 FROM 
-    testreports.property_enums pe
+    reports.property_enums pe
 ";
         MyDA.Fill(DS, dtEnums.TableName);
         MyCn.Close();
@@ -147,7 +147,7 @@ FROM
         {
             MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.property_enums 
+    reports.property_enums 
 SET 
     EnumName = ?eName
 WHERE ID = ?eID", MyCn, trans);
@@ -163,7 +163,7 @@ WHERE ID = ?eID", MyCn, trans);
             UpdCmd.Parameters["eID"].SourceVersion = DataRowVersion.Current;
 
             MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from testreports.property_enums 
+DELETE from reports.property_enums 
 WHERE ID = ?eDelID", MyCn, trans);
 
             DelCmd.Parameters.Clear();
@@ -174,7 +174,7 @@ WHERE ID = ?eDelID", MyCn, trans);
 
             MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
-    testreports.property_enums 
+    reports.property_enums 
 SET 
     EnumName = ?eName", MyCn, trans);
 

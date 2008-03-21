@@ -67,9 +67,9 @@ SELECT
     gr.FirmCode as CFirmCode,
     rts.ReportTypeName as CReportType
 FROM
-    testreports.reports rt, 
-    testreports.general_reports gr,
-    testreports.reporttypes rts
+    reports.reports rt, 
+    reports.general_reports gr,
+    reports.reporttypes rts
 WHERE gr.GeneralReportCode=rt.GeneralReportCode
 AND ReportCode = ?rp
 and rts.ReportTypeCode = rt.ReportTypeCode
@@ -119,7 +119,7 @@ SELECT
     rtp.PropertyEnumID as PPropertyEnumID,
     rtp.selectstoredprocedure as PStoredProc
 FROM 
-    testreports.report_properties rp, testreports.report_type_properties rtp
+    reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
     rp.propertyID = rtp.ID
 AND Optional=0
@@ -155,7 +155,7 @@ SELECT
     rtp.PropertyEnumID as OPPropertyEnumID,
     rtp.selectstoredprocedure as OPStoredProc
 FROM 
-    testreports.report_properties rp, testreports.report_type_properties rtp
+    reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
     rp.propertyID = rtp.ID
 AND Optional=1
@@ -427,7 +427,7 @@ SELECT distinct
     Value as evValue,
     DisplayValue as evName
 FROM 
-    testreports.report_type_properties rtp, testreports.Property_Enums pe, testreports.Enum_Values ev
+    reports.report_type_properties rtp, reports.Property_Enums pe, reports.Enum_Values ev
 WHERE 
     rtp.PropertyEnumID = pe.ID
 AND pe.ID = ev.PropertyEnumID
@@ -442,7 +442,7 @@ AND rtp.PropertyEnumID=?PEID
     {
         MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.report_properties 
+    reports.report_properties 
 SET 
     PropertyValue = ?PPropertyValue
 WHERE ID = ?PID", MyCn, trans);
@@ -474,7 +474,7 @@ WHERE ID = ?PID", MyCn, trans);
     {
         MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.report_properties 
+    reports.report_properties 
 SET 
     PropertyValue = ?OPPropertyValue
 WHERE ID = ?OPID", MyCn, trans);
@@ -491,7 +491,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
         MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT 
-    testreports.report_properties 
+    reports.report_properties 
 SET 
     ReportCode = ?rp,
     PropertyID = ?OPrtpID,
@@ -515,7 +515,7 @@ SET
 
         MySqlCommand DelCmd = new MySqlCommand(@"
 DELETE FROM 
-    testreports.report_properties 
+    reports.report_properties 
 WHERE ID = ?OPID", MyCn, trans);
 
         DelCmd.Parameters.Clear();
@@ -550,7 +550,7 @@ WHERE ID = ?OPID", MyCn, trans);
         {
             if (dr.RowState == DataRowState.Added)
             {
-                dr[OPPropertyValue.ColumnName] = MySqlHelper.ExecuteScalar(MyCn, "SELECT DefaultValue FROM report_type_properties WHERE ID=" + dr[OPrtpID.ColumnName].ToString());
+                dr[OPPropertyValue.ColumnName] = MySqlHelper.ExecuteScalar(MyCn, "SELECT DefaultValue FROM reports.report_type_properties WHERE ID=" + dr[OPrtpID.ColumnName].ToString());
             }
         }
         MyCn.Close();
@@ -625,7 +625,7 @@ WHERE ID = ?OPID", MyCn, trans);
                 MyCn.Open();
             dtProcResult = new DataTable();
             db = MyCn.Database;
-            MyCn.ChangeDatabase("testreports");
+            MyCn.ChangeDatabase("reports");
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
@@ -784,8 +784,8 @@ Select
     rtp.ID as opID,
     rtp.DisplayName as opName
 FROM
-    testreports.report_type_properties rtp,
-    testreports.reports r
+    reports.report_type_properties rtp,
+    reports.reports r
 WHERE
     rtp.Optional=1
 and r.ReportCode = ?ReportCode

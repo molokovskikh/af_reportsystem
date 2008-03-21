@@ -75,7 +75,7 @@ SELECT
     ReportCaption as RReportCaption,
     r.Enabled as REnabled
 FROM
-    testreports.reports r, testreports.reporttypes rt
+    reports.reports r, reports.reporttypes rt
 WHERE
     r.reportTypeCode = rt.ReportTypeCode
 AND GeneralReportCode = ?rCode
@@ -103,7 +103,7 @@ SELECT
     ReportTypeName,
     ReportTypeCode
 FROM 
-    testreports.reporttypes
+    reports.reporttypes
 order by ReportTypeName 
 ";
         MyDA.Fill(DS, DS.Tables[dtTypes.TableName].TableName);
@@ -261,7 +261,7 @@ order by ReportTypeName
         {
             MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.reports 
+    reports.reports 
 SET 
     ReportCaption = ?RReportCaption,
     ReportTypeCode = ?RReportTypeCode,
@@ -289,7 +289,7 @@ WHERE ReportCode = ?RReportCode", MyCn, trans);
             UpdCmd.Parameters.Add(new MySqlParameter("RGeneralReportCode", Request["r"]));
 
             MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from testreports.reports 
+DELETE from reports.reports 
 WHERE ReportCode = ?RDelReportCode", MyCn, trans);
 
             DelCmd.Parameters.Clear();
@@ -300,7 +300,7 @@ WHERE ReportCode = ?RDelReportCode", MyCn, trans);
 
             MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
-    testreports.reports 
+    reports.reports 
 SET 
     ReportCaption = ?RReportCaption,
     ReportTypeCode = ?RReportTypeCode,

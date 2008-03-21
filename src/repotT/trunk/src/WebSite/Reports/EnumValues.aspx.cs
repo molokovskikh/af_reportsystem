@@ -45,7 +45,7 @@ public partial class Reports_EnumValues : System.Web.UI.Page
 SELECT 
     EnumName
 FROM 
-    testreports.property_enums pe
+    reports.property_enums pe
 WHERE ID = ?evPECode
 ";
             lblEnumName.Text = MyCmd.ExecuteScalar().ToString();
@@ -76,7 +76,7 @@ SELECT
     Value as evValue,
     DisplayValue as evDisplayValue
 FROM 
-    testreports.enum_values ev
+    reports.enum_values ev
 WHERE PropertyEnumID = ?evPECode
 ";
         MyDA.Fill(DS, dtEnumValues.TableName);
@@ -183,7 +183,7 @@ WHERE PropertyEnumID = ?evPECode
         {
             MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
-    testreports.enum_values 
+    reports.enum_values 
 SET 
     Value = ?evValue,
     DisplayValue = ?evDisplayValue
@@ -204,7 +204,7 @@ WHERE ID = ?evID", MyCn, trans);
             UpdCmd.Parameters["evID"].SourceVersion = DataRowVersion.Current;
 
             MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from testreports.enum_values 
+DELETE from reports.enum_values 
 WHERE ID = ?evDelID", MyCn, trans);
 
             DelCmd.Parameters.Clear();
@@ -215,7 +215,7 @@ WHERE ID = ?evDelID", MyCn, trans);
 
             MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
-    testreports.enum_values 
+    reports.enum_values 
 SET 
     Value = ?evValue,
     DisplayValue = ?evDisplayValue,

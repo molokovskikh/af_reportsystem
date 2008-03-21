@@ -1,12 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "C:\...\WebSite\", "WebSite", "{6A3B3F94-D50B-4BD5-B654-C6175244C04D}"
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebSite", "WebSite", "{6A3B3F94-D50B-4BD5-B654-C6175244C04D}"
 	ProjectSection(WebsiteProperties) = preProject
 		SccProjectName = ""$/Inforoom/NET2.0/ReportTuner/src", IHIAAAAA"
 		SccAuxPath = ""
 		SccLocalPath = ".."
 		SccProvider = "MSSCCI:Microsoft Visual SourceSafe"
+		TargetFramework = "2.0"
 		Debug.AspNetCompiler.VirtualPath = "/WebSite"
 		Debug.AspNetCompiler.PhysicalPath = "..\..\..\VSS\Inforoom\NET2.0\ReportTuner\src\WebSite\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\WebSite\"

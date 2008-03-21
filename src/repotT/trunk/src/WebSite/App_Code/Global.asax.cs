@@ -102,7 +102,7 @@ namespace Inforoom.ReportTuner
 				System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage("service@analit.net", "service@analit.net", "Ошибка в интерфейсе настройки отчета", builder.ToString());
 				m.BodyEncoding = Encoding.UTF8;
 
-				System.Net.Mail.SmtpClient c = new System.Net.Mail.SmtpClient("box.analit.net");
+				System.Net.Mail.SmtpClient c = new System.Net.Mail.SmtpClient(System.Configuration.ConfigurationManager.AppSettings["SMTPHost"]);
 				c.Send(m);
 			}
 		}
