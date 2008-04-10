@@ -101,7 +101,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="LumiSoft.Net, Version=2.0.2476.26832, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="LumiSoft.Net, Version=2.5.2805.31317, Culture=neutral, PublicKeyToken=56e353737e921561, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\LumiSoft.Net.dll</HintPath>
     </Reference>
