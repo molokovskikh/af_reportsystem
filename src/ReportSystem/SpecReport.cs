@@ -146,7 +146,19 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));
 			int ActualPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
-					"select pui.PriceCode from usersettings.price_update_info pui, farm.formrules fr where pui.PriceCode = ?SourcePC and fr.FirmCode = pui.PriceCode and (to_days(now())-to_days(pui.datecurprice)) < fr.MaxOld",
+					@"
+select 
+  pc.PriceCode 
+from 
+  usersettings.pricescosts pc,
+  usersettings.priceitems pim,
+  farm.formrules fr 
+where 
+    pc.PriceCode = ?SourcePC
+and pc.BaseCost = 1
+and pim.Id = pc.PriceItemId
+and fr.Id = pim.FormRuleId
+and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					new MySqlParameter("?SourcePC", SourcePC)));
 			if (ActualPrice == 0)
 				throw new Exception(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
