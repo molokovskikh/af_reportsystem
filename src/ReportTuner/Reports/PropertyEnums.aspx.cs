@@ -209,9 +209,7 @@ SET
         }
         finally
         {
-            MyCmd.Dispose();
             MyCn.Close();
-            MyCn.Dispose();
         }
         if (dgvEnums.Rows.Count > 0)
             btnApply.Visible = true;

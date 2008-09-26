@@ -40,7 +40,7 @@ public partial class Reports_EnumValues : System.Web.UI.Page
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.Add("evPECode", Request["e"]);
+            MyCmd.Parameters.AddWithValue("evPECode", Request["e"]);
             MyCmd.CommandText = @"
 SELECT 
     EnumName
@@ -67,7 +67,7 @@ WHERE ID = ?evPECode
         MyCmd.Connection = MyCn;
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("evPECode", Request["e"]);
+        MyCmd.Parameters.AddWithValue("evPECode", Request["e"]);
         DS.Tables[dtEnumValues.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT 
@@ -257,9 +257,7 @@ SET
         }
         finally
         {
-            MyCmd.Dispose();
             MyCn.Close();
-            MyCn.Dispose();
         }
         if (dgvEnumValues.Rows.Count > 0)
             btnApply.Visible = true;

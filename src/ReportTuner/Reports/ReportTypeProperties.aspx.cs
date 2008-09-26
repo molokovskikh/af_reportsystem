@@ -79,7 +79,7 @@ public partial class Reports_ReportTypeProperties : System.Web.UI.Page
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.Add("rtCode", Request["rtc"]);
+            MyCmd.Parameters.AddWithValue("rtCode", Request["rtc"]);
             MyCmd.CommandText = @"
 SELECT 
     ReportTypeName
@@ -108,7 +108,7 @@ WHERE ReportTypeCode = ?rtCode
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
         MyCmd.CommandType = CommandType.Text;
-        MyCmd.Parameters.Add("rtCode", Request["rtc"]);
+        MyCmd.Parameters.AddWithValue("rtCode", Request["rtc"]);
         DS.Tables[dtProperties.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT 
@@ -296,9 +296,7 @@ SET
             }
             finally
             {
-                MyCmd.Dispose();
                 MyCn.Close();
-                MyCn.Dispose();
             }
             if (dgvProperties.Rows.Count > 0)
                 btnApply.Visible = true;
@@ -576,9 +574,12 @@ SET
                 MyCmd.Connection = MyCn;
                 MyDA.SelectCommand = MyCmd;
                 MyCmd.Parameters.Clear();
-                MyCmd.Parameters.Add("inFirmCode", 1912);
+				//Используем код клиента "Поставщик-Офис" для проверки существования хранимой процедуры
+				//Если процедура есть, то она вернет какой-либо набор, возможно, пустой
+				//Если не существует, то будет ошибка
+				MyCmd.Parameters.AddWithValue("inFirmCode", 234);
                 MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
-                MyCmd.Parameters.Add("inFilter", null);
+                MyCmd.Parameters.AddWithValue("inFilter", null);
                 MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
                 MyCmd.CommandText = tbProc.Text;
                 MyCmd.CommandType = CommandType.StoredProcedure;
@@ -594,9 +595,7 @@ SET
             {
                 if(db!=String.Empty)
                     MyCn.ChangeDatabase(db);
-                MyCmd.Dispose();
                 MyCn.Close();
-                //MyCn.Dispose();
             }
         }
     }

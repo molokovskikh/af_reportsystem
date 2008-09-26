@@ -66,7 +66,7 @@ public partial class Reports_Reports : System.Web.UI.Page
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
         DS.Tables[dtReports.TableName].Clear();
-        MyCmd.Parameters.Add("rCode", Request["r"]);
+        MyCmd.Parameters.AddWithValue("rCode", Request["r"]);
         MyCmd.CommandText = @"
 SELECT
     ReportTypeName as RReportTypeName,
@@ -348,9 +348,7 @@ SET
         }
         finally
         {
-            MyCmd.Dispose();
             MyCn.Close();
-            MyCn.Dispose();
         }
         if (dgvReports.Rows.Count > 0)
             btnApply.Visible = true;

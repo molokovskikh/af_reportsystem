@@ -72,7 +72,7 @@ public partial class Reports_schedule : System.Web.UI.Page
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.Add("?r", Request["r"]);
+            MyCmd.Parameters.AddWithValue("?r", Request["r"]);
             MyCmd.CommandText = @"
 SELECT
     convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251)

@@ -72,8 +72,8 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.Add("rpv", Request["rpv"]);
-            MyCmd.Parameters.Add("r", Request["r"]);
+            MyCmd.Parameters.AddWithValue("rpv", Request["rpv"]);
+            MyCmd.Parameters.AddWithValue("r", Request["r"]);
             MyCmd.CommandText = @"
 select
   rtp.displayname as LName,
@@ -133,7 +133,7 @@ and rt.ReportTypeCode = r.ReportTypeCode
 
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("rpv", Request["rpv"]);
+        MyCmd.Parameters.AddWithValue("rpv", Request["rpv"]);
         DS.Tables[dtEnabledValues.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
@@ -301,11 +301,11 @@ WHERE
             MyDA.SelectCommand = MyCmd;
             DS.Tables[dtProcResult.TableName].Clear();
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.Add("inFirmCode", FirmCode);
+            MyCmd.Parameters.AddWithValue("inFirmCode", FirmCode);
             MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
-            MyCmd.Parameters.Add("inFilter", null);
+            MyCmd.Parameters.AddWithValue("inFilter", null);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
-            MyCmd.Parameters.Add("inID", null);
+            MyCmd.Parameters.AddWithValue("inID", null);
             MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
             MyCmd.CommandText = ListProc;
             MyCmd.CommandType = CommandType.StoredProcedure;
@@ -316,7 +316,6 @@ WHERE
         {
             if (db != String.Empty)
                 MyCn.ChangeDatabase(db);
-            MyCmd.Dispose();
             MyCmd.CommandType = CommandType.Text;
             MyCn.Close();
         }
@@ -413,9 +412,7 @@ and ?Enabled = 0;", MyCn, trans);
         }
         finally
         {
-            MyCmd.Dispose();
             MyCn.Close();
-            MyCn.Dispose();
         }
 
         if (dgvListValues.Rows.Count > 0)

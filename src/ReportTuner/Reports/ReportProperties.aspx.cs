@@ -60,7 +60,7 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.Add("rp", Request["rp"]);
+            MyCmd.Parameters.AddWithValue("rp", Request["rp"]);
             MyCmd.CommandText = @"
 SELECT
     rt.ReportCaption as CReportCaption, 
@@ -108,7 +108,7 @@ and rts.ReportTypeCode = rt.ReportTypeCode
 
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("rp", Request["rp"]);
+        MyCmd.Parameters.AddWithValue("rp", Request["rp"]);
         DS.Tables[dtNonOptionalParams.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
@@ -143,7 +143,7 @@ AND rp.reportCode=?rp
 
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("rp", Request["rp"]);
+        MyCmd.Parameters.AddWithValue("rp", Request["rp"]);
         DS.Tables[dtOptionalParams.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
@@ -421,7 +421,7 @@ AND rp.reportCode=?rp
 
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("PEID", PropertyEnumID);
+        MyCmd.Parameters.AddWithValue("PEID", PropertyEnumID);
         MyCmd.CommandText = @"
 SELECT distinct
     Value as evValue,
@@ -573,9 +573,7 @@ WHERE ID = ?OPID", MyCn, trans);
         }
         finally
         {
-            MyCmd.Dispose();
             MyCn.Close();
-            MyCn.Dispose();
         }
         if (dgvNonOptional.Rows.Count > 0)
             btnApply.Visible = true;
@@ -629,14 +627,14 @@ WHERE ID = ?OPID", MyCn, trans);
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.Add("inFirmCode", fc);
+            MyCmd.Parameters.AddWithValue("inFirmCode", fc);
             MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
-            MyCmd.Parameters.Add("inFilter", filter);
+            MyCmd.Parameters.AddWithValue("inFilter", filter);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
             if(id == String.Empty)
-                MyCmd.Parameters.Add("inID", DBNull.Value);
+                MyCmd.Parameters.AddWithValue("inID", DBNull.Value);
             else
-                MyCmd.Parameters.Add("inID", Convert.ToInt64(id));
+                MyCmd.Parameters.AddWithValue("inID", Convert.ToInt64(id));
             MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
             MyCmd.CommandText = proc;
             MyCmd.CommandType = CommandType.StoredProcedure;
@@ -646,7 +644,6 @@ WHERE ID = ?OPID", MyCn, trans);
         {
             if (db != String.Empty)
                 MyCn.ChangeDatabase(db);
-            MyCmd.Dispose();
             MyCmd.CommandType = CommandType.Text;
             MyCn.Close();
         }
@@ -778,7 +775,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
         MyDA.SelectCommand = MyCmd;
 		MyCmd.Parameters.Clear();
-		MyCmd.Parameters.Add("?ReportCode", Request["rp"]);
+		MyCmd.Parameters.AddWithValue("?ReportCode", Request["rp"]);
         MyCmd.CommandText = @"
 Select
     rtp.ID as opID,

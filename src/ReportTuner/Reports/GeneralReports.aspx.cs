@@ -236,7 +236,7 @@ Order by gr.GeneralReportCode
         MyCmd.Connection = MyCn;
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
-        MyCmd.Parameters.Add("Name", "%" + Name + "%");
+        MyCmd.Parameters.AddWithValue("Name", "%" + Name + "%");
         DS.Tables[dtClients.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
@@ -445,9 +445,7 @@ SET
         }
         finally
         {
-            MyCmd.Dispose();
             MyCn.Close();
-            MyCn.Dispose();
         }
         if (dgvReports.Rows.Count > 0)
             btnApply.Visible = true;
