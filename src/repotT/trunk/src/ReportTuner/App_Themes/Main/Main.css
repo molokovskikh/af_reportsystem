@@ -1,0 +1,243 @@
+﻿body 
+{
+	background-color:#ffffff;
+	font-family: Verdana;
+	font-size: 8pt;
+}
+
+
+H3 
+{
+	font-size: larger;
+	text-align: center;
+}
+
+fieldset
+{
+	margin: 0px 0px 3px 0px;
+}
+
+A:active
+{
+	color:#0093e1;
+}
+A:visited
+{
+	color:#ab51cc;
+}
+
+A:link
+{
+	color:#0093e1;
+}
+
+div
+{
+	margin: 0;
+	padding: 0;
+}
+
+.Legend
+{
+	font-size: 8pt;
+	background-color: #EBEBEB;
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+.SelectedRow
+{
+	background-color: #B5B5B5;
+}
+
+.LabelForInput
+{
+	display:block;
+	float:left;
+	width: 20%;
+	text-align: right;
+	padding: 0px;
+	margin: 0px 3px 0px 0px;
+}
+
+.InputCheckBox
+{
+	display: block;
+	clear: both;
+}
+
+.Buttons
+{
+	text-align: center;
+	padding-top: 10px;
+}
+
+.DetailsForm
+{
+	background: #EBEBEB;
+	width: 70%;
+}
+
+.FreeColumn
+{
+	float: left;
+	margin: 0;
+	padding: 0;
+	width: 33%;
+}
+
+.TwoColumn
+{
+	float: left;
+	margin: 0;
+	padding: 0;
+	width: 49%;
+}
+
+.SimpleField label
+{
+	float: left; 
+	width: 40%; 
+	padding: 0;
+	text-align: right; 
+	margin: 0 1% 0 0;
+}
+
+.SimpleField input
+{
+	float: left;
+	width: 54%;
+	text-align: left;
+	margin: 0;
+	padding: 0; 
+	vertical-align: bottom;
+}
+
+.DropDownField label
+{
+	float: left; 
+	width: 40%; 
+	padding: 0;
+	text-align: right; 
+	margin: 0 1% 0 0;
+}
+
+.Required
+{
+	font-weight: bold;
+}
+
+#Phones
+{
+	background-color: #dadada;
+	padding: 10px 1% 10px 1%;
+	margin: 0;
+}
+
+#Info
+{
+	background-color: #ebebeb;
+	padding: 10px 1% 10px 1%;
+	margin: 0;
+}
+
+#ExtInfo
+{
+	background-color: #dadada;
+	padding: 10px 1% 10px 1%;
+}
+
+#Phones span
+{
+	display: block;
+	width: 95%;
+	text-align: right;
+	margin: 0;
+	padding: 0;
+}
+
+.Fields 
+{
+	float:left;
+	width: 98%;
+}
+
+.SimpleField
+{
+	width: 100%;
+	float: left;
+	clear: both;
+	padding: 2px 0px 2px 0px;
+}
+
+.ComplexField
+{
+	width: 100%;
+	float: left;
+	clear: both;
+	margin: 0;
+}
+
+.DropDownField
+{
+	width: 100%;
+	float: left;
+	clear: both;
+	padding: 2px 0px 2px 0px;
+}
+
+/*--------------Managep.aspx-----------------*/
+.MainHeader
+{
+	text-align: center;
+}
+
+.MainBlock
+{
+	width: 90%;
+	border: solid 1px #dadada;
+}
+
+.ContentBlock
+{
+	border: solid 1px #dadada;
+	margin: 1%  1% 1% 1%;
+	padding: 1% 1% 1% 1%;
+	width: 95%;
+}
+
+.BorderedBlock
+{
+	width: 100%;
+	border: solid 1px #dadada;
+}
+
+.BaseLabelForInput
+{
+	display:block; 
+	text-align:right; 
+	float: left;
+}
+
+.Submit
+{
+	padding-top: 10px;
+	text-align:center;
+}
+
+.CopyRight
+{
+	margin-top: 10px;
+	padding-top: 10px;
+	text-align: center;
+	font-size: smaller;
+}
+.Header
+{
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	background-color: #f0f8ff;
+}
+/*--------------Managep.aspx-----------------*/

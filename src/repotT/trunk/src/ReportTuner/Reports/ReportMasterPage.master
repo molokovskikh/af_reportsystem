@@ -1,0 +1,22 @@
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="Reports_ReportMasterPage" Codebehind="ReportMasterPage.master.cs" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head runat="server">
+    <title>Настройка отчетов</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+        <asp:SiteMapPath ID="ReportSiteMapPath" runat="server" SiteMapProvider="ReportSiteMap" Font-Names="Verdana" Font-Size=Small>
+        <CurrentNodeStyle Font-Bold="True" />
+        </asp:SiteMapPath>        
+        <hr color="#DADADA"/>
+
+        <asp:contentplaceholder id="ReportContentPlaceHolder" runat="server">
+        </asp:contentplaceholder>
+    </div>
+    </form>
+</body>
+</html>
