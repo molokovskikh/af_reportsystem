@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools", "Common.Tool
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools.Tests", "Common.Tools\src\Common.Tools.Test\Common.Tools.Tests.csproj", "{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportTuner", "ReportTuner\ReportTuner.csproj", "{4D9B03C7-734B-410F-9C4A-FF9A44591036}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
