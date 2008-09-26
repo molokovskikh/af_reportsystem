@@ -1,30 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebSite", "WebSite", "{6A3B3F94-D50B-4BD5-B654-C6175244C04D}"
-	ProjectSection(WebsiteProperties) = preProject
-		SccProjectName = ""
-		SccAuxPath = ""
-		SccLocalPath = ""
-		SccProvider = ""
-		TargetFramework = "2.0"
-		Debug.AspNetCompiler.VirtualPath = "/WebSite"
-		Debug.AspNetCompiler.PhysicalPath = "WebSite\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\WebSite\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/WebSite"
-		Release.AspNetCompiler.PhysicalPath = "WebSite\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\WebSite\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "2913"
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportTuner", "ReportTuner\ReportTuner.csproj", "{4D9B03C7-734B-410F-9C4A-FF9A44591036}"
 EndProject
 Global
@@ -35,13 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6A3B3F94-D50B-4BD5-B654-C6175244C04D}.Debug|.NET.ActiveCfg = Debug|.NET
-		{6A3B3F94-D50B-4BD5-B654-C6175244C04D}.Debug|.NET.Build.0 = Debug|.NET
-		{6A3B3F94-D50B-4BD5-B654-C6175244C04D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A3B3F94-D50B-4BD5-B654-C6175244C04D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A3B3F94-D50B-4BD5-B654-C6175244C04D}.Release|.NET.ActiveCfg = Debug|.NET
-		{6A3B3F94-D50B-4BD5-B654-C6175244C04D}.Release|.NET.Build.0 = Debug|.NET
-		{6A3B3F94-D50B-4BD5-B654-C6175244C04D}.Release|Any CPU.ActiveCfg = Debug|.NET
 		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Debug|.NET.ActiveCfg = Debug|Any CPU
 		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Debug|Any CPU.Build.0 = Debug|Any CPU
