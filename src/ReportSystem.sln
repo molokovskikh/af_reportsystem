@@ -2,6 +2,12 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportSystem", "ReportSystem\ReportSystem.csproj", "{BDC750F3-0940-43DB-9501-87A219530C35}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{32B9D67D-B11D-44FB-A13A-D61B09EAAE11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools", "Common.Tools\src\Common.Tools\Common.Tools.csproj", "{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools.Tests", "Common.Tools\src\Common.Tools.Test\Common.Tools.Tests.csproj", "{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,8 +18,20 @@ Global
 		{BDC750F3-0940-43DB-9501-87A219530C35}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDC750F3-0940-43DB-9501-87A219530C35}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDC750F3-0940-43DB-9501-87A219530C35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
 	EndGlobalSection
 EndGlobal
