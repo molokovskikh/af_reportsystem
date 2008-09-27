@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools.Tests", "Commo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportTuner", "ReportTuner\ReportTuner.csproj", "{4D9B03C7-734B-410F-9C4A-FF9A44591036}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExecuteTemplate", "ExecuteTemplate\src\ExecuteTemplate\ExecuteTemplate.csproj", "{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D9B03C7-734B-410F-9C4A-FF9A44591036}.Release|Any CPU.Build.0 = Release|Any CPU
+		{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,5 +45,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
 		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
+		{046F74A6-68A8-4E5E-A9AB-7332B631CFB1} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
 	EndGlobalSection
 EndGlobal
