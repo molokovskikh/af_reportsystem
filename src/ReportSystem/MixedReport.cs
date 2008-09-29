@@ -20,6 +20,7 @@ namespace Inforoom.ReportSystem
 		private const string sourceFirmCodeProperty = "SourceFirmCode";
 		private const string businessRivalsProperty = "BusinessRivals";
 		private const string showCodeProperty = "ShowCode";
+		private const string showCodeCrProperty = "ShowCodeCr";
 
 		private List<RatingField> selectField;
 
@@ -36,6 +37,8 @@ namespace Inforoom.ReportSystem
 
 		//Отображать поле Code из прайс-листа поставщика?
 		private bool showCode;
+		//Отображать поле CodeCr из прайс-листа поставщика?
+		private bool showCodeCr;
 
 		//Одно из полей "Наименование продукта", "Полное наименование", "Наименование"
 		private RatingField nameField;
@@ -52,6 +55,7 @@ namespace Inforoom.ReportSystem
 			FillRatingFields();
 			filter = new List<string>();
 			showCode = (bool)(bool)getReportParam(showCodeProperty);
+			showCodeCr = (bool)(bool)getReportParam(showCodeCrProperty);
 			//List<string> s = businessRivals.ConvertAll<string>(delegate(ulong value) { return value.ToString(); });
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
 			if (ByPreviousMonth)
@@ -129,15 +133,23 @@ namespace Inforoom.ReportSystem
 			filter.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
 			filter.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
 
-			if (showCode)
+			if (showCode || showCodeCr)
 			{
 				e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS ProviderCodes;
-create temporary table ProviderCodes (Code varchar(20), CatalogCode int unsigned, codefirmcr int unsigned,
-key Code(Code), key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
+create temporary table ProviderCodes (" + 
+										((showCode) ? "Code varchar(20), " : String.Empty) +
+										((showCodeCr) ? "CodeCr varchar(20), " : String.Empty) +
+										"CatalogCode int unsigned, codefirmcr int unsigned," +
+										((showCode) ? "key Code(Code), " : String.Empty) +
+										((showCodeCr) ? "key CodeCr(CodeCr), " : String.Empty) +
+@"key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
 insert into ProviderCodes "
 					+
-					"select ol.Code, " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : ", null ") +
+					"select " +
+						((showCode) ? "ol.Code, " : String.Empty) +
+						((showCodeCr) ? "ol.CodeCr, " : String.Empty) +
+						nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : ", null ") +
 					@"
 from 
   orders.OrdersHead oh, 
@@ -174,6 +186,8 @@ and pd.FirmCode = " + sourceFirmCode.ToString() +
 
 			if (showCode)
 				SelectCommand += " ProviderCodes.Code, ";
+			if (showCodeCr)
+				SelectCommand += " ProviderCodes.CodeCr, ";
 
 			SelectCommand = String.Concat(SelectCommand, String.Format(@"
 sum(if(pd.firmcode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
@@ -217,7 +231,7 @@ from
   usersettings.clientsdata prov,
   billing.payers 
   )" +
-	((showCode) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + (((firmCrField != null) ? " and ProviderCodes.CodeFirmCr = " + firmCrField.primaryField : String.Empty)) : String.Empty) +
+	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + (((firmCrField != null) ? " and ProviderCodes.CodeFirmCr = " + firmCrField.primaryField : String.Empty)) : String.Empty) +
 @"
 where 
     ol.OrderID = oh.RowID 
@@ -285,6 +299,12 @@ and prov.FirmCode = pd.FirmCode");
 			{
 				dc = res.Columns.Add("Code", typeof(System.String));
 				dc.Caption = "Код";
+			}
+
+			if (showCodeCr)
+			{
+				dc = res.Columns.Add("CodeCr", typeof(System.String));
+				dc.Caption = "Код изготовителя";
 			}
 
 			foreach (RatingField rf in selectField)
