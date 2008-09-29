@@ -44,10 +44,6 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Web.Mobile" />
-    <Reference Include="TaskScheduler, Version=1.1.2526.21180, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\TaskScheduler.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
@@ -190,6 +186,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Themes\Main\Main.skin" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TaskScheduler\src\TaskScheduler\TaskScheduler.csproj">
+      <Project>{C3B27C65-AD63-4FAC-AE73-AB787E56AAF6}</Project>
+      <Name>TaskScheduler</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\WebApplications\Microsoft.WebApplication.targets" />
