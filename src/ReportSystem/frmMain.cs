@@ -226,7 +226,7 @@ WHERE   cr.FirmCode         =cd.firmcode
 									GeneralReport gr = new GeneralReport(
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode],
 										Convert.ToInt32(drReport[GeneralReportColumns.FirmCode]),
-										drReport[GeneralReportColumns.EMailAddress].ToString(),
+										(Convert.IsDBNull(drReport[GeneralReportColumns.ContactGroupId])) ? null : (uint?)Convert.ToUInt32(drReport[GeneralReportColumns.ContactGroupId]),
 										drReport[GeneralReportColumns.EMailSubject].ToString(),
 										mc,
 										drReport[GeneralReportColumns.ReportFileName].ToString(),

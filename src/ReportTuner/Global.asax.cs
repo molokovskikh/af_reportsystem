@@ -9,6 +9,8 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Text;
 using System.Reflection;
+using Castle.ActiveRecord;
+using Castle.ActiveRecord.Framework.Config;
 
 /// <summary>
 /// Summary description for Global
@@ -32,12 +34,22 @@ namespace Inforoom.ReportTuner
 
 		void Application_Start(object sender, EventArgs e)
 		{
-			//Code that runs on application startup
+			ActiveRecordStarter.Initialize(new[]
+				                               	{
+				                               		Assembly.Load("ReportTuner"),
+				                               		Assembly.Load("Common.Web.Ui")
+				                               	},
+										   ActiveRecordSectionHandler.Instance);
+
 		}
 
 		void Session_Start(object sender, EventArgs e)
 		{
-			//Code that runs when a new session is started 
+			//Это имя пользователя добавляем для того, чтобы корректно редактировались контакты
+			string UserName = HttpContext.Current.User.Identity.Name;
+			if (UserName.StartsWith("ANALIT\\", StringComparison.OrdinalIgnoreCase))
+				UserName = UserName.Substring(7);
+			Session["UserName"] = UserName;
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)

@@ -6,8 +6,7 @@
   </sectionGroup>
  </configSections>
  <connectionStrings>
-		<!--<add name="DB" connectionString="Database=usersettings;Data Source=sql.analit.net;User Id=ReportsSystem;Password=samepass;pooling=false"/>-->
-		<add name="DB" connectionString="Database=usersettings;Data Source=testsql.analit.net;User Id=system;Password=newpass;pooling=false"/>
+		<add name="DB" connectionString="Database=usersettings;Data Source=sql.analit.net;User Id=ReportsSystem;Password=samepass;pooling=false;default command timeout=0;"/>
 	</connectionStrings>
  <applicationSettings>
   <Inforoom.ReportSystem.Properties.Settings>

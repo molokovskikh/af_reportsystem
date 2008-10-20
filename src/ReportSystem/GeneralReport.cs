@@ -21,7 +21,7 @@ namespace Inforoom.ReportSystem
 		public const string GeneralReportCode = "GeneralReportCode";
 		public const string FirmCode = "FirmCode";
 		public const string Allow = "Allow";
-		public const string EMailAddress = "EMailAddress";
+		public const string ContactGroupId = "ContactGroupId";
 		public const string EMailSubject = "EMailSubject";
 		public const string ShortName = "ShortName";
 		public const string ReportFileName = "ReportFileName";
@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 		public ulong _generalReportID;
 		public int _firmCode;
 
-		private string _eMailAddress;
+		private uint? _contactGroupId;
 		private string _eMailSubject;
 
 		private string _reportFileName;
@@ -50,15 +50,18 @@ namespace Inforoom.ReportSystem
 		//таблица отчетов, которая существует в общем отчете
 		DataTable _dtReports;
 
+		//таблица контактов, по которым надо отправить отчет
+		DataTable _dtContacts;
+
 		List<BaseReport> _reports;
 
-		public GeneralReport(ulong GeneralReportID, int FirmCode, string EMailAddress, string EMailSubject, MySqlConnection Conn, string ReportFileName, string ReportArchName)
+		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, string EMailSubject, MySqlConnection Conn, string ReportFileName, string ReportArchName)
 		{
 			_reports = new List<BaseReport>();
 			_generalReportID = GeneralReportID;
 			_firmCode = FirmCode;
 			_conn = Conn;
-			_eMailAddress = EMailAddress;
+			_contactGroupId = ContactGroupId;
 			_eMailSubject = EMailSubject;
 			_reportFileName = ReportFileName;
 			_reportArchName = ReportArchName;
@@ -67,6 +70,36 @@ namespace Inforoom.ReportSystem
 			ulong contactsCode = 0;
 
 			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn, true, null, false, null);
+
+			_dtContacts = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), delegate(ExecuteArgs args)
+			{
+				args.DataAdapter.SelectCommand.CommandText = @"
+select lower(c.contactText)
+from
+  contacts.contact_groups cg
+  join contacts.contacts c on cg.Id = c.ContactOwnerId
+where
+    cg.Id = ?ContactGroupId
+and cg.Type = ?ContactGroupType
+and c.Type = ?ContactType
+union
+select lower(c.contactText)
+from
+  contacts.contact_groups cg
+  join contacts.persons p on cg.id = p.ContactGroupId
+  join contacts.contacts c on p.Id = c.ContactOwnerId
+where
+    cg.Id = ?ContactGroupId
+and cg.Type = ?ContactGroupType
+and c.Type = ?ContactType";
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupId", _contactGroupId);
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupType", 6);
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactType", 0);
+				DataTable res = new DataTable();
+				args.DataAdapter.Fill(res);
+				return res;
+			}, 
+				null, _conn, true, null, false, null);
 
 			if ((_dtReports != null) && (_dtReports.Rows.Count > 0))
 			{
@@ -123,14 +156,20 @@ namespace Inforoom.ReportSystem
 
 			string ResFileName = ArchFile();
 
-			if (!String.IsNullOrEmpty(_eMailAddress))
-			    MailWithAttach(ResFileName);
+
+#if (TESTING)
+			MailWithAttach(ResFileName, "morozov@analit.net");
+#else
+			if ((_dtContacts != null) && (_dtContacts.Rows.Count > 0))
+				foreach (DataRow drContact in _dtContacts.Rows)
+					MailWithAttach(ResFileName, drContact[0].ToString());
+#endif
 
 			if (Directory.Exists(_directoryName))
 				Directory.Delete(_directoryName, true);
 		}
 
-		private void MailWithAttach(string archFileName)
+		private void MailWithAttach(string archFileName, string EMailAddress)
 		{ 
 			Mime message = new Mime(); 
 			MimeEntity mainEntry = message.MainEntity; 
@@ -139,12 +178,7 @@ namespace Inforoom.ReportSystem
 			mainEntry.From.Add(new MailboxAddress("АК Инфорум", "report@analit.net")); 
 
 			mainEntry.To = new LumiSoft.Net.Mime.AddressList();
-#if (TESTING)
-			mainEntry.To.Parse("s.morozov@analit.net");
-			//mainEntry.To.Parse("msv-sergey@yandex.ru");
-#else
-			mainEntry.To.Parse(_eMailAddress); 
-#endif
+			mainEntry.To.Parse(EMailAddress); 
 
 			mainEntry.Subject = _eMailSubject; 
 
@@ -162,33 +196,36 @@ namespace Inforoom.ReportSystem
 			attachmentEntity.ContentDisposition_FileName = System.IO.Path.GetFileName(archFileName); 
 			attachmentEntity.DataFromFile(archFileName);
 
-			int SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
+			int? SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 
-#if (TESTING)
-#else
-			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID), ProcessLog, 0, _conn, true, null, false, null);
+#if (!TESTING)
+			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, EMailAddress), ProcessLog, 0, _conn, true, null, false, null);
 #endif
 		}
 
 		class ProcessLogArgs : ExecuteArgs
 		{
-			public int _smtpID;
-			public string _MessageID;
+			public int? SmtpID;
+			public string MessageID;
+			public string EMail;
 
-			public ProcessLogArgs(int smtpID, string MessageID)
+			public ProcessLogArgs(int? smtpID, string messageID, string eMail)
 			{
-				_smtpID = smtpID;
-				_MessageID = MessageID;
+				SmtpID = smtpID;
+				MessageID = messageID;
+				EMail = eMail;
 			}
 		}
 
 		private int ProcessLog(ProcessLogArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs (LogTime, GeneralReportCode, SMTPID, MessageID) 
-values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID)";
+			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs 
+(LogTime, GeneralReportCode, SMTPID, MessageID, EMail) 
+values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", _generalReportID);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SMTPID", e._smtpID);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?MessageID", e._MessageID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SMTPID", e.SmtpID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?MessageID", e.MessageID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?EMail", e.EMail);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			return 0;
 		}

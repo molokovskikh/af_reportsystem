@@ -8,6 +8,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
-[assembly: CLSCompliant(true)]
-[assembly: AssemblyVersion("1.0.13.18")]
+[assembly: CLSCompliant(false)]
+[assembly: AssemblyVersion("1.0.14.20")]
 

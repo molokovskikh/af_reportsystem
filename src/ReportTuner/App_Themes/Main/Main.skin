@@ -22,6 +22,7 @@ Default skin template. The following skins are provided as examples only.
 <asp:GridView runat="server" width="100%" BackColor="#EBEBEB" BorderColor="#DADADA" BorderWidth="1px" BorderStyle="Solid" >
 	<AlternatingRowStyle HorizontalAlign="Center" VerticalAlign="Middle" BackColor="#EEF8FF" />
 	<RowStyle HorizontalAlign="Center" VerticalAlign="Middle" BackColor="#F6F6F6" />
+    <SelectedRowStyle HorizontalAlign="Center" VerticalAlign="Middle" BackColor="LightGray" Font-Bold="true"/>
 	<HeaderStyle HorizontalAlign="Center" BackColor="#EBEBEB" />
 </asp:GridView>
 
