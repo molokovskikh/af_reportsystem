@@ -7,6 +7,8 @@ using ReportTuner.Models;
 using Common.Web.Ui.Models;
 using Castle.ActiveRecord;
 using NHibernate.Criterion;
+using System.Data;
+using MySql.Data.MySqlClient;
 
 
 namespace ReportTuner
@@ -55,12 +57,13 @@ namespace ReportTuner
 
 				if (!this.IsPostBack)
 				{
-					lReportName.Text = String.Format("{0} ({1})", _currentReport.EMailSubject, _currentReport.Id);
+					lReportName.Text = _currentReport.EMailSubject;
 
 					if (_currentContactGroup != null)
 					{
 						hlEditGroup.Text = _currentContactGroup.Name;
 						hlEditGroup.NavigateUrl = "~/Contact/EditContactGroup.rails?contactGroupId=" + _currentContactGroup.Id;
+						BindEmailList();
 					}
 
 					ClearSearch();
@@ -82,6 +85,37 @@ namespace ReportTuner
 			gvRelatedReports.DataBind();
 		}
 
+		protected void BindEmailList()
+		{
+			DataSet dsContacts = MySqlHelper.ExecuteDataset(System.Configuration.ConfigurationManager.ConnectionStrings["DB"].ConnectionString, @"
+select lower(c.contactText) as ContactText
+from
+  contacts.contact_groups cg
+  join contacts.contacts c on cg.Id = c.ContactOwnerId
+where
+    cg.Id = ?ContactGroupId
+and cg.Type = ?ContactGroupType
+and c.Type = ?ContactType
+union
+select lower(c.contactText) as ContactText
+from
+  contacts.contact_groups cg
+  join contacts.persons p on cg.id = p.ContactGroupId
+  join contacts.contacts c on p.Id = c.ContactOwnerId
+where
+    cg.Id = ?ContactGroupId
+and cg.Type = ?ContactGroupType
+and c.Type = ?ContactType
+order by 1",
+						  new MySqlParameter("?ContactGroupId", _currentContactGroup.Id),
+						  new MySqlParameter("?ContactGroupType", 6),
+						  new MySqlParameter("?ContactType", MySqlDbType.Byte) { Value = 0 });
+
+			gvEmails.DataSource = dsContacts.Tables[0];
+			gvEmails.Width = Unit.Pixel(250);
+			gvEmails.DataBind();
+		}
+
 		protected void ClearSearch()
 		{
 			tbContactFind.Visible = true;
@@ -94,6 +128,7 @@ namespace ReportTuner
 		protected void ClearChangeName()
 		{
 			hlEditGroup.Visible = true;
+			gvEmails.Visible = true;
 			btnChangeGroupName.Visible = (_currentContactGroup != null);
 			btnCreate.Visible = (_currentContactGroup == null) || ((_relatedReportsByContactGroup != null) && (_relatedReportsByContactGroup.Length > 1));
 			tbContactGroupName.Visible = false;
@@ -114,6 +149,7 @@ namespace ReportTuner
 		{
 			ClearSearch();
 			hlEditGroup.Visible = false;
+			gvEmails.Visible = false;
 			btnChangeGroupName.Visible = false;
 			btnCreate.Visible = false;
 			tbContactGroupName.Text = _currentReport.EMailSubject;
@@ -128,6 +164,7 @@ namespace ReportTuner
 		{
 			ClearSearch();
 			hlEditGroup.Visible = false;
+			gvEmails.Visible = false;
 			btnChangeGroupName.Visible = false;
 			btnCreate.Visible = false;
 			tbContactGroupName.Text = _currentContactGroup.Name;
@@ -181,6 +218,8 @@ namespace ReportTuner
 					hlEditGroup.NavigateUrl = "~/Contact/EditContactGroup.rails?contactGroupId=" + _currentContactGroup.Id;
 
 					BindRelatedReports();
+
+					BindEmailList();
 				}
 
 				ClearSearch();
@@ -240,6 +279,8 @@ namespace ReportTuner
 				btnChangeGroupName.Visible = true;
 
 				BindRelatedReports();
+
+				BindEmailList();
 			}
 
 			ClearSearch();

@@ -6,7 +6,7 @@
         <asp:Label ID="lReportName" runat="server"></asp:Label>
     </div>
     <br/>
-    <asp:GridView ID="gvRelatedReports" runat="server" AutoGenerateColumns="false" Caption="Связные отчеты">
+    <asp:GridView ID="gvRelatedReports" runat="server" AutoGenerateColumns="false" Caption="Отчеты, использующие текущую рассылку">
         <Columns>
             <asp:BoundField DataField="Id" HeaderText="Код" HeaderStyle-Width="5%"/>
             <asp:HyperLinkField HeaderText="Настройка рассылки" Text="..." DataNavigateUrlFields="Id" DataNavigateUrlFormatString="Contacts.aspx?GeneralReport={0}" HeaderStyle-Width="15%"/>
@@ -50,6 +50,14 @@
                 <asp:Button ID="btnCancelChangeGroupName" Text="Отменить изменение" 
                     runat="server" CausesValidation="False" 
                     onclick="btnCancelChangeGroupName_Click"/>
+                <asp:GridView ID="gvEmails" runat="server" AutoGenerateColumns="false" Width="50px">
+                    <Columns>
+                        <asp:BoundField DataField="ContactText" HeaderText="Email"/>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        Список адресов пуст.
+                    </EmptyDataTemplate>            
+                </asp:GridView>                    
             </td>
         </tr>
         <tr>
