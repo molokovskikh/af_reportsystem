@@ -62,7 +62,9 @@ public partial class Reports_schedule : System.Web.UI.Page
 		ScheduleUserName = System.Configuration.ConfigurationManager.AppSettings["asScheduleUserName"];
 		SchedulePassword = System.Configuration.ConfigurationManager.AppSettings["asSchedulePassword"];
 		st = new ScheduledTasks(asComp);
+
         currentTask = FindTask(st);
+
 		btnExecute.Enabled = currentTask.Status != TaskStatus.Running;
 		btnExecute.Text = (btnExecute.Enabled) ? StatusRunning : StatusNotRunning;
 
@@ -98,24 +100,24 @@ and gr.GeneralReportCode = ?r
             DaysOfTheWeek days;
             for (int i = 0; i < TL.Count; i++)
             {
-                DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
-                WeeklyTrigger trigger = ((WeeklyTrigger)TL[i]);
-                dr[SStartHour.ColumnName] = ((WeeklyTrigger)(trigger)).StartHour;
-                dr[SStartMinute.ColumnName] = ((WeeklyTrigger)(trigger)).StartMinute;
-                //               dr[SStart.ColumnName] = ((WeeklyTrigger)(trigger)).StartHour + ":" + ((WeeklyTrigger)(trigger)).StartMinute;
-                days = ((WeeklyTrigger)(trigger)).WeekDays;
-                //days = days | DaysOfTheWeek.Friday | DaysOfTheWeek.Thursday;
-                System.Diagnostics.Debug.WriteLine(days);
+				if (TL[i] is WeeklyTrigger)
+				{
+					DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
+					WeeklyTrigger trigger = ((WeeklyTrigger)TL[i]);
+					dr[SStartHour.ColumnName] = ((WeeklyTrigger)(trigger)).StartHour;
+					dr[SStartMinute.ColumnName] = ((WeeklyTrigger)(trigger)).StartMinute;
+					days = ((WeeklyTrigger)(trigger)).WeekDays;
 
-                SetWeekDays(dr, DaysOfTheWeek.Monday, days);
-                SetWeekDays(dr, DaysOfTheWeek.Tuesday, days);
-                SetWeekDays(dr, DaysOfTheWeek.Wednesday, days);
-                SetWeekDays(dr, DaysOfTheWeek.Thursday, days);
-                SetWeekDays(dr, DaysOfTheWeek.Friday, days);
-                SetWeekDays(dr, DaysOfTheWeek.Saturday, days);
-                SetWeekDays(dr, DaysOfTheWeek.Sunday, days);
+					SetWeekDays(dr, DaysOfTheWeek.Monday, days);
+					SetWeekDays(dr, DaysOfTheWeek.Tuesday, days);
+					SetWeekDays(dr, DaysOfTheWeek.Wednesday, days);
+					SetWeekDays(dr, DaysOfTheWeek.Thursday, days);
+					SetWeekDays(dr, DaysOfTheWeek.Friday, days);
+					SetWeekDays(dr, DaysOfTheWeek.Saturday, days);
+					SetWeekDays(dr, DaysOfTheWeek.Sunday, days);
 
-                DS.Tables[dtSchedule.TableName].Rows.Add(dr);
+					DS.Tables[dtSchedule.TableName].Rows.Add(dr);
+				}
             }
             DS.Tables[dtSchedule.TableName].AcceptChanges();
             dgvSchedule.DataSource = DS;
@@ -197,7 +199,6 @@ and gr.GeneralReportCode = ?r
         foreach (GridViewRow drv in dgvSchedule.Rows)
         {
             DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
-            //dr[SStart.ColumnName] = ((TextBox)drv.FindControl("tbStart")).Text;
             string h = ((TextBox)drv.FindControl("tbStart")).Text;
             string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
             if (m.StartsWith("0"))
@@ -236,7 +237,9 @@ and gr.GeneralReportCode = ?r
 
     private void SaveTriggers()
     {
-        currentTask.Triggers.Clear();
+		for(int i = currentTask.Triggers.Count-1; i >= 0; i--)
+			if (currentTask.Triggers[i] is WeeklyTrigger)
+				currentTask.Triggers.RemoveAt(i);
 
         foreach(DataRow dr in DS.Tables[dtSchedule.TableName].Rows)
         {
@@ -369,7 +372,8 @@ and gr.GeneralReportCode = ?r
         ((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).EndInit();
 
     }
-    protected void dgvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
+   
+	protected void dgvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         if (e.CommandName == "Add")
         {
@@ -382,14 +386,16 @@ and gr.GeneralReportCode = ?r
             dgvSchedule.DataBind();
         }
     }
-    protected void dgvSchedule_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    
+	protected void dgvSchedule_RowDeleting(object sender, GridViewDeleteEventArgs e)
     {
         CopyChangesToTable();
         DS.Tables[dtSchedule.TableName].DefaultView[e.RowIndex].Delete();
         dgvSchedule.DataSource = DS;
         dgvSchedule.DataBind();
     }
-    protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
+    
+	protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
