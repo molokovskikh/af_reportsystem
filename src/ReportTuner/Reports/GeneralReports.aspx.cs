@@ -77,8 +77,10 @@ SELECT
 FROM 
     reports.general_reports gr, usersettings.clientsdata cd
 WHERE cd.FirmCode=gr.FirmCode
+and gr.GeneralReportCode <> ?TemplateReportId
 Order by gr.GeneralReportCode
 ";
+		MyCmd.Parameters.AddWithValue("?TemplateReportId", ConfigurationManager.AppSettings["TemplateReportId"]);
         MyDA.Fill(DS, dtGeneralReports.TableName);
         MyCn.Close();
 

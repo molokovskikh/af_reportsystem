@@ -230,6 +230,13 @@
     <Compile Include="Reports\Schedule.aspx.designer.cs">
       <DependentUpon>Schedule.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Reports\TemplateReports.aspx.cs">
+      <DependentUpon>TemplateReports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports\TemplateReports.aspx.designer.cs">
+      <DependentUpon>TemplateReports.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Reports\EnumValues.aspx.resx">
@@ -259,6 +266,9 @@
     <EmbeddedResource Include="Reports\Schedule.aspx.resx">
       <DependentUpon>Schedule.aspx.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Reports\TemplateReports.aspx.resx">
+      <DependentUpon>TemplateReports.aspx.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Themes\Main\Main.css" />
@@ -282,6 +292,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Reports\TemplateReports.aspx" />
     <Content Include="Views\Common\CloseWindow.brail">
     </Content>
     <Content Include="Views\Layouts\contact.brail">

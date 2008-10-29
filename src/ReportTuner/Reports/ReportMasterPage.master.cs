@@ -20,11 +20,11 @@ public partial class Reports_ReportMasterPage : System.Web.UI.MasterPage
     {
         SiteMapNode currentNode = e.Provider.CurrentNode.Clone(true);
 
-        if (currentNode.Key.Equals(e.Context.Request.ApplicationPath + "/reports/reportproperties.aspx", StringComparison.OrdinalIgnoreCase))
+        if (currentNode.Key.EndsWith("/reports/reportproperties.aspx", StringComparison.OrdinalIgnoreCase))
         {
             currentNode.ParentNode.Url += "?r=" + e.Context.Request["r"];
         }
-        if (currentNode.Key.Equals(e.Context.Request.ApplicationPath + "/reports/reportpropertyvalues.aspx", StringComparison.OrdinalIgnoreCase))
+        if (currentNode.Key.EndsWith("/reports/reportpropertyvalues.aspx", StringComparison.OrdinalIgnoreCase))
         {
             currentNode.ParentNode.Url += "?r=" + e.Context.Request["r"] + "&rp=" + e.Context.Request["rp"];
         }

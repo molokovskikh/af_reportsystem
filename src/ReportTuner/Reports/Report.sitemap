@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <siteMap xmlns="http://schemas.microsoft.com/AspNet/SiteMap-File-1.0" >
-    <siteMapNode url="~/Reports/base.aspx" title="Настройка отчетов"  description="">
-      <siteMapNode url="~/Reports/ReportTypes.aspx" title="Редактирование типов отчетов"  description="">
-        <siteMapNode url="~/Reports/ReportTypeProperties.aspx" title="Редактирование типов параметров"  description="">
-          <!-- <siteMapNode url="EnumValues.aspx"/> -->
-        </siteMapNode>
-      </siteMapNode>
-      <siteMapNode url="~/Reports/PropertyEnums.aspx" title="Редактирование перечислимых типов"  description="">
-        <siteMapNode url="~/Reports/EnumValues.aspx" title="Редактирование значений"  description=""/>
-      </siteMapNode>
-      <siteMapNode url="~/Reports/GeneralReports.aspx" title="Редактирование отчетов"  description="">
-        <siteMapNode url="~/Reports/Schedule.aspx" title="Расписание"  description=""/>
-        <siteMapNode url="~/Reports/Contacts.aspx" title="Настройка рассылки"  description=""/>
-        <siteMapNode url="~/Reports/Reports.aspx" title="Настройка отчетов"  description="">
-          <siteMapNode url="~/Reports/ReportProperties.aspx" title="Настройка параметров отчета"  description="">
-          <siteMapNode url="~/Reports/ReportPropertyValues.aspx" title="Редактирование значений списка"  description=""/>
-        </siteMapNode>
-      </siteMapNode>
-      </siteMapNode>
-    </siteMapNode>
+	<siteMapNode url="~/Reports/base.aspx" title="Настройка отчетов"  description="">
+		<siteMapNode url="~/Reports/ReportTypes.aspx" title="Редактирование типов отчетов"  description="">
+			<siteMapNode url="~/Reports/ReportTypeProperties.aspx" title="Редактирование типов параметров"  description="">
+			</siteMapNode>
+		</siteMapNode>
+		<siteMapNode url="~/Reports/PropertyEnums.aspx" title="Редактирование перечислимых типов"  description="">
+			<siteMapNode url="~/Reports/EnumValues.aspx" title="Редактирование значений"  description=""/>
+		</siteMapNode>
+		<siteMapNode url="~/Reports/GeneralReports.aspx" title="Редактирование отчетов"  description="">
+			<siteMapNode url="~/Reports/Schedule.aspx" title="Расписание"  description=""/>
+			<siteMapNode url="~/Reports/Contacts.aspx" title="Настройка рассылки"  description=""/>
+			<siteMapNode url="~/Reports/Reports.aspx" title="Настройка отчетов"  description="">
+				<siteMapNode url="~/Reports/ReportProperties.aspx" title="Настройка параметров отчета"  description="">
+					<siteMapNode url="~/Reports/ReportPropertyValues.aspx" title="Редактирование значений списка"  description=""/>
+				</siteMapNode>
+			</siteMapNode>
+		</siteMapNode>
+    <siteMapNode url="~/Reports/TemplateReports.aspx" title="Шаблоны"  description=""/>
+	</siteMapNode>
 </siteMap>

@@ -11,6 +11,7 @@ using System.Text;
 using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using ReportTuner.Models;
 
 /// <summary>
 /// Summary description for Global
@@ -40,6 +41,22 @@ namespace Inforoom.ReportTuner
 				                               		Assembly.Load("Common.Web.Ui")
 				                               	},
 										   ActiveRecordSectionHandler.Instance);
+
+			//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
+			ulong _TemplateReportId;
+			if (ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out _TemplateReportId))
+			{
+				try
+				{
+					GeneralReport _templateReport = GeneralReport.Find(_TemplateReportId);
+				}
+				catch (NotFoundException exp)
+				{
+					throw new Exception("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
+				}
+			}
+			else
+				throw new Exception("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
 
 		}
 
