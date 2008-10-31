@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Configuration;
 using System.Collections;
+using System.Collections.Generic;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,6 +11,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using TaskScheduler;
 
 public partial class Reports_GeneralReports : System.Web.UI.Page
 {
@@ -281,6 +283,7 @@ Order by FirmCode, ShortName
         ddlNames.DataTextField = "CCaption";
         ddlNames.DataValueField = "CFirmCode";
         ddlNames.DataBind();
+		ddlNames.Focus();
     }
 
     protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -318,6 +321,8 @@ Order by FirmCode, ShortName
     protected void btnApply_Click(object sender, EventArgs e)
     {
         CopyChangesToTable();
+
+		List<ulong> _deletedReports = new List<ulong>();
 
         MySqlTransaction trans;
         MyCn.Open();
@@ -416,11 +421,14 @@ SET
             }
             MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
 
+			DataTable dtDeleted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Deleted);
+			if (dtDeleted != null)
+				foreach (DataRow drDeleted in dtDeleted.Rows)
+					_deletedReports.Add(Convert.ToUInt64(drDeleted[GRCode.ColumnName, DataRowVersion.Original]));
+
             MyDA.Update(DS, DS.Tables[dtGeneralReports.TableName].TableName);
 
             trans.Commit();
-
-            PostData();
         }
         catch 
         {
@@ -431,7 +439,19 @@ SET
         {
             MyCn.Close();
         }
-        if (dgvReports.Rows.Count > 0)
+
+		//Удаляем задания для отчетов
+		if (_deletedReports.Count > 0)
+		{
+			ScheduledTasks _scheduledTasks = new ScheduledTasks(ConfigurationManager.AppSettings["asComp"]);
+			foreach (ulong _deletedReportId in _deletedReports)
+				_scheduledTasks.DeleteTask("GR" + _deletedReportId + ".job");
+			_scheduledTasks.Dispose();
+		}
+
+		PostData();
+
+		if (dgvReports.Rows.Count > 0)
             btnApply.Visible = true;
         else
             btnApply.Visible = false;

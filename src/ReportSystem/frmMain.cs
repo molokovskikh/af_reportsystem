@@ -179,14 +179,12 @@ namespace Inforoom.ReportSystem
 
 			try
 			{
-				//Попытка получить код клиента в параметрах
-				int CurrentClientCode = CommandLineUtils.GetCode(@"/c:");
 				//Попытка получить код общего отчета в параметрах
 				int GeneralReportID = CommandLineUtils.GetCode(@"/gr:");
 
 				string sqlSelectReports;
 
-				if ((CurrentClientCode != -1) || (GeneralReportID != -1))
+				if (GeneralReportID != -1)
 				{
 					MySqlConnection mc = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 					mc.Open();
@@ -195,31 +193,38 @@ namespace Inforoom.ReportSystem
 
 						//Формируем запрос
 						sqlSelectReports =
-@"SELECT  cr.*, cd.ShortName  
+@"SELECT  cr.*, cd.ShortName, cd.FirmStatus  
 FROM    reports.general_reports cr, 
         usersettings.clientsdata cd  
-WHERE   cr.FirmCode         =cd.firmcode  
-        AND cd.firmstatus   =1  
-        AND cd.billingstatus=1  
-        AND cr.Allow        = 1 ";
-						if (GeneralReportID != -1)
-						{
-							sqlSelectReports += " and cr.generalreportcode=" + GeneralReportID;
-						}
-						else
-						{
-							if (CurrentClientCode != -1)
-							{
-								sqlSelectReports += " and cd.firmcode=" + CurrentClientCode;
-							}
-						}
+WHERE   
+    cr.FirmCode = cd.firmcode  
+and cr.generalreportcode = " + GeneralReportID;
 
 						//Выбирает отчеты согласно фильтру
 						DataTable dtGeneralReports = MethodTemplate.ExecuteMethod<ReportsExecuteArgs, DataTable>(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc, true, null, false, null);
-												
-						if (dtGeneralReports != null)
+
+						if ((dtGeneralReports != null) && (dtGeneralReports.Rows.Count > 0))
 						{
 							foreach (DataRow drReport in dtGeneralReports.Rows)
+							{
+								if (!Convert.ToBoolean(drReport[GeneralReportColumns.FirmStatus]))
+								{
+									MailGeneralReportErr(
+										"Невозможно выполнить отчет, т.к. клиент отключен.",
+										(string)drReport[GeneralReportColumns.ShortName],
+										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
+									continue;
+								}
+
+								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]))
+								{
+									MailGeneralReportErr(
+										"Невозможно выполнить отчет, т.к. отчет выключен.",
+										(string)drReport[GeneralReportColumns.ShortName],
+										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
+									continue;
+								}
+
 								try
 								{
 									//Создаем каждый отчет отдельно и пытаемся его сформировать
@@ -241,13 +246,19 @@ WHERE   cr.FirmCode         =cd.firmcode
 										(string)drReport[GeneralReportColumns.ShortName],
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
 								}
+							}
 						}
+						else
+							MailGlobalErr(String.Format("Отчет с кодом {0} не существует.", GeneralReportID));
+
 					}
 					finally
 					{
 						mc.Close();
 					}
 				}
+				else
+					MailGlobalErr("Не указан код отчета для запуска в параметре gr.");
 			}
 			catch (Exception ex)
 			{
