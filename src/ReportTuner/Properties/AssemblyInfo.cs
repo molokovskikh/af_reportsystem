@@ -9,5 +9,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: CLSCompliant(false)]
-[assembly: AssemblyVersion("1.0.18.25")]
+[assembly: AssemblyVersion("1.0.19.26")]
 

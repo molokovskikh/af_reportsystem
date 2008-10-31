@@ -19,15 +19,7 @@
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:HyperLinkField HeaderText="Рассылки" Text="..." DataNavigateUrlFields="GRCode" DataNavigateUrlFormatString="Contacts.aspx?GeneralReport={0}" ItemStyle-Width="5%" HeaderStyle-Width="5%"/>
-<%--                <asp:TemplateField HeaderText="E-mail" ItemStyle-Width="10%" HeaderStyle-Width="10%">
-                    <ItemTemplate>
-                        <asp:TextBox ID="tbEMail" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRAddress")%>'></asp:TextBox>                        
-                        <asp:RegularExpressionValidator ID="revEMail" runat="server" ControlToValidate="tbEMail" ErrorMessage="E-mail введен неверно" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*(\s*\,\s*\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*)*">*</asp:RegularExpressionValidator>
-                        <!-- ~/noticias.asp?id= DataBinder.Eval(Container.DataItem, "IdSiteNoticias") -->
-                        <asp:LinkButton ID="lbContacts" runat="server" Text="..." PostBackUrl='<%#DataBinder.Eval(Container.DataItem, "GRCode", "Contacts.aspx?GeneralReport={0}")%> '></asp:LinkButton>
-                    </ItemTemplate>
-                </asp:TemplateField>
---%>                <asp:TemplateField HeaderText="Тема письма" ItemStyle-Width="35%" HeaderStyle-Width="35%">
+                <asp:TemplateField HeaderText="Тема письма" ItemStyle-Width="35%" HeaderStyle-Width="35%">
                     <ItemTemplate>
                         <asp:TextBox ID="tbSubject" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRSubject")%>'></asp:TextBox>
                     </ItemTemplate>

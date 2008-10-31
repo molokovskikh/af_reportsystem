@@ -22,8 +22,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
     private DataColumn GRFirmCode;
     private DataColumn GRReportCode;
     private DataColumn GRCaption;
-    private DataColumn GRRTCode;
-    private DataColumn GRAddress;
+	private DataColumn GRRTCode;
     private DataColumn GRSubject;
     private DataColumn GRFileName;
     private DataColumn GRArchName;
@@ -70,7 +69,6 @@ SELECT
     gr.FirmCode as GRFirmCode,
     convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251) as GRFirmName,
     Allow as GRAllow,
-    EMailAddress as GRAddress,
     EMailSubject as GRSubject,
     ReportFileName as GRFileName,
     ReportArchName as GRArchName
@@ -93,116 +91,110 @@ Order by gr.GeneralReportCode
 
     private void InitializeComponent()
     {
-        this.DS = new System.Data.DataSet();
-        this.dtGeneralReports = new System.Data.DataTable();
-        this.GRCode = new System.Data.DataColumn();
-        this.GRFirmCode = new System.Data.DataColumn();
-        this.GRReportCode = new System.Data.DataColumn();
-        this.GRCaption = new System.Data.DataColumn();
-        this.GRRTCode = new System.Data.DataColumn();
-        this.GRAddress = new System.Data.DataColumn();
-        this.GRSubject = new System.Data.DataColumn();
-        this.GRFileName = new System.Data.DataColumn();
-        this.GRArchName = new System.Data.DataColumn();
-        this.GRAllow = new System.Data.DataColumn();
-        this.dtClients = new System.Data.DataTable();
-        this.CCaption = new System.Data.DataColumn();
-        this.CFirmCode = new System.Data.DataColumn();
-        this.GRFirmName = new System.Data.DataColumn();
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtClients)).BeginInit();
-        // 
-        // DS
-        // 
-        this.DS.DataSetName = "NewDataSet";
-        this.DS.Tables.AddRange(new System.Data.DataTable[] {
+		this.DS = new System.Data.DataSet();
+		this.dtGeneralReports = new System.Data.DataTable();
+		this.GRCode = new System.Data.DataColumn();
+		this.GRFirmCode = new System.Data.DataColumn();
+		this.GRReportCode = new System.Data.DataColumn();
+		this.GRCaption = new System.Data.DataColumn();
+		this.GRRTCode = new System.Data.DataColumn();
+		this.GRSubject = new System.Data.DataColumn();
+		this.GRFileName = new System.Data.DataColumn();
+		this.GRArchName = new System.Data.DataColumn();
+		this.GRAllow = new System.Data.DataColumn();
+		this.GRFirmName = new System.Data.DataColumn();
+		this.dtClients = new System.Data.DataTable();
+		this.CCaption = new System.Data.DataColumn();
+		this.CFirmCode = new System.Data.DataColumn();
+		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtClients)).BeginInit();
+		// 
+		// DS
+		// 
+		this.DS.DataSetName = "NewDataSet";
+		this.DS.Tables.AddRange(new System.Data.DataTable[] {
             this.dtGeneralReports,
             this.dtClients});
-        // 
-        // dtGeneralReports
-        // 
-        this.dtGeneralReports.Columns.AddRange(new System.Data.DataColumn[] {
+		// 
+		// dtGeneralReports
+		// 
+		this.dtGeneralReports.Columns.AddRange(new System.Data.DataColumn[] {
             this.GRCode,
             this.GRFirmCode,
             this.GRReportCode,
             this.GRCaption,
             this.GRRTCode,
-            this.GRAddress,
             this.GRSubject,
             this.GRFileName,
             this.GRArchName,
             this.GRAllow,
             this.GRFirmName});
-        this.dtGeneralReports.TableName = "dtGeneralReports";
-        // 
-        // GRCode
-        // 
-        this.GRCode.ColumnName = "GRCode";
-        this.GRCode.DataType = typeof(long);
-        // 
-        // GRFirmCode
-        // 
-        this.GRFirmCode.ColumnName = "GRFirmCode";
-        this.GRFirmCode.DataType = typeof(long);
-        // 
-        // GRReportCode
-        // 
-        this.GRReportCode.ColumnName = "GRReportCode";
-        this.GRReportCode.DataType = typeof(long);
-        // 
-        // GRCaption
-        // 
-        this.GRCaption.ColumnName = "GRCaption";
-        // 
-        // GRRTCode
-        // 
-        this.GRRTCode.ColumnName = "GRRTCode";
-        this.GRRTCode.DataType = typeof(long);
-        // 
-        // GRAddress
-        // 
-        this.GRAddress.ColumnName = "GRAddress";
-        // 
-        // GRSubject
-        // 
-        this.GRSubject.ColumnName = "GRSubject";
-        // 
-        // GRFileName
-        // 
-        this.GRFileName.ColumnName = "GRFileName";
-        // 
-        // GRArchName
-        // 
-        this.GRArchName.ColumnName = "GRArchName";
-        // 
-        // GRAllow
-        // 
-        this.GRAllow.ColumnName = "GRAllow";
-        this.GRAllow.DataType = typeof(byte);
-        // 
-        // dtClients
-        // 
-        this.dtClients.Columns.AddRange(new System.Data.DataColumn[] {
+		this.dtGeneralReports.TableName = "dtGeneralReports";
+		// 
+		// GRCode
+		// 
+		this.GRCode.ColumnName = "GRCode";
+		this.GRCode.DataType = typeof(long);
+		// 
+		// GRFirmCode
+		// 
+		this.GRFirmCode.ColumnName = "GRFirmCode";
+		this.GRFirmCode.DataType = typeof(long);
+		// 
+		// GRReportCode
+		// 
+		this.GRReportCode.ColumnName = "GRReportCode";
+		this.GRReportCode.DataType = typeof(long);
+		// 
+		// GRCaption
+		// 
+		this.GRCaption.ColumnName = "GRCaption";
+		// 
+		// GRRTCode
+		// 
+		this.GRRTCode.ColumnName = "GRRTCode";
+		this.GRRTCode.DataType = typeof(long);
+		// 
+		// GRSubject
+		// 
+		this.GRSubject.ColumnName = "GRSubject";
+		// 
+		// GRFileName
+		// 
+		this.GRFileName.ColumnName = "GRFileName";
+		// 
+		// GRArchName
+		// 
+		this.GRArchName.ColumnName = "GRArchName";
+		// 
+		// GRAllow
+		// 
+		this.GRAllow.ColumnName = "GRAllow";
+		this.GRAllow.DataType = typeof(byte);
+		// 
+		// GRFirmName
+		// 
+		this.GRFirmName.ColumnName = "GRFirmName";
+		// 
+		// dtClients
+		// 
+		this.dtClients.Columns.AddRange(new System.Data.DataColumn[] {
             this.CCaption,
             this.CFirmCode});
-        this.dtClients.TableName = "dtClients";
-        // 
-        // CCaption
-        // 
-        this.CCaption.ColumnName = "CCaption";
-        // 
-        // CFirmCode
-        // 
-        this.CFirmCode.ColumnName = "CFirmCode";
-        this.CFirmCode.DataType = typeof(long);
-        // 
-        // GRFirmName
-        // 
-        this.GRFirmName.ColumnName = "GRFirmName";
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtClients)).EndInit();
+		this.dtClients.TableName = "dtClients";
+		// 
+		// CCaption
+		// 
+		this.CCaption.ColumnName = "CCaption";
+		// 
+		// CFirmCode
+		// 
+		this.CFirmCode.ColumnName = "CFirmCode";
+		this.CFirmCode.DataType = typeof(long);
+		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtClients)).EndInit();
 
     }
 
@@ -270,9 +262,6 @@ Order by FirmCode, ShortName
             if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked).ToString())
                 DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
 
-            if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAddress.ColumnName].ToString() != ((TextBox)dr.FindControl("tbEMail")).Text)
-                DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAddress.ColumnName] = ((TextBox)dr.FindControl("tbEMail")).Text;
-
             if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRSubject.ColumnName].ToString() != ((TextBox)dr.FindControl("tbSubject")).Text)
                 DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRSubject.ColumnName] = ((TextBox)dr.FindControl("tbSubject")).Text;
 
@@ -309,17 +298,19 @@ Order by FirmCode, ShortName
             else
             {
                 ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = true;
+				((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Focus();
                 ((Button)e.Row.Cells[1].FindControl("btnSearch")).Visible = true;
 
                 DropDownList ddlReports = ((DropDownList)e.Row.Cells[0].FindControl("ddlNames"));
                 ddlReports.Visible = true;
-                e.Row.Cells[7].Enabled = false;
-                //FillDDL();
-                //ddlReports.DataSource = DS.Tables[dtTypes.TableName];
-                //ddlReports.DataTextField = "ReportTypeName";
-                //ddlReports.DataValueField = "ReportTypeCode";
-                //ddlReports.DataBind();
-                ((Label)e.Row.Cells[1].FindControl("lblFirmName")).Visible = false;
+				//Делаем недоступными столбцы
+				//"Рассылки"
+				e.Row.Cells[3].Enabled = false;
+				//"Отчеты"
+				e.Row.Cells[7].Enabled = false;
+				//"Расписание"
+				e.Row.Cells[8].Enabled = false;
+				((Label)e.Row.Cells[1].FindControl("lblFirmName")).Visible = false;
             }
         }
     }
@@ -339,7 +330,6 @@ UPDATE
 SET 
     FirmCode = ?GRFirmCode,
     Allow = ?GRAllow,
-    EMailAddress = ?GRAddress,
     EMailSubject = ?GRSubject,
     ReportFileName = ?GRFileName,
     ReportArchName = ?GRArchName
@@ -354,10 +344,6 @@ WHERE GeneralReportCode = ?GRCode", MyCn, trans);
             UpdCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
             UpdCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("GRAddress", MySqlDbType.VarString));
-            UpdCmd.Parameters["GRAddress"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GRAddress"].SourceColumn = GRAddress.ColumnName;
-            UpdCmd.Parameters["GRAddress"].SourceVersion = DataRowVersion.Current;
             UpdCmd.Parameters.Add(new MySqlParameter("GRSubject", MySqlDbType.VarString));
             UpdCmd.Parameters["GRSubject"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["GRSubject"].SourceColumn = GRSubject.ColumnName;
@@ -391,7 +377,6 @@ INSERT INTO
 SET 
     FirmCode = ?GRFirmCode,
     Allow = ?GRAllow,
-    EMailAddress = ?GRAddress,
     EMailSubject = ?GRSubject,
     ReportFileName = ?GRFileName,
     ReportArchName = ?GRArchName
@@ -406,10 +391,6 @@ SET
             InsCmd.Parameters["GRFirmCode"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["GRFirmCode"].SourceColumn = GRFirmCode.ColumnName;
             InsCmd.Parameters["GRFirmCode"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("GRAddress", MySqlDbType.VarString));
-            InsCmd.Parameters["GRAddress"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["GRAddress"].SourceColumn = GRAddress.ColumnName;
-            InsCmd.Parameters["GRAddress"].SourceVersion = DataRowVersion.Current;
             InsCmd.Parameters.Add(new MySqlParameter("GRSubject", MySqlDbType.VarString));
             InsCmd.Parameters["GRSubject"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["GRSubject"].SourceColumn = GRSubject.ColumnName;
