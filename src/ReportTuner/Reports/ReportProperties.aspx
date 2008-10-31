@@ -1,6 +1,12 @@
 <%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_ReportProperties" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="ReportProperties.aspx.cs" %>
 
+<%@ Register Assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    Namespace="System.Web.UI" TagPrefix="asp" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>    
+
 <asp:Content runat="server" ID="ReportPropertiesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
+    <asp:ScriptManager ID="ScriptManager1" runat="server" EnableScriptGlobalization="true" EnableScriptLocalization="true">
+    </asp:ScriptManager>
     <div align="center">
         <strong style="font-size:small;">Настройка параметров отчета "<asp:Label ID="lblReport" runat="server" Text="Label"/>" типа отчета "<asp:Label ID="lblReportType" runat="server" Text="Label"/>"</strong><br/>
         <asp:GridView ID="dgvNonOptional" runat="server" AutoGenerateColumns="False" OnRowDataBound="dgvNonOptional_RowDataBound" OnRowCommand="dgvNonOptional_RowCommand" Caption="Не опциональные">
@@ -15,6 +21,8 @@
                         <asp:DropDownList ID="ddlValue" runat="server" Visible="False" AutoPostBack="True" OnSelectedIndexChanged="ddlValue_SelectedIndexChanged"></asp:DropDownList>
                         <asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyType") %>'  Visible="False"></asp:Label>
                         <asp:Button ID="btnListValue" runat="server" Text="..." CommandName="ShowValues" />
+                        <asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTexBoxSkin"/>
+                        <ajaxToolkit:CalendarExtender ID="CalendarExtender" runat="server" TargetControlID="tbDate" Format="yyyy-MM-dd"/>    
                     </ItemTemplate>
                 </asp:TemplateField>
             </Columns>
@@ -41,6 +49,8 @@
                         <asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.OPPropertyType") %>'
                             Visible="False"></asp:Label>
                         <asp:Button ID="btnListValue" runat="server" Text="..." CommandName="ShowValues" Visible="False" />
+                        <asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTexBoxSkin"/>
+                        <ajaxToolkit:CalendarExtender ID="CalendarExtender" runat="server" TargetControlID="tbDate" Format="yyyy-MM-dd"/>    
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField>
@@ -57,5 +67,12 @@
             </EmptyDataTemplate>
         </asp:GridView>
         <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" />
+    </div>
+    <br/>
+    <div>
+        <asp:Button ID="btnBack" runat="server" Text="Назад" style="float:left" 
+            onclick="btnBack_Click" />
+        <asp:Button ID="btnNext" runat="server" Text="Далее" style="float:right" 
+            onclick="btnNext_Click"/>
     </div>
 </asp:Content>

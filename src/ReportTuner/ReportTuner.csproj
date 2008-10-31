@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AjaxControlToolkit, Version=3.0.20820.16598, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\AjaxControlToolkit.dll</HintPath>
+    </Reference>
     <Reference Include="Boo.Lang, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Boo.Lang.dll</HintPath>
@@ -133,8 +137,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ContactController.cs" />
+    <Compile Include="Helpers\ReportHelper.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\GeneralReport.cs" />
+    <Compile Include="Models\Report.cs" />
+    <Compile Include="Models\ReportType.cs" />
     <Compile Include="Reports\Contacts.aspx.cs">
       <DependentUpon>Contacts.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -237,6 +244,20 @@
     <Compile Include="Reports\TemplateReports.aspx.designer.cs">
       <DependentUpon>TemplateReports.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Reports\TemporaryReport.aspx.cs">
+      <DependentUpon>TemporaryReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports\TemporaryReport.aspx.designer.cs">
+      <DependentUpon>TemporaryReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\TemporaryReportSchedule.aspx.cs">
+      <DependentUpon>TemporaryReportSchedule.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports\TemporaryReportSchedule.aspx.designer.cs">
+      <DependentUpon>TemporaryReportSchedule.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Reports\EnumValues.aspx.resx">
@@ -293,6 +314,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Reports\TemplateReports.aspx" />
+    <Content Include="Reports\TemporaryReport.aspx" />
+    <Content Include="Reports\TemporaryReportSchedule.aspx" />
     <Content Include="Views\Common\CloseWindow.brail">
     </Content>
     <Content Include="Views\Layouts\contact.brail">

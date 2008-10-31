@@ -23,5 +23,11 @@ namespace ReportTuner.Models
 
 		[BelongsTo(Column = "ContactGroupId")]
 		public virtual ContactGroup ContactGroup { get; set; }
+
+		[Property]
+		public virtual bool Temporary { get; set; }
+
+		[Property]
+		public virtual DateTime? TemporaryCreationDate { get; set; }
 	}
 }

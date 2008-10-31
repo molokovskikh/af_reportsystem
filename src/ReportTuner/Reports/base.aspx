@@ -5,6 +5,7 @@
         <asp:HyperLink ID="hlReportTypes" runat="server" NavigateUrl="ReportTypes.aspx">Редактирование типов отчетов</asp:HyperLink><br />
         <asp:HyperLink ID="hlEnums" runat="server" NavigateUrl="PropertyEnums.aspx">Редактирование перечислимых типов</asp:HyperLink><br />
         <asp:HyperLink ID="hlReports" runat="server" NavigateUrl="GeneralReports.aspx">Редактирование отчетов</asp:HyperLink><br />
-        <asp:HyperLink ID="hlTemplateReports" runat="server" NavigateUrl="TemplateReports.aspx">Редактирование шаблонов</asp:HyperLink>
+        <asp:HyperLink ID="hlTemplateReports" runat="server" NavigateUrl="TemplateReports.aspx">Редактирование шаблонов</asp:HyperLink><br />
+        <asp:HyperLink ID="hlTemporaryReport" runat="server" NavigateUrl="TemporaryReport.aspx">Мастер разового отчета</asp:HyperLink>
     </div>
 </asp:Content>

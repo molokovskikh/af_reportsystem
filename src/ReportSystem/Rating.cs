@@ -17,8 +17,8 @@ namespace Inforoom.ReportSystem
 	/// </summary>
 	public class RatingReport : BaseReport
 	{
-		private const string fromProperty = "FromDate";
-		private const string toProperty = "ToDate";
+		private const string fromProperty = "StartDate";
+		private const string toProperty = "EndDate";
 		private const string junkProperty = "JunkState";
 		private const string reportIntervalProperty = "ReportInterval";
 		private const string byPreviousMonthProperty = "ByPreviousMonth";
@@ -35,8 +35,8 @@ namespace Inforoom.ReportSystem
 		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
 		protected List<string> filter;
 
-		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
-			: base(ReportCode, ReportCaption, Conn)
+		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{
 		}
 
@@ -60,21 +60,28 @@ namespace Inforoom.ReportSystem
 			filter = new List<string>();
 			JunkState = (int)getReportParam(junkProperty);
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if (ByPreviousMonth)
+			if (_parentIsTemporary)
 			{
-				dtTo = DateTime.Now;
-				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;
-				dtFrom = dtTo.AddMonths(-1).Date;
+				dtFrom = ((DateTime)getReportParam(fromProperty)).Date;
+				dtTo = (DateTime)getReportParam(toProperty);
+				dtTo = dtTo.Date.AddDays(1);
 			}
 			else
-			{
-				_reportInterval = (int)getReportParam(reportIntervalProperty);
-				dtTo = DateTime.Now;
-				//От текущей даты вычитаем интервал - дата начала отчета
-				dtFrom = dtTo.AddDays(-_reportInterval).Date;
-				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
-				dtTo = dtTo.Date;
-			}
+				if (ByPreviousMonth)
+				{
+					dtTo = DateTime.Now;
+					dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;
+					dtFrom = dtTo.AddMonths(-1).Date;
+				}
+				else
+				{
+					_reportInterval = (int)getReportParam(reportIntervalProperty);
+					dtTo = DateTime.Now;
+					//От текущей даты вычитаем интервал - дата начала отчета
+					dtFrom = dtTo.AddDays(-_reportInterval).Date;
+					//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
+					dtTo = dtTo.Date;
+				}
 			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 
 			selectField = new List<RatingField>();

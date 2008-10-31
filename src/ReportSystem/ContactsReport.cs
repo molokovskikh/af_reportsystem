@@ -12,8 +12,8 @@ namespace Inforoom.ReportSystem
 	//Отчет для вывода контактов. Это вспомогательный отчет, явно нигде не вызывается
 	public class ContactsReport : ProviderReport
 	{
-		public ContactsReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
-			: base(ReportCode, ReportCaption, Conn)
+		public ContactsReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{ 
 		}
 

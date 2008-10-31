@@ -43,6 +43,8 @@ namespace Inforoom.ReportSystem
 
 		protected ulong _reportCode;
 		protected string _reportCaption;
+		//родительский отчет является разовым?
+		protected bool _parentIsTemporary;
 
 		//Таблица с загруженными свойствами отчета
 		protected DataTable dtReportProperties;
@@ -54,13 +56,15 @@ namespace Inforoom.ReportSystem
 		protected Dictionary<string, object> _reportParams;
 
 
-		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
+		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
 		{
 			_reportParams = new Dictionary<string, object>();
 			_reportCode = ReportCode;
 			_reportCaption = ReportCaption;
 			_dsReport = new DataSet();
 			_conn = Conn;
+
+			_parentIsTemporary = Temporary;
 
 			DataSet dsTab = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, _conn, true, null, false, null);
 			dtReportProperties = dsTab.Tables["ReportProperties"];
@@ -115,7 +119,10 @@ namespace Inforoom.ReportSystem
 						case "DATETIME":
 							try
 							{
-								_reportParams.Add(currentPropertyName, DateTime.ParseExact(drProperty[BaseReportColumns.colPropertyValue].ToString(), MySQLDateFormat, null));
+								if (drProperty[BaseReportColumns.colPropertyValue].ToString().Equals("NOW", StringComparison.OrdinalIgnoreCase))
+									_reportParams.Add(currentPropertyName, DateTime.Now);
+								else
+									_reportParams.Add(currentPropertyName, DateTime.ParseExact(drProperty[BaseReportColumns.colPropertyValue].ToString(), MySQLDateFormat, null));
 							}
 							catch (Exception ex)
 							{

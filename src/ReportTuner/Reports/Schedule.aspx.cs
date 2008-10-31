@@ -12,6 +12,7 @@ using TaskScheduler;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.DirectoryServices;
+using System.Threading;
 
 public partial class Reports_schedule : System.Web.UI.Page
 {
@@ -405,16 +406,22 @@ and gr.GeneralReportCode = ?r
     }
     protected void btnExecute_Click(object sender, EventArgs e)
     {
+		bool _runed = false;
 		if (this.IsValid && (currentTask.Status != TaskStatus.Running))
         {
             currentTask.Run();
+			Thread.Sleep(500);
 			btnExecute.Enabled = false;
 			btnExecute.Text = StatusRunning;
+			_runed = true;
         }
         currentTask.Close();
         //Закончили работу с задачами
         st.Dispose();
-    }
+		Thread.Sleep(500);
+		if (_runed)
+			Response.Redirect("Schedule.aspx?r=" + Request["r"]);
+	}
 
     bool IsUserExist(string domain, string login, string password)
     {

@@ -230,7 +230,8 @@ WHERE   cr.FirmCode         =cd.firmcode
 										drReport[GeneralReportColumns.EMailSubject].ToString(),
 										mc,
 										drReport[GeneralReportColumns.ReportFileName].ToString(),
-										drReport[GeneralReportColumns.ReportArchName].ToString());
+										drReport[GeneralReportColumns.ReportArchName].ToString(),
+										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]));
 									gr.ProcessReports();
 								}
 								catch (Exception ex)

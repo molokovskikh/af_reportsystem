@@ -12,6 +12,8 @@ using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using ReportTuner.Models;
+using NHibernate.Criterion;
+using TaskScheduler;
 
 /// <summary>
 /// Summary description for Global
@@ -67,6 +69,26 @@ namespace Inforoom.ReportTuner
 			if (UserName.StartsWith("ANALIT\\", StringComparison.OrdinalIgnoreCase))
 				UserName = UserName.Substring(7);
 			Session["UserName"] = UserName;
+
+			//Удаляем временные отчеты, которые старше 1 дня
+			GeneralReport[] _temporaryReportsForDelete = GeneralReport.FindAll(
+				Expression.Eq("Temporary", true),
+				Expression.Le("TemporaryCreationDate", DateTime.Now.AddDays(-1)));
+			if (_temporaryReportsForDelete.Length > 0)
+				using (new TransactionScope())
+				{
+					foreach (GeneralReport _report in _temporaryReportsForDelete)
+					{
+						DeleteTask(_report.Id);
+						_report.Delete();
+					}
+				}
+		}
+
+		private void DeleteTask(ulong generalReportId)
+		{
+			ScheduledTasks _scheduledTasks = new ScheduledTasks(ConfigurationManager.AppSettings["asComp"]);
+			_scheduledTasks.DeleteTask("GR" + generalReportId + ".job");
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)

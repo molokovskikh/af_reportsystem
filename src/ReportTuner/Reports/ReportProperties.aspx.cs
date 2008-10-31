@@ -50,10 +50,18 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (Request["rp"] == null)
-            Response.Redirect("Reports.aspx");
-        if (Request["r"] == null)
-            Response.Redirect("GeneralReports.aspx");
+		if (String.IsNullOrEmpty(Request["r"]) && String.IsNullOrEmpty(Request["TemporaryId"]))
+			Response.Redirect("GeneralReports.aspx");
+
+		if (String.IsNullOrEmpty(Request["rp"]))
+			if (!String.IsNullOrEmpty(Request["r"]))
+				Response.Redirect("Reports.aspx?r=" + Request["r"]);
+		    else
+				Response.Redirect("TemporaryReport.aspx?TemporaryId=" + Request["TemporaryId"]);
+
+		btnBack.Visible = !String.IsNullOrEmpty(Request["TemporaryId"]);
+		btnNext.Visible = btnBack.Visible;
+
         if (!(Page.IsPostBack))
         {
             MyCn.Open();
@@ -122,10 +130,48 @@ FROM
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
     rp.propertyID = rtp.ID
-AND Optional=0
+AND rtp.Optional=0
+and rtp.PropertyName not in ('ByPreviousMonth', 'ReportInterval', 'StartDate', 'EndDate')
 AND rp.reportCode=?rp
 ";
-        MyDA.Fill(DS, dtNonOptionalParams.TableName);
+		if (!String.IsNullOrEmpty(Request["TemporaryId"]))
+			MyCmd.CommandText += @"
+union
+SELECT
+    rp.ID as PID,
+    rtp.DisplayName as PParamName,
+    rtp.PropertyType as PPropertyType,
+    rp.PropertyValue as PPropertyValue,
+    rtp.PropertyEnumID as PPropertyEnumID,
+    rtp.selectstoredprocedure as PStoredProc
+FROM 
+    reports.report_properties rp, reports.report_type_properties rtp
+WHERE 
+    rp.propertyID = rtp.ID
+AND rtp.Optional=0
+and rtp.PropertyName in ('StartDate', 'EndDate')
+AND rp.reportCode=?rp
+";
+		else
+			MyCmd.CommandText += @"
+union
+SELECT
+    rp.ID as PID,
+    rtp.DisplayName as PParamName,
+    rtp.PropertyType as PPropertyType,
+    rp.PropertyValue as PPropertyValue,
+    rtp.PropertyEnumID as PPropertyEnumID,
+    rtp.selectstoredprocedure as PStoredProc
+FROM 
+    reports.report_properties rp, reports.report_type_properties rtp
+WHERE 
+    rp.propertyID = rtp.ID
+AND rtp.Optional=0
+and rtp.PropertyName in ('ByPreviousMonth', 'ReportInterval')
+AND rp.reportCode=?rp
+";
+
+		MyDA.Fill(DS, dtNonOptionalParams.TableName);
 
         MyCn.Close();
 
@@ -320,7 +366,22 @@ AND rp.reportCode=?rp
             ((Button)e.Row.Cells[1].FindControl("btnFind")).CommandArgument = e.Row.RowIndex.ToString();
             ((Button)e.Row.Cells[1].FindControl("btnListValue")).CommandArgument = ((DataRowView)e.Row.DataItem)[PID.ColumnName].ToString();
 
-            if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "BOOL")
+			if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "DATETIME")
+			{
+				((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+				((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+				((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+				((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+				((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+				((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+				((TextBox)e.Row.Cells[1].FindControl("tbDate")).Visible = true;
+				string dateValue = ((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString();
+				if (dateValue.Equals("NOW", StringComparison.OrdinalIgnoreCase))
+					((TextBox)e.Row.Cells[1].FindControl("tbDate")).Text = DateTime.Now.ToString("yyyy-MM-dd");
+				else
+					((TextBox)e.Row.Cells[1].FindControl("tbDate")).Text = dateValue;
+			}
+			else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "BOOL")
             {
                 ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
                 ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
@@ -595,7 +656,12 @@ WHERE ID = ?OPID", MyCn, trans);
                 if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((CheckBox)dr.FindControl("chbValue")).Checked.ToString())
                     DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = Convert.ToInt32(((CheckBox)dr.FindControl("chbValue")).Checked).ToString();
             }
-            else if (((TextBox)dr.FindControl("tbValue")).Visible == true)
+            else if (((TextBox)dr.FindControl("tbDate")).Visible == true)
+			{
+				if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((TextBox)dr.FindControl("tbDate")).Text)
+					DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = ((TextBox)dr.FindControl("tbDate")).Text;
+			}
+			else if (((TextBox)dr.FindControl("tbValue")).Visible == true)
             {
                 if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((TextBox)dr.FindControl("tbValue")).Text)
                     DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = ((TextBox)dr.FindControl("tbValue")).Text;
@@ -665,8 +731,18 @@ WHERE ID = ?OPID", MyCn, trans);
         }
         else if (e.CommandName == "ShowValues")
         {
-            string url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}", Request["r"], Request["rp"], e.CommandArgument);
-            Response.Redirect(url);
+			string url = String.Empty;
+			if (!String.IsNullOrEmpty(Request["TemporaryId"]))
+				url = String.Format("ReportPropertyValues.aspx?TemporaryId={0}&rp={1}&rpv={2}",
+					Request["TemporaryId"], 
+					Request["rp"], 
+					e.CommandArgument);
+			else
+				url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+					Request["r"],
+					Request["rp"],
+					e.CommandArgument);
+			Response.Redirect(url);
         }
     }
 
@@ -708,12 +784,6 @@ WHERE ID = ?OPID", MyCn, trans);
 
     }
 
-    protected void btnListValue_Click(object sender, EventArgs e)
-    {
-        string url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}", Request["r"], Request["rp"]);
-        Response.Redirect(url);
-    }
-
     protected void dgvOptional_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         if (e.CommandName == "Find")
@@ -730,7 +800,18 @@ WHERE ID = ?OPID", MyCn, trans);
         }
         else if (e.CommandName == "ShowValues")
         {
-            string url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}", Request["r"], Request["rp"], e.CommandArgument);
+			string url = String.Empty;
+			if (!String.IsNullOrEmpty(Request["TemporaryId"]))
+				url = String.Format("ReportPropertyValues.aspx?TemporaryId={0}&rp={1}&rpv={2}",
+					Request["TemporaryId"],
+					Request["rp"],
+					e.CommandArgument);
+			else
+				url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+					Request["r"],
+					Request["rp"],
+					e.CommandArgument);
+
             Response.Redirect(url);
         }
         else if (e.CommandName == "Add")
@@ -835,7 +916,22 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
                 ((Button)e.Row.Cells[1].FindControl("btnFind")).CommandArgument = e.Row.RowIndex.ToString();
                 ((Button)e.Row.Cells[1].FindControl("btnListValue")).CommandArgument = ((DataRowView)e.Row.DataItem)[OPID.ColumnName].ToString();
 
-                if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "BOOL")
+				if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "DATETIME")
+				{
+					((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
+					((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
+					((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
+					((Button)e.Row.Cells[1].FindControl("btnListValue")).Visible = false;
+					((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
+					((CheckBox)e.Row.Cells[1].FindControl("chbValue")).Visible = false;
+					((TextBox)e.Row.Cells[1].FindControl("tbDate")).Visible = true;
+					string dateValue = ((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString();
+					if (dateValue.Equals("NOW", StringComparison.OrdinalIgnoreCase))
+						((TextBox)e.Row.Cells[1].FindControl("tbDate")).Text = DateTime.Now.ToString("yyyy-MM-dd");
+					else
+						((TextBox)e.Row.Cells[1].FindControl("tbDate")).Text = dateValue;
+				}
+				else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "BOOL")
                 {
                     ((TextBox)e.Row.Cells[1].FindControl("tbValue")).Visible = false;
                     ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = false;
@@ -933,4 +1029,14 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
         dgvOptional.DataSource = DS;
         dgvOptional.DataBind();
     }
+
+	protected void btnBack_Click(object sender, EventArgs e)
+	{
+		Response.Redirect("TemporaryReport.aspx?TemporaryId=" + Request["TemporaryId"]);
+	}
+
+	protected void btnNext_Click(object sender, EventArgs e)
+	{
+		Response.Redirect("TemporaryReportSchedule.aspx?TemporaryId=" + Request["TemporaryId"]);
+	}
 }

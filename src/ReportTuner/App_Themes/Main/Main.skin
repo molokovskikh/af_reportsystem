@@ -18,6 +18,8 @@ Default skin template. The following skins are provided as examples only.
 <asp:Label runat="server" SkinId="scheduleLabelSkin" Width="200px"/>
 <asp:TextBox runat="server" SkinId="searchTexBoxSkin" BorderStyle="Groove" Width="30%"/>
 <asp:TextBox runat="server" SkinId="passwordTexBoxSkin" BorderStyle="Groove" Width="15%"/>
+<asp:TextBox runat="server" SkinId="findTexBoxSkin" BorderStyle="Groove" Width="150"/>
+<asp:TextBox runat="server" SkinId="dateTexBoxSkin" BorderStyle="Groove" Width="100"/>
 
 <asp:GridView runat="server" width="100%" BackColor="#EBEBEB" BorderColor="#DADADA" BorderWidth="1px" BorderStyle="Solid" >
 	<AlternatingRowStyle HorizontalAlign="Center" VerticalAlign="Middle" BackColor="#EEF8FF" />

@@ -15,6 +15,8 @@ namespace Inforoom.ReportSystem
 {
 	class MixedReport : RatingReport
 	{
+		private const string fromProperty = "StartDate";
+		private const string toProperty = "EndDate";
 		private const string reportIntervalProperty = "ReportInterval";
 		private const string byPreviousMonthProperty = "ByPreviousMonth";
 		private const string sourceFirmCodeProperty = "SourceFirmCode";
@@ -45,8 +47,8 @@ namespace Inforoom.ReportSystem
 		//Поле производитель
 		private RatingField firmCrField;
 
-		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
-			: base(ReportCode, ReportCaption, Conn)
+		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{
 		}
 
@@ -58,7 +60,14 @@ namespace Inforoom.ReportSystem
 			showCodeCr = (bool)(bool)getReportParam(showCodeCrProperty);
 			//List<string> s = businessRivals.ConvertAll<string>(delegate(ulong value) { return value.ToString(); });
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if (ByPreviousMonth)
+			if (_parentIsTemporary)
+			{
+				dtFrom = ((DateTime)getReportParam(fromProperty)).Date;
+				dtTo = (DateTime)getReportParam(toProperty);
+				dtTo = dtTo.Date.AddDays(1);
+			}
+			else
+				if (ByPreviousMonth)
 			{
 				dtTo = DateTime.Now;
 				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;

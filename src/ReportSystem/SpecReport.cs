@@ -26,8 +26,8 @@ namespace Inforoom.ReportSystem
 
 		protected string reportCaptionPreffix;
 
-		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
-			: base(ReportCode, ReportCaption, Conn)
+		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{
 			reportCaptionPreffix = "Специальный отчет";
 		}

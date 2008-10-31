@@ -10,8 +10,8 @@ namespace Inforoom.ReportSystem
 {
 	class CombShortReport : CombReport
 	{
-		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
-			: base(ReportCode, ReportCaption, Conn)
+		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}

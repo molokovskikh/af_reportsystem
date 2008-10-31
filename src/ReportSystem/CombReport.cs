@@ -32,8 +32,8 @@ namespace Inforoom.ReportSystem
 
 		protected string reportCaptionPreffix;
 
-		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
-			: base(ReportCode, ReportCaption, Conn)
+		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{
 			reportCaptionPreffix = "Комбинированный отчет";
 		}

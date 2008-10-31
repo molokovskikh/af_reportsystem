@@ -17,6 +17,12 @@
 				</siteMapNode>
 			</siteMapNode>
 		</siteMapNode>
-    <siteMapNode url="~/Reports/TemplateReports.aspx" title="Шаблоны"  description=""/>
+		<siteMapNode url="~/Reports/TemplateReports.aspx" title="Шаблоны"  description=""/>
+		<siteMapNode url="~/Reports/TemporaryReport.aspx" title="Мастер разового отчета"  description="">
+			<siteMapNode url="~/Reports/ReportProperties.aspx?TemporaryId=" title="Настройка параметров разового отчета"  description="">
+				<siteMapNode url="~/Reports/ReportPropertyValues.aspx?TemporaryId=" title="Редактирование значений списка"  description=""/>
+				<siteMapNode url="~/Reports/TemporaryReportSchedule.aspx" title="Выполнение разового отчета"  description=""/>
+			</siteMapNode>
+		</siteMapNode>
 	</siteMapNode>
 </siteMap>

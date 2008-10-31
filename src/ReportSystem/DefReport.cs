@@ -30,8 +30,8 @@ namespace Inforoom.ReportSystem
 		protected DefReportType _reportType;
 		protected int _priceCode;
 
-		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn)
-			: base(ReportCode, ReportCaption, Conn)
+		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{
 		}
 

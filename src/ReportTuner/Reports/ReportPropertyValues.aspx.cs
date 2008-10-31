@@ -47,13 +47,22 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (Request["rp"] == null)
-            Response.Redirect("Reports.aspx");
-        if (Request["r"] == null)
-            Response.Redirect("GeneralReports.aspx");
-        if (Request["rpv"] == null)
-            Response.Redirect("ReportProperties.aspx");
-        if (!(Page.IsPostBack))
+		if (String.IsNullOrEmpty(Request["r"]) && String.IsNullOrEmpty(Request["TemporaryId"]))
+			Response.Redirect("GeneralReports.aspx");
+
+		if (String.IsNullOrEmpty(Request["rp"]))
+			if (!String.IsNullOrEmpty(Request["r"]))
+				Response.Redirect("Reports.aspx?r=" + Request["r"]);
+			else
+				Response.Redirect("TemporaryReport.aspx?TemporaryId=" + Request["TemporaryId"]);
+
+		if (String.IsNullOrEmpty(Request["rpv"]))
+			if (!String.IsNullOrEmpty(Request["r"]))
+				Response.Redirect(String.Format("ReportProperties.aspx?r={0}&rp={1}", Request["r"], Request["rp"]));
+			else
+				Response.Redirect(String.Format("ReportProperties.aspx?TemporaryId={0}&rp={1}", Request["TemporaryId"], Request["rp"]));
+
+		if (!(Page.IsPostBack))
         {
             try
             {
@@ -73,7 +82,7 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
             MyCmd.Parameters.AddWithValue("rpv", Request["rpv"]);
-            MyCmd.Parameters.AddWithValue("r", Request["r"]);
+			MyCmd.Parameters.AddWithValue("r", (!String.IsNullOrEmpty(Request["r"])) ? Request["r"] : Request["TemporaryId"]);
             MyCmd.CommandText = @"
 select
   rtp.displayname as LName,

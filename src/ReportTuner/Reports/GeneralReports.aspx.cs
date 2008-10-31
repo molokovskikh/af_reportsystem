@@ -78,6 +78,7 @@ FROM
     reports.general_reports gr, usersettings.clientsdata cd
 WHERE cd.FirmCode=gr.FirmCode
 and gr.GeneralReportCode <> ?TemplateReportId
+and gr.Temporary = 0
 Order by gr.GeneralReportCode
 ";
 		MyCmd.Parameters.AddWithValue("?TemplateReportId", ConfigurationManager.AppSettings["TemplateReportId"]);
