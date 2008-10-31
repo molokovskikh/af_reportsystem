@@ -97,6 +97,14 @@
 				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить расписание" />
 			</EmptyDataTemplate>
         </asp:GridView>
+        <br/>
+        <asp:GridView ID="gvOtherTriggers" runat="server" 
+            Caption="Дополнительное расписание" AutoGenerateColumns="False" >
+            <Columns>
+                <asp:BoundField DataField="!" HeaderText="Описание" />
+            </Columns>
+        </asp:GridView>
+        <br/>
         <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgPassword" />
     </div>
 </asp:Content>

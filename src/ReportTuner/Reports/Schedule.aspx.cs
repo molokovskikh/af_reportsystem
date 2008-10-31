@@ -97,6 +97,7 @@ and gr.GeneralReportCode = ?r
                 chbAllow.Checked = true;
             tbComment.Text = currentTask.Comment;
             tbUserName.Text = currentTask.AccountName;
+			System.Collections.Generic.List<Trigger> _otherTriggers = new System.Collections.Generic.List<Trigger>();
             TriggerList TL = currentTask.Triggers;
             DaysOfTheWeek days;
             for (int i = 0; i < TL.Count; i++)
@@ -119,11 +120,17 @@ and gr.GeneralReportCode = ?r
 
 					DS.Tables[dtSchedule.TableName].Rows.Add(dr);
 				}
+				else
+					_otherTriggers.Add(TL[i]);
             }
             DS.Tables[dtSchedule.TableName].AcceptChanges();
             dgvSchedule.DataSource = DS;
             dgvSchedule.DataMember = dtSchedule.TableName;
             dgvSchedule.DataBind();
+
+			gvOtherTriggers.DataSource = _otherTriggers;
+			gvOtherTriggers.DataBind();
+
             Session[DSSchedule] = DS;
             //Закончили работу с задачами
             st.Dispose();
