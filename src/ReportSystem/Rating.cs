@@ -332,9 +332,7 @@ and prov.FirmCode = pd.FirmCode");
 						for (int i = 0; i < filter.Count; i++)
 							ws.Cells[1 + i, 1] = filter[i];
 
-						//Замораживаем некоторые колонки и столбцы
-						((MSExcel.Range)ws.get_Range("A" + (2 + filter.Count).ToString(), System.Reflection.Missing.Value)).Select();
-						exApp.ActiveWindow.FreezePanes = true;
+						FreezePanes(exApp, ws);
 					}
 					finally
 					{
@@ -355,6 +353,13 @@ and prov.FirmCode = pd.FirmCode");
 				catch { }
 				exApp = null;
 			}
+		}
+
+		protected virtual void FreezePanes(MSExcel.Application exApp, MSExcel._Worksheet ws)
+		{
+			//Замораживаем некоторые колонки и столбцы
+			((MSExcel.Range)ws.get_Range("A" + (2 + filter.Count).ToString(), System.Reflection.Missing.Value)).Select();
+			exApp.ActiveWindow.FreezePanes = true;
 		}
 
 	}

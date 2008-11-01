@@ -330,68 +330,89 @@ and prov.FirmCode = pd.FirmCode");
 			dc = res.Columns.Add("SourceFirmCodeSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("SourceFirmCodeRows", typeof(System.Int32));
 			dc.Caption = "Кол-во по постащику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("SourceFirmCodeMinCost", typeof(System.Decimal));
 			dc.Caption = "Минимальная цена по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("SourceFirmCodeAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("SourceFirmCodeMaxCost", typeof(System.Decimal));
 			dc.Caption = "Максимальная цена по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("SourceFirmDistinctOrderId", typeof(System.Int32));
 			dc.Caption = "Кол-во заявок по препарату по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("SourceFirmDistinctClientCode", typeof(System.Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по постащику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 
 			dc = res.Columns.Add("RivalsSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("RivalsRows", typeof(System.Int32));
 			dc.Caption = "Кол-во по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("RivalsMinCost", typeof(System.Decimal));
 			dc.Caption = "Минимальная цена по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("RivalsAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("RivalsMaxCost", typeof(System.Decimal));
 			dc.Caption = "Максимальная цена по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("RivalsDistinctOrderId", typeof(System.Int32));
 			dc.Caption = "Кол-во заявок по препарату по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("RivalsDistinctClientCode", typeof(System.Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 
 			dc = res.Columns.Add("AllSum", typeof(System.Decimal));
 			dc.Caption = "Сумма по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("AllRows", typeof(System.Int32));
 			dc.Caption = "Кол-во по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("AllMinCost", typeof(System.Decimal));
 			dc.Caption = "Минимальная цена по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("AllAvgCost", typeof(System.Decimal));
 			dc.Caption = "Средняя цена по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("AllMaxCost", typeof(System.Decimal));
 			dc.Caption = "Максимальная цена по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("AllDistinctOrderId", typeof(System.Int32));
 			dc.Caption = "Кол-во заявок по препарату по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("AllDistinctClientCode", typeof(System.Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 
 			DataRow newrow;
 			try
@@ -428,5 +449,19 @@ and prov.FirmCode = pd.FirmCode");
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
 		}
+
+		protected override void FreezePanes(MSExcel.Application exApp, MSExcel._Worksheet ws)
+		{
+			int _freezeCount = selectField.FindAll(delegate(RatingField x) { return x.visible; }).Count;			
+			if (showCode)
+				_freezeCount++;
+			if (showCodeCr)
+				_freezeCount++;
+
+			//Замораживаем некоторые колонки и столбцы
+			((MSExcel.Range)ws.get_Range(ws.Cells[2 + filter.Count, _freezeCount + 1], ws.Cells[2 + filter.Count, _freezeCount + 1])).Select();
+			exApp.ActiveWindow.FreezePanes = true;
+		}
+
 	}
 }
