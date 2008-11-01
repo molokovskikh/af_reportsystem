@@ -64,6 +64,11 @@ public partial class Reports_schedule : System.Web.UI.Page
 		SchedulePassword = System.Configuration.ConfigurationManager.AppSettings["asSchedulePassword"];
 		st = new ScheduledTasks(asComp);
 
+		//Иногда необходимо удалить задачу, а т.к. Vista не содержит визуального интерфейса к API Task Scheduler 1.0,
+		//то приходится использовать этот код
+		//st.DeleteTask(taskName + ".job");
+		//Thread.Sleep(1000);
+
         currentTask = FindTask(st);
 
 		btnExecute.Enabled = currentTask.Status != TaskStatus.Running;
