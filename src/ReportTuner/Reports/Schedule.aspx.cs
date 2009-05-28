@@ -8,11 +8,12 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
-using TaskScheduler;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.DirectoryServices;
+using Microsoft.Win32.TaskScheduler;
 using System.Threading;
+
 
 public partial class Reports_schedule : System.Web.UI.Page
 {
@@ -23,10 +24,12 @@ public partial class Reports_schedule : System.Web.UI.Page
     string asWorkDir = String.Empty;
     string asApp = String.Empty;
     string asComp = String.Empty;
+	string ScheduleDomainName = String.Empty;
 	string ScheduleUserName = String.Empty;
 	string SchedulePassword = String.Empty;
-	ScheduledTasks st = null;
-    string taskName = String.Empty;
+	TaskService taskService = null;
+	TaskFolder reportsFolder;
+	string taskName = String.Empty;
     private DataSet DS;
     private DataTable dtSchedule;
     private DataColumn SWeek;
@@ -38,6 +41,7 @@ public partial class Reports_schedule : System.Web.UI.Page
     private DataColumn SSaturday;
     private DataColumn SSunday;
     Task currentTask;
+	TaskDefinition currentTaskDefinition;
     DaysOfTheWeek triggerDays = 0;
     private DataColumn SStartHour;
     private DataColumn SStartMinute;
@@ -60,19 +64,22 @@ public partial class Reports_schedule : System.Web.UI.Page
         asWorkDir = System.Configuration.ConfigurationManager.AppSettings["asWorkDir"];
         asApp = System.Configuration.ConfigurationManager.AppSettings["asApp"];
         asComp = System.Configuration.ConfigurationManager.AppSettings["asComp"];
+		ScheduleDomainName = System.Configuration.ConfigurationManager.AppSettings["asScheduleDomainName"];
 		ScheduleUserName = System.Configuration.ConfigurationManager.AppSettings["asScheduleUserName"];
 		SchedulePassword = System.Configuration.ConfigurationManager.AppSettings["asSchedulePassword"];
-		st = new ScheduledTasks(asComp);
-
-		//Иногда необходимо удалить задачу, а т.к. Vista не содержит визуального интерфейса к API Task Scheduler 1.0,
-		//то приходится использовать этот код
-		//st.DeleteTask(taskName + ".job");
-		//Thread.Sleep(1000);
-
-        currentTask = FindTask(st);
-
-		btnExecute.Enabled = currentTask.Status != TaskStatus.Running;
-		btnExecute.Text = (btnExecute.Enabled) ? StatusRunning : StatusNotRunning;
+		taskService = new TaskService(asComp, ScheduleUserName, ScheduleDomainName, SchedulePassword);
+		try
+		{
+			reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]);
+		}
+		catch (System.IO.FileNotFoundException)
+		{
+			throw new Exception(String.Format("На сервере {0} не существует папка '{1}' в планировщике задач", asComp, ConfigurationManager.AppSettings["asReportsFolderName"]));
+		}
+		currentTask = FindTask(taskService, taskName);
+		currentTaskDefinition = currentTask.Definition;
+		btnExecute.Enabled = currentTask.Enabled && (currentTask.State != TaskState.Running);
+		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
         if (!Page.IsPostBack)
         {
@@ -94,16 +101,12 @@ and gr.GeneralReportCode = ?r
 
             lblWork.Text = taskName;
 
-            lblWork.Text = currentTask.ApplicationName + " " + currentTask.Parameters;
-            lblFolder.Text = currentTask.WorkingDirectory;
-            if ((currentTask.Flags & TaskFlags.Disabled) > 0)
-                chbAllow.Checked = false;
-            else 
-                chbAllow.Checked = true;
-            tbComment.Text = currentTask.Comment;
-            tbUserName.Text = currentTask.AccountName;
+			lblWork.Text = ((ExecAction)currentTask.Definition.Actions[0]).Path + " " + ((ExecAction)currentTask.Definition.Actions[0]).Arguments;
+            lblFolder.Text = ((ExecAction)currentTask.Definition.Actions[0]).WorkingDirectory;
+			chbAllow.Checked = currentTask.Enabled;
+            tbComment.Text = currentTask.Definition.RegistrationInfo.Description;
 			System.Collections.Generic.List<Trigger> _otherTriggers = new System.Collections.Generic.List<Trigger>();
-            TriggerList TL = currentTask.Triggers;
+            TriggerCollection TL = currentTask.Definition.Triggers;
             DaysOfTheWeek days;
             for (int i = 0; i < TL.Count; i++)
             {
@@ -111,9 +114,12 @@ and gr.GeneralReportCode = ?r
 				{
 					DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
 					WeeklyTrigger trigger = ((WeeklyTrigger)TL[i]);
-					dr[SStartHour.ColumnName] = ((WeeklyTrigger)(trigger)).StartHour;
-					dr[SStartMinute.ColumnName] = ((WeeklyTrigger)(trigger)).StartMinute;
-					days = ((WeeklyTrigger)(trigger)).WeekDays;
+					dr[SStartHour.ColumnName] = ((WeeklyTrigger)(trigger)).StartBoundary.Hour;
+					dr[SStartMinute.ColumnName] = ((WeeklyTrigger)(trigger)).StartBoundary.Minute;
+					//               dr[SStart.ColumnName] = ((WeeklyTrigger)(trigger)).StartHour + ":" + ((WeeklyTrigger)(trigger)).StartMinute;
+					days = ((WeeklyTrigger)(trigger)).DaysOfWeek;
+					//days = days | DaysOfTheWeek.Friday | DaysOfTheWeek.Thursday;
+					System.Diagnostics.Debug.WriteLine(days);
 
 					SetWeekDays(dr, DaysOfTheWeek.Monday, days);
 					SetWeekDays(dr, DaysOfTheWeek.Tuesday, days);
@@ -127,7 +133,7 @@ and gr.GeneralReportCode = ?r
 				}
 				else
 					_otherTriggers.Add(TL[i]);
-            }
+			}
             DS.Tables[dtSchedule.TableName].AcceptChanges();
             dgvSchedule.DataSource = DS;
             dgvSchedule.DataMember = dtSchedule.TableName;
@@ -137,8 +143,8 @@ and gr.GeneralReportCode = ?r
 			gvOtherTriggers.DataBind();
 
             Session[DSSchedule] = DS;
-            //Закончили работу с задачами
-            st.Dispose();
+
+			CloseTaskService();
         }
         else
         {
@@ -155,42 +161,43 @@ and gr.GeneralReportCode = ?r
             dr[column] = 0;
     }
 
-    private Task FindTask(ScheduledTasks st)
+    private Task FindTask(TaskService _taskService, string _taskName)
     {
-        Task t = null;
-        string[] taskNames = st.GetTaskNames();
-        bool find = false;
-        foreach (string name in taskNames)
-        {
-            if (name == taskName+".job")
-            {
-                find = true;
-                t = st.OpenTask(name);
-                break;
-            }
-        }
-        if (!find)
-        {
-            t = CreateNewTask(st);
-            t = st.OpenTask(taskName);
-        }
-        return t;
+		Task findTask = null;
+
+		try
+		{
+			findTask = _taskService.GetTask(ConfigurationManager.AppSettings["asReportsFolderName"] + "\\" + _taskName);
+		}
+		catch (System.IO.FileNotFoundException)
+		{
+			findTask = CreateNewTask(_taskService, _taskName);
+		}
+
+		return findTask;
     }
 
-    private Task CreateNewTask(ScheduledTasks st)
+    private Task CreateNewTask(TaskService _taskService, string _taskName)
     {
-        Task t = st.CreateTask(taskName);
-        
-        t.ApplicationName = asApp;
-        t.Parameters = "/gr:" + Request["r"];
-		if (String.IsNullOrEmpty(ScheduleUserName))
-			t.SetAccountInformation(String.Empty, null);
-		else
-			t.SetAccountInformation(ScheduleUserName, SchedulePassword);
-        t.WorkingDirectory = asWorkDir;
-        t.Save();
-        t.Close();
-        return t;
+		TaskDefinition newTask = _taskService.NewTask();
+
+		newTask.RegistrationInfo.Author = ScheduleDomainName + "\\" + ScheduleUserName;
+		newTask.RegistrationInfo.Date = DateTime.Now;
+
+		newTask.Settings.AllowDemandStart = true;
+		newTask.Settings.AllowHardTerminate = true;
+		newTask.Settings.ExecutionTimeLimit = TimeSpan.FromHours(1);
+
+		newTask.Actions.Add(new ExecAction(asApp, "/gr:" + Request["r"], asWorkDir));
+
+		return reportsFolder.RegisterTaskDefinition(
+			_taskName, 
+			newTask, 
+			TaskCreation.Create, 
+			ScheduleDomainName + "\\" + ScheduleUserName, 
+			SchedulePassword, 
+			TaskLogonType.Password, 
+			null);
     }
 
     protected void btnApply_Click(object sender, EventArgs e)
@@ -200,10 +207,11 @@ and gr.GeneralReportCode = ?r
             CopyChangesToTable();
 
             SaveTriggers();
+
             SaveTaskChanges();
         }
-        //Закончили работу с задачами
-        st.Dispose();
+
+		CloseTaskService();
     }
 
     private void CopyChangesToTable()
@@ -212,6 +220,7 @@ and gr.GeneralReportCode = ?r
         foreach (GridViewRow drv in dgvSchedule.Rows)
         {
             DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
+            //dr[SStart.ColumnName] = ((TextBox)drv.FindControl("tbStart")).Text;
             string h = ((TextBox)drv.FindControl("tbStart")).Text;
             string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
             if (m.StartsWith("0"))
@@ -233,26 +242,27 @@ and gr.GeneralReportCode = ?r
 
     private void SaveTaskChanges()
     {
-        currentTask.Comment = tbComment.Text;
-        if (!chbAllow.Checked)
-            currentTask.Flags = currentTask.Flags | TaskFlags.Disabled;
-        else
-            currentTask.Flags = currentTask.Flags & (~TaskFlags.Disabled);
-        if (String.IsNullOrEmpty(tbUserName.Text))
-            currentTask.SetAccountInformation("", null);
-        else
-            if (!String.IsNullOrEmpty(tbPassword.Text))
-                currentTask.SetAccountInformation(tbUserName.Text, tbPassword.Text);
- 
-        currentTask.Save();
-        currentTask.Close();
+		currentTaskDefinition.RegistrationInfo.Description = tbComment.Text;
+		currentTaskDefinition.Settings.Enabled = chbAllow.Checked;
+
+		btnExecute.Enabled = currentTaskDefinition.Settings.Enabled && (currentTask.State != TaskState.Running);
+		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
+
+		reportsFolder.RegisterTaskDefinition(
+			currentTask.Name,
+			currentTaskDefinition,
+			TaskCreation.Update,
+			ScheduleDomainName + "\\" + ScheduleUserName,
+			SchedulePassword,
+			TaskLogonType.Password,
+			null);
     }
 
     private void SaveTriggers()
     {
-		for(int i = currentTask.Triggers.Count-1; i >= 0; i--)
-			if (currentTask.Triggers[i] is WeeklyTrigger)
-				currentTask.Triggers.RemoveAt(i);
+		for (int i = currentTaskDefinition.Triggers.Count - 1; i >= 0; i--)
+			if (currentTaskDefinition.Triggers[i] is WeeklyTrigger)
+				currentTaskDefinition.Triggers.RemoveAt(i);		
 
         foreach(DataRow dr in DS.Tables[dtSchedule.TableName].Rows)
         {
@@ -268,8 +278,10 @@ and gr.GeneralReportCode = ?r
             AddDay(dr, DaysOfTheWeek.Saturday);
             AddDay(dr, DaysOfTheWeek.Sunday);
 
-            WeeklyTrigger trigger = new WeeklyTrigger(h, m, triggerDays);
-            currentTask.Triggers.Add(trigger);
+			WeeklyTrigger trigger = (WeeklyTrigger)currentTaskDefinition.Triggers.AddNew(TaskTriggerType.Weekly);			
+			trigger.DaysOfWeek = triggerDays;
+			trigger.WeeksInterval = 1;
+			trigger.StartBoundary = DateTime.Now.Date.AddHours(h).AddMinutes(m);
         }
     }
 
@@ -385,8 +397,7 @@ and gr.GeneralReportCode = ?r
         ((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).EndInit();
 
     }
-   
-	protected void dgvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
+    protected void dgvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         if (e.CommandName == "Add")
         {
@@ -399,16 +410,14 @@ and gr.GeneralReportCode = ?r
             dgvSchedule.DataBind();
         }
     }
-    
-	protected void dgvSchedule_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    protected void dgvSchedule_RowDeleting(object sender, GridViewDeleteEventArgs e)
     {
         CopyChangesToTable();
         DS.Tables[dtSchedule.TableName].DefaultView[e.RowIndex].Delete();
         dgvSchedule.DataSource = DS;
         dgvSchedule.DataBind();
     }
-    
-	protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
+    protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
@@ -416,48 +425,41 @@ and gr.GeneralReportCode = ?r
             tb.Text = ((DataRowView)e.Row.DataItem)[SStartHour.ColumnName].ToString() + ":" + ((DataRowView)e.Row.DataItem)[SStartMinute.ColumnName].ToString().PadLeft(2,'0');
         }
     }
+
     protected void btnExecute_Click(object sender, EventArgs e)
     {
 		bool _runed = false;
-		if (this.IsValid && (currentTask.Status != TaskStatus.Running))
+
+		if (this.IsValid && (currentTask.State != TaskState.Running))
         {
             currentTask.Run();
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
-			btnExecute.Text = StatusRunning;
+			btnExecute.Text = StatusNotRunning;
 			_runed = true;
-        }
-        currentTask.Close();
-        //Закончили работу с задачами
-        st.Dispose();
+		}
+
+		CloseTaskService();
 		Thread.Sleep(500);
 		if (_runed)
 			Response.Redirect("Schedule.aspx?r=" + Request["r"]);
 	}
 
-    bool IsUserExist(string domain, string login, string password)
-    {
-        DirectoryEntry entry = null;
-        string path = "LDAP://" + domain;
-        try
-        {
-            entry = new DirectoryEntry(path, login, password);
-            path = entry.Name;
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-        finally
-        {
-            if (entry != null)
-                entry.Dispose();
-        }
-    }
+	/// <summary>
+	/// Закончили работу с TaskService
+	/// </summary>
+	private void CloseTaskService()
+	{
+		if (currentTask != null)
+		{
+			currentTask.Dispose();
+			currentTask = null;
+		}
+		if (taskService != null)
+		{
+			taskService.Dispose();
+			taskService = null;
+		}
+	}
 
-    protected void CustomValidator1_ServerValidate(object source, ServerValidateEventArgs args)
-    {
-        args.IsValid = (String.IsNullOrEmpty(tbPassword.Text)) || IsUserExist("analit", tbUserName.Text, tbPassword.Text);
-    }
 }

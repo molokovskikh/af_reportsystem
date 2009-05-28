@@ -13,7 +13,7 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using ReportTuner.Models;
 using NHibernate.Criterion;
-using TaskScheduler;
+using Microsoft.Win32.TaskScheduler;
 
 /// <summary>
 /// Summary description for Global
@@ -87,8 +87,13 @@ namespace Inforoom.ReportTuner
 
 		private void DeleteTask(ulong generalReportId)
 		{
-			ScheduledTasks _scheduledTasks = new ScheduledTasks(ConfigurationManager.AppSettings["asComp"]);
-			_scheduledTasks.DeleteTask("GR" + generalReportId + ".job");
+			using (TaskService taskService = new TaskService(
+				ConfigurationManager.AppSettings["asComp"],
+				ConfigurationManager.AppSettings["asScheduleUserName"],
+				ConfigurationManager.AppSettings["asScheduleDomainName"],
+				ConfigurationManager.AppSettings["asSchedulePassword"]))
+				using (TaskFolder reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]))
+					reportsFolder.DeleteTask("GR" + generalReportId + ".job");		
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)

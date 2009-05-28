@@ -1,7 +1,7 @@
 <%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_schedule" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="Schedule.aspx.cs" %>
 
 <asp:Content runat="server" ID="ScheduleValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
-<div align="center"><strong><font size ="2">        
+    <div align="center"><strong><font size ="2">        
 Задание для клиента "<asp:Label ID="lblClient" runat="server" Text="Label"></asp:Label>"<br /><br />
 </font></strong></div>
     <div><font size ="2">
@@ -23,20 +23,6 @@
         <tr bgcolor="#f6f6f6"><td>
             <asp:CheckBox ID="chbAllow" runat="server" Text="Разрешено" />
         </td></tr>
-        <tr bgcolor="#eef8ff"><td>
-            <asp:Label ID="Label6" runat="server" Text="Имя пользователя:" SkinID="scheduleLabelSkin"></asp:Label>
-            <asp:TextBox ID="tbUserName" runat="server" SkinID="passwordTexBoxSkin"></asp:TextBox>
-            <br />
-            <asp:Label ID="Label8" runat="server" Text="Пароль:" SkinID="scheduleLabelSkin"></asp:Label>
-            <asp:TextBox ID="tbPassword" runat="server" SkinID="passwordTexBoxSkin" TextMode="Password"></asp:TextBox>
-            <br />
-            <asp:Label ID="Label7" runat="server" Text="Подтверждение пароля:" SkinID="scheduleLabelSkin"></asp:Label>
-            <asp:TextBox ID="tbAcceptPassword" runat="server" SkinID="passwordTexBoxSkin" TextMode="Password"></asp:TextBox>
-            <asp:CompareValidator ID="cvPassword" runat="server" ControlToCompare="tbPassword"
-             ControlToValidate="tbAcceptPassword" ErrorMessage="CompareValidator" ValidationGroup="vgPassword" Display="Dynamic">Некорректный ввод пароля</asp:CompareValidator>
-            <asp:CustomValidator ID="cvUserInAD" runat="server" ControlToValidate="tbPassword"
-                Display="Dynamic" ErrorMessage="CustomValidator" OnServerValidate="CustomValidator1_ServerValidate"
-                ValidationGroup="vgPassword">Некорректный ввод пароля</asp:CustomValidator></td></tr>
     </table>
     </font>
     <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" ValidationGroup="vgPassword" OnClick="btnExecute_Click" /><br /><br />

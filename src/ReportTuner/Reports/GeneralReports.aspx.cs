@@ -11,7 +11,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-using TaskScheduler;
+using Microsoft.Win32.TaskScheduler;
 
 public partial class Reports_GeneralReports : System.Web.UI.Page
 {
@@ -443,10 +443,16 @@ SET
 		//Удаляем задания для отчетов
 		if (_deletedReports.Count > 0)
 		{
-			ScheduledTasks _scheduledTasks = new ScheduledTasks(ConfigurationManager.AppSettings["asComp"]);
-			foreach (ulong _deletedReportId in _deletedReports)
-				_scheduledTasks.DeleteTask("GR" + _deletedReportId + ".job");
-			_scheduledTasks.Dispose();
+			using (TaskService taskService = new TaskService(
+				ConfigurationManager.AppSettings["asComp"],
+				ConfigurationManager.AppSettings["asScheduleUserName"],
+				ConfigurationManager.AppSettings["asScheduleDomainName"],
+				ConfigurationManager.AppSettings["asSchedulePassword"]))
+			using (TaskFolder reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]))
+			{
+				foreach (ulong _deletedReportId in _deletedReports)
+					reportsFolder.DeleteTask("GR" + _deletedReportId + ".job");
+			}
 		}
 
 		PostData();
