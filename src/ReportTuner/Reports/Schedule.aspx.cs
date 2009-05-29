@@ -84,20 +84,57 @@ public partial class Reports_schedule : System.Web.UI.Page
         if (!Page.IsPostBack)
         {
             MyCn.Open();
-            MyCmd.Connection = MyCn;
-            MyDA.SelectCommand = MyCmd;
-            MyCmd.Parameters.Clear();
-            MyCmd.Parameters.AddWithValue("?r", Request["r"]);
-            MyCmd.CommandText = @"
+			try
+			{
+				MyCmd.Connection = MyCn;
+				MyDA.SelectCommand = MyCmd;
+				MyCmd.Parameters.Clear();
+				MyCmd.Parameters.AddWithValue("?GeneralReportCode", Request["r"]);
+				MyCmd.CommandText = @"
 SELECT
     convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251)
 FROM
     reports.general_reports gr, usersettings.clientsdata cd
 WHERE cd.FirmCode=gr.FirmCode
-and gr.GeneralReportCode = ?r
+and gr.GeneralReportCode = ?GeneralReportCode
 ";
-            lblClient.Text = MyCmd.ExecuteScalar().ToString();
-            MyCn.Close();
+				lblClient.Text = MyCmd.ExecuteScalar().ToString();
+
+				MyCmd.CommandText = @"
+SELECT
+  Max(LogTime) as MaxLogTime
+FROM
+  logs.reportslogs
+WHERE 
+  reportslogs.GeneralReportCode = ?GeneralReportCode
+";
+				object lastLogTime = MyCmd.ExecuteScalar();
+				if (lastLogTime is DateTime)
+				{
+					MyCmd.CommandText = @"
+SELECT
+  LogTime,
+  EMail,
+  SMTPID
+FROM
+  logs.reportslogs
+WHERE 
+    reportslogs.GeneralReportCode = ?GeneralReportCode
+and reportslogs.LogTime > ?LastLogTime
+order by LogTime desc
+";
+					MyCmd.Parameters.AddWithValue("?LastLogTime", ((DateTime)lastLogTime).AddDays(-1).Date);
+					DataTable _logs = new DataTable();
+					MyDA.Fill(_logs);
+					gvLogs.DataSource = _logs;
+				}
+				gvLogs.DataBind(); 
+			}
+			finally
+			{
+				MyCn.Close();				
+			}
+            
 
             lblWork.Text = taskName;
 

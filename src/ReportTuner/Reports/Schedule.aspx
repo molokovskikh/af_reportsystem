@@ -91,6 +91,17 @@
             </Columns>
         </asp:GridView>
         <br/>
+        <div align="center" style="width:70%;">
+        <asp:GridView ID="gvLogs" runat="server" 
+            Caption="Статистика выполнения отчета" AutoGenerateColumns="False"  EmptyDataText="Нет данных">
+            <Columns>
+                <asp:BoundField DataField="LogTime" HeaderText="Дата" />
+                <asp:BoundField DataField="EMail" HeaderText="EMail" />
+                <asp:BoundField DataField="SMTPID" HeaderText="SMTPID" />
+            </Columns>
+        </asp:GridView>
+        </div>
+        <br/>
         <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgPassword" />
     </div>
 </asp:Content>
