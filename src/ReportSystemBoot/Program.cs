@@ -16,7 +16,7 @@ namespace ReportSystemBoot
 			ILog logger = LogManager.GetLogger(typeof(Program));
 
 			System.Reflection.Assembly ass = System.Reflection.Assembly.GetExecutingAssembly();
-			string bootAppName = System.IO.Path.GetFileNameWithoutExtension(ass.Location) + "Run.exe";
+			string bootAppName = System.IO.Path.GetFileNameWithoutExtension(ass.Location).Replace("Boot", null);
 			if (args.Length >= 1)
 				bootAppName += "  " + args[0];
 			logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
