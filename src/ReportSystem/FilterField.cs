@@ -3,12 +3,12 @@ using System.Collections;
 using System.Data;
 using System.Collections.Generic;
 
-namespace Inforoom.ReportSystem.RatingReports
+namespace Inforoom.ReportSystem.Filters
 {
 	/// <summary>
-	/// Summary description for RatingField.
+	/// Summary description for FilterField.
 	/// </summary>
-	public class RatingField
+	public class FilterField
 	{
 		public const string positionSuffix = "Position";
 		public const string equalSuffix = "Equal";
@@ -45,12 +45,12 @@ namespace Inforoom.ReportSystem.RatingReports
 
 
 
-		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption) :
+		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption) :
 			this(PrimaryField, ViewField, OutputField, Preffix, OutputCaption, TableList, WhereList, DefaultPosition, EqualValuesCaption, NonEqualValuesCaption, null)
 		{
 		}
 
-		public RatingField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption, int? Width)
+		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption, int? Width)
 		{
 			primaryField = PrimaryField;
 			viewField = ViewField;

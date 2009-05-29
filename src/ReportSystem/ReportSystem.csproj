@@ -149,6 +149,7 @@
     </Compile>
     <Compile Include="BaseReport.cs" />
     <Compile Include="MixedReport.cs" />
+    <Compile Include="OrdersReport.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -158,7 +159,7 @@
     <Compile Include="RatingReport.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="RatingField.cs">
+    <Compile Include="FilterField.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SpecReport.cs" />

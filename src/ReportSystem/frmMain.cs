@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
 using MySql.Data.MySqlClient;
-using Inforoom.ReportSystem.RatingReports;
+using Inforoom.ReportSystem.Filters;
 using System.Configuration;
 using System.Net.Mail;
 using Inforoom.Common;

@@ -6,14 +6,14 @@ using System.Data;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
-using Inforoom.ReportSystem.RatingReports;
+using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using System.Collections.Generic;
 using System.Drawing;
 
 namespace Inforoom.ReportSystem
 {
-	class MixedReport : RatingReport
+	class MixedReport : OrdersReport
 	{
 		private const string fromProperty = "StartDate";
 		private const string toProperty = "EndDate";
@@ -24,10 +24,6 @@ namespace Inforoom.ReportSystem
 		private const string showCodeProperty = "ShowCode";
 		private const string showCodeCrProperty = "ShowCodeCr";
 
-		private List<RatingField> selectField;
-
-		private DateTime dtFrom;
-		private DateTime dtTo;
 		private bool ByPreviousMonth;
 		private int _reportInterval;
 		//Поставщик, по которому будет производиться отчет
@@ -43,9 +39,9 @@ namespace Inforoom.ReportSystem
 		private bool showCodeCr;
 
 		//Одно из полей "Наименование продукта", "Полное наименование", "Наименование"
-		private RatingField nameField;
+		private FilterField nameField;
 		//Поле производитель
-		private RatingField firmCrField;
+		private FilterField firmCrField;
 
 		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
 			: base(ReportCode, ReportCaption, Conn, Temporary)
@@ -54,7 +50,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-			FillRatingFields();
+			base.ReadReportParams();
 			filter = new List<string>();
 			showCode = (bool)(bool)getReportParam(showCodeProperty);
 			showCodeCr = (bool)(bool)getReportParam(showCodeCrProperty);
@@ -96,20 +92,20 @@ namespace Inforoom.ReportSystem
 			List<string> s = businessRivals.ConvertAll<string>(delegate(ulong value) { return value.ToString(); });
 			businessRivalsList = String.Join(", ", s.ToArray());
 
-			selectField = new List<RatingField>();
-			foreach (RatingField rf in allField)
+			selectedField = new List<FilterField>();
+			foreach (FilterField rf in registredField)
 			{
 				if (rf.LoadFromDB(this))
-					selectField.Add(rf);
+					selectedField.Add(rf);
 			}
 
-			if (!selectField.Exists(delegate(RatingField x) { return x.visible; }))
+			if (!selectedField.Exists(delegate(FilterField x) { return x.visible; }))
 				throw new Exception("Не выбраны поля для отображения в заголовке отчета.");
 
-			selectField.Sort(delegate(RatingField x, RatingField y) { return (x.position - y.position); });
+			selectedField.Sort(delegate(FilterField x, FilterField y) { return (x.position - y.position); });
 
 			//Пытаемся найти список ограничений по постащику
-			RatingField firmCodeField = selectField.Find(delegate(RatingField value) { return value.reportPropertyPreffix == "FirmCode"; });
+			FilterField firmCodeField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCode"; });
 			if ((firmCodeField != null) && (firmCodeField.equalValues != null))
 			{
 				//Если в списке выбранных значений нет интересующего поставщика, то добавляем его туда
@@ -121,9 +117,9 @@ namespace Inforoom.ReportSystem
 			}
 
 			//Проверяем, что пользователь выбрал поле "Производитель"
-			firmCrField = selectField.Find(delegate(RatingField value) { return value.reportPropertyPreffix == "FirmCr"; });
+			firmCrField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCr"; });
 
-			List<RatingField> nameFields = selectField.FindAll(delegate(RatingField value) 
+			List<FilterField> nameFields = selectedField.FindAll(delegate(FilterField value) 
 				{
 					return (value.reportPropertyPreffix == "ProductName") || (value.reportPropertyPreffix == "FullName") || (value.reportPropertyPreffix == "ShortName"); 
 				});
@@ -189,7 +185,7 @@ and pd.FirmCode = " + sourceFirmCode.ToString() +
 
 			string SelectCommand = "select ";
 
-			foreach (RatingField rf in selectField)
+			foreach (FilterField rf in selectedField)
 				if (rf.visible)
 					SelectCommand = String.Concat(SelectCommand, rf.primaryField, ", ", rf.viewField, ", ");
 
@@ -262,7 +258,7 @@ and rg.RegionCode = oh.RegionCode
 and pd.PriceCode = oh.PriceCode 
 and prov.FirmCode = pd.FirmCode");
 
-			foreach (RatingField rf in selectField)
+			foreach (FilterField rf in selectedField)
 			{
 				if ((rf.equalValues != null) && (rf.equalValues.Count > 0))
 				{
@@ -281,15 +277,13 @@ and prov.FirmCode = pd.FirmCode");
 
 			//Применяем группировку и сортировку
 			List<string> GroupByList = new List<string>();
-			List<string> OrderByList = new List<string>();
-			foreach (RatingField rf in selectField)
+			foreach (FilterField rf in selectedField)
 				if (rf.visible)
 				{
 					GroupByList.Add(rf.primaryField);
-					OrderByList.Add(rf.outputField);
 				}
 			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by ", String.Join(",", OrderByList.ToArray()));
+			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by AllSum");
 
 #if DEBUG
 			Debug.WriteLine(SelectCommand);
@@ -316,7 +310,7 @@ and prov.FirmCode = pd.FirmCode");
 				dc.Caption = "Код изготовителя";
 			}
 
-			foreach (RatingField rf in selectField)
+			foreach (FilterField rf in selectedField)
 			{
 				if (rf.visible)
 				{
@@ -417,13 +411,13 @@ and prov.FirmCode = pd.FirmCode");
 			DataRow newrow;
 			try
 			{
-				int visbleCount = selectField.FindAll(delegate(RatingField x) { return x.visible; }).Count;
+				int visbleCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;
 				res.BeginLoadData();
 				foreach (DataRow dr in SelectTable.Rows)
 				{
 					newrow = res.NewRow();
 
-					foreach (RatingField rf in selectField)
+					foreach (FilterField rf in selectedField)
 						if (rf.visible)
 							newrow[rf.outputField] = dr[rf.outputField];
 
@@ -452,7 +446,7 @@ and prov.FirmCode = pd.FirmCode");
 
 		protected override void FreezePanes(MSExcel.Application exApp, MSExcel._Worksheet ws)
 		{
-			int _freezeCount = selectField.FindAll(delegate(RatingField x) { return x.visible; }).Count;			
+			int _freezeCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;			
 			if (showCode)
 				_freezeCount++;
 			if (showCodeCr)

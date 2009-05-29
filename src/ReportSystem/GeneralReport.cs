@@ -1,7 +1,7 @@
 using System;
 using System.Data;
 using MySql.Data.MySqlClient;
-using Inforoom.ReportSystem.RatingReports;
+using Inforoom.ReportSystem.Filters;
 using Inforoom.ReportSystem;
 using System.Collections.Generic;
 using ExecuteTemplate;
