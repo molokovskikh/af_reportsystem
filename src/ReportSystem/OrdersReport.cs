@@ -11,11 +11,20 @@ namespace Inforoom.ReportSystem
 {
 	public class OrdersReport : BaseReport
 	{
+		protected const string fromProperty = "StartDate";
+		protected const string toProperty = "EndDate";
+		protected const string reportIntervalProperty = "ReportInterval";
+		protected const string byPreviousMonthProperty = "ByPreviousMonth";
+
 		protected List<FilterField> registredField;
 		protected List<FilterField> selectedField;
 
 		protected DateTime dtFrom;
 		protected DateTime dtTo;
+
+		protected bool ByPreviousMonth;
+		protected int _reportInterval;
+
 
 		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
 		protected List<string> filter;
@@ -42,6 +51,32 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			FillFilterFields();
+			filter = new List<string>();
+
+			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
+			if (_parentIsTemporary)
+			{
+				dtFrom = ((DateTime)getReportParam(fromProperty)).Date;
+				dtTo = (DateTime)getReportParam(toProperty);
+				dtTo = dtTo.Date.AddDays(1);
+			}
+			else
+				if (ByPreviousMonth)
+				{
+					dtTo = DateTime.Now;
+					dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;
+					dtFrom = dtTo.AddMonths(-1).Date;
+				}
+				else
+				{
+					_reportInterval = (int)getReportParam(reportIntervalProperty);
+					dtTo = DateTime.Now;
+					//От текущей даты вычитаем интервал - дата начала отчета
+					dtFrom = dtTo.AddDays(-_reportInterval).Date;
+					//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
+					dtTo = dtTo.Date;
+				}
+			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 		}
 
 		protected string GetValuesFromSQL(ExecuteArgs e, string SQL)

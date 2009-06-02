@@ -15,17 +15,11 @@ namespace Inforoom.ReportSystem
 {
 	class MixedReport : OrdersReport
 	{
-		private const string fromProperty = "StartDate";
-		private const string toProperty = "EndDate";
-		private const string reportIntervalProperty = "ReportInterval";
-		private const string byPreviousMonthProperty = "ByPreviousMonth";
 		private const string sourceFirmCodeProperty = "SourceFirmCode";
 		private const string businessRivalsProperty = "BusinessRivals";
 		private const string showCodeProperty = "ShowCode";
 		private const string showCodeCrProperty = "ShowCodeCr";
 
-		private bool ByPreviousMonth;
-		private int _reportInterval;
 		//Поставщик, по которому будет производиться отчет
 		private int sourceFirmCode;
 		//Список конкурентов данного поставщика
@@ -51,34 +45,8 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			filter = new List<string>();
 			showCode = (bool)(bool)getReportParam(showCodeProperty);
 			showCodeCr = (bool)(bool)getReportParam(showCodeCrProperty);
-			//List<string> s = businessRivals.ConvertAll<string>(delegate(ulong value) { return value.ToString(); });
-			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if (_parentIsTemporary)
-			{
-				dtFrom = ((DateTime)getReportParam(fromProperty)).Date;
-				dtTo = (DateTime)getReportParam(toProperty);
-				dtTo = dtTo.Date.AddDays(1);
-			}
-			else
-				if (ByPreviousMonth)
-			{
-				dtTo = DateTime.Now;
-				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;
-				dtFrom = dtTo.AddMonths(-1).Date;
-			}
-			else
-			{
-				_reportInterval = (int)getReportParam(reportIntervalProperty);
-				dtTo = DateTime.Now;
-				//От текущей даты вычитаем интервал - дата начала отчета
-				dtFrom = dtTo.AddDays(-_reportInterval).Date;
-				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
-				dtTo = dtTo.Date;
-			}
-			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 
 			sourceFirmCode = (int)getReportParam(sourceFirmCodeProperty);
 			businessRivals = (List<ulong>)getReportParam(businessRivalsProperty);
@@ -130,7 +98,6 @@ namespace Inforoom.ReportSystem
 					throw new Exception("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" должно быть выбрано только одно поле.");
 				else
 					nameField = nameFields[0];
-
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -283,7 +250,7 @@ and prov.FirmCode = pd.FirmCode");
 					GroupByList.Add(rf.primaryField);
 				}
 			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by AllSum");
+			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by AllSum desc");
 
 #if DEBUG
 			Debug.WriteLine(SelectCommand);

@@ -17,15 +17,9 @@ namespace Inforoom.ReportSystem
 	/// </summary>
 	public class RatingReport : OrdersReport
 	{
-		private const string fromProperty = "StartDate";
-		private const string toProperty = "EndDate";
 		private const string junkProperty = "JunkState";
-		private const string reportIntervalProperty = "ReportInterval";
-		private const string byPreviousMonthProperty = "ByPreviousMonth";
 
-		private bool ByPreviousMonth;
 		private int JunkState;
-		private int _reportInterval;
 
 		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
 			: base(ReportCode, ReportCaption, Conn, Temporary)
@@ -35,32 +29,7 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			filter = new List<string>();
 			JunkState = (int)getReportParam(junkProperty);
-			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if (_parentIsTemporary)
-			{
-				dtFrom = ((DateTime)getReportParam(fromProperty)).Date;
-				dtTo = (DateTime)getReportParam(toProperty);
-				dtTo = dtTo.Date.AddDays(1);
-			}
-			else
-				if (ByPreviousMonth)
-				{
-					dtTo = DateTime.Now;
-					dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;
-					dtFrom = dtTo.AddMonths(-1).Date;
-				}
-				else
-				{
-					_reportInterval = (int)getReportParam(reportIntervalProperty);
-					dtTo = DateTime.Now;
-					//От текущей даты вычитаем интервал - дата начала отчета
-					dtFrom = dtTo.AddDays(-_reportInterval).Date;
-					//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
-					dtTo = dtTo.Date;
-				}
-			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 
 			selectedField = new List<FilterField>();
 			foreach (FilterField rf in registredField)
@@ -155,7 +124,7 @@ and prov.FirmCode = pd.FirmCode");
 					GroupByList.Add(rf.primaryField);
 				}
 			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by Cost");
+			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by Cost desc");
  
 #if DEBUG
 			Debug.WriteLine(SelectCommand);
