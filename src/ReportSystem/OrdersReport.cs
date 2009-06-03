@@ -77,6 +77,23 @@ namespace Inforoom.ReportSystem
 					dtTo = dtTo.Date;
 				}
 			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
+
+			selectedField = new List<FilterField>();
+			foreach (FilterField rf in registredField)
+			{
+				if (rf.LoadFromDB(this))
+					selectedField.Add(rf);
+			}
+
+			CheckAfterLoadFields();
+
+			selectedField.Sort(delegate(FilterField x, FilterField y) { return (x.position - y.position); });
+		}
+
+		protected virtual void CheckAfterLoadFields()
+		{
+			if (!selectedField.Exists(delegate(FilterField x) { return x.visible; }))
+				throw new Exception("Не выбраны поля для отображения в заголовке отчета.");
 		}
 
 		protected string GetValuesFromSQL(ExecuteArgs e, string SQL)
@@ -146,7 +163,7 @@ namespace Inforoom.ReportSystem
 						for (int i = 0; i < filter.Count; i++)
 							ws.Cells[1 + i, 1] = filter[i];
 
-						FreezePanes(exApp, ws);
+						PostProcessing(exApp, ws);
 					}
 					finally
 					{
@@ -169,7 +186,12 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		protected virtual void FreezePanes(MSExcel.Application exApp, MSExcel._Worksheet ws)
+		/// <summary>
+		/// Дополнительные действия с форматированием отчета, специфичные для отчета
+		/// </summary>
+		/// <param name="exApp"></param>
+		/// <param name="ws"></param>
+		protected virtual void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
 		{ 
 		}
 

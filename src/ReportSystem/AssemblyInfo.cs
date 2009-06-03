@@ -6,4 +6,4 @@ using System.Reflection;
 [assembly: AssemblyProduct("ReportSystem")]
 [assembly: AssemblyCopyright("Copyright © Inforoom 2009")]
 
-[assembly: AssemblyVersion("2.2.25.51")]
+[assembly: AssemblyVersion("2.2.26.52")]

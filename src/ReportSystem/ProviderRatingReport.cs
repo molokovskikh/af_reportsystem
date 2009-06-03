@@ -1,27 +1,25 @@
-using System;
-using System.Diagnostics;
+п»їusing System;
+using System.Collections.Generic;
+using System.Text;
 using System.IO;
-using System.Collections;
+using System.Diagnostics;
 using System.Data;
+using System.Reflection;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using System.Reflection;
 using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
-using System.Collections.Generic;
+using Microsoft.Office.Core;
 
 namespace Inforoom.ReportSystem
 {
-	/// <summary>
-	/// Summary description for RatingReport.
-	/// </summary>
-	public class RatingReport : OrdersReport
+	public class ProviderRatingReport : OrdersReport
 	{
-		private const string junkProperty = "JunkState";
+		private const string providerCountProperty = "ProviderCount";
 
-		private int JunkState;
+		private int providerCount;
 
-		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+		public ProviderRatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
 			: base(ReportCode, ReportCaption, Conn, Temporary)
 		{
 		}
@@ -29,10 +27,25 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			JunkState = (int)getReportParam(junkProperty);
+
+			providerCount = (int)getReportParam(providerCountProperty);
+			if (providerCount <= 0)
+				throw new Exception(String.Format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РґР°РЅ РїР°СЂР°РјРµС‚СЂ 'РљРѕР»-РІРѕ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ': {0}", providerCount));
 		}
 
-    	public override void GenerateReport(ExecuteArgs e)
+		protected override void CheckAfterLoadFields()
+		{
+			//Р•СЃР»Рё РїРѕР»Рµ РїРѕСЃС‚Р°РІС‰РёРє РЅРµ РІ РІС‹Р±СЂР°РЅРЅС‹С… РїР°СЂР°РјРµС‚СЂР°С…, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РµРіРѕ С‚СѓРґР° Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј "visible РІ true"
+			var provideNameField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCode"; });
+			if (provideNameField == null)
+			{
+				provideNameField = registredField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCode"; });
+				selectedField.Add(provideNameField);
+			}
+			provideNameField.visible = true;
+		}
+
+		public override void GenerateReport(ExecuteArgs e)
 		{
 			string SelectCommand = "select ";
 			foreach (FilterField rf in selectedField)
@@ -40,13 +53,7 @@ namespace Inforoom.ReportSystem
 					SelectCommand = String.Concat(SelectCommand, rf.primaryField, ", ", rf.viewField, ", ");
 
 			SelectCommand = String.Concat(SelectCommand, @"
-Sum(ol.cost*ol.Quantity) as Cost, 
-Sum(ol.Quantity) as PosOrder, 
-Min(ol.Cost) as MinCost,
-Avg(ol.Cost) as AvgCost,
-Max(ol.Cost) as MaxCost,
-Count(distinct oh.RowId) as DistinctOrderId,
-Count(distinct oh.ClientCode) as DistinctClientCode ");
+Sum(ol.cost*ol.Quantity) as Summ ");
 			SelectCommand = String.Concat(
 				SelectCommand, @"
 from 
@@ -95,16 +102,10 @@ and prov.FirmCode = pd.FirmCode");
 				}
 			}
 
-			if (1 == JunkState)
-				SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and (ol.Junk = 0)");
-			else
-				if (2 == JunkState)
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and (ol.Junk = 1)");
-
 			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
 			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
 
-			//Применяем группировку и сортировку
+			//РџСЂРёРјРµРЅСЏРµРј РіСЂСѓРїРїРёСЂРѕРІРєСѓ Рё СЃРѕСЂС‚РёСЂРѕРІРєСѓ
 			List<string> GroupByList = new List<string>();
 			foreach (FilterField rf in selectedField)
 				if (rf.visible)
@@ -112,8 +113,8 @@ and prov.FirmCode = pd.FirmCode");
 					GroupByList.Add(rf.primaryField);
 				}
 			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by Cost desc");
- 
+			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by Summ desc");
+
 #if DEBUG
 			Debug.WriteLine(SelectCommand);
 #endif
@@ -124,12 +125,15 @@ and prov.FirmCode = pd.FirmCode");
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(SelectTable);
 
-			decimal Cost = 0m;
-			int PosOrder = 0;
+			decimal AllSumm = 0m;
+			decimal OtherSumm = 0m;
+			int currentCount = 0;
 			foreach (DataRow dr in SelectTable.Rows)
 			{
-				Cost += Convert.ToDecimal(dr["Cost"]);
-				PosOrder += Convert.ToInt32(dr["PosOrder"]);
+				currentCount++;
+				AllSumm += Convert.ToDecimal(dr["Summ"]);
+				if (currentCount > providerCount)
+					OtherSumm += Convert.ToDecimal(dr["Summ"]);
 			}
 
 			System.Data.DataTable res = new System.Data.DataTable();
@@ -144,50 +148,35 @@ and prov.FirmCode = pd.FirmCode");
 						dc.ExtendedProperties.Add("Width", rf.width);
 				}
 			}
-			dc = res.Columns.Add("Cost", typeof(System.Decimal));
-			dc.Caption = "Сумма";
-			dc = res.Columns.Add("CostPercent", typeof(System.Double));
-			dc.Caption = "Доля рынка в %";
-			dc = res.Columns.Add("PosOrder", typeof(System.Int32));
-			dc.Caption = "Заказ";
-			dc = res.Columns.Add("PosOrderPercent", typeof(System.Double));
-			dc.Caption = "Доля от общего заказа в %";
-			dc = res.Columns.Add("MinCost", typeof(System.Decimal));
-			dc.Caption = "Минимальная цена";
-			dc = res.Columns.Add("AvgCost", typeof(System.Decimal));
-			dc.Caption = "Средняя цена";
-			dc = res.Columns.Add("MaxCost", typeof(System.Decimal));
-			dc.Caption = "Максимальная цена";
-			dc = res.Columns.Add("DistinctOrderId", typeof(System.Int32));
-			dc.Caption = "Кол-во заявок по препарату";
-			dc = res.Columns.Add("DistinctClientCode", typeof(System.Int32));
-			dc.Caption = "Кол-во клиентов, заказавших препарат";
+			dc = res.Columns.Add("SummPercent", typeof(System.Double));
+			dc.Caption = "Р”РѕР»СЏ СЂС‹РЅРєР° РІ %";
 
 			DataRow newrow;
 			try
 			{
 				int visbleCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;
 				res.BeginLoadData();
+				currentCount = 0;
 				foreach (DataRow dr in SelectTable.Rows)
 				{
+					currentCount++;
 					newrow = res.NewRow();
 
-					foreach (FilterField rf in selectedField)
-						if (rf.visible)
-							newrow[rf.outputField] = dr[rf.outputField];
+					newrow["FirmShortName"] = dr["FirmShortName"];
 
-					//Выставляем явно значения определенного типа для полей: "Сумма", "Доля рынка в %" и т.д.
-					//(visbleCount * 2) - потому, что участвует код (первичный ключ) и строковое значение,
-					//пример: PriceCode и PriceName.
-					for (int i = (visbleCount * 2); i < SelectTable.Columns.Count; i++)
-					{
-						if (!(dr[SelectTable.Columns[i].ColumnName] is DBNull) && res.Columns.Contains(SelectTable.Columns[i].ColumnName))
-							newrow[SelectTable.Columns[i].ColumnName] = Convert.ChangeType(dr[SelectTable.Columns[i].ColumnName], res.Columns[SelectTable.Columns[i].ColumnName].DataType);
-					}
+					newrow["SummPercent"] = Decimal.Round(((decimal)dr["Summ"] * 100) / AllSumm, 2);
 
-					newrow["CostPercent"] = Decimal.Round(((decimal)newrow["Cost"] * 100) / Cost, 2);
-					newrow["PosOrderPercent"] = Decimal.Round((Convert.ToDecimal(newrow["PosOrder"]) * 100) / Convert.ToDecimal(PosOrder), 2);
+					res.Rows.Add(newrow);
 
+					if (currentCount == providerCount)
+						break;
+				}
+
+				if (OtherSumm > 0)
+				{
+					newrow = res.NewRow();
+					newrow["FirmShortName"] = "РћСЃС‚Р°Р»СЊРЅС‹Рµ";
+					newrow["SummPercent"] = Decimal.Round((OtherSumm * 100) / AllSumm, 2);
 					res.Rows.Add(newrow);
 				}
 			}
@@ -196,7 +185,7 @@ and prov.FirmCode = pd.FirmCode");
 				res.EndLoadData();
 			}
 
-			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
+			//Р”РѕР±Р°РІР»СЏРµРј РЅРµСЃРєРѕР»СЊРєРѕ РїСѓСЃС‚С‹С… СЃС‚СЂРѕРє, С‡С‚РѕР±С‹ РїРѕС‚РѕРј РІС‹РІРµСЃС‚Рё РІ РЅРёС… Р·РЅР°С‡РµРЅРёРµ С„РёР»СЊС‚СЂР° РІ Excel
 			for (int i = 0; i < filter.Count; i++)
 				res.Rows.InsertAt(res.NewRow(), 0);
 
@@ -207,10 +196,31 @@ and prov.FirmCode = pd.FirmCode");
 
 		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
 		{
-			//Замораживаем некоторые колонки и столбцы
-			((MSExcel.Range)ws.get_Range("A" + (2 + filter.Count).ToString(), System.Reflection.Missing.Value)).Select();
-			exApp.ActiveWindow.FreezePanes = true;
+			DataTable res = _dsReport.Tables["Results"];
+
+			//Р’С‹Р±РёСЂР°РµРј РґРёР°РїР°Р·РѕРЅ, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ Р±СѓРґРµС‚ СЃС‚СЂРѕРёС‚СЊ РґРёР°РіСЂР°РјСѓ
+			((MSExcel.Range)ws.get_Range(ws.Cells[2 + filter.Count, 1], ws.Cells[res.Rows.Count + 1, 2])).Select();
+			MSExcel.Shape s;
+			s = ws.Shapes.AddChart(MSExcel.XlChartType.xlPie, 20, 40, 600, 250);
+			
+			//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РґРёР°РіСЂР°РјРјСѓ СЃРїСЂР°РІР° РѕС‚ С‚Р°Р±Р»РёС†С‹
+			s.Top = Convert.ToSingle(((MSExcel.Range)ws.Cells[2 + filter.Count, 4]).Top);
+			s.Left = Convert.ToSingle(((MSExcel.Range)ws.Cells[2 + filter.Count, 4]).Left);
+
+			//РџСЂРѕРёР·РІРѕРґРёРј РїРѕРґСЃС‡РµС‚ РІС‹СЃРѕС‚С‹ Р»РµРіРµРЅРґС‹, С‡С‚РѕР±С‹ РѕРЅР° РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‚РѕР±СЂР°Р·РёР»Р°СЃСЊ РЅР° РґРёР°РіСЂР°РјРјРµ
+			double legendHeight = 0;
+			for (int i = 1; i <= ((MSExcel.LegendEntries)s.Chart.Legend.LegendEntries(Type.Missing)).Count; i++)
+				legendHeight += ((MSExcel.LegendEntry)s.Chart.Legend.LegendEntries(i)).Height;
+
+			legendHeight = legendHeight * 1.7;
+
+			if (legendHeight > s.Height)
+				s.Height = Convert.ToSingle(legendHeight) + 10;
+
+			//РћС‚РѕР±СЂР°Р¶Р°РµРј РґРёР°РіСЂР°РјРјСѓ
+			s.Fill.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
 		}
+
 
 	}
 }

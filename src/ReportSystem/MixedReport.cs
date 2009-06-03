@@ -60,18 +60,6 @@ namespace Inforoom.ReportSystem
 			List<string> s = businessRivals.ConvertAll<string>(delegate(ulong value) { return value.ToString(); });
 			businessRivalsList = String.Join(", ", s.ToArray());
 
-			selectedField = new List<FilterField>();
-			foreach (FilterField rf in registredField)
-			{
-				if (rf.LoadFromDB(this))
-					selectedField.Add(rf);
-			}
-
-			if (!selectedField.Exists(delegate(FilterField x) { return x.visible; }))
-				throw new Exception("Не выбраны поля для отображения в заголовке отчета.");
-
-			selectedField.Sort(delegate(FilterField x, FilterField y) { return (x.position - y.position); });
-
 			//Пытаемся найти список ограничений по постащику
 			FilterField firmCodeField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCode"; });
 			if ((firmCodeField != null) && (firmCodeField.equalValues != null))
@@ -84,13 +72,20 @@ namespace Inforoom.ReportSystem
 				businessRivals.ForEach(delegate(ulong value) { if (!firmCodeField.equalValues.Contains(value)) firmCodeField.equalValues.Add(value); });
 			}
 
-			//Проверяем, что пользователь выбрал поле "Производитель"
+		}
+
+		protected override void CheckAfterLoadFields()
+		{
+			base.CheckAfterLoadFields();
+
+			//Выбирем поле "Производитель", если в настройке отчета есть соответствующий параметр
 			firmCrField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCr"; });
 
-			List<FilterField> nameFields = selectedField.FindAll(delegate(FilterField value) 
-				{
-					return (value.reportPropertyPreffix == "ProductName") || (value.reportPropertyPreffix == "FullName") || (value.reportPropertyPreffix == "ShortName"); 
-				});
+			//Проверяем, что выбран один из параметров для отображения: Наименование, Полное Наименование, Продукт
+			List<FilterField> nameFields = selectedField.FindAll(delegate(FilterField value)
+			{
+				return (value.reportPropertyPreffix == "ProductName") || (value.reportPropertyPreffix == "FullName") || (value.reportPropertyPreffix == "ShortName");
+			});
 			if (nameFields.Count == 0)
 				throw new Exception("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" не выбрано ни одно поле.");
 			else
@@ -99,6 +94,7 @@ namespace Inforoom.ReportSystem
 				else
 					nameField = nameFields[0];
 		}
+
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
@@ -388,9 +384,12 @@ and prov.FirmCode = pd.FirmCode");
 						if (rf.visible)
 							newrow[rf.outputField] = dr[rf.outputField];
 
+					//Выставляем явно значения определенного типа для полей: "Сумма", "Доля рынка в %" и т.д.
+					//(visbleCount * 2) - потому, что участвует код (первичный ключ) и строковое значение,
+					//пример: PriceCode и PriceName.
 					for (int i = (visbleCount * 2); i < SelectTable.Columns.Count; i++)
 					{
-						if (!(dr[SelectTable.Columns[i].ColumnName] is DBNull))
+						if (!(dr[SelectTable.Columns[i].ColumnName] is DBNull) && res.Columns.Contains(SelectTable.Columns[i].ColumnName))
 							newrow[SelectTable.Columns[i].ColumnName] = Convert.ChangeType(dr[SelectTable.Columns[i].ColumnName], res.Columns[SelectTable.Columns[i].ColumnName].DataType);
 					}
 
@@ -411,7 +410,7 @@ and prov.FirmCode = pd.FirmCode");
 			_dsReport.Tables.Add(res);
 		}
 
-		protected override void FreezePanes(MSExcel.Application exApp, MSExcel._Worksheet ws)
+		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
 		{
 			int _freezeCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;			
 			if (showCode)
