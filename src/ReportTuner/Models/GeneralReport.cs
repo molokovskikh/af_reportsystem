@@ -12,8 +12,8 @@ namespace ReportTuner.Models
 		[PrimaryKey("GeneralReportCode")]
 		public virtual ulong Id { get; set; }
 
-		[BelongsTo("FirmCode")]
-		public virtual Client Client { get; set; }
+		[BelongsTo("PayerID")]
+		public virtual Payer Payer { get; set; }
 
 		[Property]
 		public virtual bool Allow { get; set; }
@@ -29,5 +29,14 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual DateTime? TemporaryCreationDate { get; set; }
+
+		[Property]
+		public virtual string Comment { get; set; }
+
+		[Property]
+		public virtual string ReportFileName { get; set; }
+
+		[Property]
+		public virtual string ReportArchName { get; set; }
 	}
 }

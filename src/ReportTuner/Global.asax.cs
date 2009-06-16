@@ -93,7 +93,14 @@ namespace Inforoom.ReportTuner
 				ConfigurationManager.AppSettings["asScheduleDomainName"],
 				ConfigurationManager.AppSettings["asSchedulePassword"]))
 				using (TaskFolder reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]))
-					reportsFolder.DeleteTask("GR" + generalReportId + ".job");		
+					try
+					{
+						reportsFolder.DeleteTask("GR" + generalReportId + ".job");
+					}
+					catch (System.IO.FileNotFoundException)
+					{
+						//"Гасим" это исключение при попытке удалить задание, которого не существует
+					}
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)

@@ -87,7 +87,7 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
 select
   rtp.displayname as LName,
   rtp.selectstoredprocedure as LProc,
-  gr.FirmCode as LFirmCode,
+  0 as LFirmCode,
   rp.ID as LReportPropertyID,
   r.ReportCaption LReportCaption,
   rt.ReportTypeName LReportType
@@ -310,7 +310,7 @@ WHERE
             MyDA.SelectCommand = MyCmd;
             DS.Tables[dtProcResult.TableName].Clear();
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.AddWithValue("inFirmCode", FirmCode);
+            MyCmd.Parameters.AddWithValue("inFirmCode", null);
             MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
             MyCmd.Parameters.AddWithValue("inFilter", null);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;

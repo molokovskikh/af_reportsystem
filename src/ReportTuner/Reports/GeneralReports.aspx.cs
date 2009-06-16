@@ -15,24 +15,29 @@ using Microsoft.Win32.TaskScheduler;
 
 public partial class Reports_GeneralReports : System.Web.UI.Page
 {
+	public enum GeneralReportFields : int
+	{
+		Code = 0,
+		Payer = 1,
+		Delivery = 3,
+        Reports = 7,
+		Schedule = 8
+	}
+
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
     private MySqlDataAdapter MyDA = new MySqlDataAdapter();
     private DataSet DS;
     private DataTable dtGeneralReports;
     private DataColumn GRCode;
-    private DataColumn GRFirmCode;
-    private DataColumn GRReportCode;
-    private DataColumn GRCaption;
-	private DataColumn GRRTCode;
-    private DataColumn GRSubject;
-    private DataColumn GRFileName;
-    private DataColumn GRArchName;
+	private DataColumn GRFirmCode;
+	private DataColumn GRComment;
     private DataColumn GRAllow;
-    private DataTable dtClients;
-    private DataColumn CCaption;
-    private DataColumn CFirmCode;
-    private DataColumn GRFirmName;
+    private DataTable dtPayers;
+    private DataColumn PayerShortName;
+    private DataColumn PPayerID;
+    private DataColumn GRPayerShortName;
+	private DataColumn PayerID;
 
     private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
 
@@ -66,19 +71,23 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
         MyCmd.Parameters.Clear();
         DS.Tables[dtGeneralReports.TableName].Clear();
         MyCmd.CommandText = @"
-SELECT 
+SELECT
     gr.GeneralReportCode as GRCode,
-    gr.FirmCode as GRFirmCode,
-    convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251) as GRFirmName,
+    gr.PayerID,
+    p.ShortName as GRPayerShortName,
+    min(cd.FirmCode) as GRFirmCode,
     Allow as GRAllow,
-    EMailSubject as GRSubject,
-    ReportFileName as GRFileName,
-    ReportArchName as GRArchName
-FROM 
-    reports.general_reports gr, usersettings.clientsdata cd
-WHERE cd.FirmCode=gr.FirmCode
+    gr.Comment as GRComment
+FROM
+    reports.general_reports gr,
+    billing.payers p,
+    usersettings.clientsdata cd
+WHERE
+    p.PayerId = gr.PayerId
+and cd.BillingCode = gr.PayerId
 and gr.GeneralReportCode <> ?TemplateReportId
 and gr.Temporary = 0
+group by gr.GeneralReportCode
 Order by gr.GeneralReportCode
 ";
 		MyCmd.Parameters.AddWithValue("?TemplateReportId", ConfigurationManager.AppSettings["TemplateReportId"]);
@@ -97,41 +106,33 @@ Order by gr.GeneralReportCode
 		this.dtGeneralReports = new System.Data.DataTable();
 		this.GRCode = new System.Data.DataColumn();
 		this.GRFirmCode = new System.Data.DataColumn();
-		this.GRReportCode = new System.Data.DataColumn();
-		this.GRCaption = new System.Data.DataColumn();
-		this.GRRTCode = new System.Data.DataColumn();
-		this.GRSubject = new System.Data.DataColumn();
-		this.GRFileName = new System.Data.DataColumn();
-		this.GRArchName = new System.Data.DataColumn();
+		this.GRComment = new System.Data.DataColumn();
 		this.GRAllow = new System.Data.DataColumn();
-		this.GRFirmName = new System.Data.DataColumn();
-		this.dtClients = new System.Data.DataTable();
-		this.CCaption = new System.Data.DataColumn();
-		this.CFirmCode = new System.Data.DataColumn();
+		this.GRPayerShortName = new System.Data.DataColumn();
+		this.dtPayers = new System.Data.DataTable();
+		this.PayerShortName = new System.Data.DataColumn();
+		this.PPayerID = new System.Data.DataColumn();
+		this.PayerID = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
-		((System.ComponentModel.ISupportInitialize)(this.dtClients)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).BeginInit();
 		// 
 		// DS
 		// 
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
             this.dtGeneralReports,
-            this.dtClients});
+            this.dtPayers});
 		// 
 		// dtGeneralReports
 		// 
 		this.dtGeneralReports.Columns.AddRange(new System.Data.DataColumn[] {
             this.GRCode,
             this.GRFirmCode,
-            this.GRReportCode,
-            this.GRCaption,
-            this.GRRTCode,
-            this.GRSubject,
-            this.GRFileName,
-            this.GRArchName,
+            this.GRComment,
             this.GRAllow,
-            this.GRFirmName});
+            this.GRPayerShortName,
+            this.PayerID});
 		this.dtGeneralReports.TableName = "dtGeneralReports";
 		// 
 		// GRCode
@@ -144,59 +145,42 @@ Order by gr.GeneralReportCode
 		this.GRFirmCode.ColumnName = "GRFirmCode";
 		this.GRFirmCode.DataType = typeof(long);
 		// 
-		// GRReportCode
+		// GRComment
 		// 
-		this.GRReportCode.ColumnName = "GRReportCode";
-		this.GRReportCode.DataType = typeof(long);
-		// 
-		// GRCaption
-		// 
-		this.GRCaption.ColumnName = "GRCaption";
-		// 
-		// GRRTCode
-		// 
-		this.GRRTCode.ColumnName = "GRRTCode";
-		this.GRRTCode.DataType = typeof(long);
-		// 
-		// GRSubject
-		// 
-		this.GRSubject.ColumnName = "GRSubject";
-		// 
-		// GRFileName
-		// 
-		this.GRFileName.ColumnName = "GRFileName";
-		// 
-		// GRArchName
-		// 
-		this.GRArchName.ColumnName = "GRArchName";
+		this.GRComment.ColumnName = "GRComment";
 		// 
 		// GRAllow
 		// 
 		this.GRAllow.ColumnName = "GRAllow";
 		this.GRAllow.DataType = typeof(byte);
 		// 
-		// GRFirmName
+		// GRPayerShortName
 		// 
-		this.GRFirmName.ColumnName = "GRFirmName";
+		this.GRPayerShortName.ColumnName = "GRPayerShortName";
 		// 
-		// dtClients
+		// dtPayers
 		// 
-		this.dtClients.Columns.AddRange(new System.Data.DataColumn[] {
-            this.CCaption,
-            this.CFirmCode});
-		this.dtClients.TableName = "dtClients";
+		this.dtPayers.Columns.AddRange(new System.Data.DataColumn[] {
+            this.PayerShortName,
+            this.PPayerID});
+		this.dtPayers.TableName = "dtPayers";
 		// 
-		// CCaption
+		// PayerShortName
 		// 
-		this.CCaption.ColumnName = "CCaption";
+		this.PayerShortName.ColumnName = "PayerShortName";
 		// 
-		// CFirmCode
+		// PPayerID
 		// 
-		this.CFirmCode.ColumnName = "CFirmCode";
-		this.CFirmCode.DataType = typeof(long);
+		this.PPayerID.ColumnName = "PayerID";
+		this.PPayerID.DataType = typeof(long);
+		// 
+		// PayerID
+		// 
+		this.PayerID.ColumnName = "PayerID";
+		this.PayerID.DataType = typeof(long);
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
-		((System.ComponentModel.ISupportInitialize)(this.dtClients)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).EndInit();
 
     }
 
@@ -234,19 +218,18 @@ Order by gr.GeneralReportCode
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
         MyCmd.Parameters.AddWithValue("Name", "%" + Name + "%");
-        DS.Tables[dtClients.TableName].Clear();
+        DS.Tables[dtPayers.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
-    cd.FirmCode as CFirmCode,
-    cd.ShortName,
-    convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251) as CCaption
+    p.PayerID,
+    convert(concat(p.PayerID, ' - ', p.ShortName) using cp1251) as PayerShortName
 FROM
-     usersettings.clientsdata cd
+     billing.payers p
  WHERE
-  cd.ShortName like ?Name
-Order by FirmCode, ShortName
+  p.ShortName like ?Name
+Order by p.ShortName
 ";
-        MyDA.Fill(DS, DS.Tables[dtClients.TableName].TableName);
+        MyDA.Fill(DS, DS.Tables[dtPayers.TableName].TableName);
         MyCn.Close();
         Session.Add(DSReports, DS);
     }
@@ -257,21 +240,16 @@ Order by FirmCode, ShortName
         {
             if (((DropDownList)dr.FindControl("ddlNames")).SelectedValue != String.Empty)
             {
-                if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRFirmCode.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlNames")).SelectedValue)
-                    DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRFirmCode.ColumnName] = ((DropDownList)dr.FindControl("ddlNames")).SelectedValue;
+                if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][PayerID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlNames")).SelectedValue)
+					DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][PayerID.ColumnName] = ((DropDownList)dr.FindControl("ddlNames")).SelectedValue;
             }
 
             if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked).ToString())
                 DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
 
-            if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRSubject.ColumnName].ToString() != ((TextBox)dr.FindControl("tbSubject")).Text)
-                DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRSubject.ColumnName] = ((TextBox)dr.FindControl("tbSubject")).Text;
+			if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRComment.ColumnName].ToString() != ((TextBox)dr.FindControl("tbComment")).Text)
+				DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRComment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
 
-            if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRFileName.ColumnName].ToString() != ((TextBox)dr.FindControl("tbFile")).Text)
-                DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRFileName.ColumnName] = ((TextBox)dr.FindControl("tbFile")).Text;
-
-            if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRArchName.ColumnName].ToString() != ((TextBox)dr.FindControl("tbArch")).Text)
-                DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRArchName.ColumnName] = ((TextBox)dr.FindControl("tbArch")).Text;
         }
     }
 
@@ -279,9 +257,9 @@ Order by FirmCode, ShortName
     {
         FillDDL(((TextBox)(((Button)sender).Parent).FindControl("tbSearch")).Text);
         DropDownList ddlNames = (DropDownList)(((Button)sender).Parent).FindControl("ddlNames");
-        ddlNames.DataSource = DS.Tables[dtClients.TableName];
-        ddlNames.DataTextField = "CCaption";
-        ddlNames.DataValueField = "CFirmCode";
+        ddlNames.DataSource = DS.Tables[dtPayers.TableName];
+        ddlNames.DataTextField = "PayerShortName";
+        ddlNames.DataValueField = "PayerID";
         ddlNames.DataBind();
 		ddlNames.Focus();
     }
@@ -290,30 +268,31 @@ Order by FirmCode, ShortName
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            if (((Label)e.Row.Cells[1].FindControl("lblFirmName")).Text != "")
+            if (((Label)e.Row.FindControl("lblFirmName")).Text != "")
             {
-                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
-                ((Button)e.Row.Cells[1].FindControl("btnSearch")).Visible = false;
-                ((DropDownList)e.Row.Cells[1].FindControl("ddlNames")).Visible = false;
-                ((Label)e.Row.Cells[1].FindControl("lblFirmName")).Visible = true;
-                e.Row.Cells[7].Enabled = true;
+                ((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
+                ((Button)e.Row.FindControl("btnSearch")).Visible = false;
+                ((DropDownList)e.Row.FindControl("ddlNames")).Visible = false;
+                ((Label)e.Row.FindControl("lblFirmName")).Visible = true;
+				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = true;
             }
             else
             {
-                ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = true;
-				((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Focus();
-                ((Button)e.Row.Cells[1].FindControl("btnSearch")).Visible = true;
+                ((TextBox)e.Row.FindControl("tbSearch")).Visible = true;
+				((TextBox)e.Row.FindControl("tbSearch")).Focus();
+                ((Button)e.Row.FindControl("btnSearch")).Visible = true;
 
-                DropDownList ddlReports = ((DropDownList)e.Row.Cells[0].FindControl("ddlNames"));
+
+                DropDownList ddlReports = (DropDownList)e.Row.FindControl("ddlNames");
                 ddlReports.Visible = true;
 				//Делаем недоступными столбцы
 				//"Рассылки"
-				e.Row.Cells[3].Enabled = false;
+				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = false;
 				//"Отчеты"
-				e.Row.Cells[7].Enabled = false;
+				e.Row.Cells[(int)GeneralReportFields.Reports].Enabled = false;
 				//"Расписание"
-				e.Row.Cells[8].Enabled = false;
-				((Label)e.Row.Cells[1].FindControl("lblFirmName")).Visible = false;
+				e.Row.Cells[(int)GeneralReportFields.Schedule].Enabled = false;
+				((Label)e.Row.FindControl("lblFirmName")).Visible = false;
             }
         }
     }
@@ -333,34 +312,19 @@ Order by FirmCode, ShortName
 UPDATE 
     reports.general_reports 
 SET 
-    FirmCode = ?GRFirmCode,
     Allow = ?GRAllow,
-    EMailSubject = ?GRSubject,
-    ReportFileName = ?GRFileName,
-    ReportArchName = ?GRArchName
+    Comment = ?GRComment
 WHERE GeneralReportCode = ?GRCode", MyCn, trans);
 
             UpdCmd.Parameters.Clear();
-            UpdCmd.Parameters.Add(new MySqlParameter("GRFirmCode", MySqlDbType.Int64));
-            UpdCmd.Parameters["GRFirmCode"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GRFirmCode"].SourceColumn = GRFirmCode.ColumnName;
-            UpdCmd.Parameters["GRFirmCode"].SourceVersion = DataRowVersion.Current;
             UpdCmd.Parameters.Add(new MySqlParameter("GRAllow", MySqlDbType.Byte));
             UpdCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
             UpdCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("GRSubject", MySqlDbType.VarString));
-            UpdCmd.Parameters["GRSubject"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GRSubject"].SourceColumn = GRSubject.ColumnName;
-            UpdCmd.Parameters["GRSubject"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("GRFileName", MySqlDbType.VarString));
-            UpdCmd.Parameters["GRFileName"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GRFileName"].SourceColumn = GRFileName.ColumnName;
-            UpdCmd.Parameters["GRFileName"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("GRArchName", MySqlDbType.VarString));
-            UpdCmd.Parameters["GRArchName"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GRArchName"].SourceColumn = GRArchName.ColumnName;
-            UpdCmd.Parameters["GRArchName"].SourceVersion = DataRowVersion.Current;
+			UpdCmd.Parameters.Add(new MySqlParameter("GRComment", MySqlDbType.VarString));
+			UpdCmd.Parameters["GRComment"].Direction = ParameterDirection.Input;
+			UpdCmd.Parameters["GRComment"].SourceColumn = GRComment.ColumnName;
+			UpdCmd.Parameters["GRComment"].SourceVersion = DataRowVersion.Current;
             UpdCmd.Parameters.Add(new MySqlParameter("GRCode", MySqlDbType.Int64));
             UpdCmd.Parameters["GRCode"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["GRCode"].SourceColumn = GRCode.ColumnName;
@@ -380,11 +344,9 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 INSERT INTO 
     reports.general_reports 
 SET 
-    FirmCode = ?GRFirmCode,
+    PayerId = ?PayerId,
     Allow = ?GRAllow,
-    EMailSubject = ?GRSubject,
-    ReportFileName = ?GRFileName,
-    ReportArchName = ?GRArchName
+    Comment = ?GRComment
 ", MyCn, trans);
 
             InsCmd.Parameters.Clear();
@@ -392,22 +354,14 @@ SET
             InsCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
             InsCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
             InsCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("GRFirmCode", MySqlDbType.Int64));
-            InsCmd.Parameters["GRFirmCode"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["GRFirmCode"].SourceColumn = GRFirmCode.ColumnName;
-            InsCmd.Parameters["GRFirmCode"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("GRSubject", MySqlDbType.VarString));
-            InsCmd.Parameters["GRSubject"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["GRSubject"].SourceColumn = GRSubject.ColumnName;
-            InsCmd.Parameters["GRSubject"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("GRFileName", MySqlDbType.VarString));
-            InsCmd.Parameters["GRFileName"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["GRFileName"].SourceColumn = GRFileName.ColumnName;
-            InsCmd.Parameters["GRFileName"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("GRArchName", MySqlDbType.VarString));
-            InsCmd.Parameters["GRArchName"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["GRArchName"].SourceColumn = GRArchName.ColumnName;
-            InsCmd.Parameters["GRArchName"].SourceVersion = DataRowVersion.Current;
+			InsCmd.Parameters.Add(new MySqlParameter("PayerId", MySqlDbType.Int64));
+			InsCmd.Parameters["PayerId"].Direction = ParameterDirection.Input;
+			InsCmd.Parameters["PayerId"].SourceColumn = PayerID.ColumnName;
+			InsCmd.Parameters["PayerId"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("GRComment", MySqlDbType.VarString));
+			InsCmd.Parameters["GRComment"].Direction = ParameterDirection.Input;
+			InsCmd.Parameters["GRComment"].SourceColumn = GRComment.ColumnName;
+			InsCmd.Parameters["GRComment"].SourceVersion = DataRowVersion.Current;
 
             MyDA.UpdateCommand = UpdCmd;
             MyDA.DeleteCommand = DelCmd;
@@ -451,7 +405,14 @@ SET
 			using (TaskFolder reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]))
 			{
 				foreach (ulong _deletedReportId in _deletedReports)
-					reportsFolder.DeleteTask("GR" + _deletedReportId + ".job");
+					try
+					{
+						reportsFolder.DeleteTask("GR" + _deletedReportId + ".job");
+					}
+					catch (System.IO.FileNotFoundException)
+					{
+						//"Гасим" это исключение при попытке удалить задание, которого не существует
+					}
 			}
 		}
 
@@ -462,4 +423,9 @@ SET
         else
             btnApply.Visible = false;
     }
+
+	protected void dgvReports_Sorting(object sender, GridViewSortEventArgs e)
+	{
+
+	}
 }

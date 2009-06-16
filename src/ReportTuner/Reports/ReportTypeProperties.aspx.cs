@@ -577,7 +577,7 @@ SET
 				//Используем код клиента "Поставщик-Офис" для проверки существования хранимой процедуры
 				//Если процедура есть, то она вернет какой-либо набор, возможно, пустой
 				//Если не существует, то будет ошибка
-				MyCmd.Parameters.AddWithValue("inFirmCode", 234);
+				MyCmd.Parameters.AddWithValue("inFirmCode", null);
                 MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
                 MyCmd.Parameters.AddWithValue("inFilter", null);
                 MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;

@@ -72,7 +72,7 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
             MyCmd.CommandText = @"
 SELECT
     rt.ReportCaption as CReportCaption, 
-    gr.FirmCode as CFirmCode,
+    0 as CFirmCode,
     rts.ReportTypeName as CReportType
 FROM
     reports.reports rt, 
@@ -693,7 +693,7 @@ WHERE ID = ?OPID", MyCn, trans);
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.AddWithValue("inFirmCode", fc);
+            MyCmd.Parameters.AddWithValue("inFirmCode", null);
             MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
             MyCmd.Parameters.AddWithValue("inFilter", filter);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
