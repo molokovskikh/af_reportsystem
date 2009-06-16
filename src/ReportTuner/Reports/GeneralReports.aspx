@@ -14,6 +14,7 @@
                         <asp:TextBox ID="tbArch" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRArchName")%>'></asp:TextBox>
                     </ItemTemplate>
                 </asp:TemplateField>
+                ItemStyle-Width="35%" HeaderStyle-Width="35%" 
                 -->
         <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" 
             OnRowCommand="dgvReports_RowCommand" OnRowDeleting="dgvReports_RowDeleting" 
@@ -36,7 +37,7 @@
                         <asp:CheckBox ID="chbAllow" runat="server" Checked='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.GRAllow"))%>' />
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:TemplateField HeaderText="Комментарий" ItemStyle-Width="35%" HeaderStyle-Width="35%" SortExpression="GRComment">
+                <asp:TemplateField HeaderText="Комментарий" SortExpression="GRComment">
                     <ItemTemplate>
                         <asp:TextBox ID="tbComment" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.GRComment")%>'></asp:TextBox>
                     </ItemTemplate>

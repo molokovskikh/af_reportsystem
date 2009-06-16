@@ -18,7 +18,6 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
     private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 
     string ListProc = String.Empty;
-    Int64 FirmCode;
     Int64 ReportPropertyID;
     private DataSet DS;
     private DataTable dtProcResult;
@@ -28,8 +27,7 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
     private DataTable dtEnabledValues;
     private DataColumn EVID;
     private DataColumn EVName;
-    private DataTable dtList;
-    private DataColumn LFirmCode;
+	private DataTable dtList;
     private DataColumn LProc;
     private DataColumn LName;
     private DataColumn LReportPropertyID;
@@ -87,7 +85,6 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
 select
   rtp.displayname as LName,
   rtp.selectstoredprocedure as LProc,
-  0 as LFirmCode,
   rp.ID as LReportPropertyID,
   r.ReportCaption LReportCaption,
   rt.ReportTypeName LReportType
@@ -110,7 +107,6 @@ and rt.ReportTypeCode = r.ReportTypeCode
 			lblReportCaption.Text = DS.Tables[dtList.TableName].Rows[0][LReportCaption.ColumnName].ToString();
 			lblReportType.Text = DS.Tables[dtList.TableName].Rows[0][LReportType.ColumnName].ToString();
 			ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
-            FirmCode = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LFirmCode.ColumnName]);
             ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
 
             MyCn.Close();
@@ -120,7 +116,6 @@ and rt.ReportTypeCode = r.ReportTypeCode
         {
             DS = ((DataSet)Session[DSValues]);
             ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
-            FirmCode = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LFirmCode.ColumnName]);
             ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
 			dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
 		}
@@ -191,7 +186,6 @@ WHERE
 		this.EVID = new System.Data.DataColumn();
 		this.EVName = new System.Data.DataColumn();
 		this.dtList = new System.Data.DataTable();
-		this.LFirmCode = new System.Data.DataColumn();
 		this.LProc = new System.Data.DataColumn();
 		this.LName = new System.Data.DataColumn();
 		this.LReportPropertyID = new System.Data.DataColumn();
@@ -252,18 +246,12 @@ WHERE
 		// dtList
 		// 
 		this.dtList.Columns.AddRange(new System.Data.DataColumn[] {
-            this.LFirmCode,
             this.LProc,
             this.LName,
             this.LReportPropertyID,
             this.LReportCaption,
             this.LReportType});
 		this.dtList.TableName = "dtList";
-		// 
-		// LFirmCode
-		// 
-		this.LFirmCode.ColumnName = "LFirmCode";
-		this.LFirmCode.DataType = typeof(long);
 		// 
 		// LProc
 		// 
@@ -310,8 +298,6 @@ WHERE
             MyDA.SelectCommand = MyCmd;
             DS.Tables[dtProcResult.TableName].Clear();
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.AddWithValue("inFirmCode", null);
-            MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
             MyCmd.Parameters.AddWithValue("inFilter", null);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
             MyCmd.Parameters.AddWithValue("inID", null);

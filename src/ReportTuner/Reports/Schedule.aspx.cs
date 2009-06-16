@@ -13,6 +13,7 @@ using MySql.Data.MySqlClient;
 using System.DirectoryServices;
 using Microsoft.Win32.TaskScheduler;
 using System.Threading;
+using ReportTuner.Models;
 
 
 public partial class Reports_schedule : System.Web.UI.Page
@@ -88,18 +89,13 @@ public partial class Reports_schedule : System.Web.UI.Page
 			{
 				MyCmd.Connection = MyCn;
 				MyDA.SelectCommand = MyCmd;
+
+				GeneralReport report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
+				lblClient.Text = report.Payer.Id + " - " + report.Payer.ShortName;
+				lblReportComment.Text = report.Comment;
+
 				MyCmd.Parameters.Clear();
 				MyCmd.Parameters.AddWithValue("?GeneralReportCode", Request["r"]);
-				MyCmd.CommandText = @"
-SELECT
-    convert(concat(cd.FirmCode, ' - ', cd.ShortName) using cp1251)
-FROM
-    reports.general_reports gr, usersettings.clientsdata cd
-WHERE cd.FirmCode=gr.FirmCode
-and gr.GeneralReportCode = ?GeneralReportCode
-";
-				lblClient.Text = MyCmd.ExecuteScalar().ToString();
-
 				MyCmd.CommandText = @"
 SELECT
   Max(LogTime) as MaxLogTime

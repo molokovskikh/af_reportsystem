@@ -19,9 +19,9 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 	{
 		Code = 0,
 		Payer = 1,
-		Delivery = 3,
-        Reports = 7,
-		Schedule = 8
+		Delivery = 5,
+        Reports = 6,
+		Schedule = 7
 	}
 
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);

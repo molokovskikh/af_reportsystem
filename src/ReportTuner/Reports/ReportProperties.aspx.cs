@@ -26,10 +26,8 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     public DataTable dtEnumValues;
     private DataColumn PStoredProc;
     DataTable dtProcResult;
-    private DataTable dtClient;
-    private DataColumn CFirmCode;
+	private DataTable dtClient;
     private DataColumn CReportCaption;
-    Int64 FirmCode;
     private DataTable dtOptionalParams;
     private DataColumn OPID;
     private DataColumn OPParamName;
@@ -72,7 +70,6 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
             MyCmd.CommandText = @"
 SELECT
     rt.ReportCaption as CReportCaption, 
-    0 as CFirmCode,
     rts.ReportTypeName as CReportType
 FROM
     reports.reports rt, 
@@ -85,7 +82,6 @@ and rts.ReportTypeCode = rt.ReportTypeCode
             MyDA.Fill(DS, dtClient.TableName);
             lblReport.Text = DS.Tables[dtClient.TableName].Rows[0][CReportCaption.ColumnName].ToString();
 			lblReportType.Text = DS.Tables[dtClient.TableName].Rows[0][CReportType.ColumnName].ToString();
-            FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
 
             MyCn.Close();
 
@@ -94,7 +90,6 @@ and rts.ReportTypeCode = rt.ReportTypeCode
         else
         {
             DS = ((DataSet)Session[DSParams]);
-            FirmCode = Convert.ToInt64(DS.Tables[dtClient.TableName].Rows[0][CFirmCode.ColumnName]);
         }
         if (dgvNonOptional.Rows.Count > 0)
             btnApply.Visible = true;
@@ -228,8 +223,8 @@ AND rp.reportCode=?rp
 		this.PPropertyEnumID = new System.Data.DataColumn();
 		this.PStoredProc = new System.Data.DataColumn();
 		this.dtClient = new System.Data.DataTable();
-		this.CFirmCode = new System.Data.DataColumn();
 		this.CReportCaption = new System.Data.DataColumn();
+		this.CReportType = new System.Data.DataColumn();
 		this.dtOptionalParams = new System.Data.DataTable();
 		this.OPID = new System.Data.DataColumn();
 		this.OPParamName = new System.Data.DataColumn();
@@ -238,7 +233,6 @@ AND rp.reportCode=?rp
 		this.OPPropertyEnumID = new System.Data.DataColumn();
 		this.OPStoredProc = new System.Data.DataColumn();
 		this.OPrtpID = new System.Data.DataColumn();
-		this.CReportType = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
@@ -292,19 +286,17 @@ AND rp.reportCode=?rp
 		// dtClient
 		// 
 		this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
-            this.CFirmCode,
             this.CReportCaption,
             this.CReportType});
 		this.dtClient.TableName = "dtClient";
 		// 
-		// CFirmCode
-		// 
-		this.CFirmCode.ColumnName = "CFirmCode";
-		this.CFirmCode.DataType = typeof(long);
-		// 
 		// CReportCaption
 		// 
 		this.CReportCaption.ColumnName = "CReportCaption";
+		// 
+		// CReportType
+		// 
+		this.CReportType.ColumnName = "CReportType";
 		// 
 		// dtOptionalParams
 		// 
@@ -348,10 +340,6 @@ AND rp.reportCode=?rp
 		// 
 		this.OPrtpID.ColumnName = "OPrtpID";
 		this.OPrtpID.DataType = typeof(long);
-		// 
-		// CReportType
-		// 
-		this.CReportType.ColumnName = "CReportType";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
@@ -435,7 +423,10 @@ AND rp.reportCode=?rp
                         ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
                         ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
 
-                        FillDDL(((DataRowView)e.Row.DataItem)[PStoredProc.ColumnName].ToString(), FirmCode, "", ((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString());
+                        FillDDL(
+							((DataRowView)e.Row.DataItem)[PStoredProc.ColumnName].ToString(), 
+							"", 
+							((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString());
                         ShowSearchedParam(((DropDownList)e.Row.Cells[1].FindControl("ddlValue")), ((TextBox)e.Row.Cells[1].FindControl("tbSearch")), ((Button)e.Row.Cells[1].FindControl("btnFind")));
 
                     }
@@ -680,7 +671,7 @@ WHERE ID = ?OPID", MyCn, trans);
         }
     }
 
-    private void FillDDL(string proc, Int64 fc, string filter, string id)
+    private void FillDDL(string proc, string filter, string id)
     {
         string db = String.Empty;
         try
@@ -693,8 +684,6 @@ WHERE ID = ?OPID", MyCn, trans);
             MyCmd.Connection = MyCn;
             MyDA.SelectCommand = MyCmd;
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.AddWithValue("inFirmCode", null);
-            MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
             MyCmd.Parameters.AddWithValue("inFilter", filter);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
             if(id == String.Empty)
@@ -726,7 +715,10 @@ WHERE ID = ?OPID", MyCn, trans);
             TextBox tbFind = ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
             Button btnFind = ((Button)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
 
-            FillDDL(DS.Tables[dtNonOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
+            FillDDL(
+				DS.Tables[dtNonOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(),
+				tbFind.Text, 
+				String.Empty);
             ShowSearchedParam(ddlValues, tbFind, btnFind);
         }
         else if (e.CommandName == "ShowValues")
@@ -795,7 +787,10 @@ WHERE ID = ?OPID", MyCn, trans);
             TextBox tbFind = ((TextBox)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
             Button btnFind = ((Button)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
 
-            FillDDL(DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(), FirmCode, ((TextBox)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch")).Text, String.Empty);
+            FillDDL(
+				DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(),
+				tbFind.Text, 
+				String.Empty);
             ShowSearchedParam(ddlValues, tbFind, btnFind);
         }
         else if (e.CommandName == "ShowValues")
@@ -985,7 +980,10 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
                             ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
                             ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
 
-                            FillDDL(((DataRowView)e.Row.DataItem)[OPStoredProc.ColumnName].ToString(), FirmCode, "", ((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName].ToString());
+                            FillDDL(
+								((DataRowView)e.Row.DataItem)[OPStoredProc.ColumnName].ToString(), 
+								"", 
+								((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName].ToString());
                             ShowSearchedParam(((DropDownList)e.Row.Cells[1].FindControl("ddlValue")), ((TextBox)e.Row.Cells[1].FindControl("tbSearch")), ((Button)e.Row.Cells[1].FindControl("btnFind")));
 
                         }

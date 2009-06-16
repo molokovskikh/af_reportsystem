@@ -574,11 +574,8 @@ SET
                 MyCmd.Connection = MyCn;
                 MyDA.SelectCommand = MyCmd;
                 MyCmd.Parameters.Clear();
-				//Используем код клиента "Поставщик-Офис" для проверки существования хранимой процедуры
 				//Если процедура есть, то она вернет какой-либо набор, возможно, пустой
 				//Если не существует, то будет ошибка
-				MyCmd.Parameters.AddWithValue("inFirmCode", null);
-                MyCmd.Parameters["inFirmCode"].Direction = ParameterDirection.Input;
                 MyCmd.Parameters.AddWithValue("inFilter", null);
                 MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
                 MyCmd.CommandText = tbProc.Text;
