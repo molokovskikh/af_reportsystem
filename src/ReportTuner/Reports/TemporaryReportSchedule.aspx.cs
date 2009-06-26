@@ -11,6 +11,7 @@ using NHibernate.Criterion;
 using Castle.ActiveRecord;
 using System.Threading;
 using Microsoft.Win32.TaskScheduler;
+using ReportTuner.Helpers;
 
 namespace ReportTuner.Reports
 {
@@ -48,12 +49,12 @@ namespace ReportTuner.Reports
 					throw new Exception("В файле Web.Config параметр ReportsContactGroupOwnerId не существует или настроен некорректно.");
 
 				_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["TemporaryId"]));
-				_taskService = new TaskService(
-					ConfigurationManager.AppSettings["asComp"], 
-					ConfigurationManager.AppSettings["asScheduleUserName"], 
-					ConfigurationManager.AppSettings["asScheduleDomainName"],
-					ConfigurationManager.AppSettings["asSchedulePassword"]);
-				_currentTask = FindTask(_taskService, _generalReport.Id);
+				_taskService = ScheduleHelper.GetService();
+				_currentTask = ScheduleHelper.GetTask(
+					_taskService, 
+					ScheduleHelper.GetReportsFolder(_taskService), 
+					_generalReport.Id,
+					"Временный отчет, созданный " + _generalReport.TemporaryCreationDate.Value.ToString());
 
 				btnRun.Enabled = _currentTask.Enabled && (_currentTask.State != TaskState.Running);
 				btnRun.Text = (_currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
@@ -70,51 +71,6 @@ namespace ReportTuner.Reports
 
 			}
 
-		}
-
-		private Task FindTask(TaskService _taskService, ulong temporaryId)
-		{
-			string _findTaskName = "GR" + temporaryId + ".job";
-
-			Task findTask = null;
-
-			try
-			{
-				findTask = _taskService.GetTask(ConfigurationManager.AppSettings["asReportsFolderName"] + "\\" + _findTaskName);
-			}
-			catch (System.IO.FileNotFoundException)
-			{
-				findTask = CreateNewTask(_taskService, _findTaskName);
-			}
-
-			return findTask;
-		}
-
-		private Task CreateNewTask(TaskService _taskService, string _taskName)
-		{
-			TaskDefinition newTask = _taskService.NewTask();
-
-			newTask.RegistrationInfo.Author = 
-				ConfigurationManager.AppSettings["asScheduleDomainName"] + "\\" + ConfigurationManager.AppSettings["asScheduleUserName"];
-			newTask.RegistrationInfo.Date = DateTime.Now;
-			newTask.RegistrationInfo.Description = "Временный отчет, созданный " + _generalReport.TemporaryCreationDate.Value.ToString();
-
-			newTask.Settings.AllowDemandStart = true;
-			newTask.Settings.AllowHardTerminate = true;
-			newTask.Settings.ExecutionTimeLimit = TimeSpan.FromHours(1);
-
-			newTask.Actions.Add(new ExecAction(ConfigurationManager.AppSettings["asApp"], "/gr:" + Request["r"], ConfigurationManager.AppSettings["asWorkDir"]));
-
-			TaskFolder reportsFolder = _taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]);
-
-			return reportsFolder.RegisterTaskDefinition(
-				_taskName,
-				newTask,
-				TaskCreation.Create,
-				ConfigurationManager.AppSettings["asScheduleDomainName"] + "\\" + ConfigurationManager.AppSettings["asScheduleUserName"],
-				ConfigurationManager.AppSettings["asSchedulePassword"],
-				TaskLogonType.Password,
-				null);
 		}
 
 		/// <summary>
@@ -152,7 +108,9 @@ namespace ReportTuner.Reports
 				_currentTask.Dispose();
 				_currentTask = null;
 			}
-			_taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]).DeleteTask("GR" + _generalReport.Id + ".job");
+
+			ScheduleHelper.DeleteTask(ScheduleHelper.GetReportsFolder(_taskService), _generalReport.Id);
+
 			//Закончили работу с задачами
 			if (_taskService != null)
 			{

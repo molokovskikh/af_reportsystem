@@ -16,12 +16,12 @@
                     <ItemTemplate>
                         <asp:CheckBox ID="chbValue" runat="server" Visible="False" />
                         <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PPropertyValue")%>'></asp:TextBox>
-                        <asp:TextBox ID="tbSearch"  SkinID="searchTexBoxSkin" runat="server" Width="30%"></asp:TextBox>
+                        <asp:TextBox ID="tbSearch"  SkinID="searchTextBoxSkin" runat="server" Width="30%"></asp:TextBox>
                         <asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" />
                         <asp:DropDownList ID="ddlValue" runat="server" Visible="False" AutoPostBack="True" OnSelectedIndexChanged="ddlValue_SelectedIndexChanged"></asp:DropDownList>
                         <asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyType") %>'  Visible="False"></asp:Label>
                         <asp:Button ID="btnListValue" runat="server" Text="..." CommandName="ShowValues" />
-                        <asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTexBoxSkin"/>
+                        <asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTextBoxSkin"/>
                         <ajaxToolkit:CalendarExtender ID="CalendarExtender" runat="server" TargetControlID="tbDate" Format="yyyy-MM-dd"/>    
                     </ItemTemplate>
                 </asp:TemplateField>
@@ -42,14 +42,14 @@
                     <ItemTemplate>
                         <asp:CheckBox ID="chbValue" runat="server" Visible="False" />
                         <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.OPPropertyValue")%>' Visible="False"></asp:TextBox>
-                        <asp:TextBox ID="tbSearch" runat="server" SkinID="searchTexBoxSkin" Width="30%" Visible="False"></asp:TextBox>
+                        <asp:TextBox ID="tbSearch" runat="server" SkinID="searchTextBoxSkin" Width="30%" Visible="False"></asp:TextBox>
                         <asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" Visible="False" />
                         <asp:DropDownList ID="ddlValue" runat="server" Visible="False" AutoPostBack="True" OnSelectedIndexChanged="ddlValue_SelectedIndexChanged">
                         </asp:DropDownList>
                         <asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.OPPropertyType") %>'
                             Visible="False"></asp:Label>
                         <asp:Button ID="btnListValue" runat="server" Text="..." CommandName="ShowValues" Visible="False" />
-                        <asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTexBoxSkin"/>
+                        <asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTextBoxSkin"/>
                         <ajaxToolkit:CalendarExtender ID="CalendarExtender" runat="server" TargetControlID="tbDate" Format="yyyy-MM-dd"/>    
                     </ItemTemplate>
                 </asp:TemplateField>

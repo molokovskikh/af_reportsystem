@@ -12,6 +12,8 @@ using System.Web.UI.HtmlControls;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
+using ReportTuner.Helpers;
+using ReportTuner.Models;
 
 public partial class Reports_GeneralReports : System.Web.UI.Page
 {
@@ -24,20 +26,25 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 		Schedule = 7
 	}
 
+	private string SetFilterCaption = "Фильтровать";
+	private string ClearFilterCaption = "Сбросить";
+
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
     private MySqlDataAdapter MyDA = new MySqlDataAdapter();
     private DataSet DS;
     private DataTable dtGeneralReports;
-    private DataColumn GRCode;
-	private DataColumn GRFirmCode;
-	private DataColumn GRComment;
-    private DataColumn GRAllow;
+    private DataColumn GeneralReportCode;
+	private DataColumn FirmCode;
+	private DataColumn Comment;
+    private DataColumn Allow;
     private DataTable dtPayers;
     private DataColumn PayerShortName;
     private DataColumn PPayerID;
     private DataColumn GRPayerShortName;
-	private DataColumn PayerID;
+	private DataColumn GRPayerID;
+
+
 
     private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
 
@@ -72,12 +79,15 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
         DS.Tables[dtGeneralReports.TableName].Clear();
         MyCmd.CommandText = @"
 SELECT
-    gr.GeneralReportCode as GRCode,
+    gr.GeneralReportCode,
     gr.PayerID,
-    p.ShortName as GRPayerShortName,
-    min(cd.FirmCode) as GRFirmCode,
-    Allow as GRAllow,
-    gr.Comment as GRComment
+    p.ShortName as PayerShortName,
+    min(cd.FirmCode) as FirmCode,
+    gr.Allow,
+    gr.Comment,
+    gr.EMailSubject,
+    gr.ReportFileName,
+    gr.ReportArchName
 FROM
     reports.general_reports gr,
     billing.payers p,
@@ -95,8 +105,16 @@ Order by gr.GeneralReportCode
         MyCn.Close();
 
         Session.Add(DSReports, DS);
-        dgvReports.DataSource = DS;
-        dgvReports.DataMember = DS.Tables[dtGeneralReports.TableName].TableName;
+
+		if (String.IsNullOrEmpty(SortField))
+		{
+			SortField = "GeneralReportCode";
+		}
+
+		ClearFilter();
+
+		DS.Tables[dtGeneralReports.TableName].DefaultView.Sort = SortField + " " + getSortDirection(); 
+        dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
         dgvReports.DataBind();
     }
 
@@ -104,15 +122,15 @@ Order by gr.GeneralReportCode
     {
 		this.DS = new System.Data.DataSet();
 		this.dtGeneralReports = new System.Data.DataTable();
-		this.GRCode = new System.Data.DataColumn();
-		this.GRFirmCode = new System.Data.DataColumn();
-		this.GRComment = new System.Data.DataColumn();
-		this.GRAllow = new System.Data.DataColumn();
+		this.GeneralReportCode = new System.Data.DataColumn();
+		this.FirmCode = new System.Data.DataColumn();
+		this.Comment = new System.Data.DataColumn();
+		this.Allow = new System.Data.DataColumn();
 		this.GRPayerShortName = new System.Data.DataColumn();
+		this.GRPayerID = new System.Data.DataColumn();
 		this.dtPayers = new System.Data.DataTable();
 		this.PayerShortName = new System.Data.DataColumn();
 		this.PPayerID = new System.Data.DataColumn();
-		this.PayerID = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).BeginInit();
@@ -127,36 +145,41 @@ Order by gr.GeneralReportCode
 		// dtGeneralReports
 		// 
 		this.dtGeneralReports.Columns.AddRange(new System.Data.DataColumn[] {
-            this.GRCode,
-            this.GRFirmCode,
-            this.GRComment,
-            this.GRAllow,
+            this.GeneralReportCode,
+            this.FirmCode,
+            this.Comment,
+            this.Allow,
             this.GRPayerShortName,
-            this.PayerID});
+            this.GRPayerID});
 		this.dtGeneralReports.TableName = "dtGeneralReports";
 		// 
-		// GRCode
+		// GeneralReportCode
 		// 
-		this.GRCode.ColumnName = "GRCode";
-		this.GRCode.DataType = typeof(long);
+		this.GeneralReportCode.ColumnName = "GeneralReportCode";
+		this.GeneralReportCode.DataType = typeof(long);
 		// 
-		// GRFirmCode
+		// FirmCode
 		// 
-		this.GRFirmCode.ColumnName = "GRFirmCode";
-		this.GRFirmCode.DataType = typeof(long);
+		this.FirmCode.ColumnName = "FirmCode";
+		this.FirmCode.DataType = typeof(long);
 		// 
-		// GRComment
+		// Comment
 		// 
-		this.GRComment.ColumnName = "GRComment";
+		this.Comment.ColumnName = "Comment";
 		// 
-		// GRAllow
+		// Allow
 		// 
-		this.GRAllow.ColumnName = "GRAllow";
-		this.GRAllow.DataType = typeof(byte);
+		this.Allow.ColumnName = "Allow";
+		this.Allow.DataType = typeof(byte);
 		// 
 		// GRPayerShortName
 		// 
-		this.GRPayerShortName.ColumnName = "GRPayerShortName";
+		this.GRPayerShortName.ColumnName = "PayerShortName";
+		// 
+		// GRPayerID
+		// 
+		this.GRPayerID.ColumnName = "PayerID";
+		this.GRPayerID.DataType = typeof(long);
 		// 
 		// dtPayers
 		// 
@@ -173,11 +196,6 @@ Order by gr.GeneralReportCode
 		// 
 		this.PPayerID.ColumnName = "PayerID";
 		this.PPayerID.DataType = typeof(long);
-		// 
-		// PayerID
-		// 
-		this.PayerID.ColumnName = "PayerID";
-		this.PayerID.DataType = typeof(long);
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).EndInit();
@@ -190,11 +208,13 @@ Order by gr.GeneralReportCode
         {
             CopyChangesToTable();
 
+			ClearFilter();
+
             DataRow dr = DS.Tables[dtGeneralReports.TableName].NewRow();
-            dr[GRAllow.ColumnName] = 0;
+            dr[Allow.ColumnName] = 0;
             DS.Tables[dtGeneralReports.TableName].Rows.Add(dr);
 
-            dgvReports.DataSource = DS;
+            dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
 
             dgvReports.DataBind();
 
@@ -206,7 +226,7 @@ Order by gr.GeneralReportCode
     {
         CopyChangesToTable();
         DS.Tables[dtGeneralReports.TableName].DefaultView[e.RowIndex].Delete();
-        dgvReports.DataSource = DS;
+        dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
         dgvReports.DataBind();
     }
 
@@ -240,15 +260,15 @@ Order by p.ShortName
         {
             if (((DropDownList)dr.FindControl("ddlNames")).SelectedValue != String.Empty)
             {
-                if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][PayerID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlNames")).SelectedValue)
-					DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][PayerID.ColumnName] = ((DropDownList)dr.FindControl("ddlNames")).SelectedValue;
+                if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRPayerID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlNames")).SelectedValue)
+					DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRPayerID.ColumnName] = ((DropDownList)dr.FindControl("ddlNames")).SelectedValue;
             }
 
-            if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked).ToString())
-                DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRAllow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
+            if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Allow.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked).ToString())
+                DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Allow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
 
-			if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRComment.ColumnName].ToString() != ((TextBox)dr.FindControl("tbComment")).Text)
-				DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRComment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
+			if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Comment.ColumnName].ToString() != ((TextBox)dr.FindControl("tbComment")).Text)
+				DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Comment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
 
         }
     }
@@ -302,6 +322,7 @@ Order by p.ShortName
         CopyChangesToTable();
 
 		List<ulong> _deletedReports = new List<ulong>();
+		List<ulong> _updatedReports = new List<ulong>();
 
         MySqlTransaction trans;
         MyCn.Open();
@@ -312,23 +333,23 @@ Order by p.ShortName
 UPDATE 
     reports.general_reports 
 SET 
-    Allow = ?GRAllow,
-    Comment = ?GRComment
-WHERE GeneralReportCode = ?GRCode", MyCn, trans);
+    Allow = ?Allow,
+    Comment = ?Comment
+WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
 
             UpdCmd.Parameters.Clear();
-            UpdCmd.Parameters.Add(new MySqlParameter("GRAllow", MySqlDbType.Byte));
-            UpdCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
-            UpdCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
-			UpdCmd.Parameters.Add(new MySqlParameter("GRComment", MySqlDbType.VarString));
-			UpdCmd.Parameters["GRComment"].Direction = ParameterDirection.Input;
-			UpdCmd.Parameters["GRComment"].SourceColumn = GRComment.ColumnName;
-			UpdCmd.Parameters["GRComment"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("GRCode", MySqlDbType.Int64));
-            UpdCmd.Parameters["GRCode"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GRCode"].SourceColumn = GRCode.ColumnName;
-            UpdCmd.Parameters["GRCode"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("Allow", MySqlDbType.Byte));
+            UpdCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
+            UpdCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
+			UpdCmd.Parameters.Add(new MySqlParameter("Comment", MySqlDbType.VarString));
+			UpdCmd.Parameters["Comment"].Direction = ParameterDirection.Input;
+			UpdCmd.Parameters["Comment"].SourceColumn = Comment.ColumnName;
+			UpdCmd.Parameters["Comment"].SourceVersion = DataRowVersion.Current;
+            UpdCmd.Parameters.Add(new MySqlParameter("GeneralReportCode", MySqlDbType.Int64));
+            UpdCmd.Parameters["GeneralReportCode"].Direction = ParameterDirection.Input;
+            UpdCmd.Parameters["GeneralReportCode"].SourceColumn = GeneralReportCode.ColumnName;
+            UpdCmd.Parameters["GeneralReportCode"].SourceVersion = DataRowVersion.Current;
 
             MySqlCommand DelCmd = new MySqlCommand(@"
 DELETE from reports.general_reports 
@@ -337,7 +358,7 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
             DelCmd.Parameters.Clear();
             DelCmd.Parameters.Add(new MySqlParameter("GRDelCode", MySqlDbType.Int64));
             DelCmd.Parameters["GRDelCode"].Direction = ParameterDirection.Input;
-            DelCmd.Parameters["GRDelCode"].SourceColumn = GRCode.ColumnName;
+            DelCmd.Parameters["GRDelCode"].SourceColumn = GeneralReportCode.ColumnName;
             DelCmd.Parameters["GRDelCode"].SourceVersion = DataRowVersion.Original;
 
             MySqlCommand InsCmd = new MySqlCommand(@"
@@ -345,23 +366,24 @@ INSERT INTO
     reports.general_reports 
 SET 
     PayerId = ?PayerId,
-    Allow = ?GRAllow,
-    Comment = ?GRComment
+    Allow = ?Allow,
+    Comment = ?Comment;
+select last_insert_id() as GRLastInsertID;
 ", MyCn, trans);
 
             InsCmd.Parameters.Clear();
-            InsCmd.Parameters.Add(new MySqlParameter("GRAllow", MySqlDbType.Byte));
-            InsCmd.Parameters["GRAllow"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["GRAllow"].SourceColumn = GRAllow.ColumnName;
-            InsCmd.Parameters["GRAllow"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("Allow", MySqlDbType.Byte));
+            InsCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
+            InsCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
+            InsCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
 			InsCmd.Parameters.Add(new MySqlParameter("PayerId", MySqlDbType.Int64));
 			InsCmd.Parameters["PayerId"].Direction = ParameterDirection.Input;
-			InsCmd.Parameters["PayerId"].SourceColumn = PayerID.ColumnName;
+			InsCmd.Parameters["PayerId"].SourceColumn = GRPayerID.ColumnName;
 			InsCmd.Parameters["PayerId"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("GRComment", MySqlDbType.VarString));
-			InsCmd.Parameters["GRComment"].Direction = ParameterDirection.Input;
-			InsCmd.Parameters["GRComment"].SourceColumn = GRComment.ColumnName;
-			InsCmd.Parameters["GRComment"].SourceVersion = DataRowVersion.Current;
+            InsCmd.Parameters.Add(new MySqlParameter("Comment", MySqlDbType.VarString));
+			InsCmd.Parameters["Comment"].Direction = ParameterDirection.Input;
+			InsCmd.Parameters["Comment"].SourceColumn = Comment.ColumnName;
+			InsCmd.Parameters["Comment"].SourceVersion = DataRowVersion.Current;
 
             MyDA.UpdateCommand = UpdCmd;
             MyDA.DeleteCommand = DelCmd;
@@ -377,10 +399,28 @@ SET
 
 			DataTable dtDeleted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Deleted);
 			if (dtDeleted != null)
+			{
 				foreach (DataRow drDeleted in dtDeleted.Rows)
-					_deletedReports.Add(Convert.ToUInt64(drDeleted[GRCode.ColumnName, DataRowVersion.Original]));
+					_deletedReports.Add(Convert.ToUInt64(drDeleted[GeneralReportCode.ColumnName, DataRowVersion.Original]));
+				MyDA.Update(dtDeleted);
+			}
 
-            MyDA.Update(DS, DS.Tables[dtGeneralReports.TableName].TableName);
+			DataTable dtInserted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added);
+			if (dtInserted != null)
+			{
+				MyDA.Update(dtInserted);
+				foreach (DataRow drInsert in dtInserted.Rows)
+					_updatedReports.Add(Convert.ToUInt64(drInsert["GRLastInsertID"]));
+			}
+
+			DataTable dtUpdated = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Modified);
+			if (dtUpdated != null)
+			{
+				foreach (DataRow drUpdate in dtUpdated.Rows)
+					if (drUpdate["Comment", DataRowVersion.Original] != drUpdate["Comment", DataRowVersion.Current])
+						_updatedReports.Add(Convert.ToUInt64(drUpdate["GeneralReportCode"]));
+				MyDA.Update(dtUpdated);
+			}
 
             trans.Commit();
         }
@@ -394,25 +434,20 @@ SET
             MyCn.Close();
         }
 
-		//Удаляем задания для отчетов
-		if (_deletedReports.Count > 0)
+		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
+		if ((_deletedReports.Count > 0) || (_updatedReports.Count > 0))
 		{
-			using (TaskService taskService = new TaskService(
-				ConfigurationManager.AppSettings["asComp"],
-				ConfigurationManager.AppSettings["asScheduleUserName"],
-				ConfigurationManager.AppSettings["asScheduleDomainName"],
-				ConfigurationManager.AppSettings["asSchedulePassword"]))
-			using (TaskFolder reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]))
+			using (TaskService taskService = ScheduleHelper.GetService())
+			using (TaskFolder reportsFolder = ScheduleHelper.GetReportsFolder(taskService))
 			{
+				foreach (ulong _updatedReportId in _updatedReports)
+				{
+					GeneralReport _report = GeneralReport.Find(_updatedReportId);
+					ScheduleHelper.GetTask(taskService, reportsFolder, _updatedReportId, _report.Comment);
+				}
+
 				foreach (ulong _deletedReportId in _deletedReports)
-					try
-					{
-						reportsFolder.DeleteTask("GR" + _deletedReportId + ".job");
-					}
-					catch (System.IO.FileNotFoundException)
-					{
-						//"Гасим" это исключение при попытке удалить задание, которого не существует
-					}
+					ScheduleHelper.DeleteTask(reportsFolder, _deletedReportId);
 			}
 		}
 
@@ -424,8 +459,173 @@ SET
             btnApply.Visible = false;
     }
 
+	public string SortField
+	{
+		get
+		{
+			object o = ViewState["SortField"];
+			if (o == null)
+			{
+				return String.Empty;
+			}
+			return (string)o;
+		}
+		set
+		{
+		/*
+			if (value == SortField)
+			{
+				//if ascending change to descending or vice versa.
+				SortAscending = !SortAscending;
+			}
+		 */ 
+			ViewState["SortField"] = value;
+		}
+	}
+
+	// using ViewState for SortAscending property
+	public bool SortAscending
+	{
+		get
+		{
+			object o = ViewState["SortAscending"];
+			if (o == null)
+			{
+				return true;
+			}
+			return (bool)o;
+		}
+		set
+		{
+			ViewState["SortAscending"] = value;
+		}
+	}
+
+	private string getSortDirection()
+	{
+		return SortAscending ? "asc" : "desc";
+	}
+
 	protected void dgvReports_Sorting(object sender, GridViewSortEventArgs e)
 	{
+		CopyChangesToTable();
+
+		if (e.SortExpression != SortField)
+		{
+			SortField = e.SortExpression;
+			SortAscending = true;
+		}
+		else
+		{
+			SortAscending = !SortAscending;
+		}
+
+		DS.Tables[dtGeneralReports.TableName].DefaultView.Sort = SortField + " " + getSortDirection();
+		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
+		dgvReports.DataBind();
 
 	}
+
+	protected void dgvReports_RowCreated(object sender, GridViewRowEventArgs e)
+	{
+		// Use the RowType property to determine whether the 
+		// row being created is the header row. 
+		if (e.Row.RowType == DataControlRowType.Header)
+		{
+			// Call the GetSortColumnIndex helper method to determine
+			// the index of the column being sorted.
+			int sortColumnIndex = GetSortColumnIndex();
+
+			if (sortColumnIndex != -1)
+			{
+				// Call the AddSortImage helper method to add
+				// a sort direction image to the appropriate
+				// column header. 
+				AddSortImage(sortColumnIndex, e.Row);
+			}
+		}
+	}
+	// This is a helper method used to determine the index of the
+	// column being sorted. If no column is being sorted, -1 is returned.
+	private int GetSortColumnIndex()
+	{
+
+		// Iterate through the Columns collection to determine the index
+		// of the column being sorted.
+		foreach (DataControlField field in dgvReports.Columns)
+		{
+			if (field.SortExpression == SortField)
+			{
+				return dgvReports.Columns.IndexOf(field);
+			}
+		}
+
+		return -1;
+	}
+
+	// This is a helper method used to add a sort direction
+	// image to the header of the column being sorted.
+	private void AddSortImage(int columnIndex, GridViewRow headerRow)
+	{
+		// Create the sorting image based on the sort direction.
+		Image sortImage = new Image();
+		if (SortAscending)
+		{
+			sortImage.ImageUrl = "~/Images/Ascending.gif";
+			sortImage.AlternateText = "По возрастанию";
+		}
+		else
+		{
+			sortImage.ImageUrl = "~/Images/Descending.gif";
+			sortImage.AlternateText = "По убыванию";
+		}
+
+		// Add the image to the appropriate header cell.
+		headerRow.Cells[columnIndex].Controls.Add(sortImage);
+	}
+
+	private void ClearFilter()
+	{
+		tbFilter.Text = String.Empty;
+		btnFilter.Text = SetFilterCaption;
+		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Empty;
+	}
+
+	private void SetFilter()
+	{
+		List<string> filter = new List<string>();
+		int testInt;
+		if (int.TryParse(tbFilter.Text, out testInt))
+		{
+			filter.Add(String.Format("(GeneralReportCode = {0})", testInt));
+			filter.Add(String.Format("(PayerID = {0})", testInt));
+		}
+
+		filter.Add(String.Format("(PayerShortName like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(Comment like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(EMailSubject like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(ReportFileName like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(ReportArchName like '%{0}%')", tbFilter.Text));
+
+		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Join(" or ", filter.ToArray());
+	}
+
+	protected void btnFilter_Click(object sender, EventArgs e)
+	{
+		CopyChangesToTable();
+
+		if (((sender == btnFilter) && (btnFilter.Text == ClearFilterCaption)))
+		{
+			ClearFilter();
+		}
+		else
+			if (String.IsNullOrEmpty(tbFilter.Text))
+				ClearFilter();
+			else
+				SetFilter();
+
+		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
+		dgvReports.DataBind();
+	}
+
 }

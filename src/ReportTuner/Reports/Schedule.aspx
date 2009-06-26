@@ -14,13 +14,7 @@
             <asp:Label ID="Label1" runat="server" Text="Рабочая папка:" SkinID="scheduleLabelSkin"></asp:Label>
             <asp:Label ID="lblFolder" runat="server" Text="Label"></asp:Label>
         </td></tr>
-        <tr bgcolor="#eef8ff"><td valign="top">
-        <!-- SkinID="scheduleLabelSkin"-->
-            <div style="float:left;width:200px;">Комментарий:</div>
-<%--            <asp:Label ID="Label5" BackColor="red" runat="server" style="vertical-align:text-top;" Text="Комментарий:" ></asp:Label>
---%>            <asp:TextBox ID="tbComment" runat="server" TextMode="MultiLine" SkinID="passwordTexBoxSkin"></asp:TextBox>
-        </td></tr>
-        <tr bgcolor="#f6f6f6"><td>
+        <tr bgcolor="#eef8ff"><td>
             <asp:CheckBox ID="chbAllow" runat="server" Text="Разрешено" />
         </td></tr>
     </table>

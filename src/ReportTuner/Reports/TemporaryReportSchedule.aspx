@@ -5,7 +5,7 @@
             <tr align="left">
                 <td >Выбор имеющейся рассылки:</td>
                 <td >
-                    <asp:TextBox ID="tbContactFind" SkinID="findTexBoxSkin" runat="server" 
+                    <asp:TextBox ID="tbContactFind" SkinID="findTextBoxSkin" runat="server" 
                         AutoPostBack="true" ontextchanged="btnFind_Click"></asp:TextBox>
                     <asp:Button ID="btnFind" Text="Найти" runat="server" onclick="btnFind_Click" />
                     <asp:DropDownList ID="ContactGroups" runat="server" Visible ="false"></asp:DropDownList>

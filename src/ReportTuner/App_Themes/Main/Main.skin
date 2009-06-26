@@ -16,10 +16,12 @@ Default skin template. The following skins are provided as examples only.
 <asp:Button runat="server" BorderStyle="Groove" />
 <asp:TextBox runat="server" BorderStyle="Groove" Width="80%"/>
 <asp:Label runat="server" SkinId="scheduleLabelSkin" Width="200px"/>
-<asp:TextBox runat="server" SkinId="searchTexBoxSkin" BorderStyle="Groove" Width="30%"/>
-<asp:TextBox runat="server" SkinId="passwordTexBoxSkin" BorderStyle="Groove" Width="15%"/>
-<asp:TextBox runat="server" SkinId="findTexBoxSkin" BorderStyle="Groove" Width="150"/>
-<asp:TextBox runat="server" SkinId="dateTexBoxSkin" BorderStyle="Groove" Width="100"/>
+<asp:Label runat="server" SkinId="paramLabelSkin" Width="150px"/>
+<asp:TextBox runat="server" SkinId="searchTextBoxSkin" BorderStyle="Groove" Width="30%"/>
+<asp:TextBox runat="server" SkinId="passwordTextBoxSkin" BorderStyle="Groove" Width="15%"/>
+<asp:TextBox runat="server" SkinId="findTextBoxSkin" BorderStyle="Groove" Width="150"/>
+<asp:TextBox runat="server" SkinId="dateTextBoxSkin" BorderStyle="Groove" Width="100"/>
+<asp:TextBox runat="server" SkinId="paramTextBoxSkin" BorderStyle="Groove" Width="300px"/>
 
 <asp:GridView runat="server" width="100%" BackColor="#EBEBEB" BorderColor="#DADADA" BorderWidth="1px" BorderStyle="Solid" >
 	<AlternatingRowStyle HorizontalAlign="Center" VerticalAlign="Middle" BackColor="#EEF8FF" />

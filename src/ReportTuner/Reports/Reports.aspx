@@ -2,7 +2,39 @@
 
 <asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align="center">
-        <strong style="font-size:small;">Настройка отчетов</strong><asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReports_RowCommand" OnRowDataBound="dgvReports_RowDataBound" OnRowDeleting="dgvReports_RowDeleting">
+        <strong style="font-size:small;">Настройка дополнительных параметров</strong> <br/>
+    </div>
+    <div align="center">
+      <table >
+        <tr bgcolor="#eef8ff">
+          <td align="right">
+            <asp:Label ID="lblEMailSubject" runat="server" Text="Тема письма:" SkinID="paramLabelSkin"/>
+          </td>
+          <td> 
+            <asp:TextBox ID="tbEMailSubject" runat="server" SkinID="paramTextBoxSkin"/>
+          </td>
+        </tr>
+        <tr bgcolor="#f6f6f6">
+          <td align="right">
+            <asp:Label ID="lblReportFileName" runat="server" Text="Имя файла отчета:" SkinID="paramLabelSkin"/>
+          </td>
+          <td> 
+            <asp:TextBox ID="tbReportFileName" runat="server" SkinID="paramTextBoxSkin"/>
+          </td>
+        </tr>
+        <tr bgcolor="#eef8ff">
+          <td align="right">
+            <asp:Label ID="lblReportArchName" runat="server" Text="Имя архива отчета:" SkinID="paramLabelSkin"/>
+          </td>
+          <td> 
+            <asp:TextBox ID="tbReportArchName" runat="server" SkinID="paramTextBoxSkin"/>
+          </td>
+        </tr>
+    </table>
+    </div>
+    <div align="center">
+        <strong style="font-size:small;">Настройка отчетов</strong>
+        <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReports_RowCommand" OnRowDataBound="dgvReports_RowDataBound" OnRowDeleting="dgvReports_RowDeleting">
             <Columns>
                 <asp:TemplateField HeaderText="Тип отчета">
                     <ItemTemplate>

@@ -311,6 +311,27 @@ namespace ReportTuner.Test
 			//}
 		}
 
+		[Test(Description = "Проверка работы метода First")]
+		public void TestFirstInFolders()
+		{
+			using (TaskService toTaskService = new TaskService())
+			{
+				using (TaskFolder reportsFolder = toTaskService.GetFolder("Отчеты"))
+				{
+					try
+					{
+						Task updateTask = reportsFolder.Tasks.First(
+							task => task.Name.Equals("GR dsdshdhskhd", StringComparison.OrdinalIgnoreCase));
+						Assert.Fail("Нашли задачу, которую не должны были найти");
+					}
+					catch (InvalidOperationException)
+					{
+						//Задачу не нашли и получили исключение
+					}
+				}
+			}
+		}
+
 	}
 
 }

@@ -10,6 +10,8 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using ReportTuner.Models;
+using Castle.ActiveRecord;
 
 public partial class Reports_Reports : System.Web.UI.Page
 {
@@ -52,17 +54,18 @@ public partial class Reports_Reports : System.Web.UI.Page
         }
         else
             DS = ((DataSet)Session[DSReports]);
-
-        if (dgvReports.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
     }
 
     private void PostData()
     {
         if (MyCn.State != ConnectionState.Open)
             MyCn.Open();
+
+		GeneralReport report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
+		tbEMailSubject.Text = report.EMailSubject;
+		tbReportFileName.Text = report.ReportFileName;
+		tbReportArchName.Text = report.ReportArchName;
+
         MyCmd.Connection = MyCn;
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
@@ -201,8 +204,6 @@ order by ReportTypeName
             DS.Tables[dtReports.TableName].Rows.Add(dr);
             dgvReports.DataSource = DS;
             dgvReports.DataBind();
-
-            btnApply.Visible = true;
         }
     }
 
@@ -339,8 +340,6 @@ SET
             MyDA.Update(DS, DS.Tables[dtReports.TableName].TableName);
 
             trans.Commit();
-
-            PostData();
         }
         catch 
         {
@@ -351,11 +350,19 @@ SET
         {
             MyCn.Close();
         }
-        if (dgvReports.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+
+		using (new TransactionScope())
+		{
+			GeneralReport report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
+			report.EMailSubject = tbEMailSubject.Text;
+			report.ReportFileName = tbReportFileName.Text;
+			report.ReportArchName = tbReportArchName.Text;
+			report.Save();
+		}
+
+		PostData();
     }
+
     protected void dgvReports_RowDeleting(object sender, GridViewDeleteEventArgs e)
     {
         CopyChangesToTable();

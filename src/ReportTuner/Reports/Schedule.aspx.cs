@@ -14,6 +14,7 @@ using System.DirectoryServices;
 using Microsoft.Win32.TaskScheduler;
 using System.Threading;
 using ReportTuner.Models;
+using ReportTuner.Helpers;
 
 
 public partial class Reports_schedule : System.Web.UI.Page
@@ -22,15 +23,11 @@ public partial class Reports_schedule : System.Web.UI.Page
 	private MySqlCommand MyCmd = new MySqlCommand();
     private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 
-    string asWorkDir = String.Empty;
-    string asApp = String.Empty;
-    string asComp = String.Empty;
-	string ScheduleDomainName = String.Empty;
-	string ScheduleUserName = String.Empty;
-	string SchedulePassword = String.Empty;
+	private GeneralReport _generalReport;
+
 	TaskService taskService = null;
 	TaskFolder reportsFolder;
-	string taskName = String.Empty;
+
     private DataSet DS;
     private DataTable dtSchedule;
     private DataColumn SWeek;
@@ -61,24 +58,13 @@ public partial class Reports_schedule : System.Web.UI.Page
         if (Request["r"] == null)
             Response.Redirect("GeneralReports.aspx");
 
-        taskName = "GR" + Request["r"];
-        asWorkDir = System.Configuration.ConfigurationManager.AppSettings["asWorkDir"];
-        asApp = System.Configuration.ConfigurationManager.AppSettings["asApp"];
-        asComp = System.Configuration.ConfigurationManager.AppSettings["asComp"];
-		ScheduleDomainName = System.Configuration.ConfigurationManager.AppSettings["asScheduleDomainName"];
-		ScheduleUserName = System.Configuration.ConfigurationManager.AppSettings["asScheduleUserName"];
-		SchedulePassword = System.Configuration.ConfigurationManager.AppSettings["asSchedulePassword"];
-		taskService = new TaskService(asComp, ScheduleUserName, ScheduleDomainName, SchedulePassword);
-		try
-		{
-			reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]);
-		}
-		catch (System.IO.FileNotFoundException)
-		{
-			throw new Exception(String.Format("На сервере {0} не существует папка '{1}' в планировщике задач", asComp, ConfigurationManager.AppSettings["asReportsFolderName"]));
-		}
-		currentTask = FindTask(taskService, taskName);
+		_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["r"]));        
+
+		taskService = ScheduleHelper.GetService();		
+		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
+		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment);
 		currentTaskDefinition = currentTask.Definition;
+
 		btnExecute.Enabled = currentTask.Enabled && (currentTask.State != TaskState.Running);
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
@@ -90,12 +76,11 @@ public partial class Reports_schedule : System.Web.UI.Page
 				MyCmd.Connection = MyCn;
 				MyDA.SelectCommand = MyCmd;
 
-				GeneralReport report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
-				lblClient.Text = report.Payer.Id + " - " + report.Payer.ShortName;
-				lblReportComment.Text = report.Comment;
+				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
+				lblReportComment.Text = _generalReport.Comment;
 
 				MyCmd.Parameters.Clear();
-				MyCmd.Parameters.AddWithValue("?GeneralReportCode", Request["r"]);
+				MyCmd.Parameters.AddWithValue("?GeneralReportCode", _generalReport.Id);
 				MyCmd.CommandText = @"
 SELECT
   Max(LogTime) as MaxLogTime
@@ -131,13 +116,9 @@ order by LogTime desc
 				MyCn.Close();				
 			}
             
-
-            lblWork.Text = taskName;
-
-			lblWork.Text = ((ExecAction)currentTask.Definition.Actions[0]).Path + " " + ((ExecAction)currentTask.Definition.Actions[0]).Arguments;
+		    lblWork.Text = ((ExecAction)currentTask.Definition.Actions[0]).Path + " " + ((ExecAction)currentTask.Definition.Actions[0]).Arguments;
             lblFolder.Text = ((ExecAction)currentTask.Definition.Actions[0]).WorkingDirectory;
 			chbAllow.Checked = currentTask.Enabled;
-            tbComment.Text = currentTask.Definition.RegistrationInfo.Description;
 			System.Collections.Generic.List<Trigger> _otherTriggers = new System.Collections.Generic.List<Trigger>();
             TriggerCollection TL = currentTask.Definition.Triggers;
             DaysOfTheWeek days;
@@ -194,45 +175,6 @@ order by LogTime desc
             dr[column] = 0;
     }
 
-    private Task FindTask(TaskService _taskService, string _taskName)
-    {
-		Task findTask = null;
-
-		try
-		{
-			findTask = _taskService.GetTask(ConfigurationManager.AppSettings["asReportsFolderName"] + "\\" + _taskName);
-		}
-		catch (System.IO.FileNotFoundException)
-		{
-			findTask = CreateNewTask(_taskService, _taskName);
-		}
-
-		return findTask;
-    }
-
-    private Task CreateNewTask(TaskService _taskService, string _taskName)
-    {
-		TaskDefinition newTask = _taskService.NewTask();
-
-		newTask.RegistrationInfo.Author = ScheduleDomainName + "\\" + ScheduleUserName;
-		newTask.RegistrationInfo.Date = DateTime.Now;
-
-		newTask.Settings.AllowDemandStart = true;
-		newTask.Settings.AllowHardTerminate = true;
-		newTask.Settings.ExecutionTimeLimit = TimeSpan.FromHours(1);
-
-		newTask.Actions.Add(new ExecAction(asApp, "/gr:" + Request["r"], asWorkDir));
-
-		return reportsFolder.RegisterTaskDefinition(
-			_taskName, 
-			newTask, 
-			TaskCreation.Create, 
-			ScheduleDomainName + "\\" + ScheduleUserName, 
-			SchedulePassword, 
-			TaskLogonType.Password, 
-			null);
-    }
-
     protected void btnApply_Click(object sender, EventArgs e)
     {
         if (this.IsValid)
@@ -275,20 +217,12 @@ order by LogTime desc
 
     private void SaveTaskChanges()
     {
-		currentTaskDefinition.RegistrationInfo.Description = tbComment.Text;
 		currentTaskDefinition.Settings.Enabled = chbAllow.Checked;
 
 		btnExecute.Enabled = currentTaskDefinition.Settings.Enabled && (currentTask.State != TaskState.Running);
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
-		reportsFolder.RegisterTaskDefinition(
-			currentTask.Name,
-			currentTaskDefinition,
-			TaskCreation.Update,
-			ScheduleDomainName + "\\" + ScheduleUserName,
-			SchedulePassword,
-			TaskLogonType.Password,
-			null);
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, _generalReport.Id, currentTaskDefinition);
     }
 
     private void SaveTriggers()
@@ -475,7 +409,7 @@ order by LogTime desc
 		CloseTaskService();
 		Thread.Sleep(500);
 		if (_runed)
-			Response.Redirect("Schedule.aspx?r=" + Request["r"]);
+			Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
 	}
 
 	/// <summary>

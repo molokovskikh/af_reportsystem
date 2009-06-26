@@ -142,6 +142,7 @@
   <ItemGroup>
     <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Helpers\ReportHelper.cs" />
+    <Compile Include="Helpers\ScheduleHelper.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\GeneralReport.cs" />
     <Compile Include="Models\Payer.cs" />
@@ -314,6 +315,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\Ascending.gif" />
+    <Content Include="Images\Descending.gif" />
     <Content Include="Reports\TemplateReports.aspx" />
     <Content Include="Reports\TemporaryReport.aspx" />
     <Content Include="Reports\TemporaryReportSchedule.aspx" />
@@ -340,7 +343,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>51503</DevelopmentServerPort>
+          <DevelopmentServerPort>53548</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

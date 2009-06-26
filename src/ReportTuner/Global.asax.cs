@@ -14,6 +14,7 @@ using Castle.ActiveRecord.Framework.Config;
 using ReportTuner.Models;
 using NHibernate.Criterion;
 using Microsoft.Win32.TaskScheduler;
+using ReportTuner.Helpers;
 
 /// <summary>
 /// Summary description for Global
@@ -77,30 +78,14 @@ namespace Inforoom.ReportTuner
 			if (_temporaryReportsForDelete.Length > 0)
 				using (new TransactionScope())
 				{
-					foreach (GeneralReport _report in _temporaryReportsForDelete)
+					using (TaskService taskService = ScheduleHelper.GetService())
+					using (TaskFolder reportsFolder = ScheduleHelper.GetReportsFolder(taskService))
+						foreach (GeneralReport _report in _temporaryReportsForDelete)
 					{
-						DeleteTask(_report.Id);
+						ScheduleHelper.DeleteTask(reportsFolder, _report.Id);
 						_report.Delete();
 					}
 				}
-		}
-
-		private void DeleteTask(ulong generalReportId)
-		{
-			using (TaskService taskService = new TaskService(
-				ConfigurationManager.AppSettings["asComp"],
-				ConfigurationManager.AppSettings["asScheduleUserName"],
-				ConfigurationManager.AppSettings["asScheduleDomainName"],
-				ConfigurationManager.AppSettings["asSchedulePassword"]))
-				using (TaskFolder reportsFolder = taskService.GetFolder(ConfigurationManager.AppSettings["asReportsFolderName"]))
-					try
-					{
-						reportsFolder.DeleteTask("GR" + generalReportId + ".job");
-					}
-					catch (System.IO.FileNotFoundException)
-					{
-						//"Гасим" это исключение при попытке удалить задание, которого не существует
-					}
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)
