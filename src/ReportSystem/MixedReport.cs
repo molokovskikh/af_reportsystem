@@ -96,55 +96,83 @@ namespace Inforoom.ReportSystem
 		}
 
 
+		void FillProviderCodes(ExecuteArgs e)
+		{
+			e.DataAdapter.SelectCommand.CommandText = @"
+drop temporary table IF EXISTS ProviderCodes;
+create temporary table ProviderCodes (" +
+									((showCode) ? "Code varchar(20), " : String.Empty) +
+									((showCodeCr) ? "CodeCr varchar(20), " : String.Empty) +
+									"CatalogCode int unsigned, codefirmcr int unsigned," +
+									((showCode) ? "key Code(Code), " : String.Empty) +
+									((showCodeCr) ? "key CodeCr(CodeCr), " : String.Empty) +
+@"key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
+insert into ProviderCodes "
+				+
+				"select " +
+					((showCode) ? "CoreCodes.Code, " : String.Empty) +
+					((showCodeCr) ? "CoreCodes.CodeCr, " : String.Empty) +
+					nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : ", null ") +
+				@" from (
+(
+select
+distinct " +
+					((showCode) ? "ol.Code, " : String.Empty) +
+					((showCodeCr) ? "ol.CodeCr, " : String.Empty) +
+@"ol.ProductId, 
+  ol.CodeFirmCr
+from
+  orders.OrdersHead oh,
+  orders.OrdersList ol,
+  usersettings.pricesdata pd
+where
+    ol.OrderID = oh.RowID
+and oh.deleted = 0
+and oh.processed = 1
+and ol.Junk = 0
+and ol.Await = 0
+and pd.PriceCode = oh.PriceCode
+and pd.FirmCode = " + sourceFirmCode.ToString() +
+				" and oh.WriteTime > '" + dtFrom.ToString(MySQLDateFormat) + "' " +
+				" and oh.WriteTime < '" + dtTo.ToString(MySQLDateFormat) + "' " +
+@")
+union
+(
+select
+distinct " +
+					((showCode) ? "core.Code, " : String.Empty) +
+					((showCodeCr) ? "core.CodeCr, " : String.Empty) +
+@"core.ProductId,
+core.CodeFirmCr
+from
+  usersettings.Pricesdata pd,
+  farm.Core0 core
+where
+    pd.FirmCode = " + sourceFirmCode.ToString()
++ @" and core.PriceCode = pd.PriceCode
+)
+) CoreCodes,
+  catalogs.products p,
+  catalogs.catalog c,
+  catalogs.catalognames cn,
+  farm.CatalogFirmCr cfc
+where
+    p.Id = CoreCodes.ProductId
+and c.Id = p.CatalogId
+and cn.id = c.NameId
+and cfc.CodeFirmCr = if(CoreCodes.CodeFirmCr is not null, CoreCodes.CodeFirmCr, 1)
+group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : String.Empty);
+
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+		}
+
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			filter.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
 			filter.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
 
 			if (showCode || showCodeCr)
-			{
-				e.DataAdapter.SelectCommand.CommandText = @"
-drop temporary table IF EXISTS ProviderCodes;
-create temporary table ProviderCodes (" + 
-										((showCode) ? "Code varchar(20), " : String.Empty) +
-										((showCodeCr) ? "CodeCr varchar(20), " : String.Empty) +
-										"CatalogCode int unsigned, codefirmcr int unsigned," +
-										((showCode) ? "key Code(Code), " : String.Empty) +
-										((showCodeCr) ? "key CodeCr(CodeCr), " : String.Empty) +
-@"key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
-insert into ProviderCodes "
-					+
-					"select " +
-						((showCode) ? "ol.Code, " : String.Empty) +
-						((showCodeCr) ? "ol.CodeCr, " : String.Empty) +
-						nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : ", null ") +
-					@"
-from 
-  orders.OrdersHead oh, 
-  orders.OrdersList ol,
-  catalogs.products p,
-  catalogs.catalog c,
-  catalogs.catalognames cn, 
-  farm.CatalogFirmCr cfc, 
-  usersettings.pricesdata pd 
-where 
-    ol.OrderID = oh.RowID 
-and oh.deleted = 0
-and oh.processed = 1
-and ol.Junk = 0
-and ol.Await = 0
-and p.Id = ol.ProductId
-and c.Id = p.CatalogId
-and cn.id = c.NameId
-and cfc.CodeFirmCr = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1)
-and pd.PriceCode = oh.PriceCode
-and pd.FirmCode = " + sourceFirmCode.ToString() +
-					" and oh.WriteTime > '" + dtFrom.ToString(MySQLDateFormat) + "' " +
-					" and oh.WriteTime < '" + dtTo.ToString(MySQLDateFormat) + "' " +
-					" group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : String.Empty);
-
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-			}
+				FillProviderCodes(e);
 
 			string SelectCommand = "select ";
 

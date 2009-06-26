@@ -21,7 +21,6 @@ namespace Inforoom.ReportSystem
 		public const string GeneralReportCode = "GeneralReportCode";
 		public const string FirmCode = "FirmCode";
 		public const string Allow = "Allow";
-		public const string FirmStatus = "FirmStatus";
 		public const string ContactGroupId = "ContactGroupId";
 		public const string EMailSubject = "EMailSubject";
 		public const string ShortName = "ShortName";
