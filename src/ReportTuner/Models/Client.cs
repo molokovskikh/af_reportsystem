@@ -22,5 +22,13 @@ namespace ReportTuner.Models
 
 		[BelongsTo("ContactGroupOwnerId")]
 		public virtual ContactGroupOwner ContactGroupOwner { get; set; }
+
+		[BelongsTo("BillingCode")]
+		public virtual Payer BillingInstance { get; set; }
+
+		public string ShortNameAndId
+		{
+			get { return String.Format("{0} ({1})", ShortName, Id); }
+		}
 	}
 }

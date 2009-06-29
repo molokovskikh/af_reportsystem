@@ -82,7 +82,7 @@ SELECT
     gr.GeneralReportCode,
     gr.PayerID,
     p.ShortName as PayerShortName,
-    min(cd.FirmCode) as FirmCode,
+    gr.FirmCode,
     gr.Allow,
     gr.Comment,
     gr.EMailSubject,
@@ -90,14 +90,11 @@ SELECT
     gr.ReportArchName
 FROM
     reports.general_reports gr,
-    billing.payers p,
-    usersettings.clientsdata cd
+    billing.payers p
 WHERE
     p.PayerId = gr.PayerId
-and cd.BillingCode = gr.PayerId
 and gr.GeneralReportCode <> ?TemplateReportId
 and gr.Temporary = 0
-group by gr.GeneralReportCode
 Order by gr.GeneralReportCode
 ";
 		MyCmd.Parameters.AddWithValue("?TemplateReportId", ConfigurationManager.AppSettings["TemplateReportId"]);

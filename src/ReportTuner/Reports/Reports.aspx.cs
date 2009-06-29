@@ -66,6 +66,12 @@ public partial class Reports_Reports : System.Web.UI.Page
 		tbReportFileName.Text = report.ReportFileName;
 		tbReportArchName.Text = report.ReportArchName;
 
+		Recipients.DataSource = report.Payer.Clients;
+		Recipients.DataTextField = "ShortNameAndId";
+		Recipients.DataValueField = "Id";
+		Recipients.SelectedValue = report.Client.Id.ToString();
+		Recipients.DataBind();
+
         MyCmd.Connection = MyCn;
         MyDA.SelectCommand = MyCmd;
         MyCmd.Parameters.Clear();
@@ -357,6 +363,14 @@ SET
 			report.EMailSubject = tbEMailSubject.Text;
 			report.ReportFileName = tbReportFileName.Text;
 			report.ReportArchName = tbReportArchName.Text;
+
+			uint newRecipientId = Convert.ToUInt32(Recipients.SelectedValue);
+			if (newRecipientId != report.Client.Id)
+			{
+				Client newRecipient = Client.Find(newRecipientId);
+				report.Client = newRecipient;
+			}
+
 			report.Save();
 		}
 

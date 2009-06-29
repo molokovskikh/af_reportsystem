@@ -81,17 +81,13 @@ namespace Inforoom.ReportSystem
 						//Формируем запрос
 						sqlSelectReports =
 @"SELECT  
-  cr.*, 
-  min(cd.FirmCode) As FirmCode,
+  cr.*,   
   p.ShortName  
 FROM    reports.general_reports cr,
-        billing.payers p, 
-        usersettings.clientsdata cd  
+        billing.payers p
 WHERE   
      p.PayerId = cr.PayerId
-and cd.BillingCode = cr.PayerId
-and cr.generalreportcode = " + GeneralReportID +
-" group by cr.generalreportcode";
+and cr.generalreportcode = " + GeneralReportID;
 
 						//Выбирает отчеты согласно фильтру
 						DataTable dtGeneralReports = MethodTemplate.ExecuteMethod<ReportsExecuteArgs, DataTable>(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc, true, null, false, null);

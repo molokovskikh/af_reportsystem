@@ -16,5 +16,8 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual string ShortName { get; set; }
+
+		[HasMany(typeof(Client), Lazy = true, Inverse = true, OrderBy = "ShortName")]
+		public virtual IList<Client> Clients { get; set; }
 	}
 }

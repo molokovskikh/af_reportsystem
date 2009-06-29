@@ -15,6 +15,9 @@ namespace ReportTuner.Models
 		[BelongsTo("PayerID")]
 		public virtual Payer Payer { get; set; }
 
+		[BelongsTo("FirmCode")]
+		public virtual Client Client { get; set; }
+
 		[Property]
 		public virtual bool Allow { get; set; }
 
