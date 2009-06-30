@@ -332,6 +332,40 @@ namespace ReportTuner.Test
 			}
 		}
 
+		[Test(Description = "Изменяем имя запускаемого файла")]
+		public void ReplaceExecuteAction()
+		{
+			return;
+
+			//using (TaskService toTaskService = new TaskService("offdc", "runer", "analit", "zcxvcb"))
+			//{
+			//    TaskFolder _reportsFolder = toTaskService.GetFolder("Отчеты");
+
+			//    foreach (Task task in _reportsFolder.Tasks)
+			//    {
+			//        int generalReportCode = 0;
+			//        if (task.Name.StartsWith("GR") && (task.Name.Length > 2)
+			//            && int.TryParse(task.Name.Substring(2), out generalReportCode))
+			//        {
+			//            TaskDefinition moveTaskDefinition = task.Definition;
+
+			//            if ((moveTaskDefinition.Actions.Count > 0) && (moveTaskDefinition.Actions[0] is ExecAction))
+			//                ((ExecAction)moveTaskDefinition.Actions[0]).Path = ((ExecAction)moveTaskDefinition.Actions[0]).Path.Replace("ReportSystem", "ReportSystemBoot");
+
+			//            _reportsFolder.RegisterTaskDefinition(
+			//                task.Name,
+			//                moveTaskDefinition,
+			//                TaskCreation.Update,
+			//                "analit\\runer",
+			//                "zcxvcb",
+			//                TaskLogonType.Password,
+			//                null);
+			//        }
+			//    }
+			//}
+		}
+
+
 	}
 
 }

@@ -1,0 +1,13 @@
+import file from WebSiteSupport.bake
+import System.IO
+
+Global(
+	project : "ReportTuner",	
+	deployTo : "\\\\acdcserv\\ReportConf"
+)
+
+Task @default, [@build]
+
+Task @build, [@buildWebSite]
+
+Task @deploy, [@build, @deployWebSite]
