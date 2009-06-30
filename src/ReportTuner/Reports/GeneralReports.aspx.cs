@@ -27,7 +27,6 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 	}
 
 	private string SetFilterCaption = "Фильтровать";
-	private string ClearFilterCaption = "Сбросить";
 
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
@@ -203,19 +202,33 @@ Order by gr.GeneralReportCode
     {
         if (e.CommandName == "Add")
         {
-            CopyChangesToTable();
+			//Если нет добавленных записей, то позволяем добавить запись
+			if (DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added) == null)
+			{
+				CopyChangesToTable();
 
-			ClearFilter();
+				ClearFilter();
 
-            DataRow dr = DS.Tables[dtGeneralReports.TableName].NewRow();
-            dr[Allow.ColumnName] = 0;
-            DS.Tables[dtGeneralReports.TableName].Rows.Add(dr);
+				DataRow dr = DS.Tables[dtGeneralReports.TableName].NewRow();
+				dr[Allow.ColumnName] = 0;
+				DS.Tables[dtGeneralReports.TableName].Rows.Add(dr);
 
-            dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
+				dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
 
-            dgvReports.DataBind();
+				dgvReports.DataBind();
 
-            btnApply.Visible = true;
+				btnApply.Visible = true;
+			}
+			else
+			{
+				//Ищем добавленную запись и позиционируемся на нее
+				foreach (GridViewRow row in dgvReports.Rows)
+					if (String.IsNullOrEmpty(row.Cells[(int)GeneralReportFields.Code].Text))
+					{
+						dgvReports.SelectedIndex = row.RowIndex;
+						break;
+					}
+			}
         }
     }
 
@@ -255,18 +268,35 @@ Order by p.ShortName
     {
         foreach (GridViewRow dr in dgvReports.Rows)
         {
-            if (((DropDownList)dr.FindControl("ddlNames")).SelectedValue != String.Empty)
-            {
-                if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRPayerID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlNames")).SelectedValue)
-					DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][GRPayerID.ColumnName] = ((DropDownList)dr.FindControl("ddlNames")).SelectedValue;
-            }
+			DataRow changedRow = null;
 
-            if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Allow.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked).ToString())
-                DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Allow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
+			if (Convert.IsDBNull(dgvReports.DataKeys[dr.RowIndex].Value))
+			{
+				//добавленная запись
+				DataRow[] drs = DS.Tables[dtGeneralReports.TableName].Select("GeneralReportCode is null");
+				if (drs.Length == 1)
+				{
+					changedRow = drs[0];
+					if (!String.IsNullOrEmpty(((DropDownList)dr.FindControl("ddlNames")).SelectedValue))
+						changedRow[GRPayerID.ColumnName] = Convert.ToInt64(((DropDownList)dr.FindControl("ddlNames")).SelectedValue);
+				}
+			}
+			else
+			{
+				//измененная запись
+				DataRow[] drs = DS.Tables[dtGeneralReports.TableName].Select("GeneralReportCode = " + dgvReports.DataKeys[dr.RowIndex].Value);
+				if (drs.Length == 1)
+					changedRow = drs[0];
+			}
 
-			if (DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Comment.ColumnName].ToString() != ((TextBox)dr.FindControl("tbComment")).Text)
-				DS.Tables[dtGeneralReports.TableName].DefaultView[dr.RowIndex][Comment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
+			if (changedRow != null)
+			{
+				if (!changedRow[Allow.ColumnName].Equals(Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked)))
+					changedRow[Allow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
 
+				if (!changedRow[Comment.ColumnName].Equals(((TextBox)dr.FindControl("tbComment")).Text))
+					changedRow[Comment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
+			}
         }
     }
 
@@ -285,7 +315,14 @@ Order by p.ShortName
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            if (((Label)e.Row.FindControl("lblFirmName")).Text != "")
+			//"Рассылки"
+			e.Row.Cells[(int)GeneralReportFields.Delivery].ToolTip = "Рассылки";
+			//"Отчеты"
+			e.Row.Cells[(int)GeneralReportFields.Reports].ToolTip = "Отчеты";
+			//"Расписание"
+			e.Row.Cells[(int)GeneralReportFields.Schedule].ToolTip = "Расписание";
+
+			if (((Label)e.Row.FindControl("lblFirmName")).Text != "")
             {
                 ((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
                 ((Button)e.Row.FindControl("btnSearch")).Visible = false;
@@ -410,11 +447,12 @@ select last_insert_id() as GRLastInsertID;
 
 			DataTable dtInserted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added);
 			if (dtInserted != null)
-			{
-				MyDA.Update(dtInserted);
 				foreach (DataRow drInsert in dtInserted.Rows)
-					_updatedReports.Add(Convert.ToUInt64(drInsert["GRLastInsertID"]));
-			}
+					if (!Convert.IsDBNull(drInsert[GRPayerID.ColumnName]) && (drInsert[GRPayerID.ColumnName] is long))
+					{
+						MyDA.Update(new DataRow[] { drInsert });
+						_updatedReports.Add(Convert.ToUInt64(drInsert["GRLastInsertID"]));
+					}
 
 			DataTable dtUpdated = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Modified);
 			if (dtUpdated != null)
@@ -617,15 +655,10 @@ select last_insert_id() as GRLastInsertID;
 	{
 		CopyChangesToTable();
 
-		if (((sender == btnFilter) && (btnFilter.Text == ClearFilterCaption)))
-		{
+		if (String.IsNullOrEmpty(tbFilter.Text))
 			ClearFilter();
-		}
 		else
-			if (String.IsNullOrEmpty(tbFilter.Text))
-				ClearFilter();
-			else
-				SetFilter();
+			SetFilter();
 
 		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
 		dgvReports.DataBind();

@@ -8,4 +8,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("ReportTuner")]
 [assembly: AssemblyCopyright("Copyright © Inforoom 2009")]
 [assembly: CLSCompliant(false)]
-[assembly: AssemblyVersion("1.0.28.43")]
+[assembly: AssemblyVersion("1.0.29.44")]

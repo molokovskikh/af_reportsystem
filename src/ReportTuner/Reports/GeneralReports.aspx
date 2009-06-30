@@ -12,7 +12,7 @@
         <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" 
             OnRowCommand="dgvReports_RowCommand" OnRowDeleting="dgvReports_RowDeleting" 
             OnRowDataBound="dgvReports_RowDataBound" style="table-layout:fixed;" 
-            AllowSorting="true" onrowcreated="dgvReports_RowCreated" onsorting="dgvReports_Sorting">
+            AllowSorting="true" onrowcreated="dgvReports_RowCreated" onsorting="dgvReports_Sorting" DataKeyNames="GeneralReportCode">
             <Columns>
                 <asp:BoundField DataField="GeneralReportCode" HeaderText="Код" 
                     ItemStyle-Width="3%" HeaderStyle-Width="3%" SortExpression="GeneralReportCode">
@@ -75,13 +75,13 @@
 
 <ItemStyle Width="5%"></ItemStyle>
                 </asp:HyperLinkField>
-                <asp:HyperLinkField HeaderText="Расписание" Text="..." 
-                    DataNavigateUrlFields="GeneralReportCode" 
+                <asp:HyperLinkField HeaderText="Расписание" Text="..."
+                    DataNavigateUrlFields="GeneralReportCode"                     
                     DataNavigateUrlFormatString="Schedule.aspx?r={0}" ItemStyle-Width="6%" 
                     HeaderStyle-Width="6%">
 <HeaderStyle Width="6%"></HeaderStyle>
 
-<ItemStyle Width="6%"></ItemStyle>
+<ItemStyle Width="6%" ></ItemStyle>
                 </asp:HyperLinkField>
                 <asp:TemplateField ItemStyle-Width="7%" HeaderStyle-Width="7%">
 				    <HeaderTemplate>
