@@ -361,10 +361,16 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
             MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
     reports.general_reports 
-SET 
-    PayerId = ?PayerId,
-    Allow = ?Allow,
-    Comment = ?Comment;
+(PayerId, Allow, Comment, FirmCode)
+select
+  ?PayerId,
+  ?Allow,
+  ?Comment,
+  min(FirmCode)
+from
+  usersettings.clientsdata
+where
+  clientsdata.BillingCode = ?PayerId;
 select last_insert_id() as GRLastInsertID;
 ", MyCn, trans);
 
