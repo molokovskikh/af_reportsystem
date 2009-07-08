@@ -119,8 +119,14 @@ from
   catalogs.catalog,
   catalogs.catalognames,
   catalogs.catalogforms,
-  ActivePrices, 
-  farm.CatalogFirmCr 
+  ActivePrices"; 
+
+			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+			if (_reportType > 2)
+				e.DataAdapter.SelectCommand.CommandText += @",
+  farm.CatalogFirmCr";
+ 
+			e.DataAdapter.SelectCommand.CommandText += @"
 where 
     FarmCore.id = Core.Id
 and products.id = core.productid
@@ -128,8 +134,15 @@ and catalog.id = products.catalogid
 and catalognames.id = catalog.NameId
 and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode 
-and Core.RegionCode = ActivePrices.RegionCode 
-and catalogfirmcr.codefirmcr = FarmCore.codefirmcr 
+and Core.RegionCode = ActivePrices.RegionCode ";
+
+			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+			if (_reportType > 2)
+				e.DataAdapter.SelectCommand.CommandText += @"
+and catalogfirmcr.codefirmcr = FarmCore.codefirmcr ";
+
+
+			e.DataAdapter.SelectCommand.CommandText += @"
 group by CatalogCode, Cfc
 order by 2, 5";
 			e.DataAdapter.Fill(_dsReport, "Catalog");

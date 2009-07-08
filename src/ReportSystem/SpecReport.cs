@@ -20,7 +20,8 @@ namespace Inforoom.ReportSystem
 		//Расчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производится по продуктам (ProductId)
 		protected bool _calculateByCatalog;
 
-		protected int SourcePC, SourceRegionCode, FirmCode;
+		protected int SourcePC, FirmCode;
+		protected long SourceRegionCode;
 		protected int _priceCode;
 		protected string CustomerFirmName;
 
@@ -47,75 +48,15 @@ namespace Inforoom.ReportSystem
 		{
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
-			{
-				//Получили код поставщика, для которого делается отчет
-				e.DataAdapter.SelectCommand.CommandText = @"
-select 
-  gr.FirmCode 
-from 
-  reports.reports r,
-  reports.general_reports gr
-where
-    r.ReportCode = ?ReportCode
-and gr.GeneralReportCode = r.GeneralReportCode";
-				e.DataAdapter.SelectCommand.Parameters.Clear();
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", _reportCode);
-				FirmCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
-
-				//Получили таблицу всех прайс-листов для данного клиента
-				e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices";
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-
-				e.DataAdapter.SelectCommand.CommandText = "usersettings.GetPrices";
-				e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-				e.DataAdapter.SelectCommand.Parameters.Clear();
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeIN", _clientCode);
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-				e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.Text;
-
-				//Получаем код прайс-листа, регион и название поставщика, для которого делаем отчет
-				e.DataAdapter.SelectCommand.CommandText = @"
-select 
-  concat(clientsdata.ShortName, '(', Prices.PriceName, ') - ', regions.Region) as FirmName, 
-  Prices.PriceCode, 
-  Prices.RegionCode 
-from 
-  Prices,
-  usersettings.clientsdata, 
-  farm.regions 
-where 
-    Prices.FirmCode = ?FirmCode 
-and clientsdata.FirmCode = prices.FirmCode
-and regions.RegionCode = prices.RegionCode
-limit 1";
-				e.DataAdapter.SelectCommand.Parameters.Clear();
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?FirmCode", FirmCode);
-				DataTable dtCustomer = new DataTable();
-				e.DataAdapter.Fill(dtCustomer);
-
-				if (dtCustomer.Rows.Count == 1)
-				{
-					SourcePC = Convert.ToInt32(dtCustomer.Rows[0]["PriceCode"]);
-					SourceRegionCode = Convert.ToInt32(dtCustomer.Rows[0]["RegionCode"]);
-					CustomerFirmName = dtCustomer.Rows[0]["FirmName"].ToString();
-				}
-				else
-				{
-					string ClientShortName = Convert.ToString(
-						MySqlHelper.ExecuteScalar(
-							e.DataAdapter.SelectCommand.Connection,
-							"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode",
-							new MySqlParameter("?FirmCode", _clientCode)));
-					string FirmShortName = Convert.ToString(
-						MySqlHelper.ExecuteScalar(
-							e.DataAdapter.SelectCommand.Connection,
-							"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode",
-							new MySqlParameter("?FirmCode", FirmCode)));
-					throw new Exception(String.Format("Для клиента {0} ({1}) не доступен какой-либо прайс-лист поставщика {2} ({3}).", ClientShortName, _clientCode, FirmShortName, FirmCode));
-				}
-			}
+				throw new Exception("Для специального отчета не указан параметр \"Прайс-лист\".");
 			else
 			{
+				//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
+				SourceRegionCode = Convert.ToInt64(
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection, 
+					"select RegionCode from usersettings.clientsdata where FirmCode = ?ClientCode",
+					new MySqlParameter("?ClientCode", _clientCode)));
+
 				DataRow drPrice = MySqlHelper.ExecuteDataRow(
 					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
 					@"
@@ -135,7 +76,6 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));
 				if (drPrice != null)
 				{
 					SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
-					SourceRegionCode = Convert.ToInt32(drPrice["RegionCode"]);
 					CustomerFirmName = drPrice["FirmName"].ToString();
 				}
 				else
@@ -508,7 +448,11 @@ from
   catalogs.catalog,
   catalogs.catalognames,
   catalogs.catalogforms,
-  farm.core0 FarmCore,
+  farm.core0 FarmCore,";
+
+			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+			if (_reportType > 2)
+				SqlCommandText += @"
   farm.CatalogFirmCr cfc,";
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
@@ -538,8 +482,14 @@ where
   and catalog.id = products.catalogid
   and catalognames.id = catalog.nameid
   and catalogforms.id = catalog.formid
-  and FarmCore.Id = AllPrices.Id
-  and cfc.codefirmcr=FarmCore.codefirmcr
+  and FarmCore.Id = AllPrices.Id";
+
+			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+			if (_reportType > 2)
+				SqlCommandText += @"
+  and cfc.codefirmcr=FarmCore.codefirmcr ";
+
+				SqlCommandText += @"
   and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
       or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
