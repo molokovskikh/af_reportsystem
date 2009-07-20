@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Inforoom.ReportSystem.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="DBDumpPath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\dbms\sqlres\</Value>
-    </Setting>
     <Setting Name="ErrorFrom" Type="System.String" Scope="Application">
       <Value Profile="(Default)">service@analit.net</Value>
     </Setting>
@@ -16,6 +13,9 @@
     </Setting>
     <Setting Name="SMTPHost" Type="System.String" Scope="Application">
       <Value Profile="(Default)">mail.adc.analit.net</Value>
+    </Setting>
+    <Setting Name="DBDumpPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\\dbms.adc.analit.net\AFFiles\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

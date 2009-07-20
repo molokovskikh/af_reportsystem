@@ -79,7 +79,7 @@ select
   cd.Url, 
   -- открытая наценка
   round(ActivePrices.PublicUpCost, 3) 
-INTO OUTFILE 'results/{0}'
+INTO OUTFILE 'C:/AFFiles/{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
 from 
