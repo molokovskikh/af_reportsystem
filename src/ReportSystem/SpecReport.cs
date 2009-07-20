@@ -307,14 +307,16 @@ drop temporary table IF EXISTS TmpSourceCodes;
 CREATE temporary table TmpSourceCodes( 
   ID int(32) unsigned, 
   PriceCode int(32) unsigned, 
-  RegionCode int(32) unsigned, 
+  RegionCode int(32) unsigned,
+  ProductId int(32) unsigned, 
   Code char(20), 
   BaseCost decimal(8,2) unsigned, 
   CatalogCode int(32) unsigned, 
   CodeFirmCr int(32) unsigned, 
   SynonymCode int(32) unsigned, 
   SynonymFirmCrCode int(32) unsigned, 
-  key ID(ID), 
+  key ID(ID),
+  key ProductId(ProductId), 
   key CatalogCode(CatalogCode), 
   key CodeFirmCr(CodeFirmCr), 
   key SynonymFirmCrCode(SynonymFirmCrCode), 
@@ -329,6 +331,7 @@ Select
   FarmCore.ID, 
   FarmCore.PriceCode,
   ?SourceRegionCode as RegionCode,
+  FarmCore.ProductId,
   FarmCore.Code,
   NULL,";
 				if (_calculateByCatalog)
@@ -357,6 +360,7 @@ Select
   Core.ID, 
   Core.PriceCode,
   Core.RegionCode,
+  FarmCore.ProductId,
   FarmCore.Code,
   Core.Cost,";
 			if (_calculateByCatalog)
@@ -474,6 +478,38 @@ from
   Core AllPrices, 
   TmpSourceCodes SourcePrice
  )";
+
+			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
+			if (_reportIsFull)
+			{
+				if (_reportType <= 2)
+					SqlCommandText += @"
+  left join TmpSourceCodes SourcePrice on SourcePrice.ProductId = products.id 
+  left join Core AllPrices on AllPrices.CatalogCode = SourcePrice.CatalogCode
+  left join farm.core0 FarmCore on FarmCore.Id = AllPrices.Id
+
+  Core AllPrices 
+ )
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
+				else
+					SqlCommandText += @"
+
+  left join TmpSourceCodes SourcePrice on SourcePrice.ProductId = products.id 
+  left join Core AllPrices on AllPrices.CatalogCode = SourcePrice.CatalogCode
+  left join farm.core0 FarmCore on FarmCore.Id = AllPrices.Id and FarmCore.codefirmcr = SourcePrice.codefirmcr
+  left join farm.CatalogFirmCr cfc on cfc.codefirmcr=FarmCore.codefirmcr
+
+
+Core AllPrices 
+ )
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr";
+			}
+			else
+				SqlCommandText += @"
+  Core AllPrices, 
+  TmpSourceCodes SourcePrice
+ )";
+
 				SqlCommandText += @"
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode 
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
@@ -503,14 +539,17 @@ and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr ";
 			}
+
 			SqlCommandText += @"
 group by SourcePrice.Code, AllPrices.CatalogCode, Cfc";
+
 			if ((!_reportIsFull) && (_reportSortedByPrice))
 				SqlCommandText += @"
 order by SourcePrice.ID";
 			else
 				SqlCommandText += @"
 order by FullName, FirmCr";
+
 			e.DataAdapter.SelectCommand.CommandText = SqlCommandText;
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 		}
