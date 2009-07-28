@@ -74,7 +74,7 @@ namespace Inforoom.ReportSystem
 			bool addContacts = false;
 			ulong contactsCode = 0;
 
-			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn, true, null, false, null);
+			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn);
 
 			_dtContacts = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), delegate(ExecuteArgs args)
 			{
@@ -104,7 +104,7 @@ and c.Type = ?ContactType";
 				args.DataAdapter.Fill(res);
 				return res;
 			}, 
-				null, _conn, true, null, false, null);
+				null, _conn);
 
 			if ((_dtReports != null) && (_dtReports.Rows.Count > 0))
 			{

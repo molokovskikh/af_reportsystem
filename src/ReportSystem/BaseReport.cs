@@ -66,7 +66,7 @@ namespace Inforoom.ReportSystem
 
 			_parentIsTemporary = Temporary;
 
-			DataSet dsTab = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, _conn, true, null, false, null);
+			DataSet dsTab = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, _conn);
 			dtReportProperties = dsTab.Tables["ReportProperties"];
 			dtReportPropertyValues = dsTab.Tables["ReportPropertyValues"];
 
@@ -205,7 +205,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 
 		public void ProcessReport()
 		{
-			bool res = MethodTemplate.ExecuteMethod<ExecuteArgs, bool>(new ExecuteArgs(), ProcessReportExec, false, _conn, true, null, false, null);
+			bool res = MethodTemplate.ExecuteMethod<ExecuteArgs, bool>(new ExecuteArgs(), ProcessReportExec, false, _conn);
 		}
 
 		protected bool ProcessReportExec(ExecuteArgs e)

@@ -90,7 +90,7 @@ WHERE
 and cr.generalreportcode = " + GeneralReportID;
 
 						//Выбирает отчеты согласно фильтру
-						DataTable dtGeneralReports = MethodTemplate.ExecuteMethod<ReportsExecuteArgs, DataTable>(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc, true, null, false, null);
+						DataTable dtGeneralReports = MethodTemplate.ExecuteMethod<ReportsExecuteArgs, DataTable>(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc);
 
 						if ((dtGeneralReports != null) && (dtGeneralReports.Rows.Count > 0))
 						{
