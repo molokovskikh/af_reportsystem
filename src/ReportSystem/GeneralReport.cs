@@ -204,7 +204,7 @@ and c.Type = ?ContactType";
 			int? SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 
 #if (!TESTING)
-			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, EMailAddress), ProcessLog, 0, _conn, true, null, false, null);
+			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, EMailAddress), ProcessLog, 0, _conn, true, false, null);
 #endif
 		}
 
