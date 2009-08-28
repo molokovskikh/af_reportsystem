@@ -76,7 +76,7 @@ select
   -- E-mail для заказов
   rd.adminmail,
   -- УРЛ
-  cd.Url, 
+  '' as Url, 
   -- открытая наценка
   round(ActivePrices.PublicUpCost, 3) 
 INTO OUTFILE 'C:/AFFiles/{0}'
