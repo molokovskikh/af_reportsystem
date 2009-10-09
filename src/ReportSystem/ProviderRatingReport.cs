@@ -63,7 +63,7 @@ from
   catalogs.catalog c,
   catalogs.catalognames cn,
   catalogs.catalogforms cf, 
-  farm.CatalogFirmCr cfc, 
+  catalogs.Producers cfc, 
   usersettings.clientsdata cd,
   usersettings.retclientsset rcs, 
   farm.regions rg, 
@@ -78,7 +78,7 @@ and p.Id = ol.ProductId
 and c.Id = p.CatalogId
 and cn.id = c.NameId
 and cf.Id = c.FormId
-and cfc.CodeFirmCr = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
+and cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
 and cd.FirmCode = oh.ClientCode
 and cd.BillingCode <> 921
 and payers.PayerId = cd.BillingCode

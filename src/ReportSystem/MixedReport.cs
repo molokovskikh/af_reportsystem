@@ -155,12 +155,12 @@ where
   catalogs.products p,
   catalogs.catalog c,
   catalogs.catalognames cn,
-  farm.CatalogFirmCr cfc
+  catalogs.Producers cfc
 where
     p.Id = CoreCodes.ProductId
 and c.Id = p.CatalogId
 and cn.id = c.NameId
-and cfc.CodeFirmCr = if(CoreCodes.CodeFirmCr is not null, CoreCodes.CodeFirmCr, 1)
+and cfc.Id = if(CoreCodes.CodeFirmCr is not null, CoreCodes.CodeFirmCr, 1)
 group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : String.Empty);
 
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -219,7 +219,7 @@ from
   catalogs.catalog c,
   catalogs.catalognames cn,
   catalogs.catalogforms cf, 
-  farm.CatalogFirmCr cfc, 
+  catalogs.Producers cfc, 
   usersettings.clientsdata cd,
   usersettings.retclientsset rcs, 
   farm.regions rg, 
@@ -239,7 +239,7 @@ and p.Id = ol.ProductId
 and c.Id = p.CatalogId
 and cn.id = c.NameId
 and cf.Id = c.FormId
-and cfc.CodeFirmCr = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
+and cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
 and cd.FirmCode = oh.ClientCode
 and cd.BillingCode <> 921
 and payers.PayerId = cd.BillingCode

@@ -105,7 +105,7 @@ order by CatalogCode, Cfc, PositionCount DESC";
   max(Core.Cost) as MaxCost, ";
 			if (_reportType > 2)
 			{
-				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(farm.CatalogFirmCr.FirmCr, 250) as FirmCr ";
+				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(Producers.Name, 250) as FirmCr ";
 			}
 			else
 			{
@@ -119,12 +119,12 @@ from
   catalogs.catalog,
   catalogs.catalognames,
   catalogs.catalogforms,
-  ActivePrices"; 
+  ActivePrices";
 
-			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
 			if (_reportType > 2)
 				e.DataAdapter.SelectCommand.CommandText += @",
-  farm.CatalogFirmCr";
+  catalogs.Producers";
  
 			e.DataAdapter.SelectCommand.CommandText += @"
 where 
@@ -136,10 +136,10 @@ and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode ";
 
-			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
 			if (_reportType > 2)
 				e.DataAdapter.SelectCommand.CommandText += @"
-and catalogfirmcr.codefirmcr = FarmCore.codefirmcr ";
+and Producers.Id = FarmCore.codefirmcr ";
 
 
 			e.DataAdapter.SelectCommand.CommandText += @"

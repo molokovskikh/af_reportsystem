@@ -298,14 +298,14 @@ and st.CatalogId is NULL
 and Products.Id = c.ProductId
 and FarmCore.Id = c.Id;
 
-select distinct FarmCore.Code, CatalogNames.Name, CatalogForms.Form, CatalogFirmCr.FirmCr 
+select distinct FarmCore.Code, CatalogNames.Name, CatalogForms.Form, Producers.Name as FirmCr 
 from 
  (
   OtherByPrice,
   catalogs.catalog,
   catalogs.CatalogNames,
   catalogs.CatalogForms,
-  farm.CatalogFirmCr,
+  catalogs.Producers,
   catalogs.products
  )
   left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
@@ -315,8 +315,8 @@ where
 and CatalogNames.Id = catalog.NameId
 and CatalogForms.Id = catalog.FormId
 and products.CatalogId = catalog.Id
-and CatalogFirmCr.CodeFirmCr = OtherByPrice.CodeFirmCr
-order by CatalogNames.Name, CatalogForms.Form, CatalogFirmCr.FirmCr;";
+and Producers.Id = OtherByPrice.CodeFirmCr
+order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
 						break;
 					}
 
@@ -416,13 +416,13 @@ select
   FarmCore.Code, 
   CatalogNames.Name,
   catalogs.GetFullForm(OtherByPrice.ProductId) as FullForm,
-  CatalogFirmCr.FirmCr 
+  Producers.Name as FirmCr 
 from 
  (
   OtherByPrice,
   catalogs.catalog,
   catalogs.CatalogNames,
-  farm.CatalogFirmCr,
+  catalogs.Producers,
   catalogs.products
  )
   left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
@@ -431,8 +431,8 @@ where
     products.Id = OtherByPrice.ProductId
 and catalog.Id = products.CatalogId
 and CatalogNames.Id = catalog.NameId
-and CatalogFirmCr.CodeFirmCr = OtherByPrice.CodeFirmCr
-order by CatalogNames.Name, FullForm, CatalogFirmCr.FirmCr;
+and Producers.Id = OtherByPrice.CodeFirmCr
+order by CatalogNames.Name, FullForm, Producers.Name;
 ";
 						break;
 					}

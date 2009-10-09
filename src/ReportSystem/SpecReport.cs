@@ -438,8 +438,8 @@ select
   0 As Cfc ";
 			else
 				SqlCommandText += @"
-  ifnull(sfc.Synonym, Cfc.FirmCr) as FirmCr,
-  cfc.codefirmcr As Cfc ";
+  ifnull(sfc.Synonym, Cfc.Name) as FirmCr,
+  cfc.Id As Cfc ";
 
 			SqlCommandText += @"
 from 
@@ -450,10 +450,10 @@ from
   catalogs.catalogforms,
   farm.core0 FarmCore,";
 
-			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
 			if (_reportType > 2)
 				SqlCommandText += @"
-  farm.CatalogFirmCr cfc,";
+  catalogs.Producers cfc,";
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
 			if (_reportIsFull)
@@ -484,10 +484,10 @@ where
   and catalogforms.id = catalog.formid
   and FarmCore.Id = AllPrices.Id";
 
-			//Если отчет с учетом производителя, то пересекаем с таблицой CatalogFirmCr
+				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
 			if (_reportType > 2)
 				SqlCommandText += @"
-  and cfc.codefirmcr=FarmCore.codefirmcr ";
+  and cfc.Id = FarmCore.codefirmcr ";
 
 				SqlCommandText += @"
   and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
