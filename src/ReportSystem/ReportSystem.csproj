@@ -198,7 +198,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExecuteTemplate\src\ExecuteTemplate\ExecuteTemplate.csproj">
+    <ProjectReference Include="..\ExecuteTemplate\ExecuteTemplate\ExecuteTemplate.csproj">
       <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
       <Name>ExecuteTemplate</Name>
     </ProjectReference>

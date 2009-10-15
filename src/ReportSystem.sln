@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools.Tests", "Commo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportTuner", "ReportTuner\ReportTuner.csproj", "{4D9B03C7-734B-410F-9C4A-FF9A44591036}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExecuteTemplate", "ExecuteTemplate\src\ExecuteTemplate\ExecuteTemplate.csproj", "{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExecuteTemplate", "ExecuteTemplate\ExecuteTemplate\ExecuteTemplate.csproj", "{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Web.Ui", "Common.Web.Ui\Src\Common.Web.Ui\Common.Web.Ui.csproj", "{95E2C313-46FA-4B4B-9EFF-3228662908F4}"
 EndProject
