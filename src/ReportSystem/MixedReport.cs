@@ -225,6 +225,7 @@ from
   farm.regions rg, 
   usersettings.pricesdata pd, 
   usersettings.clientsdata prov,
+  farm.regions provrg, 
   billing.payers 
   )" +
 	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + (((firmCrField != null) ? " and ProviderCodes.CodeFirmCr = " + firmCrField.primaryField : String.Empty)) : String.Empty) +
@@ -247,7 +248,8 @@ and rcs.ClientCode = oh.ClientCode
 and rcs.InvisibleOnFirm < 2 
 and rg.RegionCode = oh.RegionCode 
 and pd.PriceCode = oh.PriceCode 
-and prov.FirmCode = pd.FirmCode");
+and prov.FirmCode = pd.FirmCode
+and provrg.RegionCode = prov.RegionCode");
 
 			foreach (FilterField rf in selectedField)
 			{
