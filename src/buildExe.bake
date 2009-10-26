@@ -1,4 +1,4 @@
-import file from common.bake
+﻿import file from common.bake
 import System
 import System.Linq.Enumerable from System.Core
 import System.IO
@@ -6,11 +6,14 @@ import System.ServiceProcess
 import System.ComponentModel
 import System.Security.Principal
 import System.Runtime.InteropServices
+import file from Deploy.bake
 
 
 Global(
 	project : "ReportSystem",
-	projectBoot : "ReportSystemBoot"
+	projectBoot : "ReportSystemBoot",
+	editor : "vim",
+	humanReadableName : "Генератор отчетов"
 )	
 	
 buildTo = Path.GetFullPath("..\\buildExe\\")
@@ -49,5 +52,5 @@ Task @Clean:
 			FrameworkVersion : "3.5").Execute()
 	Rm("${buildTo}*", true) if Exist(buildTo)
 	
-Task @deploy, [@Build]:
+Task @deploy, [@Build, @SendDeployNotification]:
 	Cp(FileSet("*.*", BaseDirectory : buildTo), deployTo, true)
