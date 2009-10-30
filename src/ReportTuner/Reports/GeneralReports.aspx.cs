@@ -484,7 +484,8 @@ select last_insert_id() as GRLastInsertID;
 			if (dtUpdated != null)
 			{
 				foreach (DataRow drUpdate in dtUpdated.Rows)
-					if (drUpdate["Comment", DataRowVersion.Original] != drUpdate["Comment", DataRowVersion.Current])
+					if (drUpdate["Comment", DataRowVersion.Original] != drUpdate["Comment", DataRowVersion.Current] ||
+						drUpdate["Allow", DataRowVersion.Original] != drUpdate["Allow", DataRowVersion.Current])
 						_updatedReports.Add(Convert.ToUInt64(drUpdate["GeneralReportCode"]));
 				MyDA.Update(dtUpdated);
 			}
@@ -502,6 +503,7 @@ select last_insert_id() as GRLastInsertID;
         }
 
 		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
+		// А также включаем/выключаем задание при изменении галки "Включен"
 		if ((_deletedReports.Count > 0) || (_updatedReports.Count > 0))
 		{
 			using (TaskService taskService = ScheduleHelper.GetService())
@@ -511,6 +513,7 @@ select last_insert_id() as GRLastInsertID;
 				{
 					GeneralReport _report = GeneralReport.Find(_updatedReportId);
 					ScheduleHelper.GetTask(taskService, reportsFolder, _updatedReportId, _report.Comment);
+					ScheduleHelper.SetTaskEnableStatus(_updatedReportId, _report.Allow);
 				}
 
 				foreach (ulong _deletedReportId in _deletedReports)

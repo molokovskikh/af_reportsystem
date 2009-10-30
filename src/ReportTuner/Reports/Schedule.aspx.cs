@@ -218,6 +218,8 @@ order by LogTime desc
     private void SaveTaskChanges()
     {
 		currentTaskDefinition.Settings.Enabled = chbAllow.Checked;
+		_generalReport.Allow = chbAllow.Checked;
+		_generalReport.Save();
 
 		btnExecute.Enabled = currentTaskDefinition.Settings.Enabled && (currentTask.State != TaskState.Running);
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;

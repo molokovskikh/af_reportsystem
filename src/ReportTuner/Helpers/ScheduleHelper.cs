@@ -116,5 +116,19 @@ namespace ReportTuner.Helpers
 				return CreateTask(taskService, reportsFolder, generalReportId, comment);
 			}
 		}
+
+		// Выставляем состояние задачи (Включено / Выключено)
+		public static void SetTaskEnableStatus(ulong reportId, bool isEnable)
+		{
+			TaskService service = GetService();
+			TaskFolder folder = GetReportsFolder(service);
+			Task task = FindTask(service, folder, reportId);
+			if (task == null)
+				return;
+
+			TaskDefinition definition = task.Definition;
+			definition.Settings.Enabled = isEnable;
+			UpdateTaskDefinition(service, folder, reportId, definition);
+		}
 	}
 }
