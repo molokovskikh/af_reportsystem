@@ -31,6 +31,10 @@
                 <asp:TemplateField HeaderText="Плательщик" ItemStyle-Width="10%" HeaderStyle-Width="10%" ItemStyle-Wrap="true" SortExpression="PayerShortName">
                     <ItemTemplate>
                         <asp:Label ID="lblFirmName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PayerShortName") %>'/>
+                        <asp:LinkButton ID="linkEdit" runat="server" Visible="true" Style="float: right;" 
+							CommandName="editPayer" CommandArgument='<%# DataBinder.Eval(Container, "DataItem.GeneralReportCode") %>'>
+							<asp:Image ID="imgEdit" runat="server" AlternateText="Редактировать плательщика" ImageUrl="~/Images/edit.png" />
+                        </asp:LinkButton>
                         <asp:TextBox ID="tbSearch" runat="server" Width="79px" Visible="False"/>
                         <asp:Button ID="btnSearch" runat="server" Text="Найти" OnClick="btnSearch_Click" Visible="False" />
                         <asp:DropDownList ID="ddlNames" runat="server" Visible="False">
@@ -52,7 +56,7 @@
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Примечание" SortExpression="Comment" ItemStyle-Width="45%" HeaderStyle-Width="45%">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbComment" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.Comment")%>'></asp:TextBox>
+                        <asp:TextBox ID="tbComment" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.Comment")%>'></asp:TextBox><br/>
                     </ItemTemplate>
 
 <HeaderStyle Width="45%"></HeaderStyle>
@@ -88,6 +92,7 @@
 					    <asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
 				    </HeaderTemplate>
 				    <ItemTemplate>
+						<asp:Button ID="btApplyCopy" runat="server" Text="Применить" OnClick="btnApply_Click" Visible="false"/>
 					    <asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
 				    </ItemTemplate>
 

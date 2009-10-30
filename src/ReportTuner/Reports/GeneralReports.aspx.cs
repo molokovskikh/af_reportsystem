@@ -229,7 +229,19 @@ Order by gr.GeneralReportCode
 						break;
 					}
 			}
-        }
+		}
+		else if (e.CommandName == "editPayer")
+		{
+			DataControlFieldCell cell = (DataControlFieldCell)((Control)e.CommandSource).Parent;
+			((TextBox)cell.FindControl("tbSearch")).Visible = true;
+			((TextBox)cell.FindControl("tbSearch")).Focus();
+			((Button)cell.FindControl("btnSearch")).Visible = true;
+			((Button)cell.FindControl("btApplyCopy")).Visible = true;
+			((DropDownList)cell.FindControl("ddlNames")).Visible = true;
+			((LinkButton)cell.FindControl("linkEdit")).Visible = false;
+
+			FillDDL(((Label)cell.FindControl("lblFirmName")).Text);
+		}
     }
 
     protected void dgvReports_RowDeleting(object sender, GridViewDeleteEventArgs e)
@@ -277,8 +289,8 @@ Order by p.ShortName
 				if (drs.Length == 1)
 				{
 					changedRow = drs[0];
-					if (!String.IsNullOrEmpty(((DropDownList)dr.FindControl("ddlNames")).SelectedValue))
-						changedRow[GRPayerID.ColumnName] = Convert.ToInt64(((DropDownList)dr.FindControl("ddlNames")).SelectedValue);
+					/*if (!String.IsNullOrEmpty(((DropDownList)dr.FindControl("ddlNames")).SelectedValue))
+						changedRow[GRPayerID.ColumnName] = Convert.ToInt64(((DropDownList)dr.FindControl("ddlNames")).SelectedValue);*/
 				}
 			}
 			else
@@ -296,6 +308,10 @@ Order by p.ShortName
 
 				if (!changedRow[Comment.ColumnName].Equals(((TextBox)dr.FindControl("tbComment")).Text))
 					changedRow[Comment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
+
+				DropDownList names = (DropDownList)dr.FindControl("ddlNames");
+				if (names.Visible && !String.IsNullOrEmpty(names.SelectedValue))
+					changedRow[GRPayerID.ColumnName] = Convert.ToInt64(names.SelectedValue);
 			}
         }
     }
@@ -325,9 +341,11 @@ Order by p.ShortName
 			if (((Label)e.Row.FindControl("lblFirmName")).Text != "")
             {
                 ((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
+				((Button)e.Row.FindControl("btApplyCopy")).Visible = false;
                 ((Button)e.Row.FindControl("btnSearch")).Visible = false;
                 ((DropDownList)e.Row.FindControl("ddlNames")).Visible = false;
                 ((Label)e.Row.FindControl("lblFirmName")).Visible = true;
+				((LinkButton)e.Row.FindControl("linkEdit")).Visible = true;
 				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = true;
             }
             else
@@ -335,6 +353,8 @@ Order by p.ShortName
                 ((TextBox)e.Row.FindControl("tbSearch")).Visible = true;
 				((TextBox)e.Row.FindControl("tbSearch")).Focus();
                 ((Button)e.Row.FindControl("btnSearch")).Visible = true;
+				((Button)e.Row.FindControl("btApplyCopy")).Visible = true;
+				((LinkButton)e.Row.FindControl("linkEdit")).Visible = false;
 
 
                 DropDownList ddlReports = (DropDownList)e.Row.FindControl("ddlNames");
@@ -368,7 +388,12 @@ UPDATE
     reports.general_reports 
 SET 
     Allow = ?Allow,
-    Comment = ?Comment
+    Comment = ?Comment,
+	FirmCode = if(PayerID = ?payerID, FirmCode,
+            (select min(FirmCode)
+               from usersettings.clientsdata
+              where clientsdata.BillingCode = ?payerID)),
+	PayerID = ?payerID
 WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
 
             UpdCmd.Parameters.Clear();
@@ -384,6 +409,7 @@ WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
             UpdCmd.Parameters["GeneralReportCode"].Direction = ParameterDirection.Input;
             UpdCmd.Parameters["GeneralReportCode"].SourceColumn = GeneralReportCode.ColumnName;
             UpdCmd.Parameters["GeneralReportCode"].SourceVersion = DataRowVersion.Current;
+			UpdCmd.Parameters.Add("?payerID", MySqlDbType.Int64).SourceColumn = GRPayerID.ColumnName;
 
             MySqlCommand DelCmd = new MySqlCommand(@"
 DELETE from reports.general_reports 
