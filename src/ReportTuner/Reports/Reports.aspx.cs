@@ -12,6 +12,7 @@ using MySql.Data;
 using MySql.Data.MySqlClient;
 using ReportTuner.Models;
 using Castle.ActiveRecord;
+using ReportTuner.Helpers;
 
 public partial class Reports_Reports : System.Web.UI.Page
 {
@@ -211,6 +212,35 @@ order by ReportTypeName
             dgvReports.DataSource = DS;
             dgvReports.DataBind();
         }
+		else if (e.CommandName == "Copy")
+		{
+			CopyChangesToTable();
+
+			int rowIndex = ((GridViewRow)((DataControlFieldCell)((Button)e.CommandSource).Parent).Parent).RowIndex;
+			var sourceRow = DS.Tables[dtReports.TableName].Rows[rowIndex];
+
+			UInt64 sourceReportId = Convert.ToUInt64(sourceRow[RReportCode.ColumnName]);
+			UInt64 destReportId = 0;
+			using (var conn = MyCn)
+			{
+				conn.Open();
+				var command = new MySqlCommand(
+					@"insert into reports.reports 
+						 (GeneralReportCode, ReportCaption, ReportTypeCode, Enabled)
+                      select 
+                         GeneralReportCode, Concat('Копия ',ReportCaption), ReportTypeCode, Enabled
+                        from reports.reports
+                       where ReportCode = ?reportCode;
+                     select last_insert_id() as ReportCode;", conn);
+				command.Parameters.AddWithValue("?reportCode", sourceReportId);
+				destReportId = Convert.ToUInt64(command.ExecuteScalar());
+				conn.Close();
+			}
+
+			ReportHelper.CopyReportProperties(sourceReportId, destReportId);
+
+			PostData();
+		}
     }
 
     private void CopyChangesToTable()
