@@ -48,7 +48,6 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			//Выбираем 
 			GetOffers(e);
 
 			e.DataAdapter.SelectCommand.CommandText = "select " ;
@@ -91,13 +90,22 @@ and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode 
 order by CatalogCode, Cfc, PositionCount DESC";
+
 			e.DataAdapter.Fill(_dsReport, "Core");
 
 			e.DataAdapter.SelectCommand.CommandText = "select  ";   
 			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(concat(catalognames.Name, ' ', catalogforms.Form), 250) as Name, ";
+				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
 			else
-				e.DataAdapter.SelectCommand.CommandText += "products.Id as CatalogCode, left(concat(catalognames.Name, ' ', catalogs.GetFullForm(products.Id)), 250) as Name, ";
+				e.DataAdapter.SelectCommand.CommandText += @"products.Id as CatalogCode, (select left(cast(concat(cn.Name, ' ', cf.Form, ' ', ifnull(group_concat(distinct pv.Value ORDER BY prop.PropertyName, pv.Value SEPARATOR ', '), '')) as CHAR), 250)
+     from catalogs.Products as p
+     join Catalogs.Catalog as c on p.catalogid = c.id
+     JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
+     JOIN Catalogs.CatalogForms cf on cf.id = c.formid
+     LEFT JOIN Catalogs.ProductProperties pp on pp.ProductId = p.Id
+     LEFT JOIN Catalogs.PropertyValues pv on pv.id = pp.PropertyValueId
+     LEFT JOIN Catalogs.Properties prop on prop.Id = pv.PropertyId
+where p.id = core.productid) as Name, ";
 
 			e.DataAdapter.SelectCommand.CommandText += @"
   min(Core.Cost) as MinCost, 
@@ -117,8 +125,7 @@ from
   farm.core0 FarmCore,
   catalogs.products,
   catalogs.catalog,
-  catalogs.catalognames,
-  catalogs.catalogforms,
+
   ActivePrices";
 
 			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
@@ -131,8 +138,7 @@ where
     FarmCore.id = Core.Id
 and products.id = core.productid
 and catalog.id = products.catalogid
-and catalognames.id = catalog.NameId
-and catalogforms.id = catalog.FormId
+
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode ";
 
@@ -145,11 +151,10 @@ and Producers.Id = FarmCore.codefirmcr ";
 			e.DataAdapter.SelectCommand.CommandText += @"
 group by CatalogCode, Cfc
 order by 2, 5";
-			e.DataAdapter.Fill(_dsReport, "Catalog");
 
+			e.DataAdapter.Fill(_dsReport, "Catalog");
 			e.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, PriceDate, FirmName from ActivePrices order by PositionCount DESC";
 			e.DataAdapter.Fill(_dsReport, "Prices");
-
 			Calculate();
 		}
 
