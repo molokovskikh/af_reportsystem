@@ -1,0 +1,122 @@
+﻿<% component Bubble, {"bredcrumbs" : [("", "")], "pageTitle":"Редактирование значений списка"} %>
+<form method="get" action="">
+<table style="width:100%;">
+	<tr>
+		<td style="text-align:center; width:100%; border: solid 1px #dadada;" align="center"> <!-- Фильтр -->
+			<table style="background-color: #e7f6e0; width:60%;" cellpadding="0" cellspacing="0">
+				<tr>
+					<td>Строка поиска</td>
+					<td><input type="text" id="findStr" name="findstr" /></td>
+					<td><input type="submit" id="findBtn" name="findBtn" value="Найти" title="Найти" /></td>
+				</tr>
+				
+				<tr>
+					<td></td>
+					<td>Регион</td>
+					<td>
+						<select id="region" name="region" onchange="submit()">
+							<%for reg in Regions:%>
+								<%if reg.RegionCode != region: %>
+									<option value="${reg.RegionCode}">${reg.Name}</option>
+								<%else: %>
+									<option value="${reg.RegionCode}" selected>${reg.Name}</option>
+								<%end %>
+							<%end%>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	
+	<tr>
+		<td>
+			<table style="width:100%;">
+				<tr>
+					<td class="DocumentHeader">Список клиентов</td>
+					
+					<td></td>
+					
+					<td class="DocumentHeader">Выбранные клиенты</td>
+				</tr>
+				
+				<tr>
+				
+				<td style="width:45%; border: solid 1px #dadada;"> <!-- Левая колонка поставщиков -->
+					<table style="width:100%" class="HighLightCurrentRow DocumentDataTable">
+						<tr class="NoHighLightRow">
+							<%OutputSubView('/SubViews/SortHeadersSubView', {"headers":['', 'Код', 'Наименование', 'Регионы'], "sortOrder":sortOrder})%>
+						</tr>
+						<%for i, item in enumerate(FilteredClients):%>
+							<tr class="${ViewHelper.GetRowStyle(i)}">
+								<td>
+									<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" />
+								</td>
+								
+								<td>
+									${item.Id}
+								</td>
+								
+								<td>
+									${item.ShortName}
+								</td>
+								
+								<td>
+									${item.Regions}
+								</td>
+							</tr>
+						<%end%>
+						<tr class="NoHighLightRow">
+						  <td colspan="10" align="center">
+							<div class="Paginator">
+								<% OutputSubView("/SubViews/PaginatorSubView",{"rowsCount":rowsCount, "pageSize":pageSize, "currentPage":currentPage}) %>
+							</div>
+						  </td>
+						</tr>
+					</table>
+				</td>
+				
+				<td style="vertical-align: middle; text-align: center;">
+					<div style="padding-bottom:6px;">
+						<input type="submit" id="addBtn" name="addBtn" value="--&gt;" title="Добавить"/>
+					</div>
+					<div style="padding-top:6px;">
+						<input type="submit" id="delBtn" name="delBtn" value="&lt;--" title="Удалить"/>
+					</div>
+				</td>
+				
+				<td style="width:45%; vertical-align: top; border: solid 1px #dadada;"> <!-- Правая колонка поставщиков -->
+					<table style="width:100%;" class="HighLightCurrentRow DocumentDataTable">
+						<tr class="NoHighLightRow" style="font-weight:bold;">
+							<td></td>
+							<td>Код</td>
+							<td>Наименование</td>
+							<td>Регионы</td>
+						</tr>
+						<%for i, item in enumerate(AddedClients):%>
+							<tr class="${ViewHelper.GetRowStyle(i)}">
+								<td>
+									<input type="checkbox" name="chd${item.Id}" id="chd${item.Id}" value="${item.Id}" />
+								</td>
+								
+								<td>
+									${item.Id}
+								</td>
+								
+								<td>
+									${item.ShortName}
+								</td>
+								
+								<td>
+									${item.Regions}
+								</td>
+							</tr>
+						<%end%>
+					</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+</form>

@@ -30,5 +30,14 @@ namespace ReportTuner.Models
 		{
 			get { return String.Format("{0} ({1})", ShortName, Id); }
 		}
+
+		[Property]
+		public virtual ulong RegionCode { get; set; }
+
+		[Property]
+		public virtual ulong MaskRegion { get; set; }
+
+		[Property]
+		public virtual int FirmType { get; set; }
 	}
 }

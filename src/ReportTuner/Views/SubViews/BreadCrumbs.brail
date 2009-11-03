@@ -1,0 +1,13 @@
+﻿<% if IsDefined("breadcrumbs"): %>
+    <div id="breadcrumb">
+      <a href="Reports/base.aspx">Настройка отчетов</a>
+      <% for label, url in breadcrumbs: %>
+      <span>&gt;</span>
+      <% if url != "": %>
+      <a href="${url}">${label}</a>
+      <% else: %>
+      <span style="font-weight:bold">${pageTitle}</span>
+      <% end %>
+      <% end %>
+    </div>
+<% end %>

@@ -10,6 +10,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using ReportTuner.Models;
 
 public partial class Reports_ReportProperties : System.Web.UI.Page
 {
@@ -802,10 +803,18 @@ WHERE ID = ?OPID", MyCn, trans);
 					Request["rp"],
 					e.CommandArgument);
 			else
-				url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
-					Request["r"],
-					Request["rp"],
-					e.CommandArgument);
+			{
+				var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));
+				if (prop.PropertyType.PropertyName != "ClientCodeEqual")
+					url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+						Request["r"],
+						Request["rp"],
+						e.CommandArgument);
+				else
+					url = String.Format("../ReportsTuning/SelectClients.rails?report={0}&rpv={1}",
+						Request["rp"],
+						e.CommandArgument);
+			}
 
             Response.Redirect(url);
         }

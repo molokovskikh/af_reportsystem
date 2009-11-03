@@ -1,0 +1,16 @@
+﻿<% for i, item in enumerate(headers): %>
+   <% if IsDefined("rowsCount"):
+        command = ", 'rowsCount', " + rowsCount
+      else: 
+        command = ""
+      end%>
+    <%if (i+1)!=sortOrder: %>
+        <%if -(i+1)!=sortOrder: %>
+            <th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${i+1}${command});" class="SortHeader">${item}</a></th>
+        <% else: %>
+            <th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${i+1}${command});" class="SortHeaderAsc">${item}</a>&nbsp;<img src="../Images/Descending.gif" /></th>
+        <% end %>
+    <% else: %>
+       <th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${-(i+1)}${command});" class="SortHeaderDesc">${item}</a>&nbsp;<img src="../Images/Ascending.gif" /></th>
+    <% end %>
+<% end %>
