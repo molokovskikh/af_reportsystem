@@ -147,13 +147,12 @@ namespace Inforoom.ReportTuner
 
 				builder.AppendLine(String.Format("Version : {0}", Assembly.GetExecutingAssembly().GetName().Version));
 
-				System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage("service@analit.net", "service@analit.net", "Ошибка в интерфейсе настройки отчета", builder.ToString());
+				string serviceMailTo = ConfigurationManager.AppSettings["ServiceMailTo"];
+				string serviceMailFrom = ConfigurationManager.AppSettings["ServiceMailFrom"];
+				System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage(serviceMailFrom, serviceMailTo, "Ошибка в интерфейсе настройки отчета", builder.ToString());
 				m.BodyEncoding = Encoding.UTF8;
-
-#if RELEASE
 				System.Net.Mail.SmtpClient c = new System.Net.Mail.SmtpClient(System.Configuration.ConfigurationManager.AppSettings["SMTPHost"]);
 				c.Send(m);
-#endif
 			}
 		}
 
