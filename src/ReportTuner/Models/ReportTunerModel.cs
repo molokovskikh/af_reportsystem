@@ -17,8 +17,8 @@ namespace ReportTuner.Models
 				return String.Empty;
 		}
 
-		public static object[] GetAllSuppliers(ulong reportProperty, int sortOrder, int currenPage, int pageSize, 
-			ref int? rowsCount, ulong region)
+		public static object[] GetAllSuppliers(ulong reportProperty, int sortOrder, int currenPage, int pageSize,
+			ref int? rowsCount, ulong region, byte firmType, string findStr)
 		{
 			var addedClients = ReportPropertyValue.FindAll(Expression.Eq("ReportPropertyId", reportProperty));
 
@@ -27,8 +27,12 @@ namespace ReportTuner.Models
 
 			ICriterion[] criteries = new[] { 
 				Expression.Sql("(MaskRegion & " + region + ")>0"),
-				Expression.Eq("FirmType", 0),
-				Expression.Not(Expression.In("Id", clientsCodes))};
+				Expression.Eq("FirmType", (int)firmType),
+				Expression.Eq("FirmStatus", 1),
+				Expression.Not(Expression.In("Id", clientsCodes)),
+				Expression.Or(
+					Expression.Like("ShortName", "%" + findStr + "%"), 
+					Expression.Like(Projections.Id(), "%" + findStr + "%"))};
 
 			string[] headers = new[] { "", "Id", "ShortName", "RegionCode" };
 			Order[] orders = new[]{ new Order(headers[Math.Abs(sortOrder)-1], (sortOrder>0)) };

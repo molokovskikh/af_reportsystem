@@ -39,5 +39,8 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual int FirmType { get; set; }
+
+		[Property]
+		public virtual int FirmStatus { get; set; }
 	}
 }

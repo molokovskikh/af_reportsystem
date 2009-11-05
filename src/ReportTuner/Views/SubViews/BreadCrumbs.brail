@@ -1,5 +1,5 @@
 ﻿<% if IsDefined("breadcrumbs"): %>
-    <div id="breadcrumb">
+    <div id="breadcrumb" style="font-family: Verdana;">
       <a href="Reports/base.aspx">Настройка отчетов</a>
       <% for label, url in breadcrumbs: %>
       <span>&gt;</span>

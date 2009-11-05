@@ -1,20 +1,29 @@
-﻿<% component Bubble, {"bredcrumbs" : [("", "")], "pageTitle":"Редактирование значений списка"} %>
+﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+r), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+r+"&rp="+report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка"} %>
 <form method="get" action="">
+${FormHelper.HiddenField('report')}
+${FormHelper.HiddenField('rpv')}
+${FormHelper.HiddenField('r')}
+${FormHelper.HiddenField('firmType')}
 <table style="width:100%;">
+	<tr> <!-- Заголовок -->
+		<td class="DocumentHeader">Редактирование значений списка <%if firmType == 0: %> поставщиков <%else:%> клиентов <%end%>.</td>
+	</tr>
+	
 	<tr>
-		<td style="text-align:center; width:100%; border: solid 1px #dadada;" align="center"> <!-- Фильтр -->
-			<table style="background-color: #e7f6e0; width:60%;" cellpadding="0" cellspacing="0">
+		<td align="center" style="padding-top: 12px;"> <!-- Фильтр -->
+			<table style="background-color: #e7f6e0; width:450px; padding: 6px 6px 6px 6px;border: solid 1px #dadada;" 
+				cellpadding="0" cellspacing="0">
 				<tr>
-					<td>Строка поиска</td>
-					<td><input type="text" id="findStr" name="findstr" /></td>
-					<td><input type="submit" id="findBtn" name="findBtn" value="Найти" title="Найти" /></td>
+					<td style="padding: 3px 6px 6px 6px; font-weight: bold; width: 30%;">Строка поиска</td>
+					<td style="padding: 3px 6px 6px 6px;">
+						<input type="text" id="findStr" name="findstr"  style="width: 98%" value="${findStr}" />
+					</td>
 				</tr>
 				
-				<tr>
-					<td></td>
-					<td>Регион</td>
-					<td>
-						<select id="region" name="region" onchange="submit()">
+				<tr>					
+					<td style="padding: 3px 6px 6px 6px; font-weight: bold;">Регион</td>
+					<td style="padding: 3px 6px 6px 6px;">
+						<select id="region" name="region" onchange="submit()" style="width: 100%">
 							<%for reg in Regions:%>
 								<%if reg.RegionCode != region: %>
 									<option value="${reg.RegionCode}">${reg.Name}</option>
@@ -25,12 +34,18 @@
 						</select>
 					</td>
 				</tr>
+				
+				<tr>
+					<td colspan="2" style="text-align: right;"  style="padding: 6px 6px 6px 6px;">
+						<input type="submit" id="findBtn" name="findBtn" value="Найти" title="Найти" />
+					</td>
+				</tr>
 			</table>
 		</td>
 	</tr>
 	
 	<tr>
-		<td>
+		<td style="padding-top: 12px;">
 			<table style="width:100%;">
 				<tr>
 					<td class="DocumentHeader">Список клиентов</td>
@@ -42,8 +57,9 @@
 				
 				<tr>
 				
-				<td style="width:45%; border: solid 1px #dadada;"> <!-- Левая колонка поставщиков -->
+				<td style="width:45%; border: solid 1px #dadada; vertical-align:top;"> <!-- Левая колонка поставщиков -->
 					<table style="width:100%" class="HighLightCurrentRow DocumentDataTable">
+						<%if FilteredClients.Length > 0: %>
 						<tr class="NoHighLightRow">
 							<%OutputSubView('/SubViews/SortHeadersSubView', {"headers":['', 'Код', 'Наименование', 'Регионы'], "sortOrder":sortOrder})%>
 						</tr>
@@ -73,6 +89,13 @@
 							</div>
 						  </td>
 						</tr>
+						<%else: %>
+						<tr>
+							<td  class="EmptyData">
+								 <%if firmType == 0: %> Поставщики <%else:%> Клиенты <%end%> не найдены.
+							</td>
+						</tr>
+						<%end %>
 					</table>
 				</td>
 				
@@ -87,6 +110,7 @@
 				
 				<td style="width:45%; vertical-align: top; border: solid 1px #dadada;"> <!-- Правая колонка поставщиков -->
 					<table style="width:100%;" class="HighLightCurrentRow DocumentDataTable">
+						<%if AddedClients.Length > 0: %>
 						<tr class="NoHighLightRow" style="font-weight:bold;">
 							<td></td>
 							<td>Код</td>
@@ -112,6 +136,13 @@
 								</td>
 							</tr>
 						<%end%>
+						<%else: %>
+							<tr>
+								<td  class="EmptyData">
+									 <%if firmType == 0: %> Поставщики <%else:%> Клиенты <%end%> не найдены.
+								</td>
+							</tr>
+						<%end %>
 					</table>
 					</td>
 				</tr>

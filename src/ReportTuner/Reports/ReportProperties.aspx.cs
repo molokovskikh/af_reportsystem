@@ -805,13 +805,19 @@ WHERE ID = ?OPID", MyCn, trans);
 			else
 			{
 				var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));
-				if (prop.PropertyType.PropertyName != "ClientCodeEqual")
-					url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+				if (prop.PropertyType.PropertyName == "ClientCodeEqual")
+					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
+						Request["r"],
+						Request["rp"],
+						e.CommandArgument);
+				else if(prop.PropertyType.PropertyName == "FirmCodeEqual")
+					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
 						Request["r"],
 						Request["rp"],
 						e.CommandArgument);
 				else
-					url = String.Format("../ReportsTuning/SelectClients.rails?report={0}&rpv={1}",
+					url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+						Request["r"],
 						Request["rp"],
 						e.CommandArgument);
 			}

@@ -1,4 +1,5 @@
-﻿<% for i, item in enumerate(headers): %>
+﻿${FormHelper.HiddenField('sortOrder')}
+<% for i, item in enumerate(headers): %>
    <% if IsDefined("rowsCount"):
         command = ", 'rowsCount', " + rowsCount
       else: 

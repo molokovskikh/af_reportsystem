@@ -5,7 +5,8 @@
 	<%if IsDefined("Title"):%>
 		<title>${Title}</title>
 	<% end %>
-	<script type="text/javascript" src="${siteroot}/JavaScript/Main.js/"></script>
+	<script type="text/javascript" src="../JavaScript/prototype.js/"></script>
+	<script type="text/javascript" src="../JavaScript/Main.js/"></script>
 	<link rel="Stylesheet" href="${siteroot}/CSS/Main.css" />
 </head>
 <body>
