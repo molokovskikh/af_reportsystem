@@ -2,7 +2,7 @@ import file from WebSiteSupport.bake
 import System.IO
 
 Global(
-	project : "ReportTuner",	
+	project : "ReportTuner",
 	deployTo : "\\\\acdcserv\\ReportConf"
 )
 

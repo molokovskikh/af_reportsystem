@@ -16,7 +16,7 @@ Global(
 	humanReadableName : "Генератор отчетов"
 )	
 	
-buildTo = Path.GetFullPath("..\\buildExe\\")
+buildTo = Path.GetFullPath("build/ReportSystem/")
 projectFile = ".\\src\\${Globals.project}\\${Globals.project}.csproj"
 projectBootFile = ".\\src\\${Globals.projectBoot}\\${Globals.projectBoot}.csproj"
 host = "offdc.adc.analit.net"
