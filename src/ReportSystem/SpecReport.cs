@@ -7,6 +7,7 @@ using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Configuration;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -27,8 +28,8 @@ namespace Inforoom.ReportSystem
 
 		protected string reportCaptionPreffix;
 
-		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 			reportCaptionPreffix = "Специальный отчет";
 		}
@@ -46,6 +47,7 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			ProfileHelper.Next("PreGetOffers");
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
 				throw new Exception("Для специального отчета не указан параметр \"Прайс-лист\".");
@@ -81,6 +83,8 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));
 				else
 					throw new Exception(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
 			}
+			if (DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
+			{ }
 
 			//Проверка актуальности прайс-листа
 			int ActualPrice = Convert.ToInt32(
@@ -103,16 +107,18 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (ActualPrice == 0)
 				throw new Exception(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
 
+			ProfileHelper.Next("GetOffers");
 			//Выбираем 
 			GetOffers(e);
-
+			ProfileHelper.Next("GetCodes");
 			//Получили предложения интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes(e);
-
+			ProfileHelper.Next("GetMinPrices");
 			//Получили лучшие предложения из всех прайс-листов с учетом требований
 			GetMinPrice(e);
-
+			ProfileHelper.Next("Calculate");
 			Calculate();
+			ProfileHelper.End();
 		}
 
 		protected virtual void Calculate()

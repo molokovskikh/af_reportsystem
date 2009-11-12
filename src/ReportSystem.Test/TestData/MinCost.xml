@@ -1,0 +1,46 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>3729</ID>
+    <ReportCode>588</ReportCode>
+    <PropertyID>29</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>29</ID1>
+    <ReportTypeCode>4</ReportTypeCode>
+    <PropertyName>ReportType</PropertyName>
+    <DisplayName>Вариант отчета</DisplayName>
+    <PropertyType>ENUM</PropertyType>
+    <Optional>0</Optional>
+    <PropertyEnumID>1</PropertyEnumID>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3730</ID>
+    <ReportCode>588</ReportCode>
+    <PropertyID>30</PropertyID>
+    <PropertyValue>5101</PropertyValue>
+    <ID1>30</ID1>
+    <ReportTypeCode>4</ReportTypeCode>
+    <PropertyName>ClientCode</PropertyName>
+    <DisplayName>Клиент</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCode</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3731</ID>
+    <ReportCode>588</ReportCode>
+    <PropertyID>67</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>67</ID1>
+    <ReportTypeCode>4</ReportTypeCode>
+    <PropertyName>CalculateByCatalog</PropertyName>
+    <DisplayName>Рассчитывать по каталогу</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

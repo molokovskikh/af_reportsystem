@@ -7,6 +7,7 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Data;
 using System.Configuration;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -30,8 +31,8 @@ namespace Inforoom.ReportSystem
 		protected DefReportType _reportType;
 		protected int _priceCode;
 
-		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 		}
 
@@ -51,6 +52,7 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			ProfileHelper.Next("PreGetOffers");
 			//Если код клиента равен 0, то он не установлен в параметрах, поэтому берем код клиента, для которого делается отчет
 			if (_clientCode == 0)
 			{
@@ -118,9 +120,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (ActualPrice == 0)
 				throw new Exception(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, _priceCode));
 
+			ProfileHelper.Next("GetOffers");
 			//Выбираем 
 			GetOffers(e);
-
+			ProfileHelper.Next("Processing");
 			int EnabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
@@ -441,6 +444,7 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
 			e.DataAdapter.Fill(_dsReport, "Results");
+			ProfileHelper.End();
 		}
 
 		public override void ReportToFile(string FileName)

@@ -1,0 +1,74 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>3732</ID>
+    <ReportCode>589</ReportCode>
+    <PropertyID>31</PropertyID>
+    <PropertyValue>2</PropertyValue>
+    <ID1>31</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>ReportType</PropertyName>
+    <DisplayName>Вариант отчета</DisplayName>
+    <PropertyType>ENUM</PropertyType>
+    <Optional>0</Optional>
+    <PropertyEnumID>1</PropertyEnumID>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3733</ID>
+    <ReportCode>589</ReportCode>
+    <PropertyID>32</PropertyID>
+    <PropertyValue>5101</PropertyValue>
+    <ID1>32</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>ClientCode</PropertyName>
+    <DisplayName>Клиент</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCode</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3734</ID>
+    <ReportCode>589</ReportCode>
+    <PropertyID>68</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>68</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>CalculateByCatalog</PropertyName>
+    <DisplayName>Рассчитывать по каталогу</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3735</ID>
+    <ReportCode>589</ReportCode>
+    <PropertyID>76</PropertyID>
+    <PropertyValue>216</PropertyValue>
+    <ID1>76</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>PriceCode</PropertyName>
+    <DisplayName>Прайс-лист</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetPriceCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3736</ID>
+    <ReportCode>589</ReportCode>
+    <PropertyID>120</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>120</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>ReportIsFull</PropertyName>
+    <DisplayName>По всему ассортименту</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

@@ -5,11 +5,12 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using System.Linq;
 using MSExcel = Microsoft.Office.Interop.Excel;
+using ReportSystem.Profiling;
 
 
 namespace Inforoom.ReportSystem
 {
-	class CombShortReport : CombReport
+	public class CombShortReport : CombReport
 	{
 		private bool _needProcessing = false; // Надо ли группировать и вычислять минимальные в Calculate
 
@@ -37,8 +38,8 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}

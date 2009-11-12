@@ -10,10 +10,11 @@ using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using System.Collections.Generic;
 using System.Drawing;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
-	class MixedReport : OrdersReport
+	public class MixedReport : OrdersReport
 	{
 		private const string sourceFirmCodeProperty = "SourceFirmCode";
 		private const string businessRivalsProperty = "BusinessRivals";
@@ -37,8 +38,8 @@ namespace Inforoom.ReportSystem
 		//Поле производитель
 		private FilterField firmCrField;
 
-		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 		}
 
@@ -76,8 +77,9 @@ namespace Inforoom.ReportSystem
 
 		protected override void CheckAfterLoadFields()
 		{
+			ProfileHelper.Next("BaseCheckAfterLoad");
 			base.CheckAfterLoadFields();
-
+			ProfileHelper.Next("CheckAfterLoad");
 			//Выбирем поле "Производитель", если в настройке отчета есть соответствующий параметр
 			firmCrField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCr"; });
 
@@ -95,12 +97,12 @@ namespace Inforoom.ReportSystem
 					nameField = nameFields[0];
 		}
 
-
 		void FillProviderCodes(ExecuteArgs e)
 		{
+			ProfileHelper.Next("FillCodes");
 			e.DataAdapter.SelectCommand.CommandText = @"
-drop temporary table IF EXISTS ProviderCodes;
-create temporary table ProviderCodes (" +
+drop table IF EXISTS ProviderCodes;
+create table ProviderCodes (" +
 									((showCode) ? "Code varchar(20), " : String.Empty) +
 									((showCodeCr) ? "CodeCr varchar(20), " : String.Empty) +
 									"CatalogCode int unsigned, codefirmcr int unsigned," +
@@ -168,13 +170,35 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			ProfileHelper.Next("GenerateReport");
 			filter.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
 			filter.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
 
 			if (showCode || showCodeCr)
 				FillProviderCodes(e);
 
-			string SelectCommand = "select ";
+			ProfileHelper.Next("GenerateReport2");
+
+			bool isNeedProp = true;
+			bool includeProductName = false;
+			
+			foreach(var rf in selectedField) // В целях оптимизации при в некоторых случаях используем
+				if(rf.visible && (rf.reportPropertyPreffix == "ProductName" || // временные таблицы
+					rf.reportPropertyPreffix == "FullName"))
+				{ 
+					rf.viewField = "1";
+					includeProductName = true;
+					if (rf.reportPropertyPreffix == "FullName")
+					{
+						rf.primaryField = "p.CatalogId";
+						rf.viewField = "p.CatalogId as Id";
+						isNeedProp = false;
+					}
+				}
+
+			string SelectCommand = !includeProductName ? "select ":
+				@"drop temporary table IF EXISTS MixedData;
+				  create temporary table MixedData ENGINE=MEMORY select ";
 
 			foreach (FilterField rf in selectedField)
 				if (rf.visible)
@@ -209,17 +233,19 @@ Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
-			SelectCommand = String.Concat(
-				SelectCommand, @"
-from 
+			SelectCommand +=
+@"from 
   (
   orders.OrdersHead oh, 
   orders.OrdersList ol,
-  catalogs.products p,
-  catalogs.catalog c,
+  catalogs.products p,";
+	if(!includeProductName)
+		SelectCommand +=
+  @"catalogs.catalog c,
   catalogs.catalognames cn,
-  catalogs.catalogforms cf, 
-  catalogs.Producers cfc, 
+  catalogs.catalogforms cf,";
+	SelectCommand +=
+  @"catalogs.Producers cfc, 
   usersettings.clientsdata cd,
   usersettings.retclientsset rcs, 
   farm.regions rg, 
@@ -236,11 +262,14 @@ and oh.deleted = 0
 and oh.processed = 1
 and ol.Junk = 0
 and ol.Await = 0
-and p.Id = ol.ProductId
-and c.Id = p.CatalogId
+and p.Id = ol.ProductId";
+	if(!includeProductName)
+		SelectCommand +=
+@" and c.Id = p.CatalogId
 and cn.id = c.NameId
-and cf.Id = c.FormId
-and cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
+and cf.Id = c.FormId";
+	SelectCommand +=
+@" and cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
 and cd.FirmCode = oh.ClientCode
 and cd.BillingCode <> 921
 and payers.PayerId = cd.BillingCode
@@ -249,7 +278,7 @@ and rcs.InvisibleOnFirm < 2
 and rg.RegionCode = oh.RegionCode 
 and pd.PriceCode = oh.PriceCode 
 and prov.FirmCode = pd.FirmCode
-and provrg.RegionCode = prov.RegionCode");
+and provrg.RegionCode = prov.RegionCode";
 
 			foreach (FilterField rf in selectedField)
 			{
@@ -278,6 +307,31 @@ and provrg.RegionCode = prov.RegionCode");
 			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
 			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by AllSum desc");
 
+			if(includeProductName)
+				if(isNeedProp)
+					SelectCommand += @"; select
+				(select concat(c.name, ' ', 
+							cast(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
+								  order by Properties.PropertyName, PropertyValues.Value
+								  SEPARATOR ', '
+								 ) as char))
+				  from catalogs.products p
+					join catalogs.catalog c on c.Id = p.CatalogId
+					left join catalogs.ProductProperties on ProductProperties.ProductId = p.Id
+					left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
+					left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
+				  where
+					p.Id = md.Id) ProductName,
+				  md.*
+				from MixedData md";
+				else
+					SelectCommand += @"; select
+				(select c.name
+				  from catalogs.catalog c
+				  where
+					c.Id = md.Id) CatalogName,
+				  md.*
+				from MixedData md";
 #if DEBUG
 			Debug.WriteLine(SelectCommand);
 #endif
@@ -287,6 +341,8 @@ and provrg.RegionCode = prov.RegionCode");
 			e.DataAdapter.SelectCommand.CommandText = SelectCommand;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(SelectTable);
+
+			ProfileHelper.Next("GenerateReport3");
 
 			System.Data.DataTable res = new System.Data.DataTable();
 			DataColumn dc;
@@ -438,6 +494,7 @@ and provrg.RegionCode = prov.RegionCode");
 			res = res.DefaultView.ToTable();
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
+			ProfileHelper.Next("PostProcessing");
 		}
 
 		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)

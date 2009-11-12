@@ -9,13 +9,13 @@ using System.Data;
 namespace Inforoom.ReportSystem
 {
 	//Индивидуальный отчет на основе комбинированного, где каждая позиция представляется отдельной строкой и выводится в текстовый файл
-	class CombToPlainReport : ProviderReport
+	public class CombToPlainReport : ProviderReport
 	{
 		string _sharePath;
 		string _filename;
 
-		public CombToPlainReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public CombToPlainReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 			_sharePath = Properties.Settings.Default.DBDumpPath;
 			if (String.IsNullOrEmpty(_sharePath))

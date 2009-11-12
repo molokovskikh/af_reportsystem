@@ -1,0 +1,116 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>3773</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>35</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>35</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>JunkState</PropertyName>
+    <DisplayName>Учет Junk</DisplayName>
+    <PropertyType>ENUM</PropertyType>
+    <Optional>0</Optional>
+    <PropertyEnumID>9</PropertyEnumID>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3774</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>69</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>69</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>ReportInterval</PropertyName>
+    <DisplayName>Интервал отчета (дни) от текущей даты</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3775</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>74</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>74</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>ByPreviousMonth</PropertyName>
+    <DisplayName>За предыдущий месяц</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3780</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>36</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>36</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>FullNamePosition</PropertyName>
+    <DisplayName>Позиция "Полного наименования" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3781</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>40</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>40</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>ShortNamePosition</PropertyName>
+    <DisplayName>Позиция "Наименования" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3782</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>44</PropertyID>
+    <PropertyValue>2</PropertyValue>
+    <ID1>44</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>FirmCrPosition</PropertyName>
+    <DisplayName>Позиция "Производителя" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>2</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3783</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>48</PropertyID>
+    <PropertyValue>3</PropertyValue>
+    <ID1>48</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>RegionPosition</PropertyName>
+    <DisplayName>Позиция "Региона" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>3</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3784</ID>
+    <ReportCode>598</ReportCode>
+    <PropertyID>52</PropertyID>
+    <PropertyValue>4</PropertyValue>
+    <ID1>52</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>FirmCodePosition</PropertyName>
+    <DisplayName>Позиция "Поставщика" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>4</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

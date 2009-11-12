@@ -10,6 +10,7 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using Microsoft.Office.Core;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -19,8 +20,8 @@ namespace Inforoom.ReportSystem
 
 		private int providerCount;
 
-		public ProviderRatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public ProviderRatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 		}
 
@@ -47,6 +48,7 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			ProfileHelper.Next("Processing1");
 			string SelectCommand = "select ";
 			foreach (FilterField rf in selectedField)
 				if (rf.visible)
@@ -127,6 +129,8 @@ and provrg.RegionCode = prov.RegionCode");
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(SelectTable);
 
+			ProfileHelper.Next("Processing2");
+
 			decimal AllSumm = 0m;
 			decimal OtherSumm = 0m;
 			int currentCount = 0;
@@ -194,10 +198,12 @@ and provrg.RegionCode = prov.RegionCode");
 			res = res.DefaultView.ToTable();
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
+			ProfileHelper.End();
 		}
 
 		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
 		{
+			ProfileHelper.Next("ExcelDiagrammProcessing");
 			DataTable res = _dsReport.Tables["Results"];
 
 			//Выбираем диапазон, по которому будет строить диаграму
@@ -221,6 +227,7 @@ and provrg.RegionCode = prov.RegionCode");
 
 			//Отображаем диаграмму
 			s.Fill.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
+			ProfileHelper.End();
 		}
 
 

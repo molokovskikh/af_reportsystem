@@ -6,6 +6,7 @@ using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -29,15 +30,30 @@ namespace Inforoom.ReportSystem
 		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
 		protected List<string> filter;
 
-		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 		}
 
 		protected void FillFilterFields()
 		{
 			registredField = new List<FilterField>();
-			registredField.Add(new FilterField("p.Id", "concat(cn.Name, ' ', catalogs.GetFullForm(p.Id)) as ProductName", "ProductName", "ProductName", "Наименование и форма выпуска", "catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие продукты", "Следующие продукты исключены из отчета", 40));
+			registredField.Add(new FilterField("p.Id", @"concat(cn.Name, cf.Form, ' ',
+			  (select
+				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
+									order by Properties.PropertyName, PropertyValues.Value
+									SEPARATOR ', '), '')
+			  from
+				 catalogs.products inp
+				 left join catalogs.ProductProperties on ProductProperties.ProductId = inp.Id
+				 left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
+				 left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
+			   where inp.Id = p.Id)) as ProductName", 
+				"ProductName", "ProductName", "Наименование и форма выпуска", 
+				"catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", 
+				"and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0, 
+				"В отчет включены следующие продукты", "Следующие продукты исключены из отчета", 40));
+
 			registredField.Add(new FilterField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска", "catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета", 40));
 			registredField.Add(new FilterField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета", 40));
 			registredField.Add(new FilterField("cfc.Id", "cfc.Name as FirmCr", "FirmCr", "FirmCr", "Производитель", "catalogs.Producers cfc", null, 1, "В отчет включены следующие производители", "Следующие производители исключены из отчета", 15));
@@ -121,6 +137,7 @@ namespace Inforoom.ReportSystem
 
 		protected void FormatExcel(string FileName)
 		{
+			ProfileHelper.Next("FormatExcel");
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try
 			{
@@ -184,6 +201,7 @@ namespace Inforoom.ReportSystem
 				catch { }
 				exApp = null;
 			}
+			ProfileHelper.End();
 		}
 
 		/// <summary>
