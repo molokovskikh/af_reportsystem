@@ -17,8 +17,8 @@ Global(
 )	
 	
 buildTo = Path.GetFullPath("..\\buildExe\\")
-projectFile = ".\\${Globals.project}\\${Globals.project}.csproj"
-projectBootFile = ".\\${Globals.projectBoot}\\${Globals.projectBoot}.csproj"
+projectFile = ".\\src\\${Globals.project}\\${Globals.project}.csproj"
+projectBootFile = ".\\src\\${Globals.projectBoot}\\${Globals.projectBoot}.csproj"
 host = "offdc.adc.analit.net"
 deployTo = "\\\\${host}\\Reports"
 
@@ -36,8 +36,8 @@ Task @Build, [@Clean]:
 			Parameters : { "OutDir" : buildTo,
 						   "Configuration" : "Release"},
 			FrameworkVersion : "3.5").Execute()
-	Cp("./ReportSystem/app.release.config", "${buildTo}ReportSystem.exe.config", true)
-	Cp("./ReportSystemBoot/app.release.config", "${buildTo}ReportSystemBoot.exe.config", true)
+	Cp("./src/ReportSystem/app.release.config", "${buildTo}ReportSystem.exe.config", true)
+	Cp("./src/ReportSystemBoot/app.release.config", "${buildTo}ReportSystemBoot.exe.config", true)
 	
 Task @Clean:
 	MsBuild(projectBootFile,
