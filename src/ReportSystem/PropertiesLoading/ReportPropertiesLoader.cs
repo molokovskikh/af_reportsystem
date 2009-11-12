@@ -17,12 +17,15 @@ namespace Inforoom.ReportSystem
 		{
 			_reportCode = ReportCode;
 			var result = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, conn);
+
+			/* Раскомитить если нужно получить xml файлы для тестов
 			int i = 1;
 			while (File.Exists(ReportCode.ToString() + "(" + i.ToString() + ").xml"))
 				i++;
 
 			result.WriteXml(ReportCode.ToString() + "(" + i.ToString() + ").xml");
-			throw new Exception("Хватит!!!");
+			throw new Exception("Хватит!!!");*/
+
 			return result;
 		}
 
