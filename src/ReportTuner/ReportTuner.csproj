@@ -282,11 +282,11 @@
     <Compile Include="Reports\TemporaryReport.aspx.designer.cs">
       <DependentUpon>TemporaryReport.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Views\TemporaryReportSchedule.aspx.cs">
+    <Compile Include="Reports\TemporaryReportSchedule.aspx.cs">
       <DependentUpon>TemporaryReportSchedule.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Views\TemporaryReportSchedule.aspx.designer.cs">
+    <Compile Include="Reports\TemporaryReportSchedule.aspx.designer.cs">
       <DependentUpon>TemporaryReportSchedule.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -347,7 +347,7 @@
     <Content Include="JavaScript\Main.js" />
     <Content Include="Reports\TemplateReports.aspx" />
     <Content Include="Reports\TemporaryReport.aspx" />
-    <Content Include="Views\TemporaryReportSchedule.aspx" />
+    <Content Include="Reports\TemporaryReportSchedule.aspx" />
     <Content Include="Views\Common\CloseWindow.brail">
     </Content>
     <Content Include="Views\Layouts\contact.brail">
