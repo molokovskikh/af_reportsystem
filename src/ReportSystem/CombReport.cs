@@ -6,6 +6,7 @@ using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -32,8 +33,8 @@ namespace Inforoom.ReportSystem
 
 		protected string reportCaptionPreffix;
 
-		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 			reportCaptionPreffix = "Комбинированный отчет";
 		}
@@ -48,8 +49,9 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			ProfileHelper.Next("Get Offers");
 			GetOffers(e);
-
+			ProfileHelper.Next("Processing1");
 			e.DataAdapter.SelectCommand.CommandText = "select " ;
 
 			if (_calculateByCatalog)
@@ -90,7 +92,7 @@ and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode 
 order by CatalogCode, Cfc, PositionCount DESC";
-
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Core");
 
 			e.DataAdapter.SelectCommand.CommandText = "select  ";   
@@ -151,11 +153,16 @@ and Producers.Id = FarmCore.codefirmcr ";
 			e.DataAdapter.SelectCommand.CommandText += @"
 group by CatalogCode, Cfc
 order by 2, 5";
-
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 			e.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, PriceDate, FirmName from ActivePrices order by PositionCount DESC";
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Prices");
+
+			ProfileHelper.Next("Calculate");
+
 			Calculate();
+			ProfileHelper.End();
 		}
 
 		public override void ReportToFile(string FileName)
@@ -244,6 +251,7 @@ order by 2, 5";
 
 		protected void FormatExcel(string FileName)
 		{
+			ProfileHelper.Next("FormatExcel");
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try
 			{

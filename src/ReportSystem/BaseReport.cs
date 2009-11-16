@@ -5,6 +5,7 @@ using System.Data;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data.OleDb;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -56,7 +57,7 @@ namespace Inforoom.ReportSystem
 		protected Dictionary<string, object> _reportParams;
 
 
-		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
+		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
 		{
 			_reportParams = new Dictionary<string, object>();
 			_reportCode = ReportCode;
@@ -66,9 +67,9 @@ namespace Inforoom.ReportSystem
 
 			_parentIsTemporary = Temporary;
 
-			DataSet dsTab = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, _conn);
-			dtReportProperties = dsTab.Tables["ReportProperties"];
-			dtReportPropertyValues = dsTab.Tables["ReportPropertyValues"];
+			//DataSet dsTab = 
+			dtReportProperties = dsProperties.Tables["ReportProperties"];
+			dtReportPropertyValues = dsProperties.Tables["ReportPropertyValues"];
 
 			foreach (DataRow drProperty in dtReportProperties.Rows)
 			{
@@ -161,44 +162,6 @@ namespace Inforoom.ReportSystem
 			ReadReportParams();
 		}
 
-		//Выбираем отчеты из базы
-		private DataSet GetReportProperties(ExecuteArgs e)
-		{
-			DataSet ds = new DataSet();
-
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
-select
-  * 
-from 
-  reports.Report_Properties rp,
-  reports.report_type_properties rtp
-where
-    rp.{0} = ?{0}
-and rtp.ID = rp.PropertyID", BaseReportColumns.colReportCode);
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + BaseReportColumns.colReportCode, _reportCode);
-			DataTable res = new DataTable("ReportProperties");
-			e.DataAdapter.Fill(res);
-			ds.Tables.Add(res);
-
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
-select
-  rpv.*
-from
-  reports.Report_Properties rp,
-  reports.report_property_values rpv
-where
-    rp.{0} = ?{0}
-and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + BaseReportColumns.colReportCode, _reportCode);
-			res = new DataTable("ReportPropertyValues");
-			e.DataAdapter.Fill(res);
-			ds.Tables.Add(res);
-
-			return ds;
-		}
-
 		public abstract void GenerateReport(ExecuteArgs e);
 
 		public abstract void ReadReportParams();
@@ -219,6 +182,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 
 		protected void DataTableToExcel(DataTable dtExport, string ExlFileName)
 		{
+			ProfileHelper.Next("DataTableToExcel");
 			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти
 			string generatedListName = "testRep";
 			generatedListName = _reportCaption;

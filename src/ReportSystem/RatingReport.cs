@@ -9,6 +9,7 @@ using System.Reflection;
 using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using System.Collections.Generic;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -21,8 +22,8 @@ namespace Inforoom.ReportSystem
 
 		private int JunkState;
 
-		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 		}
 
@@ -34,6 +35,7 @@ namespace Inforoom.ReportSystem
 
     	public override void GenerateReport(ExecuteArgs e)
 		{
+			ProfileHelper.Next("Processing1");
 			string SelectCommand = "select ";
 			foreach (FilterField rf in selectedField)
 				if (rf.visible)
@@ -126,6 +128,8 @@ and provrg.RegionCode = prov.RegionCode");
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(SelectTable);
 
+			ProfileHelper.Next("Processing2");
+
 			decimal Cost = 0m;
 			int PosOrder = 0;
 			foreach (DataRow dr in SelectTable.Rows)
@@ -205,6 +209,7 @@ and provrg.RegionCode = prov.RegionCode");
 			res = res.DefaultView.ToTable();
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
+			ProfileHelper.Next("PostProcessing");
 		}
 
 		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)

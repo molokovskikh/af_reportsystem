@@ -1,0 +1,58 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>3722</ID>
+    <ReportCode>587</ReportCode>
+    <PropertyID>15</PropertyID>
+    <PropertyValue>4</PropertyValue>
+    <ID1>15</ID1>
+    <ReportTypeCode>2</ReportTypeCode>
+    <PropertyName>ReportType</PropertyName>
+    <DisplayName>Вариант отчета</DisplayName>
+    <PropertyType>ENUM</PropertyType>
+    <Optional>0</Optional>
+    <PropertyEnumID>1</PropertyEnumID>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3723</ID>
+    <ReportCode>587</ReportCode>
+    <PropertyID>16</PropertyID>
+    <PropertyValue>5101</PropertyValue>
+    <ID1>16</ID1>
+    <ReportTypeCode>2</ReportTypeCode>
+    <PropertyName>ClientCode</PropertyName>
+    <DisplayName>Клиент</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCode</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3724</ID>
+    <ReportCode>587</ReportCode>
+    <PropertyID>19</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>19</ID1>
+    <ReportTypeCode>2</ReportTypeCode>
+    <PropertyName>ShowPercents</PropertyName>
+    <DisplayName>Отображать проценты?</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3725</ID>
+    <ReportCode>587</ReportCode>
+    <PropertyID>66</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>66</ID1>
+    <ReportTypeCode>2</ReportTypeCode>
+    <PropertyName>CalculateByCatalog</PropertyName>
+    <DisplayName>Рассчитывать по каталогу</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

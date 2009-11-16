@@ -7,10 +7,10 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem
 {
-	class SpecShortReport : SpecReport
+	public class SpecShortReport : SpecReport
 	{
-		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary)
-			: base(ReportCode, ReportCaption, Conn, Temporary)
+		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}

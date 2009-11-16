@@ -5,9 +5,6 @@
     <Setting Name="ErrorFrom" Type="System.String" Scope="Application">
       <Value Profile="(Default)">service@analit.net</Value>
     </Setting>
-    <Setting Name="ErrorReportMail" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">tech@analit.net</Value>
-    </Setting>
     <Setting Name="FTPOptBoxPath" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\acdcserv\FTP\OptBox\</Value>
     </Setting>
@@ -16,6 +13,9 @@
     </Setting>
     <Setting Name="DBDumpPath" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\dbms.adc.analit.net\AFFiles\</Value>
+    </Setting>
+    <Setting Name="ErrorReportMail" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">p.belenko@analit.net</Value>
     </Setting>
   </Settings>
 </SettingsFile>

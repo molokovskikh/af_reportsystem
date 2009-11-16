@@ -59,7 +59,9 @@ namespace Inforoom.ReportSystem
 
 		List<BaseReport> _reports;
 
-		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, string EMailSubject, MySqlConnection Conn, string ReportFileName, string ReportArchName, bool Temporary)
+		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, 
+			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
+			string ReportArchName, bool Temporary, IReportPropertiesLoader propertiesLoader)
 		{
 			_reports = new List<BaseReport>();
 			_generalReportID = GeneralReportID;
@@ -115,7 +117,7 @@ and c.Type = ?ContactType";
 						//Создаем отчеты и добавляем их в список отчетов
 						BaseReport bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
-							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, Temporary });
+							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, Temporary, propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])});
 						_reports.Add(bs);
 
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
@@ -136,7 +138,7 @@ and c.Type = ?ContactType";
 				throw new Exception("У комбинированного отчета нет дочерних отчетов.");
 
 			if (addContacts)
-			    _reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary));
+				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, propertiesLoader.LoadProperties(_conn, contactsCode)));
 		}
 
 		//Производится построение отчетов
@@ -163,7 +165,7 @@ and c.Type = ?ContactType";
 
 
 #if (TESTING)
-			MailWithAttach(ResFileName, "morozov@analit.net");
+			MailWithAttach(ResFileName, Settings.Default.ErrorReportMail);
 #else
 			if ((_dtContacts != null) && (_dtContacts.Rows.Count > 0))
 				foreach (DataRow drContact in _dtContacts.Rows)

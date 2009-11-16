@@ -11,6 +11,7 @@ using System.Net.Mail;
 using Inforoom.Common;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Properties;
+using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -21,13 +22,7 @@ namespace Inforoom.ReportSystem
 		{
 			try
 			{
-				MailMessage message = new MailMessage(From,
-#if (TESTING)
- "s.morozov@analit.net",
-#else
-					MessageTo, 
-#endif
- Subject, Body);
+				MailMessage message = new MailMessage(From, MessageTo, Subject, Body);
 				SmtpClient Client = new SmtpClient(Settings.Default.SMTPHost);
 				message.IsBodyHtml = false;
 				message.BodyEncoding = System.Text.Encoding.UTF8;
@@ -107,6 +102,8 @@ and cr.generalreportcode = " + GeneralReportID;
 
 								try
 								{
+									ReportPropertiesLoader propertiesLoader = new ReportPropertiesLoader();
+
 									//Создаем каждый отчет отдельно и пытаемся его сформировать
 									GeneralReport gr = new GeneralReport(
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode],
@@ -116,7 +113,8 @@ and cr.generalreportcode = " + GeneralReportID;
 										mc,
 										drReport[GeneralReportColumns.ReportFileName].ToString(),
 										drReport[GeneralReportColumns.ReportArchName].ToString(),
-										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]));
+										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
+										propertiesLoader);
 									gr.ProcessReports();
 								}
 								catch (Exception ex)
@@ -144,6 +142,7 @@ and cr.generalreportcode = " + GeneralReportID;
 			{
 				MailGlobalErr(ex.ToString());
 			}
+
 		}
 
 		//Аргументы для выбора отчетов из базы
