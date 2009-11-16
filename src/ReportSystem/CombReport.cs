@@ -51,7 +51,7 @@ namespace Inforoom.ReportSystem
 		{
 			ProfileHelper.Next("Get Offers");
 			GetOffers(e);
-			ProfileHelper.Next("Processing1"); ;
+			ProfileHelper.Next("Processing1");
 			e.DataAdapter.SelectCommand.CommandText = "select " ;
 
 			if (_calculateByCatalog)
@@ -92,7 +92,7 @@ and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode 
 order by CatalogCode, Cfc, PositionCount DESC";
-
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Core");
 
 			e.DataAdapter.SelectCommand.CommandText = "select  ";   
@@ -153,9 +153,10 @@ and Producers.Id = FarmCore.codefirmcr ";
 			e.DataAdapter.SelectCommand.CommandText += @"
 group by CatalogCode, Cfc
 order by 2, 5";
-
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 			e.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, PriceDate, FirmName from ActivePrices order by PositionCount DESC";
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Prices");
 
 			ProfileHelper.Next("Calculate");

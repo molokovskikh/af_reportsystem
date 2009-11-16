@@ -1,8 +1,8 @@
 <?xml version="1.0" standalone="yes"?>
 <NewDataSet>
   <ReportProperties>
-    <ID>3773</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3795</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>35</PropertyID>
     <PropertyValue>0</PropertyValue>
     <ID1>35</ID1>
@@ -16,12 +16,12 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>3774</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3796</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>69</PropertyID>
-    <PropertyValue>6</PropertyValue>
+    <PropertyValue>30</PropertyValue>
     <ID1>69</ID1>
-    <ReportTypeCode>6</ReportTypeCode>
+    <ReportTypeCode>5</ReportTypeCode>
     <PropertyName>ReportInterval</PropertyName>
     <DisplayName>Интервал отчета (дни) от текущей даты</DisplayName>
     <PropertyType>INT</PropertyType>
@@ -30,8 +30,8 @@
     <DefaultValue>1</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>3775</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3797</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>74</PropertyID>
     <PropertyValue>0</PropertyValue>
     <ID1>74</ID1>
@@ -44,8 +44,8 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>3780</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3798</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>36</PropertyID>
     <PropertyValue>0</PropertyValue>
     <ID1>36</ID1>
@@ -58,8 +58,8 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>3781</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3799</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>40</PropertyID>
     <PropertyValue>1</PropertyValue>
     <ID1>40</ID1>
@@ -72,8 +72,8 @@
     <DefaultValue>1</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>3782</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3800</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>44</PropertyID>
     <PropertyValue>2</PropertyValue>
     <ID1>44</ID1>
@@ -86,8 +86,8 @@
     <DefaultValue>2</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>3783</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3801</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>48</PropertyID>
     <PropertyValue>3</PropertyValue>
     <ID1>48</ID1>
@@ -100,8 +100,8 @@
     <DefaultValue>3</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>3784</ID>
-    <ReportCode>598</ReportCode>
+    <ID>3802</ID>
+    <ReportCode>601</ReportCode>
     <PropertyID>52</PropertyID>
     <PropertyValue>4</PropertyValue>
     <ID1>52</ID1>
@@ -113,4 +113,51 @@
     <SelectStoredProcedure />
     <DefaultValue>4</DefaultValue>
   </ReportProperties>
+  <ReportProperties>
+    <ID>3803</ID>
+    <ReportCode>601</ReportCode>
+    <PropertyID>56</PropertyID>
+    <PropertyValue>5</PropertyValue>
+    <ID1>56</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>PriceCodePosition</PropertyName>
+    <DisplayName>Позиция "Прайса" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>5</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3804</ID>
+    <ReportCode>601</ReportCode>
+    <PropertyID>60</PropertyID>
+    <PropertyValue>6</PropertyValue>
+    <ID1>60</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>ClientCodePosition</PropertyName>
+    <DisplayName>Позиция "Клиента" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>6</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3806</ID>
+    <ReportCode>601</ReportCode>
+    <PropertyID>54</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>54</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>FirmCodeEqual</PropertyName>
+    <DisplayName>Список значений "Поставщик"</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure>GetFirmCode</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportPropertyValues>
+    <ID>6882</ID>
+    <ReportPropertyID>3806</ReportPropertyID>
+    <Value>5</Value>
+  </ReportPropertyValues>
 </NewDataSet>

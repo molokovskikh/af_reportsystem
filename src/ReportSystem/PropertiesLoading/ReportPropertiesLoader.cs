@@ -13,19 +13,24 @@ namespace Inforoom.ReportSystem
 	{
 		private ulong _reportCode;
 
+
+		private void SaveSettingsToFileAndThrowException(DataSet result)
+		{
+			int i = 1;
+			while (File.Exists(_reportCode.ToString() + "(" + i.ToString() + ").xml"))
+				i++;
+			result.WriteXml(_reportCode.ToString() + "(" + i.ToString() + ").xml");
+			throw new Exception("Хватит!!!"); 
+		}
+
 		public DataSet LoadProperties(MySqlConnection conn, ulong ReportCode)
 		{
 			_reportCode = ReportCode;
 			var result = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, conn);
-
-			/* Раскомитить если нужно получить xml файлы для тестов
-			int i = 1;
-			while (File.Exists(ReportCode.ToString() + "(" + i.ToString() + ").xml"))
-				i++;
-
-			result.WriteXml(ReportCode.ToString() + "(" + i.ToString() + ").xml");
-			throw new Exception("Хватит!!!");*/
-
+#if DEBUG
+			// Раскомитить если нужно получить xml файлы для тестов
+			//SaveSettingsToFileAndThrowException(result); 
+#endif 
 			return result;
 		}
 

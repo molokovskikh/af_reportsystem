@@ -179,20 +179,21 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 
 			ProfileHelper.Next("GenerateReport2");
 
-			bool isNeedProp = true;
+			bool isProductName = true;
 			bool includeProductName = false;
 			
 			foreach(var rf in selectedField) // ¬ цел€х оптимизации при в некоторых случа€х используем
 				if(rf.visible && (rf.reportPropertyPreffix == "ProductName" || // временные таблицы
 					rf.reportPropertyPreffix == "FullName"))
-				{ 
-					rf.viewField = "1";
+				{
+					rf.primaryField = "ol.Productid";
+					rf.viewField = "ol.Productid as pid";
 					includeProductName = true;
 					if (rf.reportPropertyPreffix == "FullName")
 					{
 						rf.primaryField = "p.CatalogId";
-						rf.viewField = "p.CatalogId as Id";
-						isNeedProp = false;
+						rf.viewField = "p.CatalogId as pid";
+						isProductName = false;
 					}
 				}
 
@@ -237,8 +238,10 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 @"from 
   (
   orders.OrdersHead oh, 
-  orders.OrdersList ol,
-  catalogs.products p,";
+  orders.OrdersList ol,";
+	if(!includeProductName || !isProductName)
+		SelectCommand +=
+  @"catalogs.products p,";
 	if(!includeProductName)
 		SelectCommand +=
   @"catalogs.catalog c,
@@ -261,8 +264,10 @@ where
 and oh.deleted = 0
 and oh.processed = 1
 and ol.Junk = 0
-and ol.Await = 0
-and p.Id = ol.ProductId";
+and ol.Await = 0";
+	if (!includeProductName || !isProductName)
+		SelectCommand +=
+@" and p.Id = ol.ProductId";
 	if(!includeProductName)
 		SelectCommand +=
 @" and c.Id = p.CatalogId
@@ -308,7 +313,7 @@ and provrg.RegionCode = prov.RegionCode";
 			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by AllSum desc");
 
 			if(includeProductName)
-				if(isNeedProp)
+				if(isProductName)
 					SelectCommand += @"; select
 				(select concat(c.name, ' ', 
 							cast(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
@@ -321,7 +326,7 @@ and provrg.RegionCode = prov.RegionCode";
 					left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
 					left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
 				  where
-					p.Id = md.Id) ProductName,
+					p.Id = md.pid) ProductName,
 				  md.*
 				from MixedData md";
 				else
@@ -329,7 +334,7 @@ and provrg.RegionCode = prov.RegionCode";
 				(select c.name
 				  from catalogs.catalog c
 				  where
-					c.Id = md.Id) CatalogName,
+					c.Id = md.pid) CatalogName,
 				  md.*
 				from MixedData md";
 #if DEBUG

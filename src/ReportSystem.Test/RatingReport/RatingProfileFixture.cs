@@ -33,5 +33,13 @@ namespace ReportSystem.Test
 			var report = new RatingReport(0, "Automate Created Report", Conn, false, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingNotJunkOnly);
 		}
+
+		[Test]
+		public void RatingFull()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.RatingFull);
+			var report = new RatingReport(0, "Automate Created Report", Conn, false, props);
+			TestHelper.ProcessReport(report, ReportsTypes.RatingFull);
+		}
 	}
 }

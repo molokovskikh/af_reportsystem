@@ -33,5 +33,13 @@ namespace ReportSystem.Test
 			var report = new MixedReport(0, "Automate Created Report", Conn, false, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedName);
 		}
+
+		[Test]
+		public void MixedFull()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MixedFull);
+			var report = new MixedReport(0, "Automate Created Report", Conn, false, props);
+			TestHelper.ProcessReport(report, ReportsTypes.MixedFull);
+		}
 	}
 }

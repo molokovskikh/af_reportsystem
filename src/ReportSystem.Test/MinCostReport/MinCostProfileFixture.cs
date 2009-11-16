@@ -41,5 +41,13 @@ namespace ReportSystem.Test
 			var report = new CombShortReport(0, "Automate Created Report", Conn, false, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostProducer);
 		}
+
+		[Test]
+		public void MinCostManyClients()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostManyClients);
+			var report = new CombShortReport(0, "Automate Created Report", Conn, false, props);
+			TestHelper.ProcessReport(report, ReportsTypes.MinCostManyClients);
+		}
 	}
 }
