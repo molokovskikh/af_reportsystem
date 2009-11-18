@@ -209,21 +209,29 @@ and provrg.RegionCode = prov.RegionCode");
 			//Выбираем диапазон, по которому будет строить диаграму
 			((MSExcel.Range)ws.get_Range(ws.Cells[2 + filter.Count, 1], ws.Cells[res.Rows.Count + 1, 2])).Select();
 			MSExcel.Shape s;
-			s = ws.Shapes.AddChart(MSExcel.XlChartType.xlPie, 20, 40, 600, 250);
+			s = ws.Shapes.AddChart(MSExcel.XlChartType.xlPie, 20, 40, 450, 230);
 			
 			//Устанавливаем диаграмму справа от таблицы
-			s.Top = Convert.ToSingle(((MSExcel.Range)ws.Cells[2 + filter.Count, 4]).Top);
-			s.Left = Convert.ToSingle(((MSExcel.Range)ws.Cells[2 + filter.Count, 4]).Left);
+			s.Top = 5;
+			s.Left = Convert.ToSingle(((MSExcel.Range)ws.Cells[1 + filter.Count, 5]).Left);
 
 			//Производим подсчет высоты легенды, чтобы она полностью отобразилась на диаграмме
 			double legendHeight = 0;
 			for (int i = 1; i <= ((MSExcel.LegendEntries)s.Chart.Legend.LegendEntries(Type.Missing)).Count; i++)
 				legendHeight += ((MSExcel.LegendEntry)s.Chart.Legend.LegendEntries(i)).Height;
 
-			legendHeight = legendHeight * 1.7;
+			legendHeight *= 0.9;
 
 			if (legendHeight > s.Height)
-				s.Height = Convert.ToSingle(legendHeight) + 10;
+				s.Height = Convert.ToSingle(legendHeight);
+			
+			//Увеличиваем зону легенды, прижимаем рисунок диаграммы к рамке
+			s.Chart.Legend.Top = 0;
+			s.Chart.Legend.Left = 220;
+			s.Chart.Legend.Width = 230;
+			s.Chart.PlotArea.Left = 0;
+			s.Chart.PlotArea.Width = 220;
+			s.Chart.Legend.Height = s.Chart.ChartArea.Height;
 
 			//Отображаем диаграмму
 			s.Fill.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
