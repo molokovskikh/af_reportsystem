@@ -12,7 +12,7 @@ import file from Deploy.bake
 Global(
 	project : "ReportSystem",
 	projectBoot : "ReportSystemBoot",
-	editor : "vim",
+	editor : "vim-nox",
 	humanReadableName : "Генератор отчетов"
 )	
 	
