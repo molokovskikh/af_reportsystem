@@ -31,8 +31,9 @@ namespace ReportTuner.Controllers
 						ReportTunerModel.DeleteClient(rpv.Value, Convert.ToUInt64(Request.Params[key]));
 
 				Response.RedirectToUrl(
-					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={7}",
+					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={8}",
 						sortOrder, startPage, pageSize, currentPage, region, report, rpv, firmType, r));
+				return;
 			}
 
 			if (addBtn != null)
@@ -42,8 +43,9 @@ namespace ReportTuner.Controllers
 						ReportTunerModel.AddClient(rpv.Value, Convert.ToUInt64(Request.Params[key]));
 
 				Response.RedirectToUrl(
-					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={7}",
+					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={8}",
 						sortOrder, startPage, pageSize, currentPage, region, report, rpv, firmType, r));
+				return;
 			}
 
 			if (region == 0)

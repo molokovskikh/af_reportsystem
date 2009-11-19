@@ -1,4 +1,4 @@
-﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+r), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+r+"&rp="+report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка"} %>
+﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+r), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+r+"&rp="+report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка", "Title":"Редактирование значений списка"} %>
 <form method="get" action="">
 ${FormHelper.HiddenField('report')}
 ${FormHelper.HiddenField('rpv')}
@@ -6,7 +6,7 @@ ${FormHelper.HiddenField('r')}
 ${FormHelper.HiddenField('firmType')}
 <table style="width:100%;">
 	<tr> <!-- Заголовок -->
-		<td class="DocumentHeader">Редактирование значений списка <%if firmType == 0: %> поставщиков <%else:%> клиентов <%end%>.</td>
+		<td class="DocumentHeader">Редактирование значений списка <%if firmType == 0: %> поставщиков <%else:%> клиентов<%end%></td>
 	</tr>
 	
 	<tr>
@@ -48,11 +48,11 @@ ${FormHelper.HiddenField('firmType')}
 		<td style="padding-top: 12px;">
 			<table style="width:100%;">
 				<tr>
-					<td class="DocumentHeader">Список клиентов</td>
+					<td class="DocumentHeader">Список  <%if firmType == 0: %> поставщиков<%else:%> клиентов<%end%></td>
 					
 					<td></td>
 					
-					<td class="DocumentHeader">Выбранные клиенты</td>
+					<td class="DocumentHeader">Выбранные  <%if firmType == 0: %> поставщики<%else:%> клиенты<%end%></td>
 				</tr>
 				
 				<tr>
