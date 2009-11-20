@@ -101,8 +101,8 @@ namespace Inforoom.ReportSystem
 		{
 			ProfileHelper.Next("FillCodes");
 			e.DataAdapter.SelectCommand.CommandText = @"
-drop table IF EXISTS ProviderCodes;
-create table ProviderCodes (" +
+drop temporary table IF EXISTS ProviderCodes;
+create temporary table ProviderCodes (" +
 									((showCode) ? "Code varchar(20), " : String.Empty) +
 									((showCodeCr) ? "CodeCr varchar(20), " : String.Empty) +
 									"CatalogCode int unsigned, codefirmcr int unsigned," +
