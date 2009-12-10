@@ -33,8 +33,8 @@ namespace Inforoom.ReportSystem
 
 		protected string reportCaptionPreffix;
 
-		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
+		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			reportCaptionPreffix = "Комбинированный отчет";
 		}
@@ -165,12 +165,6 @@ order by 2, 5";
 			ProfileHelper.End();
 		}
 
-		public override void ReportToFile(string FileName)
-		{
-			DataTableToExcel(_dsReport.Tables["Results"], FileName);
-			FormatExcel(FileName);
-		}
-
 		protected virtual void Calculate()
 		{
 			//Кол-во первых фиксированных колонок
@@ -178,14 +172,14 @@ order by 2, 5";
 			DataTable dtCore = _dsReport.Tables["Core"];
 			DataTable dtPrices = _dsReport.Tables["Prices"];
 
-			DataTable dtRes = new DataTable("Results");
-			_dsReport.Tables.Add(dtRes);
+			DataTable dtRes = new DataTable("Results");			
 			dtRes.Columns.Add("FullName");
 			dtRes.Columns.Add("FirmCr");
 			dtRes.Columns.Add("MinCost", typeof(decimal));
 			dtRes.Columns.Add("AvgCost", typeof(decimal));
 			dtRes.Columns.Add("MaxCost", typeof(decimal));
 			dtRes.Columns.Add("LeaderName");
+			_dsReport.Tables.Add(dtRes);
 			FirstColumnCount = dtRes.Columns.Count;
 
 			int PriceIndex = 0;
@@ -249,14 +243,14 @@ order by 2, 5";
 			}
 		}
 
-		protected void FormatExcel(string FileName)
+		protected override void FormatExcel(string fileName)
 		{
 			ProfileHelper.Next("FormatExcel");
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try
 			{
 				exApp.DisplayAlerts = false;
-				MSExcel.Workbook wb = exApp.Workbooks.Open(FileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
+				MSExcel.Workbook wb = exApp.Workbooks.Open(fileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
 				MSExcel._Worksheet ws;
 				try
 				{
@@ -308,7 +302,7 @@ order by 2, 5";
 					}
 					finally
 					{
-						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, MSExcel.XlSaveConflictResolution.xlLocalSessionChanges, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+						wb.SaveAs(fileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, MSExcel.XlSaveConflictResolution.xlLocalSessionChanges, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
 					}
 				}
 				finally
@@ -363,6 +357,5 @@ order by 2, 5";
 			//Устанавливаем цвет колонки "Лидер"
 			ws.get_Range("F2", "F" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSkyBlue);
 		}
-
 	}
 }

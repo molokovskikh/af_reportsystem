@@ -102,10 +102,10 @@ and cr.generalreportcode = " + GeneralReportID;
 
 								try
 								{
-									ReportPropertiesLoader propertiesLoader = new ReportPropertiesLoader();
+									var propertiesLoader = new ReportPropertiesLoader();
 
 									//Создаем каждый отчет отдельно и пытаемся его сформировать
-									GeneralReport gr = new GeneralReport(
+									var gr = new GeneralReport(
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode],
 										Convert.ToInt32(drReport[GeneralReportColumns.FirmCode]),
 										(Convert.IsDBNull(drReport[GeneralReportColumns.ContactGroupId])) ? null : (uint?)Convert.ToUInt32(drReport[GeneralReportColumns.ContactGroupId]),
@@ -114,6 +114,7 @@ and cr.generalreportcode = " + GeneralReportID;
 										drReport[GeneralReportColumns.ReportFileName].ToString(),
 										drReport[GeneralReportColumns.ReportArchName].ToString(),
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
+										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
 										propertiesLoader);
 									gr.ProcessReports();
 								}

@@ -75,6 +75,7 @@
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\MinCostByPriceProfileFixture.cs" />
+    <Compile Include="MinCostReport\DbfMinCostProfileFixture.cs" />
     <Compile Include="MinCostReport\MinCostProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
     <Compile Include="RatingReport\RatingProfileFixture.cs" />

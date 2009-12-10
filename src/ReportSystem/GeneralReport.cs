@@ -27,6 +27,7 @@ namespace Inforoom.ReportSystem
 		public const string ReportFileName = "ReportFileName";
 		public const string ReportArchName = "ReportArchName";
 		public const string Temporary = "Temporary";
+		public const string Format = "Format";
 	}
 
 	/// <summary>
@@ -51,6 +52,8 @@ namespace Inforoom.ReportSystem
 		private string _directoryName;
 		private string _mainFileName;
 
+		private ReportFormats Format;
+
 		//таблица отчетов, которая существует в общем отчете
 		DataTable _dtReports;
 
@@ -61,7 +64,8 @@ namespace Inforoom.ReportSystem
 
 		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
-			string ReportArchName, bool Temporary, IReportPropertiesLoader propertiesLoader)
+			string ReportArchName, bool Temporary, ReportFormats format,
+			IReportPropertiesLoader propertiesLoader)
 		{
 			_reports = new List<BaseReport>();
 			_generalReportID = GeneralReportID;
@@ -72,6 +76,7 @@ namespace Inforoom.ReportSystem
 			_reportFileName = ReportFileName;
 			_reportArchName = ReportArchName;
 			_temporary = Temporary;
+			Format = format;
 
 			bool addContacts = false;
 			ulong contactsCode = 0;
@@ -117,7 +122,10 @@ and c.Type = ?ContactType";
 						//Создаем отчеты и добавляем их в список отчетов
 						BaseReport bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
-							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, Temporary, propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])});
+							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], 
+								drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, 
+								Temporary, Format,
+								propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])});
 						_reports.Add(bs);
 
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
@@ -137,8 +145,8 @@ and c.Type = ?ContactType";
 			else
 				throw new Exception("У комбинированного отчета нет дочерних отчетов.");
 
-			if (addContacts)
-				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, propertiesLoader.LoadProperties(_conn, contactsCode)));
+			if (addContacts && Format == ReportFormats.Excel)
+				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, Format, propertiesLoader.LoadProperties(_conn, contactsCode)));
 		}
 
 		//Производится построение отчетов
@@ -257,8 +265,8 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 				ZipInputStream.PutNextEntry(ZipObject);
 				ZipInputStream.Write(MySqlFileByteArray, 0, Convert.ToInt32(MySqlFileStream.Length));
 				MySqlFileStream.Close();
-				ZipInputStream.Finish();
 			}
+			ZipInputStream.Finish();
 
 #if (TESTING)
 			string ResDirPath = "C:\\Temp\\Reports\\";

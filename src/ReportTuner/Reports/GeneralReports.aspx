@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_GeneralReports" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="GeneralReports.aspx.cs" %>
+<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_GeneralReports" Theme="MainWithHighLight" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="GeneralReports.aspx.cs" %>
 
 <asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align="center">
@@ -9,10 +9,11 @@
         <asp:Button ID="btnFilter" runat="server" Text="Фильтровать" 
             onclick="btnFilter_Click" /><br/><br/>
         <br/>
-        <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" 
+        <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False"  CssClass="DocumentDataTable HighLightCurrentRow"
             OnRowCommand="dgvReports_RowCommand" OnRowDeleting="dgvReports_RowDeleting" 
             OnRowDataBound="dgvReports_RowDataBound" style="table-layout:fixed;" 
-            AllowSorting="true" onrowcreated="dgvReports_RowCreated" onsorting="dgvReports_Sorting" DataKeyNames="GeneralReportCode">
+            AllowSorting="true" onrowcreated="dgvReports_RowCreated" 
+            onsorting="dgvReports_Sorting" DataKeyNames="GeneralReportCode">	
             <Columns>
                 <asp:BoundField DataField="GeneralReportCode" HeaderText="Код" 
                     ItemStyle-Width="3%" HeaderStyle-Width="3%" SortExpression="GeneralReportCode">

@@ -30,8 +30,8 @@ namespace Inforoom.ReportSystem
 		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
 		protected List<string> filter;
 
-		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
+		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 		}
 

@@ -5,6 +5,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
     <title>Настройка отчетов</title>
+    <script type="text/javascript" src="../JavaScript/prototype.js"></script>
+    <script type="text/javascript" src="../JavaScript/Main.js"></script>
+    <link href="../CSS/Main.css" rel="Stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">

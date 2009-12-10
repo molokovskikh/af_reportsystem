@@ -14,8 +14,8 @@ namespace Inforoom.ReportSystem
 		string _sharePath;
 		string _filename;
 
-		public CombToPlainReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
+		public CombToPlainReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			_sharePath = Properties.Settings.Default.DBDumpPath;
 			if (String.IsNullOrEmpty(_sharePath))

@@ -28,8 +28,8 @@ namespace Inforoom.ReportSystem
 
 		protected string reportCaptionPreffix;
 
-		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
+		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			reportCaptionPreffix = "Специальный отчет";
 		}

@@ -38,8 +38,8 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
+		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}
@@ -65,7 +65,7 @@ namespace Inforoom.ReportSystem
 				var resTable = new DataTable("Results");
 				resTable.Columns.Add("FullName");
 				resTable.Columns.Add("FirmCr");
-				resTable.Columns.Add("MinCost");
+				resTable.Columns.Add("MinCost", typeof(decimal));
 
 				var processedRows = from r in rows
 									group r by new { name = r[0], producer = r[1] } into myGroup
@@ -89,5 +89,21 @@ namespace Inforoom.ReportSystem
 			//((MSExcel.Range)ws.Columns[1, _dsReport.Tables["Results"].Columns.Count]).AutoFit();
 		}
 
+		public override bool DbfSupported
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		protected override void DataTableToDbf(DataTable dtExport, string fileName)
+		{
+			dtExport.Columns[0].ColumnName = "PRODUCT";
+			dtExport.Columns[1].ColumnName = "PRODUCER";
+			dtExport.Columns[2].ColumnName = "COST";
+
+			base.DataTableToDbf(dtExport, fileName);
+		}
 	}
 }

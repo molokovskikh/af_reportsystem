@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void SuppliersRating()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SuppliersRating);
-			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, false, props);
+			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SuppliersRating);
 		}	
 	}

@@ -354,6 +354,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Themes\MainWithHighLight\Main.skin" />
     <None Include="Views\Layouts\MainLayout.brail" />
     <None Include="Views\ReportsTuning\SelectClients.brail" />
     <None Include="Views\SubViews\BreadCrumbs.brail" />

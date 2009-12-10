@@ -41,5 +41,8 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual string ReportArchName { get; set; }
+
+		[Property]
+		public virtual string Format { get; set; }
 	}
 }

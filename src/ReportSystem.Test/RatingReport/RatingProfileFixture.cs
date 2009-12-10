@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void Rating()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.Rating);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.Rating);
 		}
 
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		public void RatingJunkOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingJunkOnly);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingJunkOnly);
 		}
 
@@ -30,7 +30,7 @@ namespace ReportSystem.Test
 		public void RatingNotJunkOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingNotJunkOnly);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingNotJunkOnly);
 		}
 
@@ -38,7 +38,7 @@ namespace ReportSystem.Test
 		public void RatingFull()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingFull);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingFull);
 		}
 	}

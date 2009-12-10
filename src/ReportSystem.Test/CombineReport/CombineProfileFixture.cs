@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void Combine()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.Combine);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.Combine);
 		}
 
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		public void CombineCount()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineCount);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineCount);
 		}
 
@@ -30,7 +30,7 @@ namespace ReportSystem.Test
 		public void CombineCountAndProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineCountAndProducer);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineCountAndProducer);
 		}
 
@@ -38,7 +38,7 @@ namespace ReportSystem.Test
 		public void CombineProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineProducer);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineProducer);
 		}
 	}

@@ -67,6 +67,8 @@ public partial class Reports_Reports : System.Web.UI.Page
 		tbReportFileName.Text = report.ReportFileName;
 		tbReportArchName.Text = report.ReportArchName;
 
+    	ReportFormatDD.SelectedValue = report.Format;
+
 		Recipients.DataSource = report.Payer.Clients;
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataValueField = "Id";
@@ -393,7 +395,7 @@ SET
 			report.EMailSubject = tbEMailSubject.Text;
 			report.ReportFileName = tbReportFileName.Text;
 			report.ReportArchName = tbReportArchName.Text;
-
+			report.Format = ReportFormatDD.Text;
 			uint newRecipientId = Convert.ToUInt32(Recipients.SelectedValue);
 			if (newRecipientId != report.Client.Id)
 			{

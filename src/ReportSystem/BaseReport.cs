@@ -6,9 +6,16 @@ using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data.OleDb;
 using ReportSystem.Profiling;
+using System.IO;
 
 namespace Inforoom.ReportSystem
-{
+{	//Костыль т.к. не используем ActiveRecord модели, то пришлось копировать enum
+	public enum ReportFormats 
+	{
+		Excel,
+		DBF
+	}
+
 	//Содержит названия полей, используемых при создании общего очета
 	public sealed class BaseReportColumns
 	{
@@ -51,17 +58,20 @@ namespace Inforoom.ReportSystem
 		protected DataTable dtReportProperties;
 		//Таблица с загруженными значениями списков-свойств
 		protected DataTable dtReportPropertyValues;
+		//Формат файла отчета
+		protected ReportFormats Format;
 
 		protected MySqlConnection _conn;
 
 		protected Dictionary<string, object> _reportParams;
 
-
-		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
+		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, 
+			ReportFormats format, DataSet dsProperties)
 		{
 			_reportParams = new Dictionary<string, object>();
 			_reportCode = ReportCode;
 			_reportCaption = ReportCaption;
+			Format = format;
 			_dsReport = new DataSet();
 			_conn = Conn;
 
@@ -178,7 +188,20 @@ namespace Inforoom.ReportSystem
 			return true;
 		}
 
-		public abstract void ReportToFile(string FileName);
+		public virtual void ReportToFile(string fileName)
+		{
+			if(Format == ReportFormats.DBF && DbfSupported)
+			{// Формируем DBF
+				string oldFileName = Path.GetFileName(fileName);
+				fileName =  Path.Combine(Path.GetDirectoryName(fileName), _reportCaption + ".dbf");
+				DataTableToDbf(GetReportTable(), fileName);
+			}
+			else
+			{// Формируем Excel
+				DataTableToExcel(GetReportTable(), fileName);
+				FormatExcel(fileName);
+			}
+		}
 
 		protected void DataTableToExcel(DataTable dtExport, string ExlFileName)
 		{
@@ -229,6 +252,28 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			{
 				ExcellCon.Close();
 			}
+		}
+
+		protected virtual void FormatExcel(string fileName)
+		{}
+
+		public virtual bool DbfSupported
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		protected virtual void DataTableToDbf(DataTable dtExport, string fileName)
+		{
+			using(var writer = new StreamWriter(fileName, false, Encoding.GetEncoding(866)))
+				Inforoom.Data.DBF.Save(dtExport, writer);
+		}
+
+		protected virtual DataTable GetReportTable()
+		{
+			return _dsReport.Tables["Results"];
 		}
 
 		internal object getReportParam(string ParamName)

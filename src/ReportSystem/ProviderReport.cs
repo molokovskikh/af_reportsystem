@@ -14,17 +14,14 @@ namespace Inforoom.ReportSystem
 		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
 		protected int _clientCode;
 
-		public ProviderReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
+		public ProviderReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{ 
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{ 
 		}
-
-		public override void ReportToFile(string FileName)
-		{ }
 
 		public override void ReadReportParams()
 		{}

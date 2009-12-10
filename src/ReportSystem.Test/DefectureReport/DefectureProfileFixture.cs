@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void DefectureNameAndForm()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameAndForm);
-			var report = new DefReport(0, "Automate Created Report", Conn, false, props);
+			var report = new DefReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNameAndForm);
 
 		}
@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 		public void DefectureNameAndFormWithProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameAndFormWithProducer);
-			var report = new DefReport(0, "Automate Created Report", Conn, false, props);
+			var report = new DefReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNameAndFormWithProducer);
 		}
 
@@ -31,7 +31,7 @@ namespace ReportSystem.Test
 		public void DefectureNameOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameOnly);
-			var report = new DefReport(0, "Automate Created Report", Conn, false, props);
+			var report = new DefReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNameOnly);
 		}
 
@@ -39,7 +39,7 @@ namespace ReportSystem.Test
 		public void DefectureProductsOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureProductsOnly);
-			var report = new DefReport(0, "Automate Created Report", Conn, false, props);
+			var report = new DefReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureProductsOnly);
 		}
 
@@ -47,7 +47,7 @@ namespace ReportSystem.Test
 		public void DefectureProductsWithProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureProductsWithProducer);
-			var report = new DefReport(0, "Automate Created Report", Conn, false, props);
+			var report = new DefReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureProductsWithProducer);
 		}
 	}

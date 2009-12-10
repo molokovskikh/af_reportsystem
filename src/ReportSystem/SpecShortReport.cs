@@ -9,8 +9,8 @@ namespace Inforoom.ReportSystem
 {
 	public class SpecShortReport : SpecReport
 	{
-		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, dsProperties)
+		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 		}

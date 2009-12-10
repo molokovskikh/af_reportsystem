@@ -35,7 +35,18 @@
             <asp:Label ID="lblReportRecipient" runat="server" Text="Получатель отчета:" SkinID="paramLabelSkin"/>
           </td>
           <td> 
-            <asp:DropDownList ID="Recipients" runat="server"/>
+            <asp:DropDownList ID="Recipients" runat="server" Width="100%"/>
+          </td>
+        </tr>
+        <tr bgcolor="#eef8ff">
+          <td align="right">
+            <asp:Label ID="ReportFormatLbl" runat="server" Text="Формат отчета:" SkinID="paramLabelSkin"/>
+          </td>
+          <td> 
+            <asp:DropDownList ID="ReportFormatDD" runat="server" Width="100%">
+				<asp:ListItem Text="Excel" Value="Excel" />
+				<asp:ListItem Text="DBF" Value="DBF" />
+            </asp:DropDownList>
           </td>
         </tr>
     </table>
