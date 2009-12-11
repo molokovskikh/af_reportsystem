@@ -63,8 +63,12 @@
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Имя листа">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbCaption" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportCaption")%>'></asp:TextBox><asp:RequiredFieldValidator
-                            ID="rfvCaption" runat="server" ControlToValidate="tbCaption" ErrorMessage='Поле "Имя листа" должно быть заполнено' ValidationGroup="vgReps">*</asp:RequiredFieldValidator>
+                        <asp:TextBox ID="tbCaption" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportCaption")%>'></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="rfvCaption" runat="server" ControlToValidate="tbCaption" 
+							ErrorMessage='Поле "Имя листа" должно быть заполнено' ValidationGroup="vgReps">*</asp:RequiredFieldValidator>
+						<asp:CustomValidator ControlToValidate="tbCaption" 
+							ErrorMessage="<br/>Листы имеют одинаковое имя, что недопустимо" runat="server" EnableClientScript="false"
+							ID="ServerValidator" onservervalidate="ServerValidator_ServerValidate" Display="Dynamic"/>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Включен">

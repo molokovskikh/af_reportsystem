@@ -13,6 +13,7 @@ using MySql.Data.MySqlClient;
 using ReportTuner.Models;
 using Castle.ActiveRecord;
 using ReportTuner.Helpers;
+using System.Collections.Generic;
 
 public partial class Reports_Reports : System.Web.UI.Page
 {
@@ -70,6 +71,7 @@ public partial class Reports_Reports : System.Web.UI.Page
     	ReportFormatDD.SelectedValue = report.Format;
 
 		Recipients.DataSource = report.Payer.Clients;
+		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataValueField = "Id";
 		Recipients.SelectedValue = report.Client.Id.ToString();
@@ -292,6 +294,10 @@ order by ReportTypeName
 
     protected void btnApply_Click(object sender, EventArgs e)
     {
+    	Validate();
+		if(!IsValid)
+			return;
+
         CopyChangesToTable();
 
         MySqlTransaction trans;
@@ -416,4 +422,28 @@ SET
         dgvReports.DataSource = DS;
         dgvReports.DataBind();
     }
+
+	// Имена всех листов в отчете
+	private List<String> reportCaptions = new List<string>();
+
+	// Заполняем имена всех листов отчета
+	private void FillCaptions()
+	{
+		foreach (GridViewRow row in dgvReports.Rows)
+			foreach (var control in row.Cells[1].Controls)
+				if(control is TextBox)
+					reportCaptions.Add(((TextBox)control).Text);
+	}
+
+	protected void ServerValidator_ServerValidate(object source, ServerValidateEventArgs args)
+	{ // Проверка на то, чтобы не было двух листов с одинаковыми названиями
+		if(reportCaptions.Count == 0)
+			FillCaptions();
+
+		int capCount = 0;
+		foreach (var caption in reportCaptions)
+			if (Convert.ToString(args.Value) == caption)
+				capCount++;
+		args.IsValid = capCount < 2;
+	}
 }
