@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Microsoft.Win32.TaskScheduler;
 using System.Configuration;
+using ReportTuner.Models;
 
 namespace ReportTuner.Helpers
 {
@@ -29,10 +30,10 @@ namespace ReportTuner.Helpers
 			{
 				return taskService.GetFolder(ReportsFolderName);
 			}
-			catch (System.IO.FileNotFoundException)
+			catch (System.IO.FileNotFoundException ex)
 			{
-				throw new Exception(String.Format("На сервере {0} не существует папка '{1}' в планировщике задач",
-					ScheduleServer, ReportsFolderName));
+				throw new ReportTunerException(String.Format("На сервере {0} не существует папка '{1}' в планировщике задач",
+					ScheduleServer, ReportsFolderName), ex);
 			}
 		}
 

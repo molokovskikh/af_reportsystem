@@ -31,7 +31,7 @@ namespace Inforoom.ReportSystem
 
 			providerCount = (int)getReportParam(providerCountProperty);
 			if (providerCount <= 0)
-				throw new Exception(String.Format("Некорректно задан параметр 'Кол-во поставщиков': {0}", providerCount));
+				throw new ReportException(String.Format("Некорректно задан параметр 'Кол-во поставщиков': {0}", providerCount));
 		}
 
 		protected override void CheckAfterLoadFields()

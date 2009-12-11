@@ -42,11 +42,11 @@ namespace ReportTuner
 					}
 					catch (NotFoundException exp)
 					{
-						throw new Exception("В файле Web.Config параметр ReportsContactGroupOwnerId указывает на несуществующую запись.", exp);
+						throw new ReportTunerException("В файле Web.Config параметр ReportsContactGroupOwnerId указывает на несуществующую запись.", exp);
 					}
 				}
 				else
-					throw new Exception("В файле Web.Config параметр ReportsContactGroupOwnerId не существует или настроен некорректно.");
+					throw new ReportTunerException("В файле Web.Config параметр ReportsContactGroupOwnerId не существует или настроен некорректно.");
 
 				//текущий отчет
 				_currentReport = GeneralReport.Find(_generalReportCode);

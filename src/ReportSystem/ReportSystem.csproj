@@ -167,6 +167,7 @@
     <Compile Include="CombToPlainReport.cs" />
     <Compile Include="ContactsReport.cs" />
     <Compile Include="DefReport.cs" />
+    <Compile Include="ExceptionHandling.cs" />
     <Compile Include="GeneralReport.cs">
       <SubType>Code</SubType>
     </Compile>

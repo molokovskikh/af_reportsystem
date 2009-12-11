@@ -50,7 +50,7 @@ namespace Inforoom.ReportSystem
 			ProfileHelper.Next("PreGetOffers");
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
-				throw new Exception("Для специального отчета не указан параметр \"Прайс-лист\".");
+				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
 			else
 			{
 				//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
@@ -81,7 +81,7 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));
 					CustomerFirmName = drPrice["FirmName"].ToString();
 				}
 				else
-					throw new Exception(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+					throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
 			}
 			if (DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
 			{ }
@@ -105,7 +105,7 @@ and fr.Id = pim.FormRuleId
 and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					new MySqlParameter("?SourcePC", SourcePC)));
 			if (ActualPrice == 0)
-				throw new Exception(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
+				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 

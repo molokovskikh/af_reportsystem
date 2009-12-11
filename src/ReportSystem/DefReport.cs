@@ -73,7 +73,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			}
 
 			if (_priceCode == 0)
-				throw new Exception("В отчете не установлен параметр \"Прайс-лист\".");
+				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");
 
 			string CustomerFirmName;
 			DataRow drPrice = MySqlHelper.ExecuteDataRow(
@@ -97,7 +97,7 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));
 				CustomerFirmName = drPrice["FirmName"].ToString();
 			}
 			else
-				throw new Exception(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
 
 			//Проверка актуальности прайс-листа
 			int ActualPrice = Convert.ToInt32(
@@ -118,7 +118,7 @@ and fr.Id = pim.FormRuleId
 and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					new MySqlParameter("?SourcePC", _priceCode)));
 			if (ActualPrice == 0)
-				throw new Exception(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, _priceCode));
+				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, _priceCode));
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 
@@ -136,7 +136,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 						e.DataAdapter.SelectCommand.Connection,
 						"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode",
 						new MySqlParameter("?FirmCode", _clientCode)));
-				throw new Exception(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
+				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
 			}
 			
 			e.DataAdapter.SelectCommand.Parameters.Clear();

@@ -19,7 +19,7 @@ namespace Inforoom.ReportSystem
 		{
 			_sharePath = Properties.Settings.Default.DBDumpPath;
 			if (String.IsNullOrEmpty(_sharePath))
-				throw new Exception("Не установлен параметр DBDumpPath в конфигурационном файле.");
+				throw new ReportException("Не установлен параметр DBDumpPath в конфигурационном файле.");
 			if (!_sharePath.EndsWith(Path.DirectorySeparatorChar.ToString()))
 				_sharePath += Path.DirectorySeparatorChar.ToString();
 			_filename = "ind_r_" + ReportCode.ToString() + ".txt";
@@ -142,7 +142,7 @@ and catalogforms.id = catalog.formid
 						System.Threading.Thread.Sleep(1000);
 					}
 					else
-						throw new Exception(String.Format("Не удалось переместить файл {0} в файл {1}.", _sharePath + _filename, FileName), e);
+						throw new ReportException(String.Format("Не удалось переместить файл {0} в файл {1}.", _sharePath + _filename, FileName), e);
 				}
 			}
 			while (!CopySucces);

@@ -109,7 +109,7 @@ namespace Inforoom.ReportSystem
 		protected virtual void CheckAfterLoadFields()
 		{
 			if (!selectedField.Exists(delegate(FilterField x) { return x.visible; }))
-				throw new Exception("Не выбраны поля для отображения в заголовке отчета.");
+				throw new ReportException("Не выбраны поля для отображения в заголовке отчета.");
 		}
 
 		protected string GetValuesFromSQL(ExecuteArgs e, string SQL)

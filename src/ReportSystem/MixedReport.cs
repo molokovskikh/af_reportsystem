@@ -53,10 +53,10 @@ namespace Inforoom.ReportSystem
 			businessRivals = (List<ulong>)getReportParam(businessRivalsProperty);
 
 			if (sourceFirmCode == 0)
-				throw new Exception("Не установлен параметр \"Поставщик\".");
+				throw new ReportException("Не установлен параметр \"Поставщик\".");
 
 			if (businessRivals.Count == 0)
-				throw new Exception("Не установлен параметр \"Список конкурентов\".");
+				throw new ReportException("Не установлен параметр \"Список конкурентов\".");
 
 			List<string> s = businessRivals.ConvertAll<string>(delegate(ulong value) { return value.ToString(); });
 			businessRivalsList = String.Join(", ", s.ToArray());
@@ -89,10 +89,10 @@ namespace Inforoom.ReportSystem
 				return (value.reportPropertyPreffix == "ProductName") || (value.reportPropertyPreffix == "FullName") || (value.reportPropertyPreffix == "ShortName");
 			});
 			if (nameFields.Count == 0)
-				throw new Exception("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" не выбрано ни одно поле.");
+				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" не выбрано ни одно поле.");
 			else
 				if (nameFields.Count > 1)
-					throw new Exception("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" должно быть выбрано только одно поле.");
+					throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" должно быть выбрано только одно поле.");
 				else
 					nameField = nameFields[0];
 		}

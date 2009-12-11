@@ -164,6 +164,7 @@
     <Compile Include="Helpers\ScheduleHelper.cs" />
     <Compile Include="Helpers\ViewHelper.cs" />
     <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\ExceptionHandling.cs" />
     <Compile Include="Models\GeneralReport.cs" />
     <Compile Include="Models\Payer.cs" />
     <Compile Include="Models\Region.cs" />

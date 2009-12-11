@@ -62,6 +62,24 @@ namespace Inforoom.ReportSystem
 
 		List<BaseReport> _reports;
 
+		// Проверка спика отчетов
+		private void CheckReports()
+		{
+			foreach (DataRow drGReport1 in _dtReports.Rows) // Проверяем чтобы не было
+				foreach (DataRow drGReport2 in _dtReports.Rows)  // двух листов с одинаковыми названиями
+					if(Convert.ToBoolean(drGReport1[BaseReportColumns.colEnabled]) &&
+						Convert.ToBoolean(drGReport2[BaseReportColumns.colEnabled]) &&
+						Convert.ToUInt32(drGReport1[BaseReportColumns.colReportCode]) != 
+							Convert.ToUInt32(drGReport2[BaseReportColumns.colReportCode]) &&
+						Convert.ToString(drGReport1[BaseReportColumns.colReportCaption]) ==
+							Convert.ToString(drGReport2[BaseReportColumns.colReportCaption]))
+					{
+						throw new ReportException(
+							String.Format("В отчете {0} содержатся листы с одинаковым названием {1}.",
+								_generalReportID, drGReport1[BaseReportColumns.colReportCaption]));
+					}
+		}
+
 		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
 			string ReportArchName, bool Temporary, ReportFormats format,
@@ -115,6 +133,7 @@ and c.Type = ?ContactType";
 
 			if ((_dtReports != null) && (_dtReports.Rows.Count > 0))
 			{
+				CheckReports(); // Проверяем отчеты, если что-то не нравится выдаем исключение
 				foreach (DataRow drGReport in _dtReports.Rows)
 				{
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled]))
@@ -143,7 +162,7 @@ and c.Type = ?ContactType";
 				}
 			}
 			else
-				throw new Exception("У комбинированного отчета нет дочерних отчетов.");
+				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
 
 			if (addContacts && Format == ReportFormats.Excel)
 				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, Format, propertiesLoader.LoadProperties(_conn, contactsCode)));
@@ -322,7 +341,7 @@ and rt.ReportTypeCode = r.ReportTypeCode",
 		{
 			Type t = Type.GetType(ReportTypeClassName);
 			if (t == null)
-				throw new Exception(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
+				throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
 			return t;
 		}
 
@@ -343,7 +362,7 @@ and rt.ReportTypeCode = r.ReportTypeCode",
 				case 8:
 					return typeof(SpecShortReport);
 				default:
-					throw new Exception(String.Format("Неизвестный тип отчета : {0}", ReportTypeCode));
+					throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeCode));
 			}
 		}
 	}

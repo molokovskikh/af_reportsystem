@@ -21,7 +21,7 @@ namespace ReportTuner.Helpers
 			Report _sourceReport = Report.Find(sourceReportId);
 			Report _destinationReport = Report.Find(destinationReportId);
 			if (_sourceReport.ReportType != _destinationReport.ReportType)
-				throw new Exception(
+				throw new ReportTunerException(
 					String.Format(
 						"Тип клонируемого отчета отличается от конечного отчета. Тип исходного отчета: {0}. Тип отчета-приемника: {1}", 
 						_sourceReport.ReportType.ReportTypeName,

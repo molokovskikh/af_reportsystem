@@ -62,10 +62,10 @@ and regions.RegionCode = activeprices.RegionCode";
 				"select FirmCode, FirmStatus, ShortName from usersettings.clientsdata cd where cd.FirmCode = ?FirmCode",
 				new MySqlParameter("?FirmCode", _clientCode));
 			if (drClient == null)
-				throw new Exception(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
+				throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
 			else
 				if (Convert.ToByte(drClient["FirmStatus"]) == 0)
-					throw new Exception(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", drClient["ShortName"], _clientCode));
+					throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", drClient["ShortName"], _clientCode));
 
 			//удаление временных таблиц
 			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";

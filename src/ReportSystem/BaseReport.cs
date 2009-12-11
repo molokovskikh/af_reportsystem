@@ -96,10 +96,10 @@ namespace Inforoom.ReportSystem
 							}
 							catch (Exception ex)
 							{
-								throw new Exception(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}", 
+								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}", 
 									drProperty[BaseReportColumns.colPropertyType].ToString(),
 									drProperty[BaseReportColumns.colPropertyValue].ToString(),
-									ex.Message));
+									ex.Message), ex);
 							}
 							break;
 
@@ -114,10 +114,10 @@ namespace Inforoom.ReportSystem
 								}
 								catch (Exception ex)
 								{
-									throw new Exception(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
+									throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
 										drProperty[BaseReportColumns.colPropertyType].ToString(),
 										drValue[BaseReportColumns.colReportPropertyValue].ToString(),
-										ex.Message));
+										ex.Message), ex);
 								}
 							}
 							_reportParams.Add(currentPropertyName, listValues);
@@ -137,10 +137,10 @@ namespace Inforoom.ReportSystem
 							}
 							catch (Exception ex)
 							{
-								throw new Exception(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
+								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
 									drProperty[BaseReportColumns.colPropertyType].ToString(),
 									drProperty[BaseReportColumns.colPropertyValue].ToString(),
-									ex.Message));
+									ex.Message), ex);
 							}
 							break;
 
@@ -152,20 +152,20 @@ namespace Inforoom.ReportSystem
 							}
 							catch (Exception ex)
 							{
-								throw new Exception(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
+								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
 									drProperty[BaseReportColumns.colPropertyType].ToString(),
 									drProperty[BaseReportColumns.colPropertyValue].ToString(),
-									ex.Message));
+									ex.Message), ex);
 							}
 							break;
 
 						default:
-							throw new Exception(String.Format("Неизвестный тип параметра : '{0}'.", drProperty[BaseReportColumns.colPropertyType].ToString()));
+							throw new ReportException(String.Format("Неизвестный тип параметра : '{0}'.", drProperty[BaseReportColumns.colPropertyType].ToString()));
 					}
 				}
 				else
 				{
-					throw new Exception(String.Format("Параметр '{0}' задан дважды.", currentPropertyName));
+					throw new ReportException(String.Format("Параметр '{0}' задан дважды.", currentPropertyName));
 				}
 			}
 
@@ -281,7 +281,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			if (_reportParams.ContainsKey(ParamName))
 				return _reportParams[ParamName];
 			else
-				throw new Exception(String.Format("Параметр '{0}' не найден.", ParamName));
+				throw new ReportException(String.Format("Параметр '{0}' не найден.", ParamName));
 		}
 
 		internal bool reportParamExists(string ParamName)

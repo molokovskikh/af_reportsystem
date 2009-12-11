@@ -55,11 +55,11 @@ namespace Inforoom.ReportTuner
 				}
 				catch (NotFoundException exp)
 				{
-					throw new Exception("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
+					throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
 				}
 			}
 			else
-				throw new Exception("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
+				throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
 
 		}
 
