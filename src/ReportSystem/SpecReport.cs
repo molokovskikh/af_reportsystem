@@ -521,13 +521,7 @@ order by FullName, FirmCr";
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 		}
 
-		public override void ReportToFile(string FileName)
-		{
-			DataTableToExcel(_dsReport.Tables["Results"], FileName);
-			FormatExcel(FileName);
-		}
-
-		protected void FormatExcel(string FileName)
+		protected override void FormatExcel(string FileName)
 		{
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try

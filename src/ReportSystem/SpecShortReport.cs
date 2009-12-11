@@ -42,5 +42,32 @@ namespace Inforoom.ReportSystem
 			//ws.Columns.AutoFit();
 			//((MSExcel.Range)ws.Columns[1, _dsReport.Tables["Results"].Columns.Count]).AutoFit();
 		}
+
+		public override bool DbfSupported
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		protected override void DataTableToDbf(DataTable dtExport, string fileName)
+		{
+			dtExport.Rows[0].Delete(); // обрезаем две первые строчки
+			dtExport.Rows[0].Delete(); // ибо они пустые, ибо оставлены под шапку в Excel
+
+			dtExport.Columns[0].ColumnName = "CODE";
+			dtExport.Columns[1].ColumnName = "PRODUCT";
+			dtExport.Columns[2].ColumnName = "PRODUCER";
+			dtExport.Columns[3].ColumnName = "PRICECOST";
+			dtExport.Columns[4].ColumnName = "QUANTITY";
+			dtExport.Columns[5].ColumnName = "MINCOST";
+			dtExport.Columns[6].ColumnName = "LEADER";
+
+			if ((_reportType != 2) && (_reportType != 4))
+				dtExport.Columns.Remove(dtExport.Columns[4]);
+
+			base.DataTableToDbf(dtExport, fileName);
+		}
 	}
 }
