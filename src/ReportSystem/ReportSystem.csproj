@@ -173,6 +173,7 @@
     </Compile>
     <Compile Include="CommandLineUtils.cs" />
     <Compile Include="BaseReport.cs" />
+    <Compile Include="OptimizationEfficiency.cs" />
     <Compile Include="PropertiesLoading\IReportPropertiesLoader.cs" />
     <Compile Include="MixedReport.cs" />
     <Compile Include="OrdersReport.cs" />

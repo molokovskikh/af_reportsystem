@@ -43,7 +43,8 @@ namespace ReportSystem.Test
 		CombineCountAndProducer,
 		CombineCount,
 		Combine,
-		Individual
+		Individual,
+		OptimizationEfficiency
 	}
 
 	public static class TestHelper
