@@ -177,6 +177,9 @@
     <Content Include="TestData\MixedProductName.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestData\OptimizationEfficiency.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\Rating.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

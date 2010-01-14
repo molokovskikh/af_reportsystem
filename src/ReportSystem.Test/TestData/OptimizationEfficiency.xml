@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>4251</ID>
+    <ReportCode>662</ReportCode>
+    <PropertyID>149</PropertyID>
+    <PropertyValue>6836</PropertyValue>
+    <ID1>149</ID1>
+    <ReportTypeCode>10</ReportTypeCode>
+    <PropertyName>ClientCode</PropertyName>
+    <DisplayName>Клиент</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetCostOptimizationClientCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

@@ -9,7 +9,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void OptimizationEfficiencyTest()
 		{
-			var props = TestHelper.LoadProperties(ReportsTypes.MixedProductName);
+			var props = TestHelper.LoadProperties(ReportsTypes.OptimizationEfficiency);
 			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiency);
 		}

@@ -9,6 +9,8 @@ namespace Inforoom.ReportSystem
 	{
 		private DateTime _beginDate;
 		private DateTime _endDate;
+		private int _clientId;
+		private int _optimizedCount;
 
 		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -24,10 +26,11 @@ create temporary table CostOptimization engine memory
 select s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff
 from orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid
-    left join logs.CostOptimizationLogs col on oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost
+    left join logs.CostOptimizationLogs col on 
+        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and col.ClientId = ?clientId
     join farm.Synonym s on s.SynonymCode = ol.SynonymCode
     join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
-where oh.clientcode = 982 and oh.pricecode = 4596 and ol.Junk = 0 
+where oh.clientcode = ?clientId and oh.pricecode = 4596 and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
   and col.Id is not null
 group by ol.RowId
@@ -39,13 +42,14 @@ order by oh.writetime, ol.RowId;";
 
 			command.Parameters.AddWithValue("?beginDate", _beginDate);
 			command.Parameters.AddWithValue("?endDate", _endDate);
+			command.Parameters.AddWithValue("?clientId", _clientId);
 			command.ExecuteNonQuery();
 
 			command.CommandText =
 @"select count(*)
 from orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid
-where oh.clientcode = 982 and oh.pricecode = 4596 and ol.Junk = 0 
+where oh.clientcode = ?clientId and oh.pricecode = 4596 and ol.Junk = 0 
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
 			e.DataAdapter.Fill(_dsReport, "Common");
 
@@ -75,6 +79,7 @@ where diff < 0";
 @"select * from CostOptimization;";
 			e.DataAdapter.Fill(_dsReport, "Temp");
 
+			_optimizedCount = _dsReport.Tables["Temp"].Rows.Count;
 
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("Synonym");
@@ -105,7 +110,13 @@ where diff < 0";
 		}
 
 		public override void ReadReportParams()
-		{}
+		{
+			_clientId = (int)getReportParam("ClientCode");			
+			if(_clientId == 0)
+				throw new ReportException(
+					String.Format("В {0} (код отчета {1}) не задан клиент по данным которого строиться отчет.", 
+						_reportCaption, _reportCode));
+		}
 
 		protected override void FormatExcel(string fileName)
 		{
@@ -130,8 +141,7 @@ where diff < 0";
 						((MSExcel.Range)ws.Cells[1, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 
 						ws.Cells[2, 1] = String.Format("Всего заказано {0} позиций из них цены оптимизированы у {1}",
-							_dsReport.Tables["Common"].Rows[0][0],
-							_dsReport.Tables["Results"].Rows.Count);
+							_dsReport.Tables["Common"].Rows[0][0], _optimizedCount);
 
 						ws.Cells[3, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
 							_dsReport.Tables["OverPrice"].Rows[0]["Count"],
