@@ -34,6 +34,8 @@ namespace ReportSystem.Test
 		MinCostByPriceCountProducer,
 		MinCostByPriceCount,
 		MinCostByPrice,
+		MinCostNew,
+		MinCostNewDificult,
 		DefectureProductsWithProducer,
 		DefectureProductsOnly,
 		DefectureNameOnly,

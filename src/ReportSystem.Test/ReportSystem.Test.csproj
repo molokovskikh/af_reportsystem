@@ -77,7 +77,9 @@
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\MinCostByPriceProfileFixture.cs" />
+    <Compile Include="MinCostReport\DbfMinCostNewProfileFixture.cs" />
     <Compile Include="MinCostReport\DbfMinCostProfileFixture.cs" />
+    <Compile Include="MinCostReport\MinCostNewProfileFixture.cs" />
     <Compile Include="MinCostReport\MinCostProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
@@ -106,6 +108,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\MinCostNewDificult.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\MinCostNew.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\CombineNewDifficult.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
