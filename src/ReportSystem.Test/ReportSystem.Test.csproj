@@ -105,6 +105,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\CombineNewWithSuppliers.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\CombineNew.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\Combine.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

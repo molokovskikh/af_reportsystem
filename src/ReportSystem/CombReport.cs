@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using System.IO;
 using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
@@ -49,6 +46,8 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			base.GenerateReport(e);
+
 			ProfileHelper.Next("Get Offers");
 			GetOffers(e);
 			ProfileHelper.Next("Processing1");

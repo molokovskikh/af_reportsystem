@@ -43,6 +43,8 @@ namespace ReportSystem.Test
 		CombineCountAndProducer,
 		CombineCount,
 		Combine,
+		CombineNew,
+		CombineNewWithSuppliers,
 		Individual,
 		OptimizationEfficiency
 	}

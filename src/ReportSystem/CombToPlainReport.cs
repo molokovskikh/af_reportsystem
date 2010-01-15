@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
@@ -8,7 +6,6 @@ using System.Data;
 
 namespace Inforoom.ReportSystem
 {
-	//Индивидуальный отчет на основе комбинированного, где каждая позиция представляется отдельной строкой и выводится в текстовый файл
 	public class CombToPlainReport : ProviderReport
 	{
 		string _sharePath;

@@ -41,5 +41,21 @@ namespace ReportSystem.Test
 			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineProducer);
 		}
+
+		[Test]
+		public void CombineNew()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.CombineNew);
+			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.CombineNew);
+		}
+
+		[Test]
+		public void CombineNewWithSuppliers()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.CombineNewWithSuppliers);
+			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.CombineNewWithSuppliers);
+		}
 	}
 }
