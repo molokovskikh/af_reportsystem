@@ -45,6 +45,7 @@ namespace ReportSystem.Test
 		Combine,
 		CombineNew,
 		CombineNewWithSuppliers,
+		CombineNewDifficult,
 		Individual,
 		OptimizationEfficiency
 	}

@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseProfileFixture.cs" />
+    <Compile Include="CombineReport\CombineNewProfilleFixture.cs" />
     <Compile Include="CombineReport\CombineProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
@@ -105,6 +106,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\CombineNewDifficult.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\CombineNewWithSuppliers.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
