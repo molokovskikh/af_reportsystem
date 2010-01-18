@@ -21,7 +21,7 @@
     <PropertyID>69</PropertyID>
     <PropertyValue>30</PropertyValue>
     <ID1>69</ID1>
-    <ReportTypeCode>5</ReportTypeCode>
+    <ReportTypeCode>2</ReportTypeCode>
     <PropertyName>ReportInterval</PropertyName>
     <DisplayName>Интервал отчета (дни) от текущей даты</DisplayName>
     <PropertyType>INT</PropertyType>

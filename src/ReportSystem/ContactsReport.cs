@@ -24,6 +24,8 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			base.GenerateReport(e);
+
 			GetActivePrices(e);
 
 			e.DataAdapter.SelectCommand.CommandText = @"

@@ -3,7 +3,7 @@ using Inforoom.ReportSystem;
 
 namespace ReportSystem.Test
 {
-	[Ignore]
+	[Ignore("Не работает из-за многоадресовости доставки заказов")]
 	[TestFixture]
 	public class IndividualProfileFixture : BaseProfileFixture
 	{

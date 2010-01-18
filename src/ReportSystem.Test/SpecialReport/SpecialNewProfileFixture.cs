@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Inforoom.ReportSystem;
+﻿using Inforoom.ReportSystem;
 using NUnit.Framework;
 
 namespace ReportSystem.Test.SpecialReport
@@ -19,7 +15,7 @@ namespace ReportSystem.Test.SpecialReport
 		}
 
 		[Test]
-		public void Special()
+		public void SpecialNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialNewDifficult);
 			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);

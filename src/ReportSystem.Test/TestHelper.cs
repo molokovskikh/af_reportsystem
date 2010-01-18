@@ -27,6 +27,7 @@ namespace ReportSystem.Test
 		RatingJunkOnly,
 		Rating,
 		RatingFull,
+		RatingNew,
 		MinCost,
 		MinCostProducer,
 		MinCostCountAndProducer,

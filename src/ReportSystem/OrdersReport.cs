@@ -60,7 +60,10 @@ namespace Inforoom.ReportSystem
 			registredField.Add(new FilterField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", null, 2, "В отчет включены следующие регионы", "Следующие регионы исключены из отчета"));
 			registredField.Add(new FilterField("prov.FirmCode", "concat(prov.ShortName, ' - ', provrg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "usersettings.clientsdata prov, farm.regions provrg", "and prov.RegionCode = provrg.RegionCode", 3, "В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета", 10));
 			registredField.Add(new FilterField("pd.PriceCode", "concat(prov.ShortName , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, usersettings.clientsdata prov, farm.regions provrg", "and prov.FirmCode = pd.FirmCode and prov.RegionCode = provrg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета", 10));
-			registredField.Add(new FilterField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
+			if(!(this is RatingReport))
+				registredField.Add(new FilterField("cd.FirmCode", "cd.ShortName as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
+			else
+				registredField.Add(new FilterField("IFNULL(cd.FirmCode, cl.Id)", "IFNULL(cd.ShortName, cl.Name) as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "usersettings.clientsdata cd", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
 			registredField.Add(new FilterField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", null, 6, "В отчет включены следующие плательщики", "Следующие плательщики исключены из отчета"));
 		}
 
@@ -116,6 +119,30 @@ namespace Inforoom.ReportSystem
 		{
 			List<string> valuesList = new List<string>();
 			e.DataAdapter.SelectCommand.CommandText = SQL;
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			DataTable dtValues = new DataTable();
+			e.DataAdapter.Fill(dtValues);
+			foreach (DataRow dr in dtValues.Rows)
+				valuesList.Add(dr[0].ToString());
+
+			return String.Join(", ", valuesList.ToArray());
+		}
+
+		protected string GetClientsNamesFromSQL(ExecuteArgs e, List<ulong> equalValues)
+		{
+			var filterStr = new StringBuilder("(");
+			equalValues.ForEach(val => filterStr.Append(val).Append(','));
+			filterStr[filterStr.Length - 1] = ')';
+
+			var valuesList = new List<string>();
+			e.DataAdapter.SelectCommand.CommandText = String.Format(
+@"select ShortName
+    from ClientsData
+  where FirmCode in {0}
+union
+select Name
+  from future.Clients
+ where Id in {0}", filterStr);
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			DataTable dtValues = new DataTable();
 			e.DataAdapter.Fill(dtValues);
