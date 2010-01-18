@@ -1,0 +1,101 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>4289</ID>
+    <ReportCode>670</ReportCode>
+    <PropertyID>1</PropertyID>
+    <PropertyValue>4</PropertyValue>
+    <ID1>1</ID1>
+    <ReportTypeCode>1</ReportTypeCode>
+    <PropertyName>ReportType</PropertyName>
+    <DisplayName>Вариант отчета</DisplayName>
+    <PropertyType>ENUM</PropertyType>
+    <Optional>0</Optional>
+    <PropertyEnumID>1</PropertyEnumID>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4290</ID>
+    <ReportCode>670</ReportCode>
+    <PropertyID>2</PropertyID>
+    <PropertyValue>7160</PropertyValue>
+    <ID1>2</ID1>
+    <ReportTypeCode>1</ReportTypeCode>
+    <PropertyName>ClientCode</PropertyName>
+    <DisplayName>Клиент</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCodeWithNewUsers</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4291</ID>
+    <ReportCode>670</ReportCode>
+    <PropertyID>7</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>7</ID1>
+    <ReportTypeCode>1</ReportTypeCode>
+    <PropertyName>ReportSortedByPrice</PropertyName>
+    <DisplayName>Сортировка по прайсу</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4292</ID>
+    <ReportCode>670</ReportCode>
+    <PropertyID>10</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>10</ID1>
+    <ReportTypeCode>1</ReportTypeCode>
+    <PropertyName>ReportIsFull</PropertyName>
+    <DisplayName>По всему ассортименту</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4293</ID>
+    <ReportCode>670</ReportCode>
+    <PropertyID>12</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>12</ID1>
+    <ReportTypeCode>1</ReportTypeCode>
+    <PropertyName>ShowPercents</PropertyName>
+    <DisplayName>Отображать проценты?</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4294</ID>
+    <ReportCode>670</ReportCode>
+    <PropertyID>65</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>65</ID1>
+    <ReportTypeCode>1</ReportTypeCode>
+    <PropertyName>CalculateByCatalog</PropertyName>
+    <DisplayName>Рассчитывать по каталогу</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4295</ID>
+    <ReportCode>670</ReportCode>
+    <PropertyID>75</PropertyID>
+    <PropertyValue>4783</PropertyValue>
+    <ID1>75</ID1>
+    <ReportTypeCode>1</ReportTypeCode>
+    <PropertyName>PriceCode</PropertyName>
+    <DisplayName>Прайс-лист</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetPriceCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

@@ -76,7 +76,9 @@
     <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
+    <Compile Include="MinCostByPriceReport\DbfMinCostByPriceNewProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceProfileFixture.cs" />
+    <Compile Include="MinCostByPriceReport\MinCostByPriceNewProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\MinCostByPriceProfileFixture.cs" />
     <Compile Include="MinCostReport\DbfMinCostNewProfileFixture.cs" />
     <Compile Include="MinCostReport\DbfMinCostProfileFixture.cs" />
@@ -91,6 +93,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="SpecialReport\SpecialNewProfileFixture.cs" />
     <Compile Include="SpecialReport\SpecialProfileFixture.cs" />
     <Compile Include="SuppliersRatingReport\SuppliersRatingProfileFixture.cs" />
     <Compile Include="TestHelper.cs" />
@@ -113,6 +116,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\DefectureNewDifficult.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\MinCostByPriceNew.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\MinCostByPriceNewDifficult.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\MinCostNewDificult.xml">
@@ -224,6 +233,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\SpecialCountProducer.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\SpecialNew.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\SpecialNewDifficult.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\SpecialProducer.xml">
