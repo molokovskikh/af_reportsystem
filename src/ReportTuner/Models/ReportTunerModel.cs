@@ -122,7 +122,7 @@ group by Id
 				if (!rowsCount.HasValue)
 				{
 					rowsCount = clients.Count;
-					clients = clients.GetRange(0, pageSize);
+					clients = clients.GetRange(0, Math.Min(pageSize, clients.Count));
 				}
 			}
 			return clients;
