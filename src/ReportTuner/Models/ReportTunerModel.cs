@@ -1,76 +1,149 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using NHibernate.Criterion;
+using System.Text;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data.Common;
+using System.Collections;
 
 namespace ReportTuner.Models
 {
 	public static class ReportTunerModel
 	{
-		private static string FormatRegions(Region[] regions)
-		{
-			string result = regions.Aggregate<Region, string>("", (res, reg) => res += reg.Name + ", ");
-			if (result.Length > 2)
-				return result.Substring(0, result.Length - 2);
-			else
-				return String.Empty;
-		}
+		private const string allClientsSql =
+@"
+select 
+       cd.FirmCode Id,
+       cd.ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from usersettings.ClientsData cd
+       left join farm.Regions reg on (reg.regionCode & cd.MaskRegion) > 0
+ where cd.FirmStatus = 1
+   and cd.FirmType = ?firmType
+   and (cd.MaskRegion & ?region) > 0
+   and cd.FirmCode not in {0}
+   and cd.ShortName like ?filterStr
+group by Id
 
-		public static object[] GetAllSuppliers(ulong reportProperty, int sortOrder, int currenPage, int pageSize,
-			ref int? rowsCount, ulong region, byte firmType, string findStr)
+union
+
+select
+       cl.Id,
+       cl.Name ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from future.Clients cl
+       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+ where ?firmType = 1
+   and cl.Status = 1
+   and (cl.MaskRegion & ?region) > 0
+   and cl.Id not in {0}
+   and cl.Name like ?filterStr
+group by Id
+{1} {2}
+";
+
+		private const string selectedClientsSql =
+@"
+select 
+       cd.FirmCode Id,
+       cd.ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from usersettings.ClientsData cd
+       left join farm.Regions reg on (reg.regionCode & cd.MaskRegion) > 0
+ where cd.FirmCode in {0}
+group by Id
+
+union
+
+select
+       cl.Id,
+       cl.Name ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from future.Clients cl
+       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+ where cl.Id in {0}
+group by Id
+{1} {2}
+";
+
+		private static string GetSelectedIds(ulong reportProperty)
 		{
 			var addedClients = ReportPropertyValue.FindAll(Expression.Eq("ReportPropertyId", reportProperty));
-
-			string[] clientsCodes = (from cl in addedClients
-									 select cl.Value).ToArray();
-
-			ICriterion[] criteries = new[] { 
-				Expression.Sql("(MaskRegion & " + region + ")>0"),
-				Expression.Eq("FirmType", (int)firmType),
-				Expression.Eq("FirmStatus", 1),
-				Expression.Not(Expression.In("Id", clientsCodes)),
-				Expression.Or(
-					Expression.Like("ShortName", "%" + findStr + "%"), 
-					Expression.Like(Projections.Id(), "%" + findStr + "%"))};
-
-			string[] headers = new[] { "", "Id", "ShortName", "RegionCode" };
-			Order[] orders = new[]{ new Order(headers[Math.Abs(sortOrder)-1], (sortOrder>0)) };
-
-			if (!rowsCount.HasValue)
-				rowsCount = Client.FindAll(criteries).Length;
-
-			var clients = Client.SlicedFindAll(currenPage * pageSize, pageSize, orders, criteries);
-
-			var regions = Region.FindAll();
-
-			var clientsWithRegions = from cl in clients
-									 select new{
-										 Id = cl.Id,
-										 ShortName = cl.ShortName,
-										 Regions = FormatRegions(regions.Where(r => (r.RegionCode & cl.MaskRegion) > 0).ToArray())};
-
-			return clientsWithRegions.ToArray();
+			var addedClientsIds = new StringBuilder("(0,");
+			foreach (var clientId in addedClients)
+				addedClientsIds.Append(clientId.Value).Append(',');
+			addedClientsIds[addedClientsIds.Length - 1] = ')';
+			return addedClientsIds.ToString();
 		}
 
-		public static object[] GetAddedSuppliers(ulong reportCode, ulong reportProperty, int sortOrder, int startPage,
-			int pageSize, ref int? rowsCount)
+		private static string GetPreparedSql(string sql, int sortOrder, int currenPage, int pageSize, string selectedIds, bool usePadding)
 		{
-			var report = Report.Find(reportCode);
+			string[] headers = new[] { "", "Id", "ShortName", "RegionCode" };
+			string order = (sortOrder < 1)
+        		? ""
+        		: ("order by " + headers[Math.Abs(sortOrder) - 1] + ((sortOrder > 0) ? " asc" : " desc"));
+			string limit = usePadding ? String.Format("limit {0}, {1}", currenPage*pageSize, pageSize) : "";
 
-			var property = ReportProperty.Find(reportProperty);
+			return String.Format(sql, selectedIds, order, limit);
+		}
 
-			var clients = Client.FindAll();
-			var regions = Region.FindAll();
-			var result = from cl in clients
-						 where property.Values.Any(pr => pr.Value == cl.Id.ToString())
-						 select new
-						 {
-							 Id = cl.Id,
-							 ShortName = cl.ShortName,
-							 Regions = FormatRegions(regions.Where(r => (r.RegionCode & cl.MaskRegion) > 0).ToArray())
-						 };
-			return result.ToArray();
+		private static List<object> ExtractClientsFromCommand(MySqlCommand command)
+		{
+			var reader = command.ExecuteReader();
+			var clients = from row in reader.Cast<DbDataRecord>()
+					  select new
+					  {
+						  Id = row["Id"],
+						  ShortName = row["ShortName"],
+						  Regions = row["Regions"]
+					  };
+			return clients.Cast<object>().ToList();
+		}
+
+		public static List<object> GetAllSuppliers(ulong reportProperty, int sortOrder, int currenPage, int pageSize,
+			ref int? rowsCount, ulong region, byte firmType, string findStr)
+		{
+			List<object> clients;
+			using(var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			{
+				var Ids = GetSelectedIds(reportProperty);
+				var sql = GetPreparedSql(allClientsSql, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
+				var command = new MySqlCommand(sql, conn);
+
+				command.Parameters.AddWithValue("?firmType", firmType);
+				command.Parameters.AddWithValue("?region", region);
+				command.Parameters.AddWithValue("?filterStr", "%" + findStr + "%");
+
+				conn.Open();
+
+				clients = ExtractClientsFromCommand(command);
+				if (!rowsCount.HasValue)
+				{
+					rowsCount = clients.Count;
+					clients = clients.GetRange(0, pageSize);
+				}
+			}
+			return clients;
+		}
+
+		public static List<object> GetAddedSuppliers(ulong reportCode, ulong reportProperty, int sortOrder, int startPage,
+			int pageSize)
+		{
+			List<object> clients;
+			using(var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			{
+				var Ids = GetSelectedIds(reportProperty);
+				var sql = GetPreparedSql(selectedClientsSql, sortOrder, 0, pageSize, Ids, false);
+				var command = new MySqlCommand(sql, conn);
+
+				conn.Open();
+
+				clients = ExtractClientsFromCommand(command);
+				
+			}
+			return clients;
 		}
 
 		public static void DeleteClient(ulong reportProperty, ulong clientCode)

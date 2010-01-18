@@ -59,7 +59,7 @@ ${FormHelper.HiddenField('firmType')}
 				
 				<td style="width:45%; border: solid 1px #dadada; vertical-align:top;"> <!-- Левая колонка поставщиков -->
 					<table style="width:100%" class="HighLightCurrentRow DocumentDataTable">
-						<%if FilteredClients.Length > 0: %>
+						<%if FilteredClients.Count > 0: %>
 						<tr class="NoHighLightRow">
 							<%OutputSubView('/SubViews/SortHeadersSubView', {"headers":['', 'Код', 'Наименование', 'Регионы'], "sortOrder":sortOrder})%>
 						</tr>
@@ -110,7 +110,7 @@ ${FormHelper.HiddenField('firmType')}
 				
 				<td style="width:45%; vertical-align: top; border: solid 1px #dadada;"> <!-- Правая колонка поставщиков -->
 					<table style="width:100%;" class="HighLightCurrentRow DocumentDataTable">
-						<%if AddedClients.Length > 0: %>
+						<%if AddedClients.Count > 0: %>
 						<tr class="NoHighLightRow" style="font-weight:bold;">
 							<td></td>
 							<td>Код</td>

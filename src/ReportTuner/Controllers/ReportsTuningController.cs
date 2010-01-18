@@ -59,7 +59,7 @@ namespace ReportTuner.Controllers
 					pageSize.Value, ref rowsCount, region.Value, firmType, findStr);
 
 			PropertyBag["AddedClients"] =
-				ReportTunerModel.GetAddedSuppliers(report.Value, rpv.Value, sortOrder.Value, startPage.Value, pageSize.Value, ref rowsCount);
+				ReportTunerModel.GetAddedSuppliers(report.Value, rpv.Value, sortOrder.Value, startPage.Value, pageSize.Value);
 
 			PropertyBag["rowsCount"] = rowsCount.Value;
 		}
