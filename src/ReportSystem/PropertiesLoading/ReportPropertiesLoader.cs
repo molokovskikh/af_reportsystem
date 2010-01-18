@@ -17,9 +17,9 @@ namespace Inforoom.ReportSystem
 		private void SaveSettingsToFileAndThrowException(DataSet result)
 		{
 			int i = 1;
-			while (File.Exists(_reportCode.ToString() + "(" + i.ToString() + ").xml"))
+			while (File.Exists("..\\" + _reportCode.ToString() + "(" + i.ToString() + ").xml"))
 				i++;
-			result.WriteXml(_reportCode.ToString() + "(" + i.ToString() + ").xml");
+			result.WriteXml("..\\" + _reportCode.ToString() + "(" + i.ToString() + ").xml");
 			throw new ReportException("Сервисная ошибка. Для тестовой остановки."); 
 		}
 

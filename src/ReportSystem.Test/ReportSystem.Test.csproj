@@ -73,6 +73,7 @@
     <Compile Include="BaseProfileFixture.cs" />
     <Compile Include="CombineReport\CombineNewProfilleFixture.cs" />
     <Compile Include="CombineReport\CombineProfileFixture.cs" />
+    <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceProfileFixture.cs" />
@@ -108,6 +109,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\DefectureNew.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\DefectureNewDifficult.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\MinCostNewDificult.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

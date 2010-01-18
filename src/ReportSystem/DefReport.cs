@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using System.IO;
 using System.Data;
 using System.Configuration;
 using ReportSystem.Profiling;
@@ -52,6 +49,8 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			base.GenerateReport(e);
+
 			ProfileHelper.Next("PreGetOffers");
 			//≈сли код клиента равен 0, то он не установлен в параметрах, поэтому берем код клиента, дл€ которого делаетс€ отчет
 			if (_clientCode == 0)

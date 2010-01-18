@@ -41,6 +41,8 @@ namespace ReportSystem.Test
 		DefectureNameOnly,
 		DefectureNameAndFormWithProducer,
 		DefectureNameAndForm,
+		DefectureNew,
+		DefectureNewDifficult,
 		CombineProducer,
 		CombineCountAndProducer,
 		CombineCount,
