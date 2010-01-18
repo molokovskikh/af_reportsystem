@@ -12,7 +12,6 @@ import file from Migration.bake
 Global(
 	project : "ReportSystem",
 	projectBoot : "ReportSystemBoot",
-	editor : "vim-nox",
 	humanReadableName : "Генератор отчетов"
 )	
 	

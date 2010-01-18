@@ -1,4 +1,5 @@
 import file from WebSiteSupport.bake
+import file from Migration.bake
 import System.IO
 
 Global(
@@ -10,4 +11,4 @@ Task @default, [@build]
 
 Task @build, [@buildWebSite]
 
-Task @deploy, [@build, @deployWebSite]
+Task @deploy, [@build, @Migrate, @deployWebSite]
