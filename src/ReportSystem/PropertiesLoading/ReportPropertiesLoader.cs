@@ -29,7 +29,7 @@ namespace Inforoom.ReportSystem
 			var result = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, conn);
 #if DEBUG
 			// Раскомитить если нужно получить xml файлы для тестов
-			SaveSettingsToFileAndThrowException(result); 
+			//SaveSettingsToFileAndThrowException(result); 
 #endif 
 			return result;
 		}
