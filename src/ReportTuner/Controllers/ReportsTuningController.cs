@@ -51,7 +51,7 @@ namespace ReportTuner.Controllers
 			if (region == 0)
 				region = ulong.MaxValue;
 
-			var regions = Region.FindAll();
+			var regions = Region.FindAll().OrderBy(reg => reg.Name).OrderBy(reg => reg.RegionCode != 0);
 			PropertyBag["Regions"] = regions;
 
 			PropertyBag["FilteredClients"] =
