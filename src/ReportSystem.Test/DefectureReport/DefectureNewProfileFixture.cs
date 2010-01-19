@@ -1,7 +1,7 @@
 ﻿using Inforoom.ReportSystem;
 using NUnit.Framework;
 
-namespace ReportSystem.Test.DefectureReport
+namespace ReportSystem.Test
 {
 	[TestFixture]
 	public class DefectureNewProfileFixture : BaseProfileFixture

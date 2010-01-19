@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>4313</ID>
+    <ReportCode>674</ReportCode>
+    <PropertyID>122</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>122</ID1>
+    <ReportTypeCode>9</ReportTypeCode>
+    <PropertyName>ByPreviousMonth</PropertyName>
+    <DisplayName>За предыдущий месяц</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4314</ID>
+    <ReportCode>674</ReportCode>
+    <PropertyID>123</PropertyID>
+    <PropertyValue>5</PropertyValue>
+    <ID1>123</ID1>
+    <ReportTypeCode>9</ReportTypeCode>
+    <PropertyName>ReportInterval</PropertyName>
+    <DisplayName>Интервал отчета (дни) от текущей даты</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4315</ID>
+    <ReportCode>674</ReportCode>
+    <PropertyID>124</PropertyID>
+    <PropertyValue>10</PropertyValue>
+    <ID1>124</ID1>
+    <ReportTypeCode>9</ReportTypeCode>
+    <PropertyName>ProviderCount</PropertyName>
+    <DisplayName>Количество поставщиков</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>10</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

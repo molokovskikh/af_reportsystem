@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Inforoom.ReportSystem;
 
-namespace ReportSystem.Test.MinCostReport
+namespace ReportSystem.Test
 {
 	[TestFixture]
 	public class DbfMinCostNewProfileFixture : BaseProfileFixture

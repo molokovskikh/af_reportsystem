@@ -1,7 +1,7 @@
 ﻿using Inforoom.ReportSystem;
 using NUnit.Framework;
 
-namespace ReportSystem.Test.SpecialReport
+namespace ReportSystem.Test
 {
 	[TestFixture]
 	public class SpecialNewProfileFixture : BaseProfileFixture

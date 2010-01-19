@@ -59,45 +59,36 @@ Sum(ol.cost*ol.Quantity) as Summ ");
 			SelectCommand = String.Concat(
 				SelectCommand, @"
 from 
-  orders.OrdersHead oh, 
-  orders.OrdersList ol,
-  catalogs.products p,
-  catalogs.catalog c,
-  catalogs.catalognames cn,
-  catalogs.catalogforms cf, 
-  catalogs.Producers cfc, 
-  usersettings.clientsdata cd,
-  usersettings.retclientsset rcs, 
-  farm.regions rg, 
-  usersettings.pricesdata pd, 
-  usersettings.clientsdata prov,
-  farm.regions provrg, 
-  billing.payers
+  orders.OrdersHead oh 
+  join orders.OrdersList ol on ol.OrderID = oh.RowID
+  join catalogs.products p on p.Id = ol.ProductId
+  join catalogs.catalog c on c.Id = p.CatalogId
+  join catalogs.catalognames cn on cn.id = c.NameId
+  join catalogs.catalogforms cf on cf.Id = c.FormId
+  join catalogs.Producers cfc on cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1)
+  left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
+  left join future.Clients cl on cl.Id = oh.ClientCode
+  join usersettings.retclientsset rcs on rcs.ClientCode = oh.ClientCode
+  join farm.regions rg on rg.RegionCode = oh.RegionCode
+  join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
+  join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
+  join farm.regions provrg on provrg.RegionCode = prov.RegionCode
+  join billing.payers on payers.PayerId = IFNULL(cd.BillingCode, cl.PayerId)
 where 
-    ol.OrderID = oh.RowID 
-and oh.deleted = 0
-and oh.processed = 1
-and p.Id = ol.ProductId
-and c.Id = p.CatalogId
-and cn.id = c.NameId
-and cf.Id = c.FormId
-and cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1) 
-and cd.FirmCode = oh.ClientCode
-and cd.BillingCode <> 921
-and payers.PayerId = cd.BillingCode
-and rcs.ClientCode = oh.ClientCode
-and rcs.InvisibleOnFirm < 2 
-and rg.RegionCode = oh.RegionCode 
-and pd.PriceCode = oh.PriceCode 
-and prov.FirmCode = pd.FirmCode
-and provrg.RegionCode = prov.RegionCode");
+      oh.deleted = 0
+  and oh.processed = 1
+  and payers.PayerId <> 921
+  and rcs.InvisibleOnFirm < 2");
 
 			foreach (FilterField rf in selectedField)
 			{
-				if ((rf.equalValues != null) && (rf.equalValues.Count > 0))
+				if (rf.equalValues != null && rf.equalValues.Count > 0)
 				{
 					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
-					filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
+					if (rf.reportPropertyPreffix == "ClientCode") // Список клиентов особенный т.к. выбирается из двух таблиц
+						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetClientsNamesFromSQL(e, rf.equalValues)));
+					else
+						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
 				}
 				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
 				{
