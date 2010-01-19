@@ -725,10 +725,17 @@ WHERE ID = ?OPID", MyCn, trans);
         else if (e.CommandName == "ShowValues")
         {
 			string url = String.Empty;
+			var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));
+
 			if (!String.IsNullOrEmpty(Request["TemporaryId"]))
 				url = String.Format("ReportPropertyValues.aspx?TemporaryId={0}&rp={1}&rpv={2}",
 					Request["TemporaryId"], 
 					Request["rp"], 
+					e.CommandArgument);
+			else if (prop.PropertyType.PropertyName == "BusinessRivals")
+				url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
+					Request["r"],
+					Request["rp"],
 					e.CommandArgument);
 			else
 				url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",

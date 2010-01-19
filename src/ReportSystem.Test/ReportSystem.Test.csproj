@@ -84,6 +84,7 @@
     <Compile Include="MinCostReport\DbfMinCostProfileFixture.cs" />
     <Compile Include="MinCostReport\MinCostNewProfileFixture.cs" />
     <Compile Include="MinCostReport\MinCostProfileFixture.cs" />
+    <Compile Include="MixedReport\MixedReportNewProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
     <Compile Include="RatingReport\RatingNewProfileFixture.cs" />
@@ -204,6 +205,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\MixedName.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\MixedNew.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\MixedNewDifficult.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\MixedProducerName.xml">

@@ -16,6 +16,8 @@ namespace ReportSystem.Test
 		MixedName,
 		MixedFullName,
 		MixedFull,
+		MixedNew,
+		MixedNewDifficult,
 		SuppliersRating,
 		SuppliersRatingNew,
 		SuppliersRatingNewDifficult,
