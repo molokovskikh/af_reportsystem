@@ -71,7 +71,7 @@ where diff > 0";
 			e.DataAdapter.Fill(_dsReport, "Money");
 
 			command.CommandText =
-@"select round(sum(Quantity * ResultCost))
+@"select round(sum(Quantity * ResultCost), 2)
 from CostOptimization
 where diff < 0";
 			e.DataAdapter.Fill(_dsReport, "Volume");
@@ -194,7 +194,7 @@ where diff < 0";
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Объединяем несколько ячеек, чтобы в них написать текст
-						((MSExcel.Range)ws.get_Range("A1:E1", System.Reflection.Missing.Value)).Select();
+						((MSExcel.Range)ws.get_Range("A1:G1", System.Reflection.Missing.Value)).Select();
 						((MSExcel.Range)exApp.Selection).Merge(null);
 					}
 					finally
