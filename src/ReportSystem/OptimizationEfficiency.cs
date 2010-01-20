@@ -23,7 +23,8 @@ namespace Inforoom.ReportSystem
 			command.CommandText =
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
-select s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff
+select s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
+	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff
 from orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid
     left join logs.CostOptimizationLogs col on 
@@ -64,7 +65,7 @@ where diff < 0;";
 			e.DataAdapter.Fill(_dsReport, "UnderPrice");
 
 			command.CommandText =
-@"select round(sum(((Quantity * ResultCost) / 100) * diff), 2)
+@"select round(sum(Quantity * (ResultCost - SelfCost)), 2)
 from CostOptimization
 where diff > 0";
 			e.DataAdapter.Fill(_dsReport, "Money");
@@ -87,7 +88,8 @@ where diff < 0";
 			dtRes.Columns.Add("Quantity", typeof(int));
 			dtRes.Columns.Add("SelfCost", typeof(decimal));
 			dtRes.Columns.Add("ResultCost", typeof(decimal));
-			dtRes.Columns.Add("diff", typeof(decimal));
+			dtRes.Columns.Add("absDiff", typeof(decimal));
+			dtRes.Columns.Add("diff", typeof(double));
 
 			// Добавляем пустые строки для заголовка
 			for (int i = 0; i < 6; i++ )
@@ -101,6 +103,7 @@ where diff < 0";
 				newRow["Quantity"] = row["Quantity"];
 				newRow["SelfCost"] = row["SelfCost"];
 				newRow["ResultCost"] = row["ResultCost"];
+				newRow["absDiff"] = row["absDiff"];
 				newRow["diff"] = row["diff"];
 				dtRes.Rows.Add(newRow);
 			}
@@ -173,11 +176,14 @@ where diff < 0";
 						ws.Cells[7, 5] = "Результирующая цена";
 						((MSExcel.Range)ws.Cells[7, 5]).ColumnWidth = 27;
 						((MSExcel.Range)ws.Cells[7, 5]).Font.Bold = true;
-						ws.Cells[7, 6] = "Разница";
-						((MSExcel.Range)ws.Cells[7, 6]).ColumnWidth = 12;
+						ws.Cells[7, 6] = "Разница (руб.)";
+						((MSExcel.Range)ws.Cells[7, 6]).ColumnWidth = 19;
 						((MSExcel.Range)ws.Cells[7, 6]).Font.Bold = true;
+						ws.Cells[7, 7] = "Разница (%)";
+						((MSExcel.Range)ws.Cells[7, 7]).ColumnWidth = 16;
+						((MSExcel.Range)ws.Cells[7, 7]).Font.Bold = true;
 
-						((MSExcel.Range) ws.Cells[1, 6]).Clear();
+						((MSExcel.Range) ws.Cells[1, 7]).Clear();
 						//рисуем границы на всю таблицу
 						ws.get_Range(ws.Cells[7, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count + 1, _dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
 
