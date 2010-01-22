@@ -42,6 +42,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
     private DataColumn PPayerID;
     private DataColumn GRPayerShortName;
 	private DataColumn GRPayerID;
+	private DataColumn dataColumn1;
 
 
 
@@ -86,7 +87,8 @@ SELECT
     gr.Comment,
     gr.EMailSubject,
     gr.ReportFileName,
-    gr.ReportArchName
+    gr.ReportArchName,
+    EXISTS(select 1 from future.Clients where Id = gr.FirmCode) IsNewClient
 FROM
     reports.general_reports gr,
     billing.payers p
@@ -127,6 +129,7 @@ Order by gr.GeneralReportCode
 		this.dtPayers = new System.Data.DataTable();
 		this.PayerShortName = new System.Data.DataColumn();
 		this.PPayerID = new System.Data.DataColumn();
+		this.dataColumn1 = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).BeginInit();
@@ -146,7 +149,8 @@ Order by gr.GeneralReportCode
             this.Comment,
             this.Allow,
             this.GRPayerShortName,
-            this.GRPayerID});
+            this.GRPayerID,
+            this.dataColumn1});
 		this.dtGeneralReports.TableName = "dtGeneralReports";
 		// 
 		// GeneralReportCode
@@ -192,6 +196,10 @@ Order by gr.GeneralReportCode
 		// 
 		this.PPayerID.ColumnName = "PayerID";
 		this.PPayerID.DataType = typeof(long);
+		// 
+		// dataColumn1
+		// 
+		this.dataColumn1.ColumnName = "IsNewClient";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).EndInit();
@@ -390,9 +398,15 @@ SET
     Allow = ?Allow,
     Comment = ?Comment,
 	FirmCode = if(PayerID = ?payerID, FirmCode,
-            (select min(FirmCode)
-               from usersettings.clientsdata
-              where clientsdata.BillingCode = ?payerID)),
+            (select min(Id)
+               from
+               (select FirmCode Id
+                 from usersettings.clientsdata cd
+                where cd.BillingCode = ?payerID
+               union
+                select Id
+                 from future.Clients cl
+                where cl.PayerId = ?payerID) tbl)),
 	PayerID = ?payerID
 WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
 
@@ -425,15 +439,19 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 INSERT INTO 
     reports.general_reports 
 (PayerId, Allow, Comment, FirmCode)
-select
+select 
   ?PayerId,
   ?Allow,
   ?Comment,
-  min(FirmCode)
+  min(Id)
 from
-  usersettings.clientsdata
-where
-  clientsdata.BillingCode = ?PayerId;
+(select FirmCode Id
+ from usersettings.clientsdata cd
+where cd.BillingCode = ?PayerId
+union
+select Id
+ from future.Clients cl
+where cl.PayerId = ?PayerId) tbl;
 select last_insert_id() as GRLastInsertID;
 ", MyCn, trans);
 

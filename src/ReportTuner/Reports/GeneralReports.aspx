@@ -21,14 +21,17 @@
 
 <ItemStyle Width="3%"></ItemStyle>
                 </asp:BoundField>
-                <asp:HyperLinkField DataTextField="PayerID" DataNavigateUrlFields="FirmCode" 
-                    HeaderText="Биллинг код" 
-                    DataNavigateUrlFormatString="https://stat.analit.net/adm/Billing/edit.rails?ClientCode={0}" 
-                    ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="PayerID">
-<HeaderStyle Width="5%"></HeaderStyle>
-
-<ItemStyle Width="5%"></ItemStyle>
-                </asp:HyperLinkField>
+                
+                <asp:TemplateField HeaderText="Биллинг код"  SortExpression="PayerID" HeaderStyle-Width="5%">
+					<ItemTemplate>
+						<a href='<%# String.Format(
+							    DataBinder.Eval(Container.DataItem, "IsNewClient").ToString() == "1" ? 
+								"http://publish.analit.net/TestAdm/Billing/edit.rails?BillingCode={0}" : 
+								"https://stat.analit.net/adm/Billing/edit.rails?BillingCode={0}",
+								DataBinder.Eval(Container.DataItem, "PayerID")) %>'> <%# DataBinder.Eval(Container.DataItem, "PayerID") %></a>
+					</ItemTemplate>
+                </asp:TemplateField>
+                
                 <asp:TemplateField HeaderText="Плательщик" ItemStyle-Width="10%" HeaderStyle-Width="10%" ItemStyle-Wrap="true" SortExpression="PayerShortName">
                     <ItemTemplate>
                         <asp:Label ID="lblFirmName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PayerShortName") %>'/>

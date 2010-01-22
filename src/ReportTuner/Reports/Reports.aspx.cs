@@ -70,7 +70,7 @@ public partial class Reports_Reports : System.Web.UI.Page
 
     	ReportFormatDD.SelectedValue = report.Format;
 
-		Recipients.DataSource = report.Payer.Clients;
+		Recipients.DataSource = report.Payer.AllClients;
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataValueField = "Id";
@@ -404,10 +404,7 @@ SET
 			report.Format = ReportFormatDD.Text;
 			uint newRecipientId = Convert.ToUInt32(Recipients.SelectedValue);
 			if (newRecipientId != report.Client.Id)
-			{
-				Client newRecipient = Client.Find(newRecipientId);
-				report.Client = newRecipient;
-			}
+				report.FirmCode = newRecipientId;
 
 			report.Save();
 		}

@@ -15,9 +15,21 @@ namespace ReportTuner.Models
 		[BelongsTo("PayerID")]
 		public virtual Payer Payer { get; set; }
 
-		[BelongsTo("FirmCode")]
-		public virtual Client Client { get; set; }
+		[Property]
+		public virtual uint FirmCode { get; set; }
 
+		public IClient Client
+		{
+			get
+			{
+				var futureClient = FutureClient.TryFind(FirmCode);
+				if (futureClient != null)
+					return futureClient;
+
+				var oldClient = ReportTuner.Models.Client.TryFind(FirmCode);
+				return oldClient;
+			}
+		}
 		[Property]
 		public virtual bool Allow { get; set; }
 
