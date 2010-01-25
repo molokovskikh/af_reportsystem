@@ -12,6 +12,7 @@ namespace ReportSystem.Test
 {
 	public enum ReportsTypes
 	{
+		Contacts,
 		MixedProductName,
 		MixedName,
 		MixedFullName,
@@ -72,9 +73,15 @@ namespace ReportSystem.Test
 			return result;
 		}
 
-		public static string EnsureDeletion(ReportsTypes type)
+		public static string GetFileName(ReportsTypes type)
 		{
 			string fileName = Path.Combine(Settings.Default.ExcelDir, type.ToString() + ".xls");
+			return fileName;
+		}
+
+		public static string EnsureDeletion(ReportsTypes type)
+		{
+			string fileName = GetFileName(type);
 			if (File.Exists(fileName))
 				File.Delete(fileName);
 			return fileName;
@@ -85,6 +92,14 @@ namespace ReportSystem.Test
 			ProfileHelper.Start();
 			report.ProcessReport();
 			report.ReportToFile(TestHelper.EnsureDeletion(type));
+			ProfileHelper.Stop();
+		}
+
+		public static void ProcessReportWithOutDeletion(BaseReport report, ReportsTypes type)
+		{
+			ProfileHelper.Start();
+			report.ProcessReport();
+			report.ReportToFile(TestHelper.GetFileName(type));
 			ProfileHelper.Stop();
 		}
 	}	
