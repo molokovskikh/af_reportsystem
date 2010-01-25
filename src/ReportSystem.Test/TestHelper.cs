@@ -33,6 +33,7 @@ namespace ReportSystem.Test
 		Rating,
 		RatingFull,
 		RatingNew,
+		RatingWithPayersList,
 		MinCost,
 		MinCostProducer,
 		MinCostCountAndProducer,

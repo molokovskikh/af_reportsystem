@@ -223,6 +223,9 @@
     <Content Include="TestData\OptimizationEfficiency.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestData\RatingWithPayersList.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\SuppliersRatingNewDifficult.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
