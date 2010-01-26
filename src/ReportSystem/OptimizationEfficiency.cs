@@ -28,7 +28,7 @@ namespace Inforoom.ReportSystem
 			command.CommandText =
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
-select col.LoggedOn, s.Synonym, ol.Code, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
+select oh.writetime, s.Synonym, ol.Code, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
     CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect,
 	CASE WHEN col.ResultCost < col.SelfCost THEN col.ResultCost*ol.Quantity ELSE null END IncreaseSales
@@ -91,7 +91,7 @@ where diff < 0";
 			e.DataAdapter.Fill(_dsReport, "Volume");
 
 			command.CommandText =
-@"select * from CostOptimization;";
+@"select * from CostOptimization order by WriteTime;";
 			e.DataAdapter.Fill(_dsReport, "Results");
 
 			if(_clientId != 0)
