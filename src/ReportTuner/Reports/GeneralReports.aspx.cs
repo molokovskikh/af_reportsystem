@@ -385,6 +385,7 @@ Order by p.ShortName
 
 		List<ulong> _deletedReports = new List<ulong>();
 		List<ulong> _updatedReports = new List<ulong>();
+    	DataTable dtInserted;
 
         MySqlTransaction trans;
         MyCn.Open();
@@ -489,7 +490,7 @@ select last_insert_id() as GRLastInsertID;
 				MyDA.Update(dtDeleted);
 			}
 
-			DataTable dtInserted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added);
+			dtInserted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added);
 			if (dtInserted != null)
 				foreach (DataRow drInsert in dtInserted.Rows)
 					if (!Convert.IsDBNull(drInsert[GRPayerID.ColumnName]) && (drInsert[GRPayerID.ColumnName] is long))
@@ -545,6 +546,12 @@ select last_insert_id() as GRLastInsertID;
             btnApply.Visible = true;
         else
             btnApply.Visible = false;
+
+		if (dtInserted != null)
+		{
+			if (!Request.Url.OriginalString.Contains("#"))
+				Response.Redirect(Request.Url.OriginalString + "#addedPage");
+		}
     }
 
 	public string SortField

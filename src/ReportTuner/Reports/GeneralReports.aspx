@@ -109,6 +109,7 @@
 				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить отчет"/>
 			</EmptyDataTemplate>
         </asp:GridView>
+        <a name="addedPage"></a>
         <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" />
     </div>
 </asp:Content>
