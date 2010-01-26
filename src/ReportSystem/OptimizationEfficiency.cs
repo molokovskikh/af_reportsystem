@@ -97,12 +97,14 @@ where diff < 0";
 			if(_clientId != 0)
 			{
 				command.CommandText =
-@"select ShortName
-    from usersettings.ClientsData
+@"select concat(cd.ShortName, ' (', reg.Region, ')')
+    from usersettings.ClientsData cd
+         join farm.Regions reg on reg.RegionCode = cd.RegionCode
    where FirmCode = ?clientId
   union
-  select Name
-    from future.Clients
+  select concat(cl.Name, ' (', reg.Region, ')')
+    from future.Clients cl
+         join farm.Regions reg on reg.RegionCode = cl.RegionCode
    where Id = ?clientId";
 				e.DataAdapter.Fill(_dsReport, "Client");
 			}
@@ -148,7 +150,7 @@ where diff < 0";
 					_beginDate.ToString("dd.MM.yyyy"),
 					_endDate.ToString("dd.MM.yyyy"),
                     (_clientId != 0) ?
-						"для клиента \"" + Convert.ToString(_dsReport.Tables["Client"].Rows[0][0]) + "\"" :
+						"для клиента "  + Convert.ToString(_dsReport.Tables["Client"].Rows[0][0]) :
                         "для всех клиентов"),
 					ExcelHelper.HeaderStyle);
 			row++;
