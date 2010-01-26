@@ -80,7 +80,7 @@ namespace Inforoom.ReportSystem
 				if (ByPreviousMonth)
 				{
 					dtTo = DateTime.Now;
-					dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date;
+					dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца
 					dtFrom = dtTo.AddMonths(-1).Date;
 				}
 				else

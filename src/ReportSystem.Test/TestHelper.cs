@@ -62,7 +62,8 @@ namespace ReportSystem.Test
 		CombineNewWithSuppliers,
 		CombineNewDifficult,
 		Individual,
-		OptimizationEfficiency
+		OptimizationEfficiency,
+		OptimizationEfficiencyAllClients
 	}
 
 	public static class TestHelper

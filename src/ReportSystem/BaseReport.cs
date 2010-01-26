@@ -203,7 +203,7 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		protected void DataTableToExcel(DataTable dtExport, string ExlFileName)
+		protected virtual void DataTableToExcel(DataTable dtExport, string ExlFileName)
 		{
 			ProfileHelper.Next("DataTableToExcel");
 			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти

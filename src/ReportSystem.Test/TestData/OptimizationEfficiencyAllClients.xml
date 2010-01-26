@@ -1,10 +1,10 @@
 <?xml version="1.0" standalone="yes"?>
 <NewDataSet>
   <ReportProperties>
-    <ID>4403</ID>
-    <ReportCode>689</ReportCode>
+    <ID>4406</ID>
+    <ReportCode>690</ReportCode>
     <PropertyID>144</PropertyID>
-    <PropertyValue>456</PropertyValue>
+    <PropertyValue>0</PropertyValue>
     <ID1>144</ID1>
     <ReportTypeCode>10</ReportTypeCode>
     <PropertyName>ClientCode</PropertyName>
@@ -15,10 +15,10 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>4404</ID>
-    <ReportCode>689</ReportCode>
+    <ID>4407</ID>
+    <ReportCode>690</ReportCode>
     <PropertyID>147</PropertyID>
-    <PropertyValue>1</PropertyValue>
+    <PropertyValue>0</PropertyValue>
     <ID1>147</ID1>
     <ReportTypeCode>10</ReportTypeCode>
     <PropertyName>ByPreviousMonth</PropertyName>
@@ -28,8 +28,8 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>4405</ID>
-    <ReportCode>689</ReportCode>
+    <ID>4408</ID>
+    <ReportCode>690</ReportCode>
     <PropertyID>148</PropertyID>
     <PropertyValue>10</PropertyValue>
     <ID1>148</ID1>

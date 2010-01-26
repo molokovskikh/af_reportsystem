@@ -117,6 +117,10 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ExcelLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ExcelLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.81.0.1407, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
@@ -173,6 +177,7 @@
     </Compile>
     <Compile Include="CommandLineUtils.cs" />
     <Compile Include="BaseReport.cs" />
+    <Compile Include="Helpers\ExcelHelper.cs" />
     <Compile Include="OptimizationEfficiency.cs" />
     <Compile Include="PropertiesLoading\IReportPropertiesLoader.cs" />
     <Compile Include="MixedReport.cs" />

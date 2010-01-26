@@ -13,5 +13,13 @@ namespace ReportSystem.Test
 			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiency);
 		}
+
+		[Test]
+		public void OptimizationEfficiencyAllClientsTest()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.OptimizationEfficiencyAllClients);
+			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiencyAllClients);
+		}
 	}
 }
