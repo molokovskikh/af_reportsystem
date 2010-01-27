@@ -7,6 +7,8 @@ using ExecuteTemplate;
 using System.Data.OleDb;
 using ReportSystem.Profiling;
 using System.IO;
+using Inforoom.ReportSystem.Writers;
+using Inforoom.ReportSystem.ReportSettings;
 
 namespace Inforoom.ReportSystem
 {	//Костыль т.к. не используем ActiveRecord модели, то пришлось копировать enum
@@ -190,6 +192,14 @@ namespace Inforoom.ReportSystem
 
 		public virtual void ReportToFile(string fileName)
 		{
+			IWriter writer = GetWriter(Format);
+			if(writer != null)
+			{  // Новый механизм, выносим часть для выгрузки в файл в отдельный класс
+				var settings = GetSettings(writer);
+				writer.WriteReportToFile(_dsReport, fileName, settings);
+				return;
+			}
+
 			if(Format == ReportFormats.DBF && DbfSupported)
 			{// Формируем DBF
 				string oldFileName = Path.GetFileName(fileName);
@@ -287,6 +297,16 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 		internal bool reportParamExists(string ParamName)
 		{
 			return _reportParams.ContainsKey(ParamName);
+		}
+
+		protected virtual IWriter GetWriter(ReportFormats format)
+		{
+			return null;
+		}
+
+		protected virtual BaseReportSettings GetSettings(IWriter writer)
+		{
+			return null;
 		}
 	}
 }

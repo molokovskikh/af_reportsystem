@@ -171,6 +171,11 @@
     <Compile Include="CombToPlainReport.cs" />
     <Compile Include="ContactsReport.cs" />
     <Compile Include="DefReport.cs" />
+    <Compile Include="ReportSettings\BaseReportSettings.cs" />
+    <Compile Include="ReportSettings\OptimizationEfficiencySettings.cs" />
+    <Compile Include="Writers\BaseExcelWriter.cs" />
+    <Compile Include="Writers\IWriter.cs" />
+    <Compile Include="Writers\OptimizationEfficiencyNativeExcelWriter.cs" />
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="GeneralReport.cs">
       <SubType>Code</SubType>
@@ -200,6 +205,7 @@
     <Compile Include="PropertiesLoading\ReportPropertiesLoader.cs" />
     <Compile Include="SpecReport.cs" />
     <Compile Include="SpecShortReport.cs" />
+    <Compile Include="Writers\OptimizationEfficiencyOleExcelWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -4,6 +4,8 @@ using System.Data;
 using ExcelLibrary.SpreadSheet;
 using System.IO;
 using Inforoom.ReportSystem.Helpers;
+using Inforoom.ReportSystem.Writers;
+using Inforoom.ReportSystem.ReportSettings;
 
 namespace Inforoom.ReportSystem
 {
@@ -11,7 +13,7 @@ namespace Inforoom.ReportSystem
 	{
 		private DateTime _beginDate;
 		private DateTime _endDate;
-		private int _clientId;
+		private int _clientId = 0;
 		private int _reportInterval;
 		private bool _byPreviousMonth;
 		private int _optimizedCount;
@@ -28,7 +30,7 @@ namespace Inforoom.ReportSystem
 			command.CommandText =
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
-select oh.writetime, s.Synonym, ol.Code, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
+select oh.writetime, ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
     CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect,
 	CASE WHEN col.ResultCost < col.SelfCost THEN col.ResultCost*ol.Quantity ELSE null END IncreaseSales
@@ -92,7 +94,7 @@ where diff < 0";
 
 			command.CommandText =
 @"select * from CostOptimization order by WriteTime;";
-			e.DataAdapter.Fill(_dsReport, "Results");
+			e.DataAdapter.Fill(_dsReport, "Temp");
 
 			if(_clientId != 0)
 			{
@@ -108,99 +110,67 @@ where diff < 0";
    where Id = ?clientId";
 				e.DataAdapter.Fill(_dsReport, "Client");
 			}
+
+			var dtRes = new DataTable("Results");
+			dtRes.Columns.Add("writetime", typeof(DateTime));
+			dtRes.Columns.Add("Code");
+			dtRes.Columns.Add("CodeCr");
+			dtRes.Columns.Add("Synonym");
+			dtRes.Columns.Add("Firm");
+			dtRes.Columns.Add("Quantity", typeof(int));
+			dtRes.Columns.Add("SelfCost", typeof(decimal));
+			dtRes.Columns.Add("ResultCost", typeof(decimal));
+			dtRes.Columns.Add("absDiff", typeof(decimal));
+			dtRes.Columns.Add("diff", typeof(double));
+			dtRes.Columns.Add("EkonomEffect", typeof(decimal));
+			dtRes.Columns.Add("IncreaseSales", typeof(decimal));
+
+			// Добавляем пустые строки для заголовка
+			for (int i = 0; i < 7; i++)
+				dtRes.Rows.Add(dtRes.NewRow());
+
+			foreach (DataRow row in _dsReport.Tables["Temp"].Rows)
+			{
+				var newRow = dtRes.NewRow();
+				newRow["writetime"] = row["writetime"];
+				newRow["Code"] = row["Code"];
+				newRow["CodeCr"] = row["CodeCr"];
+				newRow["Synonym"] = row["Synonym"];
+				newRow["Firm"] = row["Firm"];
+				newRow["Quantity"] = row["Quantity"];
+				newRow["SelfCost"] = row["SelfCost"];
+				newRow["ResultCost"] = row["ResultCost"];
+				newRow["absDiff"] = row["absDiff"];
+				newRow["diff"] = row["diff"];
+				newRow["EkonomEffect"] = row["EkonomEffect"];
+				newRow["IncreaseSales"] = row["IncreaseSales"];
+				dtRes.Rows.Add(newRow);
+			}
+
+			_dsReport.Tables.Add(dtRes);
+
 		}
 
 		public override void ReadReportParams()
 		{
-			_clientId = (int)getReportParam("ClientCode");
+			if(_reportParams.ContainsKey("ClientCode"))
+				_clientId = (int)_reportParams["ClientCode"];
+
 			_reportInterval = (int)getReportParam("ReportInterval");
 			_byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
 		}
 
-		protected override void DataTableToExcel(DataTable dtExport, string ExlFileName)
+		protected override IWriter GetWriter(ReportFormats format)
 		{
-			dtExport.Columns[0].Caption = "Дата";
-			dtExport.Columns[1].Caption = "Наименование";
-			dtExport.Columns[2].Caption = "Код товара";
-			dtExport.Columns[3].Caption = "Производитель";
-			dtExport.Columns[4].Caption = "Количество";
-			dtExport.Columns[5].Caption = "Исходная цена (руб.)";
-			dtExport.Columns[6].Caption = "Результирующая цена (руб.)";
-			dtExport.Columns[7].Caption = "Разница (руб.)";
-			dtExport.Columns[8].Caption = "Разница (%)";
-			dtExport.Columns[9].Caption = "Экономический эффект (руб.)";
-			dtExport.Columns[10].Caption = "Увеличение продаж (руб.)";
-
-			_optimizedCount = dtExport.Rows.Count;
-
-			Workbook book;
-			if (File.Exists(ExlFileName))
-				book = Workbook.Load(ExlFileName);
-			else
-				book = new Workbook();			
-
-			var ws = new Worksheet(_reportCaption);
-			book.Worksheets.Add(ws);
-
-			int row = 0;
-
-			ws.Merge(row, 0, row, dtExport.Columns.Count - 1);
-			ExcelHelper.WriteCell(ws, row, 0,
-				String.Format("Статистика оптимизации цен {2} за период с {0} по {1}",
-					_beginDate.ToString("dd.MM.yyyy"),
-					_endDate.ToString("dd.MM.yyyy"),
-                    (_clientId != 0) ?
-						"для клиента "  + Convert.ToString(_dsReport.Tables["Client"].Rows[0][0]) :
-                        "для всех клиентов"),
-					ExcelHelper.HeaderStyle);
-			row++;
-
-			ExcelHelper.WriteCell(ws, row, 0,
-				String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
-							_dsReport.Tables["Common"].Rows[0][0],
-							Convert.ToDouble(_dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
-							_optimizedCount), ExcelHelper.PlainStyle);
-			row++;
-
-			ExcelHelper.WriteCell(ws, row, 0,
-				String.Format("Цены завышены у {0} позиции в среднем на {1}%",
-					_dsReport.Tables["OverPrice"].Rows[0]["Count"],
-					_dsReport.Tables["OverPrice"].Rows[0]["Summ"]), ExcelHelper.PlainStyle);
-			row++;
-
-			ExcelHelper.WriteCell(ws, row, 0,
-				String.Format("Суммарный экономический эффект {0} руб.",
-					Convert.ToDouble(_dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00")), ExcelHelper.PlainStyle);
-			row++;
-
-			ExcelHelper.WriteCell(ws, row, 0,
-				String.Format("Цены занижены у {0} позиции в среднем на {1}%",
-					_dsReport.Tables["UnderPrice"].Rows[0]["Count"],
-					_dsReport.Tables["UnderPrice"].Rows[0]["Summ"]), ExcelHelper.PlainStyle);
-			row++;
-
-			double percent = Math.Round(Convert.ToDouble(_dsReport.Tables["Volume"].Rows[0][0]) /
-				Convert.ToDouble(_dsReport.Tables["Common"].Rows[0][1]) * 100, 2);
-			ExcelHelper.WriteCell(ws, row, 0,
-				String.Format("Суммарное увеличение продаж {0} руб. ({1}%)",
-					Convert.ToDouble(_dsReport.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"),
-					percent), ExcelHelper.PlainStyle);
-			row++;
-
-			ExcelHelper.WriteDataTable(ws,row, 0, dtExport, true);
-			row += dtExport.Rows.Count + 1;			
-			ExcelHelper.WriteCell(ws, row, 0, "Итого:", ExcelHelper.TableHeader);
-			for (int i = 1; i < 9; i++)
-				ExcelHelper.WriteCell(ws, row, i, null, ExcelHelper.TableHeader);
-			ExcelHelper.WriteCell(ws, row, 9, Convert.ToDouble(_dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"), ExcelHelper.TableHeader);
-			ExcelHelper.WriteCell(ws, row, 10, Convert.ToDouble(_dsReport.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"), ExcelHelper.TableHeader);
-			ws.Merge(row, 0, row, 8);
-
-			ExcelHelper.SetColumnsWidth(ws, 4000, 8000, 3000, 6000, 3000, 3000, 4300, 3000, 3000, 4000, 3100);
-			book.Save(ExlFileName);
+			if(format != ReportFormats.Excel)
+				return null;
+			//return new OptimizationEfficiencyNativeExcelWriter();
+			return new OptimizationEfficiencyOleExcelWriter();
 		}
 
-		protected override void FormatExcel(string fileName)
-		{}
+		protected override BaseReportSettings GetSettings(IWriter writer)
+		{
+			return new OptimizationEfficiencySettings(_reportCode, _reportCaption, _beginDate, _endDate, _clientId);
+		}
 	}
 }
