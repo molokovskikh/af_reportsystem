@@ -158,7 +158,7 @@ where diff < 0";
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
 							_dsReport.Tables["Common"].Rows[0][0],
-							_dsReport.Tables["Common"].Rows[0][1],
+							Convert.ToDouble(_dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
 							_optimizedCount), ExcelHelper.PlainStyle);
 			row++;
 
@@ -170,7 +170,7 @@ where diff < 0";
 
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Суммарный экономический эффект {0} руб.",
-					_dsReport.Tables["Money"].Rows[0][0]), ExcelHelper.PlainStyle);
+					Convert.ToDouble(_dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00")), ExcelHelper.PlainStyle);
 			row++;
 
 			ExcelHelper.WriteCell(ws, row, 0,
@@ -183,7 +183,7 @@ where diff < 0";
 				Convert.ToDouble(_dsReport.Tables["Common"].Rows[0][1]) * 100, 2);
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Суммарное увеличение продаж {0} руб. ({1}%)",
-					_dsReport.Tables["Volume"].Rows[0][0],
+					Convert.ToDouble(_dsReport.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"),
 					percent), ExcelHelper.PlainStyle);
 			row++;
 
@@ -192,8 +192,8 @@ where diff < 0";
 			ExcelHelper.WriteCell(ws, row, 0, "Итого:", ExcelHelper.TableHeader);
 			for (int i = 1; i < 9; i++)
 				ExcelHelper.WriteCell(ws, row, i, null, ExcelHelper.TableHeader);
-			ExcelHelper.WriteCell(ws, row, 9, _dsReport.Tables["Money"].Rows[0][0], ExcelHelper.TableHeader);
-			ExcelHelper.WriteCell(ws, row, 10, _dsReport.Tables["Volume"].Rows[0][0], ExcelHelper.TableHeader);
+			ExcelHelper.WriteCell(ws, row, 9, Convert.ToDouble(_dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"), ExcelHelper.TableHeader);
+			ExcelHelper.WriteCell(ws, row, 10, Convert.ToDouble(_dsReport.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"), ExcelHelper.TableHeader);
 			ws.Merge(row, 0, row, 8);
 
 			ExcelHelper.SetColumnsWidth(ws, 4000, 8000, 3000, 6000, 3000, 3000, 4300, 3000, 3000, 4000, 3100);
