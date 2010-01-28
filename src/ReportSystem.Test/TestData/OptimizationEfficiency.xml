@@ -4,7 +4,7 @@
     <ID>4403</ID>
     <ReportCode>689</ReportCode>
     <PropertyID>144</PropertyID>
-    <PropertyValue>2980</PropertyValue>
+    <PropertyValue>514</PropertyValue>
     <ID1>144</ID1>
     <ReportTypeCode>10</ReportTypeCode>
     <PropertyName>ClientCode</PropertyName>
@@ -21,7 +21,7 @@
     <PropertyValue>0</PropertyValue>
     <ID1>147</ID1>
     <ReportTypeCode>10</ReportTypeCode>
-    <PropertyName>ByPreviousMonth</PropertyName>
+    <PropertyName>ByPreviousMonth</PropertyName>88855
     <DisplayName>За предыдущий месяц</DisplayName>
     <PropertyType>BOOL</PropertyType>
     <Optional>0</Optional>
@@ -31,7 +31,7 @@
     <ID>4405</ID>
     <ReportCode>689</ReportCode>
     <PropertyID>148</PropertyID>
-    <PropertyValue>30</PropertyValue>
+    <PropertyValue>10</PropertyValue>
     <ID1>148</ID1>
     <ReportTypeCode>10</ReportTypeCode>
     <PropertyName>ReportInterval</PropertyName>
