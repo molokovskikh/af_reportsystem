@@ -115,6 +115,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\OptimizationEfficiencyWithSupplier.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\DefectureNew.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

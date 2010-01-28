@@ -42,9 +42,13 @@ from orders.ordershead oh
   join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
   left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
   join logs.CostOptimizationLogs col on 
-        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and (col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode)
+        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and 
+		(col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode) and
+        col.SupplierId = pd.FirmCode
   join farm.Synonym s on s.SynonymCode = ol.SynonymCode
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
+  join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
+  join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
 group by ol.RowId
@@ -89,6 +93,8 @@ order by oh.writetime, ol.RowId;";
 from orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid
   join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+  join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
+  join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
 			e.DataAdapter.Fill(_dsReport, "Common");
@@ -199,9 +205,9 @@ where diff < 0";
 		{
 			if(_reportParams.ContainsKey("ClientCode"))
 				_clientId = (int)_reportParams["ClientCode"];
-			/*if (_reportParams.ContainsKey("FirmCode")) На случай добавления параметра Поставщик
+			if (_reportParams.ContainsKey("FirmCode"))
 				_supplierId = (int) _reportParams["FirmCode"];
-			if (_supplierId == 0)*/
+			if (_supplierId == 0)
 				_supplierId = 5; // Если не выбрали поставщика, то считаем что это Протек
 
 			_reportInterval = (int)getReportParam("ReportInterval");

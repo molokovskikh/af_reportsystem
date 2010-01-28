@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>4423</ID>
+    <ReportCode>695</ReportCode>
+    <PropertyID>147</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>147</ID1>
+    <ReportTypeCode>10</ReportTypeCode>
+    <PropertyName>ByPreviousMonth</PropertyName>
+    <DisplayName>За предыдущий месяц</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4424</ID>
+    <ReportCode>695</ReportCode>
+    <PropertyID>148</PropertyID>
+    <PropertyValue>10</PropertyValue>
+    <ID1>148</ID1>
+    <ReportTypeCode>10</ReportTypeCode>
+    <PropertyName>ReportInterval</PropertyName>
+    <DisplayName>Интервал отчета (дни) от текущей даты</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4425</ID>
+    <ReportCode>695</ReportCode>
+    <PropertyID>150</PropertyID>
+    <PropertyValue>163</PropertyValue>
+    <ID1>150</ID1>
+    <ReportTypeCode>10</ReportTypeCode>
+    <PropertyName>FirmCode</PropertyName>
+    <DisplayName>Поставщик</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetCostOptimizationFirmCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

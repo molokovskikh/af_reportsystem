@@ -131,7 +131,8 @@ namespace Inforoom.ReportSystem.Writers
 						}
 
 
-						int lastRow = _optimizedCount + 9;
+						int lastRow = dsReport.Tables["Results"].Rows.Count + 2;
+
 						ws.Cells[lastRow, 1] = "Итого:";
 						((MSExcel.Range)ws.Cells[lastRow, 1]).Font.Bold = true;
 
@@ -144,12 +145,12 @@ namespace Inforoom.ReportSystem.Writers
 
 						((MSExcel.Range)ws.Cells[1, 7]).Clear();
 						//рисуем границы на всю таблицу
-						ws.get_Range(ws.Cells[row, 1], ws.Cells[_optimizedCount + 9, dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+						ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count+2, dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
 
 						ws.Activate();
 
 						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[row, 1], ws.Cells[_optimizedCount + 8, dsReport.Tables["Results"].Columns.Count])).Select();
+						((MSExcel.Range)ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count - 2, dsReport.Tables["Results"].Columns.Count])).Select();
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Объединяем несколько ячеек, чтобы в них написать текст
@@ -157,7 +158,7 @@ namespace Inforoom.ReportSystem.Writers
 						((MSExcel.Range)exApp.Selection).Merge(null);
 
 						// объединяем Итого
-						((MSExcel.Range)ws.get_Range(ws.Cells[_optimizedCount + 9, 1], ws.Cells[_optimizedCount + 9, dsReport.Tables["Results"].Columns.Count - 2])).Merge(null);
+						((MSExcel.Range)ws.get_Range(ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count - 2])).Merge(null);
 
 						/*
 						row = lastRow+4;
