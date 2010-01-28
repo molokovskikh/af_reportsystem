@@ -14,9 +14,12 @@ namespace Inforoom.ReportSystem
 		private DateTime _beginDate;
 		private DateTime _endDate;
 		private int _clientId = 0;
+		private int _supplierId = 5;
 		private int _reportInterval;
 		private bool _byPreviousMonth;
 		private int _optimizedCount;
+	//	private int _lostCount;
+	//	private bool _showLostOrders = false;
 
 		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -37,10 +40,11 @@ select oh.writetime, ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quan
 from orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid
   join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+  left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
   join logs.CostOptimizationLogs col on 
-        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and (col.ClientId = ?clientId or ?clientId = 0)
-    join farm.Synonym s on s.SynonymCode = ol.SynonymCode
-    join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
+        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and (col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode)
+  join farm.Synonym s on s.SynonymCode = ol.SynonymCode
+  join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
 group by ol.RowId
@@ -58,8 +62,27 @@ order by oh.writetime, ol.RowId;";
 			command.Parameters.AddWithValue("?beginDate", _beginDate);
 			command.Parameters.AddWithValue("?endDate", _endDate);
 			command.Parameters.AddWithValue("?clientId", _clientId);
-			command.Parameters.AddWithValue("?supplierId", 5);
+			command.Parameters.AddWithValue("?supplierId", _supplierId);
 			command.ExecuteNonQuery();
+
+	/*		command.CommandText =  На случай показа позиций заказанных у других поставщиков
+@"select oh.writetime, ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, ol.Cost, col.ResultCost OurFirmCost,
+	ol.Cost * ol.Quantity LostSumm
+from orders.ordershead oh
+  join orders.orderslist ol on ol.orderid = oh.rowid
+  join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+  left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
+  join logs.CostOptimizationLogs col on 
+        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ResultCost < col.SelfCost and 
+		(col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode) and col.ProducerId = ol.CodeFirmCr
+  join farm.Synonym s on s.SynonymCode = ol.SynonymCode
+  join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
+  join usersettings.CostOptimizationClients cl on cl.ClientId = oh.ClientCode
+where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode <> ?supplierId and ol.Junk = 0 
+  and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
+group by ol.RowId
+order by oh.writetime, ol.RowId;";
+			e.DataAdapter.Fill(_dsReport, "LostOrders");*/
 
 			command.CommandText =
 @"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ
@@ -71,12 +94,12 @@ and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDa
 			e.DataAdapter.Fill(_dsReport, "Common");
 
 			command.CommandText =
-@"select count(*) Count, round(avg(diff), 2) Summ from CostOptimization
+@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
 where diff > 0;";
 			e.DataAdapter.Fill(_dsReport, "OverPrice");
 
 			command.CommandText =
-@"select count(*) Count, round(avg(diff), 2) Summ from CostOptimization
+@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
 where diff < 0;";
 			e.DataAdapter.Fill(_dsReport, "UnderPrice");
 
@@ -110,6 +133,7 @@ where diff < 0";
    where Id = ?clientId";
 				e.DataAdapter.Fill(_dsReport, "Client");
 			}
+			_optimizedCount = _dsReport.Tables["Temp"].Rows.Count;
 
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("writetime", typeof(DateTime));
@@ -147,6 +171,26 @@ where diff < 0";
 				dtRes.Rows.Add(newRow);
 			}
 
+			/*   На случай показа позиций заказанных у других поставщиков
+			for (int i = 0; i < 7; i++)
+				dtRes.Rows.Add(dtRes.NewRow());
+
+			foreach (DataRow row in _dsReport.Tables["LostOrders"].Rows)
+			{
+				var newRow = dtRes.NewRow();
+				newRow["writetime"] = row["writetime"];
+				newRow["Code"] = row["Code"];
+				newRow["CodeCr"] = row["CodeCr"];
+				newRow["Synonym"] = row["Synonym"];
+				newRow["Firm"] = row["Firm"];
+				newRow["Quantity"] = row["Quantity"];
+				newRow["SelfCost"] = row["Cost"];
+				newRow["ResultCost"] = row["OurFirmCost"];
+				newRow["absDiff"] = row["LostSumm"];
+				
+				dtRes.Rows.Add(newRow);
+			}*/
+
 			_dsReport.Tables.Add(dtRes);
 
 		}
@@ -155,6 +199,10 @@ where diff < 0";
 		{
 			if(_reportParams.ContainsKey("ClientCode"))
 				_clientId = (int)_reportParams["ClientCode"];
+			/*if (_reportParams.ContainsKey("FirmCode")) На случай добавления параметра Поставщик
+				_supplierId = (int) _reportParams["FirmCode"];
+			if (_supplierId == 0)*/
+				_supplierId = 5; // Если не выбрали поставщика, то считаем что это Протек
 
 			_reportInterval = (int)getReportParam("ReportInterval");
 			_byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
@@ -170,7 +218,8 @@ where diff < 0";
 
 		protected override BaseReportSettings GetSettings(IWriter writer)
 		{
-			return new OptimizationEfficiencySettings(_reportCode, _reportCaption, _beginDate, _endDate, _clientId);
+			return new OptimizationEfficiencySettings(_reportCode, _reportCaption, _beginDate, _endDate, 
+				_clientId, _optimizedCount);
 		}
 	}
 }

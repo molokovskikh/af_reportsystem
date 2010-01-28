@@ -4,7 +4,7 @@
     <ID>4403</ID>
     <ReportCode>689</ReportCode>
     <PropertyID>144</PropertyID>
-    <PropertyValue>456</PropertyValue>
+    <PropertyValue>2980</PropertyValue>
     <ID1>144</ID1>
     <ReportTypeCode>10</ReportTypeCode>
     <PropertyName>ClientCode</PropertyName>
@@ -18,7 +18,7 @@
     <ID>4404</ID>
     <ReportCode>689</ReportCode>
     <PropertyID>147</PropertyID>
-    <PropertyValue>1</PropertyValue>
+    <PropertyValue>0</PropertyValue>
     <ID1>147</ID1>
     <ReportTypeCode>10</ReportTypeCode>
     <PropertyName>ByPreviousMonth</PropertyName>
@@ -31,7 +31,7 @@
     <ID>4405</ID>
     <ReportCode>689</ReportCode>
     <PropertyID>148</PropertyID>
-    <PropertyValue>10</PropertyValue>
+    <PropertyValue>30</PropertyValue>
     <ID1>148</ID1>
     <ReportTypeCode>10</ReportTypeCode>
     <PropertyName>ReportInterval</PropertyName>
