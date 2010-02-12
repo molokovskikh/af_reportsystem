@@ -132,6 +132,7 @@ where diff < 0";
     from usersettings.ClientsData cd
          join farm.Regions reg on reg.RegionCode = cd.RegionCode
    where FirmCode = ?clientId
+    and not exists(select 1 from future.Clients where Id = ?clientId)
   union
   select concat(cl.Name, ' (', reg.Region, ')')
     from future.Clients cl
@@ -222,7 +223,7 @@ where diff < 0";
 			return new OptimizationEfficiencyOleExcelWriter();
 		}
 
-		protected override BaseReportSettings GetSettings(IWriter writer)
+		protected override BaseReportSettings GetSettings()
 		{
 			return new OptimizationEfficiencySettings(_reportCode, _reportCaption, _beginDate, _endDate, 
 				_clientId, _optimizedCount);

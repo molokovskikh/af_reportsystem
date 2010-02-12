@@ -1,0 +1,113 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>4590</ID>
+    <ReportCode>723</ReportCode>
+    <PropertyID>181</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>181</ID1>
+    <ReportTypeCode>12</ReportTypeCode>
+    <PropertyName>ByPreviousMonth</PropertyName>
+    <DisplayName>За предыдущий месяц</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4591</ID>
+    <ReportCode>723</ReportCode>
+    <PropertyID>182</PropertyID>
+    <PropertyValue>10</PropertyValue>
+    <ID1>182</ID1>
+    <ReportTypeCode>12</ReportTypeCode>
+    <PropertyName>ReportInterval</PropertyName>
+    <DisplayName>Интервал отчета (дни) от текущей даты</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4592</ID>
+    <ReportCode>723</ReportCode>
+    <PropertyID>183</PropertyID>
+    <PropertyValue>5101</PropertyValue>
+    <ID1>183</ID1>
+    <ReportTypeCode>12</ReportTypeCode>
+    <PropertyName>SourceFirmCode</PropertyName>
+    <DisplayName>Аптека</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCodeWithNewUsers</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4593</ID>
+    <ReportCode>723</ReportCode>
+    <PropertyID>204</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>204</ID1>
+    <ReportTypeCode>12</ReportTypeCode>
+    <PropertyName>BusinessRivals</PropertyName>
+    <DisplayName>Список конкурентов</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCodeWithNewUsers</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>4597</ID>
+    <ReportCode>723</ReportCode>
+    <PropertyID>184</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>184</ID1>
+    <ReportTypeCode>12</ReportTypeCode>
+    <PropertyName>ProductNamePosition</PropertyName>
+    <DisplayName>Позиция "Наименования продукта" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportPropertyValues>
+    <ID>7104</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>363</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7105</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>366</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7106</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>369</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7107</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>376</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7108</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>380</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7109</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>381</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7110</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>383</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7111</ID>
+    <ReportPropertyID>4593</ReportPropertyID>
+    <Value>563</Value>
+  </ReportPropertyValues>
+</NewDataSet>

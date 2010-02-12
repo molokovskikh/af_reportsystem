@@ -1,4 +1,23 @@
 ﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+r), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+r+"&rp="+report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка", "Title":"Редактирование значений списка"} %>
+<script type="text/javascript">
+	var nsChecked = false;
+	var sChecked = false;
+	
+	jQuery(document).ready(function() {
+		jQuery('#nsAll').click(MarkNotselected);
+		jQuery('#sAll').click(MarkSelected);
+	});
+
+	function MarkNotselected() {
+		nsChecked = !nsChecked;
+		jQuery('.nsCheckBox').attr('checked', nsChecked);
+	}
+
+	function MarkSelected() {
+		sChecked = !sChecked;
+		jQuery('.sCheckBox').attr('checked', sChecked);
+	}
+</script>
 <form method="get" action="">
 ${FormHelper.HiddenField('report')}
 ${FormHelper.HiddenField('rpv')}
@@ -58,15 +77,15 @@ ${FormHelper.HiddenField('firmType')}
 				<tr>
 				
 				<td style="width:45%; border: solid 1px #dadada; vertical-align:top;"> <!-- Левая колонка поставщиков -->
-					<table style="width:100%" class="HighLightCurrentRow DocumentDataTable">
+					<table id="NotSelectedTable" name="NotSelectedTable" style="width:100%" class="HighLightCurrentRow DocumentDataTable">
 						<%if FilteredClients.Count > 0: %>
 						<tr class="NoHighLightRow">
-							<%OutputSubView('/SubViews/SortHeadersSubView', {"headers":['', 'Код', 'Наименование', 'Регионы'], "sortOrder":sortOrder})%>
+							<%OutputSubView('SelectClientsSortHeadersSubView', {"headers":['nsAll', 'Код', 'Наименование', 'Регионы'], "sortOrder":sortOrder})%>
 						</tr>
 						<%for i, item in enumerate(FilteredClients):%>
 							<tr class="${ViewHelper.GetRowStyle(i)}">
 								<td>
-									<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" />
+									<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" class="nsCheckBox"/>
 								</td>
 								
 								<td>
@@ -109,10 +128,10 @@ ${FormHelper.HiddenField('firmType')}
 				</td>
 				
 				<td style="width:45%; vertical-align: top; border: solid 1px #dadada;"> <!-- Правая колонка поставщиков -->
-					<table style="width:100%;" class="HighLightCurrentRow DocumentDataTable">
+					<table id="SelectedTable" name="SelectedTable" style="width:100%;" class="HighLightCurrentRow DocumentDataTable">
 						<%if AddedClients.Count > 0: %>
 						<tr class="NoHighLightRow" style="font-weight:bold;">
-							<td></td>
+							<td><input id="sAll" name="sAll" type="checkbox" /></td>
 							<td>Код</td>
 							<td>Наименование</td>
 							<td>Регионы</td>
@@ -120,7 +139,7 @@ ${FormHelper.HiddenField('firmType')}
 						<%for i, item in enumerate(AddedClients):%>
 							<tr class="${ViewHelper.GetRowStyle(i)}">
 								<td>
-									<input type="checkbox" name="chd${item.Id}" id="chd${item.Id}" value="${item.Id}" />
+									<input type="checkbox" name="chd${item.Id}" id="chd${item.Id}" value="${item.Id}" class="sCheckBox"/>
 								</td>
 								
 								<td>

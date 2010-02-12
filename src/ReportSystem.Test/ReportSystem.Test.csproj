@@ -88,6 +88,7 @@
     <Compile Include="MixedReport\MixedReportNewProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
+    <Compile Include="PharmacyMixed\PharmacyMixedProfileFixture.cs" />
     <Compile Include="RatingReport\RatingNewProfileFixture.cs" />
     <Compile Include="RatingReport\RatingProfileFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -115,6 +116,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\PharmacyMixedNameOld.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\OptimizationEfficiencyWithSupplier.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -227,6 +231,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\OptimizationEfficiencyAllClients.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\PharmacyMixedFullName.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\PharmacyMixedName.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\PharmacyMixedNameProducer.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\PharmacyMixedNameProducerSupplierList.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\RatingWithPayersList.xml">

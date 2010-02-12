@@ -16,27 +16,27 @@ namespace Inforoom.ReportSystem
 {
 	public class MixedReport : OrdersReport
 	{
-		private const string sourceFirmCodeProperty = "SourceFirmCode";
-		private const string businessRivalsProperty = "BusinessRivals";
-		private const string showCodeProperty = "ShowCode";
-		private const string showCodeCrProperty = "ShowCodeCr";
+		protected const string sourceFirmCodeProperty = "SourceFirmCode";
+		protected const string businessRivalsProperty = "BusinessRivals";
+		protected const string showCodeProperty = "ShowCode";
+		protected const string showCodeCrProperty = "ShowCodeCr";
 
 		//Поставщик, по которому будет производиться отчет
-		private int sourceFirmCode;
+		protected int sourceFirmCode;
 		//Список конкурентов данного поставщика
-		private List<ulong> businessRivals;
+		protected List<ulong> businessRivals;
 		//Список постащиков-конкурентов в виде строки
-		private string businessRivalsList;
+		protected string businessRivalsList;
 
 		//Отображать поле Code из прайс-листа поставщика?
-		private bool showCode;
+		protected bool showCode;
 		//Отображать поле CodeCr из прайс-листа поставщика?
-		private bool showCodeCr;
+		protected bool showCodeCr;
 
 		//Одно из полей "Наименование продукта", "Полное наименование", "Наименование"
-		private FilterField nameField;
+		protected FilterField nameField;
 		//Поле производитель
-		private FilterField firmCrField;
+		protected FilterField firmCrField;
 
 		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -46,8 +46,8 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			showCode = (bool)(bool)getReportParam(showCodeProperty);
-			showCodeCr = (bool)(bool)getReportParam(showCodeCrProperty);
+			showCode = reportParamExists(showCodeProperty) ? (bool)getReportParam(showCodeProperty) : false;
+			showCodeCr = reportParamExists(showCodeCrProperty) ? (bool) getReportParam(showCodeCrProperty) : false;
 
 			sourceFirmCode = (int)getReportParam(sourceFirmCodeProperty);
 			businessRivals = (List<ulong>)getReportParam(businessRivalsProperty);
@@ -182,7 +182,7 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 			bool isProductName = true;
 			bool includeProductName = false;
 			
-			foreach(var rf in selectedField) // В целях оптимизации при в некоторых случаях используем
+			foreach(var rf in selectedField) // В целях оптимизации при некоторых случаях используем
 				if(rf.visible && (rf.reportPropertyPreffix == "ProductName" || // временные таблицы
 					rf.reportPropertyPreffix == "FullName"))
 				{
@@ -258,7 +258,7 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
   join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
-  join billing.payers on payers.PayerId = IFNULL(cd.BillingCode, cl.PayerId) " +
+  join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode) " +
 	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + (((firmCrField != null) ? " and ProviderCodes.CodeFirmCr = " + firmCrField.primaryField : String.Empty)) : String.Empty) +
 @"
 where 

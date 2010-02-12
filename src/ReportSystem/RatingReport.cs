@@ -63,11 +63,11 @@ from
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
   join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
-  join billing.payers on payers.PayerId = IFNULL(cd.BillingCode, cl.PayerId)
+  join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode)
 where 
       oh.deleted = 0
   and oh.processed = 1
-  and IFNULL(cd.BillingCode, cl.PayerId) <> 921
+  and IFNULL(cl.PayerId, cd.BillingCode) <> 921
   and rcs.InvisibleOnFirm < 2");
 
 			foreach (FilterField rf in selectedField)

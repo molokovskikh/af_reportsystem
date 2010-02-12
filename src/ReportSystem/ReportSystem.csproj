@@ -170,9 +170,12 @@
     <Compile Include="CombShortReport.cs" />
     <Compile Include="CombToPlainReport.cs" />
     <Compile Include="ContactsReport.cs" />
+    <Compile Include="DataLoaders\IDataLoader.cs" />
     <Compile Include="DefReport.cs" />
+    <Compile Include="PharmacyMixedReport.cs" />
     <Compile Include="ReportSettings\BaseReportSettings.cs" />
     <Compile Include="ReportSettings\OptimizationEfficiencySettings.cs" />
+    <Compile Include="ReportSettings\PharmacyMixedSettings.cs" />
     <Compile Include="Writers\BaseExcelWriter.cs" />
     <Compile Include="Writers\IWriter.cs" />
     <Compile Include="Writers\OptimizationEfficiencyNativeExcelWriter.cs" />
@@ -206,6 +209,8 @@
     <Compile Include="SpecReport.cs" />
     <Compile Include="SpecShortReport.cs" />
     <Compile Include="Writers\OptimizationEfficiencyOleExcelWriter.cs" />
+    <Compile Include="Writers\PharmacyMixedNativeWriter.cs" />
+    <Compile Include="Writers\PharmacyMixedOleWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

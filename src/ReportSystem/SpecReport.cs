@@ -57,8 +57,15 @@ namespace Inforoom.ReportSystem
 			{
 				//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
 				SourceRegionCode = Convert.ToInt64(
-					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection, 
-					"select RegionCode from usersettings.clientsdata where FirmCode = ?ClientCode",
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+@"select RegionCode 
+	from usersettings.clientsdata 
+where FirmCode = ?ClientCode
+and not exists(select 1 from future.Clients where Id = ?ClientCode)
+union
+select RegionCode
+	from future.Clients
+where Id = ?ClientCode",
 					new MySqlParameter("?ClientCode", _clientCode)));
 
 				DataRow drPrice = MySqlHelper.ExecuteDataRow(

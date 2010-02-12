@@ -64,7 +64,12 @@ namespace ReportSystem.Test
 		Individual,
 		OptimizationEfficiency,
 		OptimizationEfficiencyAllClients,
-		OptimizationEfficiencyWithSupplier
+		OptimizationEfficiencyWithSupplier,
+		PharmacyMixedName,
+		PharmacyMixedFullName,
+		PharmacyMixedNameProducer,
+		PharmacyMixedNameProducerSupplierList,
+		PharmacyMixedNameOld,
 	}
 
 	public static class TestHelper

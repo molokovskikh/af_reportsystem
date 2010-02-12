@@ -73,7 +73,7 @@ from
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
   join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
-  join billing.payers on payers.PayerId = IFNULL(cd.BillingCode, cl.PayerId)
+  join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode)
 where 
       oh.deleted = 0
   and oh.processed = 1

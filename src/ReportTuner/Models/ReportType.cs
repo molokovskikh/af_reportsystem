@@ -17,5 +17,8 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual string AlternateSubject { get; set; }
+
+		[Property]
+		public virtual string ReportTypeFilePrefix { get; set; }
 	}
 }

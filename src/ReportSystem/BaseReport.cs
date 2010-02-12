@@ -195,7 +195,7 @@ namespace Inforoom.ReportSystem
 			IWriter writer = GetWriter(Format);
 			if(writer != null)
 			{  // Новый механизм, выносим часть для выгрузки в файл в отдельный класс
-				var settings = GetSettings(writer);
+				var settings = GetSettings();
 				writer.WriteReportToFile(_dsReport, fileName, settings);
 				return;
 			}
@@ -304,7 +304,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			return null;
 		}
 
-		protected virtual BaseReportSettings GetSettings(IWriter writer)
+		protected virtual BaseReportSettings GetSettings()
 		{
 			return null;
 		}

@@ -356,11 +356,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Themes\MainWithHighLight\Main.skin" />
+    <Content Include="JavaScript\jquery-1.4.1.min.js" />
     <None Include="Views\Layouts\MainLayout.brail" />
     <None Include="Views\ReportsTuning\SelectClients.brail" />
     <None Include="Views\SubViews\BreadCrumbs.brail" />
     <None Include="Views\SubViews\PaginatorSubView.brail" />
-    <None Include="Views\SubViews\SortHeadersSubView.brail" />
+    <None Include="Views\ReportsTuning\SelectClientsSortHeadersSubView.brail" />
     <None Include="Web.Release.Config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

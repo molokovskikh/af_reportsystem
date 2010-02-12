@@ -25,6 +25,7 @@ select
    and (cd.MaskRegion & ?region) > 0
    and cd.FirmCode not in {0}
    and cd.ShortName like ?filterStr
+   and not exists(select 1 from future.Clients where id = cd.FirmCode and ?firmType = 1)
 group by Id
 
 union
@@ -53,6 +54,7 @@ select
   from usersettings.ClientsData cd
        left join farm.Regions reg on (reg.regionCode & cd.MaskRegion) > 0
  where cd.FirmCode in {0}
+   and not exists(select 1 from future.Clients where id = cd.FirmCode)
 group by Id
 
 union
