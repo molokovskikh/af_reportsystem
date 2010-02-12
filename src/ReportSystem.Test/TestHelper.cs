@@ -70,6 +70,7 @@ namespace ReportSystem.Test
 		PharmacyMixedNameProducer,
 		PharmacyMixedNameProducerSupplierList,
 		PharmacyMixedNameOld,
+		PharmacyOffers,
 	}
 
 	public static class TestHelper

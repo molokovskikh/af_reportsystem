@@ -76,6 +76,7 @@
     <Compile Include="Contacts\ContactsProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
+    <Compile Include="FastReports\FastReports.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceNewProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceProfileFixture.cs" />
@@ -243,6 +244,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\PharmacyMixedNameProducerSupplierList.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\PharmacyOffers.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestData\RatingWithPayersList.xml">

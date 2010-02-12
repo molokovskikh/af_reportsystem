@@ -172,6 +172,8 @@
     <Compile Include="ContactsReport.cs" />
     <Compile Include="DataLoaders\IDataLoader.cs" />
     <Compile Include="DefReport.cs" />
+    <Compile Include="FastReports\BaseFastReport.cs" />
+    <Compile Include="FastReports\PharmacyOffersReport.cs" />
     <Compile Include="PharmacyMixedReport.cs" />
     <Compile Include="ReportSettings\BaseReportSettings.cs" />
     <Compile Include="ReportSettings\OptimizationEfficiencySettings.cs" />
