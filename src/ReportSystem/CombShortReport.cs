@@ -13,12 +13,15 @@ namespace Inforoom.ReportSystem
 	public class CombShortReport : CombReport
 	{
 		private bool _needProcessing = false; // Надо ли группировать и вычислять минимальные в Calculate
-
+		
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
 			_needProcessing = false;
 
 			base.GenerateReport(e);
+
+			var reportClients = new List<ulong>();
+			reportClients.Add((ulong)_clientCode);
 
 			if (_reportParams.ContainsKey("ClientCodeEqual") &&
 				((List<ulong>)_reportParams["ClientCodeEqual"]).Count > 0)
@@ -34,8 +37,11 @@ namespace Inforoom.ReportSystem
 
 					_dsReport.Tables["Results"].Merge(dtRes);
 				}
+				reportClients.AddRange(clients);
 				_needProcessing = true;
 			}
+
+			_clientsNames = GetClientsNamesFromSQL(e, reportClients);
 		}
 
 		public CombShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)

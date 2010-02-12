@@ -308,5 +308,29 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 		{
 			return null;
 		}
+
+		protected string GetClientsNamesFromSQL(ExecuteArgs e, List<ulong> equalValues)
+		{
+			var filterStr = new StringBuilder("(");
+			equalValues.ForEach(val => filterStr.Append(val).Append(','));
+			filterStr[filterStr.Length - 1] = ')';
+
+			var valuesList = new List<string>();
+			e.DataAdapter.SelectCommand.CommandText = String.Format(
+@"select ShortName
+    from ClientsData
+  where FirmCode in {0}
+union
+select Name
+  from future.Clients
+ where Id in {0}", filterStr);
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			DataTable dtValues = new DataTable();
+			e.DataAdapter.Fill(dtValues);
+			foreach (DataRow dr in dtValues.Rows)
+				valuesList.Add(dr[0].ToString());
+
+			return String.Join(", ", valuesList.ToArray());
+		}
 	}
 }

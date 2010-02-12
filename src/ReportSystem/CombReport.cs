@@ -30,6 +30,8 @@ namespace Inforoom.ReportSystem
 
 		protected string reportCaptionPreffix;
 
+		protected string _clientsNames = "";
+
 		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -196,6 +198,11 @@ order by 2, 5";
 			DataRow[] drsMin;
 			newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
+			if(!String.IsNullOrEmpty(_clientsNames))
+			{
+				newrow = dtRes.NewRow();
+				dtRes.Rows.Add(newrow);
+			}
 
 			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows)
 			{
@@ -244,6 +251,10 @@ order by 2, 5";
 
 		protected override void FormatExcel(string fileName)
 		{
+			int i = 0;
+			if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
+				i = 1;
+
 			ProfileHelper.Next("FormatExcel");
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try
@@ -260,12 +271,12 @@ order by 2, 5";
 						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
 						//Форматируем заголовок отчета
-						ws.Cells[2, 1] = "Наименование";
-						((MSExcel.Range)ws.Cells[2, 1]).ColumnWidth = 20;
-						ws.Cells[2, 2] = "Производитель";
-						((MSExcel.Range)ws.Cells[2, 2]).ColumnWidth = 10;
-						ws.Cells[2, 3] = "Мин. цена";
-						((MSExcel.Range)ws.Cells[2, 3]).ColumnWidth = 6;
+						ws.Cells[i+2, 1] = "Наименование";
+						((MSExcel.Range)ws.Cells[i+2, 1]).ColumnWidth = 20;
+						ws.Cells[i+2, 2] = "Производитель";
+						((MSExcel.Range)ws.Cells[i+2, 2]).ColumnWidth = 10;
+						ws.Cells[i+2, 3] = "Мин. цена";
+						((MSExcel.Range)ws.Cells[i+2, 3]).ColumnWidth = 6;
 						((MSExcel.Range)ws.Cells[1, 1]).Clear();
 						((MSExcel.Range)ws.Cells[1, 2]).Clear();
 						((MSExcel.Range)ws.Cells[1, 3]).Clear();
@@ -276,7 +287,7 @@ order by 2, 5";
 						//рисуем границы на всю таблицу
 						ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count + 1, _dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
 						//Устанавливаем цвет колонки "Мин Цена"
-						ws.get_Range("C2", "C" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSeaGreen);
+						ws.get_Range("C" + (i + 2), "C" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSeaGreen);
 
 						//Устанавливаем шрифт листа
 						ws.Rows.Font.Size = 8;
@@ -284,20 +295,29 @@ order by 2, 5";
 						ws.Activate();
 
 						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[2, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count, _dsReport.Tables["Results"].Columns.Count])).Select();
+						((MSExcel.Range)ws.get_Range(ws.Cells[i+2, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count, _dsReport.Tables["Results"].Columns.Count])).Select();
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Замораживаем некоторые колонки и столбцы
-						((MSExcel.Range)ws.get_Range("G3", System.Reflection.Missing.Value)).Select();
+						((MSExcel.Range)ws.get_Range("G" + (3 + i), System.Reflection.Missing.Value)).Select();
 						exApp.ActiveWindow.FreezePanes = true;
 
 						//Объединяем несколько ячеек, чтобы в них написать текст
 						((MSExcel.Range)ws.get_Range("A1:F1", System.Reflection.Missing.Value)).Select();
 						((MSExcel.Range)exApp.Selection).Merge(null);
+
 						if (_reportType < 3)
-							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
+							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now;
 						else
-							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
+							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now;
+
+						if (!String.IsNullOrEmpty(_clientsNames))
+						{
+							((MSExcel.Range)ws.get_Range("A2:F2", System.Reflection.Missing.Value)).Select();
+							((MSExcel.Range)exApp.Selection).Merge(null);
+
+							exApp.ActiveCell.FormulaR1C1 = "Выбранные аптеки: " + _clientsNames;
+						}
 					}
 					finally
 					{
