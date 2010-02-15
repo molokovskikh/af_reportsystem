@@ -31,6 +31,7 @@ namespace Inforoom.ReportSystem
 		protected string reportCaptionPreffix;
 
 		protected string _clientsNames = "";
+		protected string _suppliersNames = "";
 
 		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -198,11 +199,6 @@ order by 2, 5";
 			DataRow[] drsMin;
 			newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
-			if(!String.IsNullOrEmpty(_clientsNames))
-			{
-				newrow = dtRes.NewRow();
-				dtRes.Rows.Add(newrow);
-			}
 
 			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows)
 			{
@@ -253,7 +249,9 @@ order by 2, 5";
 		{
 			int i = 0;
 			if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
-				i = 1;
+				i++;
+			if (!String.IsNullOrEmpty(_suppliersNames))
+				i += 4;
 
 			ProfileHelper.Next("FormatExcel");
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
@@ -299,8 +297,11 @@ order by 2, 5";
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Замораживаем некоторые колонки и столбцы
-						((MSExcel.Range)ws.get_Range("G" + (3 + i), System.Reflection.Missing.Value)).Select();
-						exApp.ActiveWindow.FreezePanes = true;
+						if (!(this is CombShortReport))
+						{
+							((MSExcel.Range)ws.get_Range("G" + (3 + i), System.Reflection.Missing.Value)).Select();
+							exApp.ActiveWindow.FreezePanes = true;
+						}
 
 						//Объединяем несколько ячеек, чтобы в них написать текст
 						((MSExcel.Range)ws.get_Range("A1:F1", System.Reflection.Missing.Value)).Select();
@@ -311,12 +312,27 @@ order by 2, 5";
 						else
 							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now;
 
+						// Выводим список выбранных аптек
 						if (!String.IsNullOrEmpty(_clientsNames))
 						{
 							((MSExcel.Range)ws.get_Range("A2:F2", System.Reflection.Missing.Value)).Select();
 							((MSExcel.Range)exApp.Selection).Merge(null);
 
 							exApp.ActiveCell.FormulaR1C1 = "Выбранные аптеки: " + _clientsNames;
+						}
+
+						// Выводим список участвовавших поставщиков
+						if (!String.IsNullOrEmpty(_suppliersNames))
+						{
+							var tmp = (i > 1) ? 3 : 2;
+							((MSExcel.Range)ws.get_Range(
+								String.Format("A{0}:K{1}", tmp, tmp+3), System.Reflection.Missing.Value)).Select();
+							((MSExcel.Range)exApp.Selection).Merge(null);
+
+							exApp.ActiveCell.FormulaR1C1 = "Список поставщиков: " + _suppliersNames;
+							exApp.ActiveCell.WrapText = true;
+							exApp.ActiveCell.HorizontalAlignment = MSExcel.XlHAlign.xlHAlignLeft;
+							exApp.ActiveCell.VerticalAlignment = MSExcel.XlVAlign.xlVAlignTop;
 						}
 					}
 					finally
