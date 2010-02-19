@@ -141,7 +141,7 @@ namespace Inforoom.ReportTuner
 					if (Session[key] == null)
 						builder.AppendLine(String.Format("{0} - null", key));
 					else
-						builder.AppendLine(String.Format("{0} - {1}", key, Session[key].GetType().ToString()));
+						builder.AppendLine(String.Format("{0} - {1} - {2}", key, Session[key].GetType(), Session[key]));
 				}
 				builder.AppendLine("--------------");
 
