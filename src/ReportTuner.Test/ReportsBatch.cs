@@ -144,7 +144,8 @@ order by rp.PropertyID;
 		}
 
 		[Test(Description = "создает отчеты по подобию отчета 'Отчет по оптимизации цен' для родительского отчета 238 с копированием всех свойств, меняя название заголовка отчета как краткое имя клиента и выставляя параметр 'Клиент'")
-		, Ignore("это не тест, а метод для выполнения действий с отчетами")]		
+		, Ignore("это не тест, а метод для выполнения действий с отчетами")
+		]		
 		public void CloneOptimizationEfficiencyReports()
 		{
 			ulong sourceGeneralReportId = 238;
@@ -216,23 +217,28 @@ and report_type_properties.PropertyName = ?PropertyName;
 				var dsClients = MySqlHelper.ExecuteDataset(
 					connection,
 					@"
-SELECT firmcode, shortname FROM usersettings.ClientsData C
-where (shortname like '%кузнецов%'
-or  shortname like '%практика%'
-or  shortname like '%мао%'
-or  shortname like '%эконом%'
-or  shortname like '%рифарм%'
-or  shortname like '%ано мсч%'
-or  shortname like '%мальцев%'
-or  shortname like '%малинка%'
-or  shortname like '%челфарм%'
-or  shortname like '%русалев%'
-or  shortname like '%руско%'
-or  shortname like '%онкоцентр%')
+SELECT firmcode, shortname FROM
+  usersettings.ClientsData C
+  left join
+  (SELECT rp.PropertyValue as ClientCode FROM
+  reports.reports r,
+  reports.report_properties rp
+WHERE r.`GeneralReportCode` = 238
+and rp.ReportCode = r.ReportCode
+and rp.PropertyId = 144) as existsClientCodes on existsClientCodes.ClientCode = c.FirmCode
+where (shortname like '%витамин%'
+or  shortname like '%юкон%'
+or  shortname like '%лазурит%'
+or  shortname like '%бухтиярова%'
+or  shortname like '%атромед%'
+or  shortname like '%акватик%'
+or  shortname like '%аптека 222%'
+or  shortname like '%Аптека №1%')
 and shortname not like '%отчет%'
 and regioncode in (64, 16384, 32768, 65536)
 and firmstatus = 1
 and firmtype = 1
+and existsClientCodes.ClientCode is null
 order by billingcode;
 "
 					);
