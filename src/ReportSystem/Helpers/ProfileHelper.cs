@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
 using System.Diagnostics;
 
-namespace ReportSystem.Profiling
+namespace Inforoom.ReportSystem.Helpers
 {
 	class Operation
 	{
@@ -21,7 +17,7 @@ namespace ReportSystem.Profiling
 
 	public static class ProfileHelper
 	{
-		private static Operation currentOperation = null;
+		private static Operation currentOperation;
 		private static DateTime firstStartedOn;
 		public static bool IsProfiling
 		{

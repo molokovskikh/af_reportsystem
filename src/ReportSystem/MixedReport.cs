@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Collections;
 using System.Data;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
@@ -10,7 +11,6 @@ using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using System.Collections.Generic;
 using System.Drawing;
-using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {

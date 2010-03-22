@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Configuration;
-using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
@@ -53,12 +53,11 @@ namespace Inforoom.ReportSystem
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
-			else
-			{
-				//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
-				SourceRegionCode = Convert.ToInt64(
-					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-@"select RegionCode 
+
+			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
+			SourceRegionCode = Convert.ToInt64(
+				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+					@"select RegionCode 
 	from usersettings.clientsdata 
 where FirmCode = ?ClientCode
 and not exists(select 1 from future.Clients where Id = ?ClientCode)
@@ -68,9 +67,9 @@ select RegionCode
 where Id = ?ClientCode",
 					new MySqlParameter("?ClientCode", _clientCode)));
 
-				DataRow drPrice = MySqlHelper.ExecuteDataRow(
-					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
-					@"
+			DataRow drPrice = MySqlHelper.ExecuteDataRow(
+				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+				@"
 select 
   concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
   pricesdata.PriceCode, 
@@ -84,16 +83,12 @@ where
 and clientsdata.FirmCode = pricesdata.FirmCode
 and regions.RegionCode = clientsdata.RegionCode
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
-				if (drPrice != null)
-				{
-					SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
-					CustomerFirmName = drPrice["FirmName"].ToString();
-				}
-				else
-					throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
-			}
-			if (DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
-			{ }
+
+			if (drPrice == null)
+				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+
+			SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
+			CustomerFirmName = drPrice["FirmName"].ToString();
 
 			//Проверка актуальности прайс-листа
 			int ActualPrice = Convert.ToInt32(

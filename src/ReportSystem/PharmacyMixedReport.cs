@@ -1,7 +1,7 @@
 ﻿using System.Data;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using System.Drawing;
-using ReportSystem.Profiling;
 using System.Diagnostics;
 using Inforoom.ReportSystem.Filters;
 using System;

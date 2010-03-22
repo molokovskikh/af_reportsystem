@@ -11,7 +11,6 @@ using System.Net.Mail;
 using Inforoom.Common;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Properties;
-using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {

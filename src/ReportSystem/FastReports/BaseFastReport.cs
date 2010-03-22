@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem.FastReports
 {

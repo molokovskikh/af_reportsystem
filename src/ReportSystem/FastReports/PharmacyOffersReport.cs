@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
-using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem.FastReports
 {

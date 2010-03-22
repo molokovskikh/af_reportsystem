@@ -192,7 +192,7 @@
     <Compile Include="PropertiesLoading\IReportPropertiesLoader.cs" />
     <Compile Include="MixedReport.cs" />
     <Compile Include="OrdersReport.cs" />
-    <Compile Include="ProfileHelper.cs" />
+    <Compile Include="Helpers\ProfileHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

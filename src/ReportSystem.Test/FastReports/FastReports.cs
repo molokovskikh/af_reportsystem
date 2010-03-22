@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Inforoom.ReportSystem.Helpers;
+using NUnit.Framework;
 using Inforoom.ReportSystem.FastReports;
 using Inforoom.ReportSystem;
-using ReportSystem.Profiling;
 
 namespace ReportSystem.Test.FastReports
 {

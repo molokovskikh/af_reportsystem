@@ -3,7 +3,6 @@ using System.Configuration;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
 using MySql.Data.MySqlClient;
-using ReportSystem.Profiling;
 
 namespace ReportSystem.Test
 {

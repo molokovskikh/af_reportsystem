@@ -5,7 +5,6 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using System.Linq;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using ReportSystem.Profiling;
 using ExecuteTemplate;
 
 

@@ -5,8 +5,8 @@ using System.Text;
 using Inforoom.ReportSystem;
 using System.Data;
 using System.IO;
+using Inforoom.ReportSystem.Helpers;
 using ReportSystem.Test.Properties;
-using ReportSystem.Profiling;
 
 namespace ReportSystem.Test
 {

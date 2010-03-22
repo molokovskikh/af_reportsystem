@@ -5,12 +5,12 @@ using System.IO;
 using System.Diagnostics;
 using System.Data;
 using System.Reflection;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using Microsoft.Office.Core;
-using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {

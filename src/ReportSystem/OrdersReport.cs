@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using ReportSystem.Profiling;
 
 namespace Inforoom.ReportSystem
 {
