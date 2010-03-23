@@ -88,7 +88,13 @@ namespace Inforoom.ReportSystem.Writers
 
 						ws.Cells[row, col] = "Дата";
 						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
-						
+
+						if (_clientId == 0 || Convert.ToBoolean(dsReport.Tables["Client"].Rows[0][1]))
+						{
+							ws.Cells[row, col] = "Аптека";
+							((MSExcel.Range) ws.Cells[row, col++]).ColumnWidth = 18;
+						}
+
 						ws.Cells[row, col] = "Код товара";
 						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11.5;
 

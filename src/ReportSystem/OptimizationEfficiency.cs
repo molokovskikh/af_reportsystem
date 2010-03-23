@@ -33,7 +33,9 @@ namespace Inforoom.ReportSystem
 			command.CommandText =
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
-select oh.writetime, ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
+select oh.writetime,
+	if(u.id is null, cd.ShortName, ifnull(u.Name, u.Login)) as ClientName,
+    ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
     CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect,
 	CASE WHEN col.ResultCost < col.SelfCost THEN col.ResultCost*ol.Quantity ELSE null END IncreaseSales
@@ -49,6 +51,8 @@ from orders.ordershead oh
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
+  left join Future.Users u on u.Id = oh.UserId
+  left join UserSettings.ClientsData cd on cd.FirmCode = oh.ClientCode
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
 group by ol.RowId
@@ -128,13 +132,13 @@ where diff < 0";
 			if(_clientId != 0)
 			{
 				command.CommandText =
-@"select concat(cd.ShortName, ' (', reg.Region, ')')
+@"select concat(cd.ShortName, ' (', reg.Region, ')'), 0
     from usersettings.ClientsData cd
          join farm.Regions reg on reg.RegionCode = cd.RegionCode
    where FirmCode = ?clientId
     and not exists(select 1 from future.Clients where Id = ?clientId)
   union
-  select concat(cl.Name, ' (', reg.Region, ')')
+  select concat(cl.Name, ' (', reg.Region, ')'), 1
     from future.Clients cl
          join farm.Regions reg on reg.RegionCode = cl.RegionCode
    where Id = ?clientId";
@@ -144,6 +148,8 @@ where diff < 0";
 
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("writetime", typeof(DateTime));
+			if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
+				dtRes.Columns.Add("ClientName");
 			dtRes.Columns.Add("Code");
 			dtRes.Columns.Add("CodeCr");
 			dtRes.Columns.Add("Synonym");
@@ -164,6 +170,10 @@ where diff < 0";
 			{
 				var newRow = dtRes.NewRow();
 				newRow["writetime"] = row["writetime"];
+				//если строим отчет для всех клиентов или для новых
+				if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
+					newRow["ClientName"] = row["ClientName"];
+
 				newRow["Code"] = row["Code"];
 				newRow["CodeCr"] = row["CodeCr"];
 				newRow["Synonym"] = row["Synonym"];
