@@ -88,6 +88,7 @@
     <Compile Include="MinCostReport\MinCostProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportNewProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
+    <Compile Include="OffersReport\OffersReportFixture.cs" />
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
     <Compile Include="PharmacyMixed\PharmacyMixedProfileFixture.cs" />
     <Compile Include="RatingReport\RatingNewProfileFixture.cs" />
@@ -117,6 +118,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\OffersReport.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\PharmacyMixedNameOld.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
