@@ -75,7 +75,9 @@ select
   -- УРЛ
   '' as Url, 
   -- открытая наценка
-  round(ActivePrices.PublicUpCost, 3) 
+  round(ActivePrices.PublicUpCost, 3),
+  -- жизненно важный
+  catalog.VitallyImportant
 INTO OUTFILE 'C:/AFFiles/{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
