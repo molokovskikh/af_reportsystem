@@ -34,7 +34,8 @@ namespace Inforoom.ReportSystem
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
 select oh.writetime,
-	if(u.id is null, cd.ShortName, ifnull(u.Name, u.Login)) as ClientName,
+	if(u.id is null, cd.ShortName, fc.Name) as ClientName,
+	u.Name as UserName,
     ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
     CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect,
@@ -52,6 +53,7 @@ from orders.ordershead oh
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
   left join Future.Users u on u.Id = oh.UserId
+    left join Future.Clients fc on fc.Id = u.ClientId
   left join UserSettings.ClientsData cd on cd.FirmCode = oh.ClientCode
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
@@ -148,8 +150,12 @@ where diff < 0";
 
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("writetime", typeof(DateTime));
-			if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
+
+			if (_clientId == 0)
 				dtRes.Columns.Add("ClientName");
+			if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
+				dtRes.Columns.Add("UserName");
+
 			dtRes.Columns.Add("Code");
 			dtRes.Columns.Add("CodeCr");
 			dtRes.Columns.Add("Synonym");
@@ -171,8 +177,10 @@ where diff < 0";
 				var newRow = dtRes.NewRow();
 				newRow["writetime"] = row["writetime"];
 				//если строим отчет для всех клиентов или для новых
-				if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
+				if (_clientId == 0)
 					newRow["ClientName"] = row["ClientName"];
+				if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
+					newRow["UserName"] = row["UserName"];
 
 				newRow["Code"] = row["Code"];
 				newRow["CodeCr"] = row["CodeCr"];
