@@ -260,5 +260,117 @@ order by billingcode;
 				connection.Close();
 			}
 		}
+
+		[Test(Description = "создает отчеты по подобию отчета 'Обезличенные предложения для аптеки с привязкой по прайс-листу' для родительского отчета 240 с копированием всех свойств, меняя название заголовка отчета как FirmClientCode и выставляя параметр 'Клиент'")
+		, Ignore("это не тест, а метод для выполнения действий с отчетами")
+		]
+		public void CloneOffersReports()
+		{
+			ulong sourceGeneralReportId = 240;
+			var newReportList = new List<ulong>();
+
+			using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			{
+				connection.Open();
+
+				var templateReport = MySqlHelper.ExecuteDataRow(
+					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+					@"
+select
+  reports.ReportCode,
+  reports.ReportTypeCode
+from
+  reports.General_Reports,
+  reports.reports,
+  reports.ReportTypes
+where
+    General_Reports.GeneralReportCode = ?GeneralReportCode
+and General_Reports.GeneralReportCode = reports.GeneralReportCode
+and ReportTypes.ReportTypeCode = reports.ReportTypeCode
+and ReportTypes.ReportClassName = ?ReportClassName
+limit 1
+"
+					,
+					new MySqlParameter("?GeneralReportCode", sourceGeneralReportId),
+					new MySqlParameter("?ReportClassName", "Inforoom.ReportSystem.OffersReport"));
+
+				Console.WriteLine("type = {0}", templateReport["ReportTypeCode"]);
+
+				var insertReportCommand = new MySqlCommand(
+					@"
+insert into reports.reports 
+  (GeneralReportCode, ReportCaption, ReportTypeCode, Enabled)
+select 
+  reports.GeneralReportCode, ?FirmClientCode, reports.ReportTypeCode, 1
+from 
+  reports.reports 
+where reports.ReportCode = ?reportCode;
+select last_insert_id() as ReportCode;", connection);
+				insertReportCommand.Parameters.AddWithValue("?reportCode", templateReport["ReportCode"]);
+				insertReportCommand.Parameters.Add("?FirmClientCode", MySqlDbType.String);
+
+				/*
+				insert into report_properties
+				  (ReportCode, PropertyId, PropertyValue)
+				select
+				  ?ReportCode, report_type_properties.Id, ?PropertyValue
+				from
+				  reports.report_type_properties
+				where
+					report_type_properties.ReportTypeCode = ?ReportTypeCode
+				and report_type_properties.PropertyName = ?PropertyName;
+				 */
+				var updateReportCommand = new MySqlCommand(
+					@"
+update
+  reports.report_properties,
+  reports.report_type_properties
+set
+  report_properties.PropertyValue = ?PropertyValue
+where
+    report_type_properties.ReportTypeCode = ?ReportTypeCode
+and report_type_properties.PropertyName = ?PropertyName
+and report_properties.PropertyId = report_type_properties.Id
+and report_properties.ReportCode = ?ReportCode;
+"
+					,
+					connection);
+				updateReportCommand.Parameters.AddWithValue("?PropertyName", "ClientCode");
+				updateReportCommand.Parameters.AddWithValue("?ReportTypeCode", templateReport["ReportTypeCode"]);
+				updateReportCommand.Parameters.Add("?ReportCode", MySqlDbType.UInt64);
+				updateReportCommand.Parameters.Add("?PropertyValue", MySqlDbType.String);
+
+				var dsClients = MySqlHelper.ExecuteDataset(
+					connection,
+					@"
+SELECT * FROM Intersection I, clientsdata c
+where pricecode in (4651,187)
+and firmclientcode in
+(10093556,10093615,10093543,10093602,10093477,10093511,10125459,10093495,10093498,10109682,10128998,10102917,10108755,10093492,10093546,10102908,10149742,10093548,10093601,10093530,10093411,10102768,10146782,
+10093603,10093613,10093521,10093486,10125140,10093542,10093418,10138840,10150545,10127219,10093537,10124576,10108753,10102914,10093556)
+and clientcode = firmcode
+and shortname like '%отчетС%'
+group by firmclientcode
+"
+					);
+
+				foreach (DataRow client in dsClients.Tables[0].Rows)
+				{
+					insertReportCommand.Parameters["?FirmClientCode"].Value = client["FirmClientCode"];
+					var newReportCode = Convert.ToUInt64(insertReportCommand.ExecuteScalar());
+					newReportList.Add(newReportCode);
+					CopyReportProperties(Convert.ToUInt64(templateReport["ReportCode"]), newReportCode);
+
+					updateReportCommand.Parameters["?ReportCode"].Value = newReportCode;
+					updateReportCommand.Parameters["?PropertyValue"].Value = client["ClientCode"];
+					var updated = updateReportCommand.ExecuteNonQuery();
+					if (updated != 1)
+						throw new Exception(String.Format("Не обновили свойство для отчета = {0}", newReportCode));
+				}
+
+				connection.Close();
+			}
+		}
+
 	}
 }
