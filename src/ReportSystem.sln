@@ -1,8 +1,8 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportSystem", "ReportSystem\ReportSystem.csproj", "{BDC750F3-0940-43DB-9501-87A219530C35}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{32B9D67D-B11D-44FB-A13A-D61B09EAAE11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportSystem", "ReportSystem\ReportSystem.csproj", "{BDC750F3-0940-43DB-9501-87A219530C35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools", "Common.Tools\src\Common.Tools\Common.Tools.csproj", "{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}"
 EndProject

@@ -40,5 +40,19 @@ namespace ReportSystem.Test
 			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineProducer);
 		}
+
+		[Test]
+		public void Test()
+		{
+			using (var connection = new MySqlConnection("user=Kvasov;password=ghjgtkkth;host=sql.analit.net;database=usersettings"))
+			{
+				connection.Open();
+				var prop = new ReportPropertiesLoader();
+				var data = prop.LoadProperties(connection, Convert.ToUInt64(944));
+				var report = new ContactsReport(944, "Automate Created Report", connection, false, ReportFormats.Excel, data);
+				report.ProcessReport();
+				report.ReportToFile(@"C:\Temp\Combine.xls");
+			}
+		}
 	}
 }
