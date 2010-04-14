@@ -16,8 +16,8 @@ namespace Inforoom.ReportSystem
 
 		protected bool IsNewClient = false;
 
-		public ProviderReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
 		{ 
 		}
 

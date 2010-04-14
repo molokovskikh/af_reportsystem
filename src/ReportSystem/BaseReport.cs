@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
+using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
@@ -202,7 +203,6 @@ namespace Inforoom.ReportSystem
 
 			if(Format == ReportFormats.DBF && DbfSupported)
 			{// Формируем DBF
-				string oldFileName = Path.GetFileName(fileName);
 				fileName =  Path.Combine(Path.GetDirectoryName(fileName), _reportCaption + ".dbf");
 				DataTableToDbf(GetReportTable(), fileName);
 			}
@@ -213,72 +213,61 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		protected virtual void DataTableToExcel(DataTable dtExport, string ExlFileName)
+		protected virtual void DataTableToExcel(DataTable dtExport, string exlFileName)
 		{
 			ProfileHelper.Next("DataTableToExcel");
 			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти
-			string generatedListName = "testRep";
-			generatedListName = _reportCaption;
-			generatedListName = "rep" + _reportCode.ToString();
-			OleDbConnection ExcellCon = new OleDbConnection();
+			var generatedListName = "rep" + _reportCode;
+			var excellCon = new OleDbConnection();
 			try
 			{
-				ExcellCon.ConnectionString = @"
-Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + ExlFileName + 
+				excellCon.ConnectionString = @"
+Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + exlFileName + 
 @";Mode=Share Deny None;Extended Properties=""Excel 8.0;HDR=no"";";
-				string CreateSQL = "create table [" + generatedListName + "] (";
+				string createSql = "create table [" + generatedListName + "] (";
 				for (int i = 0; i < dtExport.Columns.Count; i++)
 				{ 
-					CreateSQL += "[F" + (i+1).ToString() + "] ";
-					dtExport.Columns[i].ColumnName = "F" + (i + 1).ToString();
+					createSql += "[F" + (i+1) + "] ";
+					dtExport.Columns[i].ColumnName = "F" + (i + 1);
+
 					if (dtExport.Columns[i].DataType == typeof(int))
-						CreateSQL += " int";
+						createSql += " int";
+					else if (dtExport.Columns[i].DataType == typeof(decimal))
+						createSql += " currency";
+					else if (dtExport.Columns[i].DataType == typeof(double))
+						createSql += " real";
+					else if ((dtExport.Columns[i].DataType == typeof(string)) && (dtExport.Columns[i].MaxLength > -1) && (dtExport.Columns[i].MaxLength <= MaxStringSize))
+						createSql += String.Format(" char({0})", MaxStringSize);
 					else
-						if (dtExport.Columns[i].DataType == typeof(decimal))
-							CreateSQL += " currency";
-						else
-							if (dtExport.Columns[i].DataType == typeof(double))
-								CreateSQL += " real";
-							else
-								if ((dtExport.Columns[i].DataType == typeof(string)) && (dtExport.Columns[i].MaxLength > -1) && (dtExport.Columns[i].MaxLength <= MaxStringSize))
-									CreateSQL += String.Format(" char({0})", MaxStringSize);
-								else
-									CreateSQL += " memo";
+						createSql += " memo";
+
 					if (i == dtExport.Columns.Count - 1)
-						CreateSQL += ");";
+						createSql += ");";
 					else
-						CreateSQL += ",";
+						createSql += ",";
 				}
-				OleDbCommand cmd = new OleDbCommand(CreateSQL, ExcellCon);
-				ExcellCon.Open();
+				var cmd = new OleDbCommand(createSql, excellCon);
+				excellCon.Open();
 				cmd.ExecuteNonQuery();
-				OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + generatedListName + "]", ExcellCon);
-				OleDbCommandBuilder cdExcel = new OleDbCommandBuilder(daExcel);
-				cdExcel.QuotePrefix = "[";
-				cdExcel.QuoteSuffix = "]";
+				var daExcel = new OleDbDataAdapter("select * from [" + generatedListName + "]", excellCon);
+				var cdExcel = new OleDbCommandBuilder(daExcel) {QuotePrefix = "[", QuoteSuffix = "]"};
 				daExcel.Update(dtExport);
 			}
 			finally
 			{
-				ExcellCon.Close();
+				excellCon.Close();
 			}
 		}
 
 		protected virtual void FormatExcel(string fileName)
 		{}
 
-		public virtual bool DbfSupported
-		{
-			get
-			{
-				return false;
-			}
-		}
+		public virtual bool DbfSupported { get; private set; }
 
 		protected virtual void DataTableToDbf(DataTable dtExport, string fileName)
 		{
 			using(var writer = new StreamWriter(fileName, false, Encoding.GetEncoding(866)))
-				Inforoom.Data.DBF.Save(dtExport, writer);
+				Dbf.Save(dtExport, writer);
 		}
 
 		protected virtual DataTable GetReportTable()

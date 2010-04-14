@@ -11,15 +11,19 @@ namespace Inforoom.ReportSystem.Writers
 
 		protected void DataTableToExcel(DataTable dtExport, string ExlFileName, ulong reportCode)
 		{
+			DataTableToExcel(dtExport, ExlFileName, "rep" + reportCode);
+		}
+
+		protected void DataTableToExcel(DataTable dtExport, string ExlFileName, string listName)
+		{
 			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти
-			string generatedListName = "rep" + reportCode.ToString(); ;
 			OleDbConnection ExcellCon = new OleDbConnection();
 			try
 			{
 				ExcellCon.ConnectionString = @"
 Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + ExlFileName +
 @";Mode=Share Deny None;Extended Properties=""Excel 8.0;HDR=no"";";
-				string CreateSQL = "create table [" + generatedListName + "] (";
+				string CreateSQL = "create table [" + listName + "] (";
 				for (int i = 0; i < dtExport.Columns.Count; i++)
 				{
 					CreateSQL += "[F" + (i + 1).ToString() + "] ";
@@ -45,7 +49,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 				OleDbCommand cmd = new OleDbCommand(CreateSQL, ExcellCon);
 				ExcellCon.Open();
 				cmd.ExecuteNonQuery();
-				OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + generatedListName + "]", ExcellCon);
+				OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + listName + "]", ExcellCon);
 				OleDbCommandBuilder cdExcel = new OleDbCommandBuilder(daExcel);
 				cdExcel.QuotePrefix = "[";
 				cdExcel.QuoteSuffix = "]";

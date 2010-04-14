@@ -82,6 +82,7 @@
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="FastReports\FastReports.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
+    <Compile Include="LeakOffersReportFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceNewProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\MinCostByPriceNewProfileFixture.cs" />
@@ -122,6 +123,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData\LeakOffers.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\OffersReport.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

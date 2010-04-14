@@ -178,6 +178,7 @@
     <Compile Include="Helpers\UseExcel.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LeakOffersReport.cs" />
     <Compile Include="OffersReport.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -187,6 +188,7 @@
     <Compile Include="ReportSettings\PharmacyMixedSettings.cs" />
     <Compile Include="Writers\BaseExcelWriter.cs" />
     <Compile Include="Writers\IWriter.cs" />
+    <Compile Include="Writers\LeakOffersWriter.cs" />
     <Compile Include="Writers\OptimizationEfficiencyNativeExcelWriter.cs" />
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="GeneralReport.cs">
@@ -247,7 +249,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common.Tools\src\Common.Tools\Common.Tools.csproj">
+    <ProjectReference Include="..\Common.Tools\Common.Tools\Common.Tools.csproj">
       <Project>{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}</Project>
       <Name>Common.Tools</Name>
     </ProjectReference>
