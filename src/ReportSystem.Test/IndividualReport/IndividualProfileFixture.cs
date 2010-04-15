@@ -5,7 +5,6 @@ using ReportSystem.Test.Properties;
 
 namespace ReportSystem.Test
 {
-	//[Ignore("Не работает из-за многоадресовости доставки заказов")]
 	[TestFixture]
 	public class IndividualProfileFixture : BaseProfileFixture
 	{

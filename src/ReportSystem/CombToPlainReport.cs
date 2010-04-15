@@ -90,7 +90,6 @@ from
   catalogs.catalog,
   catalogs.catalognames,
   catalogs.catalogforms,
-  catalogs.Producers cfc,
   farm.synonym s,
   farm.synonymfirmcr sfc,
   usersettings.regionaldata rd,
@@ -100,7 +99,6 @@ where
     FarmCore.Id = Core.Id 
 and s.synonymcode = FarmCore.synonymcode
 and sfc.SynonymFirmCrCode = FarmCore.SynonymFirmCrCode
-and cfc.Id = FarmCore.codefirmcr
 and ActivePrices.PriceCode = Core.PriceCode
 and ActivePrices.RegionCode = Core.RegionCode
 and regions.RegionCode = ActivePrices.RegionCode
