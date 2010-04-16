@@ -179,10 +179,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ByOffers\LeakOffersReport.cs" />
-    <Compile Include="ByOffers\OffersReport.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="ByOrders\MixedReport.cs" />
+    <Compile Include="ByOffers\OffersReport.cs" />
+    <Compile Include="ByOrders\OrdersReport.cs" />
     <Compile Include="ByOrders\PharmacyMixedReport.cs" />
+    <Compile Include="ByOrders\ProviderRatingReport.cs" />
+    <Compile Include="ByOrders\RatingReport.cs" />
     <Compile Include="ReportSettings\BaseReportSettings.cs" />
     <Compile Include="ReportSettings\OptimizationEfficiencySettings.cs" />
     <Compile Include="ReportSettings\PharmacyMixedSettings.cs" />
@@ -199,8 +201,6 @@
     <Compile Include="Helpers\ExcelHelper.cs" />
     <Compile Include="OptimizationEfficiency.cs" />
     <Compile Include="PropertiesLoading\IReportPropertiesLoader.cs" />
-    <Compile Include="ByOrders\MixedReport.cs" />
-    <Compile Include="ByOrders\OrdersReport.cs" />
     <Compile Include="Helpers\ProfileHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -208,11 +208,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="ByOrders\ProviderRatingReport.cs" />
     <Compile Include="ProviderReport.cs" />
-    <Compile Include="ByOrders\RatingReport.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="FilterField.cs">
       <SubType>Code</SubType>
     </Compile>
