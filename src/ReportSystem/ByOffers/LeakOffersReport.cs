@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Common.Tools;
@@ -43,12 +45,17 @@ join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode";
 			e.DataAdapter.Fill(data, "offers");
 
 			e.DataAdapter.SelectCommand.CommandText = @"
-select ap.PriceCode, cd.ShortName, ap.PriceName
+select ap.PriceCode, cd.ShortName, ap.PriceName, ap.PositionCount
 from usersettings.activeprices ap
 join usersettings.clientsdata cd on cd.FirmCode = ap.FirmCode";
 			e.DataAdapter.Fill(_dsReport, "prices");
 
 			var groupByPrice = data.Tables["offers"].Rows.Cast<DataRow>().GroupBy(r => r["PriceCode"]);
+			groupByPrice = groupByPrice.OrderByDescending(p => {
+				var priceId = Convert.ToInt32(p.Key);
+				var rows = _dsReport.Tables["Prices"].Rows.Cast<DataRow>();
+				return Convert.ToInt32(rows.First(r => Convert.ToInt32(r["PriceCode"]) == priceId)["PositionCount"]);
+			});
 
 			foreach (var price in groupByPrice)
 			{
