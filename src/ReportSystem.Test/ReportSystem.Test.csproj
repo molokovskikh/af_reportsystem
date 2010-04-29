@@ -108,6 +108,7 @@
     <Compile Include="SpecialReport\SpecialProfileFixture.cs" />
     <Compile Include="SuppliersRatingReport\SuppliersRatingProfileFixture.cs" />
     <Compile Include="TestHelper.cs" />
+    <Compile Include="Troubleshoot.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">

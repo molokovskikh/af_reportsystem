@@ -78,8 +78,7 @@ and regions.RegionCode = activeprices.RegionCode";
 		{// Ќебольша€ маги€, через любого пользовател€ получаем прайсы клиента
 
 			// ѕолучаем первого попавшегос€ пользовател€
-			e.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode + " limit 1, 1";
-			var userId = Convert.ToUInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
+			var userId = GetUserId(e);
 
 			// ѕолучаем дл€ него все прайсы
 			e.DataAdapter.SelectCommand.CommandText = "future.GetPrices";
@@ -99,6 +98,12 @@ and regions.RegionCode = activeprices.RegionCode";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?UserIdParam", userId);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+		}
+
+		private uint GetUserId(ExecuteArgs e)
+		{
+			e.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode + " limit 1";
+			return Convert.ToUInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
 		}
 
 		protected void GetActivePricesOld(ExecuteArgs e)
@@ -127,8 +132,7 @@ and regions.RegionCode = activeprices.RegionCode";
 		{ // Ќебольша€ маги€, через любого пользовател€ получаем предложение дл€ клиента
 
 			// ѕолучаем первого попавшегос€ пользовател€
-			e.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode + " limit 1, 1";
-			var userId = Convert.ToUInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
+			var userId = GetUserId(e);
 
 			//ѕроверка существовани€ и отключени€ клиента
 			e.DataAdapter.SelectCommand.CommandText =
