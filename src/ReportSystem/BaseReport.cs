@@ -181,7 +181,7 @@ namespace Inforoom.ReportSystem
 
 		public void ProcessReport()
 		{
-			bool res = MethodTemplate.ExecuteMethod<ExecuteArgs, bool>(new ExecuteArgs(), ProcessReportExec, false, _conn);
+			MethodTemplate.ExecuteMethod(new ExecuteArgs(), ProcessReportExec, false, _conn);
 		}
 
 		protected bool ProcessReportExec(ExecuteArgs e)

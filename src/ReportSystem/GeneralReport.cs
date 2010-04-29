@@ -344,26 +344,5 @@ and rt.ReportTypeCode = r.ReportTypeCode",
 				throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
 			return t;
 		}
-
-		private Type GetReportTypeByCode(ulong ReportTypeCode)
-		{
-			switch(ReportTypeCode)
-			{
-				case 1:
-					return typeof(CombReport);
-				case 2:
-					return typeof(SpecReport);
-				case 5:
-					return typeof(DefReport);
-				case 6:
-					return typeof(CombShortReport);
-				case 7:
-					return typeof(RatingReport);
-				case 8:
-					return typeof(SpecShortReport);
-				default:
-					throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeCode));
-			}
-		}
 	}
 }
