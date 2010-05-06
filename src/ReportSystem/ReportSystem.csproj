@@ -190,6 +190,7 @@
     <Compile Include="ReportSettings\PharmacyMixedSettings.cs" />
     <Compile Include="Writers\BaseExcelWriter.cs" />
     <Compile Include="Writers\IWriter.cs" />
+    <Compile Include="Writers\LeakOffersNativeWriter.cs" />
     <Compile Include="Writers\LeakOffersWriter.cs" />
     <Compile Include="Writers\OptimizationEfficiencyNativeExcelWriter.cs" />
     <Compile Include="ExceptionHandling.cs" />
