@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Tools.Calendar;
 using MySql.Data.MySqlClient;
 using System.Data;
 using ExcelLibrary.SpreadSheet;
@@ -60,11 +61,11 @@ where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId
 group by ol.RowId
 order by oh.writetime, ol.RowId;";
 
-			_endDate = DateTime.Now;
+			_endDate = DateTime.Today;
 			if (_byPreviousMonth) // Определяем интервал построения отчета
 			{
-				_endDate = _endDate.AddDays(-_endDate.Day); // Последний день прошлого месяца
-				_beginDate = _endDate.AddMonths(-1).AddDays(1);
+				_beginDate = DateTime.Today.AddMonths(-1).FirstDayOfMonth();
+				_endDate = DateTime.Today.AddMonths(-1).LastDayOfMonth();
 			}
 			else
 				_beginDate = _endDate.AddDays(-_reportInterval);
