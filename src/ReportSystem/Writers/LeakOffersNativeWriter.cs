@@ -12,6 +12,10 @@ namespace Inforoom.ReportSystem.Writers
 			var workbook = new Workbook();
 			foreach (var row in data.Tables["prices"].Rows.Cast<DataRow>())
 			{
+				var offers = data.Tables[row["PriceCode"].ToString()];
+				if (offers == null)
+					continue;
+
 				var name = row["ShortName"] + " " + row["PriceName"];
 				if (name.Length > 26)
 					name = name.Substring(0, 26);
@@ -48,7 +52,7 @@ namespace Inforoom.ReportSystem.Writers
 				sheet.Cells.ColumnWidth[7] = 20*255;
 
 				var i = 1;
-				foreach (var offer in data.Tables[row["PriceCode"].ToString()].Rows.Cast<DataRow>())
+				foreach (var offer in offers.Rows.Cast<DataRow>())
 				{
 					sheet.Cells[i, 0] = new Cell(offer["Code"]){Style = body};
 					sheet.Cells[i, 1] = new Cell(offer["CodeCr"]){Style = body};
