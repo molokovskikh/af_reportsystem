@@ -261,6 +261,7 @@
     </Content>
     <Content Include="TestData\PharmacyOffers.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="TestData\RatingWithPayersList.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
