@@ -51,7 +51,7 @@ namespace ReportSystem.Test.FastReports
 		{
 			AddProperty("IncludeQuantity", 1);
 			AddProperty("IncludeProducer", 1);
-			AddProperty("CostDiffTheshold", 10);
+			AddProperty("CostDiffThreshold", 10);
 			AddProperty("ClientCode", 2575);
 			BuildReport();
 		}

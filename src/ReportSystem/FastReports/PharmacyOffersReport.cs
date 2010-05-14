@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using Inforoom.ReportSystem.Helpers;
+using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
+using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem.FastReports
 {
@@ -56,11 +58,11 @@ from Core c
 	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 	join usersettings.PricesData pd on pd.PriceCode = c.PriceCode
 group by c.ProductId, c.ProducerId, pd.FirmCode
-order by c.ProductName, c.ProducerName, Cost;
+
 ";
 		private bool _includeQuantity;
 		private bool _includeProducer;
-		private decimal _costDiffTheshold;
+		private decimal _costDiffThreshold;
 		private int _suppliersCount = 0;
 
 		public PharmacyOffersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties) 
@@ -74,7 +76,7 @@ order by c.ProductName, c.ProducerName, Cost;
 			_includeProducer = Convert.ToBoolean(getReportParam("IncludeProducer"));
 			_includeQuantity = Convert.ToBoolean(getReportParam("IncludeQuantity"));
 			if (reportParamExists("CostDiffThreshold"))
-				_costDiffTheshold = Convert.ToDecimal(getReportParam("CostDiffThreshold"));
+				_costDiffThreshold = Convert.ToDecimal(getReportParam("CostDiffThreshold"));
 		}
 
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
@@ -84,6 +86,11 @@ order by c.ProductName, c.ProducerName, Cost;
 
 			ProfileHelper.Next("GetData");
 			e.DataAdapter.SelectCommand.CommandText = sql;
+			if (_includeProducer)
+				e.DataAdapter.SelectCommand.CommandText += "order by c.ProductName, c.ProducerName, Cost;";
+			else
+				e.DataAdapter.SelectCommand.CommandText += "order by c.ProductName, Cost;";
+
 			DataTable resultTable;
 			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
 			{
@@ -155,9 +162,9 @@ order by c.ProductName, c.ProducerName, Cost;
 			if (row == null)
 				return;
 
-			if (dataTable.Columns.Contains("Diff1")
-				&& row["Diff1"] != DBNull.Value
-				&& Convert.ToDecimal(row["Diff1"]) < _costDiffTheshold)
+			if (dataTable.Columns.Contains("Diff2")
+				&& row["Diff2"] != DBNull.Value
+				&& Convert.ToDecimal(row["Diff2"]) < _costDiffThreshold)
 				return;
 
 			dataTable.Rows.Add(row);
@@ -203,7 +210,7 @@ order by c.ProductName, c.ProducerName, Cost;
 			dc.Caption = "Производитель";
 			dc.ExtendedProperties.Add("Width", (int?)15);
 
-			dc = res.Columns.Add("Diff" + _suppliersCount, typeof(string));
+			dc = res.Columns.Add("Diff" + _suppliersCount, typeof(double));
 			dc.Caption = "Разница %";
 			dc.ExtendedProperties.Add("Width", (int?)5);
 
