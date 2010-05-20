@@ -46,6 +46,7 @@ update Core cor set
 
 select  c.ProductId,
         c.ProductName,
+		m.Mnn,
         c.ProducerId,
         c.ProducerName,
         c.SupplierName,
@@ -55,6 +56,9 @@ select  c.ProductId,
 		c0.Code
 from Core c
 	join farm.Core0 c0 on c0.Id = c.Id
+		join Catalogs.Products p on p.Id = c0.ProductId
+			join Catalogs.Catalog ca on ca.Id = p.CatalogId
+				left join Catalogs.Mnn m on m.Id = ca.MnnId
 	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 	join usersettings.PricesData pd on pd.PriceCode = c.PriceCode
 group by c.ProductId, c.ProducerId, pd.FirmCode
@@ -131,6 +135,7 @@ group by c.ProductId, c.ProducerId, pd.FirmCode
 
 					row["Code"] = reader["Code"];
 					row["ProductName"] = productName;
+					row["Mnn"] = reader["Mnn"].ToString();
 					if (_includeProducer)
 						row["ProducerName"] = producerName;
 
@@ -227,6 +232,10 @@ group by c.ProductId, c.ProducerId, pd.FirmCode
 
 			dc = res.Columns.Add("ProductName", typeof(String));
 			dc.Caption = "Наименование";
+			dc.ExtendedProperties.Add("Width", (int?) 15);
+
+			dc = res.Columns.Add("Mnn", typeof(String));
+			dc.Caption = "Мнн";
 			dc.ExtendedProperties.Add("Width", (int?) 15);
 
 			if (_includeProducer)
