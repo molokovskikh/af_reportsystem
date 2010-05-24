@@ -58,7 +58,8 @@ from Core c
 	join farm.Core0 c0 on c0.Id = c.Id
 		join Catalogs.Products p on p.Id = c0.ProductId
 			join Catalogs.Catalog ca on ca.Id = p.CatalogId
-				left join Catalogs.Mnn m on m.Id = ca.MnnId
+				join Catalogs.CatalogNames cn on cn.Id = ca.NameId
+					left join Catalogs.Mnn m on m.Id = cn.MnnId
 	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 	join usersettings.PricesData pd on pd.PriceCode = c.PriceCode
 group by c.ProductId, c.ProducerId, pd.FirmCode
