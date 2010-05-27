@@ -4,7 +4,7 @@ import System.IO
 
 Global(
 	project : "ReportTuner",
-	deployTo : "\\\\acdcserv\\ReportConf"
+	deployTo : """\\acdcserv.adc.analit.net\WebApps\Reports\"""
 )
 
 Task @default, [@build]
