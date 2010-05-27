@@ -826,7 +826,7 @@ WHERE ID = ?OPID", MyCn, trans);
 						Request["r"],
 						Request["rp"],
 						e.CommandArgument);
-				else if(prop.PropertyType.PropertyName == "FirmCodeEqual")
+				else if(prop.PropertyType.PropertyName == "FirmCodeEqual" || prop.PropertyType.PropertyName == "IgnoredSuppliers")
 					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
 						Request["r"],
 						Request["rp"],

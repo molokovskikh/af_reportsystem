@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Common.Tools;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
@@ -57,6 +58,18 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 				e.DataAdapter.SelectCommand.CommandText = "delete from ActivePrices where FirmCode not in " + firms;
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			}
+
+			if (_reportParams.ContainsKey("IgnoredSuppliers"))
+			{
+				var suppliers = (List<ulong>)_reportParams["IgnoredSuppliers"];
+				if (suppliers != null && suppliers.Count > 0)
+				{
+					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where FirmCode in ({0})",
+						suppliers.Implode());
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				}
 			}
 
 			//Добавляем в таблицу ActivePrices поле FirmName и заполняем его также, как раньше для отчетов
