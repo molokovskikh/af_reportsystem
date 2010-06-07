@@ -31,6 +31,8 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			base.GenerateReport(e);
+
 			//Выбираем 
 			GetOffers(e);
 
@@ -75,7 +77,7 @@ select
   -- УРЛ
   '' as Url, 
   -- открытая наценка
-  round(ActivePrices.PublicUpCost, 3),
+  0 as PublicUpCost,
   -- жизненно важный
   catalog.VitallyImportant
 INTO OUTFILE 'C:/AFFiles/{0}'
