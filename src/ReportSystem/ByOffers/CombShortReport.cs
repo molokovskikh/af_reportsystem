@@ -12,27 +12,15 @@ namespace Inforoom.ReportSystem
 {
 	public class CombShortReport : CombReport
 	{
-		private bool _needProcessing = false; // Надо ли группировать и вычислять минимальные в Calculate
-		private List<string> _suppliersList = new List<string>();
+		// Надо ли группировать и вычислять минимальные в Calculate
+		private bool _needProcessing; 
 
 		private void GenerateForOneClient(ExecuteArgs e)
 		{
 			base.GenerateReport(e);
 
 			// Загружаем список поставщиков участвовших в формировании отчета
-			e.DataAdapter.SelectCommand.CommandText =
-@"select  concat(cd.ShortName, '(',
-    group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
-	from Core cor
-       join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-       join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-group by cd.FirmCode
-order by cd.ShortName";
-			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
-			{
-				while(reader.Read())
-					_suppliersList.Add(Convert.ToString(reader[0]));
-			}
+			_suppliersNames = GetSuppliers(e);
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -63,7 +51,6 @@ order by cd.ShortName";
 			}
 
 			_clientsNames = GetClientsNamesFromSQL(e, reportClients);
-			_suppliersNames = String.Join(", ", _suppliersList.Distinct().ToArray());
 
 			var table = _dsReport.Tables["Results"];
 			for (int i = 0; i < 5; i++)

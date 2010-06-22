@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Common.Tools;
 using MySql.Data.MySqlClient;
@@ -49,14 +50,9 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
 				allowedFirms = (List<ulong>)_reportParams["FirmCodeEqual"];
 			if(allowedFirms != null && allowedFirms.Count > 0)
-			{  // Если задана настройка список клиентов, то исключаем ПЛ поставщиков кот. не в списке
-				var firms = new StringBuilder();
-				firms.Append('(');
-				allowedFirms.ForEach( f => firms.Append(f).Append(','));
-				firms[firms.Length-1] = ')';
-
+			{
 				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-				e.DataAdapter.SelectCommand.CommandText = "delete from ActivePrices where FirmCode not in " + firms;
+				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where FirmCode not in ({0})", allowedFirms.Implode());
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			}
 
@@ -66,8 +62,7 @@ namespace Inforoom.ReportSystem
 				if (suppliers != null && suppliers.Count > 0)
 				{
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where FirmCode in ({0})",
-						suppliers.Implode());
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where FirmCode in ({0})", suppliers.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
@@ -183,6 +178,49 @@ and regions.RegionCode = activeprices.RegionCode";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?FreshOnly", 0);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+		}
+
+		public static string GetSuppliers(ExecuteArgs e)
+		{
+			var suppliers = new List<string>();
+			e.DataAdapter.SelectCommand.CommandText = @"
+select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
+from Core cor
+	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
+	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
+group by cd.FirmCode
+order by cd.ShortName";
+			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
+			{
+				while(reader.Read())
+					suppliers.Add(Convert.ToString(reader[0]));
+			}
+			return suppliers.Distinct().Implode();
+		}
+
+		public string GetIgnoredSuppliers(ExecuteArgs e)
+		{
+			if (!_reportParams.ContainsKey("IgnoredSuppliers"))
+				return null;
+
+			var supplierIds = (List<ulong>)_reportParams["IgnoredSuppliers"];
+			if (supplierIds.Count == 0)
+				return null;
+
+			var suppliers = new List<string>();
+			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
+from usersettings.PricesData pd
+	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
+where pd.PriceCode in ({0})
+group by cd.FirmCode
+order by cd.ShortName", supplierIds.Implode());
+			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
+			{
+				while(reader.Read())
+					suppliers.Add(Convert.ToString(reader[0]));
+			}
+			return suppliers.Distinct().Implode();
 		}
 	}
 }

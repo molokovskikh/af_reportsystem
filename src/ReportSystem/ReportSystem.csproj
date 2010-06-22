@@ -167,12 +167,12 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CombReport.cs" />
-    <Compile Include="CombShortReport.cs" />
-    <Compile Include="CombToPlainReport.cs" />
+    <Compile Include="ByOffers\CombReport.cs" />
+    <Compile Include="ByOffers\CombShortReport.cs" />
+    <Compile Include="ByOffers\CombToPlainReport.cs" />
     <Compile Include="ContactsReport.cs" />
     <Compile Include="DataLoaders\IDataLoader.cs" />
-    <Compile Include="DefReport.cs" />
+    <Compile Include="ByOffers\DefReport.cs" />
     <Compile Include="FastReports\BaseFastReport.cs" />
     <Compile Include="FastReports\PharmacyOffersReport.cs" />
     <Compile Include="Helpers\UseExcel.cs">
@@ -214,8 +214,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PropertiesLoading\ReportPropertiesLoader.cs" />
-    <Compile Include="SpecReport.cs" />
-    <Compile Include="SpecShortReport.cs" />
+    <Compile Include="ByOffers\SpecReport.cs" />
+    <Compile Include="ByOffers\SpecShortReport.cs" />
     <Compile Include="Writers\OptimizationEfficiencyOleExcelWriter.cs" />
     <Compile Include="Writers\PharmacyMixedNativeWriter.cs" />
     <Compile Include="Writers\PharmacyMixedOleWriter.cs" />

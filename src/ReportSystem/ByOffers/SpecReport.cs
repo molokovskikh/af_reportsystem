@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Reflection;
 using System.Text;
 using Inforoom.ReportSystem.Helpers;
+using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Configuration;
+using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
@@ -27,6 +31,9 @@ namespace Inforoom.ReportSystem
 		protected string CustomerFirmName;
 
 		protected string reportCaptionPreffix;
+
+		protected string _suppliers;
+		protected string _ignoredSuppliers;
 
 		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -527,114 +534,112 @@ order by FullName, FirmCr";
 
 		protected override void FormatExcel(string FileName)
 		{
-			MSExcel.Application exApp = new MSExcel.ApplicationClass();
-			try
-			{
-				exApp.DisplayAlerts = false;
-				MSExcel.Workbook wb = exApp.Workbooks.Open(FileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
-				MSExcel._Worksheet ws;
-				try
-				{
-					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
+			UseExcel.Workbook(FileName, wb => {
+				var ws = (_Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
 
-					try
-					{
-						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
-						DataTable res = _dsReport.Tables["Results"];
-						for (int i = 0; i < 7; i++)
-						{
-							ws.Cells[3, i + 1] = res.Columns[i].Caption;
-						}
+				var result = _dsReport.Tables["Results"];
+				var tableBeginRowIndex = 3;
+				var rowCount = result.Rows.Count;
+				var columnCount = result.Columns.Count;
 
-						for (int i = 1; i <= 2; i++)
-							for (int j = 1; j <= 11;j++ )
-								((MSExcel.Range)ws.Cells[i, j]).Clear();
+				if (!String.IsNullOrEmpty(_suppliers))
+					tableBeginRowIndex = PutHeader(ws, tableBeginRowIndex, 12, String.Format("Список поставщиков: {0}", _suppliers));
+				if (!String.IsNullOrEmpty(_ignoredSuppliers))
+					tableBeginRowIndex = PutHeader(ws, tableBeginRowIndex, 12, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
 
-						//Код
-						((MSExcel.Range)ws.Columns[1, Type.Missing]).AutoFit();
-						//Наименование
-						((MSExcel.Range)ws.Cells[3, 2]).ColumnWidth = 20;
-						//Производитель
-						((MSExcel.Range)ws.Cells[3, 3]).ColumnWidth = 10;
-						//Количество
-						if ((_reportType == 2) || (_reportType == 4))
-							((MSExcel.Range)ws.Cells[3, 5]).ColumnWidth = 4;
-						else
-							((MSExcel.Range)ws.Cells[3, 5]).ColumnWidth = 0;
-						//min
-						((MSExcel.Range)ws.Cells[3, 6]).ColumnWidth = 6;
-						//Лидер
-						((MSExcel.Range)ws.Cells[3, 7]).ColumnWidth = 9;
+				var lastRowIndex = rowCount + tableBeginRowIndex;
 
-						//Форматирование заголовков прайс-листов
-						FormatLeaderAndPrices(ws);
+				for (var i = 0; i < result.Columns.Count; i++)
+					ws.Cells[tableBeginRowIndex, i + 1] = result.Columns[i].Caption;
 
-						//рисуем границы на всю таблицу
-						ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count + 1, _dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
-						//Устанавливаем цвет колонки "min"
-						ws.get_Range("F3", "F" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSeaGreen);
-						//Устанавливаем цвет колонки "Лидер"
-						ws.get_Range("G3", "G" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSkyBlue);
+				//Код
+				((Range)ws.Columns[1, Type.Missing]).AutoFit();
+				//Наименование
+				((Range)ws.Cells[tableBeginRowIndex, 2]).ColumnWidth = 20;
+				//Производитель
+				((Range)ws.Cells[tableBeginRowIndex, 3]).ColumnWidth = 10;
+				//Количество
+				if ((_reportType == 2) || (_reportType == 4))
+					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 4;
+				else
+					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 0;
+				//min
+				((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 6;
+				//Лидер
+				((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 9;
 
+				//Форматирование заголовков прайс-листов
+				FormatLeaderAndPrices(ws);
 
-						//Устанавливаем шрифт листа
-						ws.Rows.Font.Size = 8;
-						ws.Rows.Font.Name = "Arial Narrow";
-						ws.Activate();
+				//рисуем границы на всю таблицу
+				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[lastRowIndex, columnCount]].Borders.Weight = XlBorderWeight.xlThin;
+				//Устанавливаем цвет колонки "min"
+				ws.Range["F" + tableBeginRowIndex, "F" + lastRowIndex].Interior.Color = ColorTranslator.ToOle(Color.LightSeaGreen);
+				//Устанавливаем цвет колонки "Лидер"
+				ws.Range["G" + tableBeginRowIndex, "G" + lastRowIndex].Interior.Color = ColorTranslator.ToOle(Color.LightSkyBlue);
 
-						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[3, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count, _dsReport.Tables["Results"].Columns.Count])).Select();
-						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
+				//Устанавливаем шрифт листа
+				ws.Rows.Font.Size = 8;
+				ws.Rows.Font.Name = "Arial Narrow";
+				ws.Activate();
 
-						//Замораживаем некоторые колонки и столбцы
-						((MSExcel.Range)ws.get_Range("L4", System.Reflection.Missing.Value)).Select();
-						exApp.ActiveWindow.FreezePanes = true;
+				//Устанавливаем АвтоФильтр на все колонки
+				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[rowCount, columnCount]].Select();
+				((Range)wb.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
-						//Объединяем несколько ячеек, чтобы в них написать текст
-						((MSExcel.Range)ws.get_Range("A1:K2", System.Reflection.Missing.Value)).Select();
-						((MSExcel.Range)exApp.Selection).Merge(null);
-						if (_reportType < 3)
-							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
-						else
-							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+				//Замораживаем некоторые колонки и столбцы
+				ws.Range["L4", Missing.Value].Select();
+				wb.Application.ActiveWindow.FreezePanes = true;
 
-					}
-					finally
-					{
-						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-					}
-				}
-				finally
-				{
-					ws = null;
-					wb = null;
-					try { exApp.Workbooks.Close(); }
-					catch { }
-				}
-			}
-			finally
-			{
-				try { exApp.Quit(); }
-				catch { }
-				exApp = null;
-			}
+				//Объединяем несколько ячеек, чтобы в них написать текст
+				ws.Range["A1:K2", Missing.Value].Select();
+				((Range)wb.Application.Selection).Merge(null);
+				if (_reportType < tableBeginRowIndex)
+					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+				else
+					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+			});
 		}
 
-		protected virtual void FormatLeaderAndPrices(MSExcel._Worksheet ws)
+		private int PutHeader(_Worksheet ws, int beginRow, int columnCount, string message)
+		{
+			//var insertRange = ws.Range[tableBeginRowIndex + 1, Type.Missing];
+			((Range) ws.Cells[beginRow + 1, 1]).Select();
+			var row = ((Range) ws.Application.Selection).EntireRow;
+			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
+			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
+			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
+
+			beginRow += 3;
+			var range = ws.Range[
+				ws.Cells[beginRow - 3, 1], 
+				ws.Cells[beginRow - 1, columnCount]];
+			range.Select();
+			((Range)ws.Application.Selection).Merge();
+			var activeCell = ws.Application.ActiveCell;
+			activeCell.FormulaR1C1 = message;
+			activeCell.WrapText = true;
+			activeCell.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+			activeCell.VerticalAlignment = XlVAlign.xlVAlignTop;
+			return beginRow;
+		}
+
+		protected virtual void FormatLeaderAndPrices(_Worksheet ws)
 		{
 			int ColumnPrefix = 12;
 			//Разница
-			((MSExcel.Range)ws.Cells[3, 8]).ColumnWidth = 6;
+			((Range)ws.Cells[3, 8]).ColumnWidth = 6;
 			ws.Cells[3, 8] = "Разница";
 			//% разницы
-			((MSExcel.Range)ws.Cells[3, 9]).ColumnWidth = 4;
+			((Range)ws.Cells[3, 9]).ColumnWidth = 4;
 			ws.Cells[3, 9] = "% разницы";
 			//средняя
-			((MSExcel.Range)ws.Cells[3, 10]).ColumnWidth = 6;
+			((Range)ws.Cells[3, 10]).ColumnWidth = 6;
 			ws.Cells[3, 10] = "Средняя цена";
 			//max
-			((MSExcel.Range)ws.Cells[3, 11]).ColumnWidth = 6;
+			((Range)ws.Cells[3, 11]).ColumnWidth = 6;
 			ws.Cells[3, 11] = "Макс. цена";
 
 			int PriceIndex = 0;
@@ -642,7 +647,7 @@ order by FullName, FirmCr";
 			{
 				//Устанавливаем название фирмы
 				ws.Cells[1, ColumnPrefix + PriceIndex * 2] = drPrice["FirmName"].ToString();
-				((MSExcel.Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2]).ColumnWidth = 6;
+				((Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2]).ColumnWidth = 6;
 
 				//Устанавливаем дату фирмы
 				ws.Cells[2, ColumnPrefix + PriceIndex * 2] = drPrice["PriceDate"].ToString();
@@ -655,18 +660,15 @@ order by FullName, FirmCr";
 					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Разница в %";
 
 				if ((_reportType == 2) || (_reportType == 4))
-					((MSExcel.Range)ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
+					((Range)ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
 				else
-					((MSExcel.Range)ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 0;
+					((Range)ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 0;
 
-				((MSExcel.Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2 + 1]).Clear();
-				((MSExcel.Range)ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1]).Clear();
+				((Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2 + 1]).Clear();
+				((Range)ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1]).Clear();
 
 				PriceIndex++;
 			}
 		}
-
-
-
 	}
 }

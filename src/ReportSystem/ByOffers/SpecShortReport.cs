@@ -1,4 +1,5 @@
 using System;
+using ExecuteTemplate;
 using MySql.Data.MySqlClient;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
@@ -11,6 +12,14 @@ namespace Inforoom.ReportSystem
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
+		}
+
+		public override void GenerateReport(ExecuteArgs e)
+		{
+			base.GenerateReport(e);
+
+			_suppliers = GetSuppliers(e);
+			_ignoredSuppliers = GetIgnoredSuppliers(e);
 		}
 
 		public override void ReadReportParams()
@@ -26,7 +35,7 @@ namespace Inforoom.ReportSystem
 		{
 			base.Calculate();
 			DataTable dtNewRes = _dsReport.Tables["Results"].DefaultView.ToTable("Results", false,
-				new string[] { "Code", "FullName", "FirmCr", "CustomerCost", "CustomerQuantity", "MinCost", "LeaderName" });
+				new[] { "Code", "FullName", "FirmCr", "CustomerCost", "CustomerQuantity", "MinCost", "LeaderName" });
 			foreach (DataRow drRes in dtNewRes.Rows)
 				if (!drRes["LeaderName"].Equals("+"))
 					drRes["LeaderName"] = String.Empty;
