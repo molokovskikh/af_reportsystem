@@ -11,12 +11,13 @@ using System.Configuration;
 namespace Inforoom.ReportSystem
 {
 	//Вспомогательный отчет, создаваемый по заказу поставщиков
-	public class ProviderReport : BaseReport
+	public abstract class ProviderReport : BaseReport
 	{
 		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
 		protected int _clientCode;
 
 		protected bool IsNewClient = false;
+		private ExecuteArgs args;
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -25,14 +26,22 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			args = e;
 			e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			IsNewClient = reader.Read();
 			reader.Close();
 		}
 
-		public override void ReadReportParams()
-		{}
+		protected void GetActivePrices()
+		{
+			GetActivePrices(args);
+		}
+
+		protected void GetOffers()
+		{
+			GetOffers(args);
+		}
 
 		//Получили список действующих прайс-листов для интересующего клиента
 		protected void GetActivePrices(ExecuteArgs e)
@@ -42,9 +51,9 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 			if(IsNewClient)
-				GetActivePricesNew(e);
+				GetActivePricesNew();
 			else
-				GetActivePricesOld(e);
+				GetActivePricesOld();
 
 			List<ulong> allowedFirms = null;
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
@@ -82,45 +91,47 @@ and regions.RegionCode = activeprices.RegionCode";
 
 		}
 
-		protected void GetActivePricesNew(ExecuteArgs e)
+		protected void GetActivePricesNew()
 		{// Небольшая магия, через любого пользователя получаем прайсы клиента
 
 			// Получаем первого попавшегося пользователя
-			var userId = GetUserId(e);
+			var userId = GetUserId();
 
 			// Получаем для него все прайсы
-			e.DataAdapter.SelectCommand.CommandText = "future.GetPrices";
-			e.DataAdapter.SelectCommand.CommandType = CommandType.StoredProcedure;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?UserIdParam", userId);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			var selectCommand = args.DataAdapter.SelectCommand;
+			selectCommand.CommandText = "future.GetPrices";
+			selectCommand.CommandType = CommandType.StoredProcedure;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+			selectCommand.ExecuteNonQuery();
 
 			// Включаем для него все прайсы
-			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			e.DataAdapter.SelectCommand.CommandText = "update Prices set DisabledByClient = 0";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			selectCommand.CommandType = CommandType.Text;
+			selectCommand.CommandText = "update Prices set DisabledByClient = 0";
+			selectCommand.ExecuteNonQuery();
 
 			// Получаем для пользователя активные (которыми теперь являются все) прайсы
-			e.DataAdapter.SelectCommand.CommandText = "future.GetActivePrices";
-			e.DataAdapter.SelectCommand.CommandType = CommandType.StoredProcedure;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?UserIdParam", userId);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			selectCommand.CommandText = "future.GetActivePrices";
+			selectCommand.CommandType = CommandType.StoredProcedure;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+			selectCommand.ExecuteNonQuery();
 		}
 
-		private uint GetUserId(ExecuteArgs e)
+		private uint GetUserId()
 		{
-			e.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode + " limit 1";
-			return Convert.ToUInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
+			args.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode + " limit 1";
+			return Convert.ToUInt32(args.DataAdapter.SelectCommand.ExecuteScalar());
 		}
 
-		protected void GetActivePricesOld(ExecuteArgs e)
+		private void GetActivePricesOld()
 		{
-			e.DataAdapter.SelectCommand.CommandText = "usersettings.GetActivePrices";
-			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			var selectCommand = args.DataAdapter.SelectCommand;
+			selectCommand.CommandText = "usersettings.GetActivePrices";
+			selectCommand.CommandType = CommandType.StoredProcedure;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
+			selectCommand.ExecuteNonQuery();
 		}
 
 		//Получили список предложений для интересующего клиента
@@ -129,37 +140,38 @@ and regions.RegionCode = activeprices.RegionCode";
 			GetActivePrices(e);
 
 			if(IsNewClient)
-				GetOffersNew(e);
+				GetOffersNew();
 			else
-				GetOffersOld(e);
+				GetOffersOld();
 
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 		}
 
-		protected void GetOffersNew(ExecuteArgs e)
+		private void GetOffersNew()
 		{ // Небольшая магия, через любого пользователя получаем предложение для клиента
 
 			// Получаем первого попавшегося пользователя
-			var userId = GetUserId(e);
+			var userId = GetUserId();
 
 			//Проверка существования и отключения клиента
-			e.DataAdapter.SelectCommand.CommandText =
+			var selectCommand = args.DataAdapter.SelectCommand;
+			selectCommand.CommandText =
 				"select * from future.Clients cl where cl.Id = " + _clientCode;
-			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
+			var reader = selectCommand.ExecuteReader();
 			if (!reader.Read())
 				throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
 			if (Convert.ToByte(reader["Status"]) == 0)
 				throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", reader["Name"], _clientCode));
 			reader.Close();
 
-			e.DataAdapter.SelectCommand.CommandText = "future.GetOffers";
-			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?UserIdParam", userId);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			selectCommand.CommandText = "future.GetOffers";
+			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+			selectCommand.ExecuteNonQuery();
 		}
 
-		protected void GetOffersOld(ExecuteArgs e)
+		protected void GetOffersOld()
 		{
 			//Проверка существования и отключения клиента
 			DataRow drClient = MySqlHelper.ExecuteDataRow(
@@ -172,12 +184,13 @@ and regions.RegionCode = activeprices.RegionCode";
 				if (Convert.ToByte(drClient["FirmStatus"]) == 0)
 					throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", drClient["ShortName"], _clientCode));
 
-			e.DataAdapter.SelectCommand.CommandText = "usersettings.GetOffers";
-			e.DataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?FreshOnly", 0);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			var selectCommand = args.DataAdapter.SelectCommand;
+			selectCommand.CommandText = "usersettings.GetOffers";
+			selectCommand.CommandType = CommandType.StoredProcedure;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
+			selectCommand.Parameters.AddWithValue("?FreshOnly", 0);
+			selectCommand.ExecuteNonQuery();
 		}
 
 		public static string GetSuppliers(ExecuteArgs e)

@@ -254,6 +254,10 @@
       <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
       <Name>ExecuteTemplate</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ReportTuner\ReportTuner.csproj">
+      <Project>{4D9B03C7-734B-410F-9C4A-FF9A44591036}</Project>
+      <Name>ReportTuner</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
