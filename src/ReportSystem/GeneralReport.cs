@@ -1,15 +1,12 @@
 using System;
 using System.Data;
+using ICSharpCode.SharpZipLib.Zip;
+using LumiSoft.Net.SMTP.Client;
 using MySql.Data.MySqlClient;
-using Inforoom.ReportSystem.Filters;
-using Inforoom.ReportSystem;
 using System.Collections.Generic;
 using ExecuteTemplate;
-using System.Runtime.Remoting;
 using System.IO;
-using ICSharpCode.SharpZipLib;
 using LumiSoft.Net.Mime;
-using Zip = ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem.Properties;
 
 namespace Inforoom.ReportSystem
@@ -205,11 +202,10 @@ and c.Type = ?ContactType";
 
 		private void MailWithAttach(string archFileName, string EMailAddress)
 		{ 
-			Mime message = new Mime(); 
-			MimeEntity mainEntry = message.MainEntity; 
+			var message = new Mime(); 
+			var mainEntry = message.MainEntity; 
 
-			mainEntry.From = new AddressList(); 
-			mainEntry.From.Add(new MailboxAddress("АК Инфорум", "report@analit.net")); 
+			mainEntry.From = new AddressList {new MailboxAddress("АК Инфорум", "report@analit.net")};
 
 			mainEntry.To = new LumiSoft.Net.Mime.AddressList();
 			mainEntry.To.Parse(EMailAddress); 
@@ -218,19 +214,19 @@ and c.Type = ?ContactType";
 
 			mainEntry.ContentType = MediaType_enum.Multipart_mixed;
 
-			MimeEntity textEntity = mainEntry.ChildEntities.Add();
+			var textEntity = mainEntry.ChildEntities.Add();
 			textEntity.ContentType = MediaType_enum.Text_plain;
 			textEntity.ContentTransferEncoding = ContentTransferEncoding_enum.QuotedPrintable;
 			textEntity.DataText = String.Empty; 
 
-			MimeEntity attachmentEntity = mainEntry.ChildEntities.Add(); 
+			var attachmentEntity = mainEntry.ChildEntities.Add(); 
 			attachmentEntity.ContentType = MediaType_enum.Application_octet_stream; 
 			attachmentEntity.ContentDisposition = ContentDisposition_enum.Attachment; 
 			attachmentEntity.ContentTransferEncoding = ContentTransferEncoding_enum.Base64; 
 			attachmentEntity.ContentDisposition_FileName = System.IO.Path.GetFileName(archFileName); 
 			attachmentEntity.DataFromFile(archFileName);
 
-			int? SMTPID = LumiSoft.Net.SMTP.Client.SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
+			int? SMTPID = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 
 #if (!TESTING)
 			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, EMailAddress), ProcessLog, 0, _conn, true, false, null);
@@ -266,27 +262,6 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 
 		private string ArchFile()
 		{
-			MemoryStream ZipOutputStream = new MemoryStream();			
-			Zip.ZipOutputStream ZipInputStream = new Zip.ZipOutputStream(ZipOutputStream);
-			string ZipEntryName;
-
-			string[] files = Directory.GetFiles(_directoryName);
-
-			foreach (string fileName in files)
-			{
-				ZipEntryName = Path.GetFileName(fileName);
-				Zip.ZipEntry ZipObject = new Zip.ZipEntry(ZipEntryName);
-				FileStream MySqlFileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 10240);
-				byte[] MySqlFileByteArray = new byte[MySqlFileStream.Length];
-				MySqlFileStream.Read(MySqlFileByteArray, 0, Convert.ToInt32(MySqlFileStream.Length));
-				ZipInputStream.SetLevel(9);
-				ZipObject.DateTime = DateTime.Now;
-				ZipInputStream.PutNextEntry(ZipObject);
-				ZipInputStream.Write(MySqlFileByteArray, 0, Convert.ToInt32(MySqlFileStream.Length));
-				MySqlFileStream.Close();
-			}
-			ZipInputStream.Finish();
-
 #if (TESTING)
 			string ResDirPath = "C:\\Temp\\Reports\\";
 #else
@@ -298,24 +273,18 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			ResDirPath += _firmCode.ToString("000") + "\\Reports\\";
 
 			if (!(Directory.Exists(ResDirPath)))
-			{
 				Directory.CreateDirectory(ResDirPath);
-			}
 
 			if (File.Exists(ResDirPath + resArchFileName))
-			{
 				File.Delete(ResDirPath + resArchFileName);
-			}
 
-			FileStream ResultFile = new FileStream(_directoryName + "\\" + resArchFileName, FileMode.CreateNew);
-			ResultFile.Write(ZipOutputStream.ToArray(), 0, Convert.ToInt32(ZipOutputStream.Length));
-			ZipInputStream.Close();
-			ZipOutputStream.Close();
-			ResultFile.Close();
+			var zip = new FastZip();
+			var archive = Path.Combine(_directoryName, resArchFileName);
+			zip.CreateZip(archive, _directoryName, false, null);
+	
+			File.Copy(archive, ResDirPath + resArchFileName);
 
-			File.Copy(_directoryName + "\\" + resArchFileName, ResDirPath + resArchFileName);
-
-			return _directoryName + "\\" + resArchFileName;
+			return archive;
 		}
 
 		//Выбираем отчеты из базы
