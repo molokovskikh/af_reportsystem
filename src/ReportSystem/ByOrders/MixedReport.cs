@@ -165,6 +165,9 @@ and cn.id = c.NameId
 and cfc.Id = if(CoreCodes.CodeFirmCr is not null, CoreCodes.CodeFirmCr, 1)
 group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : String.Empty);
 
+#if DEBUG
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 
