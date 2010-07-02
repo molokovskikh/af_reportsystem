@@ -538,6 +538,7 @@ order by FullName, FirmCr";
 				var ws = (_Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
 
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+				ws.Activate();
 
 				var result = _dsReport.Tables["Results"];
 				var tableBeginRowIndex = 3;
@@ -583,7 +584,6 @@ order by FullName, FirmCr";
 				//”станавливаем шрифт листа
 				ws.Rows.Font.Size = 8;
 				ws.Rows.Font.Name = "Arial Narrow";
-				ws.Activate();
 
 				//”станавливаем јвто‘ильтр на все колонки
 				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[rowCount, columnCount]].Select();
@@ -605,7 +605,6 @@ order by FullName, FirmCr";
 
 		private int PutHeader(_Worksheet ws, int beginRow, int columnCount, string message)
 		{
-			//var insertRange = ws.Range[tableBeginRowIndex + 1, Type.Missing];
 			((Range) ws.Cells[beginRow + 1, 1]).Select();
 			var row = ((Range) ws.Application.Selection).EntireRow;
 			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
