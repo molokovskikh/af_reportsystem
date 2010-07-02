@@ -279,9 +279,11 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 				File.Delete(ResDirPath + resArchFileName);
 
 			var zip = new FastZip();
+			var tempArchive = Path.GetTempFileName();
+			zip.CreateZip(tempArchive, _directoryName, false, null, null);
+
 			var archive = Path.Combine(_directoryName, resArchFileName);
-			zip.CreateZip(archive, _directoryName, false, null);
-	
+			File.Copy(tempArchive, archive);
 			File.Copy(archive, ResDirPath + resArchFileName);
 
 			return archive;
