@@ -29,12 +29,12 @@ Task @Build, [@Clean]:
 			Target : "build",
 			Parameters : { "OutDir" : buildTo,
 						   "Configuration" : "Release"},
-			FrameworkVersion : "3.5").Execute()
+			FrameworkVersion : "4.0.30319").Execute()
 	MsBuild(projectFile,
 			Target : "build",
 			Parameters : { "OutDir" : buildTo,
 						   "Configuration" : "Release"},
-			FrameworkVersion : "3.5").Execute()
+			FrameworkVersion : "4.0.30319").Execute()
 	Cp("./src/ReportSystem/app.release.config", "${buildTo}ReportSystem.exe.config", true)
 	Cp("./src/ReportSystemBoot/app.release.config", "${buildTo}ReportSystemBoot.exe.config", true)
 	
@@ -43,12 +43,12 @@ Task @Clean:
 			Target : "clean",
 			Parameters : { "OutDir" : buildTo,
 						   "Configuration" : "release" },
-			FrameworkVersion : "3.5").Execute()
+			FrameworkVersion : "4.0.30319").Execute()
 	MsBuild(projectFile,
 			Target : "clean",
 			Parameters : { "OutDir" : buildTo,
 						   "Configuration" : "release" },
-			FrameworkVersion : "3.5").Execute()
+			FrameworkVersion : "4.0.30319").Execute()
 	Rm("${buildTo}*", true) if Exist(buildTo)
 	
 Task @deploy, [@Build, @Migrate, @SendDeployNotification]:
