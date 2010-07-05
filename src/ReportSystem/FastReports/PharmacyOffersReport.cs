@@ -46,7 +46,7 @@ update Core cor set
 
 select  c.ProductId,
         c.ProductName,
-		m.Mnn,
+		m.RussianMnn as Mnn,
         c.ProducerId,
         c.ProducerName,
         c.SupplierName,

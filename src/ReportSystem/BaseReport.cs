@@ -68,6 +68,8 @@ namespace Inforoom.ReportSystem
 
 		protected Dictionary<string, object> _reportParams;
 
+		protected ExecuteArgs args;
+
 		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, 
 			ReportFormats format, DataSet dsProperties)
 		{
@@ -186,6 +188,7 @@ namespace Inforoom.ReportSystem
 
 		protected bool ProcessReportExec(ExecuteArgs e)
 		{
+			args = e;
 			_dsReport.Clear();
 			GenerateReport(e);
 			return true;

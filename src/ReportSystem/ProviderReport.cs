@@ -17,7 +17,6 @@ namespace Inforoom.ReportSystem
 		protected int _clientCode;
 
 		protected bool IsNewClient = false;
-		private ExecuteArgs args;
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -26,7 +25,6 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			args = e;
 			e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			IsNewClient = reader.Read();
