@@ -86,6 +86,7 @@ group by c.ProductId, c.ProducerId, pd.FirmCode
 
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
+			base.GenerateReport(e);
 			ProfileHelper.Next("GetOffers");
 			GetOffers(e);
 
