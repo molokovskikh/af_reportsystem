@@ -253,7 +253,7 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
   join catalogs.catalogforms cf on cf.Id = c.FormId";
 	SelectCommand +=
 @"
-  join catalogs.Producers cfc on cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1)
+  left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
   join usersettings.retclientsset rcs on rcs.ClientCode = oh.ClientCode
