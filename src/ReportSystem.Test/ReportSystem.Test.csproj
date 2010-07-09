@@ -106,6 +106,7 @@
     </Compile>
     <Compile Include="SpecialReport\SpecialNewProfileFixture.cs" />
     <Compile Include="SpecialReport\SpecialProfileFixture.cs" />
+    <Compile Include="SupplierMarketShareByUser.cs" />
     <Compile Include="SuppliersRatingReport\SuppliersRatingProfileFixture.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="Troubleshoot.cs" />

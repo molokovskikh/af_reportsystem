@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using Inforoom.ReportSystem.Filters;
@@ -76,8 +78,7 @@ namespace Inforoom.ReportSystem
 				dtTo = (DateTime)getReportParam(toProperty);
 				dtTo = dtTo.Date.AddDays(1);
 			}
-			else
-				if (ByPreviousMonth)
+			else if (ByPreviousMonth)
 				{
 					dtTo = DateTime.Now;
 					dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца
@@ -93,36 +94,26 @@ namespace Inforoom.ReportSystem
 					dtTo = dtTo.Date;
 				}
 			filter.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
-
-			selectedField = new List<FilterField>();
-			foreach (FilterField rf in registredField)
-			{
-				if (rf.LoadFromDB(this))
-					selectedField.Add(rf);
-			}
-
+			selectedField = registredField.Where(f => f.LoadFromDB(this)).ToList();
 			CheckAfterLoadFields();
 
-			selectedField.Sort(delegate(FilterField x, FilterField y) { return (x.position - y.position); });
+			selectedField.Sort((x, y) => (x.position - y.position));
 		}
 
 		protected virtual void CheckAfterLoadFields()
 		{
-			if (!selectedField.Exists(delegate(FilterField x) { return x.visible; }))
+			if (!selectedField.Exists(x => x.visible))
 				throw new ReportException("Не выбраны поля для отображения в заголовке отчета.");
 		}
 
 		protected string GetValuesFromSQL(ExecuteArgs e, string SQL)
 		{
-			List<string> valuesList = new List<string>();
 			e.DataAdapter.SelectCommand.CommandText = SQL;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			DataTable dtValues = new DataTable();
+			var dtValues = new DataTable();
 			e.DataAdapter.Fill(dtValues);
-			foreach (DataRow dr in dtValues.Rows)
-				valuesList.Add(dr[0].ToString());
 
-			return String.Join(", ", valuesList.ToArray());
+			return (from DataRow dr in dtValues.Rows select dr[0]).Implode();
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
