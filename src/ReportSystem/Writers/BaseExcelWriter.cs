@@ -12,7 +12,7 @@ namespace Inforoom.ReportSystem.Writers
 		public const int MaxStringSize = 250;
 		public const int MaxListName = 26;
 
-		protected void DataTableToExcel(DataTable dtExport, string ExlFileName, ulong reportCode)
+		public void DataTableToExcel(DataTable dtExport, string ExlFileName, ulong reportCode)
 		{
 			DataTableToExcel(dtExport, ExlFileName, "rep" + reportCode);
 		}

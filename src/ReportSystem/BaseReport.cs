@@ -219,47 +219,7 @@ namespace Inforoom.ReportSystem
 		protected virtual void DataTableToExcel(DataTable dtExport, string exlFileName)
 		{
 			ProfileHelper.Next("DataTableToExcel");
-			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти
-			var generatedListName = "rep" + _reportCode;
-			var excellCon = new OleDbConnection();
-			try
-			{
-				excellCon.ConnectionString = @"
-Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + exlFileName + 
-@";Mode=Share Deny None;Extended Properties=""Excel 8.0;HDR=no"";";
-				string createSql = "create table [" + generatedListName + "] (";
-				for (int i = 0; i < dtExport.Columns.Count; i++)
-				{ 
-					createSql += "[F" + (i+1) + "] ";
-					dtExport.Columns[i].ColumnName = "F" + (i + 1);
-
-					if (dtExport.Columns[i].DataType == typeof(int))
-						createSql += " int";
-					else if (dtExport.Columns[i].DataType == typeof(decimal))
-						createSql += " currency";
-					else if (dtExport.Columns[i].DataType == typeof(double))
-						createSql += " real";
-					else if ((dtExport.Columns[i].DataType == typeof(string)) && (dtExport.Columns[i].MaxLength > -1) && (dtExport.Columns[i].MaxLength <= MaxStringSize))
-						createSql += String.Format(" char({0})", MaxStringSize);
-					else
-						createSql += " memo";
-
-					if (i == dtExport.Columns.Count - 1)
-						createSql += ");";
-					else
-						createSql += ",";
-				}
-				var cmd = new OleDbCommand(createSql, excellCon);
-				excellCon.Open();
-				cmd.ExecuteNonQuery();
-				var daExcel = new OleDbDataAdapter("select * from [" + generatedListName + "]", excellCon);
-				var cdExcel = new OleDbCommandBuilder(daExcel) {QuotePrefix = "[", QuoteSuffix = "]"};
-				daExcel.Update(dtExport);
-			}
-			finally
-			{
-				excellCon.Close();
-			}
+			new BaseExcelWriter().DataTableToExcel(dtExport, exlFileName, _reportCode);
 		}
 
 		protected virtual void FormatExcel(string fileName)
@@ -301,14 +261,14 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + exl
 			return null;
 		}
 
-		protected string GetClientsNamesFromSQL(ExecuteArgs e, List<ulong> equalValues)
+		protected string GetClientsNamesFromSQL(List<ulong> equalValues)
 		{
 			var filterStr = new StringBuilder("(");
 			equalValues.ForEach(val => filterStr.Append(val).Append(','));
 			filterStr[filterStr.Length - 1] = ')';
 
 			var valuesList = new List<string>();
-			e.DataAdapter.SelectCommand.CommandText = String.Format(
+			args.DataAdapter.SelectCommand.CommandText = String.Format(
 @"select ShortName
     from ClientsData
   where FirmCode in {0}
@@ -316,9 +276,9 @@ union
 select Name
   from future.Clients
  where Id in {0}", filterStr);
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			DataTable dtValues = new DataTable();
-			e.DataAdapter.Fill(dtValues);
+			args.DataAdapter.SelectCommand.Parameters.Clear();
+			var dtValues = new DataTable();
+			args.DataAdapter.Fill(dtValues);
 			foreach (DataRow dr in dtValues.Rows)
 				valuesList.Add(dr[0].ToString());
 

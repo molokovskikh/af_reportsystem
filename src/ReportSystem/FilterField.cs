@@ -68,7 +68,7 @@ namespace Inforoom.ReportSystem.Filters
 			width = Width;
 		}
 
-		public bool LoadFromDB(BaseReport Parent)		
+		public bool LoadFromDB(BaseReport Parent)
 		{
 			bool fieldIsSelected = false;
 

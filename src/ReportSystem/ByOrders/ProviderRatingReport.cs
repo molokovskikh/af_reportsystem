@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
+using System.Linq;
 using System.Diagnostics;
 using System.Data;
-using System.Reflection;
 using Inforoom.ReportSystem.Helpers;
-using MySql.Data.MySqlClient;
-using MSExcel = Microsoft.Office.Interop.Excel;
-using Inforoom.ReportSystem.Filters;
-using ExecuteTemplate;
 using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
+using MySql.Data.MySqlClient;
+using ExecuteTemplate;
+using DataTable = System.Data.DataTable;
+using LegendEntries = Microsoft.Office.Interop.Excel.LegendEntries;
+using LegendEntry = Microsoft.Office.Interop.Excel.LegendEntry;
+using Shape = Microsoft.Office.Interop.Excel.Shape;
+using XlChartType = Microsoft.Office.Interop.Excel.XlChartType;
 
 namespace Inforoom.ReportSystem
 {
@@ -37,10 +38,10 @@ namespace Inforoom.ReportSystem
 		protected override void CheckAfterLoadFields()
 		{
 			//Если поле поставщик не в выбранных параметрах, то добавляем его туда и устанавливаем "visible в true"
-			var provideNameField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCode"; });
+			var provideNameField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCode");
 			if (provideNameField == null)
 			{
-				provideNameField = registredField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCode"; });
+				provideNameField = registredField.Find(value => value.reportPropertyPreffix == "FirmCode");
 				selectedField.Add(provideNameField);
 			}
 			provideNameField.visible = true;
@@ -49,15 +50,11 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("Processing1");
-			string SelectCommand = "select ";
-			foreach (FilterField rf in selectedField)
-				if (rf.visible)
-					SelectCommand = String.Concat(SelectCommand, rf.primaryField, ", ", rf.viewField, ", ");
+			var selectCommand = BuildSelect();
 
-			SelectCommand = String.Concat(SelectCommand, @"
-Sum(ol.cost*ol.Quantity) as Summ ");
-			SelectCommand = String.Concat(
-				SelectCommand, @"
+			selectCommand = String.Concat(
+				selectCommand, @"
+Sum(ol.cost*ol.Quantity) as Summ
 from 
   orders.OrdersHead oh 
   join orders.OrdersList ol on ol.OrderID = oh.RowID
@@ -65,7 +62,7 @@ from
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId
-  join catalogs.Producers cfc on cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1)
+  left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
   join usersettings.retclientsset rcs on rcs.ClientCode = oh.ClientCode
@@ -80,52 +77,24 @@ where
   and payers.PayerId <> 921
   and rcs.InvisibleOnFirm < 2");
 
-			foreach (FilterField rf in selectedField)
-			{
-				if (rf.equalValues != null && rf.equalValues.Count > 0)
-				{
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
-					if (rf.reportPropertyPreffix == "ClientCode") // Список клиентов особенный т.к. выбирается из двух таблиц
-						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetClientsNamesFromSQL(e, rf.equalValues)));
-					else
-						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
-				}
-				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
-				{
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
-					filter.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetValuesFromSQL(e, rf.GetNonEqualValuesSQL())));
-				}
-			}
-
-			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
-			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
-
-			//Применяем группировку и сортировку
-			List<string> GroupByList = new List<string>();
-			foreach (FilterField rf in selectedField)
-				if (rf.visible)
-				{
-					GroupByList.Add(rf.primaryField);
-				}
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by Summ desc");
+			selectCommand = ApplyFilters(selectCommand);
+			selectCommand = ApplyGroupAndSort(selectCommand, "Summ desc");
 
 #if DEBUG
-			Debug.WriteLine(SelectCommand);
+			Debug.WriteLine(selectCommand);
 #endif
 
-			DataTable SelectTable = new DataTable();
-
-			e.DataAdapter.SelectCommand.CommandText = SelectCommand;
+			var selectTable = new DataTable();
+			e.DataAdapter.SelectCommand.CommandText = selectCommand;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(SelectTable);
+			e.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("Processing2");
 
 			decimal AllSumm = 0m;
 			decimal OtherSumm = 0m;
 			int currentCount = 0;
-			foreach (DataRow dr in SelectTable.Rows)
+			foreach (var dr in selectTable.Rows.Cast<DataRow>())
 			{
 				currentCount++;
 				AllSumm += Convert.ToDecimal(dr["Summ"]);
@@ -133,89 +102,63 @@ where
 					OtherSumm += Convert.ToDecimal(dr["Summ"]);
 			}
 
-			System.Data.DataTable res = new System.Data.DataTable();
-			DataColumn dc;
-			foreach (FilterField rf in selectedField)
-			{
-				if (rf.visible)
-				{
-					dc = res.Columns.Add(rf.outputField, SelectTable.Columns[rf.outputField].DataType);
-					dc.Caption = rf.outputCaption;
-					if (rf.width.HasValue)
-						dc.ExtendedProperties.Add("Width", rf.width);
-				}
-			}
-			dc = res.Columns.Add("SummPercent", typeof(System.Double));
+			var res = BuildResultTable(selectTable);
+			var dc = res.Columns.Add("SummPercent", typeof (Double));
 			dc.Caption = "Доля рынка в %";
 
 			DataRow newrow;
-			try
+			res.BeginLoadData();
+			currentCount = 0;
+			foreach (DataRow dr in selectTable.Rows)
 			{
-				int visbleCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;
-				res.BeginLoadData();
-				currentCount = 0;
-				foreach (DataRow dr in SelectTable.Rows)
-				{
-					currentCount++;
-					newrow = res.NewRow();
+				currentCount++;
+				newrow = res.NewRow();
 
-					newrow["FirmShortName"] = dr["FirmShortName"];
+				newrow["FirmShortName"] = dr["FirmShortName"];
 
-					newrow["SummPercent"] = Decimal.Round(((decimal)dr["Summ"] * 100) / AllSumm, 2);
+				newrow["SummPercent"] = Decimal.Round(((decimal)dr["Summ"] * 100) / AllSumm, 2);
 
-					res.Rows.Add(newrow);
+				res.Rows.Add(newrow);
 
-					if (currentCount == providerCount)
-						break;
-				}
-
-				if (OtherSumm > 0)
-				{
-					newrow = res.NewRow();
-					newrow["FirmShortName"] = "Остальные";
-					newrow["SummPercent"] = Decimal.Round((OtherSumm * 100) / AllSumm, 2);
-					res.Rows.Add(newrow);
-				}
-			}
-			finally
-			{
-				res.EndLoadData();
+				if (currentCount == providerCount)
+					break;
 			}
 
-			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			for (int i = 0; i < filter.Count; i++)
-				res.Rows.InsertAt(res.NewRow(), 0);
-
-			res = res.DefaultView.ToTable();
-			res.TableName = "Results";
-			_dsReport.Tables.Add(res);
+			if (OtherSumm > 0)
+			{
+				newrow = res.NewRow();
+				newrow["FirmShortName"] = "Остальные";
+				newrow["SummPercent"] = Decimal.Round((OtherSumm * 100) / AllSumm, 2);
+				res.Rows.Add(newrow);
+			}
+			res.EndLoadData();
 			ProfileHelper.End();
 		}
 
-		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
+		protected override void PostProcessing(Application exApp, _Worksheet ws)
 		{
 			ProfileHelper.Next("ExcelDiagrammProcessing");
-			DataTable res = _dsReport.Tables["Results"];
+			var res = _dsReport.Tables["Results"];
 
 			//Выбираем диапазон, по которому будет строить диаграму
-			((MSExcel.Range)ws.get_Range(ws.Cells[2 + filter.Count, 1], ws.Cells[res.Rows.Count + 1, 2])).Select();
-			MSExcel.Shape s;
-			s = ws.Shapes.AddChart(MSExcel.XlChartType.xlPie, 20, 40, 450, 230);
-			
+			(ws.Range[ws.Cells[2 + filterDescriptions.Count, 1], ws.Cells[res.Rows.Count + 1, 2]]).Select();
+			Shape s;
+			s = ws.Shapes.AddChart(XlChartType.xlPie, 20, 40, 450, 230);
+
 			//Устанавливаем диаграмму справа от таблицы
 			s.Top = 5;
-			s.Left = Convert.ToSingle(((MSExcel.Range)ws.Cells[1 + filter.Count, 5]).Left);
+			s.Left = Convert.ToSingle(((Range) ws.Cells[1 + filterDescriptions.Count, 5]).Left);
 
 			//Производим подсчет высоты легенды, чтобы она полностью отобразилась на диаграмме
 			double legendHeight = 0;
-			for (int i = 1; i <= ((MSExcel.LegendEntries)s.Chart.Legend.LegendEntries(Type.Missing)).Count; i++)
-				legendHeight += ((MSExcel.LegendEntry)s.Chart.Legend.LegendEntries(i)).Height;
+			for (int i = 1; i <= ((LegendEntries) s.Chart.Legend.LegendEntries(Type.Missing)).Count; i++)
+				legendHeight += ((LegendEntry) s.Chart.Legend.LegendEntries(i)).Height;
 
 			legendHeight *= 0.9;
 
 			if (legendHeight > s.Height)
 				s.Height = Convert.ToSingle(legendHeight);
-			
+
 			//Увеличиваем зону легенды, прижимаем рисунок диаграммы к рамке
 			s.Chart.Legend.Top = 0;
 			s.Chart.Legend.Left = 220;
@@ -225,10 +168,8 @@ where
 			s.Chart.Legend.Height = s.Chart.ChartArea.Height;
 
 			//Отображаем диаграмму
-			s.Fill.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
+			s.Fill.Visible = MsoTriState.msoTrue;
 			ProfileHelper.End();
 		}
-
-
 	}
 }

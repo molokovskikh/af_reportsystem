@@ -11,7 +11,7 @@ namespace Inforoom.ReportSystem.Writers
 	{
 		public void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
-			DataTableToExcel(reportData.Tables["Result"], fileName, settings.ReportCode);
+			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			FormatExcel(reportData, fileName, settings as PharmacyMixedSettings);
 		}
 

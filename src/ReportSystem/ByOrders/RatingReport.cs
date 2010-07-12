@@ -4,15 +4,10 @@ using System.Data;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
-using System.Collections.Generic;
 
 namespace Inforoom.ReportSystem
 {
-	/// <summary>
-	/// Summary description for RatingReport.
-	/// </summary>
 	public class RatingReport : OrdersReport
 	{
 		private const string junkProperty = "JunkState";
@@ -30,15 +25,13 @@ namespace Inforoom.ReportSystem
 			JunkState = (int)getReportParam(junkProperty);
 		}
 
-    	public override void GenerateReport(ExecuteArgs e)
+		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("Processing1");
-			string SelectCommand = "select ";
-			foreach (FilterField rf in selectedField)
-				if (rf.visible)
-					SelectCommand = String.Concat(SelectCommand, rf.primaryField, ", ", rf.viewField, ", ");
 
-			SelectCommand = String.Concat(SelectCommand, @"
+			var selectCommand = BuildSelect();
+
+			selectCommand = String.Concat(selectCommand, @"
 Sum(ol.cost*ol.Quantity) as Cost, 
 Sum(ol.Quantity) as PosOrder, 
 Min(ol.Cost) as MinCost,
@@ -46,8 +39,8 @@ Avg(ol.Cost) as AvgCost,
 Max(ol.Cost) as MaxCost,
 Count(distinct oh.RowId) as DistinctOrderId,
 Count(distinct oh.ClientCode) as DistinctClientCode ");
-			SelectCommand = String.Concat(
-				SelectCommand, @"
+			selectCommand = String.Concat(
+				selectCommand, @"
 from 
   orders.OrdersHead oh 
   join orders.OrdersList ol on  ol.OrderID = oh.RowID
@@ -55,7 +48,7 @@ from
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId
-  join catalogs.Producers cfc on cfc.Id = if(ol.CodeFirmCr is not null, ol.CodeFirmCr, 1)
+  left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
   join usersettings.retclientsset rcs on rcs.ClientCode = oh.ClientCode
@@ -65,145 +58,80 @@ from
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
   join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode)
 where 
-      oh.deleted = 0
+	  oh.deleted = 0
   and oh.processed = 1
   and IFNULL(cl.PayerId, cd.BillingCode) <> 921
   and rcs.InvisibleOnFirm < 2");
 
-			foreach (FilterField rf in selectedField)
-			{
-				if (rf.equalValues != null && rf.equalValues.Count > 0)
-				{
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
-					if (rf.reportPropertyPreffix == "ClientCode") // Список клиентов особенный т.к. выбирается из двух таблиц
-						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetClientsNamesFromSQL(e, rf.equalValues)));
-					else
-						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
-				}
-				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
-				{
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
-					filter.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetValuesFromSQL(e, rf.GetNonEqualValuesSQL())));
-				}
-			}
+			selectCommand = ApplyFilters(selectCommand);
 
 			if (1 == JunkState)
-				SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and (ol.Junk = 0)");
-			else
-				if (2 == JunkState)
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and (ol.Junk = 1)");
-
-			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
-			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
+				selectCommand = String.Concat(selectCommand, Environment.NewLine + "and (ol.Junk = 0)");
+			else if (2 == JunkState)
+				selectCommand = String.Concat(selectCommand, Environment.NewLine + "and (ol.Junk = 1)");
 
 			//Применяем группировку и сортировку
-			List<string> GroupByList = new List<string>();
-			foreach (FilterField rf in selectedField)
-				if (rf.visible)
-				{
-					GroupByList.Add(rf.primaryField);
-				}
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by Cost desc");
+			selectCommand = ApplyGroupAndSort(selectCommand, "Cost desc");
  
 #if DEBUG
-			Debug.WriteLine(SelectCommand);
+			Debug.WriteLine(selectCommand);
 #endif
 
-			DataTable SelectTable = new DataTable();
-
-			e.DataAdapter.SelectCommand.CommandText = SelectCommand;
+			var selectTable = new DataTable();
+			e.DataAdapter.SelectCommand.CommandText = selectCommand;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(SelectTable);
+			e.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("Processing2");
 
-			decimal Cost = 0m;
-			int PosOrder = 0;
-			foreach (DataRow dr in SelectTable.Rows)
-			{
-				Cost += Convert.ToDecimal(dr["Cost"]);
-				PosOrder += Convert.ToInt32(dr["PosOrder"]);
-			}
+			var result = BuildResultTable(selectTable);
 
-			System.Data.DataTable res = new System.Data.DataTable();
-			DataColumn dc;
-			foreach (FilterField rf in selectedField)
-			{
-				if (rf.visible)
-				{
-					dc = res.Columns.Add(rf.outputField, SelectTable.Columns[rf.outputField].DataType);
-					dc.Caption = rf.outputCaption;
-					if (rf.width.HasValue)
-						dc.ExtendedProperties.Add("Width", rf.width);
-				}
-			}
-			dc = res.Columns.Add("Cost", typeof(System.Decimal));
+			var dc = result.Columns.Add("Cost", typeof (Decimal));
 			dc.Caption = "Сумма";
-			dc = res.Columns.Add("CostPercent", typeof(System.Double));
+			dc = result.Columns.Add("CostPercent", typeof (Double));
 			dc.Caption = "Доля рынка в %";
-			dc = res.Columns.Add("PosOrder", typeof(System.Int32));
+			dc = result.Columns.Add("PosOrder", typeof (Int32));
 			dc.Caption = "Заказ";
-			dc = res.Columns.Add("PosOrderPercent", typeof(System.Double));
+			dc = result.Columns.Add("PosOrderPercent", typeof (Double));
 			dc.Caption = "Доля от общего заказа в %";
-			dc = res.Columns.Add("MinCost", typeof(System.Decimal));
+			dc = result.Columns.Add("MinCost", typeof (Decimal));
 			dc.Caption = "Минимальная цена";
-			dc = res.Columns.Add("AvgCost", typeof(System.Decimal));
+			dc = result.Columns.Add("AvgCost", typeof (Decimal));
 			dc.Caption = "Средняя цена";
-			dc = res.Columns.Add("MaxCost", typeof(System.Decimal));
+			dc = result.Columns.Add("MaxCost", typeof (Decimal));
 			dc.Caption = "Максимальная цена";
-			dc = res.Columns.Add("DistinctOrderId", typeof(System.Int32));
+			dc = result.Columns.Add("DistinctOrderId", typeof (Int32));
 			dc.Caption = "Кол-во заявок по препарату";
-			dc = res.Columns.Add("DistinctClientCode", typeof(System.Int32));
+			dc = result.Columns.Add("DistinctClientCode", typeof (Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат";
 
-			DataRow newrow;
-			try
+			CopyData(selectTable, result);
+
+			var cost = 0m;
+			var posOrder = 0;
+			foreach (DataRow dr in selectTable.Rows)
 			{
-				int visbleCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;
-				res.BeginLoadData();
-				foreach (DataRow dr in SelectTable.Rows)
-				{
-					newrow = res.NewRow();
-
-					foreach (FilterField rf in selectedField)
-						if (rf.visible)
-							newrow[rf.outputField] = dr[rf.outputField];
-
-					//Выставляем явно значения определенного типа для полей: "Сумма", "Доля рынка в %" и т.д.
-					//(visbleCount * 2) - потому, что участвует код (первичный ключ) и строковое значение,
-					//пример: PriceCode и PriceName.
-					for (int i = (visbleCount * 2); i < SelectTable.Columns.Count; i++)
-					{
-						if (!(dr[SelectTable.Columns[i].ColumnName] is DBNull) && res.Columns.Contains(SelectTable.Columns[i].ColumnName))
-							newrow[SelectTable.Columns[i].ColumnName] = Convert.ChangeType(dr[SelectTable.Columns[i].ColumnName], res.Columns[SelectTable.Columns[i].ColumnName].DataType);
-					}
-
-					newrow["CostPercent"] = Decimal.Round(((decimal)newrow["Cost"] * 100) / Cost, 2);
-					newrow["PosOrderPercent"] = Decimal.Round((Convert.ToDecimal(newrow["PosOrder"]) * 100) / Convert.ToDecimal(PosOrder), 2);
-
-					res.Rows.Add(newrow);
-				}
-			}
-			finally
-			{
-				res.EndLoadData();
+				if (dr["Cost"] == DBNull.Value)
+					continue;
+				cost += Convert.ToDecimal(dr["Cost"]);
+				posOrder += Convert.ToInt32(dr["PosOrder"]);
 			}
 
-			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			for (int i = 0; i < filter.Count; i++)
-				res.Rows.InsertAt(res.NewRow(), 0);
+			foreach (DataRow dr in result.Rows)
+			{
+				if (dr["Cost"] == DBNull.Value)
+					continue;
+				dr["CostPercent"] = Decimal.Round((Convert.ToDecimal(dr["Cost"]) * 100) / cost, 2);
+				dr["PosOrderPercent"] = Decimal.Round((Convert.ToDecimal(dr["PosOrder"]) * 100) / Convert.ToDecimal(posOrder), 2);
+			}
 
-			res = res.DefaultView.ToTable();
-			res.TableName = "Results";
-			_dsReport.Tables.Add(res);
 			ProfileHelper.Next("PostProcessing");
 		}
 
 		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
 		{
 			//Замораживаем некоторые колонки и столбцы
-			((MSExcel.Range)ws.get_Range("A" + (2 + filter.Count).ToString(), System.Reflection.Missing.Value)).Select();
+			ws.Range["A" + (2 + filterDescriptions.Count), System.Reflection.Missing.Value].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 		}
 
