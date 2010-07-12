@@ -1,12 +1,9 @@
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Collections;
 using System.Data;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
-using System.Reflection;
 using Inforoom.ReportSystem.Filters;
 using ExecuteTemplate;
 using System.Collections.Generic;
@@ -41,6 +38,7 @@ namespace Inforoom.ReportSystem
 		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
+			SupportProductNameOptimization = true;
 		}
 
 		public override void ReadReportParams()
@@ -58,11 +56,11 @@ namespace Inforoom.ReportSystem
 			if (businessRivals.Count == 0)
 				throw new ReportException("Не установлен параметр \"Список конкурентов\".");
 
-			List<string> s = businessRivals.ConvertAll<string>(delegate(ulong value) { return value.ToString(); });
+			List<string> s = businessRivals.ConvertAll(value => value.ToString());
 			businessRivalsList = String.Join(", ", s.ToArray());
 
 			//Пытаемся найти список ограничений по постащику
-			FilterField firmCodeField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCode"; });
+			var firmCodeField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCode");
 			if ((firmCodeField != null) && (firmCodeField.equalValues != null))
 			{
 				//Если в списке выбранных значений нет интересующего поставщика, то добавляем его туда
@@ -81,20 +79,16 @@ namespace Inforoom.ReportSystem
 			base.CheckAfterLoadFields();
 			ProfileHelper.Next("CheckAfterLoad");
 			//Выбирем поле "Производитель", если в настройке отчета есть соответствующий параметр
-			firmCrField = selectedField.Find(delegate(FilterField value) { return value.reportPropertyPreffix == "FirmCr"; });
+			firmCrField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCr");
 
 			//Проверяем, что выбран один из параметров для отображения: Наименование, Полное Наименование, Продукт
-			List<FilterField> nameFields = selectedField.FindAll(delegate(FilterField value)
-			{
-				return (value.reportPropertyPreffix == "ProductName") || (value.reportPropertyPreffix == "FullName") || (value.reportPropertyPreffix == "ShortName");
-			});
+			var nameFields = selectedField.FindAll(
+				value => (value.reportPropertyPreffix == "ProductName") || value.reportPropertyPreffix == "FullName" || value.reportPropertyPreffix == "ShortName");
 			if (nameFields.Count == 0)
 				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" не выбрано ни одно поле.");
-			else
-				if (nameFields.Count > 1)
-					throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" должно быть выбрано только одно поле.");
-				else
-					nameField = nameFields[0];
+			if (nameFields.Count > 1)
+				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" должно быть выбрано только одно поле.");
+			nameField = nameFields[0];
 		}
 
 		void FillProviderCodes(ExecuteArgs e)
@@ -115,7 +109,7 @@ insert into ProviderCodes "
 					((showCode) ? "CoreCodes.Code, " : String.Empty) +
 					((showCodeCr) ? "CoreCodes.CodeCr, " : String.Empty) +
 					nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : ", null ") +
-				@" from (
+				@" from ((
 (
 select
 distinct " +
@@ -152,17 +146,15 @@ from
 where
     pd.FirmCode = " + sourceFirmCode.ToString()
 + @" and core.PriceCode = pd.PriceCode
-)
-) CoreCodes,
+)) CoreCodes,
   catalogs.products p,
   catalogs.catalog c,
-  catalogs.catalognames cn,
-  catalogs.Producers cfc
+  catalogs.catalognames cn)
+  left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
 where
     p.Id = CoreCodes.ProductId
 and c.Id = p.CatalogId
 and cn.id = c.NameId
-and cfc.Id = if(CoreCodes.CodeFirmCr is not null, CoreCodes.CodeFirmCr, 1)
 group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : String.Empty);
 
 #if DEBUG
@@ -174,46 +166,22 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			filter.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
-			filter.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL(e, "select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
+			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
+			filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
 
 			if (showCode || showCodeCr)
 				FillProviderCodes(e);
 
 			ProfileHelper.Next("GenerateReport2");
 
-			bool isProductName = true;
-			bool includeProductName = false;
-			
-			foreach(var rf in selectedField) // В целях оптимизации при некоторых случаях используем
-				if(rf.visible && (rf.reportPropertyPreffix == "ProductName" || // временные таблицы
-					rf.reportPropertyPreffix == "FullName"))
-				{
-					rf.primaryField = "ol.Productid";
-					rf.viewField = "ol.Productid as pid";
-					includeProductName = true;
-					if (rf.reportPropertyPreffix == "FullName")
-					{
-						rf.primaryField = "p.CatalogId";
-						rf.viewField = "p.CatalogId as pid";
-						isProductName = false;
-					}
-				}
-
-			string SelectCommand = !includeProductName ? "select ":
-				@"drop temporary table IF EXISTS MixedData;
-				  create temporary table MixedData ENGINE=MEMORY select ";
-
-			foreach (FilterField rf in selectedField)
-				if (rf.visible)
-					SelectCommand = String.Concat(SelectCommand, rf.primaryField, ", ", rf.viewField, ", ");
+			var selectCommand = BuildSelect();
 
 			if (showCode)
-				SelectCommand += " ProviderCodes.Code, ";
+				selectCommand += " ProviderCodes.Code, ";
 			if (showCodeCr)
-				SelectCommand += " ProviderCodes.CodeCr, ";
+				selectCommand += " ProviderCodes.CodeCr, ";
 
-			SelectCommand = String.Concat(SelectCommand, String.Format(@"
+			selectCommand = String.Concat(selectCommand, String.Format(@"
 sum(if(pd.firmcode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
 sum(if(pd.firmcode = {0}, ol.quantity, NULL)) SourceFirmCodeRows,
 Min(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMinCost,
@@ -237,21 +205,21 @@ Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
-			SelectCommand +=
+			selectCommand +=
 @"from 
   orders.OrdersHead oh
   join orders.OrdersList ol on ol.OrderID = oh.RowID";
 	if(!includeProductName || !isProductName)
-		SelectCommand +=
+		selectCommand +=
 @"
   join catalogs.products p on p.Id = ol.ProductId";
 	if(!includeProductName)
-		SelectCommand +=
+		selectCommand +=
 @"
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId";
-	SelectCommand +=
+	selectCommand +=
 @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
@@ -268,46 +236,16 @@ where
     oh.deleted = 0
 and oh.processed = 1
 and ol.Junk = 0
-and ol.Await = 0";
-
-	SelectCommand +=
-@"
+and ol.Await = 0
 and payers.PayerId <> 921
 and rcs.InvisibleOnFirm < 2";
 
-			foreach (FilterField rf in selectedField)
-			{
-				if (rf.equalValues != null && rf.equalValues.Count > 0)
-				{
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
-					if (rf.reportPropertyPreffix == "ClientCode") // Список клиентов особенный т.к. выбирается из двух таблиц
-						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetClientsNamesFromSQL(e, rf.equalValues)));
-					else
-						filter.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetValuesFromSQL(e, rf.GetEqualValuesSQL())));
-				}
-				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
-				{
-					SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
-					filter.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetValuesFromSQL(e, rf.GetNonEqualValuesSQL())));
-				}
-			}
-
-			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
-			SelectCommand = String.Concat(SelectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
-
-			//Применяем группировку и сортировку
-			List<string> GroupByList = new List<string>();
-			foreach (FilterField rf in selectedField)
-				if (rf.visible)
-				{
-					GroupByList.Add(rf.primaryField);
-				}
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "group by ", String.Join(",", GroupByList.ToArray()));
-			SelectCommand = String.Concat(SelectCommand, Environment.NewLine + "order by AllSum desc");
+			selectCommand = ApplyFilters(selectCommand);
+			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
 
 			if(includeProductName)
 				if(isProductName)
-					SelectCommand += @"; select
+					selectCommand += @"; select
 				(select concat(c.name, ' ', 
 							cast(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
 								  order by Properties.PropertyName, PropertyValues.Value
@@ -323,7 +261,7 @@ and rcs.InvisibleOnFirm < 2";
 				  md.*
 				from MixedData md";
 				else
-					SelectCommand += @"; select
+					selectCommand += @"; select
 				(select c.name
 				  from catalogs.catalog c
 				  where
@@ -331,180 +269,131 @@ and rcs.InvisibleOnFirm < 2";
 				  md.*
 				from MixedData md";
 #if DEBUG
-			Debug.WriteLine(SelectCommand);
+			Debug.WriteLine(selectCommand);
 #endif
 
-			DataTable SelectTable = new DataTable();
-
-			e.DataAdapter.SelectCommand.CommandText = SelectCommand;
+			var selectTable = new DataTable();
+			e.DataAdapter.SelectCommand.CommandText = selectCommand;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(SelectTable);
+			e.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");
+			var res = BuildResultTable(selectTable);
 
-			System.Data.DataTable res = new System.Data.DataTable();
 			DataColumn dc;
-
 			if (showCode)
 			{
-				dc = res.Columns.Add("Code", typeof(System.String));
+				dc = res.Columns.Add("Code", typeof (String));
 				dc.Caption = "Код";
+				dc.SetOrdinal(0);
 			}
 
 			if (showCodeCr)
 			{
-				dc = res.Columns.Add("CodeCr", typeof(System.String));
+				dc = res.Columns.Add("CodeCr", typeof (String));
 				dc.Caption = "Код изготовителя";
+				dc.SetOrdinal(1);
 			}
 
-			foreach (FilterField rf in selectedField)
-			{
-				if (rf.visible)
-				{
-					dc = res.Columns.Add(rf.outputField, SelectTable.Columns[rf.outputField].DataType);
-					dc.Caption = rf.outputCaption;
-					if (rf.width.HasValue)
-						dc.ExtendedProperties.Add("Width", rf.width);
-				}
-			}
-
-			dc = res.Columns.Add("SourceFirmCodeSum", typeof(System.Decimal));
+			dc = res.Columns.Add("SourceFirmCodeSum", typeof (Decimal));
 			dc.Caption = "Сумма по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("SourceFirmCodeRows", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("SourceFirmCodeRows", typeof (Int32));
 			dc.Caption = "Кол-во по постащику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?)4);
-			dc = res.Columns.Add("SourceFirmCodeMinCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("SourceFirmCodeMinCost", typeof (Decimal));
 			dc.Caption = "Минимальная цена по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("SourceFirmCodeAvgCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("SourceFirmCodeAvgCost", typeof (Decimal));
 			dc.Caption = "Средняя цена по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("SourceFirmCodeMaxCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("SourceFirmCodeMaxCost", typeof (Decimal));
 			dc.Caption = "Максимальная цена по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("SourceFirmDistinctOrderId", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("SourceFirmDistinctOrderId", typeof (Int32));
 			dc.Caption = "Кол-во заявок по препарату по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?)4);
-			dc = res.Columns.Add("SourceFirmDistinctClientCode", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("SourceFirmDistinctClientCode", typeof (Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по постащику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?)4);
+			dc.ExtendedProperties.Add("Width", (int?) 4);
 
-			dc = res.Columns.Add("RivalsSum", typeof(System.Decimal));
+			dc = res.Columns.Add("RivalsSum", typeof (Decimal));
 			dc.Caption = "Сумма по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("RivalsRows", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("RivalsRows", typeof (Int32));
 			dc.Caption = "Кол-во по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?)4);
-			dc = res.Columns.Add("RivalsMinCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("RivalsMinCost", typeof (Decimal));
 			dc.Caption = "Минимальная цена по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("RivalsAvgCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("RivalsAvgCost", typeof (Decimal));
 			dc.Caption = "Средняя цена по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("RivalsMaxCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("RivalsMaxCost", typeof (Decimal));
 			dc.Caption = "Максимальная цена по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("RivalsDistinctOrderId", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("RivalsDistinctOrderId", typeof (Int32));
 			dc.Caption = "Кол-во заявок по препарату по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?)4);
-			dc = res.Columns.Add("RivalsDistinctClientCode", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("RivalsDistinctClientCode", typeof (Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?)4);
+			dc.ExtendedProperties.Add("Width", (int?) 4);
 
-			dc = res.Columns.Add("AllSum", typeof(System.Decimal));
+			dc = res.Columns.Add("AllSum", typeof (Decimal));
 			dc.Caption = "Сумма по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("AllRows", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("AllRows", typeof (Int32));
 			dc.Caption = "Кол-во по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
-			dc.ExtendedProperties.Add("Width", (int?)4);
-			dc = res.Columns.Add("AllMinCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("AllMinCost", typeof (Decimal));
 			dc.Caption = "Минимальная цена по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("AllAvgCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("AllAvgCost", typeof (Decimal));
 			dc.Caption = "Средняя цена по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("AllMaxCost", typeof(System.Decimal));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("AllMaxCost", typeof (Decimal));
 			dc.Caption = "Максимальная цена по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
-			dc.ExtendedProperties.Add("Width", (int?)8);
-			dc = res.Columns.Add("AllDistinctOrderId", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 8);
+			dc = res.Columns.Add("AllDistinctOrderId", typeof (Int32));
 			dc.Caption = "Кол-во заявок по препарату по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
-			dc.ExtendedProperties.Add("Width", (int?)4);
-			dc = res.Columns.Add("AllDistinctClientCode", typeof(System.Int32));
+			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("AllDistinctClientCode", typeof (Int32));
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
-			dc.ExtendedProperties.Add("Width", (int?)4);
-
-			DataRow newrow;
-			try
-			{
-				int visbleCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;
-				res.BeginLoadData();
-				foreach (DataRow dr in SelectTable.Rows)
-				{
-					newrow = res.NewRow();
-
-					foreach (FilterField rf in selectedField)
-						if (rf.visible)
-							newrow[rf.outputField] = dr[rf.outputField];
-
-					//Выставляем явно значения определенного типа для полей: "Сумма", "Доля рынка в %" и т.д.
-					//(visbleCount * 2) - потому, что участвует код (первичный ключ) и строковое значение,
-					//пример: PriceCode и PriceName.
-					for (int i = (visbleCount * 2); i < SelectTable.Columns.Count; i++)
-					{
-						if (!(dr[SelectTable.Columns[i].ColumnName] is DBNull) && res.Columns.Contains(SelectTable.Columns[i].ColumnName))
-							newrow[SelectTable.Columns[i].ColumnName] = Convert.ChangeType(dr[SelectTable.Columns[i].ColumnName], res.Columns[SelectTable.Columns[i].ColumnName].DataType);
-					}
-
-					res.Rows.Add(newrow);
-				}
-			}
-			finally
-			{
-				res.EndLoadData();
-			}
-
-			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			for (int i = 0; i < filter.Count; i++)
-				res.Rows.InsertAt(res.NewRow(), 0);
-
-			res = res.DefaultView.ToTable();
-			res.TableName = "Results";
-			_dsReport.Tables.Add(res);
-			ProfileHelper.Next("PostProcessing");
+			dc.ExtendedProperties.Add("Width", (int?) 4);
+			CopyData(selectTable, res);
 		}
 
 		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
 		{
-			int _freezeCount = selectedField.FindAll(delegate(FilterField x) { return x.visible; }).Count;			
+			int freezeCount = selectedField.FindAll(x => x.visible).Count;
 			if (showCode)
-				_freezeCount++;
+				freezeCount++;
 			if (showCodeCr)
-				_freezeCount++;
+				freezeCount++;
 
 			//Замораживаем некоторые колонки и столбцы
-			((MSExcel.Range)ws.get_Range(ws.Cells[2 + filter.Count, _freezeCount + 1], ws.Cells[2 + filter.Count, _freezeCount + 1])).Select();
+			ws.Range[ws.Cells[2 + filterDescriptions.Count, freezeCount + 1], ws.Cells[2 + filterDescriptions.Count, freezeCount + 1]].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 		}
 
