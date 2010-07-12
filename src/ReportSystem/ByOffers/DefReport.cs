@@ -309,17 +309,16 @@ from
   catalogs.catalog,
   catalogs.CatalogNames,
   catalogs.CatalogForms,
-  catalogs.Producers,
   catalogs.products
  )
   left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
   left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr
+  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where 
     catalog.Id = OtherByPrice.CatalogId
 and CatalogNames.Id = catalog.NameId
 and CatalogForms.Id = catalog.FormId
 and products.CatalogId = catalog.Id
-and Producers.Id = OtherByPrice.CodeFirmCr
 order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
 						break;
 					}
@@ -426,16 +425,15 @@ from
   OtherByPrice,
   catalogs.catalog,
   catalogs.CatalogNames,
-  catalogs.Producers,
   catalogs.products
  )
   left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
   left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr
+  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where 
     products.Id = OtherByPrice.ProductId
 and catalog.Id = products.CatalogId
 and CatalogNames.Id = catalog.NameId
-and Producers.Id = OtherByPrice.CodeFirmCr
 order by CatalogNames.Name, FullForm, Producers.Name;
 ";
 						break;

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
@@ -125,17 +126,17 @@ where p.id = core.productid) as Name, ";
 			}
 			e.DataAdapter.SelectCommand.CommandText += @"
 from 
-  Core, 
+  (Core,
   farm.core0 FarmCore,
   catalogs.products,
   catalogs.catalog,
 
-  ActivePrices";
+  ActivePrices)";
 
 			//≈сли отчет с учетом производител€, то пересекаем с таблицой Producers
 			if (_reportType > 2)
-				e.DataAdapter.SelectCommand.CommandText += @",
-  catalogs.Producers";
+				e.DataAdapter.SelectCommand.CommandText += @"
+  left join catalogs.Producers on Producers.Id = FarmCore.codefirmcr ";
  
 			e.DataAdapter.SelectCommand.CommandText += @"
 where 
@@ -145,12 +146,6 @@ and catalog.id = products.catalogid
 
 and Core.pricecode = ActivePrices.pricecode 
 and Core.RegionCode = ActivePrices.RegionCode ";
-
-			//≈сли отчет с учетом производител€, то пересекаем с таблицой Producers
-			if (_reportType > 2)
-				e.DataAdapter.SelectCommand.CommandText += @"
-and Producers.Id = FarmCore.codefirmcr ";
-
 
 			e.DataAdapter.SelectCommand.CommandText += @"
 group by CatalogCode, Cfc
@@ -170,11 +165,10 @@ order by 2, 5";
 		protected virtual void Calculate()
 		{
 			// ол-во первых фиксированных колонок
-			int FirstColumnCount;
-			DataTable dtCore = _dsReport.Tables["Core"];
-			DataTable dtPrices = _dsReport.Tables["Prices"];
+			var dtCore = _dsReport.Tables["Core"];
+			var dtPrices = _dsReport.Tables["Prices"];
 
-			DataTable dtRes = new DataTable("Results");			
+			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("FullName");
 			dtRes.Columns.Add("FirmCr");
 			dtRes.Columns.Add("MinCost", typeof(decimal));
@@ -182,22 +176,21 @@ order by 2, 5";
 			dtRes.Columns.Add("MaxCost", typeof(decimal));
 			dtRes.Columns.Add("LeaderName");
 			_dsReport.Tables.Add(dtRes);
-			FirstColumnCount = dtRes.Columns.Count;
+			var firstColumnCount = dtRes.Columns.Count;
 
-			int PriceIndex = 0;
+			var priceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
-				dtRes.Columns.Add("Cost" + PriceIndex.ToString(), typeof(decimal));
+				dtRes.Columns.Add("Cost" + priceIndex, typeof(decimal));
 				if (!_showPercents)
-					dtRes.Columns.Add("Quantity" + PriceIndex.ToString());
+					dtRes.Columns.Add("Quantity" + priceIndex);
 				else
-					dtRes.Columns.Add("Percents" + PriceIndex.ToString(), typeof(double));
-				PriceIndex++;
+					dtRes.Columns.Add("Percents" + priceIndex, typeof(double));
+				priceIndex++;
 			}
 
-			DataRow newrow;
 			DataRow[] drsMin;
-			newrow = dtRes.NewRow();
+			DataRow newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
 
 			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows)
@@ -209,33 +202,38 @@ order by 2, 5";
 				newrow["AvgCost"] = Convert.ToDecimal(drCatalog["AvgCost"]);
 				newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
 
-				drsMin = dtCore.Select(
-					"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
-					" and Cfc = " + drCatalog["Cfc"].ToString() + 
-					" and Cost = " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
+				var producerFilter = "Cfc = " + drCatalog["Cfc"];
+				if (drCatalog["Cfc"] == DBNull.Value)
+					producerFilter = "cfc is null";
+
+				drsMin = dtCore.Select(string.Format("CatalogCode = {0} and {1} and Cost = {2}",
+					drCatalog["CatalogCode"],
+					producerFilter, 
+					((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat)));
+
 				if (drsMin.Length > 0)
 					newrow["LeaderName"] = drsMin[0]["FirmName"];
 
 				//¬ыбираем позиции и сортируем по возрастанию цен
-				drsMin = dtCore.Select("CatalogCode = " + drCatalog["CatalogCode"].ToString() + "and Cfc = " + drCatalog["Cfc"].ToString(), "Cost asc");
-				foreach (DataRow dtPos in drsMin)
+				drsMin = dtCore.Select(String.Format("CatalogCode = {0} and {1}", drCatalog["CatalogCode"], producerFilter), "Cost asc");
+				foreach (var dtPos in drsMin)
 				{
-					DataRow dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"].ToString() + " and RegionCode = " + dtPos["RegionCode"].ToString())[0];
-					PriceIndex = dtPrices.Rows.IndexOf(dr);
+					var dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"] + " and RegionCode = " + dtPos["RegionCode"])[0];
+					priceIndex = dtPrices.Rows.IndexOf(dr);
 
 					//≈сли мы еще не установили значение у поставщика, то делаем это
 					//раньше вставл€ли последнее значение, которое было максимальным
-					if (newrow[FirstColumnCount + PriceIndex * 2] is DBNull)
+					if (newrow[firstColumnCount + priceIndex * 2] is DBNull)
 					{
-						newrow[FirstColumnCount + PriceIndex * 2] = dtPos["Cost"];
-						if ((_reportType == 2) || (_reportType == 4))
+						newrow[firstColumnCount + priceIndex * 2] = dtPos["Cost"];
+						if (_reportType == 2 || _reportType == 4)
 						{
 							if (!_showPercents)
-								newrow[FirstColumnCount + PriceIndex * 2 + 1] = dtPos["Quantity"];
+								newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
 							else
 							{
 								double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
-								newrow[FirstColumnCount + PriceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
+								newrow[firstColumnCount + priceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
 					}

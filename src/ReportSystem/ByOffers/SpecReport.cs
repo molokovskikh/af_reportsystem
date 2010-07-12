@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Inforoom.ReportSystem.Helpers;
@@ -229,18 +230,19 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					}
 
 					//¬ыбираем позиции с минимальной ценой, отличные от SourcePC
-					drsMin = dtCore.Select(
-						"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
-						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
-						" and Cost = " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
+					drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}", 
+						drCatalog["CatalogCode"], 
+						GetProducerFilter(drCatalog),
+						((decimal) drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat)));
+
 					if (drsMin.Length > 0)
 					{
-						List<string> LeaderNames = new List<string>();
+						var LeaderNames = new List<string>();
 						foreach (DataRow drmin in drsMin)
 						{
 							DataRow[] drs = dtPrices.Select(
-								"PriceCode=" + drmin["PriceCode"].ToString() +
-								" and RegionCode = " + drmin["RegionCode"].ToString());
+								"PriceCode=" + drmin["PriceCode"] +
+								" and RegionCode = " + drmin["RegionCode"]);
 							if (drs.Length > 0)
 								if (!LeaderNames.Contains(drs[0]["FirmName"].ToString()))
 									LeaderNames.Add(drs[0]["FirmName"].ToString());
@@ -252,11 +254,12 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				{
 					//»щем первую цену, котора€ будет больше минимальной цены
 					drsMin = dtCore.Select(
-						"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
-						" and PriceCode <> " + SourcePC.ToString() +
-						((_reportType <= 2) ? String.Empty : " and CodeFirmCr = " + drCatalog["Cfc"].ToString()) +
+						"CatalogCode = " + drCatalog["CatalogCode"] +
+						" and PriceCode <> " + SourcePC +
+						GetProducerFilter(drCatalog) +
 						" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat),
 						"Cost asc");
+
 					if (drsMin.Length > 0)
 					{
 						newrow["Differ"] = (decimal)newrow["CustomerCost"] - Convert.ToDecimal(drsMin[0]["Cost"]);
@@ -266,9 +269,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 				//¬ыбираем позиции и сортируем по возрастанию цен дл€ того, чтобы по каждому прайс-листы выбрать минимальную цену по одному и тому же CatalogCode
 				drsMin = dtCore.Select(
-					"CatalogCode = " + drCatalog["CatalogCode"].ToString() +
-					((_reportType <= 2) ? String.Empty : "and CodeFirmCr = " + drCatalog["Cfc"].ToString()), 
+					"CatalogCode = " + drCatalog["CatalogCode"] + GetProducerFilter(drCatalog),
 					"Cost asc");
+
 				foreach (DataRow dtPos in drsMin)
 				{
 					DataRow[] dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"].ToString() + " and RegionCode = " + dtPos["RegionCode"].ToString());
@@ -298,6 +301,15 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 				dtRes.Rows.Add(newrow);
 			}
+		}
+
+		private string GetProducerFilter(DataRow drCatalog)
+		{
+			if (_reportType <= 2)
+				return "";
+			if (drCatalog["Cfc"] == DBNull.Value)
+				return " and CodeFirmCr is null";
+			return " and CodeFirmCr = " + drCatalog["Cfc"];
 		}
 
 		protected void GetSourceCodes(ExecuteArgs e)
@@ -467,11 +479,6 @@ from
   catalogs.catalogforms,
   farm.core0 FarmCore,";
 
-			//≈сли отчет с учетом производител€, то пересекаем с таблицой Producers
-			if (_reportType > 2)
-				SqlCommandText += @"
-  catalogs.Producers cfc,";
-
 			//≈сли отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
 			if (_reportIsFull)
 			{
@@ -487,10 +494,15 @@ from
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr";
 			}
 			else
-					SqlCommandText += @"
+				SqlCommandText += @"
   Core AllPrices, 
   TmpSourceCodes SourcePrice
  )";
+			//≈сли отчет с учетом производител€, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				SqlCommandText += @"
+  left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
+
 				SqlCommandText += @"
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode 
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
@@ -500,11 +512,6 @@ where
   and catalognames.id = catalog.nameid
   and catalogforms.id = catalog.formid
   and FarmCore.Id = AllPrices.Id";
-
-				//≈сли отчет с учетом производител€, то пересекаем с таблицой Producers
-			if (_reportType > 2)
-				SqlCommandText += @"
-  and cfc.Id = FarmCore.codefirmcr ";
 
 				SqlCommandText += @"
   and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )

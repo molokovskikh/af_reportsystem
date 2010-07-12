@@ -282,11 +282,6 @@ from
   catalogs.catalogforms,
   farm.core0 FarmCore,";
 
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
-			if (_reportType > 2)
-				sql += @"
-  catalogs.Producers cfc,";
-
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
 			if (_reportIsFull)
 			{
@@ -302,10 +297,15 @@ from
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr";
 			}
 			else
-					sql += @"
+				sql += @"
   Core AllPrices, 
   TmpSourceCodes SourcePrice
  )";
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				sql += @"
+  left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
+
 				sql += @"
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode 
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
@@ -315,11 +315,6 @@ where
   and catalognames.id = catalog.nameid
   and catalogforms.id = catalog.formid
   and FarmCore.Id = AllPrices.Id";
-
-				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
-			if (_reportType > 2)
-				sql += @"
-  and cfc.Id = FarmCore.codefirmcr ";
 
 				sql += @"
   and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )

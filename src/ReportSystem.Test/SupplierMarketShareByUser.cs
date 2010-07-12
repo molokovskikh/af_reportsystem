@@ -16,7 +16,7 @@ namespace ReportSystem.Test
 			AddProperty("Begin", DateTime.Now.AddDays(-10));
 			AddProperty("End", DateTime.Now);
 			AddProperty("Regions", new List<long> {1l});
-			report = new SupplierMarketShareByUser(1, "test", Conn, false, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, false, ReportFormats.Excel, properties);
 			BuildReport();
 		}
 	}

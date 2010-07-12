@@ -74,13 +74,6 @@ group by c.ProductId, c.ProducerId, pd.FirmCode
 			
 		}
 
-		protected override IWriter GetWriter(ReportFormats format)
-		{
-			if (format == ReportFormats.Excel)
-				return new BaseExcelWriter();
-			return null;
-		}
-
 		public override void ReadReportParams()
 		{
 			_clientCode = (int)getReportParam("ClientCode");

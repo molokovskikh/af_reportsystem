@@ -50,7 +50,7 @@ namespace Inforoom.ReportSystem
 				_needProcessing = true;
 			}
 
-			_clientsNames = GetClientsNamesFromSQL(e, reportClients);
+			_clientsNames = GetClientsNamesFromSQL(reportClients);
 
 			var table = _dsReport.Tables["Results"];
 			for (int i = 0; i < 5; i++)
