@@ -80,7 +80,7 @@ select
   0 as PublicUpCost,
   -- жизненно важный
   catalog.VitallyImportant
-INTO OUTFILE 'C:/AFFiles/{0}'
+INTO OUTFILE 'C:/ReportsFiles/{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
 from 
