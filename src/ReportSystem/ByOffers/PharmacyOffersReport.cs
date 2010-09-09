@@ -30,8 +30,19 @@ create temporary table ExtendedCore
 insert into ExtendedCore (Id) select Id from Core;
 
 update 
-  Core cor, 
-  ExtendedCore ec 
+  ExtendedCore ec
+  inner join farm.Core0 on Core0.id = ec.Id
+  inner join usersettings.PricesData pd on pd.PriceCode = Core0.PriceCode
+  join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
+  left join catalogs.Producers on Producers.ID = Core0.CodeFirmCr
+set
+  ec.ProducerId = Core0.CodeFirmCr,
+  ec.ProducerName = Producers.Name,
+  ec.SupplierName = cd.ShortName;
+
+update 
+  ExtendedCore ec
+  inner join Core cor on cor.id = ec.Id 
 set
   ec.ProductName = (select concat(cat.Name, ' ',
 				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
@@ -39,23 +50,14 @@ set
 									SEPARATOR ', '), ''))
 			  from
 				 catalogs.products inp
-         join catalogs.Catalog cat on cat.Id = inp.CatalogId
+				 join catalogs.Catalog cat on cat.Id = inp.CatalogId
 				 left join catalogs.ProductProperties on ProductProperties.ProductId = inp.Id
 				 left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
 				 left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
-			   where inp.Id = cor.ProductId),
-  ec.ProducerId = (select CodeFirmCr from farm.Core0 where id = cor.Id),
-  ec.SupplierName = (select ShortName 
-                    from usersettings.PricesData pd 
-                         join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-                    where pd.PriceCode = cor.PriceCode)
-where
-  cor.id = ec.Id;
-
-update 
-  ExtendedCore ec
-set
-  ec.ProducerName = (select Name from catalogs.Producers where ID = ec.ProducerId);
+			  where
+				inp.Id = cor.ProductId
+			)
+;
 
 select  c.ProductId,
         ec.ProductName,
