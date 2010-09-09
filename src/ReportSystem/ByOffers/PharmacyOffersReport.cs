@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;
@@ -15,7 +16,7 @@ namespace Inforoom.ReportSystem.FastReports
 
 	public class PharmacyOffersReport : ProviderReport
 	{
-		private const string sql = @"
+		private const string headersql = @"
 drop temporary table IF EXISTS ExtendedCore;
 create temporary table ExtendedCore
 (
@@ -24,9 +25,12 @@ create temporary table ExtendedCore
   ProducerId INT UNSIGNED,
   ProducerName VARCHAR(255),
   SupplierName VARCHAR(255),
-  INDEX (id)
+  INDEX (id),
+  index (ProductName)
 ) engine=MEMORY;
+";
 
+		private const string sqlWithoutPriceCode = @"
 insert into ExtendedCore (Id) select Id from Core;
 
 update 
@@ -58,7 +62,143 @@ set
 				inp.Id = cor.ProductId
 			)
 ;
+";
 
+		private const string sqlByPriceCode = @"
+drop temporary table IF EXISTS OffersByPrice;
+create temporary table OffersByPrice
+(
+  ProductId INT UNSIGNED,
+  ProducerId INT UNSIGNED,
+  index (ProductId),
+  index (ProducerId)
+) engine=MEMORY;
+
+insert into OffersByPrice
+select
+  Core0.ProductId,
+  Core0.CodeFirmCr
+from
+  usersettings.PricesData
+  inner join usersettings.PricesCosts pc on pc.PriceCode = PricesData.PriceCode and pc.BaseCost = 1
+  inner join farm.Core0 on Core0.PriceCode = PricesData.PriceCode
+  inner join farm.CoreCosts cc on cc.Core_Id = Core0.Id and cc.PC_CostCode = pc.CostCode
+where
+    PricesData.PriceCode = @OffersPriceCode
+and PricesData.CostType = 1
+union distinct
+select
+  Core0.ProductId,
+  Core0.CodeFirmCr
+from
+  usersettings.PricesData
+  inner join farm.Core0 on Core0.PriceCode = PricesData.PriceCode
+where
+    PricesData.PriceCode = @OffersPriceCode
+and (PricesData.CostType = 0 or PricesData.PriceType = 1);
+
+
+insert into ExtendedCore (Id) 
+select 
+  distinct Core.Id 
+from 
+  OffersByPrice
+  inner join Core on Core.ProductId = OffersByPrice.ProductId
+  inner join farm.Core0 ExistsOffers on 
+		ExistsOffers.Id = Core.Id 
+    and ((OffersByPrice.ProducerId is null and ExistsOffers.CodeFirmCr is null) or (OffersByPrice.ProducerId = ExistsOffers.CodeFirmCr))
+#where
+#  Core0.PriceCode = @OffersPriceCode
+;
+
+update 
+  ExtendedCore ec
+  inner join farm.Core0 on Core0.id = ec.Id
+  inner join usersettings.PricesData pd on pd.PriceCode = Core0.PriceCode
+  join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode  
+  left join catalogs.Producers on Producers.ID = Core0.CodeFirmCr
+  left join farm.SynonymFirmCr on SynonymFirmCr.PriceCode = @OffersSynonymCode and SynonymFirmCr.CodeFirmCr = Core0.CodeFirmCr
+set
+  ec.ProducerId = Core0.CodeFirmCr,
+  ec.ProducerName = ifnull(SynonymFirmCr.Synonym, Producers.Name),
+  ec.SupplierName = cd.ShortName;
+
+update 
+  ExtendedCore ec
+  inner join Core cor on cor.id = ec.Id
+  left join farm.Synonym on Synonym.PriceCode = @OffersSynonymCode and Synonym.ProductId = cor.ProductId 
+set
+  ec.ProductName = Synonym.Synonym;
+
+update 
+  ExtendedCore ec
+  inner join Core cor on cor.id = ec.Id
+set
+  ec.ProductName = 
+		(select concat(cat.Name, ' ',
+				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
+									order by Properties.PropertyName, PropertyValues.Value
+									SEPARATOR ', '), ''))
+			  from
+				 catalogs.products inp
+				 join catalogs.Catalog cat on cat.Id = inp.CatalogId
+				 left join catalogs.ProductProperties on ProductProperties.ProductId = inp.Id
+				 left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
+				 left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
+			  where
+				inp.Id = cor.ProductId
+		)
+where
+  ec.ProductName is null
+;
+";
+
+		private const string sqlFullOffers = @"
+insert into ExtendedCore (Id) select Id from Core;
+
+update 
+  ExtendedCore ec
+  inner join farm.Core0 on Core0.id = ec.Id
+  inner join usersettings.PricesData pd on pd.PriceCode = Core0.PriceCode
+  join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
+  left join catalogs.Producers on Producers.ID = Core0.CodeFirmCr
+  left join farm.SynonymFirmCr on SynonymFirmCr.PriceCode = @OffersSynonymCode and SynonymFirmCr.CodeFirmCr = Core0.CodeFirmCr
+set
+  ec.ProducerId = Core0.CodeFirmCr,
+  ec.ProducerName = ifnull(SynonymFirmCr.Synonym, Producers.Name),
+  ec.SupplierName = cd.ShortName;
+
+update 
+  ExtendedCore ec
+  inner join Core cor on cor.id = ec.Id
+  left join farm.Synonym on Synonym.PriceCode = @OffersSynonymCode and Synonym.ProductId = cor.ProductId 
+set
+  ec.ProductName = Synonym.Synonym;
+
+update 
+  ExtendedCore ec
+  inner join Core cor on cor.id = ec.Id
+set
+  ec.ProductName = 
+		(select concat(cat.Name, ' ',
+				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
+									order by Properties.PropertyName, PropertyValues.Value
+									SEPARATOR ', '), ''))
+			  from
+				 catalogs.products inp
+				 join catalogs.Catalog cat on cat.Id = inp.CatalogId
+				 left join catalogs.ProductProperties on ProductProperties.ProductId = inp.Id
+				 left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
+				 left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
+			  where
+				inp.Id = cor.ProductId
+		)
+where
+  ec.ProductName is null
+;
+";
+
+		private const string footersql = @"
 select  c.ProductId,
         ec.ProductName,
 		m.RussianMnn as Mnn,
@@ -78,9 +218,19 @@ from Core c
 					left join Catalogs.Mnn m on m.Id = cn.MnnId
 	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 	join usersettings.PricesData pd on pd.PriceCode = c.PriceCode
-group by c.ProductId, ec.ProducerId, pd.FirmCode
+group by c.ProductId, ec.ProducerId, pd.FirmCode";
 
+		private const string sqlSetParams = @"
+set @OffersPriceCode = {0};
+select
+  ifnull(pricesdata.ParentSynonym, pricesdata.pricecode) PriceSynonymCode
+from
+  usersettings.PricesData
+where
+  PriceCode = @OffersPriceCode
+into @OffersSynonymCode;
 ";
+
 		private bool _includeQuantity;
 		private bool _includeProducer;
 		private decimal _costDiffThreshold;
@@ -110,15 +260,36 @@ group by c.ProductId, ec.ProducerId, pd.FirmCode
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
 			base.GenerateReport(e);
+
+			CheckPriceCode(e);
+
 			ProfileHelper.Next("GetOffers");
 			GetOffers(e);
 
 			ProfileHelper.Next("GetData");
-			e.DataAdapter.SelectCommand.CommandText = sql;
-			if (_includeProducer)
-				e.DataAdapter.SelectCommand.CommandText += "order by ec.ProductName, ec.ProducerName, Cost;";
+
+			if (_priceCode.HasValue)
+			{
+				if (_reportIsFull)
+					e.DataAdapter.SelectCommand.CommandText = 
+						headersql +
+						String.Format(sqlSetParams, _priceCode) +
+						sqlFullOffers + 
+						footersql;
+				else
+					e.DataAdapter.SelectCommand.CommandText = 
+						headersql + 
+						String.Format(sqlSetParams, _priceCode) + 
+						sqlByPriceCode + 
+						footersql;
+			}
 			else
-				e.DataAdapter.SelectCommand.CommandText += "order by ec.ProductName, Cost;";
+				e.DataAdapter.SelectCommand.CommandText = headersql + sqlWithoutPriceCode + footersql;
+
+			if (_includeProducer)
+				e.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, ec.ProducerName, Cost;";
+			else
+				e.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, Cost;";
 
 			DataTable resultTable;
 			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
@@ -129,6 +300,43 @@ group by c.ProductId, ec.ProducerId, pd.FirmCode
 
 			resultTable.TableName = "Results";
 			_dsReport.Tables.Add(resultTable);
+		}
+
+		private void CheckPriceCode(ExecuteArgs e)
+		{
+			if (_priceCode.HasValue)
+			{
+				e.DataAdapter.SelectCommand.CommandText = @"
+select
+  pd.PriceCode,
+  pd.PriceName,
+  cd.ShortName,
+  count(c.id) as OffersCount
+from
+  usersettings.PricesData pd
+  inner join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
+  left join farm.Core0 c on c.PriceCode = pd.PriceCode
+where
+  pd.PriceCode = " + _priceCode;
+				using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
+				{
+					if (reader.Read() && !reader.IsDBNull(0))
+					{
+						var priceName = reader.GetString("PriceName");
+						var shortName = reader.GetString("ShortName");
+						var offersCount = reader.GetUInt32("OffersCount");
+						if (!_reportIsFull && offersCount == 0)
+							throw new ReportException(
+								String.Format(
+									"У прайс-листа {0} {1} ({2}) нет предложений.", 
+									shortName,
+									priceName,
+									_priceCode));
+					}
+					else
+						throw new ReportException(String.Format("Не найден прайс-лист с кодом: {0}.", _priceCode));
+				}
+			}
 		}
 
 		private DataTable FormReportTable(MySqlDataReader reader)
