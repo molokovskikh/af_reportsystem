@@ -1,0 +1,9 @@
+[submodule "src/Common.Tools"]
+	path = src/Common.Tools
+	url = ssh://kvasov@git.analit.net/var/www/git/Common.Tools.git
+[submodule "src/Common.Web.Ui"]
+	path = src/Common.Web.Ui
+	url = ssh://kvasov@git.analit.net/var/www/git/Common.Web.UI.git
+[submodule "src/ExecuteTemplate"]
+	path = src/ExecuteTemplate
+	url = ssh://kvasov@git.analit.net/var/www/git/ExecuteTemplate.git
