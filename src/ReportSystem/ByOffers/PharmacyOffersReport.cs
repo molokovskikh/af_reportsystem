@@ -16,13 +16,24 @@ namespace Inforoom.ReportSystem.FastReports
 	public class PharmacyOffersReport : ProviderReport
 	{
 		private const string sql = @"
-alter table Core add ProductName VARCHAR(255);
-alter table Core add ProducerId INT UNSIGNED;
-alter table Core add ProducerName VARCHAR(255);
-alter table Core add SupplierName VARCHAR(255);
+drop temporary table IF EXISTS ExtendedCore;
+create temporary table ExtendedCore
+(
+  id bigint unsigned,
+  ProductName VARCHAR(255),
+  ProducerId INT UNSIGNED,
+  ProducerName VARCHAR(255),
+  SupplierName VARCHAR(255),
+  INDEX (id)
+) engine=MEMORY;
 
-update Core cor set
-  ProductName = (select concat(cat.Name, ' ',
+insert into ExtendedCore (Id) select Id from Core;
+
+update 
+  Core cor, 
+  ExtendedCore ec 
+set
+  ec.ProductName = (select concat(cat.Name, ' ',
 				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
 									order by Properties.PropertyName, PropertyValues.Value
 									SEPARATOR ', '), ''))
@@ -33,26 +44,31 @@ update Core cor set
 				 left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
 				 left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
 			   where inp.Id = cor.ProductId),
-  ProducerId = (select CodeFirmCr from farm.Core0 where id = cor.Id),
-  SupplierName = (select ShortName 
+  ec.ProducerId = (select CodeFirmCr from farm.Core0 where id = cor.Id),
+  ec.SupplierName = (select ShortName 
                     from usersettings.PricesData pd 
                          join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-                    where pd.PriceCode = cor.PriceCode);
+                    where pd.PriceCode = cor.PriceCode)
+where
+  cor.id = ec.Id;
 
-update Core cor set
-  ProducerName = (select Name from catalogs.Producers where ID = cor.ProducerId);
+update 
+  ExtendedCore ec
+set
+  ec.ProducerName = (select Name from catalogs.Producers where ID = ec.ProducerId);
 
 select  c.ProductId,
-        c.ProductName,
+        ec.ProductName,
 		m.RussianMnn as Mnn,
-        c.ProducerId,
-        c.ProducerName,
-        c.SupplierName,
+        ec.ProducerId,
+        ec.ProducerName,
+        ec.SupplierName,
         min(c.cost) Cost,
 		c0.Quantity,
 		sfc.Synonym as Producer,
 		c0.Code
 from Core c
+	join ExtendedCore ec on ec.Id = c.Id
 	join farm.Core0 c0 on c0.Id = c.Id
 		join Catalogs.Products p on p.Id = c0.ProductId
 			join Catalogs.Catalog ca on ca.Id = p.CatalogId
@@ -60,13 +76,15 @@ from Core c
 					left join Catalogs.Mnn m on m.Id = cn.MnnId
 	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 	join usersettings.PricesData pd on pd.PriceCode = c.PriceCode
-group by c.ProductId, c.ProducerId, pd.FirmCode
+group by c.ProductId, ec.ProducerId, pd.FirmCode
 
 ";
 		private bool _includeQuantity;
 		private bool _includeProducer;
 		private decimal _costDiffThreshold;
 		private int _suppliersCount = 0;
+		private bool _reportIsFull;
+		private int? _priceCode;
 
 		public PharmacyOffersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties) 
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -81,6 +99,10 @@ group by c.ProductId, c.ProducerId, pd.FirmCode
 			_includeQuantity = Convert.ToBoolean(getReportParam("IncludeQuantity"));
 			if (reportParamExists("CostDiffThreshold"))
 				_costDiffThreshold = Convert.ToDecimal(getReportParam("CostDiffThreshold"));
+			if (reportParamExists("ReportIsFull"))
+				_reportIsFull = Convert.ToBoolean(getReportParam("ReportIsFull"));
+			if (reportParamExists("PriceCode"))
+				_priceCode = (int)getReportParam("PriceCode");
 		}
 
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
@@ -92,9 +114,9 @@ group by c.ProductId, c.ProducerId, pd.FirmCode
 			ProfileHelper.Next("GetData");
 			e.DataAdapter.SelectCommand.CommandText = sql;
 			if (_includeProducer)
-				e.DataAdapter.SelectCommand.CommandText += "order by c.ProductName, c.ProducerName, Cost;";
+				e.DataAdapter.SelectCommand.CommandText += "order by ec.ProductName, ec.ProducerName, Cost;";
 			else
-				e.DataAdapter.SelectCommand.CommandText += "order by c.ProductName, Cost;";
+				e.DataAdapter.SelectCommand.CommandText += "order by ec.ProductName, Cost;";
 
 			DataTable resultTable;
 			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())

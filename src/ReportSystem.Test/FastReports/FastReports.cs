@@ -7,8 +7,7 @@ namespace ReportSystem.Test.FastReports
 	[TestFixture]
 	public class FastReports : BaseProfileFixture
 	{
-		[SetUp]
-		public void Setup()
+		private void CreateReport()
 		{
 			report = new PharmacyOffersReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, properties);
 		}
@@ -19,6 +18,7 @@ namespace ReportSystem.Test.FastReports
 			AddProperty("IncludeQuantity", 1);
 			AddProperty("IncludeProducer", 1);
 			AddProperty("ClientCode", 2575);
+			CreateReport();
 			BuildReport();
 		}
 
@@ -28,6 +28,7 @@ namespace ReportSystem.Test.FastReports
 			AddProperty("IncludeQuantity", 1);
 			AddProperty("IncludeProducer", 0);
 			AddProperty("ClientCode", 2575);
+			CreateReport();
 			BuildReport();
 		}
 
@@ -38,6 +39,7 @@ namespace ReportSystem.Test.FastReports
 			AddProperty("IncludeProducer", 1);
 			AddProperty("CostDiffThreshold", 10);
 			AddProperty("ClientCode", 2575);
+			CreateReport();
 			BuildReport();
 		}
 
@@ -48,6 +50,53 @@ namespace ReportSystem.Test.FastReports
 			AddProperty("IncludeProducer", 1);
 			AddProperty("ClientCode", 2575);
 			AddProperty("IgnoredSuppliers", new [] {5, 7});
+			CreateReport();
+			BuildReport();
+		}
+
+		[Test]
+		public void Build_report_with_pricelist()
+		{
+			AddProperty("IncludeQuantity", 1);
+			AddProperty("IncludeProducer", 1);
+			AddProperty("ClientCode", 2575);
+			AddProperty("PriceCode", 5);
+			CreateReport();
+			BuildReport();
+		}
+
+		[Test]
+		public void Build_report_with_pricelist_without_producer_and_quantity()
+		{
+			AddProperty("IncludeQuantity", 0);
+			AddProperty("IncludeProducer", 0);
+			AddProperty("ClientCode", 2575);
+			AddProperty("PriceCode", 5);
+			CreateReport();
+			BuildReport();
+		}
+
+		[Test]
+		public void Build_full_report_with_pricelist()
+		{
+			AddProperty("IncludeQuantity", 1);
+			AddProperty("IncludeProducer", 1);
+			AddProperty("ClientCode", 2575);
+			AddProperty("PriceCode", 5);
+			AddProperty("ReportIsFull", 1);
+			CreateReport();
+			BuildReport();
+		}
+
+		[Test]
+		public void Build_full_report_with_pricelist_without_producer_and_quantity()
+		{
+			AddProperty("IncludeQuantity", 0);
+			AddProperty("IncludeProducer", 0);
+			AddProperty("ClientCode", 2575);
+			AddProperty("PriceCode", 5);
+			AddProperty("ReportIsFull", 1);
+			CreateReport();
 			BuildReport();
 		}
 	}
