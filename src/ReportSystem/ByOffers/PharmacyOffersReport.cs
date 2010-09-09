@@ -107,54 +107,13 @@ from
   inner join farm.Core0 ExistsOffers on 
 		ExistsOffers.Id = Core.Id 
     and ((OffersByPrice.ProducerId is null and ExistsOffers.CodeFirmCr is null) or (OffersByPrice.ProducerId = ExistsOffers.CodeFirmCr))
-#where
-#  Core0.PriceCode = @OffersPriceCode
-;
-
-update 
-  ExtendedCore ec
-  inner join farm.Core0 on Core0.id = ec.Id
-  inner join usersettings.PricesData pd on pd.PriceCode = Core0.PriceCode
-  join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode  
-  left join catalogs.Producers on Producers.ID = Core0.CodeFirmCr
-  left join farm.SynonymFirmCr on SynonymFirmCr.PriceCode = @OffersSynonymCode and SynonymFirmCr.CodeFirmCr = Core0.CodeFirmCr
-set
-  ec.ProducerId = Core0.CodeFirmCr,
-  ec.ProducerName = ifnull(SynonymFirmCr.Synonym, Producers.Name),
-  ec.SupplierName = cd.ShortName;
-
-update 
-  ExtendedCore ec
-  inner join Core cor on cor.id = ec.Id
-  left join farm.Synonym on Synonym.PriceCode = @OffersSynonymCode and Synonym.ProductId = cor.ProductId 
-set
-  ec.ProductName = Synonym.Synonym;
-
-update 
-  ExtendedCore ec
-  inner join Core cor on cor.id = ec.Id
-set
-  ec.ProductName = 
-		(select concat(cat.Name, ' ',
-				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
-									order by Properties.PropertyName, PropertyValues.Value
-									SEPARATOR ', '), ''))
-			  from
-				 catalogs.products inp
-				 join catalogs.Catalog cat on cat.Id = inp.CatalogId
-				 left join catalogs.ProductProperties on ProductProperties.ProductId = inp.Id
-				 left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
-				 left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
-			  where
-				inp.Id = cor.ProductId
-		)
-where
-  ec.ProductName is null
 ;
 ";
 
 		private const string sqlFullOffers = @"
 insert into ExtendedCore (Id) select Id from Core;
+";
+		private const string footersqlByPrice = @"
 
 update 
   ExtendedCore ec
@@ -275,12 +234,14 @@ into @OffersSynonymCode;
 						headersql +
 						String.Format(sqlSetParams, _priceCode) +
 						sqlFullOffers + 
+						footersqlByPrice +
 						footersql;
 				else
 					e.DataAdapter.SelectCommand.CommandText = 
 						headersql + 
 						String.Format(sqlSetParams, _priceCode) + 
-						sqlByPriceCode + 
+						sqlByPriceCode +
+						footersqlByPrice +
 						footersql;
 			}
 			else
