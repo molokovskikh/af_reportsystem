@@ -2,6 +2,7 @@
 using System.Data;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
+using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;
 using DataTable = System.Data.DataTable;
@@ -201,6 +202,18 @@ into @OffersSynonymCode;
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			
+		}
+
+		protected override IWriter GetWriter(ReportFormats format)
+		{
+			if (format == ReportFormats.Excel)
+				return new BaseExcelWriter();
+			return null;
+		}
+
+		protected override BaseReportSettings GetSettings()
+		{
+			return new BaseReportSettings(_reportCode, _reportCaption);
 		}
 
 		public override void ReadReportParams()
