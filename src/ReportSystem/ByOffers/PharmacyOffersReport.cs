@@ -160,7 +160,7 @@ where
 		private const string footersql = @"
 select  c.ProductId,
         ec.ProductName,
-		m.RussianMnn as Mnn,
+		m.Mnn,
         ec.ProducerId,
         ec.ProducerName,
         ec.SupplierName,
