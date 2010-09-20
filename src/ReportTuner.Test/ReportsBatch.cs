@@ -372,5 +372,103 @@ group by firmclientcode
 			}
 		}
 
+		//Копирует все отчеты из родительского отчета sourceGeneralReportId в родительский отчет destinationGeneralReportId,
+		//если в родительском отчете destinationGeneralReportId есть отчеты, то перед копирование происходит их удаление
+		private void CopyReports(ulong sourceGeneralReportId, ulong destinationGeneralReportId)
+		{
+			var newReportList = new List<ulong>();
+
+			using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			{
+				connection.Open();
+
+				var templateReportDS = MySqlHelper.ExecuteDataset(
+					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+					@"
+select
+  reports.ReportCode
+from
+  reports.General_Reports,
+  reports.reports
+where
+    General_Reports.GeneralReportCode = ?GeneralReportCode
+and General_Reports.GeneralReportCode = reports.GeneralReportCode
+"
+					,
+					new MySqlParameter("?GeneralReportCode", sourceGeneralReportId));
+
+				var templateReports = templateReportDS.Tables[0];
+
+				Console.WriteLine("type = {0}", templateReports.Rows.Count);
+
+				var deletedReports = MySqlHelper.ExecuteNonQuery(
+					connection,
+					"delete from reports.reports where GeneralReportCode = ?GeneralReportCode",
+					new MySqlParameter("?GeneralReportCode", destinationGeneralReportId));
+
+				if (deletedReports > 0)
+					Console.WriteLine("For report {0} deleted reports: {1}", destinationGeneralReportId, deletedReports);
+
+				var insertReportCommand = new MySqlCommand(
+					@"
+insert into reports.reports 
+  (GeneralReportCode, ReportCaption, ReportTypeCode, Enabled)
+select 
+  ?GeneralReportCode, reports.ReportCaption, reports.ReportTypeCode, 1
+from 
+  reports.reports 
+where reports.ReportCode = ?reportCode;
+select last_insert_id() as ReportCode;", connection);
+				insertReportCommand.Parameters.Add("?reportCode", MySqlDbType.UInt64);
+				insertReportCommand.Parameters.AddWithValue("?GeneralReportCode", destinationGeneralReportId);
+
+				foreach (DataRow templateReport in templateReports.Rows)
+				{
+					var templateReportId = Convert.ToUInt64(templateReport["ReportCode"]);
+					insertReportCommand.Parameters["?reportCode"].Value = templateReportId;
+					var newReportCode = Convert.ToUInt64(insertReportCommand.ExecuteScalar());
+					newReportList.Add(newReportCode);
+					CopyReportProperties(templateReportId, newReportCode);
+				}
+			}
+
+		}
+
+		[Test(Description = "создает отчеты у родительского отчета 213 по подобию отчетов для родительского отчета 210 с копированием всех свойств, задача пришла от Павла")
+		, Ignore("это не тест, а метод для выполнения действий с отчетами")
+		]
+		public void CloneReportsToDestination()
+		{
+			//213, 216 как 210
+			CopyReports(210, 213);
+			CopyReports(210, 216);
+
+			//214, 217 как 211
+			CopyReports(211, 214);
+			CopyReports(211, 217);
+
+			//215, 218 как 212
+			CopyReports(212, 215);
+			CopyReports(212, 218);
+
+			//299 305 311 317 как 249
+			CopyReports(249, 299);
+			CopyReports(249, 305);
+			CopyReports(249, 311);
+			CopyReports(249, 317);
+
+			//301 307 313 319 как 250
+			CopyReports(250, 301);
+			CopyReports(250, 307);
+			CopyReports(250, 313);
+			CopyReports(250, 319);
+
+			//303 309 315 321 как 251
+			CopyReports(251, 303);
+			CopyReports(251, 309);
+			CopyReports(251, 315);
+			CopyReports(251, 321);
+		}
+
 	}
 }
