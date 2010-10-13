@@ -72,7 +72,7 @@ namespace Inforoom.ReportSystem.ByOrders
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new BaseExcelWriter();
+				return new SupplierExcelWriter();
 			return null;
 		}
 
@@ -107,10 +107,43 @@ order by ClientName, UserName", _filters, _regions.Implode());
 			e.DataAdapter.Fill(_dsReport, "data");
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");
-			result.Columns.Add("ClientName");
-			result.Columns.Add("UserName");
-			result.Columns.Add("Share", typeof (double));
-			result.Columns["ClientName"].Caption = "Клиент";
+            result.Columns.Add("ClientName");
+            result.Columns.Add("UserName");
+            result.Columns.Add("Share", typeof(double));
+
+		    //result.Rows[0][0] = "dfgd";
+		    MySqlCommand headParameterCommand = _conn.CreateCommand();
+            String shPCommand = "select cd.ShortName from usersettings.clientsdata cd where cd.FirmCode = " + _supplierId.ToString();
+		    headParameterCommand.CommandText = shPCommand;
+		    MySqlDataReader headParameterReader = headParameterCommand.ExecuteReader();
+            result.Rows.Add("Поставщик");
+            //result.Rows[0][0] = "";
+            if (headParameterReader.Read())
+            {
+                result.Rows[0][1] = headParameterReader["ShortName"];
+            }
+            headParameterReader.Close();
+            result.Rows.Add("Период: ");
+		    result.Rows[1][1] = "с " + _period.Begin.Date.ToString() + " по " + _period.End.Date.ToString();
+		    string sRegions = "";
+            for (int i = 0; i < _regions.Count; i++)
+            {
+                shPCommand = "select reg.region from farm.regions reg where reg.RegionCode = " +
+                             _regions[i].ToString();
+                headParameterCommand.CommandText = shPCommand;
+                headParameterReader = headParameterCommand.ExecuteReader();
+                if (headParameterReader.Read())
+                {
+                    sRegions += headParameterReader["region"];
+                }
+                headParameterReader.Close();
+            }
+            result.Rows.Add("Регионы");
+		    result.Rows[2][1] = sRegions;
+		    result.Rows.Add("");
+            //result.Rows.Add("TEST");
+
+            result.Columns["ClientName"].Caption = "Имя Клиента";
 			result.Columns["UserName"].Caption = "Пользователь";
 			result.Columns["Share"].Caption = "Доля рынка, %";
 			foreach (var row in data.Rows.Cast<DataRow>())

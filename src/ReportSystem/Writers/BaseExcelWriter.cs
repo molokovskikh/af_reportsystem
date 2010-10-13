@@ -3,6 +3,8 @@ using System.Data;
 using System.Data.OleDb;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
+using Microsoft.Office.Interop.Excel;
+using DataTable = System.Data.DataTable;
 using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem.Writers
@@ -64,7 +66,61 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			}
 		}
 
-		public void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
+        public void FormatExcelFile(MSExcel._Worksheet _ws, DataTable _result, string _caption, int CountDownRows)
+        {
+            //MSExcel._Worksheet _ws = (MSExcel._Worksheet)_wb.Worksheets["rep" + _reportId.ToString()];
+            _ws.Name = _caption.Substring(0, (_caption.Length < MaxListName) ? _caption.Length : MaxListName);
+
+            if (CountDownRows > 0)
+            {
+                for (int j = 1; j < 3; j++)
+                {
+                    for (int i = 0; i < CountDownRows - 3; i++)
+                    {
+                        _ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
+                    }
+                    _ws.Cells[CountDownRows - 2, j] = "";
+                }
+            }
+            if (CountDownRows == 0)
+            {
+                CountDownRows = 2;
+            }
+            for (int i = 0; i < _result.Columns.Count; i++)
+            {
+                _ws.Cells[CountDownRows-1, i + 1] = "";
+                _ws.Cells[CountDownRows-1, i + 1] = _result.Columns[i].Caption;
+                if (CountDownRows != 2)
+                {
+                    _ws.Cells[1, 3] = "";
+                }
+                if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
+                    ((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
+                else
+                    ((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
+                if (_result.Columns[i].ExtendedProperties.ContainsKey("Color"))
+                    _ws.get_Range(_ws.Cells[ CountDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)_result.Columns[i].ExtendedProperties["Color"]);
+            }
+
+
+            //рисуем границы на всю таблицу
+            _ws.get_Range(_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+
+            //Устанавливаем шрифт листа
+            _ws.Rows.Font.Size = 8;
+            _ws.Rows.Font.Name = "Arial Narrow";
+            _ws.Activate();
+
+            //Устанавливаем АвтоФильтр на все колонки
+            _ws.Range[_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
+            ((MSExcel.Range)_ws.Application.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
+            //MSExcel.Worksheet rws = new Worksheet();
+            //rws = _ws;
+            //return (_wb);
+        }
+
+
+	    public virtual void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			ProfileHelper.Next("FormatExcel");
@@ -84,31 +140,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 
 					try
 					{
-						ws.Name = caption.Substring(0, (caption.Length < MaxListName) ? caption.Length : MaxListName);
-
-						for (int i = 0; i < result.Columns.Count; i++)
-						{
-							ws.Cells[1, i + 1] = "";
-							ws.Cells[1, i + 1] = result.Columns[i].Caption;
-							if (result.Columns[i].ExtendedProperties.ContainsKey("Width"))
-								((MSExcel.Range)ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)result.Columns[i].ExtendedProperties["Width"]).Value;
-							else
-								((MSExcel.Range)ws.Columns[i + 1, Type.Missing]).AutoFit();
-							if (result.Columns[i].ExtendedProperties.ContainsKey("Color"))
-								ws.get_Range(ws.Cells[1, i + 1], ws.Cells[result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)result.Columns[i].ExtendedProperties["Color"]);
-						}
-
-						//рисуем границы на всю таблицу
-						ws.get_Range(ws.Cells[1, 1], ws.Cells[result.Rows.Count + 1, result.Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
-
-						//Устанавливаем шрифт листа
-						ws.Rows.Font.Size = 8;
-						ws.Rows.Font.Name = "Arial Narrow";
-						ws.Activate();
-
-						//Устанавливаем АвтоФильтр на все колонки
-						ws.Range[ws.Cells[1, 1], ws.Cells[result.Rows.Count + 1, result.Columns.Count]].Select();
-						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
+					    FormatExcelFile(ws, result, caption, 0);
 					}
 					finally
 					{
