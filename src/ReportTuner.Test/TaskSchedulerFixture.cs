@@ -31,7 +31,7 @@ namespace ReportTuner.Test
 			//    }
 			//}
 
-			using (TaskService taskService = new TaskService("offdc", "runer", "analit", "zcxvcb"))
+			using (TaskService taskService = new TaskService("localhost", "zolotarev", "analit", ""))
 			{
 				foreach (Task task in taskService.RootFolder.Tasks)
 				{

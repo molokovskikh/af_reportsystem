@@ -1,5 +1,6 @@
 import file from lib.bake
 import System.IO
+import file from Migration.bake
 
 Global(
 	humanReadableName : "Генератор отчетов"

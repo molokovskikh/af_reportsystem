@@ -95,6 +95,7 @@
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
     <Compile Include="OffersReport\OffersReportFixture.cs" />
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
+    <Compile Include="OrderOutAllowedAssortmentFixture.cs" />
     <Compile Include="PharmacyMixed\PharmacyMixedProfileFixture.cs" />
     <Compile Include="RatingReport\RatingNewProfileFixture.cs" />
     <Compile Include="RatingReport\RatingProfileFixture.cs" />
@@ -110,12 +111,6 @@
     <Compile Include="SuppliersRatingReport\SuppliersRatingProfileFixture.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="Troubleshoot.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">
-      <Project>{BDC750F3-0940-43DB-9501-87A219530C35}</Project>
-      <Name>ReportSystem</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -309,6 +304,12 @@
     <Content Include="TestData\SuppliersRating.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">
+      <Project>{BDC750F3-0940-43DB-9501-87A219530C35}</Project>
+      <Name>ReportSystem</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

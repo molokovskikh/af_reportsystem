@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.OleDb;
 using Inforoom.ReportSystem.Helpers;
+using System.Collections.Generic;
 using Inforoom.ReportSystem.ReportSettings;
 using Microsoft.Office.Interop.Excel;
 using DataTable = System.Data.DataTable;
@@ -66,9 +67,10 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			}
 		}
 
-        public void FormatExcelFile(MSExcel._Worksheet _ws, DataTable _result, string _caption, int CountDownRows)
+		public void FormatExcelFile(MSExcel._Worksheet _ws, DataTable _result, string _caption, int CountDownRows /*List<string > L*/)
         {
             //MSExcel._Worksheet _ws = (MSExcel._Worksheet)_wb.Worksheets["rep" + _reportId.ToString()];
+        	//int CountDownRows = L.Count+3;
             _ws.Name = _caption.Substring(0, (_caption.Length < MaxListName) ? _caption.Length : MaxListName);
 
             if (CountDownRows > 0)
@@ -86,21 +88,25 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
             {
                 CountDownRows = 2;
             }
-            for (int i = 0; i < _result.Columns.Count; i++)
-            {
-                _ws.Cells[CountDownRows-1, i + 1] = "";
-                _ws.Cells[CountDownRows-1, i + 1] = _result.Columns[i].Caption;
-                if (CountDownRows != 2)
-                {
-                    _ws.Cells[1, 3] = "";
-                }
-                if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
-                    ((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
-                else
-                    ((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
-                if (_result.Columns[i].ExtendedProperties.ContainsKey("Color"))
-                    _ws.get_Range(_ws.Cells[ CountDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)_result.Columns[i].ExtendedProperties["Color"]);
-            }
+			for (int i = 3; i < 20;i++ )
+			{
+				_ws.Cells[1, i] = "";
+			}
+        	for (int i = 0; i < _result.Columns.Count; i++)
+				{
+					_ws.Cells[CountDownRows - 1, i + 1] = "";
+					_ws.Cells[CountDownRows - 1, i + 1] = _result.Columns[i].Caption;
+					if (CountDownRows != 2)
+					{
+						_ws.Cells[1, 3] = "";
+					}
+					if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
+						((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
+					else
+						((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
+					if (_result.Columns[i].ExtendedProperties.ContainsKey("Color"))
+						_ws.get_Range(_ws.Cells[CountDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)_result.Columns[i].ExtendedProperties["Color"]);
+				}
 
 
             //рисуем границы на всю таблицу
@@ -140,7 +146,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 
 					try
 					{
-					    FormatExcelFile(ws, result, caption, 0);
+					    FormatExcelFile(ws, result, caption, 0/* new List<string>()*/);
 					}
 					finally
 					{

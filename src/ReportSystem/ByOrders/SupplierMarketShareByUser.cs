@@ -27,6 +27,7 @@ namespace Inforoom.ReportSystem.ByOrders
 		private uint _supplierId;
 		private Period _period;
 		private List<ulong> _regions;
+		//private List<string > head;
 
 		private const string _mandatoryOrderFilter = "oh.Deleted = 0 and oh.Submited = 1";
 		private const string _mandatoryClientFilter = "c.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
@@ -43,7 +44,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			_regions = (List<ulong>) getReportParam("Regions");
 		}
 
-		private Period GetPeriod()
+		public Period GetPeriod()
 		{
 			var byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
 			if (byPreviousMonth)
@@ -72,7 +73,7 @@ namespace Inforoom.ReportSystem.ByOrders
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new SupplierExcelWriter();
+				return new SupplierExcelWriter(/*head*/);
 			return null;
 		}
 
@@ -112,6 +113,9 @@ order by ClientName, UserName", _filters, _regions.Implode());
             result.Columns.Add("Share", typeof(double));
 
 		    //result.Rows[0][0] = "dfgd";
+			/*head = new List<string>();
+			head.Add("Поставщик");
+			head.Add("Период");*/
 		    MySqlCommand headParameterCommand = _conn.CreateCommand();
             String shPCommand = "select cd.ShortName from usersettings.clientsdata cd where cd.FirmCode = " + _supplierId.ToString();
 		    headParameterCommand.CommandText = shPCommand;
@@ -135,6 +139,7 @@ order by ClientName, UserName", _filters, _regions.Implode());
                 if (headParameterReader.Read())
                 {
                     sRegions += headParameterReader["region"];
+					//head.Add("Регионы");
                 }
                 headParameterReader.Close();
             }
