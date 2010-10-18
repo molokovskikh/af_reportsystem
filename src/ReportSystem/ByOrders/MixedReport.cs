@@ -189,6 +189,7 @@ Avg(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeAvgCost,
 Max(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMaxCost,
 Count(distinct if(pd.firmcode = {0}, oh.RowId, NULL)) as SourceFirmDistinctOrderId,
 Count(distinct if(pd.firmcode = {0}, oh.ClientCode, NULL)) as SourceFirmDistinctClientCode,
+Count(distinct if(pd.firmcode = {0}, pd.FirmCode, NULL)) as SourceSuppliersSoldPosition,
 
 sum(if(pd.firmcode in ({1}), ol.cost*ol.quantity, NULL)) as RivalsSum,
 sum(if(pd.firmcode in ({1}), ol.quantity, NULL)) RivalsRows,
@@ -197,6 +198,7 @@ Avg(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsAvgCost,
 Max(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsMaxCost,
 Count(distinct if(pd.firmcode in ({1}), oh.RowId, NULL)) as RivalsDistinctOrderId,
 Count(distinct if(pd.firmcode in ({1}), oh.ClientCode, NULL)) as RivalsDistinctClientCode,
+Count(distinct if(pd.firmcode in ({1}), pd.FirmCode, NULL)) as RivalsSuppliersSoldPosition,
 
 sum(ol.cost*ol.quantity) as AllSum,
 sum(ol.quantity) AllRows,
@@ -204,6 +206,7 @@ Min(ol.cost) as AllMinCost,
 Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
+Count(distinct pd.firmcode) as AllSuppliersSoldPosition,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
 			selectCommand +=
 @"from 
@@ -323,6 +326,10 @@ and rcs.InvisibleOnFirm < 2";
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по постащику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("SourceSuppliersSoldPosition", typeof(Int32));
+			dc.Caption = "Кол-во поставщиков";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 
 			dc = res.Columns.Add("RivalsSum", typeof (Decimal));
 			dc.Caption = "Сумма по конкурентам";
@@ -352,6 +359,10 @@ and rcs.InvisibleOnFirm < 2";
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("RivalsSuppliersSoldPosition", typeof(Int32));
+			dc.Caption = "Кол-во поставщиков";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 
 			dc = res.Columns.Add("AllSum", typeof (Decimal));
 			dc.Caption = "Сумма по всем";
@@ -381,6 +392,10 @@ and rcs.InvisibleOnFirm < 2";
 			dc.Caption = "Кол-во клиентов, заказавших препарат, по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
+			dc = res.Columns.Add("AllSuppliersSoldPosition", typeof(Int32));
+			dc.Caption = "Кол-во поставщиков";
+			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
+			dc.ExtendedProperties.Add("Width", (int?)4);
 			CopyData(selectTable, res);
 		}
 
