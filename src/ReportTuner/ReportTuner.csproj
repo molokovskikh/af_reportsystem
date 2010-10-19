@@ -162,7 +162,9 @@
     <Content Include="Reports\ReportTypeProperties.aspx" />
     <Content Include="Reports\ReportTypes.aspx" />
     <Content Include="Reports\Schedule.aspx" />
-    <Content Include="Web.Config" />
+    <Content Include="Web.Config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\Bubble.cs" />

@@ -283,7 +283,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			zip.CreateZip(tempArchive, _directoryName, false, null, null);
 
 			var archive = Path.Combine(_directoryName, resArchFileName);
-			File.Copy(tempArchive, archive);
+			File.Move(tempArchive, archive);
 			File.Copy(archive, ResDirPath + resArchFileName);
 
 			return archive;

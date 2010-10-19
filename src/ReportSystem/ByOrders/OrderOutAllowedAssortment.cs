@@ -59,8 +59,8 @@ join future.Users U on U.ID = O.UserID
 join catalogs.Catalog Cat on Cat.Id = P.CatalogID
 left join catalogs.Producers Prod on Prod.Id = Ol.CodeFirmCr
 
-where o.ClientCode = ?ClientCode
-and BM.ID is null and
+where O.ClientCode = ?ClientCode
+and BM.ID is not null and
 O.WriteTime > ?begin
 and O.WriteTime < ?end
 
@@ -86,14 +86,14 @@ order by O.WriteTime");
 			result.Rows.Add("Заказ вне разрешенного ассортимента");
 			result.Rows[0][1] = "Сформирован :" + DateTime.Now.ToString();
 			MySqlCommand headParameterCommand = _conn.CreateCommand();
-			String shPCommand = "select cd.ShortName from usersettings.clientsdata cd where cd.FirmCode = " + _ClientId.ToString();
+			String shPCommand = "select CL.Name from future.Clients CL where CL.ID = " + _ClientId.ToString();
 			headParameterCommand.CommandText = shPCommand;
 			MySqlDataReader headParameterReader = headParameterCommand.ExecuteReader();
 			result.Rows.Add("Клиент");
 
 			if (headParameterReader.Read())
 			{
-				result.Rows[1][1] = headParameterReader["ShortName"];
+				result.Rows[1][1] = headParameterReader["Name"];
 			}
 			headParameterReader.Close();
 			result.Rows.Add("Период: ");
