@@ -75,20 +75,21 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 
             if (CountDownRows > 0)
             {
-                for (int j = 1; j < 3; j++)
+                for (int j = 1; j < 4; j++)
                 {
                     for (int i = 0; i < CountDownRows - 3; i++)
                     {
                         _ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
                     }
                     _ws.Cells[CountDownRows - 2, j] = "";
+					_ws.get_Range("A" + j.ToString(), "B"+j.ToString()).Merge();
                 }
             }
             if (CountDownRows == 0)
             {
                 CountDownRows = 2;
             }
-			for (int i = 3; i < 20;i++ )
+			for (int i = 4; i < 20;i++ )
 			{
 				_ws.Cells[1, i] = "";
 			}
@@ -98,7 +99,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 					_ws.Cells[CountDownRows - 1, i + 1] = _result.Columns[i].Caption;
 					if (CountDownRows != 2)
 					{
-						_ws.Cells[1, 3] = "";
+						_ws.Cells[1, 4] = "";
 					}
 					if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
 						((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
@@ -112,7 +113,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
             //рисуем границы на всю таблицу
             _ws.get_Range(_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
 
-            //Устанавливаем шрифт листа
+			//Устанавливаем шрифт листа
             _ws.Rows.Font.Size = 8;
             _ws.Rows.Font.Name = "Arial Narrow";
             _ws.Activate();
