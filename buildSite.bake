@@ -3,7 +3,7 @@ import file from Migration.bake
 import System.IO
 
 Global(
-	project : "ReportTuner",
+	Project : "ReportTuner",
 	deployTo : """\\acdcserv.adc.analit.net\WebApps\Reports\"""
 )
 
