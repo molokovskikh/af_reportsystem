@@ -12,7 +12,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Build_report()
 		{
-			AddProperty("Id", 4221);
+			AddProperty("ClientCode", 4221);
 			AddProperty("Begin", DateTime.Now.AddDays(-10));
 			AddProperty("End", DateTime.Now);
 			//AddProperty("Regions", new List<long> { 1l });

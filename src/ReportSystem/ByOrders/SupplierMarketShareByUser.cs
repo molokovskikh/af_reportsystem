@@ -112,23 +112,20 @@ order by ClientName, UserName", _filters, _regions.Implode());
             result.Columns.Add("UserName");
             result.Columns.Add("Share", typeof(double));
 
-		    //result.Rows[0][0] = "dfgd";
-			/*head = new List<string>();
-			head.Add("Поставщик");
-			head.Add("Период");*/
 		    MySqlCommand headParameterCommand = _conn.CreateCommand();
             String shPCommand = "select cd.ShortName from usersettings.clientsdata cd where cd.FirmCode = " + _supplierId.ToString();
 		    headParameterCommand.CommandText = shPCommand;
 		    MySqlDataReader headParameterReader = headParameterCommand.ExecuteReader();
-            result.Rows.Add("Поставщик");
+			headParameterReader.Read();
+			result.Rows.Add("Поставщик   " + headParameterReader["ShortName"]);
             //result.Rows[0][0] = "";
-            if (headParameterReader.Read())
+            /*if (headParameterReader.Read())
             {
                 result.Rows[0][1] = headParameterReader["ShortName"];
-            }
+            }*/
             headParameterReader.Close();
-            result.Rows.Add("Период: ");
-		    result.Rows[1][1] = "с " + _period.Begin.Date.ToString() + " по " + _period.End.Date.ToString();
+			result.Rows.Add("Период: c   " + _period.Begin.Date.ToString() + " по " + _period.End.Date.ToString());
+		    //result.Rows[1][1] = "с " + _period.Begin.Date.ToString() + " по " + _period.End.Date.ToString();
 		    string sRegions = "";
             for (int i = 0; i < _regions.Count; i++)
             {
@@ -143,10 +140,9 @@ order by ClientName, UserName", _filters, _regions.Implode());
                 }
                 headParameterReader.Close();
             }
-            result.Rows.Add("Регионы");
-		    result.Rows[2][1] = sRegions;
+			result.Rows.Add("Регионы  " + sRegions);
+		   // result.Rows[2][1] = sRegions;
 		    result.Rows.Add("");
-            //result.Rows.Add("TEST");
 
             result.Columns["ClientName"].Caption = "Имя Клиента";
 			result.Columns["UserName"].Caption = "Пользователь";

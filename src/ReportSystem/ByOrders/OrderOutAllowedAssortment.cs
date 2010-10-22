@@ -46,6 +46,8 @@ U.Name as UserName,
 Cat.Name as NameForm,
 Prod.Name as Producer,
 Ol.Cost, Ol.Quantity,
+BM.Code as MatrixCode,
+CD.ShortName AS Supplier,
 (Ol.Cost*Ol.Quantity) as Summ FROM orders.OrdersHead O
 join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode
 join orders.OrdersList OL on OL.OrderId = O.RowId
@@ -57,10 +59,12 @@ and if(OL.CodeFirmCr is null, BM.ProducerId is null, BM.ProducerId is null || BM
 join future.Clients CL on CL.ID = O.ClientCode
 join future.Users U on U.ID = O.UserID
 join catalogs.Catalog Cat on Cat.Id = P.CatalogID
+join usersettings.PricesData PD on O.PriceCode = PD.PriceCode
+join usersettings.ClientsData CD on PD.FirmCode = CD.FirmCode
 left join catalogs.Producers Prod on Prod.Id = Ol.CodeFirmCr
 
 where O.ClientCode = ?ClientCode
-and BM.ID is not null and
+and BM.ID is null and
 O.WriteTime > ?begin
 and O.WriteTime < ?end
 
@@ -74,6 +78,8 @@ order by O.WriteTime");
 			e.DataAdapter.Fill(_dsReport, "data");
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");
+			result.Columns.Add("MatrixCode");
+			result.Columns.Add("Supplier");
 			result.Columns.Add("WriteTime");
 			result.Columns.Add("ClientName");
 			result.Columns.Add("UserName");
@@ -84,7 +90,7 @@ order by O.WriteTime");
 			result.Columns.Add("Sum");
 
 			result.Rows.Add("Заказ вне разрешенного ассортимента");
-			result.Rows[0][1] = "Сформирован :" + DateTime.Now.ToString();
+			result.Rows[0][2] = "Сформирован :" + DateTime.Now.ToString();
 			MySqlCommand headParameterCommand = _conn.CreateCommand();
 			String shPCommand = "select CL.Name from future.Clients CL where CL.ID = " + _ClientId.ToString();
 			headParameterCommand.CommandText = shPCommand;
@@ -93,14 +99,16 @@ order by O.WriteTime");
 
 			if (headParameterReader.Read())
 			{
-				result.Rows[1][1] = headParameterReader["Name"];
+				result.Rows[1][2] = headParameterReader["Name"];
 			}
 			headParameterReader.Close();
 			result.Rows.Add("Период: ");
-			result.Rows[2][1] = "с " + _period.Begin.Date.ToShortDateString() + " по " + _period.End.Date.ToShortDateString();
+			result.Rows[2][2] = "с " + _period.Begin.Date.ToShortDateString() + " по " + _period.End.Date.ToShortDateString();
 			result.Rows.Add("");
-			result.Rows[1][2] = "";
+			//result.Rows[1][2] = "";
 
+			result.Columns["MatrixCode"].Caption = "Код";
+			result.Columns["Supplier"].Caption = "Поставщик";
 			result.Columns["WriteTime"].Caption = "Дата и время";
 			result.Columns["ClientName"].Caption = "Клиент";
 			result.Columns["UserName"].Caption = "Пользователь";
@@ -113,6 +121,8 @@ order by O.WriteTime");
 			foreach (var row in data.Rows.Cast<DataRow>())
 			{
 				var resultRow = result.NewRow();
+				resultRow["MatrixCode"] = row["MatrixCode"];
+				resultRow["Supplier"] = row["Supplier"];
 				resultRow["WriteTime"] = row["WriteTime"];
 				resultRow["ClientName"] = row["ClientName"];
 				resultRow["UserName"] = row["UserName"];

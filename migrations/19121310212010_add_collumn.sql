@@ -1,0 +1,1 @@
+ALTER TABLE farm.BuyingMatrix ADD Code INT(10) UNSIGNED
