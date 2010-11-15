@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
@@ -131,6 +132,23 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			ProfileHelper.Next("Calculate");
 			Calculate();
 			ProfileHelper.End();
+
+			DoCoreCheck();
+		}
+
+		private void DoCoreCheck()
+		{
+			args.DataAdapter.SelectCommand.CommandText = @"
+select c.PriceCode
+from Usersettings.Core c
+left join farm.core0 c0 on c.Id = c0.Id
+where c0.Id is null
+group by c.pricecode";
+			var data = new DataTable();
+			args.DataAdapter.Fill(data);
+			Logger.DebugFormat("Отчет {1}, Прайс листы {0} обновились для них не будет предложений",
+				data.Rows.Cast<DataRow>().Select(r => Convert.ToUInt32(r["PriceCode"])).Implode(),
+				_reportCode);
 		}
 
 		protected virtual void Calculate()
