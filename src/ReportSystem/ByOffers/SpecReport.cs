@@ -146,9 +146,12 @@ where c0.Id is null
 group by c.pricecode";
 			var data = new DataTable();
 			args.DataAdapter.Fill(data);
-			Logger.DebugFormat("Отчет {1}, Прайс листы {0} обновились для них не будет предложений",
-				data.Rows.Cast<DataRow>().Select(r => Convert.ToUInt32(r["PriceCode"])).Implode(),
-				_reportCode);
+			if (data.Rows.Count > 0)
+			{
+				Logger.DebugFormat("Отчет {1}, Прайс листы {0} обновились для них не будет предложений",
+					data.Rows.Cast<DataRow>().Select(r => Convert.ToUInt32(r["PriceCode"])).Implode(),
+					_reportCode);
+			}
 		}
 
 		protected virtual void Calculate()
@@ -621,7 +624,7 @@ order by FullName, FirmCr";
 				//Объединяем несколько ячеек, чтобы в них написать текст
 				ws.Range["A1:K2", Missing.Value].Select();
 				((Range)wb.Application.Selection).Merge(null);
-				if (_reportType < tableBeginRowIndex)
+				if (_reportType < 3)
 					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 				else
 					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
