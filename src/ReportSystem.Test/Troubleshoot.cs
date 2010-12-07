@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void shoot_it()
 		{
-			uint reportcode = 1334;
+			uint reportcode = 1335;
 			using(var connection = new MySqlConnection(connectionString))
 			{
 				connection.Open();
