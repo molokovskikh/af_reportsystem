@@ -11,7 +11,7 @@ namespace ReportSystem.Test
 	[TestFixture, Ignore("Что бы подебажить отчет")]
 	public class Troubleshoot
 	{
-		string connectionString = "server=sql.analit.net;user=;password=; default command timeout=0;database=usersettings";
+		string connectionString = "server=testsql.analit.net;user=system;password=newpass; default command timeout=0;database=usersettings";
 
 		[SetUp]
 		public void Setup()
@@ -23,12 +23,13 @@ namespace ReportSystem.Test
 		[Test]
 		public void shoot_it()
 		{
-			uint reportcode = 501;
+			uint reportcode = 1334;
 			using(var connection = new MySqlConnection(connectionString))
 			{
 				connection.Open();
 				var loader = new ReportPropertiesLoader();
 				var prop = loader.LoadProperties(connection, reportcode);
+				prop.WriteXml("TestData\\PricesOfCompetitors.xml");
 /*				var row = prop.Tables[0].NewRow();
 				row["PropertyName"] = "StartDate";
 				row["PropertyValue"] = "2010-05-01";
@@ -39,9 +40,9 @@ namespace ReportSystem.Test
 				row["PropertyValue"] = "2010-06-01";
 				row["PropertyType"] = "DATETIME";
 				prop.Tables[0].Rows.Add(row);*/
-				var report = new SpecShortReport(reportcode, "test", connection, false, ReportFormats.Excel, prop);
+				/*var report = new SpecShortReport(reportcode, "test", connection, false, ReportFormats.Excel, prop);
 				report.ProcessReport();
-				report.ReportToFile(Path.GetFullPath("test.xls"));
+				report.ReportToFile(Path.GetFullPath("test.xls"));*/
 			}
 		}
 

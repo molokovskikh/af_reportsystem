@@ -115,15 +115,15 @@ order by ClientName, UserName", _filters, _regions.Implode());
 		    MySqlCommand headParameterCommand = _conn.CreateCommand();
             String shPCommand = "select cd.ShortName from usersettings.clientsdata cd where cd.FirmCode = " + _supplierId.ToString();
 		    headParameterCommand.CommandText = shPCommand;
-		    MySqlDataReader headParameterReader = headParameterCommand.ExecuteReader();
+			MySqlDataReader headParameterReader = headParameterCommand.ExecuteReader();
 			headParameterReader.Read();
 			result.Rows.Add("Поставщик   " + headParameterReader["ShortName"]);
-            //result.Rows[0][0] = "";
-            /*if (headParameterReader.Read())
-            {
-                result.Rows[0][1] = headParameterReader["ShortName"];
-            }*/
-            headParameterReader.Close();
+				//result.Rows[0][0] = "";
+				/*if (headParameterReader.Read())
+				{
+					result.Rows[0][1] = headParameterReader["ShortName"];
+				}*/
+			headParameterReader.Close();
 			result.Rows.Add("Период: c   " + _period.Begin.Date.ToString() + " по " + _period.End.Date.ToString());
 		    //result.Rows[1][1] = "с " + _period.Begin.Date.ToString() + " по " + _period.End.Date.ToString();
 		    string sRegions = "";

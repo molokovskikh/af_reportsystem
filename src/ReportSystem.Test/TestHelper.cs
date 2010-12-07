@@ -72,7 +72,8 @@ namespace ReportSystem.Test
 		PharmacyMixedNameOld,
 		PharmacyOffers,
 		OffersReport,
-		LeakOffers
+		LeakOffers,
+		PricesOfCompetitors
 	}
 
 	public static class TestHelper

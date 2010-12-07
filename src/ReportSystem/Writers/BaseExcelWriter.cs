@@ -82,7 +82,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
                         _ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
                     }
                     _ws.Cells[CountDownRows - 2, j] = "";
-					_ws.get_Range("A" + j.ToString(), "B"+j.ToString()).Merge();
+					_ws.get_Range("A" + j.ToString(), "B" + j.ToString()).Merge();
                 }
             }
             if (CountDownRows == 0)

@@ -238,7 +238,6 @@ order by 2, 5";
 						}
 					}
 				}
-
 				dtRes.Rows.Add(newrow);
 			}
 		}
