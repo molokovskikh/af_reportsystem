@@ -4,6 +4,7 @@ using System.Text;
 using System.Data;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
+using log4net;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data.OleDb;
@@ -70,9 +71,12 @@ namespace Inforoom.ReportSystem
 
 		protected ExecuteArgs args;
 
+		protected ILog Logger;
+
 		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, 
 			ReportFormats format, DataSet dsProperties)
 		{
+			Logger = LogManager.GetLogger(GetType());
 			_reportParams = new Dictionary<string, object>();
 			_reportCode = ReportCode;
 			_reportCaption = ReportCaption;

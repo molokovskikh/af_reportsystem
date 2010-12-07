@@ -214,12 +214,13 @@ and regions.RegionCode = activeprices.RegionCode";
 			var selectCommand = args.DataAdapter.SelectCommand;
 			selectCommand.CommandText =
 				"select * from future.Clients cl where cl.Id = " + _clientCode;
-			var reader = selectCommand.ExecuteReader();
-			if (!reader.Read())
-				throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
-			if (Convert.ToByte(reader["Status"]) == 0)
-				throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", reader["Name"], _clientCode));
-			reader.Close();
+			using (var reader = selectCommand.ExecuteReader())
+			{
+				if (!reader.Read())
+					throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
+				if (Convert.ToByte(reader["Status"]) == 0)
+					throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", reader["Name"], _clientCode));
+			}
 
 			selectCommand.CommandText = "future.GetOffers";
 			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;

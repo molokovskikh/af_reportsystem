@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Drawing;
-using System.Collections;
-using System.ComponentModel;
-using System.Windows.Forms;
 using System.Data;
+using log4net.Config;
 using MySql.Data.MySqlClient;
-using Inforoom.ReportSystem.Filters;
 using System.Configuration;
 using System.Net.Mail;
 using Inforoom.Common;
@@ -60,21 +56,19 @@ namespace Inforoom.ReportSystem
 		{
 			try
 			{
+				XmlConfigurator.Configure();
 				//Попытка получить код общего отчета в параметрах
 				int GeneralReportID = CommandLineUtils.GetCode(@"/gr:");
 
-				string sqlSelectReports;
-
 				if (GeneralReportID != -1)
 				{
-					MySqlConnection mc = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+					var mc = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 					mc.Open();
 					try
 					{
 
 						//Формируем запрос
-						sqlSelectReports =
-@"SELECT  
+						var sqlSelectReports = @"SELECT  
   cr.*,   
   p.ShortName  
 FROM    reports.general_reports cr,

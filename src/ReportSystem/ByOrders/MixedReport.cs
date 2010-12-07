@@ -233,7 +233,8 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
   join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
   join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode) " +
-	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + (((firmCrField != null) ? " and ProviderCodes.CodeFirmCr = " + firmCrField.primaryField : String.Empty)) : String.Empty) +
+	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + 
+	((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = ifnull({0}, 0)", firmCrField.primaryField): String.Empty)) : String.Empty) +
 @"
 where 
     oh.deleted = 0

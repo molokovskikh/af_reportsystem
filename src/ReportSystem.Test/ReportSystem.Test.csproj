@@ -97,7 +97,7 @@
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
     <Compile Include="OrderOutAllowedAssortmentFixture.cs" />
     <Compile Include="PharmacyMixed\PharmacyMixedProfileFixture.cs" />
-    <Compile Include="PricesOfcompetitors\PricesOfcompetitorsFixture.cs" />
+    <Compile Include="PricesOfCompetitors\PricesOfcompetitorsFixture.cs" />
     <Compile Include="RatingReport\RatingNewProfileFixture.cs" />
     <Compile Include="RatingReport\RatingProfileFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -114,7 +114,9 @@
     <Compile Include="Troubleshoot.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
