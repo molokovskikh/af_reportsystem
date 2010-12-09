@@ -75,7 +75,8 @@ namespace Inforoom.ReportSystem
 				_clientCode = Convert.ToInt32(client);
 				base.GenerateReport(e);
 				GetOffers(e);
-				e.DataAdapter.SelectCommand.CommandText = "ALTER TABLE `usersettings`.`Core` ADD COLUMN `ClientID` INT(10) UNSIGNED AFTER `Id`;";
+				e.DataAdapter.SelectCommand.CommandText =
+					"ALTER TABLE `usersettings`.`Core` ADD COLUMN `ClientID` INT(10) UNSIGNED AFTER `Id`;";
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				e.DataAdapter.SelectCommand.CommandText = String.Format("update usersettings.Core R set R.ClientID={0};", client);
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -83,23 +84,34 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, C0.Code, cor.PriceCode, cor.ProductId, cor.Cost, cor.ClientID, concat(LOWER(cn.Name), '  ', cf.Form ) as ProductName
+select p.CatalogId, C0.Code, c00.CodeFirmCr, cor.PriceCode, cor.ProductId, cor.Cost, cor.ClientID, concat(LOWER(cn.Name), '  ', cf.Form ) as ProductName
 from usersettings.Core cor
+	join farm.Core0 c00 on c00.id = cor.id
 	join catalogs.Products as p on p.id = cor.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
 	JOIN Catalogs.CatalogNames cn on cn.id = cg.nameid
 	JOIN Catalogs.CatalogForms cf on cf.id = cg.formid
-	Left JOIN farm.Core0 C0 on cor.productid = C0.productid and C0.PriceCode = {0}", priceForCorel);
+	Left JOIN farm.Core0 C0 on cor.productid = C0.productid and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) and C0.PriceCode = {0}",
+						priceForCorel);
 				//,
-	/*join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode";*/
- //where cd.FirmCode in " + smnSuppliers;
- //cd.FirmCode,
+				/*join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
+				join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode";*/
+				//where cd.FirmCode in " + smnSuppliers;
+				//cd.FirmCode,
 				e.DataAdapter.Fill(_dsReport, "CoreClient");
 			}
 			//var resultTable = _dsReport.Tables["CoreClient"].AsEnumerable().GroupBy(t => t["ProductId"]);
 			var resultTable = _dsReport.Tables["CoreClient"].AsEnumerable().GroupBy(t => t["CatalogId"]);
+			/*var query =
+				from res in _dsReport.Tables["CoreClient"].AsEnumerable()
+				group res by new
+				             	{
+									CatalogId = res.Field<uint>("CatalogId"),
+									CodeFirmCr = res.Field<uint?>("CodeFirmCr")
+		};
+			var resultTable = query;*/
 			var dtRes = new DataTable("Results");
+			dtRes.Columns.Add("CodeFirmCr");
 			dtRes.Columns.Add("Code");
 			dtRes.Columns.Add("ProductName");
 			dtRes.Columns.Add("MinCost", typeof (decimal));
@@ -122,15 +134,16 @@ from usersettings.Core cor
 					i -= 0.01;
 			}
 			dtRes.Rows.Add("Отчет сформирован: " + DateTime.Now);
-			var clientsName = string.Join(" ,", GetClientNames(_clients).ToArray());
+			var clientsName = string.Join(" ,", GetClientNames(_clients,e).ToArray());
 			if (clientsName.Length > 2048)
 				clientsName = clientsName.Substring(0, 2047);
 			dtRes.Rows.Add("Клиенты:" + clientsName);
-			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers).ToArray()));
+			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers,e).ToArray()));
 			dtRes.Rows.Add();
 			foreach (var costRow in resultTable)
 			{
 				var newRow = dtRes.NewRow();
+				newRow["CodeFirmCr"] = costRow.First()["CodeFirmCr"];
 				newRow["Code"] = costRow.First()["Code"];
 				newRow["MinCost"] = costRow.Min(p => p["Cost"]);
 				newRow["ProductName"] = costRow.First()["ProductName"];
