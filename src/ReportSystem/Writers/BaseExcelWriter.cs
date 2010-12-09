@@ -69,6 +69,8 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 
 		public void FormatExcelFile(MSExcel._Worksheet _ws, DataTable _result, string _caption, int CountDownRows /*List<string > L*/)
         {
+			System.Globalization.CultureInfo oldCI = System.Threading.Thread.CurrentThread.CurrentCulture;
+			System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
             //MSExcel._Worksheet _ws = (MSExcel._Worksheet)_wb.Worksheets["rep" + _reportId.ToString()];
         	//int CountDownRows = L.Count+3;
             _ws.Name = _caption.Substring(0, (_caption.Length < MaxListName) ? _caption.Length : MaxListName);
@@ -124,6 +126,8 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
             //MSExcel.Worksheet rws = new Worksheet();
             //rws = _ws;
             //return (_wb);
+
+			System.Threading.Thread.CurrentThread.CurrentCulture = oldCI;
         }
 
 
@@ -164,7 +168,8 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			}
 			finally
 			{
-				try { exApp.Quit(); }
+				try
+				{exApp.Quit();}
 				catch { }
 				exApp = null;
 			}

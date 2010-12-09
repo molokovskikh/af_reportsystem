@@ -31,6 +31,76 @@ namespace Inforoom.ReportSystem
 			reader.Close();
 		}
 
+		public virtual List<ulong> GetClietnWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
+														//List<ulong> PriceCodeEqual, List<ulong> PriceCodeNonEqual,
+														List<ulong> PayerEqual, List<ulong> PayerNonEqual,
+														List<ulong> Clients, List<ulong> ClientsNON, ExecuteArgs e)
+		{
+			var regionalWhere = "(";
+			if (RegionEqual.Count != 0)
+			{
+				foreach (var region in RegionEqual)
+				{
+					regionalWhere += string.Format(" (fc.MaskRegion & {0}) = {0} OR " , region);
+				}
+			}
+			if (RegionNonEqual.Count != 0)
+			{
+				foreach (var region in RegionNonEqual)
+				{
+					regionalWhere += string.Format(" (fc.MaskRegion & {0}) != {0} OR " , region);
+				}
+			}
+			if (regionalWhere.Length != 1)
+			{
+				regionalWhere = regionalWhere.Substring(0, regionalWhere.Length - 3);
+				regionalWhere = " AND " + regionalWhere;
+				regionalWhere += ")";
+			}
+			else
+			{
+				regionalWhere = string.Empty;
+			}
+			var payerWhere = string.Empty;
+			if (PayerEqual.Count != 0)
+			{
+				payerWhere += " AND fc.PayerId IN " + ConcatWhereIn(PayerEqual);
+			}
+			if (PayerNonEqual.Count !=0)
+			{
+				payerWhere += " AND fc.PayerId NOT IN " + ConcatWhereIn(PayerNonEqual);
+			}
+			/*if ((regionalWhere != string.Empty) && (payerWhere != string.Empty))
+				payerWhere = " AND " + payerWhere;*/
+			var clientWhere = string.Empty;
+			if (Clients.Count != 0)
+			{
+				clientWhere += " AND fc.Id IN " + ConcatWhereIn(Clients);
+			}
+			if (ClientsNON.Count != 0)
+			{
+				clientWhere += " AND fc.Id NOT IN " + ConcatWhereIn(ClientsNON);
+			}
+			/*if (((regionalWhere != string.Empty) || (payerWhere != string.Empty)) && (clientWhere != string.Empty))
+				clientWhere = " AND " + clientWhere;*/
+			var where = string.Empty;
+			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty))
+			where = regionalWhere + payerWhere + clientWhere;
+			//where = where.Substring(0, where.Length - 3);
+			e.DataAdapter.SelectCommand.CommandText = @"SELECT fc.Id FROM future.Clients fc WHERE fc.Status = 1 " + where;
+			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
+			var result = new List<ulong>();
+			while (reader.Read())
+			{
+				result.Add(Convert.ToUInt64(reader["Id"].ToString()));
+			}
+			reader.Close();
+			return result;
+			/*var ds = new DataSet();
+			e.DataAdapter.Fill(ds, "result");
+			return (List<ulong>)ds.Tables["result"].AsEnumerable().Select(t => t["Id"]).ToList();*/
+		}
+
 
 		/// <summary>
 		/// Метод по списку ID формарует строку для вставки в запрос вида: where t.item in (id1, id2, id3...)
@@ -55,10 +125,10 @@ namespace Inforoom.ReportSystem
 		/// <param name="action">лямбда вырадение считывания данных</param>
 		/// <param name="command">SQL запрос к серверу</param>
 		/// <returns></returns>
-		private List<string> GetNames(Func<MySqlDataReader, string> action, string command)
+		private List<string> GetNames(Func<MySqlDataReader, string> action, string command, ExecuteArgs e)
 		{
 			var result = new List<string>();
-			var selectCommand = args.DataAdapter.SelectCommand;
+			var selectCommand = e.DataAdapter.SelectCommand;
 			selectCommand.CommandText = command;
 			using (var reader = selectCommand.ExecuteReader())
 			{
@@ -71,7 +141,7 @@ namespace Inforoom.ReportSystem
 			return result;
 		}
 
-		public virtual List<String> GetSupplierNames(List<ulong > suppliers)
+		public virtual List<String> GetSupplierNames(List<ulong > suppliers, ExecuteArgs e)
 		{
 			var command = string.Format(@"
 select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')') as SupplierName
@@ -81,13 +151,13 @@ from usersettings.Core cor
 where cd.FirmCode in {0}
 group by cd.FirmCode
 order by cd.ShortName", ConcatWhereIn(suppliers));
-			return GetNames(r => r["SupplierName"].ToString(), command);
+			return GetNames(r => r["SupplierName"].ToString(), command, e);
 		}
 
-		public virtual List<String> GetClientNames(List<ulong > _clients)
+		public virtual List<String> GetClientNames(List<ulong> _clients, ExecuteArgs e)
 		{
 			var command = @"select cl.FullName from future.Clients cl where cl.Id in " + ConcatWhereIn(_clients);
-			return GetNames(r => r["FullName"].ToString(), command);
+			return GetNames(r => r["FullName"].ToString(), command, e);
 		}
 
 		protected void GetActivePrices()
@@ -129,6 +199,28 @@ order by cd.ShortName", ConcatWhereIn(suppliers));
 				{
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where FirmCode in ({0})", suppliers.Implode());
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				}
+			}
+
+			if (_reportParams.ContainsKey("PriceCodeValues"))
+			{
+				var PriceCodeValues = (List<ulong>)_reportParams["PriceCodeValues"];
+				if (PriceCodeValues != null && PriceCodeValues.Count > 0)
+				{
+					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				}
+			}
+
+			if (_reportParams.ContainsKey("PriceCodeNonValues"))
+			{
+				var PriceCodeNonValues = (List<ulong>)_reportParams["PriceCodeNonValues"];
+				if (PriceCodeNonValues != null && PriceCodeNonValues.Count > 0)
+				{
+					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode in ({0})", PriceCodeNonValues.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}

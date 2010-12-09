@@ -20,6 +20,13 @@ namespace Inforoom.ReportSystem
 		protected string reportCaptionPreffix;
 		protected List<ulong> _clients;
 		protected List<ulong> _suppliers;
+		protected List<ulong> _RegionEqual;
+		protected List<ulong> _RegionNonEqual;
+		protected List<ulong> _PayerEqual;
+		protected List<ulong> _PayerNonEqual;
+		protected List<ulong> _Clients;
+		protected List<ulong> _ClientsNON;
+		protected int priceForCorel;
 
 		protected string _clientsNames = "";
 		protected string _suppliersNames = "";
@@ -32,12 +39,37 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-			_clients = (List<ulong>)getReportParam("Clients");
-			_suppliers = (List<ulong>)getReportParam("Suppliers");
+			priceForCorel = (int)getReportParam("PriceCode");
+			//_clients = (List<ulong>)getReportParam("Clients");
+			if (_reportParams.ContainsKey("FirmCodeEqual"))
+			_suppliers = (List<ulong>)getReportParam("FirmCodeEqual");
+			if (_reportParams.ContainsKey("IgnoredSuppliers"))
+			_suppliers = (List<ulong>)getReportParam("IgnoredSuppliers");
+
+			_RegionEqual = new List<ulong>();
+			_RegionNonEqual = new List<ulong>();
+			_PayerEqual = new List<ulong>();
+			_PayerNonEqual = new List<ulong>();
+			_Clients = new List<ulong>();
+			_ClientsNON = new List<ulong>();
+			if (_reportParams.ContainsKey("RegionEqual"))
+				_RegionEqual = (List<ulong>)getReportParam("RegionEqual");
+			if (_reportParams.ContainsKey("RegionNonEqual"))
+				_RegionNonEqual = (List<ulong>)getReportParam("RegionNonEqual");
+			if (_reportParams.ContainsKey("PayerEqual"))
+				_PayerEqual = (List<ulong>)getReportParam("PayerEqual");
+			if (_reportParams.ContainsKey("PayerNonEqual"))
+				_PayerNonEqual = (List<ulong>)getReportParam("PayerNonEqual");
+			if (_reportParams.ContainsKey("Clients"))
+				_Clients = (List<ulong>)getReportParam("Clients");
+			if (_reportParams.ContainsKey("ClientsNON"))
+				_ClientsNON = (List<ulong>)getReportParam("ClientsNON");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
+				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
 			foreach (var client in _clients)
 			{
 				_clientCode = Convert.ToInt32(client);
@@ -47,26 +79,28 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				e.DataAdapter.SelectCommand.CommandText = String.Format("update usersettings.Core R set R.ClientID={0};", client);
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-				var smnSuppliers = ConcatWhereIn(_suppliers);
+				//var smnSuppliers = ConcatWhereIn(_suppliers);
 				e.DataAdapter.SelectCommand.CommandText =
-					@"
-select p.CatalogId, cd.FirmCode, cor.PriceCode, cor.ProductId, cor.Cost, cor.ClientID, concat(LOWER(cn.Name), '  ', cf.Form ) as ProductName
+					string.Format(
+						@"
+select p.CatalogId, C0.Code, cor.PriceCode, cor.ProductId, cor.Cost, cor.ClientID, concat(LOWER(cn.Name), '  ', cf.Form ) as ProductName
 from usersettings.Core cor
 	join catalogs.Products as p on p.id = cor.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
 	JOIN Catalogs.CatalogNames cn on cn.id = cg.nameid
 	JOIN Catalogs.CatalogForms cf on cf.id = cg.formid
-
-	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
- where cd.FirmCode in " + smnSuppliers;
-
+	Left JOIN farm.Core0 C0 on cor.productid = C0.productid and C0.PriceCode = {0}", priceForCorel);
+				//,
+	/*join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
+	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode";*/
+ //where cd.FirmCode in " + smnSuppliers;
+ //cd.FirmCode,
 				e.DataAdapter.Fill(_dsReport, "CoreClient");
 			}
 			//var resultTable = _dsReport.Tables["CoreClient"].AsEnumerable().GroupBy(t => t["ProductId"]);
 			var resultTable = _dsReport.Tables["CoreClient"].AsEnumerable().GroupBy(t => t["CatalogId"]);
 			var dtRes = new DataTable("Results");
-			//dtRes.Columns.Add("ProductID");
+			dtRes.Columns.Add("Code");
 			dtRes.Columns.Add("ProductName");
 			dtRes.Columns.Add("MinCost", typeof (decimal));
 			dtRes.Columns["ProductName"].Caption = "Название";
@@ -88,13 +122,16 @@ from usersettings.Core cor
 					i -= 0.01;
 			}
 			dtRes.Rows.Add("Отчет сформирован: " + DateTime.Now);
-			dtRes.Rows.Add("Клиенты:" + string.Join(" ,", GetClientNames(_clients).ToArray()));
+			var clientsName = string.Join(" ,", GetClientNames(_clients).ToArray());
+			if (clientsName.Length > 2048)
+				clientsName = clientsName.Substring(0, 2047);
+			dtRes.Rows.Add("Клиенты:" + clientsName);
 			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers).ToArray()));
 			dtRes.Rows.Add();
 			foreach (var costRow in resultTable)
 			{
 				var newRow = dtRes.NewRow();
-				//newRow["ProductID"] = costRow.First()["ProductID"];
+				newRow["Code"] = costRow.First()["Code"];
 				newRow["MinCost"] = costRow.Min(p => p["Cost"]);
 				newRow["ProductName"] = costRow.First()["ProductName"];
 				var groupCostRow = costRow.GroupBy(p => p["ClientID"]).Select(q => q.Min(u => u["Cost"])).ToList();
