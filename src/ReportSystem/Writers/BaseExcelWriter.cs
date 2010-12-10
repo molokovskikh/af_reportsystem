@@ -55,11 +55,24 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 				OleDbCommand cmd = new OleDbCommand(CreateSQL, ExcellCon);
 				ExcellCon.Open();
 				cmd.ExecuteNonQuery();
-				OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + listName + "]", ExcellCon);
+
+				var daExcel = new OleDbDataAdapter("select * from [" + listName + "]", ExcellCon);
 				OleDbCommandBuilder cdExcel = new OleDbCommandBuilder(daExcel);
 				cdExcel.QuotePrefix = "[";
 				cdExcel.QuoteSuffix = "]";
-				daExcel.Update(dtExport);
+				var dsExcel = dtExport.DataSet;
+				//var rt = dtExport;
+				//dsExcel.Tables.Add(rt);
+				daExcel.Update(dsExcel, dtExport.TableName);
+				/*OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + listName + "]", ExcellCon);
+				OleDbCommandBuilder cdExcel = new OleDbCommandBuilder(daExcel);
+				cdExcel.QuotePrefix = "[";
+				cdExcel.QuoteSuffix = "]";
+				daExcel.Update(dtExport);*/
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
 			}
 			finally
 			{
