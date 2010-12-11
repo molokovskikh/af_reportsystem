@@ -1,22 +1,41 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using ExecuteTemplate;
-using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;
-using Common.Tools;
-using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem
 {
+	public class ProducerAwareReportData : ReportData
+	{
+		public string ProducerName { get; set; }
+
+		public ProducerAwareReportData(DataRow offer) : base(offer)
+		{
+			ProducerName = offer.Field<string>("ProdName");
+		}
+	}
+
+	public class ReportData
+	{
+		public ReportData(DataRow offer)
+		{
+			Code = offer.Field<string>("Code");
+			Name = offer.Field<string>("ProductName");
+			Costs = new List<decimal>();
+		}
+
+		public string Code { get; set; }
+		public string Name { get; set; }
+		public List<decimal> Costs { get; set; }
+	}
+
 	public class PricesOfCompetitorsReport : ProviderReport
 	{
-		//protected bool _calculateByCatalog;
-
 		protected string reportCaptionPreffix;
 		protected List<ulong> _clients;
 		protected List<ulong> _suppliers;
@@ -30,6 +49,8 @@ namespace Inforoom.ReportSystem
 		protected bool _AllAssortment;
 		protected bool _WithWithoutProperties;
 		protected int priceForCorel;
+
+		private string _groupingFieldText;
 
 		protected string _clientsNames = "";
 		protected string _suppliersNames = "";
@@ -46,7 +67,6 @@ namespace Inforoom.ReportSystem
 			_ProducerAccount = (bool) getReportParam("ProducerAccount");
 			_AllAssortment = (bool)getReportParam("AllAssortment");
 			_WithWithoutProperties = (bool)getReportParam("WithWithoutProperties");
-			//_clients = (List<ulong>)getReportParam("Clients");
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
 			_suppliers = (List<ulong>)getReportParam("FirmCodeEqual");
 			if (_reportParams.ContainsKey("IgnoredSuppliers"))
@@ -70,39 +90,40 @@ namespace Inforoom.ReportSystem
 				_Clients = (List<ulong>)getReportParam("Clients");
 			if (_reportParams.ContainsKey("ClientsNON"))
 				_ClientsNON = (List<ulong>)getReportParam("ClientsNON");
+
+			_groupingFieldText = _WithWithoutProperties ? "CatalogId" : "ProductId";
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
 				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
+
+			var hash = new Hashtable();
+			var data = new List<ReportData>();
+			Console.WriteLine("всего клиентов {0}", _clients.Count);
 			foreach (var client in _clients)
 			{
 				_clientCode = Convert.ToInt32(client);
 				base.GenerateReport(e);
 				GetOffers(e);
-				e.DataAdapter.SelectCommand.CommandText =
-					"ALTER TABLE `usersettings`.`Core` ADD COLUMN `ClientID` INT(10) UNSIGNED AFTER `Id`;";
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-				e.DataAdapter.SelectCommand.CommandText = String.Format("update usersettings.Core R set R.ClientID={0};", client);
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
-				var WithWithoutPropertiesText = string.Empty;
+				string withWithoutPropertiesText;
 				if (!_WithWithoutProperties)
-					WithWithoutPropertiesText =
+					withWithoutPropertiesText =
 						@"concat(LOWER(cn.Name) , '  ' ,cf.Form, ' ',
-     cast(GROUP_CONCAT(ifnull(PV.Value, '')
-                        order by PR.PropertyName, PV.Value
-                        SEPARATOR ', '
-                       ) as char))";
+	 cast(GROUP_CONCAT(ifnull(PV.Value, '')
+						order by PR.PropertyName, PV.Value
+						SEPARATOR ', '
+					   ) as char))";
 				else
 				{
-					WithWithoutPropertiesText = @"concat(LOWER(cn.Name), '  ', cf.Form)";
+					withWithoutPropertiesText = @"concat(LOWER(cn.Name), '  ', cf.Form)";
 				}
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, C0.Code, LOWER(Prod.Name) as ProdName, c00.CodeFirmCr, cor.PriceCode, cor.ProductId, cor.Cost, cor.ClientID, {2} as ProductName
+select p.CatalogId, C0.Code, LOWER(Prod.Name) as ProdName, c00.CodeFirmCr, cor.PriceCode, cor.ProductId, cor.Cost, {2} as ProductName
 from usersettings.Core cor
 	join farm.Core0 c00 on c00.id = cor.id
 	join catalogs.Products as p on p.id = cor.productid
@@ -113,29 +134,22 @@ from usersettings.Core cor
 	{1} farm.Core0 C0 on cor.productid = C0.productid and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) and C0.PriceCode = {0}
 	 
 	 left join catalogs.ProductProperties PP on PP.ProductId = cor.productid
-     left join catalogs.PropertyValues PV on PV.Id = PP.PropertyValueId 
-     left join catalogs.Properties PR on PR.Id = PV.PropertyId
-	 group by cor.id", priceForCorel, joinText, WithWithoutPropertiesText);
+	 left join catalogs.PropertyValues PV on PV.Id = PP.PropertyValueId
+	 left join catalogs.Properties PR on PR.Id = PV.PropertyId
+	 group by cor.id", priceForCorel, joinText, withWithoutPropertiesText);
 
-				e.DataAdapter.Fill(_dsReport, "CoreClient");
+				var offers = new DataTable();
+				e.DataAdapter.Fill(offers);
+				foreach(var group in Group(offers))
+				{
+					var offer = group.First();
+					var dataItem = FindItem(hash, offer, data);
+					dataItem.Costs.Add(group.Min(r => r.Field<decimal>("Cost")));
+				}
 #if DEBUG
-				Console.WriteLine("Код клиента: "+ _clientCode + " Строк в таблице: " + _dsReport.Tables["CoreClient"].Rows.Count);
+				Console.WriteLine("Код клиента: "+ _clientCode + " Строк в таблице: " + data.Count);
 #endif
 			}
-			//var resultTable = _dsReport.Tables["CoreClient"].AsEnumerable().GroupBy(t => t["ProductId"]);
-			var groupingFieldText = _WithWithoutProperties ? "CatalogId" : "ProductId";
-			IEnumerable<IGrouping<Object , DataRow>> resultTable;
-			if (!_ProducerAccount)
-				resultTable = _dsReport.Tables["CoreClient"].AsEnumerable().GroupBy(t => t[groupingFieldText]);
-			else
-			{
-				resultTable = _dsReport.Tables["CoreClient"].AsEnumerable().GroupBy(r =>
-					{
-						object o = new { CatalogId = r.Field<uint>(groupingFieldText), CodeFirmCr = r.Field<uint?>("CodeFirmCr") };
-						return o;
-					});
-			}
-			//var g = resultTable.ToList()[12];
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("Code");
 			dtRes.Columns.Add("ProductName");
@@ -171,24 +185,58 @@ from usersettings.Core cor
 			dtRes.Rows.Add("Клиенты:" + clientsName);
 			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers,e).ToArray()));
 			dtRes.Rows.Add();
-			foreach (var costRow in resultTable)
+			if (_ProducerAccount)
+				data = data.OrderBy(i => i.Name).ThenBy(i => ((ProducerAwareReportData)i).ProducerName).ToList();
+			else
+				data = data.OrderBy(i => i.Name).ToList();
+
+			foreach (var dataItem in data)
 			{
 				var newRow = dtRes.NewRow();
 				if (_ProducerAccount)
-					newRow["CodeFirmCr"] = costRow.First()["ProdName"];
-				newRow["Code"] = costRow.First()["Code"];
-				newRow["MinCost"] = costRow.Min(p => p["Cost"]);
-				newRow["ProductName"] = costRow.First()["ProductName"];
-				var groupCostRow = costRow.GroupBy(p => p["ClientID"]).Select(q => q.Min(u => u["Cost"])).ToList();
-				groupCostRow.Sort();
+					newRow["CodeFirmCr"] = ((ProducerAwareReportData)dataItem).ProducerName;
+				newRow["Code"] = dataItem.Code;
+				newRow["MinCost"] = dataItem.Costs.Min();
+				newRow["ProductName"] = dataItem.Name;
+				dataItem.Costs.Sort();
 				foreach (var i in costNumber)
 				{
-					if (groupCostRow.Count < i) break;
-					newRow["Cost" + i] = groupCostRow[i - 1];
+					if (dataItem.Costs.Count < i)
+						break;
+					newRow["Cost" + i] = dataItem.Costs[i - 1];
 				}
 				dtRes.Rows.Add(newRow);
 			}
 			_dsReport.Tables.Add(dtRes);
+		}
+
+		private ReportData FindItem(Hashtable hash, DataRow offer, List<ReportData> data)
+		{
+			var key = GetKey(offer);
+			var item = (ReportData)hash[key];
+			if (item == null)
+			{
+				if (_ProducerAccount)
+					item = new ProducerAwareReportData(offer);
+				else
+					item = new ReportData(offer);
+				hash[key] = item;
+				data.Add(item);
+			}
+			return item;
+		}
+
+		private IEnumerable<IGrouping<object, DataRow>> Group(DataTable table)
+		{
+			return table.AsEnumerable().GroupBy(r => GetKey(r));
+		}
+
+		private object GetKey(DataRow row)
+		{
+			if (!_ProducerAccount)
+				return row[_groupingFieldText];
+			else
+				return new { CatalogId = row.Field<uint>(_groupingFieldText), CodeFirmCr = row.Field<uint?>("CodeFirmCr") };
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
