@@ -32,7 +32,6 @@ namespace Inforoom.ReportSystem
 		}
 
 		public virtual List<ulong> GetClietnWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
-														//List<ulong> PriceCodeEqual, List<ulong> PriceCodeNonEqual,
 														List<ulong> PayerEqual, List<ulong> PayerNonEqual,
 														List<ulong> Clients, List<ulong> ClientsNON, ExecuteArgs e)
 		{
@@ -70,8 +69,6 @@ namespace Inforoom.ReportSystem
 			{
 				payerWhere += " AND fc.PayerId NOT IN " + ConcatWhereIn(PayerNonEqual);
 			}
-			/*if ((regionalWhere != string.Empty) && (payerWhere != string.Empty))
-				payerWhere = " AND " + payerWhere;*/
 			var clientWhere = string.Empty;
 			if (Clients.Count != 0)
 			{
@@ -81,13 +78,13 @@ namespace Inforoom.ReportSystem
 			{
 				clientWhere += " AND fc.Id NOT IN " + ConcatWhereIn(ClientsNON);
 			}
-			/*if (((regionalWhere != string.Empty) || (payerWhere != string.Empty)) && (clientWhere != string.Empty))
-				clientWhere = " AND " + clientWhere;*/
 			var where = string.Empty;
 			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty))
 			where = regionalWhere + payerWhere + clientWhere;
-			//where = where.Substring(0, where.Length - 3);
-			e.DataAdapter.SelectCommand.CommandText = @"SELECT fc.Id FROM future.Clients fc WHERE fc.Status = 1 " + where;
+			e.DataAdapter.SelectCommand.CommandText = 
+			string.Format(@"SELECT fc.Id FROM future.Clients fc
+							join usersettings.RetClientsSet RCS on fc.id = RCS.ClientCode
+							WHERE RCS.ServiceClient = 0 and RCS.InvisibleOnFirm = 0 and fc.Status = 1 {0}", where);
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			var result = new List<ulong>();
 			while (reader.Read())
@@ -96,9 +93,6 @@ namespace Inforoom.ReportSystem
 			}
 			reader.Close();
 			return result;
-			/*var ds = new DataSet();
-			e.DataAdapter.Fill(ds, "result");
-			return (List<ulong>)ds.Tables["result"].AsEnumerable().Select(t => t["Id"]).ToList();*/
 		}
 
 

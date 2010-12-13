@@ -37,7 +37,9 @@ namespace Inforoom.ReportSystem
 	public class PricesOfCompetitorsReport : ProviderReport
 	{
 		protected string reportCaptionPreffix;
+		protected string regionNotInprefix;
 		protected List<ulong> _clients;
+		protected List<ulong> _regions;
 		protected List<ulong> _suppliers;
 		protected List<ulong> _RegionEqual;
 		protected List<ulong> _RegionNonEqual;
@@ -54,6 +56,7 @@ namespace Inforoom.ReportSystem
 
 		protected string _clientsNames = "";
 		protected string _suppliersNames = "";
+		protected string _regionsWhere = string.Empty;
 
 		public PricesOfCompetitorsReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -79,9 +82,17 @@ namespace Inforoom.ReportSystem
 			_Clients = new List<ulong>();
 			_ClientsNON = new List<ulong>();
 			if (_reportParams.ContainsKey("RegionEqual"))
-				_RegionEqual = (List<ulong>)getReportParam("RegionEqual");
+			{
+				_RegionEqual = (List<ulong>) getReportParam("RegionEqual");
+				regionNotInprefix = " IN ";
+				_regions = _RegionEqual;
+			}
 			if (_reportParams.ContainsKey("RegionNonEqual"))
-				_RegionNonEqual = (List<ulong>)getReportParam("RegionNonEqual");
+			{
+				_RegionNonEqual = (List<ulong>) getReportParam("RegionNonEqual");
+				regionNotInprefix = " NOT IN ";
+				_regions = _RegionNonEqual;
+			}
 			if (_reportParams.ContainsKey("PayerEqual"))
 				_PayerEqual = (List<ulong>)getReportParam("PayerEqual");
 			if (_reportParams.ContainsKey("PayerNonEqual"))
@@ -92,6 +103,11 @@ namespace Inforoom.ReportSystem
 				_ClientsNON = (List<ulong>)getReportParam("ClientsNON");
 
 			_groupingFieldText = _WithWithoutProperties ? "CatalogId" : "ProductId";
+			if (_regions != null)
+			if (_regions.Count !=0)
+			{
+				_regionsWhere = "where cor.RegionCode" + reportCaptionPreffix + ConcatWhereIn(_regions);
+			}
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -111,19 +127,20 @@ namespace Inforoom.ReportSystem
 				string withWithoutPropertiesText;
 				if (!_WithWithoutProperties)
 					withWithoutPropertiesText =
-						@"concat(LOWER(cn.Name) , '  ' ,cf.Form, ' ',
+						@"if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name , ' ' ,cf.Form, ' ',
 	 cast(GROUP_CONCAT(ifnull(PV.Value, '')
 						order by PR.PropertyName, PV.Value
 						SEPARATOR ', '
-					   ) as char))";
+					   ) as char)))";
 				else
 				{
-					withWithoutPropertiesText = @"concat(LOWER(cn.Name), '  ', cf.Form)";
+					withWithoutPropertiesText = @" if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name, '  ', cf.Form)) ";
 				}
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, C0.Code, LOWER(Prod.Name) as ProdName, c00.CodeFirmCr, cor.PriceCode, cor.ProductId, cor.Cost, {2} as ProductName
+select p.CatalogId, C0.Code, if(C0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
+c00.CodeFirmCr, cor.PriceCode, cor.ProductId, cor.Cost, {2} as ProductName
 from usersettings.Core cor
 	join farm.Core0 c00 on c00.id = cor.id
 	join catalogs.Products as p on p.id = cor.productid
@@ -132,11 +149,14 @@ from usersettings.Core cor
 	JOIN Catalogs.CatalogForms cf on cf.id = cg.formid
 	join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
 	{1} farm.Core0 C0 on cor.productid = C0.productid and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) and C0.PriceCode = {0}
+	left join farm.Synonym S on C0.SynonymCode = S.SynonymCode
+	left join farm.SynonymFirmCr Sf on C0.SynonymFirmCrCode = Sf.SynonymFirmCrCode
 	 
 	 left join catalogs.ProductProperties PP on PP.ProductId = cor.productid
 	 left join catalogs.PropertyValues PV on PV.Id = PP.PropertyValueId
 	 left join catalogs.Properties PR on PR.Id = PV.PropertyId
-	 group by cor.id", priceForCorel, joinText, withWithoutPropertiesText);
+	 {3} 
+	 group by cor.id", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere);
 
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
@@ -172,7 +192,7 @@ from usersettings.Core cor
 					{
 						costNumber.Add((int)okrugl);
 						dtRes.Columns.Add("Cost" + okrugl, typeof(decimal));
-						dtRes.Columns["Cost" + okrugl].Caption = okrugl+"я цена";
+						dtRes.Columns["Cost" + okrugl].Caption = (100 - i*100) + "% (" + okrugl + "я цена)";
 					}
 				}
 				if (i == 0.01)
@@ -183,7 +203,7 @@ from usersettings.Core cor
 			if (clientsName.Length > 2048)
 				clientsName = clientsName.Substring(0, 2047);
 			dtRes.Rows.Add("Клиенты:" + clientsName);
-			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers,e).ToArray()));
+			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers , e).ToArray()));
 			dtRes.Rows.Add();
 			if (_ProducerAccount)
 				data = data.OrderBy(i => i.Name).ThenBy(i => ((ProducerAwareReportData)i).ProducerName).ToList();
