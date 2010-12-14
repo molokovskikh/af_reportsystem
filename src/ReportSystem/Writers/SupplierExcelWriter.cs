@@ -10,11 +10,6 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem.Writers
 {
-	/*public interface IGetterNames
-	{
-		List<string> GetterNames(List<ulong> clients, ExecuteArgs e);
-	}*/
-
 	public class PricesOfCompetitorsWriter : BaseExcelWriter
 	{
 		public Dictionary<string, GetterNames> AssiciateReportParams;
@@ -60,10 +55,6 @@ namespace Inforoom.ReportSystem.Writers
 			var _result = reportData.Tables["Results"];
 			var ppz = _result.NewRow();
 			ppz[0] = "Отчет сформирован: " + DateTime.Now;
-			/*var items = new object[_result.Columns.Count];
-			items[0] = "Отчет сформирован: " + DateTime.Now;
-			ppz.ItemArray = items;*/
-			//object Date = "Отчет сформирован: " + DateTime.Now;
 			_result.Rows.InsertAt(ppz, 0);
 
 			var CountDownRows = ReportParams.Count + 5;
@@ -101,13 +92,7 @@ namespace Inforoom.ReportSystem.Writers
 			var position = 1;
 			foreach (var reportParameter in reportParameters)
 			{
-				/*ppz.Rows.Add(reportParameter);
-				var nrrow = ppz.NewRow();
-				nrow.ItemArray = ppz.Rows[position].ItemArray;
-				_result.Rows.InsertAt(nrrow, position);*/
 				ppz = _result.NewRow();
-				/*items[0] = reportParameter;
-				ppz.ItemArray = items;*/
 				ppz[0] = reportParameter;
 				_result.Rows.InsertAt(ppz, position);
 				position++;
@@ -122,7 +107,7 @@ namespace Inforoom.ReportSystem.Writers
 			UseExcel.Workbook(fileName, b =>
 			{
 				var _ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
-				//_ws.Rows.EntireRow.Insert()
+
 				if (CountDownRows > 0)
 				{
 					for (int j = 1; j < CountDownRows - 1; j++)
@@ -151,8 +136,6 @@ namespace Inforoom.ReportSystem.Writers
 					{
 						_ws.Cells[1, 4] = "";
 					}
-
-					Console.WriteLine(_result.Columns[i]);
 
 					if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
 						((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;

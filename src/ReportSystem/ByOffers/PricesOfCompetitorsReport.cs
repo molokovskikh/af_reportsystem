@@ -203,13 +203,6 @@ from usersettings.Core cor
 				if (i == 0.01)
 					i -= 0.01;
 			}
-			/*dtRes.Rows.Add("Отчет сформирован: " + DateTime.Now);
-			var clientsName = string.Join(" ,", GetClientNames(_clients,e).ToArray());
-			if (clientsName.Length > 2048)
-				clientsName = clientsName.Substring(0, 2047);
-			dtRes.Rows.Add("Клиенты:" + clientsName);
-			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers , e).ToArray()));
-			dtRes.Rows.Add();*/
 			if (_ProducerAccount)
 				data = data.OrderBy(i => i.Name).ThenBy(i => ((ProducerAwareReportData)i).ProducerName).ToList();
 			else
@@ -268,7 +261,6 @@ from usersettings.Core cor
 		{
 			if (format == ReportFormats.Excel)
 				return new PricesOfCompetitorsWriter(_reportParams, ex);
-				//return new SupplierExcelWriter();
 			return null;
 		}
 
