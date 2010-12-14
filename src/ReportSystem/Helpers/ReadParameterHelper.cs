@@ -31,7 +31,7 @@ namespace Inforoom.ReportSystem.Helpers
 			return result;
 		}
 
-		public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
+		/*public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
 		{
 			var command = string.Format(@"
 select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')') as SupplierName
@@ -42,6 +42,12 @@ where cd.FirmCode in {0}
 group by cd.FirmCode
 order by cd.ShortName", ProviderReport.ConcatWhereIn(suppliers));
 			return GetNames(r => r["SupplierName"].ToString(), command, e);
+		}*/
+
+		public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
+		{
+			var command = @"select cd.ShortName from usersettings.ClientsData cd where cd.FirmCode in " + ProviderReport.ConcatWhereIn(suppliers);
+			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
 
 		public static List<String> GetClientNames(List<ulong> _clients, ExecuteArgs e)
