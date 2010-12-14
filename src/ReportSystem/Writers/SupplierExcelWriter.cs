@@ -14,11 +14,18 @@ namespace Inforoom.ReportSystem.Writers
 	{
 		public Dictionary<string, GetterNames> AssiciateReportParams;
 		public Dictionary<string, object> ReportParams;
+		public List<string> ParamNOVisualisation;
 		public delegate List<string> GetterNames(List<ulong> items, ExecuteArgs e);
 		public ExecuteArgs e;
 
 		public PricesOfCompetitorsWriter(Dictionary<string, object> reportParams, ExecuteArgs ex)
 		{
+			ParamNOVisualisation = new List<string>
+			                     	{
+			                     		"AllAssortment",
+										"WithWithoutProperties"
+			                     	};
+
 			AssiciateReportParams = new Dictionary<string, GetterNames>
 			                        	{
 			                        		 {"PayerEqual", ReadParameterHelper.GetPayerNames},
@@ -58,41 +65,51 @@ namespace Inforoom.ReportSystem.Writers
 			ppz[0] = "Отчет сформирован: " + DateTime.Now;
 			_result.Rows.InsertAt(ppz, 0);
 
-			var CountDownRows = ReportParams.Count + 5;
 			var reportParameters = new List<object>();
 			foreach (var reportParam in ReportParams)
 			{
 				var typeReportParam = reportParam.Value.GetType();
 				if (typeReportParam.IsGenericType)
 				{
-					var itemList = (List<ulong>) reportParam.Value;
-					
-					var namesList = (AssiciateReportParams[reportParam.Key](itemList, e));
-					var itemString = string.Join(" ,", namesList.ToArray());
-					if (itemString.Length > 2048)
-						itemString = itemString.Substring(0, 2047);
-					reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + itemString);
+					if (!ParamNOVisualisation.Contains(reportParam.Key))
+					{
+						var itemList = (List<ulong>) reportParam.Value;
+
+						var namesList = (AssiciateReportParams[reportParam.Key](itemList, e));
+						namesList.Sort();
+						var itemString = string.Join(" ,", namesList.ToArray());
+						if (itemString.Length > 2048)
+							itemString = itemString.Substring(0, 2047);
+						reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + itemString);
+					}
 				}
 				if (typeReportParam == typeof(bool))
 				{
-					var YesNo = (bool) reportParam.Value ? " Да" : " Нет";
-					reportParameters.Add(GetDescription(e, reportParam.Key) + YesNo);
+					if (!ParamNOVisualisation.Contains(reportParam.Key))
+					{
+						var YesNo = (bool) reportParam.Value ? ": Да" : ": Нет";
+						reportParameters.Add(GetDescription(e, reportParam.Key) + YesNo);
+					}
 				}
 				if (typeReportParam == typeof(Int32))
 				{
-					var value = Convert.ToUInt32(reportParam.Value);
-					if (AssiciateReportParams.ContainsKey(reportParam.Key))
+					if (!ParamNOVisualisation.Contains(reportParam.Key))
 					{
-						var tempList = new List<ulong> {value};
-						var namesList = (AssiciateReportParams[reportParam.Key](tempList, e));
-						reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + namesList[0] + "(" + value + ")" );
-					}
-					else
-					{
-						reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + value);
+						var value = Convert.ToUInt32(reportParam.Value);
+						if (AssiciateReportParams.ContainsKey(reportParam.Key))
+						{
+							var tempList = new List<ulong> {value};
+							var namesList = (AssiciateReportParams[reportParam.Key](tempList, e));
+							reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + namesList[0]);
+						}
+						else
+						{
+							reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + value);
+						}
 					}
 				}
 			}
+			var countDownRows = reportParameters.Count + 5;
 			var position = 1;
 			foreach (var reportParameter in reportParameters)
 			{
@@ -112,21 +129,21 @@ namespace Inforoom.ReportSystem.Writers
 			{
 				var _ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
 
-				if (CountDownRows > 0)
+				if (countDownRows > 0)
 				{
-					for (int j = 1; j < CountDownRows - 1; j++)
+					for (int j = 1; j < countDownRows - 1; j++)
 					{
-						for (int i = 0; i < CountDownRows - 3; i++)
+						for (int i = 0; i < countDownRows - 3; i++)
 						{
 							_ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
 						}
-						_ws.Cells[CountDownRows - 2, j] = "";
+						_ws.Cells[countDownRows - 2, j] = "";
 						_ws.get_Range("A" + j.ToString(), "Z" + j.ToString()).Merge();
 					}
 				}
-				if (CountDownRows == 0)
+				if (countDownRows == 0)
 				{
-					CountDownRows = 2;
+					countDownRows = 2;
 				}
 				for (int i = 4; i < 20; i++)
 				{
@@ -134,9 +151,9 @@ namespace Inforoom.ReportSystem.Writers
 				}
 				for (int i = 0; i < _result.Columns.Count; i++)
 				{
-					_ws.Cells[CountDownRows - 1, i + 1] = "";
-					_ws.Cells[CountDownRows - 1, i + 1] = _result.Columns[i].Caption;
-					if (CountDownRows != 2)
+					_ws.Cells[countDownRows - 1, i + 1] = "";
+					_ws.Cells[countDownRows - 1, i + 1] = _result.Columns[i].Caption;
+					if (countDownRows != 2)
 					{
 						_ws.Cells[1, 4] = "";
 					}
@@ -146,11 +163,11 @@ namespace Inforoom.ReportSystem.Writers
 					else
 						((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
 					if (_result.Columns[i].ExtendedProperties.ContainsKey("Color"))
-						_ws.get_Range(_ws.Cells[CountDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)_result.Columns[i].ExtendedProperties["Color"]);
+						_ws.get_Range(_ws.Cells[countDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)_result.Columns[i].ExtendedProperties["Color"]);
 				}
 
 				//рисуем границы на всю таблицу
-				_ws.get_Range(_ws.Cells[CountDownRows - 1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+				_ws.get_Range(_ws.Cells[countDownRows - 1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
 
 				//Устанавливаем шрифт листа
 				_ws.Rows.Font.Size = 8;
@@ -158,7 +175,7 @@ namespace Inforoom.ReportSystem.Writers
 				_ws.Activate();
 
 				//Устанавливаем АвтоФильтр на все колонки
-				_ws.Range[_ws.Cells[CountDownRows - 1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
+				_ws.Range[_ws.Cells[countDownRows - 1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
 				((MSExcel.Range)_ws.Application.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 			});
 			ProfileHelper.End();

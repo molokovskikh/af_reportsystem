@@ -85,7 +85,7 @@ order by cd.ShortName", ProviderReport.ConcatWhereIn(suppliers));
 		public static List<String> GetPriceNames(List<ulong> _prices, ExecuteArgs e)
 		{
 			var command = @"select pd.PriceCode as PriceCode,
-	convert(concat(pd.PriceCode, ' - ', cd.ShortName, ' (', pd.PriceName, ') - ', rg.Region) using cp1251) as PriceName
+	convert(concat(cd.ShortName, ' (', pd.PriceName, ') - ', rg.Region) using cp1251) as PriceName
   from
     usersettings.pricesdata pd
     inner join usersettings.clientsdata cd on cd.FirmCode = pd.FirmCode

@@ -1,0 +1,1 @@
+DELETE FROM `reports`.`report_type_properties` WHERE `ID`='223';
