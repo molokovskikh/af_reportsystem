@@ -31,6 +31,7 @@ namespace Inforoom.ReportSystem
 
 		public string Code { get; set; }
 		public string Name { get; set; }
+		public int DrugstoreCount { get; set; }
 		public List<decimal> Costs { get; set; }
 	}
 
@@ -137,7 +138,7 @@ namespace Inforoom.ReportSystem
 					   ) as char)))";
 				else
 				{
-					withWithoutPropertiesText = @" if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name, '  ', cf.Form)) ";
+					withWithoutPropertiesText = @" if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name, ' ', cf.Form)) ";
 				}
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
@@ -167,6 +168,7 @@ from usersettings.Core cor
 				{
 					var offer = group.First();
 					var dataItem = FindItem(hash, offer, data);
+					dataItem.DrugstoreCount++;
 					dataItem.Costs.Add(group.Min(r => r.Field<decimal>("Cost")));
 				}
 #if DEBUG
@@ -203,6 +205,12 @@ from usersettings.Core cor
 				if (i == 0.01)
 					i -= 0.01;
 			}
+			dtRes.Columns.Add("SupplierCount");
+			dtRes.Columns.Add("DrugstoreCount");
+			dtRes.Columns["SupplierCount"].Caption = "Количество поставщиков";
+			dtRes.Columns["SupplierCount"].ExtendedProperties["Width"] = 10;
+			dtRes.Columns["DrugstoreCount"].Caption = "Количество аптек";
+			dtRes.Columns["DrugstoreCount"].ExtendedProperties["Width"] = 10;
 			if (_ProducerAccount)
 				data = data.OrderBy(i => i.Name).ThenBy(i => ((ProducerAwareReportData)i).ProducerName).ToList();
 			else
@@ -216,6 +224,8 @@ from usersettings.Core cor
 				newRow["Code"] = dataItem.Code;
 				newRow["MinCost"] = dataItem.Costs.Min();
 				newRow["ProductName"] = dataItem.Name;
+				newRow["SupplierCount"] = dataItem.Costs.Count;
+				newRow["DrugstoreCount"] = dataItem.DrugstoreCount;
 				dataItem.Costs.Sort();
 				foreach (var i in costNumber)
 				{
