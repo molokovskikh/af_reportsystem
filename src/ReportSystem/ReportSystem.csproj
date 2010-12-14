@@ -168,6 +168,7 @@
   <ItemGroup>
     <Compile Include="ByOffers\PricesOfCompetitorsReport.cs" />
     <Compile Include="ByOrders\OrderOutAllowedAssortment.cs" />
+    <Compile Include="Helpers\ReadParameterHelper.cs" />
     <Compile Include="Writers\SupplierExcelWriter.cs" />
     <Content Include="App.ico" />
     <Compile Include="AssemblyInfo.cs">

@@ -58,6 +58,8 @@ namespace Inforoom.ReportSystem
 		protected string _suppliersNames = "";
 		protected string _regionsWhere = string.Empty;
 
+		public ExecuteArgs ex;
+
 		public PricesOfCompetitorsReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -106,12 +108,13 @@ namespace Inforoom.ReportSystem
 			if (_regions != null)
 			if (_regions.Count !=0)
 			{
-				_regionsWhere = "where cor.RegionCode" + reportCaptionPreffix + ConcatWhereIn(_regions);
+				_regionsWhere = " where cor.RegionCode in " + ConcatWhereIn(_regions);
 			}
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			ex = e;
 			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
 				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
 
@@ -177,10 +180,12 @@ from usersettings.Core cor
 			{
 				dtRes.Columns.Add("CodeFirmCr");
 				dtRes.Columns["CodeFirmCr"].Caption = "Производитель";
+				dtRes.Columns["CodeFirmCr"].ExtendedProperties["Width"] = 25;
 			}
 			dtRes.Columns.Add("MinCost", typeof (decimal));
 			dtRes.Columns["Code"].Caption = "Код товара";
 			dtRes.Columns["ProductName"].Caption = "Наименование";
+			dtRes.Columns["ProductName"].ExtendedProperties["Width"] = 65;
 			dtRes.Columns["MinCost"].Caption = "Минимальная цена";
 			var costNumber = new List<int>();
 			for (double i = 0.01; i < 0.7; i += 0.1)
@@ -198,13 +203,13 @@ from usersettings.Core cor
 				if (i == 0.01)
 					i -= 0.01;
 			}
-			dtRes.Rows.Add("Отчет сформирован: " + DateTime.Now);
+			/*dtRes.Rows.Add("Отчет сформирован: " + DateTime.Now);
 			var clientsName = string.Join(" ,", GetClientNames(_clients,e).ToArray());
 			if (clientsName.Length > 2048)
 				clientsName = clientsName.Substring(0, 2047);
 			dtRes.Rows.Add("Клиенты:" + clientsName);
 			dtRes.Rows.Add("Поставщики:" + string.Join(" ,", GetSupplierNames(_suppliers , e).ToArray()));
-			dtRes.Rows.Add();
+			dtRes.Rows.Add();*/
 			if (_ProducerAccount)
 				data = data.OrderBy(i => i.Name).ThenBy(i => ((ProducerAwareReportData)i).ProducerName).ToList();
 			else
@@ -262,7 +267,8 @@ from usersettings.Core cor
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new SupplierExcelWriter();
+				return new PricesOfCompetitorsWriter(_reportParams, ex);
+				//return new SupplierExcelWriter();
 			return null;
 		}
 

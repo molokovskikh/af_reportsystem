@@ -101,7 +101,7 @@ namespace Inforoom.ReportSystem
 		/// </summary>
 		/// <param name="items"></param>
 		/// <returns></returns>
-		public virtual string ConcatWhereIn(List<ulong> items)
+		public static string ConcatWhereIn(List<ulong> items)
 		{
 			var result = "(";
 			foreach (var item in items)
@@ -111,47 +111,6 @@ namespace Inforoom.ReportSystem
 			result = result.Substring(0, result.Length - 2);
 			result += ")";
 			return result;
-		}
-
-		/// <summary>
-		/// Метод возвращает имена по списку ID и SQL запросу
-		/// </summary>
-		/// <param name="action">лямбда вырадение считывания данных</param>
-		/// <param name="command">SQL запрос к серверу</param>
-		/// <returns></returns>
-		private List<string> GetNames(Func<MySqlDataReader, string> action, string command, ExecuteArgs e)
-		{
-			var result = new List<string>();
-			var selectCommand = e.DataAdapter.SelectCommand;
-			selectCommand.CommandText = command;
-			using (var reader = selectCommand.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					result.Add(action(reader));
-				}
-				reader.Close();
-			}
-			return result;
-		}
-
-		public virtual List<String> GetSupplierNames(List<ulong > suppliers, ExecuteArgs e)
-		{
-			var command = string.Format(@"
-select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')') as SupplierName
-from usersettings.Core cor
-	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-where cd.FirmCode in {0}
-group by cd.FirmCode
-order by cd.ShortName", ConcatWhereIn(suppliers));
-			return GetNames(r => r["SupplierName"].ToString(), command, e);
-		}
-
-		public virtual List<String> GetClientNames(List<ulong> _clients, ExecuteArgs e)
-		{
-			var command = @"select cl.FullName from future.Clients cl where cl.Id in " + ConcatWhereIn(_clients);
-			return GetNames(r => r["FullName"].ToString(), command, e);
 		}
 
 		protected void GetActivePrices()
