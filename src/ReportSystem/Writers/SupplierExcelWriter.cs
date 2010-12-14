@@ -32,6 +32,7 @@ namespace Inforoom.ReportSystem.Writers
 											 {"PriceCodeValues", ReadParameterHelper.GetPriceNames},
 											 {"PriceCodeNonValues", ReadParameterHelper.GetPriceNames},
 											 {"ClientsNON", ReadParameterHelper.GetClientNames},
+											 {"Clients", ReadParameterHelper.GetClientNames},
 											 {"PayerNonEqual", ReadParameterHelper.GetPayerNames},
 			                        	};
 			ReportParams = reportParams;
