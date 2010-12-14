@@ -137,7 +137,7 @@ namespace Inforoom.ReportSystem
 					   ) as char)))";
 				else
 				{
-					withWithoutPropertiesText = @" if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name, '  ', cf.Form)) ";
+					withWithoutPropertiesText = @" if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name, ' ', cf.Form)) ";
 				}
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(

@@ -68,7 +68,10 @@ namespace Inforoom.ReportSystem.Writers
 					var itemList = (List<ulong>) reportParam.Value;
 					
 					var namesList = (AssiciateReportParams[reportParam.Key](itemList, e));
-					reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + string.Join(" ,", namesList.ToArray()));
+					var itemString = string.Join(" ,", namesList.ToArray());
+					if (itemString.Length > 2048)
+						itemString = itemString.Substring(0, 2047);
+					reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + itemString);
 				}
 				if (typeReportParam == typeof(bool))
 				{
