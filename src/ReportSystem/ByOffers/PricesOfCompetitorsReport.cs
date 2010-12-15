@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
@@ -110,13 +111,13 @@ namespace Inforoom.ReportSystem
 			if (_regions != null)
 			if (_regions.Count !=0)
 			{
-				_regionsWhere = " where cor.RegionCode in " + ConcatWhereIn(_regions);
+				_regionsWhere = " where Prices.RegionCode in " + ConcatWhereIn(_regions);
 			}
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			ProfileHelper.Next("");
+			ProfileHelper.Next("Начало формирования запроса");
 			ex = e;
 			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
 				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
@@ -128,7 +129,8 @@ namespace Inforoom.ReportSystem
 			{
 				_clientCode = Convert.ToInt32(client);
 				base.GenerateReport(e);
-				GetOffers(e);
+				GetActivePrices(e);
+				//GetOffers(e);
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
 				string withWithoutPropertiesText;
 				if (!_WithWithoutProperties)
@@ -145,24 +147,29 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, C0.Code, if(C0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
-c00.CodeFirmCr, cor.PriceCode, cor.ProductId, cor.Cost, {2} as ProductName
-from usersettings.Core cor
-	join farm.Core0 c00 on c00.id = cor.id
-	join catalogs.Products as p on p.id = cor.productid
+select p.CatalogId, c0.Code, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
+
+if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
+c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
+
+c00.CodeFirmCr, Prices.PriceCode, c00.ProductId, {2} as ProductName
+from Usersettings.ActivePrices Prices
+	join farm.core0 c00 on c00.PriceCode = Prices.PriceCode
+	{1} farm.Core0 c0 on c0.productid = c00.productid and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) and C0.PriceCode = {0}
+	join catalogs.Products as p on p.id = c00.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
 	JOIN Catalogs.CatalogNames cn on cn.id = cg.nameid
 	JOIN Catalogs.CatalogForms cf on cf.id = cg.formid
 	join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
-	{1} farm.Core0 C0 on cor.productid = C0.productid and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) and C0.PriceCode = {0}
+	JOIN farm.CoreCosts cc on cc.Core_Id = c00.Id and cc.PC_CostCode = Prices.CostCode
 	left join farm.Synonym S on C0.SynonymCode = S.SynonymCode
 	left join farm.SynonymFirmCr Sf on C0.SynonymFirmCrCode = Sf.SynonymFirmCrCode
 	 
-	 left join catalogs.ProductProperties PP on PP.ProductId = cor.productid
+	 left join catalogs.ProductProperties PP on PP.ProductId = c00.productid
 	 left join catalogs.PropertyValues PV on PV.Id = PP.PropertyValueId
 	 left join catalogs.Properties PR on PR.Id = PV.PropertyId
 	 {3} 
-	 group by cor.id", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere);
+	 group by c00.id", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere);
 
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
@@ -177,7 +184,8 @@ from usersettings.Core cor
 				Console.WriteLine("Код клиента: "+ _clientCode + " Строк в таблице: " + data.Count);
 #endif
 			}
-			ProfileHelper.SpendedTime("Запрос выполнен :");
+			ProfileHelper.SpendedTime(string.Format("По {0}ти клиентам запрос выполнен за ", _clients.Count));
+
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("Code");
 			dtRes.Columns.Add("ProductName");
