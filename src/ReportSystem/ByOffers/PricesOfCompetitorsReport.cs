@@ -28,12 +28,14 @@ namespace Inforoom.ReportSystem
 		{
 			Code = offer.Field<string>("Code");
 			Name = offer.Field<string>("ProductName");
+			//DrugstoreCount = offer.Field<List<string>>("FirmCode");
+			Drugstore = new List<UInt32>();
 			Costs = new List<decimal>();
 		}
 
 		public string Code { get; set; }
 		public string Name { get; set; }
-		public int DrugstoreCount { get; set; }
+		public List<UInt32 > Drugstore { get; set; }
 		public List<decimal> Costs { get; set; }
 	}
 
@@ -122,6 +124,8 @@ namespace Inforoom.ReportSystem
 			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
 				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
 
+			_clients = _clients.Where(t => ((t > 1000) && (t < 1100))).ToList();
+
 			var hash = new Hashtable();
 			var data = new List<ReportData>();
 			Console.WriteLine("всего клиентов {0}", _clients.Count);
@@ -147,7 +151,7 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, c0.Code, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
+select p.CatalogId, Prices.FirmCode, c0.Code, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
 
 if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
 c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
@@ -177,7 +181,8 @@ from Usersettings.ActivePrices Prices
 				{
 					var offer = group.First();
 					var dataItem = FindItem(hash, offer, data);
-					dataItem.DrugstoreCount++;
+					dataItem.Drugstore.AddRange(group.Select(r => r.Field<UInt32>("FirmCode")).Where(u => !dataItem.Drugstore.Contains(u)));
+					//dataItem.DrugstoreCount++;
 					dataItem.Costs.Add(group.Min(r => r.Field<decimal>("Cost")));
 				}
 #if DEBUG
@@ -216,8 +221,8 @@ from Usersettings.ActivePrices Prices
 				if (i == 0.01)
 					i -= 0.01;
 			}
-			dtRes.Columns.Add("SupplierCount");
-			dtRes.Columns.Add("DrugstoreCount");
+			dtRes.Columns.Add("SupplierCount", typeof(int));
+			dtRes.Columns.Add("DrugstoreCount", typeof(int));
 			dtRes.Columns["SupplierCount"].Caption = "Количество поставщиков";
 			dtRes.Columns["SupplierCount"].ExtendedProperties["Width"] = 10;
 			dtRes.Columns["DrugstoreCount"].Caption = "Количество аптек";
@@ -236,7 +241,7 @@ from Usersettings.ActivePrices Prices
 				newRow["MinCost"] = dataItem.Costs.Min();
 				newRow["ProductName"] = dataItem.Name;
 				newRow["SupplierCount"] = dataItem.Costs.Count;
-				newRow["DrugstoreCount"] = dataItem.DrugstoreCount;
+				newRow["DrugstoreCount"] = dataItem.Drugstore.Count;
 				dataItem.Costs.Sort();
 				foreach (var i in costNumber)
 				{
