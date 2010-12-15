@@ -46,6 +46,17 @@ namespace Inforoom.ReportSystem.Helpers
 			}
 		}
 
+		public static void SpendedTime(string operation)
+		{
+			if (IsProfiling)
+			{
+				TimeSpan duration = DateTime.Now.Subtract(currentOperation.startedOn);
+				Debug.WriteLine(operation + duration.TotalMilliseconds + " milliseconds.");
+				Debug.WriteLine(String.Empty);
+				currentOperation = null;
+			}
+		}
+
 		public static void End()
 		{
 			if (IsProfiling && currentOperation != null)

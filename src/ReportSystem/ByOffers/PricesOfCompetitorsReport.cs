@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using ExecuteTemplate;
+using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;
@@ -115,6 +116,7 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			ProfileHelper.Next("");
 			ex = e;
 			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
 				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
@@ -175,6 +177,7 @@ from usersettings.Core cor
 				Console.WriteLine("Код клиента: "+ _clientCode + " Строк в таблице: " + data.Count);
 #endif
 			}
+			ProfileHelper.SpendedTime("Запрос выполнен :");
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("Code");
 			dtRes.Columns.Add("ProductName");
