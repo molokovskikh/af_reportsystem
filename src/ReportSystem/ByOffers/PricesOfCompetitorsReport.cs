@@ -124,8 +124,6 @@ namespace Inforoom.ReportSystem
 			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
 				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
 
-			_clients = _clients.Where(t => ((t > 1000) && (t < 1100))).ToList();
-
 			var hash = new Hashtable();
 			var data = new List<ReportData>();
 			Console.WriteLine("всего клиентов {0}", _clients.Count);
