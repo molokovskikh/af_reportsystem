@@ -238,8 +238,8 @@ from Usersettings.ActivePrices Prices
 				newRow["Code"] = dataItem.Code;
 				newRow["MinCost"] = dataItem.Costs.Min();
 				newRow["ProductName"] = dataItem.Name;
-				newRow["SupplierCount"] = dataItem.Costs.Count;
-				newRow["DrugstoreCount"] = dataItem.Drugstore.Count;
+				newRow["DrugstoreCount"] = dataItem.Costs.Count;
+				newRow["SupplierCount"] = dataItem.Drugstore.Count;
 				dataItem.Costs.Sort();
 				foreach (var i in costNumber)
 				{
