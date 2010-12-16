@@ -146,6 +146,7 @@ namespace Inforoom.ReportSystem
 				{
 					withWithoutPropertiesText = @" if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name, ' ', cf.Form)) ";
 				}
+				var JunkWhere = _regionsWhere.Length == 0 ? " WHERE c00.Junk = 0 " : " AND c00.Junk = 0 ";
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
@@ -171,7 +172,8 @@ from Usersettings.ActivePrices Prices
 	 left join catalogs.PropertyValues PV on PV.Id = PP.PropertyValueId
 	 left join catalogs.Properties PR on PR.Id = PV.PropertyId
 	 {3} 
-	 group by c00.id", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere);
+	 {4}
+	 group by c00.id", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere);
 
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
