@@ -150,7 +150,7 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, Prices.FirmCode, c0.Code, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
+select p.CatalogId, Prices.FirmCode,cg.Brand, c0.Code, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
 
 if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
 c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
@@ -272,7 +272,15 @@ from Usersettings.ActivePrices Prices
 
 		private IEnumerable<IGrouping<object, DataRow>> Group(DataTable table)
 		{
-			return table.AsEnumerable().GroupBy(r => GetKey(r));
+			
+			var swatch = new Stopwatch();
+			swatch.Start();
+
+			var dt = table.AsEnumerable().GroupBy(r => GetKey(r));
+
+			swatch.Stop();
+			Console.WriteLine("Группировка заняла : " + swatch.ElapsedMilliseconds + " миллисекунд.");
+			return dt;
 		}
 
 		private object GetKey(DataRow row)
@@ -280,8 +288,15 @@ from Usersettings.ActivePrices Prices
 			if (!_ProducerAccount)
 				return row[_groupingFieldText];
 			else
-				return new { CatalogId = row.Field<uint>(_groupingFieldText), CodeFirmCr = row.Field<uint?>("CodeFirmCr") };
+				//return new { CatalogId = row.Field<uint>(_groupingFieldText), CodeFirmCr = row.Field<uint?>("CodeFirmCr") };
+				if (row.Field<byte>("Brand") == 1)
+					return row[_groupingFieldText];
+				else
+				{
+					return new {CatalogId = row.Field<uint>(_groupingFieldText), CodeFirmCr = row.Field<uint?>("CodeFirmCr")};
+				}
 		}
+
 
 		protected override IWriter GetWriter(ReportFormats format)
 		{
