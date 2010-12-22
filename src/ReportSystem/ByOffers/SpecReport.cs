@@ -488,8 +488,7 @@ select
   0 As Cfc ";
 			else
 				SqlCommandText += @"
-ifnull(sfc.Synonym, ifnull(Cfc.Name, if(catalog.Brand = 1,FarmCore. )))
-#ifnull(sfc.Synonym, Cfc.Name) as FirmCr,
+  ifnull(sfc.Synonym, Cfc.Name) as FirmCr,
   cfc.Id As Cfc ";
 
 			SqlCommandText += @"

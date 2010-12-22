@@ -179,8 +179,7 @@ from Usersettings.ActivePrices Prices
 				e.DataAdapter.Fill(offers);
 				foreach(var group in Group(offers))
 				{
-					//var offer = group.First();
-					var offer = group.Where(r => r["ProdName"] != null).First();
+					var offer = group.First();
 					var dataItem = FindItem(hash, offer, data);
 					dataItem.Drugstore.AddRange(group.Select(r => r.Field<UInt32>("FirmCode")).Where(u => !dataItem.Drugstore.Contains(u)));
 					//dataItem.DrugstoreCount++;

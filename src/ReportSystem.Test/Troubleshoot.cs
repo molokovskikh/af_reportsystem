@@ -23,13 +23,13 @@ namespace ReportSystem.Test
 		[Test]
 		public void shoot_it()
 		{
-			uint reportcode = 1;
+			uint reportcode = 1351;
 			using(var connection = new MySqlConnection(connectionString))
 			{
 				connection.Open();
 				var loader = new ReportPropertiesLoader();
 				var prop = loader.LoadProperties(connection, reportcode);
-				prop.WriteXml("TestData\\SpecialNew.xml");
+				prop.WriteXml("TestData\\PricesOfCompetitors.xml");
 /*				var row = prop.Tables[0].NewRow();
 				row["PropertyName"] = "StartDate";
 				row["PropertyValue"] = "2010-05-01";
