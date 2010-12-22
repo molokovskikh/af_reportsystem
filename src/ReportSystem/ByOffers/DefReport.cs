@@ -325,7 +325,7 @@ order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
 
 				case DefReportType.ByProduct:
 					{
-						SelectCommandText = @"
+						SelectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices ( 
   ProductId int Unsigned, 
@@ -356,7 +356,7 @@ select
   distinct 
   FarmCore.Code, 
   CatalogNames.Name,
-  catalogs.GetFullForm(OtherByPrice.ProductId) as FullForm
+  {0} as FullForm
 from 
  (
   OtherByPrice,
@@ -371,13 +371,13 @@ where
 and catalog.Id = products.CatalogId
 and CatalogNames.Id = catalog.NameId
 order by CatalogNames.Name, FullForm;
-";
+", GetFullFormSubquery("OtherByPrice.ProductId"));
 						break;
 					}
 
 				case DefReportType.ByProductAndFirmCr:
 					{
-						SelectCommandText = @"
+						SelectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices ( 
   ProductId int Unsigned, 
@@ -418,7 +418,7 @@ select
   distinct 
   FarmCore.Code, 
   CatalogNames.Name,
-  catalogs.GetFullForm(OtherByPrice.ProductId) as FullForm,
+  {0} as FullForm,
   Producers.Name as FirmCr 
 from 
  (
@@ -435,7 +435,7 @@ where
 and catalog.Id = products.CatalogId
 and CatalogNames.Id = catalog.NameId
 order by CatalogNames.Name, FullForm, Producers.Name;
-";
+", GetFullFormSubquery("OtherByPrice.ProductId"));
 						break;
 					}
 

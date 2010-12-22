@@ -475,7 +475,7 @@ select
 			if (_calculateByCatalog)
 				SqlCommandText += " ifnull(s.Synonym, concat(catalognames.Name, ' ', catalogforms.Form)) as FullName, ";
 			else
-				SqlCommandText += " ifnull(s.Synonym, concat(catalognames.Name, ' ', catalogs.GetFullForm(AllPrices.productid))) as FullName, ";
+				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetFullFormSubquery("AllPrices.ProductId"));
 			SqlCommandText += @"
   min(AllPrices.cost) As MinCost, -- здесь должна быть минимальная цена
   avg(AllPrices.cost) As AvgCost, -- здесь должна быть средняя цена
@@ -495,9 +495,6 @@ select
 from 
  (
   catalogs.products,
-  catalogs.catalog,
-  catalogs.catalognames,
-  catalogs.catalogforms,
   farm.core0 FarmCore,";
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
@@ -528,10 +525,7 @@ from
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode 
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
 where 
-      products.id = AllPrices.ProductId 
-  and catalog.id = products.catalogid
-  and catalognames.id = catalog.nameid
-  and catalogforms.id = catalog.formid
+  products.id = AllPrices.ProductId 
   and FarmCore.Id = AllPrices.Id";
 
 				SqlCommandText += @"

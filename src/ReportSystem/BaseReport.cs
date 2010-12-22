@@ -265,6 +265,51 @@ namespace Inforoom.ReportSystem
 			return null;
 		}
 
+		public string GetProductNameSubquery(string productIdAlias)
+		{
+			return GetFullFormSubquery(productIdAlias, true);
+		}
+
+		public string GetFullFormSubquery(string productIdAlias)
+		{
+			return GetFullFormSubquery(productIdAlias, false);
+		}
+
+		protected string GetFullFormSubquery(string productIdAlias, bool includeName)
+		{
+			var name = "";
+			if (includeName)
+				name = "CatalogNames.Name, ' ', CatalogForms.Form, ' ',";
+			else
+				name = "CatalogForms.Form, ' ',";
+
+			return String.Format(@"
+(
+	select
+	concat({1}
+		cast(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
+						order by Properties.PropertyName, PropertyValues.Value
+						SEPARATOR ', '
+						) as char))
+	from
+		(
+			catalogs.products,
+			catalogs.catalog,
+			catalogs.CatalogForms,
+			catalogs.CatalogNames
+		)
+		left join catalogs.ProductProperties on ProductProperties.ProductId = Products.Id
+		left join catalogs.PropertyValues on PropertyValues.Id = ProductProperties.PropertyValueId
+		left join catalogs.Properties on Properties.Id = PropertyValues.PropertyId
+	where
+		products.Id = {0}
+	and catalog.Id = products.CatalogId
+	and CatalogForms.Id = catalog.FormId
+	and CatalogNames.Id = catalog.NameId
+)
+", productIdAlias, name);
+		}
+
 		protected string GetClientsNamesFromSQL(List<ulong> equalValues)
 		{
 			var filterStr = new StringBuilder("(");
