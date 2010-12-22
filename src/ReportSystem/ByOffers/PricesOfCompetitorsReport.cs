@@ -272,15 +272,7 @@ from Usersettings.ActivePrices Prices
 
 		private IEnumerable<IGrouping<object, DataRow>> Group(DataTable table)
 		{
-			
-			var swatch = new Stopwatch();
-			swatch.Start();
-
-			var dt = table.AsEnumerable().GroupBy(r => GetKey(r));
-
-			swatch.Stop();
-			Console.WriteLine("Группировка заняла : " + swatch.ElapsedMilliseconds + " миллисекунд.");
-			return dt;
+			return table.AsEnumerable().GroupBy(r => GetKey(r));
 		}
 
 		private object GetKey(DataRow row)
