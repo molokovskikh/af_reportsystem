@@ -473,7 +473,7 @@ select
   SourcePrice.Code,
   AllPrices.CatalogCode, ";
 			if (_calculateByCatalog)
-				SqlCommandText += " ifnull(s.Synonym, concat(catalognames.Name, ' ', catalogforms.Form)) as FullName, ";
+				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
 			else
 				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetFullFormSubquery("AllPrices.ProductId"));
 			SqlCommandText += @"
