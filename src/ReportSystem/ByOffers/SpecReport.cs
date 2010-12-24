@@ -475,7 +475,7 @@ select
 			if (_calculateByCatalog)
 				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
 			else
-				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetFullFormSubquery("AllPrices.ProductId"));
+				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("AllPrices.ProductId"));
 			SqlCommandText += @"
   min(AllPrices.cost) As MinCost, -- здесь должна быть минимальная цена
   avg(AllPrices.cost) As AvgCost, -- здесь должна быть средняя цена
