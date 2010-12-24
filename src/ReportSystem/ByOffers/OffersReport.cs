@@ -260,7 +260,7 @@ select
 				sql += @" FarmCore.Quantity,";
 
 			if (_calculateByCatalog)
-				sql += " ifnull(s.Synonym, concat(catalognames.Name, ' ', catalogforms.Form)) as FullName, ";
+				sql += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
 			else
 				sql += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("AllPrices.ProductId"));
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"

@@ -275,6 +275,18 @@ namespace Inforoom.ReportSystem
 			return GetFullFormSubquery(productIdAlias, false);
 		}
 
+		public string GetCatalogProductNameSubquery(string productIdAlias)
+		{
+			return String.Format(@"
+(
+	select catalog.Name
+	from catalogs.products
+		join catalogs.catalog on catalog.Id = products.CatalogId
+	where products.Id = {0}
+)
+", productIdAlias);
+		}
+
 		protected string GetFullFormSubquery(string productIdAlias, bool includeName)
 		{
 			var name = "";
