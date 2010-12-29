@@ -16,7 +16,7 @@ namespace ReportSystem.Test
 		{
 			var type = ReportsTypes.PricesOfCompetitors;
 			var props = TestHelper.LoadProperties(type);
-			var report = new PricesOfCompetitorsReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new PricesOfCompetitorsReport(0, "PricesOfCompetitors", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 	}

@@ -28,6 +28,7 @@ namespace Inforoom.ReportSystem
 		{
 			Code = offer.Field<string>("Code");
 			Name = offer.Field<string>("ProductName");
+			CodeCr = offer.Field<string>("CodeCr");
 			//DrugstoreCount = offer.Field<List<string>>("FirmCode");
 			Drugstore = new List<UInt32>();
 			Costs = new List<decimal>();
@@ -35,6 +36,7 @@ namespace Inforoom.ReportSystem
 
 		public string Code { get; set; }
 		public string Name { get; set; }
+		public string CodeCr { get; set; }
 		public List<UInt32 > Drugstore { get; set; }
 		public List<decimal> Costs { get; set; }
 	}
@@ -55,6 +57,7 @@ namespace Inforoom.ReportSystem
 		protected bool _ProducerAccount;
 		protected bool _AllAssortment;
 		protected bool _WithWithoutProperties;
+		protected bool _showCodeCr;
 		protected int priceForCorel;
 
 		private string _groupingFieldText;
@@ -77,6 +80,7 @@ namespace Inforoom.ReportSystem
 			_ProducerAccount = (bool) getReportParam("ProducerAccount");
 			_AllAssortment = (bool)getReportParam("AllAssortment");
 			_WithWithoutProperties = (bool)getReportParam("WithWithoutProperties");
+			_showCodeCr = (bool)getReportParam("ShowCodeCr");
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
 			_suppliers = (List<ulong>)getReportParam("FirmCodeEqual");
 			if (_reportParams.ContainsKey("IgnoredSuppliers"))
@@ -150,7 +154,7 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, Prices.FirmCode, c0.Code, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
+select p.CatalogId, Prices.FirmCode, c00.Code, c0.CodeCr, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
 
 if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
 c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
@@ -193,7 +197,15 @@ from Usersettings.ActivePrices Prices
 
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("Code");
+			if (_showCodeCr)
+			{
+				dtRes.Columns.Add("CodeCr");
+				dtRes.Columns["CodeCr"].Caption = "Код изготовителя";
+				dtRes.Columns["CodeCr"].ExtendedProperties["Width"] = 10;
+			}
 			dtRes.Columns.Add("ProductName");
+			dtRes.Columns["ProductName"].Caption = "Наименование";
+			dtRes.Columns["ProductName"].ExtendedProperties["Width"] = 65;
 			if (_ProducerAccount)
 			{
 				dtRes.Columns.Add("CodeFirmCr");
@@ -202,8 +214,6 @@ from Usersettings.ActivePrices Prices
 			}
 			dtRes.Columns.Add("MinCost", typeof (decimal));
 			dtRes.Columns["Code"].Caption = "Код товара";
-			dtRes.Columns["ProductName"].Caption = "Наименование";
-			dtRes.Columns["ProductName"].ExtendedProperties["Width"] = 65;
 			dtRes.Columns["MinCost"].Caption = "Минимальная цена";
 			var costNumber = new List<int>();
 			for (double i = 0.01; i < 0.7; i += 0.1)
@@ -237,6 +247,8 @@ from Usersettings.ActivePrices Prices
 				var newRow = dtRes.NewRow();
 				if (_ProducerAccount)
 					newRow["CodeFirmCr"] = ((ProducerAwareReportData)dataItem).ProducerName;
+				if (_showCodeCr)
+					newRow["CodeCr"] = dataItem.CodeCr;
 				newRow["Code"] = dataItem.Code;
 				newRow["MinCost"] = dataItem.Costs.Min();
 				newRow["ProductName"] = dataItem.Name;
@@ -286,7 +298,7 @@ from Usersettings.ActivePrices Prices
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new PricesOfCompetitorsWriter(_reportParams, ex);
+				return new PricesOfCompetitorsWriter(_reportParams, ex, _reportCaption);
 			return null;
 		}
 

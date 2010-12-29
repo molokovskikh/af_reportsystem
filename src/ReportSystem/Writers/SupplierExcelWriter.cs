@@ -17,8 +17,9 @@ namespace Inforoom.ReportSystem.Writers
 		public List<string> ParamNOVisualisation;
 		public delegate List<string> GetterNames(List<ulong> items, ExecuteArgs e);
 		public ExecuteArgs e;
+		public string _reportCaption;
 
-		public PricesOfCompetitorsWriter(Dictionary<string, object> reportParams, ExecuteArgs ex)
+		public PricesOfCompetitorsWriter(Dictionary<string, object> reportParams, ExecuteArgs ex, string reportCaprion)
 		{
 			ParamNOVisualisation = new List<string>
 			                     	{
@@ -43,6 +44,7 @@ namespace Inforoom.ReportSystem.Writers
 											 {"PayerNonEqual", ReadParameterHelper.GetPayerNames},
 			                        	};
 			ReportParams = reportParams;
+			_reportCaption = reportCaprion;
 			e = ex;
 		}
 
@@ -128,6 +130,8 @@ namespace Inforoom.ReportSystem.Writers
 			UseExcel.Workbook(fileName, b =>
 			{
 				var _ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
+				_ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+				_ws.Activate();
 
 				if (countDownRows > 0)
 				{
