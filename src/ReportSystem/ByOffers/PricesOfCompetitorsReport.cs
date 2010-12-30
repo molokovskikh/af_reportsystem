@@ -27,9 +27,8 @@ namespace Inforoom.ReportSystem
 		public ReportData(DataRow offer)
 		{
 			Code = offer.Field<string>("Code");
-			Name = offer.Field<string>("ProductName");
 			CodeCr = offer.Field<string>("CodeCr");
-			//DrugstoreCount = offer.Field<List<string>>("FirmCode");
+			Name = offer.Field<string>("ProductName");
 			Drugstore = new List<UInt32>();
 			Costs = new List<decimal>();
 		}
@@ -136,48 +135,38 @@ namespace Inforoom.ReportSystem
 				_clientCode = Convert.ToInt32(client);
 				base.GenerateReport(e);
 				GetActivePrices(e);
-				//GetOffers(e);
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
 				string withWithoutPropertiesText;
-				if (!_WithWithoutProperties)
-					withWithoutPropertiesText =
-						@"if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name , ' ' ,cf.Form, ' ',
-	 cast(GROUP_CONCAT(ifnull(PV.Value, '')
-						order by PR.PropertyName, PV.Value
-						SEPARATOR ', '
-					   ) as char)))";
+				if (_WithWithoutProperties)
+					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetCatalogProductNameSubquery("p.id"));
 				else
-				{
-					withWithoutPropertiesText = @" if(C0.SynonymCode is not null, S.Synonym, concat(cn.Name, ' ', cf.Form)) ";
-				}
+					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetProductNameSubquery("p.id"));
+
+				
 				var JunkWhere = _regionsWhere.Length == 0 ? " WHERE c00.Junk = 0 " : " AND c00.Junk = 0 ";
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
-select p.CatalogId, Prices.FirmCode, c00.Code, c0.CodeCr, if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
+select c00.ProductId, p.CatalogId, c00.CodeFirmCr, c0.Code, c0.CodeCr,
+{2} as ProductName,
+if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
 
 if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
 c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
 
-c00.CodeFirmCr, Prices.PriceCode, c00.ProductId, {2} as ProductName
+Prices.FirmCode, Prices.PriceCode
 from Usersettings.ActivePrices Prices
 	join farm.core0 c00 on c00.PriceCode = Prices.PriceCode
+		join farm.CoreCosts cc on cc.Core_Id = c00.Id and cc.PC_CostCode = Prices.CostCode
 	{1} farm.Core0 c0 on c0.productid = c00.productid and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) and C0.PriceCode = {0}
 	join catalogs.Products as p on p.id = c00.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
-	JOIN Catalogs.CatalogNames cn on cn.id = cg.nameid
-	JOIN Catalogs.CatalogForms cf on cf.id = cg.formid
-	join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
-	JOIN farm.CoreCosts cc on cc.Core_Id = c00.Id and cc.PC_CostCode = Prices.CostCode
+	left join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
 	left join farm.Synonym S on C0.SynonymCode = S.SynonymCode
 	left join farm.SynonymFirmCr Sf on C0.SynonymFirmCrCode = Sf.SynonymFirmCrCode
-	 
-	 left join catalogs.ProductProperties PP on PP.ProductId = c00.productid
-	 left join catalogs.PropertyValues PV on PV.Id = PP.PropertyValueId
-	 left join catalogs.Properties PR on PR.Id = PV.PropertyId
-	 {3} 
-	 {4}
-	 group by c00.id", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere);
+	{3}
+	{4}
+", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere);
 
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
@@ -186,7 +175,6 @@ from Usersettings.ActivePrices Prices
 					var offer = group.First();
 					var dataItem = FindItem(hash, offer, data);
 					dataItem.Drugstore.AddRange(group.Select(r => r.Field<UInt32>("FirmCode")).Where(u => !dataItem.Drugstore.Contains(u)));
-					//dataItem.DrugstoreCount++;
 					dataItem.Costs.Add(group.Min(r => r.Field<decimal>("Cost")));
 				}
 #if DEBUG
@@ -289,10 +277,22 @@ from Usersettings.ActivePrices Prices
 
 		private object GetKey(DataRow row)
 		{
-			if (!_ProducerAccount)
-				return row[_groupingFieldText];
+			//Дебильная группировка по кодам в прайсе
+			//задача состоит в том что если у поставщика в прайсе две позиции с одним и тем же ProductId но разным кодом они и здесь должны
+			if (row["Code"] is DBNull)
+			{
+				if (!_ProducerAccount)
+					return row[_groupingFieldText];
+				else
+					return new { CatalogId = row.Field<uint>(_groupingFieldText), CodeFirmCr = row.Field<uint?>("CodeFirmCr") };
+			}
 			else
-				return new { CatalogId = row.Field<uint>(_groupingFieldText), CodeFirmCr = row.Field<uint?>("CodeFirmCr") };
+			{
+				if (_showCodeCr)
+					return new { Code = row["Code"], CodeCr = row["CodeCr"] };
+				else
+					return row["Code"];
+			}
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
