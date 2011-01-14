@@ -141,7 +141,7 @@ namespace Inforoom.ReportSystem
 					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetCatalogProductNameSubquery("p.id"));
 				else
 					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetProductNameSubquery("p.id"));
-
+				var firmcr = _ProducerAccount ? "and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0)" : string.Empty;
 				
 				var JunkWhere = _regionsWhere.Length == 0 ? " WHERE c00.Junk = 0 " : " AND c00.Junk = 0 ";
 				e.DataAdapter.SelectCommand.CommandText =
@@ -158,7 +158,7 @@ Prices.FirmCode, Prices.PriceCode
 from Usersettings.ActivePrices Prices
 	join farm.core0 c00 on c00.PriceCode = Prices.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c00.Id and cc.PC_CostCode = Prices.CostCode
-	{1} farm.Core0 c0 on c0.productid = c00.productid and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) and C0.PriceCode = {0}
+	{1} farm.Core0 c0 on c0.productid = c00.productid {5} and C0.PriceCode = {0}
 	join catalogs.Products as p on p.id = c00.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
 	left join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
@@ -166,7 +166,7 @@ from Usersettings.ActivePrices Prices
 	left join farm.SynonymFirmCr Sf on C0.SynonymFirmCrCode = Sf.SynonymFirmCrCode
 	{3}
 	{4}
-", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere);
+", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere, firmcr);
 
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
