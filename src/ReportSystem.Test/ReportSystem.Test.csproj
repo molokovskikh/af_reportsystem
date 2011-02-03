@@ -307,6 +307,9 @@
     <Content Include="TestData\SuppliersRating.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestData\SuppliersRatingNewWithClientCodeNonEqual.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">

@@ -221,7 +221,10 @@ namespace Inforoom.ReportSystem
 				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
 				{
 					selectCommand = String.Concat(selectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
-					filterDescriptions.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetValuesFromSQL(rf.GetNonEqualValuesSQL())));
+					if (rf.reportPropertyPreffix == "ClientCode") // Список клиентов особенный т.к. выбирается из двух таблиц
+						filterDescriptions.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetClientsNamesFromSQL(rf.nonEqualValues)));
+					else
+						filterDescriptions.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetValuesFromSQL(rf.GetNonEqualValuesSQL())));
 				}
 			}
 
