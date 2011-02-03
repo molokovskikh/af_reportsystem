@@ -22,6 +22,7 @@ namespace ReportSystem.Test
 		SuppliersRating,
 		SuppliersRatingNew,
 		SuppliersRatingNewDifficult,
+		SuppliersRatingNewWithClientCodeNonEqual,
 		SpecialProducer,
 		SpecialCountProducer,
 		SpecialCount,
