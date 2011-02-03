@@ -14,9 +14,9 @@ namespace ReportSystem.Test
 		[Test]
 		public void PricesOfCompetitorsReport()
 		{
-			var type = ReportsTypes.Rating;
+			var type = ReportsTypes.PricesOfCompetitors;
 			var props = TestHelper.LoadProperties(type);
-			var report = new RatingReport(0, "Rating", Conn, false, ReportFormats.Excel, props);
+			var report = new RatingReport(0, "PricesOfCompetitors", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 	}

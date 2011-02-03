@@ -1,0 +1,108 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>2653</ID>
+    <ReportCode>421</ReportCode>
+    <PropertyID>31</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>31</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>ReportType</PropertyName>
+    <DisplayName>Вариант отчета</DisplayName>
+    <PropertyType>ENUM</PropertyType>
+    <Optional>0</Optional>
+    <PropertyEnumID>1</PropertyEnumID>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>2654</ID>
+    <ReportCode>421</ReportCode>
+    <PropertyID>32</PropertyID>
+    <PropertyValue>2350</PropertyValue>
+    <ID1>32</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>ClientCode</PropertyName>
+    <DisplayName>Клиент</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCodeWithNewUsers</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>2655</ID>
+    <ReportCode>421</ReportCode>
+    <PropertyID>68</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>68</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>CalculateByCatalog</PropertyName>
+    <DisplayName>Продукты без учета свойств (все цвета\вкусы объединены)</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>2656</ID>
+    <ReportCode>421</ReportCode>
+    <PropertyID>76</PropertyID>
+    <PropertyValue>98</PropertyValue>
+    <ID1>76</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>PriceCode</PropertyName>
+    <DisplayName>Прайс-лист</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetPriceCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>2657</ID>
+    <ReportCode>421</ReportCode>
+    <PropertyID>120</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>120</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>ReportIsFull</PropertyName>
+    <DisplayName>По всему ассортименту</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>8757</ID>
+    <ReportCode>421</ReportCode>
+    <PropertyID>189</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>189</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>FirmCodeEqual</PropertyName>
+    <DisplayName>Список поставщиков</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure>GetAllFirmCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportPropertyValues>
+    <ID>7616</ID>
+    <ReportPropertyID>8757</ReportPropertyID>
+    <Value>220</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7617</ID>
+    <ReportPropertyID>8757</ReportPropertyID>
+    <Value>4138</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>7618</ID>
+    <ReportPropertyID>8757</ReportPropertyID>
+    <Value>1802</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>8425</ID>
+    <ReportPropertyID>8757</ReportPropertyID>
+    <Value>5</Value>
+  </ReportPropertyValues>
+</NewDataSet>
