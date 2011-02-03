@@ -58,7 +58,21 @@ namespace Inforoom.ReportSystem
 			{
 				XmlConfigurator.Configure();
 				//Попытка получить код общего отчета в параметрах
-				int GeneralReportID = CommandLineUtils.GetCode(@"/gr:");
+				var GeneralReportID = -1;
+				var Interval = false;
+				var dtFrom = new DateTime();
+				var dtTo = new DateTime();
+				try
+				{
+					GeneralReportID = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
+					Interval = Convert.ToBoolean(CommandLineUtils.GetCode(@"/inter:"));
+					dtFrom = Convert.ToDateTime(CommandLineUtils.GetCode(@"/dtFrom:"));
+					dtTo = Convert.ToDateTime(CommandLineUtils.GetCode(@"/dtTo:"));
+				}
+				catch (Exception)
+				{
+					throw;
+				}
 
 				if (GeneralReportID != -1)
 				{
@@ -108,7 +122,7 @@ and cr.generalreportcode = " + GeneralReportID;
 										drReport[GeneralReportColumns.ReportArchName].ToString(),
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
-										propertiesLoader);
+										propertiesLoader, Interval, dtFrom, dtTo);
 									gr.ProcessReports();
 								}
 								catch (Exception ex)

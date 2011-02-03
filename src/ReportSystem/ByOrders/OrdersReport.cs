@@ -77,13 +77,14 @@ namespace Inforoom.ReportSystem
 			filterDescriptions = new List<string>();
 
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if (_parentIsTemporary)
+			if (_Interval)
 			{
-				dtFrom = ((DateTime)getReportParam("StartDate")).Date;
-				dtTo = (DateTime)getReportParam("EndDate");
+				dtFrom = _dtFrom; //((DateTime)getReportParam("StartDate")).Date;
+				dtTo = _dtTo; //(DateTime)getReportParam("EndDate");
 				dtTo = dtTo.Date.AddDays(1);
 			}
-			else if (ByPreviousMonth)
+			else 
+			if (ByPreviousMonth)
 			{
 				dtTo = DateTime.Now;
 				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца

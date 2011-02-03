@@ -74,7 +74,7 @@ public partial class Reports_Reports : System.Web.UI.Page
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataValueField = "Id";
-		Recipients.SelectedValue = report.Client.Id.ToString();
+//!!!		//Recipients.SelectedValue = report.Client.Id.ToString();
 		Recipients.DataBind();
 
         MyCmd.Connection = MyCn;
@@ -403,8 +403,8 @@ SET
 			report.ReportArchName = tbReportArchName.Text;
 			report.Format = ReportFormatDD.Text;
 			uint newRecipientId = Convert.ToUInt32(Recipients.SelectedValue);
-			if (newRecipientId != report.Client.Id)
-				report.FirmCode = newRecipientId;
+//!!!			/*if (newRecipientId != report.Client.Id)
+				/*report.FirmCode = newRecipientId;*/
 
 			report.Save();
 		}

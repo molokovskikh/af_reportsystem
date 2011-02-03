@@ -5,6 +5,7 @@ using System.Web;
 using Microsoft.Win32.TaskScheduler;
 using System.Configuration;
 using ReportTuner.Models;
+using Action = Microsoft.Win32.TaskScheduler.Action;
 
 namespace ReportTuner.Helpers
 {
@@ -14,8 +15,8 @@ namespace ReportTuner.Helpers
 		readonly static string ScheduleDomainName = ConfigurationManager.AppSettings["ScheduleDomainName"];
 		readonly static string ScheduleUserName = ConfigurationManager.AppSettings["ScheduleUserName"];
 		readonly static string SchedulePassword = ConfigurationManager.AppSettings["SchedulePassword"];
-		readonly static string ScheduleWorkDir = ConfigurationManager.AppSettings["ScheduleWorkDir"];
-		readonly static string ScheduleAppPath = ConfigurationManager.AppSettings["ScheduleAppPath"];
+		public readonly static string ScheduleWorkDir = ConfigurationManager.AppSettings["ScheduleWorkDir"];
+		public readonly static string ScheduleAppPath = ConfigurationManager.AppSettings["ScheduleAppPath"];
 		readonly static string ReportsFolderName = ConfigurationManager.AppSettings["ReportsFolderName"];
 		
 

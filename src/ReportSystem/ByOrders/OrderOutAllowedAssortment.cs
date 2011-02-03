@@ -10,7 +10,7 @@ using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.ByOrders
 {
-	public class OrderOutAllowedAssortment : SupplierMarketShareByUser
+	public class OrderOutAllowedAssortment : OrdersReport
 	{
 		private uint _ClientId;
 		private Period _period;
@@ -27,8 +27,15 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void ReadReportParams()
 		{
+			//base.ReadReportParams();
+			if (_Interval)
+			{
+				dtFrom = _dtFrom;
+				dtTo = _dtTo;
+				dtTo = dtTo.Date.AddDays(1);
+			}
 			_ClientId = Convert.ToUInt32(getReportParam("ClientCode"));
-			_period = GetPeriod();
+			_period = new Period(dtFrom,dtTo);
 			//_regions = (List<ulong>)getReportParam("Regions");
 		}
 		protected override IWriter GetWriter(ReportFormats format)
@@ -37,6 +44,12 @@ namespace Inforoom.ReportSystem.ByOrders
 				return new SupplierExcelWriter();
 			return null;
 		}
+
+		protected override BaseReportSettings GetSettings()
+		{
+			return new BaseReportSettings(_reportCode, _reportCaption);
+		}
+
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"

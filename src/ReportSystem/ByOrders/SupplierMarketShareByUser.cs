@@ -22,7 +22,7 @@ namespace Inforoom.ReportSystem.ByOrders
 		}
 	}
 
-	public class SupplierMarketShareByUser : BaseReport
+	public class SupplierMarketShareByUser : OrdersReport
 	{
 		private uint _supplierId;
 		private Period _period;
@@ -39,12 +39,19 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void ReadReportParams()
 		{
+			//base.ReadReportParams();
+			if (_Interval)
+			{
+				dtFrom = _dtFrom;
+				dtTo = _dtTo; 
+				dtTo = dtTo.Date.AddDays(1);
+			}
 			_supplierId = Convert.ToUInt32(getReportParam("SupplierId"));
-			_period = GetPeriod();
+			_period = new Period(dtFrom, dtTo);
 			_regions = (List<ulong>) getReportParam("Regions");
 		}
 
-		public Period GetPeriod()
+		/*public Period GetPeriod()
 		{
 			var byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
 			if (byPreviousMonth)
@@ -58,17 +65,11 @@ namespace Inforoom.ReportSystem.ByOrders
 			{
 				var _reportInterval = (int)getReportParam("ReportInterval");
 				var dtTo = DateTime.Now;
-				//От текущей даты вычитаем интервал - дата начала отчета
 				var dtFrom = dtTo.AddDays(-_reportInterval).Date;
-				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
 				dtTo = dtTo.Date;
 				return new Period(dtFrom, dtTo);
 			}
-/*			return new Period {
-				Begin = Convert.ToDateTime(getReportParam("Begin")),
-				End = Convert.ToDateTime(getReportParam("End"))
-			};*/
-		}
+		}*/
 
 		protected override IWriter GetWriter(ReportFormats format)
 		{

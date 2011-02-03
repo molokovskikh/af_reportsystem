@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using NUnit.Framework;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;
+using ReportTuner.Helpers;
 
 namespace ReportTuner.Test
 {
@@ -37,6 +39,26 @@ namespace ReportTuner.Test
 				{
 					Console.WriteLine("task name : {0}", task.Name);
 				}
+			}
+		}
+
+		[Test]
+		public void RunTask()
+		{
+			var taskService = ScheduleHelper.GetService();
+			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
+			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 1, "Это тестовый отчет Морозова (Рейтинг)");
+			currentTask.Run();
+			Thread.Sleep(500);
+			if (currentTask != null)
+			{
+				currentTask.Dispose();
+				currentTask = null;
+			}
+			if (taskService != null)
+			{
+				taskService.Dispose();
+				taskService = null;
 			}
 		}
 

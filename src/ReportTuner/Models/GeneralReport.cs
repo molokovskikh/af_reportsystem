@@ -18,7 +18,7 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual uint FirmCode { get; set; }
 
-		public IClient Client
+		/*public IClient Client
 		{
 			get
 			{
@@ -29,7 +29,7 @@ namespace ReportTuner.Models
 				var oldClient = ReportTuner.Models.Client.TryFind(FirmCode);
 				return oldClient;
 			}
-		}
+		}*/
 		[Property]
 		public virtual bool Allow { get; set; }
 

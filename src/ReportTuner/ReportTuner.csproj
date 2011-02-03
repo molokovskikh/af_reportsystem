@@ -177,6 +177,7 @@
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\ExceptionHandling.cs" />
     <Compile Include="Models\GeneralReport.cs" />
+    <Compile Include="Models\Mailing_Addresses.cs" />
     <Compile Include="Models\Payer.cs" />
     <Compile Include="Models\Region.cs" />
     <Compile Include="Models\Report.cs" />
@@ -373,6 +374,10 @@
     <ProjectReference Include="..\Common.Web.Ui\Common.Web.Ui\Common.Web.Ui.csproj">
       <Project>{95E2C313-46FA-4B4B-9EFF-3228662908F4}</Project>
       <Name>Common.Web.Ui</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExecuteTemplate\ExecuteTemplate\ExecuteTemplate.csproj">
+      <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
+      <Name>ExecuteTemplate</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

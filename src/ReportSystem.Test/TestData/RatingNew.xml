@@ -1,8 +1,8 @@
 <?xml version="1.0" standalone="yes"?>
 <NewDataSet>
   <ReportProperties>
-    <ID>4307</ID>
-    <ReportCode>673</ReportCode>
+    <ID>11469</ID>
+    <ReportCode>1391</ReportCode>
     <PropertyID>35</PropertyID>
     <PropertyValue>0</PropertyValue>
     <ID1>35</ID1>
@@ -16,10 +16,10 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>4308</ID>
-    <ReportCode>673</ReportCode>
+    <ID>11471</ID>
+    <ReportCode>1391</ReportCode>
     <PropertyID>69</PropertyID>
-    <PropertyValue>3</PropertyValue>
+    <PropertyValue>1</PropertyValue>
     <ID1>69</ID1>
     <ReportTypeCode>6</ReportTypeCode>
     <PropertyName>ReportInterval</PropertyName>
@@ -30,10 +30,10 @@
     <DefaultValue>1</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>4309</ID>
-    <ReportCode>673</ReportCode>
+    <ID>11473</ID>
+    <ReportCode>1391</ReportCode>
     <PropertyID>74</PropertyID>
-    <PropertyValue>0</PropertyValue>
+    <PropertyValue>1</PropertyValue>
     <ID1>74</ID1>
     <ReportTypeCode>6</ReportTypeCode>
     <PropertyName>ByPreviousMonth</PropertyName>
@@ -44,10 +44,10 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>4310</ID>
-    <ReportCode>673</ReportCode>
+    <ID>11475</ID>
+    <ReportCode>1391</ReportCode>
     <PropertyID>36</PropertyID>
-    <PropertyValue>1</PropertyValue>
+    <PropertyValue>0</PropertyValue>
     <ID1>36</ID1>
     <ReportTypeCode>6</ReportTypeCode>
     <PropertyName>FullNamePosition</PropertyName>
@@ -58,66 +58,269 @@
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>4311</ID>
-    <ReportCode>673</ReportCode>
-    <PropertyID>60</PropertyID>
-    <PropertyValue>2</PropertyValue>
-    <ID1>60</ID1>
+    <ID>11477</ID>
+    <ReportCode>1391</ReportCode>
+    <PropertyID>52</PropertyID>
+    <PropertyValue>4</PropertyValue>
+    <ID1>52</ID1>
     <ReportTypeCode>6</ReportTypeCode>
-    <PropertyName>ClientCodePosition</PropertyName>
-    <DisplayName>Позиция "Клиента" в отчете</DisplayName>
+    <PropertyName>FirmCodePosition</PropertyName>
+    <DisplayName>Позиция "Поставщика" в отчете</DisplayName>
     <PropertyType>INT</PropertyType>
     <Optional>1</Optional>
     <SelectStoredProcedure />
-    <DefaultValue>6</DefaultValue>
+    <DefaultValue>4</DefaultValue>
   </ReportProperties>
   <ReportProperties>
-    <ID>4312</ID>
-    <ReportCode>673</ReportCode>
-    <PropertyID>62</PropertyID>
+    <ID>11479</ID>
+    <ReportCode>1391</ReportCode>
+    <PropertyID>50</PropertyID>
     <PropertyValue>1</PropertyValue>
-    <ID1>62</ID1>
+    <ID1>50</ID1>
     <ReportTypeCode>6</ReportTypeCode>
-    <PropertyName>ClientCodeEqual</PropertyName>
-    <DisplayName>Список значений "Клиент"</DisplayName>
+    <PropertyName>RegionEqual</PropertyName>
+    <DisplayName>Список значений "Региона"</DisplayName>
     <PropertyType>LIST</PropertyType>
     <Optional>1</Optional>
-    <SelectStoredProcedure>GetAllClientCode</SelectStoredProcedure>
+    <SelectStoredProcedure>GetRegion</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>11481</ID>
+    <ReportCode>1391</ReportCode>
+    <PropertyID>38</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>38</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>FullNameEqual</PropertyName>
+    <DisplayName>Список значений "Полного наименования"</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure>GetFullCode</SelectStoredProcedure>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>11483</ID>
+    <ReportCode>1391</ReportCode>
+    <PropertyID>54</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>54</ID1>
+    <ReportTypeCode>6</ReportTypeCode>
+    <PropertyName>FirmCodeEqual</PropertyName>
+    <DisplayName>Список значений "Поставщик"</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure>GetFirmCode</SelectStoredProcedure>
     <DefaultValue>1</DefaultValue>
   </ReportProperties>
   <ReportPropertyValues>
-    <ID>6989</ID>
-    <ReportPropertyID>4312</ReportPropertyID>
-    <Value>7160</Value>
+    <ID>11031</ID>
+    <ReportPropertyID>11479</ReportPropertyID>
+    <Value>1</Value>
   </ReportPropertyValues>
   <ReportPropertyValues>
-    <ID>6990</ID>
-    <ReportPropertyID>4312</ReportPropertyID>
-    <Value>7204</Value>
+    <ID>11033</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>42480</Value>
   </ReportPropertyValues>
   <ReportPropertyValues>
-    <ID>6991</ID>
-    <ReportPropertyID>4312</ReportPropertyID>
-    <Value>10000</Value>
+    <ID>11035</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>42481</Value>
   </ReportPropertyValues>
   <ReportPropertyValues>
-    <ID>6992</ID>
-    <ReportPropertyID>4312</ReportPropertyID>
-    <Value>10001</Value>
+    <ID>11037</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>94395</Value>
   </ReportPropertyValues>
   <ReportPropertyValues>
-    <ID>6993</ID>
-    <ReportPropertyID>4312</ReportPropertyID>
-    <Value>10002</Value>
+    <ID>11039</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>94351</Value>
   </ReportPropertyValues>
   <ReportPropertyValues>
-    <ID>6994</ID>
-    <ReportPropertyID>4312</ReportPropertyID>
-    <Value>10003</Value>
+    <ID>11041</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>42511</Value>
   </ReportPropertyValues>
   <ReportPropertyValues>
-    <ID>6995</ID>
-    <ReportPropertyID>4312</ReportPropertyID>
-    <Value>10004</Value>
+    <ID>11043</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>54327</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11045</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>53646</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11047</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>55402</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11049</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>52363</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11051</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>100744</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11053</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>81418</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11055</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>107821</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11057</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>112697</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11059</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>78507</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11061</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>85989</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11063</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>92965</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11065</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>20783</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11067</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>76170</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11069</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>66182</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11071</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>41221</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11073</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>9300</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11075</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>46555</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11077</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>54272</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11079</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>54273</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11081</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>40845</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11083</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>39536</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11085</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>37220</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11087</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>37345</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11089</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>74327</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11091</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>36682</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11093</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>43038</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11095</ID>
+    <ReportPropertyID>11481</ReportPropertyID>
+    <Value>77431</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11097</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>63</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11099</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>84</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11101</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>3798</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11103</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>3996</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11105</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>2920</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11107</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>8003</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11109</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>74</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11111</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>7524</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>11113</ID>
+    <ReportPropertyID>11483</ReportPropertyID>
+    <Value>182</Value>
   </ReportPropertyValues>
 </NewDataSet>

@@ -36,20 +36,20 @@ namespace Inforoom.Common
 		/// </summary>
 		/// <param name="Prefix">значение префикса</param>
 		/// <returns></returns>
-		public static int GetCode(string Prefix)
+		public static string GetCode(string Prefix)
 		{
-			CommandLineUtils c = new CommandLineUtils(Prefix);
-			string Val = Array.Find<string>(Environment.GetCommandLineArgs(), c.ValueStartsWith);
+			var c = new CommandLineUtils(Prefix);
+			var Val = Array.Find<string>(Environment.GetCommandLineArgs(), c.ValueStartsWith);
 			if (!String.IsNullOrEmpty(Val))
 				try
 				{
 					Val = Val.Substring(Prefix.Length);
-					return Convert.ToInt32(Val);
+					return Val;
 				}
 				catch
 				{
 				}
-			return -1;
+			return (-1).ToString();
 		}
 
 	}

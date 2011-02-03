@@ -65,6 +65,10 @@ namespace Inforoom.ReportSystem
 		//Формат файла отчета
 		protected ReportFormats Format;
 
+		public bool _Interval;
+		public DateTime _dtFrom;
+		public DateTime _dtTo;
+
 		protected MySqlConnection _conn;
 
 		protected Dictionary<string, object> _reportParams;
@@ -178,7 +182,7 @@ namespace Inforoom.ReportSystem
 				}
 			}
 
-			ReadReportParams();
+			//ReadReportParams();
 		}
 
 		public abstract void GenerateReport(ExecuteArgs e);

@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 using LumiSoft.Net.SMTP.Client;
 using MySql.Data.MySqlClient;
@@ -34,6 +35,8 @@ namespace Inforoom.ReportSystem
 	{
 		public ulong _generalReportID;
 		public int _firmCode;
+
+
 
 		private uint? _contactGroupId;
 		private string _eMailSubject;
@@ -80,7 +83,7 @@ namespace Inforoom.ReportSystem
 		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
 			string ReportArchName, bool Temporary, ReportFormats format,
-			IReportPropertiesLoader propertiesLoader)
+			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo)
 		{
 			_reports = new List<BaseReport>();
 			_generalReportID = GeneralReportID;
@@ -98,9 +101,10 @@ namespace Inforoom.ReportSystem
 
 			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn);
 
-			_dtContacts = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), delegate(ExecuteArgs args)
-			{
-				args.DataAdapter.SelectCommand.CommandText = @"
+			if (!Interval)
+				_dtContacts = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), delegate(ExecuteArgs args)
+				{
+					args.DataAdapter.SelectCommand.CommandText = @"
 select lower(c.contactText)
 from
   contacts.contact_groups cg
@@ -119,15 +123,27 @@ where
     cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType";
-				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupId", _contactGroupId);
-				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupType", 6);
-				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactType", 0);
-				DataTable res = new DataTable();
+					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupId", _contactGroupId);
+					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupType", 6);
+					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactType", 0);
+					DataTable res = new DataTable();
+					args.DataAdapter.Fill(res);
+					return res;
+				},
+					null, _conn);
+			else
+			{
+				_dtContacts = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), delegate(ExecuteArgs args)
+				{
+				args.DataAdapter.SelectCommand.CommandText = @"
+select Mail FROM reports.Mailing_Addresses M
+where GeneralReport = ?GeneralReport;";
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReport", _generalReportID);
+				var res = new DataTable();
 				args.DataAdapter.Fill(res);
 				return res;
-			}, 
-				null, _conn);
-
+				}, null, _conn);
+			}
 			if ((_dtReports != null) && (_dtReports.Rows.Count > 0))
 			{
 				CheckReports(); // Проверяем отчеты, если что-то не нравится выдаем исключение
@@ -142,6 +158,9 @@ and c.Type = ?ContactType";
 								drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, 
 								Temporary, Format,
 								propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])});
+						bs._Interval = Interval;
+						bs._dtFrom = dtFrom;
+						bs._dtTo = dtTo;
 						_reports.Add(bs);
 
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
@@ -157,6 +176,8 @@ and c.Type = ?ContactType";
 						}
 					}
 				}
+				//var reportCode = _dtReports.AsEnumerable().Select(r => r[BaseReportColumns.colReportCode]);
+
 			}
 			else
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
@@ -177,6 +198,7 @@ and c.Type = ?ContactType";
 
 			foreach (BaseReport bs in _reports)
 			{
+				bs.ReadReportParams();
 				bs.ProcessReport();
 			}
 
@@ -188,13 +210,23 @@ and c.Type = ?ContactType";
 			string ResFileName = ArchFile();
 
 
-#if (TESTING)
+#if (!TESTING)
 			MailWithAttach(ResFileName, Settings.Default.ErrorReportMail);
 #else
 			if ((_dtContacts != null) && (_dtContacts.Rows.Count > 0))
 				foreach (DataRow drContact in _dtContacts.Rows)
 					MailWithAttach(ResFileName, drContact[0].ToString());
+			
 #endif
+			//Написать удаление записей из таблицы !!
+			MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
+			                                                	{
+																	//args.DataAdapter.DeleteCommand = new MySqlCommand();
+			                                                		args.DataAdapter.SelectCommand.CommandText =
+			                                                			"delete FROM reports.Mailing_Addresses";
+																	args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			                                                		return new DataTable();
+																}, null, _conn);
 
 			if (Directory.Exists(_directoryName))
 				Directory.Delete(_directoryName, true);

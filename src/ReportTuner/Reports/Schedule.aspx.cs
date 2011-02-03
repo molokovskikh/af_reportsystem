@@ -1,13 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
 using System.Collections;
+using System.Diagnostics;
+using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
+using ExecuteTemplate;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.DirectoryServices;
@@ -70,10 +74,10 @@ public partial class Reports_schedule : System.Web.UI.Page
 
         if (!Page.IsPostBack)
         {
-            MyCn.Open();
+            //MyCn.Open();
 			try
 			{
-				MyCmd.Connection = MyCn;
+			/*	MyCmd.Connection = MyCn;
 				MyDA.SelectCommand = MyCmd;
 
 				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
@@ -88,10 +92,20 @@ FROM
   logs.reportslogs
 WHERE 
   reportslogs.GeneralReportCode = ?GeneralReportCode
-";
-				object lastLogTime = MyCmd.ExecuteScalar();
-				if (lastLogTime is DateTime)
+";*/
+				var lastLogTimes = ObjectFromQuery(new[] { new MySqlParameter("?GeneralReportCode", _generalReport.Id) },
+					@"
+SELECT
+  Max(LogTime) as MaxLogTime
+FROM
+  logs.reportslogs
+WHERE 
+  reportslogs.GeneralReportCode = ?GeneralReportCode
+");//MyCmd.ExecuteScalar();
+				if ((lastLogTimes.Count > 0) && (lastLogTimes[0].Length > 0))
+				if (lastLogTimes[0][0] is DateTime)
 				{
+					MyCn.Open();
 					MyCmd.CommandText = @"
 SELECT
   LogTime,
@@ -104,7 +118,7 @@ WHERE
 and reportslogs.LogTime > ?LastLogTime
 order by LogTime desc
 ";
-					MyCmd.Parameters.AddWithValue("?LastLogTime", ((DateTime)lastLogTime).AddDays(-1).Date);
+					MyCmd.Parameters.AddWithValue("?LastLogTime", ((DateTime)lastLogTimes[0][0]).AddDays(-1).Date);
 					DataTable _logs = new DataTable();
 					MyDA.Fill(_logs);
 					gvLogs.DataSource = _logs;
@@ -166,7 +180,39 @@ order by LogTime desc
         }
     }
 
-    private void SetWeekDays(DataRow dr, DaysOfTheWeek weekDay, DaysOfTheWeek days)
+	private List<object[]> ObjectFromQuery(MySqlParameter[] parameters, string commandText)
+	{
+		var result = new List<object[]>();
+		if (MyCn.State == ConnectionState.Closed)
+			MyCn.Open();
+		try
+		{
+			MyCmd.Connection = MyCn;
+			MyCmd.CommandText = commandText;
+			MyDA.SelectCommand = MyCmd;
+
+			MyCmd.Parameters.Clear();
+			MyCmd.Parameters.AddRange(parameters);
+			
+			var MyReader = MyCmd.ExecuteReader();
+			while (MyReader.Read())
+			{
+				var temp = new object[MyReader.FieldCount];
+				MyReader.GetValues(temp);
+				result.Add(temp);
+				//MyReader.Get
+				//result.Add(MyReader.GetValues(parameters.ToList().Select(p=>p.ParameterName).ToArray()));
+			}
+			//result = MyCmd.ExecuteReader();
+		}
+		finally
+		{
+			MyCn.Close();
+		}
+		return result;
+	}
+
+	private void SetWeekDays(DataRow dr, DaysOfTheWeek weekDay, DaysOfTheWeek days)
     {
         string column = "S" + weekDay.ToString();
         if ((weekDay & days) == weekDay)
@@ -379,6 +425,7 @@ order by LogTime desc
             dgvSchedule.DataBind();
         }
     }
+
     protected void dgvSchedule_RowDeleting(object sender, GridViewDeleteEventArgs e)
     {
         CopyChangesToTable();
@@ -386,6 +433,7 @@ order by LogTime desc
         dgvSchedule.DataSource = DS;
         dgvSchedule.DataBind();
     }
+
     protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
@@ -395,8 +443,37 @@ order by LogTime desc
         }
     }
 
-    protected void btnExecute_Click(object sender, EventArgs e)
+	protected void btnExecute_Click_Email(object sender, EventArgs e)
+	{
+		if (Page.IsValid)
+		{
+			/*var _dtFrom = dtFrom.SelectedDate.ToShortDateString();
+			var _dtTo = dtTo.SelectedDate.ToShortDateString();*/
+			var mails = mail_Text.Text.Split(',');
+			for (int i = 0; i < mails.Length; i++)
+			{
+				mails[i] = mails[i].Trim(new [] {' ','\n','\r'});
+				var recordMail = new MailingAddresses
+				                 	{
+				                 		Mail = mails[i],
+				                 		GeneralReport = _generalReport
+				                 	};
+				recordMail.SaveAndFlush();
+			}
+
+			GetSelfTaskAndUpdateAction();
+			CloseTaskService();
+		}
+		else
+		{
+			Label5.Text = "Required field is empty!";
+		}
+	}
+
+	protected void btnExecute_Click(object sender, EventArgs e)
     {
+    	//var _runed = true;
+		//Process.Start(@"C:\Temp\ReportApp\ReportSystem.exe","/gr:1");
 		bool _runed = false;
 
 		if (this.IsValid && (currentTask.State != TaskState.Running))
@@ -431,4 +508,88 @@ order by LogTime desc
 		}
 	}
 
+	private void GetSelfTaskAndUpdateAction()
+	{
+		/*var thisTask = reportsFolder.Tasks.First(
+			task => task.Name.Equals("GR777", StringComparison.OrdinalIgnoreCase));*/
+		var thisTask = ScheduleHelper.FindTask(taskService, reportsFolder, 777);
+		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath, "/gr:" + _generalReport.Id +
+			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1}", dtFrom.SelectedDate.ToShortDateString(),dtTo.SelectedDate.ToShortDateString()),
+			ScheduleHelper.ScheduleWorkDir);
+		var taskDefinition = thisTask.Definition;
+
+		taskDefinition.Actions.RemoveAt(0);
+		taskDefinition.Actions.Add(newAction);
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, 777, taskDefinition);
+
+		if (thisTask.State != TaskState.Running)
+		thisTask.Run();
+	}
+
+	protected void btnExecute_Click_self(object sender, EventArgs e)
+	{
+		var userName = Environment.UserName;
+		var emails = ObjectFromQuery(new[] {new MySqlParameter("?userName", userName)},
+		                             @"SELECT Email FROM accessright.regionaladmins r where r.UserName = ?userName");
+		WriteEmailList(emails);
+		GetSelfTaskAndUpdateAction();
+		CloseTaskService();
+	}
+
+	private void WriteEmailList(List<object[]> emails)
+	{
+		foreach (var email in emails)
+		{
+			var recordMail = new MailingAddresses
+			{
+				Mail = email[0].ToString(),
+				GeneralReport = _generalReport
+			};
+			recordMail.SaveAndFlush();
+		}
+	}
+
+	protected void btnExecute_Click_mailing(object sender, EventArgs e)
+	{
+		var sqlSelectReports = ObjectFromQuery(new[] {new MySqlParameter("?GeneralReportID", _generalReport.Id)},
+		                                       @"
+SELECT    ContactGroupId 
+FROM    reports.general_reports cr,
+        billing.payers p
+WHERE   
+     p.PayerId = cr.PayerId
+and cr.generalreportcode = ?GeneralReportID");
+		if (sqlSelectReports.Count > 0)
+		{
+			var emails = ObjectFromQuery(new[]
+			                             	{
+			                             		new MySqlParameter("?ContactGroupId", sqlSelectReports[0][0]),
+			                             		new MySqlParameter("?ContactGroupType", 6),
+			                             		new MySqlParameter("?ContactType", 0.ToString())
+			                             	},
+			                             @"
+select lower(c.contactText)
+from
+  contacts.contact_groups cg
+  join contacts.contacts c on cg.Id = c.ContactOwnerId
+where
+    cg.Id = ?ContactGroupId
+and cg.Type = ?ContactGroupType
+and c.Type = ?ContactType
+union
+select lower(c.contactText)
+from
+  contacts.contact_groups cg
+  join contacts.persons p on cg.id = p.ContactGroupId
+  join contacts.contacts c on p.Id = c.ContactOwnerId
+where
+    cg.Id = ?ContactGroupId
+and cg.Type = ?ContactGroupType
+and c.Type = ?ContactType");
+			WriteEmailList(emails);
+			GetSelfTaskAndUpdateAction();
+			CloseTaskService();
+		}
+	}
 }
+
