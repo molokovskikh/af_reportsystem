@@ -526,12 +526,12 @@ select last_insert_id() as GRLastInsertID;
 				foreach (ulong _updatedReportId in _updatedReports)
 				{
 					GeneralReport _report = GeneralReport.Find(_updatedReportId);
-					ScheduleHelper.GetTask(taskService, reportsFolder, _updatedReportId, _report.Comment);
-					ScheduleHelper.SetTaskEnableStatus(_updatedReportId, _report.Allow);
+					ScheduleHelper.GetTask(taskService, reportsFolder, _updatedReportId, _report.Comment, "GR");
+					ScheduleHelper.SetTaskEnableStatus(_updatedReportId, _report.Allow, "GR");
 				}
 
 				foreach (ulong _deletedReportId in _deletedReports)
-					ScheduleHelper.DeleteTask(reportsFolder, _deletedReportId);
+					ScheduleHelper.DeleteTask(reportsFolder, _deletedReportId, "GR");
 			}
 		}
 

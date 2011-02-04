@@ -16,13 +16,14 @@ namespace ReportSystemBoot
 			ILog logger = LogManager.GetLogger(typeof(Program));
 
 			System.Reflection.Assembly ass = System.Reflection.Assembly.GetExecutingAssembly();
-			string bootAppName = System.IO.Path.GetFileNameWithoutExtension(ass.Location).Replace("Boot", null);
+			var bootAppName = System.IO.Path.GetFileNameWithoutExtension(ass.Location).Replace("Boot", null);
+			var arg = args.Aggregate(string.Empty, (current, s) => current + " " + s);
 			if (args.Length >= 1)
-				bootAppName += "  " + args[0];
+				bootAppName += arg;
 			logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
 			try
 			{
-				ProcessStarter.StartProcessInteractivly(bootAppName, "runer", "zcxvcb", "analit");
+				ProcessStarter.StartProcessInteractivly(bootAppName, "Zolotarev", "GhtpbltyNAnalit", "analit");
 				logger.Info("Отчет отработал успешно");
 			}
 			catch (Exception exception)

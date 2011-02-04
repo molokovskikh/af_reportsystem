@@ -47,7 +47,7 @@ namespace ReportTuner.Test
 		{
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 1, "Это тестовый отчет Морозова (Рейтинг)");
+			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 1, "Это тестовый отчет Морозова (Рейтинг)", "GR");
 			currentTask.Run();
 			Thread.Sleep(500);
 			if (currentTask != null)

@@ -38,11 +38,11 @@ namespace ReportTuner.Helpers
 			}
 		}
 
-		public static void DeleteTask(TaskFolder reportsFolder, ulong generalReportId)
+		public static void DeleteTask(TaskFolder reportsFolder, ulong generalReportId, string prefix)
 		{
 			try
 			{
-				reportsFolder.DeleteTask("GR" + generalReportId);
+				reportsFolder.DeleteTask(prefix + generalReportId);
 			}
 			catch (System.IO.FileNotFoundException)
 			{
@@ -50,7 +50,7 @@ namespace ReportTuner.Helpers
 			}
 		}
 
-		public static Task CreateTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string comment)
+		public static Task CreateTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string comment, string prefix)
 		{
 			TaskDefinition createTaskDefinition = taskService.NewTask();
 
@@ -65,7 +65,7 @@ namespace ReportTuner.Helpers
 			createTaskDefinition.Actions.Add(new ExecAction(ScheduleAppPath, "/gr:" + generalReportId, ScheduleWorkDir));
 
 			return reportsFolder.RegisterTaskDefinition(
-				"GR" + generalReportId,
+				prefix + generalReportId,
 				createTaskDefinition,
 				TaskCreation.Create,
 				ScheduleDomainName + "\\" + ScheduleUserName,
@@ -74,22 +74,28 @@ namespace ReportTuner.Helpers
 				null);
 		}
 
-		public static Task FindTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId)
+		public static Task FindTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string prefix)
 		{
 			return reportsFolder.Tasks.First(
-				task => task.Name.Equals("GR" + generalReportId, StringComparison.OrdinalIgnoreCase));
+				task => task.Name.Equals(prefix + generalReportId, StringComparison.OrdinalIgnoreCase));
 		}
 
-		public static Task UpdateTaskDefinition(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, TaskDefinition updateTaskDefinition)
+		public static Task UpdateTaskDefinition(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, TaskDefinition updateTaskDefinition, string prefix)
 		{
 			return reportsFolder.RegisterTaskDefinition(
-				"GR" + generalReportId,
+				prefix + generalReportId,
 				updateTaskDefinition,
 				TaskCreation.Update,
 				ScheduleDomainName + "\\" + ScheduleUserName,
 				SchedulePassword,
 				TaskLogonType.Password,
 				null);
+		}
+
+		public static IEnumerable<Task> GetAllTempTask(TaskFolder reportsFolder)
+		{
+			return reportsFolder.Tasks.Where(
+				task => task.Name.IndexOf("temp", StringComparison.OrdinalIgnoreCase) != -1);
 		}
 
 		/// <summary>
@@ -100,37 +106,37 @@ namespace ReportTuner.Helpers
 		/// <param name="generalReportId"></param>
 		/// <param name="comment"></param>
 		/// <returns></returns>
-		public static Task GetTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string comment)
+		public static Task GetTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string comment, string prefix)
 		{
 			try
 			{
-				Task updateTask = FindTask(taskService, reportsFolder, generalReportId);
+				Task updateTask = FindTask(taskService, reportsFolder, generalReportId,prefix);
 
 				//Нашли задачу, производим обновление
 				TaskDefinition updateTaskDefinition = updateTask.Definition;
 				updateTaskDefinition.RegistrationInfo.Description = comment;
 
-				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition);				
+				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition,prefix);				
 			}
 			catch(InvalidOperationException)
 			{
 				//Задачу не нашли, поэтому создаем ее
-				return CreateTask(taskService, reportsFolder, generalReportId, comment);
+				return CreateTask(taskService, reportsFolder, generalReportId, comment,prefix);
 			}
 		}
 
 		// Выставляем состояние задачи (Включено / Выключено)
-		public static void SetTaskEnableStatus(ulong reportId, bool isEnable)
+		public static void SetTaskEnableStatus(ulong reportId, bool isEnable, string prefix)
 		{
 			TaskService service = GetService();
 			TaskFolder folder = GetReportsFolder(service);
-			Task task = FindTask(service, folder, reportId);
+			Task task = FindTask(service, folder, reportId, prefix);
 			if (task == null)
 				return;
 
 			TaskDefinition definition = task.Definition;
 			definition.Settings.Enabled = isEnable;
-			UpdateTaskDefinition(service, folder, reportId, definition);
+			UpdateTaskDefinition(service, folder, reportId, definition, prefix);
 		}
 	}
 }

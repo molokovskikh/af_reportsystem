@@ -4,6 +4,7 @@ using System.Data;
 using System.Configuration;
 using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Security;
@@ -66,7 +67,7 @@ public partial class Reports_schedule : System.Web.UI.Page
 
 		taskService = ScheduleHelper.GetService();		
 		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment);
+		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
 
 		btnExecute.Enabled = currentTask.Enabled && (currentTask.State != TaskState.Running);
@@ -270,7 +271,7 @@ order by LogTime desc
 		btnExecute.Enabled = currentTaskDefinition.Settings.Enabled && (currentTask.State != TaskState.Running);
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
-		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, _generalReport.Id, currentTaskDefinition);
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, _generalReport.Id, currentTaskDefinition, "GR");
     }
 
     private void SaveTriggers()
@@ -461,7 +462,7 @@ order by LogTime desc
 				recordMail.SaveAndFlush();
 			}
 
-			GetSelfTaskAndUpdateAction();
+			RunSelfTaskAndUpdateAction();
 			CloseTaskService();
 		}
 		else
@@ -508,19 +509,24 @@ order by LogTime desc
 		}
 	}
 
-	private void GetSelfTaskAndUpdateAction()
+	private void RunSelfTaskAndUpdateAction()
 	{
 		/*var thisTask = reportsFolder.Tasks.First(
 			task => task.Name.Equals("GR777", StringComparison.OrdinalIgnoreCase));*/
-		var thisTask = ScheduleHelper.FindTask(taskService, reportsFolder, 777);
-		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath, "/gr:" + _generalReport.Id +
+		var thisDay = Convert.ToDateTime(DateTime.Now.ToShortDateString());
+		var timeDay = DateTime.Now.Subtract(thisDay);
+		var tempMin = timeDay.TotalSeconds;
+		//var thisTask = ScheduleHelper.FindTask(taskService, reportsFolder, 777);
+		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempMin), "tempTask", "temp");
+		var newAction = new ExecAction(Path.GetDirectoryName(ScheduleHelper.ScheduleAppPath) + @"\ReportSystemBoot.exe",
+			"/gr:" + _generalReport.Id +
 			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1}", dtFrom.SelectedDate.ToShortDateString(),dtTo.SelectedDate.ToShortDateString()),
 			ScheduleHelper.ScheduleWorkDir);
 		var taskDefinition = thisTask.Definition;
 
 		taskDefinition.Actions.RemoveAt(0);
 		taskDefinition.Actions.Add(newAction);
-		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, 777, taskDefinition);
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(tempMin), taskDefinition, "temp");
 
 		if (thisTask.State != TaskState.Running)
 		thisTask.Run();
@@ -532,7 +538,7 @@ order by LogTime desc
 		var emails = ObjectFromQuery(new[] {new MySqlParameter("?userName", userName)},
 		                             @"SELECT Email FROM accessright.regionaladmins r where r.UserName = ?userName");
 		WriteEmailList(emails);
-		GetSelfTaskAndUpdateAction();
+		RunSelfTaskAndUpdateAction();
 		CloseTaskService();
 	}
 
@@ -587,7 +593,7 @@ where
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType");
 			WriteEmailList(emails);
-			GetSelfTaskAndUpdateAction();
+			RunSelfTaskAndUpdateAction();
 			CloseTaskService();
 		}
 	}

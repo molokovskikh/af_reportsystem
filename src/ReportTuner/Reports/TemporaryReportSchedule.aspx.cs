@@ -54,7 +54,7 @@ namespace ReportTuner.Reports
 					_taskService, 
 					ScheduleHelper.GetReportsFolder(_taskService), 
 					_generalReport.Id,
-					"Временный отчет, созданный " + _generalReport.TemporaryCreationDate.Value.ToString());
+					"Временный отчет, созданный " + _generalReport.TemporaryCreationDate.Value.ToString(), "GR");
 
 				btnRun.Enabled = _currentTask.Enabled && (_currentTask.State != TaskState.Running);
 				btnRun.Text = (_currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
@@ -109,7 +109,7 @@ namespace ReportTuner.Reports
 				_currentTask = null;
 			}
 
-			ScheduleHelper.DeleteTask(ScheduleHelper.GetReportsFolder(_taskService), _generalReport.Id);
+			ScheduleHelper.DeleteTask(ScheduleHelper.GetReportsFolder(_taskService), _generalReport.Id, "GR");
 
 			//Закончили работу с задачами
 			if (_taskService != null)

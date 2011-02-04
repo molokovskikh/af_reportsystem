@@ -65,9 +65,12 @@ namespace Inforoom.ReportSystem
 				try
 				{
 					GeneralReportID = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
-					Interval = Convert.ToBoolean(CommandLineUtils.GetCode(@"/inter:"));
-					dtFrom = Convert.ToDateTime(CommandLineUtils.GetCode(@"/dtFrom:"));
-					dtTo = Convert.ToDateTime(CommandLineUtils.GetCode(@"/dtTo:"));
+					if (!string.IsNullOrEmpty(CommandLineUtils.GetCode(@"/inter:")))
+					{
+						Interval = Convert.ToBoolean(CommandLineUtils.GetCode(@"/inter:"));
+						dtFrom = Convert.ToDateTime(CommandLineUtils.GetCode(@"/dtFrom:"));
+						dtTo = Convert.ToDateTime(CommandLineUtils.GetCode(@"/dtTo:"));
+					}
 				}
 				catch (Exception)
 				{

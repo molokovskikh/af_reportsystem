@@ -75,17 +75,31 @@ namespace Inforoom.ReportTuner
 			GeneralReport[] _temporaryReportsForDelete = GeneralReport.FindAll(
 				Expression.Eq("Temporary", true),
 				Expression.Le("TemporaryCreationDate", DateTime.Now.AddDays(-1)));
-			if (_temporaryReportsForDelete.Length > 0)
-				using (new TransactionScope())
-				{
-					using (TaskService taskService = ScheduleHelper.GetService())
-					using (TaskFolder reportsFolder = ScheduleHelper.GetReportsFolder(taskService))
-						foreach (GeneralReport _report in _temporaryReportsForDelete)
+			using (TaskService taskService = ScheduleHelper.GetService())
+			using (TaskFolder reportsFolder = ScheduleHelper.GetReportsFolder(taskService))
+			{
+				if (_temporaryReportsForDelete.Length > 0)
+					using (new TransactionScope())
 					{
-						ScheduleHelper.DeleteTask(reportsFolder, _report.Id);
-						_report.Delete();
+
+						foreach (GeneralReport _report in _temporaryReportsForDelete)
+						{
+							ScheduleHelper.DeleteTask(reportsFolder, _report.Id, "GR");
+							_report.Delete();
+						}
+					}
+				foreach (var delTask in ScheduleHelper.GetAllTempTask(reportsFolder))
+				{
+					if (delTask.State != TaskState.Running)
+					try
+					{
+						reportsFolder.DeleteTask(delTask.Name);
+					}
+					catch (System.IO.FileNotFoundException)
+					{
 					}
 				}
+			}
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)

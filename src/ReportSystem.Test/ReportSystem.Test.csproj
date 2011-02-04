@@ -262,6 +262,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="TestData\PricesOfCompetitors.xml" />
     <Content Include="TestData\RatingWithPayersList.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
