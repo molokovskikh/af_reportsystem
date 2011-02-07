@@ -210,13 +210,12 @@ where GeneralReport = ?GeneralReport;";
 			string ResFileName = ArchFile();
 
 
-#if (!TESTING)
+#if (TESTING)
 			MailWithAttach(ResFileName, Settings.Default.ErrorReportMail);
 #else
 			if ((_dtContacts != null) && (_dtContacts.Rows.Count > 0))
 				foreach (DataRow drContact in _dtContacts.Rows)
 					MailWithAttach(ResFileName, drContact[0].ToString());
-			
 #endif
 			//Ќаписать удаление записей из таблицы !!
 			MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)

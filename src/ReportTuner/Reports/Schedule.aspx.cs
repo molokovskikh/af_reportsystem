@@ -110,6 +110,8 @@ FROM
 WHERE 
   reportslogs.GeneralReportCode = ?GeneralReportCode
 ";*/
+				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
+				lblReportComment.Text = _generalReport.Comment;
 				var lastLogTimes = ObjectFromQuery(new[] { new MySqlParameter("?GeneralReportCode", _generalReport.Id) },
 					@"
 SELECT
@@ -551,7 +553,7 @@ order by LogTime desc
 
 	protected void btnExecute_Click_self(object sender, EventArgs e)
 	{
-		var userName = Environment.UserName;
+		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 		var emails = ObjectFromQuery(new[] {new MySqlParameter("?userName", userName)},
 		                             @"SELECT Email FROM accessright.regionaladmins r where r.UserName = ?userName");
 		WriteEmailList(emails);

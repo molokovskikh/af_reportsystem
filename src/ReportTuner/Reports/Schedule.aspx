@@ -58,7 +58,8 @@ $().ready(function() {
         </td></tr>
     </table>
     </font>
-    <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" ValidationGroup="vgPassword" OnClick="btnExecute_Click" /><br />
+    <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" 
+            ValidationGroup="vgPassword" OnClick="btnExecute_Click" style="height: 26px" /><br />
         <br />
         <br />
         <br />
