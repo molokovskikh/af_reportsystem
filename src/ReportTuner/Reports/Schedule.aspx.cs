@@ -75,6 +75,7 @@ public partial class Reports_schedule : System.Web.UI.Page
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
 		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
+
 		if (tempTask.State == TaskState.Running)
 		{
 			ErrorMassage.Text = "Уже запущен разовый отчет, выполнение данного отчета отложено.";
