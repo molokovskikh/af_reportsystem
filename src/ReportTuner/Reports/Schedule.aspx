@@ -41,6 +41,7 @@ $().ready(function() {
 </script>
     <div align="center"><strong><font size ="2">        
 Задание для отчета "<asp:Label ID="lblReportComment" runat="server" Text="Label"/>" для плательщика "<asp:Label ID="lblClient" runat="server" Text="Label"/>"<br /><br />
+<asp:Label ID="ErrorMassage" runat="server" Text="Label"/>
 </font></strong></div>
     <div><font size ="2">
     <table width="100%">
@@ -57,14 +58,19 @@ $().ready(function() {
         </td></tr>
     </table>
     </font>
-    <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" ValidationGroup="vgPassword" OnClick="btnExecute_Click" /><br /><br />
+    <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" ValidationGroup="vgPassword" OnClick="btnExecute_Click" /><br />
+        <br />
+        <br />
+        <br />
+        <center><b><font size ="2"><label id="HeadLabel" >Выполнить отчет за указанный период и отослать по выбранным адресам</label></font></b></center>
+        <br />
     </div>
     <div>
-        <table>
-            <tr>
+        <table cellspacing=0px>
+            <tr >
                 <td>
                     <asp:Label ID="Label3" runat="server" Text="Начало периода" SkinID="scheduleLabelSkin"></asp:Label>
-                          <asp:Calendar id="dtFrom" runat="server" style="margin-right: 0px">
+                          <asp:Calendar id="dtFrom" runat="server" style="margin-right: 0px" >
                                 <TitleStyle BackColor="white" ForeColor="black">
                           </TitleStyle>
                          </asp:Calendar> 
@@ -79,17 +85,19 @@ $().ready(function() {
                 </td>
             </tr>
             <tr style="background-color: rgb(235, 235, 235);">
-                <td >
-                    <asp:Button ID="Button1" runat="server" Text="Выполнить и выслать в рассылку" 
-                        ValidationGroup="vgPassword" OnClick="btnExecute_Click_mailing" Width="232px" />
-                </td>
-                <td >
-                <center>
-                        <asp:Button ID="Button2" runat="server" Text="Выполнить для себя" ValidationGroup="vgPassword" OnClick="btnExecute_Click_self" />
-               </center>
-                </td>
-                <td style="width:300px;">
-                        <asp:Button ID="Button3" runat="server" ValidationGroup="mail_Text_Group" Text="Выполнить для указанных" OnClick="btnExecute_Click_Email" /><br />
+                <td valign="top" style="width:300px;">
+                        <br />
+                        <br />
+                    <asp:Button ID="btn_Mailing" runat="server" Text="Выполнить и выслать в рассылку" 
+                        ValidationGroup="vgPassword" OnClick="btnExecute_Click_mailing" Width="240px" />
+                        <br />
+                        <br />
+                        <asp:Button ID="btn_self" runat="server" Text="Выполнить для себя" ValidationGroup="vgPassword" Width="240px" OnClick="btnExecute_Click_self" />
+                        <br />
+                        <br />
+                        <asp:Button ID="btn_emails" runat="server" ValidationGroup="mail_Text_Group" 
+                            Text="Выполнить для указанных" OnClick="btnExecute_Click_Email" Width="240px" /><br />
+                        <br />
                         <asp:Label ID="Label5" runat="server" Width=74px Text="Адресаты: " 
                             SkinID="scheduleLabelSkin"></asp:Label>
             <br />
@@ -109,9 +117,14 @@ $().ready(function() {
                              border-color:black; border-width:1px; color: black;"
                          TextMode=MultiLine Columns="50" Rows="6" runat=server> </asp:TextBox>
                 </td>
+                <td></td>
             </tr>
         </table>
     </div>
+    <br />
+    <br />
+            <center><b><font size ="2"><label id="Label6" >Задать расписание для отчета</label></font></b></center>
+    <br />
     <div align="center">
         <asp:GridView ID="dgvSchedule" runat="server" AutoGenerateColumns="False" Caption="Расписание" OnRowCommand="dgvSchedule_RowCommand" OnRowDeleting="dgvSchedule_RowDeleting" OnRowDataBound="dgvSchedule_RowDataBound">
             <Columns>

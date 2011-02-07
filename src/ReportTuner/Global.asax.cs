@@ -88,7 +88,7 @@ namespace Inforoom.ReportTuner
 							_report.Delete();
 						}
 					}
-				foreach (var delTask in ScheduleHelper.GetAllTempTask(reportsFolder))
+				/*foreach (var delTask in ScheduleHelper.GetAllTempTask(reportsFolder))
 				{
 					if (delTask.State != TaskState.Running)
 					try
@@ -98,7 +98,7 @@ namespace Inforoom.ReportTuner
 					catch (System.IO.FileNotFoundException)
 					{
 					}
-				}
+				}*/
 			}
 		}
 

@@ -30,6 +30,15 @@ public partial class Reports_schedule {
     protected global::System.Web.UI.WebControls.Label lblClient;
     
     /// <summary>
+    /// ErrorMassage control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label ErrorMassage;
+    
+    /// <summary>
     /// Label2 control.
     /// </summary>
     /// <remarks>
@@ -120,31 +129,31 @@ public partial class Reports_schedule {
     protected global::System.Web.UI.WebControls.Calendar dtTo;
     
     /// <summary>
-    /// Button1 control.
+    /// btn_Mailing control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Button Button1;
+    protected global::System.Web.UI.WebControls.Button btn_Mailing;
     
     /// <summary>
-    /// Button2 control.
+    /// btn_self control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Button Button2;
+    protected global::System.Web.UI.WebControls.Button btn_self;
     
     /// <summary>
-    /// Button3 control.
+    /// btn_emails control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Button Button3;
+    protected global::System.Web.UI.WebControls.Button btn_emails;
     
     /// <summary>
     /// Label5 control.

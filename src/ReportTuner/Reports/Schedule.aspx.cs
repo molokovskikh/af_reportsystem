@@ -4,6 +4,7 @@ using System.Data;
 using System.Configuration;
 using System.Collections;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -73,7 +74,22 @@ public partial class Reports_schedule : System.Web.UI.Page
 		btnExecute.Enabled = currentTask.Enabled && (currentTask.State != TaskState.Running);
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
-        if (!Page.IsPostBack)
+		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
+		if (tempTask.State == TaskState.Running)
+		{
+			ErrorMassage.Text = "Уже запущен разовый отчет, выполнение данного отчета отложено.";
+			ErrorMassage.BackColor = Color.Red;
+			btn_emails.Enabled = false;
+			btn_Mailing.Enabled = false;
+			btn_self.Enabled = false;
+		}
+		else
+		{
+			ErrorMassage.Text = string.Empty;
+		}
+    	dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
+    	dtTo.SelectedDates.Add(DateTime.Now);
+    	if (!Page.IsPostBack)
         {
             //MyCn.Open();
 			try
@@ -513,20 +529,21 @@ order by LogTime desc
 	{
 		/*var thisTask = reportsFolder.Tasks.First(
 			task => task.Name.Equals("GR777", StringComparison.OrdinalIgnoreCase));*/
-		var thisDay = Convert.ToDateTime(DateTime.Now.ToShortDateString());
+		/*var thisDay = Convert.ToDateTime(DateTime.Now.ToShortDateString());
 		var timeDay = DateTime.Now.Subtract(thisDay);
-		var tempMin = timeDay.TotalSeconds;
+		var tempMin = timeDay.TotalSeconds;*/
+		const int tempNum = 0;
 		//var thisTask = ScheduleHelper.FindTask(taskService, reportsFolder, 777);
-		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempMin), "tempTask", "temp");
+		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempNum), "tempTask", "temp");
 		var newAction = new ExecAction(Path.GetDirectoryName(ScheduleHelper.ScheduleAppPath) + @"\ReportSystemBoot.exe",
 			"/gr:" + _generalReport.Id +
-			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1}", dtFrom.SelectedDate.ToShortDateString(),dtTo.SelectedDate.ToShortDateString()),
+			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1}", dtFrom.SelectedDate.ToShortDateString(), dtTo.SelectedDate.ToShortDateString()),
 			ScheduleHelper.ScheduleWorkDir);
 		var taskDefinition = thisTask.Definition;
 
 		taskDefinition.Actions.RemoveAt(0);
 		taskDefinition.Actions.Add(newAction);
-		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(tempMin), taskDefinition, "temp");
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(tempNum), taskDefinition, "temp");
 
 		if (thisTask.State != TaskState.Running)
 		thisTask.Run();
@@ -554,6 +571,7 @@ order by LogTime desc
 			recordMail.SaveAndFlush();
 		}
 	}
+
 
 	protected void btnExecute_Click_mailing(object sender, EventArgs e)
 	{
@@ -597,5 +615,6 @@ and c.Type = ?ContactType");
 			CloseTaskService();
 		}
 	}
+
 }
 
