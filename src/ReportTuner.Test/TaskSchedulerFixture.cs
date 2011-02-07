@@ -33,7 +33,7 @@ namespace ReportTuner.Test
 			//    }
 			//}
 
-			using (TaskService taskService = new TaskService("localhost", "zolotarev", "analit", ""))
+			using (TaskService taskService = new TaskService("localhost", "", "", ""))
 			{
 				foreach (Task task in taskService.RootFolder.Tasks)
 				{
