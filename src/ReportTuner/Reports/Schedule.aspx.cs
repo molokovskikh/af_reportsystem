@@ -615,6 +615,5 @@ and c.Type = ?ContactType");
 			CloseTaskService();
 		}
 	}
-
 }
 
