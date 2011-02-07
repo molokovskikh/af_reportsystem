@@ -52,5 +52,22 @@ namespace Inforoom.Common
 			return (-1).ToString();
 		}
 
+		public static string GetStr(string Prefix)
+		{
+			var c = new CommandLineUtils(Prefix);
+			var Val = Array.Find<string>(Environment.GetCommandLineArgs(), c.ValueStartsWith);
+			if (!String.IsNullOrEmpty(Val))
+				try
+				{
+					Val = Val.Substring(Prefix.Length);
+					return Val;
+				}
+				catch
+				{
+				}
+			return null;
+		}
+
+
 	}
 }
