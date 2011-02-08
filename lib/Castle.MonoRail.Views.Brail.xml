@@ -165,6 +165,13 @@
             <param name="name"></param>
             <returns></returns>
         </member>
+        <member name="M:Castle.MonoRail.Views.Brail.BrailBase.WrapPossilbeNullValue(System.Object)">
+            <summary>
+            Wraps the possilbe null value in an ignore value object
+            </summary>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
         <member name="M:Castle.MonoRail.Views.Brail.BrailBase.GetParameterInternal(System.String)">
             <summary>
             Gets the parameter - implements the logic for searching parameters.
@@ -315,6 +322,36 @@
             <param name="args">The method arguments.</param>
             <returns>value back to the template</returns>
         </member>
+        <member name="M:Castle.MonoRail.Views.Brail.BrailPreProcessor.EscapeNullPropagationsInOutputExpression(System.String)">
+            <summary>
+            Given a brail output expression: ${...}
+            replace any null propagations, while respecting quoted strings and escaped characters such as ("\"\"").
+            </summary>
+        </member>
+        <member name="M:Castle.MonoRail.Views.Brail.BrailPreProcessor.FindPositionAfterClosingQuote(System.String,System.Int32)">
+            <summary>
+            Find the position after the end of the closing quote token for the quoted 
+            substring that started at the specified position        
+            
+            for example, given the following string x:
+             "abc" blah 
+            01234567890
+            FindPositionAfterClosingQuote(x, 1) will return 6
+            
+            handles triple-double-quotes, double, and single quotes, and escaped quotes within the string
+            </summary>
+            <param name="code">code fragment</param>
+            <param name="openingQuotePosition">index of opening quote within the code fragment</param>
+            <returns>position after closing quote, or -1 if not found</returns>
+        </member>
+        <member name="M:Castle.MonoRail.Views.Brail.BrailPreProcessor.FindStartOfNextQuotedString(System.String,System.Int32)">
+            <summary>
+            Returns the character position of the next instance of any boo string-quoting tokens: ', ", """
+            Note that this returns the position of the beginning of the quote token, not the text inside the quote       
+            </summary>
+            <param name="code"></param>
+            <param name="position">position to start search</param>        
+        </member>
         <member name="M:Castle.MonoRail.Views.Brail.BrailPreProcessor.GetExpressionsPositions(System.String)">
             <summary>
             Will find all the (outer most ${} expressions in the code, and return their positions).
@@ -384,18 +421,25 @@
         </member>
         <member name="M:Castle.MonoRail.Views.Brail.IgnoreNull.ReplaceIgnoreNullsWithTargets(System.Collections.IDictionary)">
             <summary>
-            Returns a new Hashtable that has copied the entries from dict
-            and replaced values of IgnoreNull with the underlying target object.
+            Replace all the values in the Hashtable that are marked as 
+            replaced values of IgnoreNull with the underlying target object.
             </summary>
             <param name="dict"></param>
-            <returns>Hashtable</returns>
+            <returns>The original hashtable, with all the IgnoreNull values stripped to their targets</returns>
         </member>
         <member name="T:Castle.MonoRail.Views.Brail.ReplaceUknownWithParameters">
             <summary>
              Replace any uknown identifier with a call to GetParameter('unknown')
-             this mean that unknonw identifier in scripts will only fail in run time if they
+             this mean that unknonwn identifier in scripts will only fail in run time if they
              were not defined by the controller.
              </summary>
+        </member>
+        <member name="M:Castle.MonoRail.Views.Brail.ReplaceUknownWithParameters.OnMethodInvocationExpression(Boo.Lang.Compiler.Ast.MethodInvocationExpression)">
+            <summary>
+            This turn a call to TryGetParemeter('item') where item is a local variable
+            into a WrapIfNull(item) method call.
+            </summary>
+            <param name="node">The node.</param>
         </member>
     </members>
 </doc>

@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Configuration;
+using System.IO;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -11,6 +12,11 @@ using System.Text;
 using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using Castle.MonoRail.Framework;
+using Castle.MonoRail.Framework.Configuration;
+using Castle.MonoRail.Framework.Internal;
+using Castle.MonoRail.Framework.Views.Aspx;
+using Castle.MonoRail.Views.Brail;
 using ReportTuner.Models;
 using NHibernate.Criterion;
 using Microsoft.Win32.TaskScheduler;
@@ -169,6 +175,22 @@ namespace Inforoom.ReportTuner
 				c.Send(m);
 			}
 		}
+
+		/*public void Configure(IMonoRailConfiguration configuration)
+		{
+			configuration.ControllersConfig.AddAssembly("ReportTuner");
+			configuration.ControllersConfig.AddAssembly("Common.Web.Ui");
+			configuration.ViewComponentsConfig.Assemblies = new[] {
+				"ReportTuner",
+				"Common.Web.Ui"
+			};
+			configuration.ViewEngineConfig.ViewPathRoot = "Views";
+			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(BooViewEngine), false));
+			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(WebFormsViewEngine), false));
+			configuration.ViewEngineConfig.AssemblySources.Add(new AssemblySourceInfo("Common.Web.Ui", "Common.Web.Ui.Views"));
+			configuration.ViewEngineConfig.VirtualPathRoot = configuration.ViewEngineConfig.ViewPathRoot;
+			configuration.ViewEngineConfig.ViewPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configuration.ViewEngineConfig.ViewPathRoot);
+		}*/
 
 		void Session_End(object sender, EventArgs e)
 		{
