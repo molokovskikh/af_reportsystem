@@ -42,8 +42,8 @@ Count(distinct oh.ClientCode) as DistinctClientCode ");
 			selectCommand = String.Concat(
 				selectCommand, @"
 from 
-  orders.OrdersHead oh 
-  join orders.OrdersList ol on  ol.OrderID = oh.RowID
+  ordersold.OrdersHead oh 
+  join ordersold.OrdersList ol on  ol.OrderID = oh.RowID
   join catalogs.products p on p.Id = ol.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
@@ -58,9 +58,7 @@ from
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
   join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode)
 where 
-	  oh.deleted = 0
-  and oh.processed = 1
-  and IFNULL(cl.PayerId, cd.BillingCode) <> 921
+IFNULL(cl.PayerId, cd.BillingCode) <> 921
   and rcs.InvisibleOnFirm < 2");
 
 			selectCommand = ApplyFilters(selectCommand);

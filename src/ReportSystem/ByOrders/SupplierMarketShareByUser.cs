@@ -29,9 +29,9 @@ namespace Inforoom.ReportSystem.ByOrders
 		private List<ulong> _regions;
 		//private List<string > head;
 
-		private const string _mandatoryOrderFilter = "oh.Deleted = 0 and oh.Submited = 1";
+		//private const string _mandatoryOrderFilter = "oh.Deleted = 0 and oh.Submited = 1";
 		private const string _mandatoryClientFilter = "c.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
-		private const string _filters = _mandatoryOrderFilter + " and " + _mandatoryClientFilter;
+		private const string _filters = /*_mandatoryOrderFilter + " and " +*/ _mandatoryClientFilter;
 
 		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -90,8 +90,8 @@ select c.Name as ClientName,
 ifnull(u.Name, CAST(u.Id AS CHAR)) as UserName,
 sum(ol.Cost * ol.Quantity) as TotalSum,
 sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
-from Orders.OrdersHead oh 
-	join Orders.OrdersList ol on ol.OrderId = oh.RowId
+from Ordersold.OrdersHead oh 
+	join Ordersold.OrdersList ol on ol.OrderId = oh.RowId
 	join Future.Clients c on c.Id = oh.ClientCode
 		join Future.Users u on u.ClientId = c.Id and oh.UserId = u.Id
 	join Usersettings.RetClientsSet rcs on rcs.ClientCode = oh.ClientCode

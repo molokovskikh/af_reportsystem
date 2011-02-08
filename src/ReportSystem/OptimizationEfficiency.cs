@@ -41,8 +41,8 @@ select oh.writetime,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
     CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect,
 	CASE WHEN col.ResultCost < col.SelfCost THEN col.ResultCost*ol.Quantity ELSE null END IncreaseSales
-from orders.ordershead oh
-  join orders.orderslist ol on ol.orderid = oh.rowid
+from ordersold.ordershead oh
+  join ordersold.orderslist ol on ol.orderid = oh.rowid
   join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
   left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
   join logs.CostOptimizationLogs col on 
@@ -97,8 +97,8 @@ order by oh.writetime, ol.RowId;";
 
 			command.CommandText =
 @"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ
-from orders.ordershead oh
-  join orders.orderslist ol on ol.orderid = oh.rowid
+from ordersold.ordershead oh
+  join ordersold.orderslist ol on ol.orderid = oh.rowid
   join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId

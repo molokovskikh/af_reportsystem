@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="C:\cygwin\Progect\ReportSystem\build\test\reporttuner.test\bin\debug\reporttuner.test.dll" total="11" errors="4" failures="0" not-run="4" ignored="4" skipped="0" invalid="0" date="2011-02-08" time="09:32:28">
+  <environment nunit-version="2.5.0.9015" clr-version="2.0.50727.4952" os-version="Microsoft Windows NT 6.1.7600.0" platform="Win32NT" cwd="C:\cygwin\Progect\ReportSystem" machine-name="PRG5" user="zolotarev" user-domain="ANALIT" />
+  <culture-info current-culture="ru-RU" current-uiculture="ru-RU" />
+  <test-suite name="C:\cygwin\Progect\ReportSystem\build\test\reporttuner.test\bin\debug\reporttuner.test.dll" executed="True" success="False" time="0.984" asserts="0">
+    <results>
+      <test-suite name="ReportTuner" executed="True" success="False" time="0.973" asserts="0">
+        <results>
+          <test-suite name="Test" executed="True" success="False" time="0.971" asserts="0">
+            <results>
+              <test-suite name="ReportsBatch" description="Класс для выполнения действий с отчетами в командном режиме" executed="True" success="False" time="0.058" asserts="0">
+                <results>
+                  <test-case name="ReportTuner.Test.ReportsBatch.CloneOffersReports" description="создает отчеты по подобию отчета 'Обезличенные предложения для аптеки с привязкой по прайс-листу' для родительского отчета 240 с копированием всех свойств, меняя название заголовка отчета как FirmClientCode и выставляя параметр 'Клиент'" executed="False">
+                    <reason>
+                      <message><![CDATA[это не тест, а метод для выполнения действий с отчетами]]></message>
+                    </reason>
+                  </test-case>
+                  <test-case name="ReportTuner.Test.ReportsBatch.CloneOptimizationEfficiencyReports" description="создает отчеты по подобию отчета 'Отчет по оптимизации цен' для родительского отчета 238 с копированием всех свойств, меняя название заголовка отчета как краткое имя клиента и выставляя параметр 'Клиент'" executed="False">
+                    <reason>
+                      <message><![CDATA[это не тест, а метод для выполнения действий с отчетами]]></message>
+                    </reason>
+                  </test-case>
+                  <test-case name="ReportTuner.Test.ReportsBatch.CloneReportsFromSourceReport" description="создает отчеты по подобию определенного отчета с копированием всех свойств, меняя название заголовка отчета как '2', '3' и т.д." executed="False">
+                    <reason>
+                      <message><![CDATA[это не тест, а метод для выполнения действий с отчетами]]></message>
+                    </reason>
+                  </test-case>
+                  <test-case name="ReportTuner.Test.ReportsBatch.CloneReportsToDestination" description="создает отчеты у родительского отчета 213 по подобию отчетов для родительского отчета 210 с копированием всех свойств, задача пришла от Павла" executed="False">
+                    <reason>
+                      <message><![CDATA[это не тест, а метод для выполнения действий с отчетами]]></message>
+                    </reason>
+                  </test-case>
+                </results>
+              </test-suite>
+              <test-suite name="TaskSchedulerFixture" executed="True" success="False" time="0.908" asserts="0">
+                <results>
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.ClearAllTriggers" executed="True" success="False" time="0.107" asserts="0">
+                    <failure>
+                      <message><![CDATA[System.IO.FileNotFoundException : Не удается найти указанный файл. (Исключение из HRESULT: 0x80070002)]]></message>
+                      <stack-trace><![CDATA[в Microsoft.Win32.TaskScheduler.V2Interop.ITaskFolder.GetTask(String Path)
+в Microsoft.Win32.TaskScheduler.TaskService.GetTask(ITaskService iSvc, String name)
+в Microsoft.Win32.TaskScheduler.TaskService.GetTask(String taskPath)
+в ReportTuner.Test.TaskSchedulerFixture.ClearAllTriggers() в c:\cygwin\Progect\ReportSystem\src\ReportTuner.Test\TaskSchedulerFixture.cs:строка 219
+]]></stack-trace>
+                    </failure>
+                  </test-case>
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.EnabledAllTasks" description="Включаем все задачи c отчетами на offdc" executed="True" success="True" time="0.001" asserts="0" />
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.FindTaskTest" executed="True" success="False" time="0.081" asserts="0">
+                    <failure>
+                      <message><![CDATA[System.UnauthorizedAccessException : Отказано в доступе. (Исключение из HRESULT: 0x80070005 (E_ACCESSDENIED))]]></message>
+                      <stack-trace><![CDATA[в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+в ReportTuner.Test.TaskSchedulerFixture.FindTaskTest() в c:\cygwin\Progect\ReportSystem\src\ReportTuner.Test\TaskSchedulerFixture.cs:строка 195
+]]></stack-trace>
+                    </failure>
+                  </test-case>
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.FolderTest" executed="True" success="True" time="0.063" asserts="1" />
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.MigrationTasks" description="Мигрирование задач со старого offdc на новый" executed="True" success="True" time="0.002" asserts="0" />
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.MoveTasks" description="Перенос задач из корневой папки в папку Отчеты и установка автора у задачи" executed="True" success="True" time="0.000" asserts="0" />
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.ReplaceExecuteAction" description="Изменяем имя запускаемого файла" executed="True" success="True" time="0.000" asserts="0" />
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.RunTask" executed="True" success="False" time="0.090" asserts="0">
+                    <failure>
+                      <message><![CDATA[System.UnauthorizedAccessException : Отказано в доступе. (Исключение из HRESULT: 0x80070005 (E_ACCESSDENIED))]]></message>
+                      <stack-trace><![CDATA[в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+в ReportTuner.Helpers.ScheduleHelper.GetService() в c:\cygwin\Progect\ReportSystem\src\ReportTuner\Helpers\ScheduleHelper.cs:строка 25
+в ReportTuner.Test.TaskSchedulerFixture.RunTask() в c:\cygwin\Progect\ReportSystem\src\ReportTuner.Test\TaskSchedulerFixture.cs:строка 48
+]]></stack-trace>
+                    </failure>
+                  </test-case>
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.SetCorrectParamsToTasks" description="Выставили корректные параметры для задач" executed="True" success="True" time="0.000" asserts="0" />
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.SimpleConnectTest" executed="True" success="False" time="0.195" asserts="0">
+                    <failure>
+                      <message><![CDATA[System.UnauthorizedAccessException : Отказано в доступе. (Исключение из HRESULT: 0x80070005 (E_ACCESSDENIED))]]></message>
+                      <stack-trace><![CDATA[в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+в ReportTuner.Test.TaskSchedulerFixture.SimpleConnectTest() в c:\cygwin\Progect\ReportSystem\src\ReportTuner.Test\TaskSchedulerFixture.cs:строка 36
+]]></stack-trace>
+                    </failure>
+                  </test-case>
+                  <test-case name="ReportTuner.Test.TaskSchedulerFixture.TestFirstInFolders" description="Проверка работы метода First" executed="True" success="True" time="0.274" asserts="0" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

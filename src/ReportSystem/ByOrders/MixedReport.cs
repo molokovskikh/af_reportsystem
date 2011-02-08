@@ -118,13 +118,11 @@ distinct " +
 @"ol.ProductId, 
   ol.CodeFirmCr
 from
-  orders.OrdersHead oh,
-  orders.OrdersList ol,
+  ordersold.OrdersHead oh,
+  ordersold.OrdersList ol,
   usersettings.pricesdata pd
 where
     ol.OrderID = oh.RowID
-and oh.deleted = 0
-and oh.processed = 1
 and ol.Junk = 0
 and ol.Await = 0
 and pd.PriceCode = oh.PriceCode
@@ -210,8 +208,8 @@ Count(distinct pd.firmcode) as AllSuppliersSoldPosition,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
 			selectCommand +=
 @"from 
-  orders.OrdersHead oh
-  join orders.OrdersList ol on ol.OrderID = oh.RowID";
+  ordersold.OrdersHead oh
+  join ordersold.OrdersList ol on ol.OrderID = oh.RowID";
 	if(!includeProductName || !isProductName)
 		selectCommand +=
 @"
@@ -237,9 +235,7 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 	((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = ifnull({0}, 0)", firmCrField.primaryField): String.Empty)) : String.Empty) +
 @"
 where 
-    oh.deleted = 0
-and oh.processed = 1
-and ol.Junk = 0
+ol.Junk = 0
 and ol.Await = 0
 and payers.PayerId <> 921
 and rcs.InvisibleOnFirm < 2";
