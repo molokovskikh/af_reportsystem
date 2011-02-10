@@ -84,15 +84,6 @@ public partial class Reports_schedule {
     protected global::System.Web.UI.WebControls.CheckBox chbAllow;
     
     /// <summary>
-    /// btnExecute control.
-    /// </summary>
-    /// <remarks>
-    /// Auto-generated field.
-    /// To modify move field declaration from designer file to code-behind file.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Button btnExecute;
-    
-    /// <summary>
     /// Label3 control.
     /// </summary>
     /// <remarks>
@@ -129,31 +120,22 @@ public partial class Reports_schedule {
     protected global::System.Web.UI.WebControls.Calendar dtTo;
     
     /// <summary>
-    /// btn_Mailing control.
+    /// RadioSelf control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Button btn_Mailing;
+    protected global::System.Web.UI.WebControls.RadioButton RadioSelf;
     
     /// <summary>
-    /// btn_self control.
+    /// RadioMails control.
     /// </summary>
     /// <remarks>
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Button btn_self;
-    
-    /// <summary>
-    /// btn_emails control.
-    /// </summary>
-    /// <remarks>
-    /// Auto-generated field.
-    /// To modify move field declaration from designer file to code-behind file.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Button btn_emails;
+    protected global::System.Web.UI.WebControls.RadioButton RadioMails;
     
     /// <summary>
     /// Label5 control.
@@ -190,6 +172,24 @@ public partial class Reports_schedule {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.TextBox mail_Text;
+    
+    /// <summary>
+    /// btn_Mailing control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button btn_Mailing;
+    
+    /// <summary>
+    /// btnExecute control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Button btnExecute;
     
     /// <summary>
     /// dgvSchedule control.

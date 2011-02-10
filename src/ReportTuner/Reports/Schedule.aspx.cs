@@ -80,13 +80,27 @@ public partial class Reports_schedule : System.Web.UI.Page
 		{
 			ErrorMassage.Text = "Уже запущен разовый отчет, выполнение данного отчета отложено.";
 			ErrorMassage.BackColor = Color.Red;
-			btn_emails.Enabled = false;
 			btn_Mailing.Enabled = false;
-			btn_self.Enabled = false;
+			RadioSelf.Enabled = false;
+			RadioMails.Enabled = false;
+			//RadioMailing.Enabled = false;
 		}
 		else
 		{
 			ErrorMassage.Text = string.Empty;
+			var selfMail = GetSelfEmails();
+			if ((selfMail.Count != 0) && (selfMail[0].Length != 0))
+			{
+				RadioSelf.Text = "Выполнить и отослать на : " + selfMail[0][0];
+			}
+			var MailingAdresses = GetMailingAdresses();
+			//mailingListBox.Items.Clear();
+			if ((MailingAdresses.Count != 0) && (MailingAdresses[0].Length != 0))
+				foreach (var mailingAdress in MailingAdresses)
+				{
+					mail_Text.Text += mailingAdress[0] + ", \r";
+					//mailingListBox.Items.Add(mailingAdress[0].ToString());
+				}
 		}
     	dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
     	dtTo.SelectedDates.Add(DateTime.Now);
@@ -463,12 +477,10 @@ order by LogTime desc
         }
     }
 
-	protected void btnExecute_Click_Email(object sender, EventArgs e)
+	protected bool Send_in_Emails()
 	{
 		if (Page.IsValid)
 		{
-			/*var _dtFrom = dtFrom.SelectedDate.ToShortDateString();
-			var _dtTo = dtTo.SelectedDate.ToShortDateString();*/
 			var mails = mail_Text.Text.Split(',');
 			for (int i = 0; i < mails.Length; i++)
 			{
@@ -481,13 +493,9 @@ order by LogTime desc
 				recordMail.SaveAndFlush();
 			}
 
-			RunSelfTaskAndUpdateAction();
-			CloseTaskService();
+			return true;
 		}
-		else
-		{
-			Label5.Text = "Required field is empty!";
-		}
+		return false;
 	}
 
 	protected void btnExecute_Click(object sender, EventArgs e)
@@ -536,7 +544,6 @@ order by LogTime desc
 		var timeDay = DateTime.Now.Subtract(thisDay);
 		var tempMin = timeDay.TotalSeconds;*/
 		const int tempNum = 0;
-		//var thisTask = ScheduleHelper.FindTask(taskService, reportsFolder, 777);
 		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempNum), "tempTask", "temp");
 		var newAction = new ExecAction(Path.GetDirectoryName(ScheduleHelper.ScheduleAppPath) + @"\ReportSystemBoot.exe",
 			"/gr:" + _generalReport.Id +
@@ -549,17 +556,22 @@ order by LogTime desc
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(tempNum), taskDefinition, "temp");
 
 		if (thisTask.State != TaskState.Running)
-		thisTask.Run();
+		{
+			thisTask.Run();
+			Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
+		}
 	}
 
-	protected void btnExecute_Click_self(object sender, EventArgs e)
+	protected void Send_self()
+	{
+		WriteEmailList(GetSelfEmails());
+	}
+
+	private List<object[]> GetSelfEmails()
 	{
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
-		var emails = ObjectFromQuery(new[] {new MySqlParameter("?userName", userName)},
-		                             @"SELECT Email FROM accessright.regionaladmins r where r.UserName = ?userName");
-		WriteEmailList(emails);
-		RunSelfTaskAndUpdateAction();
-		CloseTaskService();
+		return ObjectFromQuery(new[] { new MySqlParameter("?userName", userName) },
+									 @"SELECT Email FROM accessright.regionaladmins r where r.UserName = ?userName");
 	}
 
 	private void WriteEmailList(List<object[]> emails)
@@ -576,7 +588,7 @@ order by LogTime desc
 	}
 
 
-	protected void btnExecute_Click_mailing(object sender, EventArgs e)
+	private List<object[]> GetMailingAdresses()
 	{
 		var sqlSelectReports = ObjectFromQuery(new[] {new MySqlParameter("?GeneralReportID", _generalReport.Id)},
 		                                       @"
@@ -613,10 +625,31 @@ where
     cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType");
-			WriteEmailList(emails);
-			RunSelfTaskAndUpdateAction();
-			CloseTaskService();
+			return emails;
 		}
+		return null;
+	}
+
+
+	/*protected void Send_in_mailing()
+	{
+		WriteEmailList(GetMailingAdresses());
+	}*/
+
+	protected void chbAllow_CheckedChanged(object sender, EventArgs e)
+	{
+
+	}
+
+	protected void btnExecute_mailing(object sender, EventArgs e)
+	{
+		if (RadioSelf.Checked)
+			Send_self();
+		if (RadioMails.Checked)
+			Send_in_Emails();
+		RunSelfTaskAndUpdateAction();
+		CloseTaskService();
+		Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
 	}
 }
 

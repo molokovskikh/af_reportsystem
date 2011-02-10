@@ -54,12 +54,12 @@ $().ready(function() {
             <asp:Label ID="lblFolder" runat="server" Text="Label"></asp:Label>
         </td></tr>
         <tr bgcolor="#eef8ff"><td>
-            <asp:CheckBox ID="chbAllow" runat="server" Text="Разрешено" />
+            <asp:CheckBox ID="chbAllow" runat="server" Text="Разрешено" 
+                oncheckedchanged="chbAllow_CheckedChanged" />
         </td></tr>
     </table>
     </font>
-    <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" 
-            ValidationGroup="vgPassword" OnClick="btnExecute_Click" style="height: 26px" /><br />
+<br />
         <br />
         <br />
         <br />
@@ -68,38 +68,33 @@ $().ready(function() {
     </div>
     <div>
         <table cellspacing=0px>
-            <tr >
+            <tr>
                 <td>
-                    <asp:Label ID="Label3" runat="server" Text="Начало периода" SkinID="scheduleLabelSkin"></asp:Label>
-                          <asp:Calendar id="dtFrom" runat="server" style="margin-right: 0px" >
+                          <asp:Label ID="Label3" runat="server" Text="Начало периода" Style="margin-left:0px;" SkinID="scheduleLabelSkin"></asp:Label>
+                          <asp:Calendar id="dtFrom" runat="server" Style="margin-left:0px;" >
                                 <TitleStyle BackColor="white" ForeColor="black">
                           </TitleStyle>
                          </asp:Calendar> 
-
                 </td>
-                <td >
-                    <asp:Label ID="Label4" runat="server" style="margin-left:5px;" Text="Конец периода" SkinID="scheduleLabelSkin"></asp:Label>
-                         <asp:Calendar id="dtTo" style="margin-left:5px;" runat="server">
+                <td>
+                         <asp:Label ID="Label4" runat="server" Text="Конец периода" Style="margin-left:5px;" SkinID="scheduleLabelSkin"></asp:Label>
+                         <asp:Calendar id="dtTo" runat="server" Style="margin-left:5px;">
                                 <TitleStyle BackColor="white" ForeColor="black">
                           </TitleStyle>
-                         </asp:Calendar> 
+                       </asp:Calendar> 
                 </td>
             </tr>
             <tr style="background-color: rgb(235, 235, 235);">
-                <td valign="top" style="width:300px;">
+                <td valign="top" style="width:325px;" colspan=2>
+                        <br />
+                        <asp:RadioButton ID="RadioSelf" runat="server" GroupName="Mailing"
+                            Text="Выполнить и отослать на : " Checked="True" />
+                        <br />
+                        <asp:RadioButton ID="RadioMails" runat="server" GroupName="Mailing"
+                            Text="Выполнить и выстать на указанные адреса" />
                         <br />
                         <br />
-                    <asp:Button ID="btn_Mailing" runat="server" Text="Выполнить и выслать в рассылку" 
-                        ValidationGroup="vgPassword" OnClick="btnExecute_Click_mailing" Width="240px" />
-                        <br />
-                        <br />
-                        <asp:Button ID="btn_self" runat="server" Text="Выполнить для себя" ValidationGroup="vgPassword" Width="240px" OnClick="btnExecute_Click_self" />
-                        <br />
-                        <br />
-                        <asp:Button ID="btn_emails" runat="server" ValidationGroup="mail_Text_Group" 
-                            Text="Выполнить для указанных" OnClick="btnExecute_Click_Email" Width="240px" /><br />
-                        <br />
-                        <asp:Label ID="Label5" runat="server" Width=74px Text="Адресаты: " 
+                        <asp:Label ID="Label5" runat="server" Width=419px Text="Адресаты (adr1@dom.com, adr2@dom.com, ... adrN@dom.com): " 
                             SkinID="scheduleLabelSkin"></asp:Label>
             <br />
           <asp:RegularExpressionValidator ID="RegularExpressionValidator1" 
@@ -116,15 +111,24 @@ $().ready(function() {
 
                         <asp:TextBox ID="mail_Text" runat="server" style="background-color: white;
                              border-color:black; border-width:1px; color: black;"
-                         TextMode=MultiLine Columns="50" Rows="6" runat=server> </asp:TextBox>
+                         TextMode=MultiLine Columns="50" Rows="6" runat=server></asp:TextBox>
+                         <br />
+                         <br />
+                         <br />
+                                             <asp:Button ID="btn_Mailing" runat="server" Text="Выполнить" 
+                        ValidationGroup="vgPassword" OnClick="btnExecute_mailing" Width="240px" />
+                        
                 </td>
-                <td></td>
+                <td style="width: 268435488px"> 
+                </td>
             </tr>
         </table>
     </div>
     <br />
     <br />
-            <center><b><font size ="2"><label id="Label6" >Задать расписание для отчета</label></font></b></center>
+            <center><b><font size ="2"><label id="Label6" >Задать расписание для отчета</label></font></b> <br /> <br />
+                <asp:Button ID="btnExecute" runat="server" Text="Выполнить задание" 
+            ValidationGroup="vgPassword" OnClick="btnExecute_Click" style="height: 26px" /></center>
     <br />
     <div align="center">
         <asp:GridView ID="dgvSchedule" runat="server" AutoGenerateColumns="False" Caption="Расписание" OnRowCommand="dgvSchedule_RowCommand" OnRowDeleting="dgvSchedule_RowDeleting" OnRowDataBound="dgvSchedule_RowDataBound">
