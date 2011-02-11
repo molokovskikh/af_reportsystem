@@ -67,7 +67,7 @@ $().ready(function() {
         <br />
     </div>
     <div>
-        <table cellspacing=0px>
+        <table cellspacing=0px style="background-color: rgb(235, 235, 235);">
             <tr>
                 <td>
                           <asp:Label ID="Label3" runat="server" Text="Начало периода" Style="margin-left:0px;" SkinID="scheduleLabelSkin"></asp:Label>
@@ -84,7 +84,7 @@ $().ready(function() {
                        </asp:Calendar> 
                 </td>
             </tr>
-            <tr style="background-color: rgb(235, 235, 235);">
+            <tr >
                 <td valign="top" style="width:325px;" colspan=2>
                         <br />
                         <asp:RadioButton ID="RadioSelf" runat="server" GroupName="Mailing"
@@ -94,8 +94,7 @@ $().ready(function() {
                             Text="Выполнить и выстать на указанные адреса" />
                         <br />
                         <br />
-                        <asp:Label ID="Label5" runat="server" Width=419px Text="Адресаты (adr1@dom.com, adr2@dom.com, ... adrN@dom.com): " 
-                            SkinID="scheduleLabelSkin"></asp:Label>
+                        <asp:Label ID="Label5" runat="server" Width=420px Text="Адресаты (писать через запятую): " ></asp:Label>
             <br />
           <asp:RegularExpressionValidator ID="RegularExpressionValidator1" 
    runat="server" ErrorMessage="Введите список EMail" 
@@ -112,6 +111,8 @@ $().ready(function() {
                         <asp:TextBox ID="mail_Text" runat="server" style="background-color: white;
                              border-color:black; border-width:1px; color: black;"
                          TextMode=MultiLine Columns="50" Rows="6" runat=server></asp:TextBox>
+
+    <asp:Label ID="Label7" runat="server" Width=419px Text="Например: (adr1@dom.com, adr2@dom.com, ... )"></asp:Label>
                          <br />
                          <br />
                          <br />

@@ -380,7 +380,9 @@
     <None Include="Views\SubViews\BreadCrumbs.brail" />
     <None Include="Views\SubViews\PaginatorSubView.brail" />
     <None Include="Views\ReportsTuning\SelectClientsSortHeadersSubView.brail" />
-    <None Include="Web.Release.Config" />
+    <None Include="Web.Release.Config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common.Web.Ui\Common.Web.Ui\Common.Web.Ui.csproj">
