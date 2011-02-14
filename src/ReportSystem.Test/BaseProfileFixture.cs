@@ -84,7 +84,6 @@ namespace ReportSystem.Test
 			if (File.Exists("test.xls"))
 				File.Delete("test.xls");
 			ProfileHelper.Start();
-			report.ReadReportParams();
 			report.ProcessReport();
 			report.ReportToFile(Path.GetFullPath("test.xls"));
 			ProfileHelper.Stop();

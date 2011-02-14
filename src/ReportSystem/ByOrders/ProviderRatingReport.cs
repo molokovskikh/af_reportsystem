@@ -56,8 +56,8 @@ namespace Inforoom.ReportSystem
 				selectCommand, @"
 Sum(ol.cost*ol.Quantity) as Summ
 from 
-  ordersold.OrdersHead oh 
-  join ordersold.OrdersList ol on ol.OrderID = oh.RowID
+  orders.OrdersHead oh 
+  join orders.OrdersList ol on ol.OrderID = oh.RowID
   join catalogs.products p on p.Id = ol.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
@@ -72,7 +72,9 @@ from
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
   join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode)
 where 
-payers.PayerId <> 921
+      oh.deleted = 0
+  and oh.processed = 1
+  and payers.PayerId <> 921
   and rcs.InvisibleOnFirm < 2");
 
 			selectCommand = ApplyFilters(selectCommand);

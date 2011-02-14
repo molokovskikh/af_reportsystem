@@ -59,8 +59,8 @@ Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
 			selectCommand +=
 @"from 
-  ordersold.OrdersHead oh
-  join ordersold.OrdersList ol on ol.OrderID = oh.RowID";
+  orders.OrdersHead oh
+  join orders.OrdersList ol on ol.OrderID = oh.RowID";
 			if (!includeProductName || !isProductName)
 				selectCommand +=@"
   join catalogs.products p on p.Id = ol.ProductId";
@@ -82,7 +82,9 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
   join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode) 
 where 
-ol.Junk = 0
+    oh.deleted = 0
+and oh.processed = 1
+and ol.Junk = 0
 and ol.Await = 0
 and (oh.RegionCode & " + regionMask + @") > 0 
 and payers.PayerId <> 921
