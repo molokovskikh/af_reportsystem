@@ -1,14 +1,16 @@
 import file from WebSiteSupport.bake
 import file from Migration.bake
 import System.IO
+import file from Deploy.bake
 
 Global(
 	Project : "ReportTuner",
-	deployTo : """\\acdcserv.adc.analit.net\WebApps\Reports\"""
+	DeployAlias : "Reports",
+	HumanReadableName : "Генератор отчетов"
 )
 
 Task @default, [@build]
 
-Task @build, [@buildWebSite]
+Task @build, [@BuildWebSite]
 
-Task @deploy, [@build, @Migrate, @deployWebSite]
+Task @deploy, [@build, @Migrate, @WebDeploy]

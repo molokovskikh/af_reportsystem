@@ -1,0 +1,87 @@
+﻿Body
+{
+    font-family: Verdana;
+    font-size: 9pt;
+}
+
+.SelectedRow
+{
+    background-color: #B5B5B5;
+}
+
+.DocumentHeader
+{
+	padding: 5px;
+	background-color: #d8f1ff;
+	text-align: center; 
+	vertical-align: middle;
+	font-weight:bold; 
+	margin-bottom:10px;
+}
+
+.DocumentDataTable
+{
+	background-color: #EBEBEB;
+	border: solid 1px #DADADA;
+	width: 80%
+}
+
+.DocumentDataTable .EvenRow
+{
+    background-color: #F6F6F6;
+}
+
+.DocumentDataTable .OddRow
+{
+    background-color: #EEF8FF;
+}
+
+.DocumentDataTable .SelectedRow
+{
+    background-color: #B5B5B5;
+}
+
+.DocumentDataTable .EmptyData
+{
+	text-align:center;
+	background-color: #F6F6F6;
+}
+
+.Paginator
+{
+    padding-bottom: 1px; 
+    padding-left: 0px; 
+    padding-right: 0px; 
+    float: right;
+    padding-top: 1px;        
+}
+.Paginator A
+{
+    border-bottom: 1px solid; 
+    border-left: 1px solid; 
+    padding-bottom: 2px; 
+    padding-left: 5px; 
+    padding-right: 5px; 
+    display: block; 
+    float: left; 
+    border-top: 1px solid; 
+    margin-right: 5px; 
+    border-right: 1px solid; 
+    padding-top: 2px;
+    text-decoration: none;    
+}
+
+.Paginator SPAN 
+{
+	BORDER-BOTTOM: 1px solid; 
+	BORDER-LEFT: 1px solid; 
+	PADDING-BOTTOM: 2px; 
+	PADDING-LEFT: 5px; 
+	PADDING-RIGHT: 5px; 
+	DISPLAY: block; 
+	FLOAT: left; 
+	BORDER-TOP: 1px solid; 
+	MARGIN-RIGHT: 5px; 
+	BORDER-RIGHT: 1px solid; 
+	PADDING-TOP: 2px
+}

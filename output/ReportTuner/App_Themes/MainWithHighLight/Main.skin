@@ -1,0 +1,31 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+<asp:Button runat="server" BorderStyle="Groove" />
+<asp:TextBox runat="server" BorderStyle="Groove" Width="80%"/>
+<asp:Label runat="server" SkinId="scheduleLabelSkin" Width="200px"/>
+<asp:Label runat="server" SkinId="paramLabelSkin" Width="150px"/>
+<asp:TextBox runat="server" SkinId="searchTextBoxSkin" BorderStyle="Groove" Width="30%"/>
+<asp:TextBox runat="server" SkinId="passwordTextBoxSkin" BorderStyle="Groove" Width="15%"/>
+<asp:TextBox runat="server" SkinId="findTextBoxSkin" BorderStyle="Groove" Width="150"/>
+<asp:TextBox runat="server" SkinId="dateTextBoxSkin" BorderStyle="Groove" Width="100"/>
+<asp:TextBox runat="server" SkinId="paramTextBoxSkin" BorderStyle="Groove" Width="300px"/>
+
+<asp:GridView runat="server" width="100%" BackColor="#EBEBEB" BorderColor="#DADADA" BorderWidth="1px" BorderStyle="Solid" >
+	<AlternatingRowStyle HorizontalAlign="Center" VerticalAlign="Middle" CssClass="OddRow" />
+	<RowStyle HorizontalAlign="Center" VerticalAlign="Middle" CssClass="EvenRow" />
+    <SelectedRowStyle HorizontalAlign="Center" VerticalAlign="Middle" BackColor="LightGray" Font-Bold="true"/>
+	<HeaderStyle HorizontalAlign="Center" BackColor="#EBEBEB" />
+</asp:GridView>

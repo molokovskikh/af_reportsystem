@@ -1,0 +1,33 @@
+﻿<%import System %>
+<% lastPage = Math.Ceiling(rowsCount/Convert.ToDouble(pageSize)); 
+   startPage = Math.Max(0, currentPage - 4)
+   endPage = Math.Min(lastPage, startPage + 9)%>
+<% if lastPage>1: %>    
+    <% if currentPage>0:%>
+		<a href="#" onclick="ReloadPageWithParams('currentPage', 0, 'rowsCount', ${rowsCount});" title="Первая страница">&laquo; Первая</a>
+        <a href="#" onclick="ReloadPageWithParams('currentPage', ${currentPage-1}, 'rowsCount', ${rowsCount});" title="Предыдущая страница">&lt;</a>
+    <% else: %>
+		<span title="Первая страница">&laquo; Первая</span>
+        <span title="Предыдущая страница">&lt;</span>
+    <% end %>
+<% end %>
+
+<%if (endPage - startPage)>1: %>
+<% for i in range(startPage, endPage):%>
+   <% if i!=currentPage : %>
+      <a href="#" onclick="ReloadPageWithParams('currentPage', ${i}, 'rowsCount', ${rowsCount});">${i+1}</a>
+   <% else: %>
+      <span class="CurrentPage">${i+1}</span>
+   <% end %>
+<% end %>
+<% end %>
+
+<% if lastPage>1: %>
+    <% if currentPage<(lastPage-1):%>
+        <a href="#" onclick="ReloadPageWithParams('currentPage', ${currentPage+1}, 'rowsCount', ${rowsCount});" title="Следующая страница">&gt;</a>
+        <a href="#" onclick="ReloadPageWithParams('currentPage', ${lastPage-1}, 'rowsCount', ${rowsCount});" title="Последняя страница">Последняя &raquo;</a>
+    <% else: %>
+        <span title="Следующая страница">&gt;</span>
+        <span title="Последняя страница">Последняя &raquo;</span>
+    <% end %>
+<% end %>
