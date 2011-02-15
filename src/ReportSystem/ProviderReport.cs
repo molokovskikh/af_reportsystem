@@ -299,7 +299,7 @@ and regions.RegionCode = activeprices.RegionCode";
 					throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", reader["Name"], _clientCode));
 			}
 
-			selectCommand.CommandText = "future.GetOffers";
+			selectCommand.CommandText = "future.GetOffersReports";
 			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);

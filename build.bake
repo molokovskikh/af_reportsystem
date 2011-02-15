@@ -1,4 +1,3 @@
-import file from lib.bake
 import System.IO
 import file from Migration.bake
 import file from Test.bake

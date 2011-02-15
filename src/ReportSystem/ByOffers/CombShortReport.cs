@@ -65,7 +65,8 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-			base.ReadReportParams();
+			if (_reportParams.ContainsKey("SupplierNoise"))
+				_SupplierNoise = (int)getReportParam("SupplierNoise");
 			_reportType = (int)getReportParam("ReportType");
 			_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
