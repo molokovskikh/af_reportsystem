@@ -42,6 +42,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			_reportType = (int)getReportParam("ReportType");
 			_showPercents = (bool)getReportParam("ShowPercents");
 			_clientCode = (int)getReportParam("ClientCode");
@@ -53,7 +54,7 @@ namespace Inforoom.ReportSystem
 			base.GenerateReport(e);
 
 			ProfileHelper.Next("Get Offers");
-			GetOffers(e);
+			GetOffers(e, _SupplierNoise);
 			ProfileHelper.Next("Processing1");
 			e.DataAdapter.SelectCommand.CommandText = "select " ;
 

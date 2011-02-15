@@ -75,6 +75,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			priceForCorel = (int)getReportParam("PriceCode");
 			_ProducerAccount = (bool) getReportParam("ProducerAccount");
 			_AllAssortment = (bool)getReportParam("AllAssortment");
@@ -170,7 +171,8 @@ from Usersettings.ActivePrices Prices
 
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
-				foreach(var group in Group(offers))
+				NoisingCostInDataTable(offers, "Cost", "FirmCode", _SupplierNoise);
+				foreach (var group in Group(offers))
 				{
 					var offer = group.First();
 					var dataItem = FindItem(hash, offer, data);

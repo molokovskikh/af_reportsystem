@@ -15,7 +15,7 @@ namespace Inforoom.ReportSystem
 	{
 		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
 		protected int _clientCode;
-
+		protected int? _SupplierNoise = null;
 		protected bool IsNewClient = false;
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
@@ -29,6 +29,12 @@ namespace Inforoom.ReportSystem
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			IsNewClient = reader.Read();
 			reader.Close();
+		}
+
+		public override void ReadReportParams()
+		{
+			if (_reportParams.ContainsKey("SupplierNoise"))
+				_SupplierNoise = (int)getReportParam("SupplierNoise");
 		}
 
 		public virtual List<ulong> GetClietnWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
@@ -95,6 +101,22 @@ namespace Inforoom.ReportSystem
 			return result;
 		}
 
+		public virtual void NoisingCostInDataTable(DataTable data, string costFieldName, string supplierFieldName , int? supplier)
+		{
+			if (supplier != null)
+			{
+				var rand = new Random();
+				foreach (DataRow row in data.Rows)
+				{
+					if (row.Field<uint?>(supplierFieldName) != supplier)
+					{
+						var randObj = (decimal)rand.NextDouble();
+						row[costFieldName] = (1 + (randObj * (randObj > (decimal)0.5 ? 2 : -2)) / 100) * row.Field<decimal>(costFieldName);
+					}
+				}
+			}
+		}
+
 
 		/// <summary>
 		/// Метод по списку ID формарует строку для вставки в запрос вида: where t.item in (id1, id2, id3...)
@@ -120,7 +142,7 @@ namespace Inforoom.ReportSystem
 
 		protected void GetOffers()
 		{
-			GetOffers(args);
+			GetOffers(args, null);
 		}
 
 		//Получили список действующих прайс-листов для интересующего клиента
@@ -237,19 +259,29 @@ and regions.RegionCode = activeprices.RegionCode";
 		}
 
 		//Получили список предложений для интересующего клиента
-		protected void GetOffers(ExecuteArgs e)
+		protected void ExecuterGetOffers(ExecuteArgs e, int? noiseFirmCode)
 		{
 			GetActivePrices(e);
 
 			if(IsNewClient)
-				GetOffersNew();
+				GetOffersNew(noiseFirmCode);
 			else
 				GetOffersOld();
 
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 		}
 
-		private void GetOffersNew()
+		protected void GetOffers(ExecuteArgs e)
+		{
+			ExecuterGetOffers(e, null);
+		}
+
+		protected void GetOffers(ExecuteArgs e, int? noiseFirmCode)
+		{
+			ExecuterGetOffers(e, noiseFirmCode);
+		}
+
+		private void GetOffersNew(int? noiseFirmCode)
 		{ // Небольшая магия, через любого пользователя получаем предложение для клиента
 
 			// Получаем первого попавшегося пользователя
@@ -271,6 +303,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
 			selectCommand.ExecuteNonQuery();
 		}
 

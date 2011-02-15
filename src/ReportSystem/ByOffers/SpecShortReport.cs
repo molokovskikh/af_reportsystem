@@ -24,6 +24,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			_reportType = (int)getReportParam("ReportType");
 			_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");

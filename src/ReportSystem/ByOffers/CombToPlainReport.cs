@@ -26,6 +26,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			_clientCode = (int)getReportParam("ClientCode");
 		}
 
@@ -34,7 +35,7 @@ namespace Inforoom.ReportSystem
 			base.GenerateReport(e);
 
 			//Выбираем 
-			GetOffers(e);
+			GetOffers(e, _SupplierNoise);
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select

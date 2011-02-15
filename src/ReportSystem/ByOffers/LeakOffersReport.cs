@@ -19,13 +19,14 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			_clientCode = (int)getReportParam("ClientCode");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			base.GenerateReport(e);
-			GetOffers(e);
+			GetOffers(e, _SupplierNoise);
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select c0.Code,

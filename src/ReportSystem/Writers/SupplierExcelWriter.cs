@@ -24,7 +24,8 @@ namespace Inforoom.ReportSystem.Writers
 			ParamNOVisualisation = new List<string>
 			                     	{
 			                     		"AllAssortment",
-										"WithWithoutProperties"
+										"WithWithoutProperties",
+										"SupplierNoise"
 			                     	};
 
 			AssiciateReportParams = new Dictionary<string, GetterNames>

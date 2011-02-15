@@ -45,6 +45,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			_reportType = (int)getReportParam("ReportType");
 			_showPercents = (bool)getReportParam("ShowPercents");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
@@ -122,7 +123,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 
-			GetOffers(e);
+			GetOffers(e, _SupplierNoise);
 			ProfileHelper.Next("GetCodes");
 			//Получили предложения интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes(e);

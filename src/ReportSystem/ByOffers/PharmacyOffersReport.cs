@@ -218,6 +218,7 @@ into @OffersSynonymCode;
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			_clientCode = (int)getReportParam("ClientCode");
 			_includeProducer = Convert.ToBoolean(getReportParam("IncludeProducer"));
 			_includeQuantity = Convert.ToBoolean(getReportParam("IncludeQuantity"));
@@ -236,7 +237,7 @@ into @OffersSynonymCode;
 			CheckPriceCode(e);
 
 			ProfileHelper.Next("GetOffers");
-			GetOffers(e);
+			GetOffers(e, _SupplierNoise);
 
 			ProfileHelper.Next("GetData");
 

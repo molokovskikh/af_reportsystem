@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-
+			base.ReadReportParams();
 			int tmpReportType = (int)getReportParam("ReportType");
 			Array v = Enum.GetValues(typeof(DefReportType));
 			if (((int)v.GetValue(0) <= tmpReportType) && (tmpReportType <= (int)v.GetValue(v.Length - 1)))
@@ -121,7 +121,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 
-			GetOffers(e);
+			GetOffers(e, _SupplierNoise);
 			ProfileHelper.Next("Processing");
 			int EnabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
