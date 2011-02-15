@@ -3,5 +3,6 @@ import file from Migration.bake
 import file from Test.bake
 
 Global(
-	humanReadableName : "Генератор отчетов"
+	humanReadableName : "Генератор отчетов",
+	Platform : "x86"
 )
