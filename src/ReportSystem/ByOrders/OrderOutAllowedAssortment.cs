@@ -27,13 +27,13 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void ReadReportParams()
 		{
-			//base.ReadReportParams();
-			if (_Interval)
+			base.ReadReportParams();
+			/*if (_Interval)
 			{
 				dtFrom = _dtFrom;
 				dtTo = _dtTo;
 				dtTo = dtTo.Date.AddDays(1);
-			}
+			}*/
 			_ClientId = Convert.ToUInt32(getReportParam("ClientCode"));
 			_period = new Period(dtFrom,dtTo);
 			//_regions = (List<ulong>)getReportParam("Regions");
