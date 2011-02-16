@@ -13,6 +13,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
+using Common.Tools;
 using ExecuteTemplate;
 using MySql.Data;
 using MySql.Data.MySqlClient;
@@ -94,14 +95,8 @@ public partial class Reports_schedule : System.Web.UI.Page
 		{
 			RadioSelf.Text = "Выполнить и отослать на : " + selfMail[0][0];
 		}
-		var MailingAdresses = GetMailingAdresses();
-    	mail_Text.Text = string.Empty;
-		if ((MailingAdresses.Count != 0) && (MailingAdresses[0].Length != 0))
-			foreach (var mailingAdress in MailingAdresses)
-			{
-				mail_Text.Text += mailingAdress[0] + ", \r";
-			}
-		mail_Text.Text = mail_Text.Text.Remove(mail_Text.Text.Length - 3, 3);
+    	mail_Text.Text = GetMailingAdresses().Implode(", \r");
+
     	dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
     	dtTo.SelectedDates.Add(DateTime.Now);
     	if (!Page.IsPostBack)
