@@ -26,7 +26,7 @@
 					<ItemTemplate>
 						<a href='<%# String.Format(
 							    DataBinder.Eval(Container.DataItem, "IsNewClient").ToString() == "1" ? 
-								"http://publish.analit.net/TestAdm/Billing/edit.rails?BillingCode={0}" : 
+								"https://stat.analit.net/FutureAdm/Billing/edit.rails?BillingCode={0}" : 
 								"https://stat.analit.net/adm/Billing/edit.rails?BillingCode={0}",
 								DataBinder.Eval(Container.DataItem, "PayerID")) %>'> <%# DataBinder.Eval(Container.DataItem, "PayerID") %></a>
 					</ItemTemplate>
