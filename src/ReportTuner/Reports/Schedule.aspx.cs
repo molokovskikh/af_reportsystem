@@ -95,7 +95,7 @@ public partial class Reports_schedule : System.Web.UI.Page
 		{
 			RadioSelf.Text = "Выполнить и отослать на : " + selfMail[0][0];
 		}
-    	mail_Text.Text = GetMailingAdresses().SelectMany(a => a.ToString()).Implode(", \r");
+		mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
 
     	dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
     	dtTo.SelectedDates.Add(DateTime.Now);
