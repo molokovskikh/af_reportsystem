@@ -17,6 +17,7 @@ using Castle.MonoRail.Framework.Configuration;
 using Castle.MonoRail.Framework.Internal;
 using Castle.MonoRail.Framework.Views.Aspx;
 using Castle.MonoRail.Views.Brail;
+using log4net;
 using ReportTuner.Models;
 using NHibernate.Criterion;
 using Microsoft.Win32.TaskScheduler;
@@ -30,6 +31,7 @@ namespace Inforoom.ReportTuner
 	public class Global : HttpApplication
 	{
 		private System.ComponentModel.IContainer components;
+		private static readonly ILog _log = LogManager.GetLogger(typeof(Global));
 
 		public Global()
 		{
@@ -118,62 +120,47 @@ namespace Inforoom.ReportTuner
 
 		void Application_Error(object sender, EventArgs e)
 		{
-			// Code that runs when an unhandled error occurs
-			bool sessionExists = false;
+			var exception = Server.GetLastError();
+
+			var builder = new StringBuilder();
+			builder.AppendLine("----UrlReferer-------");
+			builder.AppendLine(Request.UrlReferrer != null ? Request.UrlReferrer.ToString() : String.Empty);
+			builder.AppendLine("----Url-------");
+			builder.AppendLine(Request.Url.ToString());
+			builder.AppendLine("--------------");
+			builder.AppendLine("----Params----");
+			foreach (string name in Request.QueryString)
+				builder.AppendLine(String.Format("{0}: {1}", name, Request.QueryString[name]));
+			builder.AppendLine("--------------");
+
+			builder.AppendLine("----Error-----");
+			do
+			{
+				builder.AppendLine("Message:");
+				builder.AppendLine(exception.Message);
+				builder.AppendLine("Stack Trace:");
+				builder.AppendLine(exception.StackTrace);
+				builder.AppendLine("--------------");
+				exception = exception.InnerException;
+			} while (exception != null);
+			builder.AppendLine("--------------");
+
+			builder.AppendLine("----Session---");
 			try
 			{
-				sessionExists = this.Session != null;
-			}
-			catch
-			{
-				sessionExists = false;
-			}
-
-			//При создании сессии происходит редирект на logon.aspx и в этом случае возникает ошибка
-			//Если сессия не существует, то это именно та ошибка и мы это проверям
-			if (sessionExists)
-			{
-				StringBuilder builder = new StringBuilder();
-				builder.AppendLine("----Url-------");
-				builder.AppendLine(Request.Url.ToString());
-				builder.AppendLine("--------------");
-				builder.AppendLine("----Params----");
-				foreach (string name in Request.QueryString)
-					builder.AppendLine(String.Format("{0}: {1}", name, Request.QueryString[name]));
-				builder.AppendLine("--------------");
-
-				builder.AppendLine("----Error-----");
-				Exception exception = Server.GetLastError();
-				do
-				{
-					builder.AppendLine("Message:");
-					builder.AppendLine(exception.Message);
-					builder.AppendLine("Stack Trace:");
-					builder.AppendLine(exception.StackTrace);
-					builder.AppendLine("--------------");
-					exception = exception.InnerException;
-				} while (exception != null);
-				builder.AppendLine("--------------");
-
-				builder.AppendLine("----Session---");
 				foreach (string key in Session.Keys)
 				{
 					if (Session[key] == null)
 						builder.AppendLine(String.Format("{0} - null", key));
 					else
-						builder.AppendLine(String.Format("{0} - {1} - {2}", key, Session[key].GetType(), Session[key]));
+						builder.AppendLine(String.Format("{0} - {1}", key, Session[key]));
 				}
-				builder.AppendLine("--------------");
-
-				builder.AppendLine(String.Format("Version : {0}", Assembly.GetExecutingAssembly().GetName().Version));
-
-				string serviceMailTo = ConfigurationManager.AppSettings["ServiceMailTo"];
-				string serviceMailFrom = ConfigurationManager.AppSettings["ServiceMailFrom"];
-				System.Net.Mail.MailMessage m = new System.Net.Mail.MailMessage(serviceMailFrom, serviceMailTo, "Ошибка в интерфейсе настройки отчета", builder.ToString());
-				m.BodyEncoding = Encoding.UTF8;
-				System.Net.Mail.SmtpClient c = new System.Net.Mail.SmtpClient(System.Configuration.ConfigurationManager.AppSettings["SMTPHost"]);
-				c.Send(m);
 			}
+			catch (Exception ex)
+			{ }
+			builder.AppendLine("--------------");
+
+			_log.Error(builder.ToString());
 		}
 
 		/*public void Configure(IMonoRailConfiguration configuration)
