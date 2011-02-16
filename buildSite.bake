@@ -1,4 +1,4 @@
-import file from WebSiteSupport.bake
+п»їimport file from WebSiteSupport.bake
 import file from Migration.bake
 import System.IO
 import file from Deploy.bake
@@ -6,11 +6,11 @@ import file from Deploy.bake
 Global(
 	Project : "ReportTuner",
 	DeployAlias : "Reports",
-	HumanReadableName : "Генератор отчетов"
+	HumanReadableName : "Р“РµРЅРµСЂР°С‚РѕСЂ РѕС‚С‡РµС‚РѕРІ"
 )
 
 Task @default, [@build]
 
 Task @build, [@BuildWebSite]
 
-Task @deploy, [@build, @Migrate, @WebDeploy]
+Task @deploy, [@build, @Migrate, @WebDeploy, @SendDeployNotification]
