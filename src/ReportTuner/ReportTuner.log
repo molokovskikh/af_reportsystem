@@ -1,0 +1,1172 @@
+13:39:05.507 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1387&r=1
+----Url-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1387&r=1
+--------------
+----Params----
+rp: 1387
+r: 1
+--------------
+----Error-----
+Message:
+¬ыдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reportproperties_aspx.ProcessRequest(HttpContext context) в c:\Users\Zolotarev\AppData\Local\Temp\Temporary ASP.NET Files\root\b6f055b7\12fc1fed\App_Web_ucpylecv.8.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+¬ экземпл€ре объекта не задана ссылка на объект.
+Stack Trace:
+   в Reports_ReportProperties.CopyChangesToTable(GridView dgv, DataTable dt, String Column) в C:\cygwin\Progect\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 648
+   в Reports_ReportProperties.btnApply_Click(Object sender, EventArgs e) в C:\cygwin\Progect\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 598
+   в System.Web.UI.WebControls.Button.OnClick(EventArgs e)
+   в System.Web.UI.WebControls.Button.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.WebControls.Button.System.Web.UI.IPostBackEventHandler.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(IPostBackEventHandler sourceControl, String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(NameValueCollection postData)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - zolotarev
+--------------
+
+13:39:07.075 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:39:08.104 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:40:07.888 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1387&r=1
+----Url-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1387&r=1
+--------------
+----Params----
+rp: 1387
+r: 1
+--------------
+----Error-----
+Message:
+¬ыдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reportproperties_aspx.ProcessRequest(HttpContext context) в c:\Users\Zolotarev\AppData\Local\Temp\Temporary ASP.NET Files\root\b6f055b7\12fc1fed\App_Web_ucpylecv.8.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+¬ экземпл€ре объекта не задана ссылка на объект.
+Stack Trace:
+   в Reports_ReportProperties.CopyChangesToTable(GridView dgv, DataTable dt, String Column) в C:\cygwin\Progect\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 648
+   в Reports_ReportProperties.btnApply_Click(Object sender, EventArgs e) в C:\cygwin\Progect\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 598
+   в System.Web.UI.WebControls.Button.OnClick(EventArgs e)
+   в System.Web.UI.WebControls.Button.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.WebControls.Button.System.Web.UI.IPostBackEventHandler.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(IPostBackEventHandler sourceControl, String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(NameValueCollection postData)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - zolotarev
+--------------
+
+13:40:09.247 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:40:10.271 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:44.071 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/GeneralReports.aspx
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:45.255 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/GeneralReports.aspx
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:48.641 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:49.660 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:53.170 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:55.540 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:56.565 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:07.780 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:10.121 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:11.147 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:24.913 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:27.247 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:28.273 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:39.324 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:40.540 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:42.716 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:43.745 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:51.157 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:53.532 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:54.557 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:57:00.679 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/GeneralReports.aspx
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:57:03.948 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:57:05.029 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:58:50.218 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:58:51.427 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:58:53.603 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:58:54.627 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:09.126 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/GeneralReports.aspx
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:14.829 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:15.859 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:24.109 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:26.480 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:27.526 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:55.424 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:56.648 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:58.802 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:02:59.826 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:04:09.243 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:04:11.626 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:04:12.648 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:04:31.503 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/GeneralReports.aspx
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:04:32.733 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/GeneralReports.aspx
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:04:36.431 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:04:37.448 [7] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:05:07.453 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:05:08.645 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Schedule.aspx?r=1
+----Url-------
+http://localhost:58935/JavaScript/jquery.validate.js
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:05:10.800 [9] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:05:11.819 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+‘айл не существует.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+

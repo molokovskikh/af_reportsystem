@@ -110,13 +110,13 @@ namespace ReportTuner.Helpers
 		{
 			try
 			{
-				Task updateTask = FindTask(taskService, reportsFolder, generalReportId,prefix);
+				return FindTask(taskService, reportsFolder, generalReportId,prefix);
 
 				//Нашли задачу, производим обновление
-				TaskDefinition updateTaskDefinition = updateTask.Definition;
+				/*TaskDefinition updateTaskDefinition = updateTask.Definition;
 				updateTaskDefinition.RegistrationInfo.Description = comment;
 
-				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition,prefix);				
+				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition,prefix);	*/			
 			}
 			catch(InvalidOperationException)
 			{

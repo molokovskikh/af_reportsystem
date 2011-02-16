@@ -18,6 +18,7 @@ using Castle.MonoRail.Framework.Internal;
 using Castle.MonoRail.Framework.Views.Aspx;
 using Castle.MonoRail.Views.Brail;
 using log4net;
+using log4net.Config;
 using ReportTuner.Models;
 using NHibernate.Criterion;
 using Microsoft.Win32.TaskScheduler;
@@ -46,6 +47,7 @@ namespace Inforoom.ReportTuner
 
 		void Application_Start(object sender, EventArgs e)
 		{
+			XmlConfigurator.Configure();
 			ActiveRecordStarter.Initialize(new[]
 				                               	{
 				                               		Assembly.Load("ReportTuner"),
@@ -159,7 +161,6 @@ namespace Inforoom.ReportTuner
 			catch (Exception ex)
 			{ }
 			builder.AppendLine("--------------");
-
 			_log.Error(builder.ToString());
 		}
 

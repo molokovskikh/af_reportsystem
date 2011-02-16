@@ -79,8 +79,17 @@ public partial class Reports_schedule : System.Web.UI.Page
 
 		if (tempTask.State == TaskState.Running)
 		{
-			ErrorMassage.Text = "Уже запущен разовый отчет, выполнение данного отчета отложено.";
-			ErrorMassage.BackColor = Color.Red;
+			var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
+			if (tempTask.Definition.RegistrationInfo.Description == userName)
+			{
+				ErrorMassage.Text = "Успешно запущен разовый отчет, ожидайте окончания выполнения операции";
+				ErrorMassage.BackColor = Color.LightGreen;
+			}
+			else
+			{
+				ErrorMassage.Text = string.Format("Уже запущен разовый отчет, выполнение данного очета отложено (запустил: {0})" , userName);
+				ErrorMassage.BackColor = Color.Red;
+			}
 			btn_Mailing.Enabled = false;
 			RadioSelf.Enabled = false;
 			RadioMails.Enabled = false;
@@ -539,7 +548,8 @@ order by LogTime desc
 		var timeDay = DateTime.Now.Subtract(thisDay);
 		var tempMin = timeDay.TotalSeconds;*/
 		const int tempNum = 0;
-		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempNum), "tempTask", "temp");
+		string user = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
+		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempNum), user, "temp");
 		var newAction = new ExecAction(Path.GetDirectoryName(ScheduleHelper.ScheduleAppPath) + @"\ReportSystemBoot.exe",
 			"/gr:" + _generalReport.Id +
 			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1}", dtFrom.SelectedDate.ToShortDateString(), dtTo.SelectedDate.ToShortDateString()),
@@ -548,6 +558,7 @@ order by LogTime desc
 
 		taskDefinition.Actions.RemoveAt(0);
 		taskDefinition.Actions.Add(newAction);
+		taskDefinition.RegistrationInfo.Description = user;
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(tempNum), taskDefinition, "temp");
 
 		if (thisTask.State != TaskState.Running)
