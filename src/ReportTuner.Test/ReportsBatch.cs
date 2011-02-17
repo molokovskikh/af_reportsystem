@@ -470,5 +470,13 @@ select last_insert_id() as ReportCode;", connection);
 			CopyReports(251, 321);
 		}
 
+		[Test(Description = "создает отчеты у родительского отчета 443 по подобию отчетов для родительского отчета 19 с копированием всех свойств, задача пришла от Борисова")
+		, Ignore("это не тест, а метод для выполнения действий с отчетами")
+		]
+		public void CloneReportsToDestinationBy19()
+		{
+			CopyReports(19, 443);
+		}
+
 	}
 }
