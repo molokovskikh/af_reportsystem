@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using Common.Tools;
+using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
@@ -370,6 +372,58 @@ order by cd.ShortName", supplierIds.Implode());
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
 			return suppliers.Distinct().Implode();
+		}
+
+		public List<Offer> GetOffers(uint clientId)
+		{
+			GetOffers();
+
+			var result = new List<Offer>();
+
+			args.DataAdapter.SelectCommand.CommandText =
+				@"
+select 
+	p.CatalogId,
+	c.ProductId,
+	ifnull(c.CodeFirmCr, 0) as ProducerId,
+	s.Synonym as ProductName,
+	sfc.Synonym as ProducerName,
+
+	c.Id as CoreId,
+	c.Code,
+	ap.FirmCode as SupplierId,
+	c.PriceCode as PriceId,
+	ap.RegionCode as RegionId,
+	c.Quantity,
+	Core.Cost,
+
+	null as AssortmentCoreId,
+	null as AssortmentCode,
+	null as AssortmentSupplierId,
+	null as AssortmentPriceId,
+	null as AssortmentRegionId,
+	null as Quantity,
+	null as AssortmentCost
+from
+	Core
+	inner join ActivePrices ap on ap.PriceCode = Core.PriceCode and ap.RegionCode = ap.RegionCode
+	inner join farm.Core0 c on c.Id = Core.Id
+	inner join catalogs.Products p on p.Id = c.ProductId
+	left join farm.Synonym s on s.SynonymCode = c.SynonymCode
+	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.SynonymFirmCrCode
+";
+
+			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
+			{
+				foreach (var row in reader.Cast<IDataRecord>())
+				{
+					var offer = new Offer(row, null, null);
+					result.Add(offer);
+				}
+
+			}
+
+			return result;
 		}
 	}
 }

@@ -81,6 +81,7 @@
     <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="FastReports\FastReports.cs" />
+    <Compile Include="Helpers\DataRowAdapter.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="LeakOffersReportFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceNewProfileFixture.cs" />
@@ -98,6 +99,8 @@
     <Compile Include="OrderOutAllowedAssortmentFixture.cs" />
     <Compile Include="PharmacyMixed\PharmacyMixedProfileFixture.cs" />
     <Compile Include="PricesOfCompetitors\PricesOfcompetitorsFixture.cs" />
+    <Compile Include="ProviderReport\OfferFixture.cs" />
+    <Compile Include="ProviderReport\ProviderReportFixture.cs" />
     <Compile Include="RatingReport\RatingNewProfileFixture.cs" />
     <Compile Include="RatingReport\RatingProfileFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
