@@ -17,9 +17,9 @@ namespace Inforoom.ReportSystem.ByOrders
 		//private List<ulong> _regions;
 		private List<string> head;
 
-		private const string _mandatoryOrderFilter = "oh.Deleted = 0 and oh.Submited = 1";
+		//private const string _mandatoryOrderFilter = "oh.Deleted = 0 and oh.Submited = 1";
 		private const string _mandatoryClientFilter = "c.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
-		private const string _filters = _mandatoryOrderFilter + " and " + _mandatoryClientFilter;
+		private const string _filters = /*_mandatoryOrderFilter + " and " +*/ _mandatoryClientFilter;
 
 		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -61,9 +61,9 @@ Prod.Name as Producer,
 Ol.Cost, Ol.Quantity,
 BM.Code as MatrixCode,
 CD.ShortName AS Supplier,
-(Ol.Cost*Ol.Quantity) as Summ FROM orders.OrdersHead O
+(Ol.Cost*Ol.Quantity) as Summ FROM ordersold.OrdersHead O
 join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode
-join orders.OrdersList OL on OL.OrderId = O.RowId
+join ordersold.OrdersList OL on OL.OrderId = O.RowId
 join catalogs.Products P on OL.ProductID = P.Id
 left join farm.BuyingMatrix BM on RC.BuyingMatrixPriceId = BM.PriceId and BM.CatalogID = P.CatalogID
 

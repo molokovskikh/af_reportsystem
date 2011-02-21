@@ -75,7 +75,8 @@ namespace ReportSystem.Test
 		PharmacyOffers,
 		OffersReport,
 		LeakOffers,
-		PricesOfCompetitors
+		PricesOfCompetitors,
+		OrderOutAllowedAssortment
 	}
 
 	public static class TestHelper
