@@ -476,12 +476,14 @@ from
 	join catalogs.Products as p on p.id = c00.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
 	{3} farm.Core0 c0 on c0.productid = c00.productid {4} and C0.PriceCode = {5} 
-			and ((c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {10}) or (c0.Id = c00.Id))
 	{6}
 	left join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
 	left join farm.Synonym S on C0.SynonymCode = S.SynonymCode
 	left join farm.SynonymFirmCr Sfc on C0.SynonymFirmCrCode = Sfc.SynonymFirmCrCode
 	{8}
+WHERE 
+	((c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {10}) or (c0.Id = c00.Id))
+and (c00.Junk = 0 or c0.Id = c00.Id) 
 "
 					, 
 					producerId,
@@ -502,7 +504,7 @@ if(if(round(cc0.Cost * c0Prices.Upcost, 2) < c0.MinBoundCost, c0.MinBoundCost, r
 	c0.MaxBoundCost, if(round(cc0.Cost*c0Prices.UpCost,2) < c0.MinBoundCost, c0.MinBoundCost, round(cc0.Cost * c0Prices.Upcost, 2)))
 )"
 						: " null ",
-					" WHERE c00.Junk = 0 ",
+					@"",
 					assortmentSupplierId,
 					SourceRegionCode);
 
