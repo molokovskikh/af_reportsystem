@@ -61,11 +61,11 @@ from
 			IsNewClient = reader.Read();
 			reader.Close();
 
-			var offers = GetOffers(4u);
-			Assert.That(offers.Count, Is.GreaterThan(0));
-			Console.WriteLine("{0} Offers count: {1}", DateTime.Now, offers.Count);
-			var group = offers.GroupBy(item => item.CatalogId);
-			Console.WriteLine("{0} group by {1}", DateTime.Now, group.Count());
+			//var offers = GetOffers(4);
+			//Assert.That(offers.Count, Is.GreaterThan(0));
+			//Console.WriteLine("{0} Offers count: {1}", DateTime.Now, offers.Count);
+			//var group = offers.GroupBy(item => item.CatalogId);
+			//Console.WriteLine("{0} group by {1}", DateTime.Now, group.Count());
 		}
 	}
 

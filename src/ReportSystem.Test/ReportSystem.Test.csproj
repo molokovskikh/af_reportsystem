@@ -316,6 +316,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExecuteTemplate\ExecuteTemplate\ExecuteTemplate.csproj">
+      <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
+      <Name>ExecuteTemplate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">
       <Project>{BDC750F3-0940-43DB-9501-87A219530C35}</Project>
       <Name>ReportSystem</Name>

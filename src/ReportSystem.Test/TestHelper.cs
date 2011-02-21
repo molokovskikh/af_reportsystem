@@ -103,6 +103,7 @@ namespace ReportSystem.Test
 		public static void ProcessReport(BaseReport report, ReportsTypes type)
 		{
 			ProfileHelper.Start();
+			report.ReadReportParams();
 			report.ProcessReport();
 			report.ReportToFile(TestHelper.EnsureDeletion(type));
 			ProfileHelper.Stop();

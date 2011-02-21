@@ -374,50 +374,182 @@ order by cd.ShortName", supplierIds.Implode());
 			return suppliers.Distinct().Implode();
 		}
 
-		public List<Offer> GetOffers(uint clientId)
+		public List<Offer> GetOffers(int clientId, uint sourcePriceCode, uint? noiseSupplierId, bool allAssortment, bool byCatalog, bool withProducers)
 		{
-			GetOffers();
+			_clientCode = Convert.ToInt32(clientId);
+
+			args.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
+			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
+			{
+				IsNewClient = reader.Read();
+			}
+
+			GetActivePrices(args);
+
+			var assortmentSupplierId = Convert.ToUInt32(
+				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+					@"
+select FirmCode 
+	from usersettings.pricesdata 
+where pricesdata.PriceCode = ?PriceCode
+",
+					new MySqlParameter("?PriceCode", sourcePriceCode)));
+			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
+			var SourceRegionCode = Convert.ToUInt64(
+				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+					@"select RegionCode 
+	from usersettings.clientsdata 
+where FirmCode = ?ClientCode
+and not exists(select 1 from future.Clients where Id = ?ClientCode)
+union
+select RegionCode
+	from future.Clients
+where Id = ?ClientCode",
+					new MySqlParameter("?ClientCode", _clientCode)));
+
+			var enabledCost = MySqlHelper.ExecuteScalar(
+				args.DataAdapter.SelectCommand.Connection,
+				"select CostCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
+				new MySqlParameter("?SourcePC", sourcePriceCode),
+				new MySqlParameter("?SourceRegionCode", SourceRegionCode));
+			if (enabledCost != null)
+				MySqlHelper.ExecuteNonQuery(
+				args.DataAdapter.SelectCommand.Connection,
+				@"
+drop temporary table IF EXISTS Usersettings.SourcePrice;
+create temporary table Usersettings.SourcePrice engine=MEMORY
+select * from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode;",
+				new MySqlParameter("?SourcePC", sourcePriceCode),
+				new MySqlParameter("?SourceRegionCode", SourceRegionCode));
+			//int EnabledPrice = Convert.ToInt32(
+			//    MySqlHelper.ExecuteScalar(
+			//        args.DataAdapter.SelectCommand.Connection,
+			//        "select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
+			//        new MySqlParameter("?SourcePC", sourcePriceCode),
+			//        new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
+
+			var joinText = allAssortment ? " Left JOIN " : " JOIN ";
+
+			string withWithoutPropertiesText;
+			if (byCatalog)
+				withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetCatalogProductNameSubquery("p.id"));
+			else
+				withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetProductNameSubquery("p.id"));
+
+			var firmcr = withProducers ? " and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) " : string.Empty;
+			var producerId = withProducers ? " c00.CodeFirmCr " : " 0 ";
+			var producerName = withProducers ? " if(c0.SynonymFirmCrCode is not null, Sfc.Synonym , Prod.Name) " : " '-' ";
 
 			var result = new List<Offer>();
 
 			args.DataAdapter.SelectCommand.CommandText =
-				@"
+				string.Format(
+					@"
 select 
-	p.CatalogId,
-	c.ProductId,
-	ifnull(c.CodeFirmCr, 0) as ProducerId,
-	s.Synonym as ProductName,
-	sfc.Synonym as ProducerName,
+	p.CatalogId, 
+	c00.ProductId, 
 
-	c.Id as CoreId,
-	c.Code,
-	ap.FirmCode as SupplierId,
-	c.PriceCode as PriceId,
-	ap.RegionCode as RegionId,
-	c.Quantity,
-	Core.Cost,
+	{0} as ProducerId,
+	{1} as ProductName,
+	{2} as ProducerName,
 
-	null as AssortmentCoreId,
-	null as AssortmentCode,
-	null as AssortmentSupplierId,
-	null as AssortmentPriceId,
-	null as AssortmentRegionId,
-	null as Quantity,
-	null as AssortmentCost
-from
-	Core
-	inner join ActivePrices ap on ap.PriceCode = Core.PriceCode and ap.RegionCode = ap.RegionCode
-	inner join farm.Core0 c on c.Id = Core.Id
-	inner join catalogs.Products p on p.Id = c.ProductId
-	left join farm.Synonym s on s.SynonymCode = c.SynonymCode
-	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.SynonymFirmCrCode
-";
+	c00.Id as CoreId,
+	c00.Code,
+	Prices.FirmCode as SupplierId,
+	c00.PriceCode as PriceId,
+	Prices.RegionCode as RegionId,
+	c00.Quantity,
+	if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
+	c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
+
+	c0.Id as AssortmentCoreId,
+	c0.Code as AssortmentCode,
+	{9} as AssortmentSupplierId,
+	c0.PriceCode as AssortmentPriceId,
+	{10} as AssortmentRegionId,
+	c0.Quantity as AssortmentQuantity,
+	{7} as AssortmentCost
+from 
+	Usersettings.ActivePrices Prices
+	join farm.core0 c00 on c00.PriceCode = Prices.PriceCode
+		join farm.CoreCosts cc on cc.Core_Id = c00.Id and cc.PC_CostCode = Prices.CostCode
+	join catalogs.Products as p on p.id = c00.productid
+	join Catalogs.Catalog as cg on p.catalogid = cg.id
+	{3} farm.Core0 c0 on c0.productid = c00.productid {4} and C0.PriceCode = {5}
+	{6}
+	left join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
+	left join farm.Synonym S on C0.SynonymCode = S.SynonymCode
+	left join farm.SynonymFirmCr Sfc on C0.SynonymFirmCrCode = Sfc.SynonymFirmCrCode
+	{8}
+"
+					, 
+					producerId,
+					withWithoutPropertiesText,
+					producerName,
+					joinText,
+					firmcr,
+					sourcePriceCode,
+					(enabledCost != null) 
+						? @"
+left join farm.CoreCosts cc0 on cc0.Core_Id = c0.Id and cc0.PC_CostCode = " + enabledCost + @"
+left join Usersettings.SourcePrice c0Prices on c0Prices.CostCode = " + enabledCost
+						: "",
+					(enabledCost != null) 
+						? @"
+if(cc0.Cost is null, 0,
+if(if(round(cc0.Cost * c0Prices.Upcost, 2) < c0.MinBoundCost, c0.MinBoundCost, round(cc0.Cost * c0Prices.Upcost, 2)) > c0.MaxBoundCost,
+	c0.MaxBoundCost, if(round(cc0.Cost*c0Prices.UpCost,2) < c0.MinBoundCost, c0.MinBoundCost, round(cc0.Cost * c0Prices.Upcost, 2)))
+)"
+						: " null ",
+					" WHERE c00.Junk = 0 ",
+					assortmentSupplierId,
+					SourceRegionCode);
+
+
+
+//            GetOffers();
+
+//            args.DataAdapter.SelectCommand.CommandText =
+//                @"
+//select 
+//	p.CatalogId,
+//	c.ProductId,
+//	ifnull(c.CodeFirmCr, 0) as ProducerId,
+//	s.Synonym as ProductName,
+//	sfc.Synonym as ProducerName,
+//
+//	c.Id as CoreId,
+//	c.Code,
+//	ap.FirmCode as SupplierId,
+//	c.PriceCode as PriceId,
+//	ap.RegionCode as RegionId,
+//	c.Quantity,
+//	Core.Cost,
+//
+//	null as AssortmentCoreId,
+//	null as AssortmentCode,
+//	null as AssortmentSupplierId,
+//	null as AssortmentPriceId,
+//	null as AssortmentRegionId,
+//	null as Quantity,
+//	null as AssortmentCost
+//from
+//	Core
+//	inner join ActivePrices ap on ap.PriceCode = Core.PriceCode and ap.RegionCode = ap.RegionCode
+//	inner join farm.Core0 c on c.Id = Core.Id
+//	inner join catalogs.Products p on p.Id = c.ProductId
+//	left join farm.Synonym s on s.SynonymCode = c.SynonymCode
+//	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.SynonymFirmCrCode
+//";
+			Random random = null;
+			if (noiseSupplierId.HasValue)
+				random = new Random();
 
 			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
 			{
 				foreach (var row in reader.Cast<IDataRecord>())
 				{
-					var offer = new Offer(row, null, null);
+					var offer = new Offer(row, noiseSupplierId, random);
 					result.Add(offer);
 				}
 
