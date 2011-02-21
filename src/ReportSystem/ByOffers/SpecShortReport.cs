@@ -252,7 +252,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				if (_reportType <= 2)
 					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, ProducerId = 0};
 				else
-					return new {CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, offer.ProducerId};
+					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, offer.ProducerId};
 			}
 		}
 
