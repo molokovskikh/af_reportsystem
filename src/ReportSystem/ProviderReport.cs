@@ -437,7 +437,7 @@ select * from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceR
 				withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetProductNameSubquery("p.id"));
 
 			var firmcr = withProducers ? " and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) " : string.Empty;
-			var producerId = withProducers ? " c00.CodeFirmCr " : " 0 ";
+			var producerId = withProducers ? " ifnull(c00.CodeFirmCr, 0) " : " 0 ";
 			var producerName = withProducers ? " if(c0.SynonymFirmCrCode is not null, Sfc.Synonym , Prod.Name) " : " '-' ";
 
 			var result = new List<Offer>();
@@ -475,7 +475,8 @@ from
 		join farm.CoreCosts cc on cc.Core_Id = c00.Id and cc.PC_CostCode = Prices.CostCode
 	join catalogs.Products as p on p.id = c00.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
-	{3} farm.Core0 c0 on c0.productid = c00.productid {4} and C0.PriceCode = {5}
+	{3} farm.Core0 c0 on c0.productid = c00.productid {4} and C0.PriceCode = {5} 
+			and ((c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {10}) or (c0.Id = c00.Id))
 	{6}
 	left join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
 	left join farm.Synonym S on C0.SynonymCode = S.SynonymCode
