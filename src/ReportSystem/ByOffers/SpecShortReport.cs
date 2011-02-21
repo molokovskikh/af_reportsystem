@@ -197,6 +197,11 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.Columns["LeaderName"].Caption = "Лидер";
 
 
+			var emptyRow = dtNewRes.NewRow();
+			dtNewRes.Rows.Add(emptyRow);
+			emptyRow = dtNewRes.NewRow();
+			dtNewRes.Rows.Add(emptyRow);
+
 			var sorted = _reportData.OrderBy(r => r.ProductName);
 			foreach (var specShortReportData in sorted)
 			{
@@ -245,9 +250,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			else
 			{
 				if (_reportType <= 2)
-					return _calculateByCatalog ? offer.CatalogId : offer.ProductId;
+					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, ProducerId = 0};
 				else
-					return new {CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, ProducerId = offer.ProducerId};
+					return new {CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, offer.ProducerId};
 			}
 		}
 
