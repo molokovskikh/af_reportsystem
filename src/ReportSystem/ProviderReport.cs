@@ -421,12 +421,6 @@ create temporary table Usersettings.SourcePrice engine=MEMORY
 select * from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode;",
 				new MySqlParameter("?SourcePC", sourcePriceCode),
 				new MySqlParameter("?SourceRegionCode", SourceRegionCode));
-			//int EnabledPrice = Convert.ToInt32(
-			//    MySqlHelper.ExecuteScalar(
-			//        args.DataAdapter.SelectCommand.Connection,
-			//        "select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
-			//        new MySqlParameter("?SourcePC", sourcePriceCode),
-			//        new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
 
 			var joinText = allAssortment ? " Left JOIN " : " JOIN ";
 

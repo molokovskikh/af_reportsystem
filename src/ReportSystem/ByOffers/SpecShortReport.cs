@@ -61,6 +61,9 @@ namespace Inforoom.ReportSystem
 		private List<SpecShortReportData> _reportData;
 		private Hashtable _hash;
 
+		protected List<ulong> _Clients;
+
+
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -154,26 +157,13 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (ActualPrice == 0)
 				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
 
-			ProfileHelper.Next("GetOffers");
-			GetOffersByClient(_clientCode);
+			foreach (var client in _Clients)
+				GetOffersByClient(Convert.ToInt32(client));
 
 			ProfileHelper.Next("Calculate");
 			GetResultTable();
 
 			ProfileHelper.End();
-
-			//ProfileHelper.Next("GetOffers");
-			////Выбираем 
-			//GetOffers(e, _SupplierNoise);
-			//ProfileHelper.Next("GetCodes");
-			////Получили предложения интересующего прайс-листа в отдельную таблицу
-			//GetSourceCodes(e);
-			//ProfileHelper.Next("GetMinPrices");
-			////Получили лучшие предложения из всех прайс-листов с учетом требований
-			//GetMinPrice(e);
-			//ProfileHelper.Next("Calculate");
-			//Calculate();
-			//ProfileHelper.End();
 		}
 
 		private void GetResultTable()
@@ -229,7 +219,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 		private void GetOffersByClient(int clientId)
 		{
+			ProfileHelper.Next("GetOffers for client: " + clientId);
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
+			ProfileHelper.WriteLine("Offers count: " + offers.Count);
+			ProfileHelper.Next("ProcessOffers for client: " + clientId);
 			var groups = offers.GroupBy(o => GetKey(o));
 			foreach (var @group in groups)
 			{
@@ -262,10 +255,6 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			var item = (SpecShortReportData)hash[key];
 			if (item == null)
 			{
-				//if (_ProducerAccount)
-				//    item = new ProducerAwareReportData(offer);
-				//else
-				//    item = new ReportData(offer);
 				item = new SpecShortReportData(offer);
 				hash[key] = item;
 				data.Add(item);
@@ -278,10 +267,11 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (_reportParams.ContainsKey("SupplierNoise"))
 				_SupplierNoise = (int)getReportParam("SupplierNoise");
 			_reportType = (int)getReportParam("ReportType");
-			_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
+			if (_reportParams.ContainsKey("Clients"))
+				_Clients = (List<ulong>)getReportParam("Clients");
 		}
 
 		protected override void Calculate()
