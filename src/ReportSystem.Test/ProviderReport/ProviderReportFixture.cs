@@ -72,7 +72,7 @@ from
 	[TestFixture]
 	public class ProviderReportFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore("Это временный тест для проверки скорости выборки предложений")]
 		public void CheckSpeedLoad()
 		{
 			// Create new stopwatch
