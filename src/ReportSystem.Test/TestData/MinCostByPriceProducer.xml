@@ -71,4 +71,23 @@
     <SelectStoredProcedure />
     <DefaultValue>0</DefaultValue>
   </ReportProperties>
+  <ReportProperties>
+    <ID>8757</ID>
+    <ReportCode>589</ReportCode>
+    <PropertyID>189</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>189</ID1>
+    <ReportTypeCode>5</ReportTypeCode>
+    <PropertyName>Clients</PropertyName>
+    <DisplayName>Список аптек</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetClientCodeWithNewUsers</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportPropertyValues>
+    <ID>7616</ID>
+    <ReportPropertyID>8757</ReportPropertyID>
+    <Value>7160</Value>
+  </ReportPropertyValues>
 </NewDataSet>
