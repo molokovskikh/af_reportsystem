@@ -183,9 +183,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.Columns.Add("Code", typeof(string));
 			dtNewRes.Columns.Add("FullName", typeof(string));
 			dtNewRes.Columns.Add("FirmCr", typeof(string));
-			dtNewRes.Columns.Add("CustomerCost", typeof(float));
+			dtNewRes.Columns.Add("CustomerCost", typeof(decimal));
 			dtNewRes.Columns.Add("CustomerQuantity", typeof(string));
-			dtNewRes.Columns.Add("MinCost", typeof(float));
+			dtNewRes.Columns.Add("MinCost", typeof(decimal));
 			dtNewRes.Columns.Add("LeaderName", typeof(string));
 
 			dtNewRes.Columns["Code"].Caption = "Код";
@@ -210,11 +210,11 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				newRow["FullName"] = specShortReportData.ProductName;
 				newRow["FirmCr"] = specShortReportData.ProducerName;
 
-				newRow["MinCost"] = specShortReportData.MinCost;
+				newRow["MinCost"] = Convert.ToDecimal(specShortReportData.MinCost);
 				if (specShortReportData.AssortmentMinCost.HasValue)
 				{
 					newRow["CustomerQuantity"] = specShortReportData.AssortmentQuantity;
-					newRow["CustomerCost"] = specShortReportData.AssortmentMinCost;
+					newRow["CustomerCost"] = Convert.ToDecimal(specShortReportData.AssortmentMinCost);
 					if (specShortReportData.IsLeader())
 						newRow["LeaderName"] = "+";
 				}
