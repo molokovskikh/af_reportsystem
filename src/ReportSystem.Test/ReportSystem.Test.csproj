@@ -132,6 +132,9 @@
     <Content Include="TestData\MinCostByPriceNewWithClients.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestData\MinCostByPriceNewWithClientsWithoutAssortmentPrice.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\OffersReport.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

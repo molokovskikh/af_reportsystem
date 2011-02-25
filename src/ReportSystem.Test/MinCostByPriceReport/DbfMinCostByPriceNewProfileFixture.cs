@@ -21,5 +21,21 @@ namespace ReportSystem.Test
 			var report = new SpecShortReport(0, "MinCostByPriceNewDifficultDbf", Conn, false, ReportFormats.DBF, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewDifficult);
 		}
+
+		[Test]
+		public void DbfMinCostByPriceNewWithClients()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClients);
+			var report = new SpecShortReport(0, "MinCostByPriceNewWithClientsDbf", Conn, false, ReportFormats.DBF, props);
+			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClients);
+		}
+
+		[Test]
+		public void DbfMinCostByPriceNewWithClientsWithoutAssortmentPrice()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
+			var report = new SpecShortReport(0, "MinCostByPriceNewWithClientsWithoutAssortmentPriceDbf", Conn, false, ReportFormats.DBF, props);
+			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
+		}
 	}
 }

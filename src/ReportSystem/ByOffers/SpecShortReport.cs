@@ -110,13 +110,20 @@ order by cd.ShortName";
 		public void NewGeneratereport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("PreGetOffers");
-			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
-			if (_priceCode == 0)
-				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
-
-			DataRow drPrice = MySqlHelper.ExecuteDataRow(
-				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
-				@"
+			if (WithoutAssortmentPrice)
+			{
+				_priceCode = 0;
+				SourcePC = 0;
+				CustomerFirmName = String.Empty;
+			}
+			else
+			{
+				//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
+				if (_priceCode == 0)
+					throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
+				DataRow drPrice = MySqlHelper.ExecuteDataRow(
+					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+					@"
 select 
   concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
   pricesdata.PriceCode, 
@@ -131,17 +138,17 @@ and clientsdata.FirmCode = pricesdata.FirmCode
 and regions.RegionCode = clientsdata.RegionCode
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
 
-			if (drPrice == null)
-				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+				if (drPrice == null)
+					throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
 
-			SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
-			CustomerFirmName = drPrice["FirmName"].ToString();
+				SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
+				CustomerFirmName = drPrice["FirmName"].ToString();
 
-			//Проверка актуальности прайс-листа
-			int ActualPrice = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(
-					e.DataAdapter.SelectCommand.Connection,
-					@"
+				//Проверка актуальности прайс-листа
+				int ActualPrice = Convert.ToInt32(
+					MySqlHelper.ExecuteScalar(
+						e.DataAdapter.SelectCommand.Connection,
+						@"
 select 
   pc.PriceCode 
 from 
@@ -154,9 +161,10 @@ and pc.BaseCost = 1
 and pim.Id = pc.PriceItemId
 and fr.Id = pim.FormRuleId
 and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
-					new MySqlParameter("?SourcePC", SourcePC)));
-			if (ActualPrice == 0)
-				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
+						new MySqlParameter("?SourcePC", SourcePC)));
+				if (ActualPrice == 0)
+					throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
+			}
 
 			foreach (var client in _Clients)
 				GetOffersByClient(Convert.ToInt32(client));
@@ -171,7 +179,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		{
 			DataTable dtNewRes = new DataTable();
 			dtNewRes.TableName = "Results";
-			dtNewRes.Columns.Add("Code", typeof (string));
+
+			dtNewRes.Columns.Add("Code", typeof(string));
 			dtNewRes.Columns.Add("FullName", typeof(string));
 			dtNewRes.Columns.Add("FirmCr", typeof(string));
 			dtNewRes.Columns.Add("CustomerCost", typeof(float));
@@ -273,6 +282,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
 			if (_reportParams.ContainsKey("Clients"))
 				_Clients = (List<ulong>)getReportParam("Clients");
+			if (_reportParams.ContainsKey("WithoutAssortmentPrice"))
+				WithoutAssortmentPrice = (bool)getReportParam("WithoutAssortmentPrice");
+			if (WithoutAssortmentPrice)
+				_reportIsFull = true;
 		}
 
 		protected override void Calculate()
@@ -315,8 +328,18 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtExport.Columns[5].ColumnName = "MINCOST";
 			dtExport.Columns[6].ColumnName = "LEADER";
 
-			if ((_reportType != 2) && (_reportType != 4))
-				dtExport.Columns.Remove(dtExport.Columns[4]);
+			if (!WithoutAssortmentPrice)
+			{
+				if ((_reportType != 2) && (_reportType != 4))
+					dtExport.Columns.Remove(dtExport.Columns[4]);
+			}
+			else
+			{
+				dtExport.Columns.Remove(dtExport.Columns[6].ColumnName);
+				dtExport.Columns.Remove(dtExport.Columns[4].ColumnName);
+				dtExport.Columns.Remove(dtExport.Columns[3].ColumnName);
+				dtExport.Columns.Remove(dtExport.Columns[0].ColumnName);
+			}
 
 			base.DataTableToDbf(dtExport, fileName);
 		}

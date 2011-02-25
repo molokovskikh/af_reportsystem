@@ -39,6 +39,8 @@ namespace Inforoom.ReportSystem
 
 		protected string _clientsNames = "";
 
+		protected bool WithoutAssortmentPrice;
+
 		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -583,20 +585,29 @@ order by FullName, FirmCr";
 					ws.Cells[tableBeginRowIndex, i + 1] = result.Columns[i].Caption;
 
 				// од
-				((Range)ws.Columns[1, Type.Missing]).AutoFit();
+				if (!WithoutAssortmentPrice)
+					((Range)ws.Columns[1, Type.Missing]).AutoFit();
+				else
+					((Range)ws.Cells[tableBeginRowIndex, 1]).ColumnWidth = 0;
 				//Ќаименование
 				((Range)ws.Cells[tableBeginRowIndex, 2]).ColumnWidth = 20;
 				//ѕроизводитель
 				((Range)ws.Cells[tableBeginRowIndex, 3]).ColumnWidth = 10;
+				//÷ена прайс-листа
+				if (WithoutAssortmentPrice)
+					((Range)ws.Cells[tableBeginRowIndex, 4]).ColumnWidth = 0;
 				// оличество
-				if ((_reportType == 2) || (_reportType == 4))
+				if (!WithoutAssortmentPrice && (_reportType == 2 || _reportType == 4))
 					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 4;
 				else
 					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 0;
 				//min
 				((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 6;
 				//Ћидер
-				((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 9;
+				if (!WithoutAssortmentPrice)
+					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 9;
+				else
+					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 0;
 
 				//‘орматирование заголовков прайс-листов
 				FormatLeaderAndPrices(ws);
@@ -623,10 +634,20 @@ order by FullName, FirmCr";
 				//ќбъедин€ем несколько €чеек, чтобы в них написать текст
 				ws.Range["A1:K2", Missing.Value].Select();
 				((Range)wb.Application.Selection).Merge(null);
-				if (_reportType < 3)
-					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производител€ по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+				if (!WithoutAssortmentPrice)
+				{
+					if (_reportType < 3)
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производител€ по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+					else
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производител€ по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+				}
 				else
-					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производител€ по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+				{
+					if (_reportType < 3)
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производител€ создан " + DateTime.Now.ToString();
+					else
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производител€ создан " + DateTime.Now.ToString();
+				}
 			});
 		}
 

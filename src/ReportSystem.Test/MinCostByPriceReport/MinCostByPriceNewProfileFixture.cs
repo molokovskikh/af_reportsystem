@@ -31,6 +31,14 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void MinCostByPriceNewWithClientsWithoutAssortmentPrice()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
+		}
+
+		[Test]
 		public void With_ignored_suppliers()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);

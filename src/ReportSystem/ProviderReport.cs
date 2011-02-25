@@ -422,7 +422,7 @@ select * from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceR
 				new MySqlParameter("?SourcePC", sourcePriceCode),
 				new MySqlParameter("?SourceRegionCode", SourceRegionCode));
 
-			var joinText = allAssortment ? " Left JOIN " : " JOIN ";
+			var joinText = allAssortment || sourcePriceCode == 0 ? " Left JOIN " : " JOIN ";
 
 			string withWithoutPropertiesText;
 			if (byCatalog)
@@ -476,8 +476,7 @@ from
 	left join farm.SynonymFirmCr Sfc on C0.SynonymFirmCrCode = Sfc.SynonymFirmCrCode
 	{8}
 WHERE 
-	((c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {10}) or (c0.Id = c00.Id))
-and (c00.Junk = 0 or c0.Id = c00.Id) 
+  {11}
 "
 					, 
 					producerId,
@@ -500,7 +499,12 @@ if(if(round(cc0.Cost * c0Prices.Upcost, 2) < c0.MinBoundCost, c0.MinBoundCost, r
 						: " null ",
 					@"",
 					assortmentSupplierId,
-					SourceRegionCode);
+					SourceRegionCode,
+					sourcePriceCode == 0
+					? " c00.Junk = 0 "
+					: @"
+	((c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {0}) or (c0.Id = c00.Id))
+and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode));
 
 
 
