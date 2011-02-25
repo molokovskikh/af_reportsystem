@@ -37,6 +37,8 @@ namespace Inforoom.ReportSystem
 		protected string _suppliers;
 		protected string _ignoredSuppliers;
 
+		protected string _clientsNames = "";
+
 		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -568,6 +570,8 @@ order by FullName, FirmCr";
 				var rowCount = result.Rows.Count;
 				var columnCount = result.Columns.Count;
 
+				if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
+					tableBeginRowIndex = PutHeader(ws, tableBeginRowIndex, 12, String.Format("Выбранные аптеки: {0}", _clientsNames));
 				if (!String.IsNullOrEmpty(_suppliers))
 					tableBeginRowIndex = PutHeader(ws, tableBeginRowIndex, 12, String.Format("Список поставщиков: {0}", _suppliers));
 				if (!String.IsNullOrEmpty(_ignoredSuppliers))

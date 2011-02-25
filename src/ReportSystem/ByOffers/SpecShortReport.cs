@@ -63,7 +63,6 @@ namespace Inforoom.ReportSystem
 
 		protected List<ulong> _Clients;
 
-
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -83,6 +82,8 @@ namespace Inforoom.ReportSystem
 
 			_suppliers = GetShortSuppliers(e);
 			_ignoredSuppliers = GetIgnoredSuppliers(e);
+
+			_clientsNames = GetClientsNamesFromSQL(_Clients);
 		}
 
 		public string GetShortSuppliers(ExecuteArgs e)
