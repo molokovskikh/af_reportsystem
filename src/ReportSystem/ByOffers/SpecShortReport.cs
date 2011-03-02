@@ -280,8 +280,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
-			if (_reportParams.ContainsKey("Clients"))
-				_Clients = (List<ulong>)getReportParam("Clients");
+			_Clients = (List<ulong>)getReportParam("Clients");
+			if (_Clients.Count == 0)
+				throw new ReportException("Не установлен параметр \"Список аптек\".");
 			if (_reportParams.ContainsKey("WithoutAssortmentPrice"))
 				WithoutAssortmentPrice = (bool)getReportParam("WithoutAssortmentPrice");
 			if (WithoutAssortmentPrice)

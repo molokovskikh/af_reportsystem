@@ -39,6 +39,36 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void MinCostByPriceNewWithoutClients()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithoutClients);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			Assert.That(
+				() => TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithoutClients),
+				Throws.InstanceOf<ReportException>()
+					.And.Property("Message").EqualTo("Параметр 'Clients' не найден."));
+		}
+
+		[Test]
+		public void MinCostByPriceNewWithoutClientsZero()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClientsZero);
+
+			if (!props.Tables.Contains("ReportPropertyValues"))
+			{
+				var values = props.Tables.Add("ReportPropertyValues");
+				values.Columns.Add("ReportPropertyID");
+				values.Columns.Add("Value");
+			}
+
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			Assert.That(
+				() => TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClientsZero),
+				Throws.InstanceOf<ReportException>()
+					.And.Property("Message").EqualTo("Не установлен параметр \"Список аптек\"."));
+		}
+
+		[Test]
 		public void With_ignored_suppliers()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
