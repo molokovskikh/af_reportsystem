@@ -334,13 +334,24 @@ namespace Inforoom.ReportSystem
 
 			var valuesList = new List<string>();
 			args.DataAdapter.SelectCommand.CommandText = String.Format(
-@"select ShortName
-    from ClientsData
-  where FirmCode in {0}
+@"
+select 
+	ifnull(c.Name, cd.ShortName) as Name
+from 
+	ClientsData cd
+	left join future.Clients c on cd.FirmCode = c.Id
+where 
+	cd.FirmCode in {0}
 union
-select Name
-  from future.Clients
- where Id in {0}", filterStr);
+select 
+	c.Name
+from 
+	future.Clients c
+	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1
+where 
+	c.Id in {0}
+and cd.FirmCode is null
+order by 1", filterStr);
 			args.DataAdapter.SelectCommand.Parameters.Clear();
 			var dtValues = new DataTable();
 			args.DataAdapter.Fill(dtValues);

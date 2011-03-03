@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Diagnostics;
+using Common.Tools;
 using ExecuteTemplate;
 using Inforoom.ReportSystem;
 using MySql.Data.MySqlClient;
@@ -69,6 +71,22 @@ from
 		}
 	}
 
+	public class TestClientNamesBaseReport : Inforoom.ReportSystem.ProviderReport
+	{
+		public TestClientNamesBaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) : base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		{
+		}
+
+		public string PublicGetClientsNamesFromSQL(List<ulong> equalValues)
+		{
+			return GetClientsNamesFromSQL(equalValues);
+		}
+
+		public override void GenerateReport(ExecuteArgs e)
+		{
+		}
+	}
+
 	[TestFixture]
 	public class ProviderReportFixture : BaseProfileFixture
 	{
@@ -125,5 +143,141 @@ from
 			report.ReadReportParams();
 			report.ProcessReport();
 		}
+
+		private DataSet GetClients(string sql, int rowCount)
+		{
+			var dsClients = MySqlHelper.ExecuteDataset(
+				Conn,
+				sql);
+			Assert.That(dsClients.Tables.Count, Is.EqualTo(1), "Не выбрали клиентов, удовлетворяющих условию теста");
+			Assert.That(dsClients.Tables[0].Rows.Count, Is.EqualTo(rowCount), "Не выбрали клиентов, удовлетворяющих условию теста");
+
+			return dsClients;
+		}
+
+		private void CheckClientsName(DataTable clients)
+		{
+			var query =
+					from client in clients.AsEnumerable()
+					select new
+					{
+						Id = Convert.ToUInt64(client["Id"]),
+						Name = client["Name"].ToString()
+					};
+			var list = query.OrderBy(c => c.Name);
+
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
+			var report = new TestClientNamesBaseReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+
+			report.ProcessReport();
+
+			var names = report.PublicGetClientsNamesFromSQL(list.Select(c => c.Id).ToList());
+
+			Assert.That(names, Is.EqualTo(list.Select(c => c.Name).Implode()));
+		}
+
+		[Test(Description = "Проверяем работу метода с новыми клиентами")]
+		public void CheckClientNamesWithNewClients()
+		{
+			var dsClients = GetClients(
+				@"
+select 
+	c.Id,
+	c.Name 
+from 
+	future.Clients c
+	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1
+where
+  cd.FirmCode is null
+limit 1"
+				,
+				1);
+
+			CheckClientsName(dsClients.Tables[0]);
+		}
+
+		[Test(Description = "Проверяем работу метода со старыми клиентами")]
+		public void CheckClientNamesWithOldClients()
+		{
+			var dsClients = GetClients(
+				@"
+select 
+	cd.FirmCode as Id,
+	cd.ShortName as Name
+from 
+	usersettings.ClientsData cd
+	left join future.Clients c on cd.FirmCode = c.Id
+where
+	cd.FirmType = 1
+and c.Id is null
+limit 1"
+				,
+				1);
+
+			CheckClientsName(dsClients.Tables[0]);
+		}
+
+		[Test(Description = "Проверяем работу метода с новыми клиентами, для которых существуют старые клиенты с другим именем")]
+		public void CheckClientNamesWithNewAndOldClients()
+		{
+			var dsClients = GetClients(
+				@"
+select 
+	c.Id,
+	c.Name 
+from 
+	future.Clients c
+	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1 and cd.ShortName <> c.Name
+where
+  cd.FirmCode is not null
+limit 1"
+				,
+				1);
+
+			CheckClientsName(dsClients.Tables[0]);
+		}
+
+		[Test(Description = "Проверяем работу метода с различными типами клиентов")]
+		public void CheckClientNamesWithDifferentClients()
+		{
+			var dsClients = GetClients(
+				@"
+select
+*
+from
+(
+select 
+	c.Id,
+	c.Name 
+from 
+	future.Clients c
+	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1 and cd.ShortName <> c.Name
+where
+  cd.FirmCode is not null
+limit 1
+) cl1
+union
+select
+*
+from
+(
+select 
+	cd.FirmCode as Id,
+	cd.ShortName as Name
+from 
+	usersettings.ClientsData cd
+	left join future.Clients c on cd.FirmCode = c.Id
+where
+	cd.FirmType = 1
+and c.Id is null
+limit 1
+) cl2
+"
+				,
+				2);
+
+			CheckClientsName(dsClients.Tables[0]);
+		}
+
 	}
 }
