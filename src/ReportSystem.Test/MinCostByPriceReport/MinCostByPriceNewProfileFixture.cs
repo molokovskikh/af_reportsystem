@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using ExcelLibrary.SpreadSheet;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
 
@@ -28,6 +29,28 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClients);
 			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClients);
+
+			var workbook = Workbook.Load(TestHelper.GetFileName(ReportsTypes.MinCostByPriceNewWithClients));
+			Assert.That(workbook.Worksheets.Count, Is.GreaterThan(0));
+			var list = workbook.Worksheets[0];
+			Assert.That(list.Cells.Rows.Count, Is.GreaterThan(2));
+			Assert.That(list.Cells[2, 0].StringValue, Is.StringStarting("Выбранные аптеки: "));
+			Assert.That(list.Cells[5, 0].StringValue, Is.StringStarting("Список поставщиков: "));
+		}
+
+		[Test]
+		public void MinCostByPriceNewWithOneClient()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithOneClient);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithOneClient);
+
+			var workbook = Workbook.Load(TestHelper.GetFileName(ReportsTypes.MinCostByPriceNewWithOneClient));
+			Assert.That(workbook.Worksheets.Count, Is.GreaterThan(0));
+			var list = workbook.Worksheets[0];
+			Assert.That(list.Cells.Rows.Count, Is.GreaterThan(2));
+			Assert.That(list.Cells[2, 0].StringValue, Is.Not.StringStarting("Выбранные аптеки: "));
+			Assert.That(list.Cells[2, 0].StringValue, Is.StringStarting("Список поставщиков: "));
 		}
 
 		[Test]

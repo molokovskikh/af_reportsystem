@@ -83,7 +83,8 @@ namespace Inforoom.ReportSystem
 			_suppliers = GetShortSuppliers(e);
 			_ignoredSuppliers = GetIgnoredSuppliers(e);
 
-			_clientsNames = GetClientsNamesFromSQL(_Clients);
+			if (_Clients.Count > 1)
+				_clientsNames = GetClientsNamesFromSQL(_Clients);
 		}
 
 		public string GetShortSuppliers(ExecuteArgs e)

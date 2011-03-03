@@ -46,6 +46,7 @@ namespace ReportSystem.Test
 		MinCostByPrice,
 		MinCostByPriceNew,
 		MinCostByPriceNewWithClients,
+		MinCostByPriceNewWithOneClient,
 		MinCostByPriceNewWithClientsZero,
 		MinCostByPriceNewWithoutClients,
 		MinCostByPriceNewWithClientsWithoutAssortmentPrice,
