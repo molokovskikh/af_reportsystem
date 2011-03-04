@@ -503,8 +503,8 @@ if(if(round(cc0.Cost * c0Prices.Upcost, 2) < c0.MinBoundCost, c0.MinBoundCost, r
 					sourcePriceCode == 0
 					? " c00.Junk = 0 "
 					: @"
-	((c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {0}) or (c0.Id = c00.Id))
-and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode));
+	({1} (c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {0}) or (c0.Id = c00.Id))
+and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || sourcePriceCode == 0 ? "(c0.PriceCode is null) or" : string.Empty));
 
 
 
