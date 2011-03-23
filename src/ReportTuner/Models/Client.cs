@@ -17,7 +17,7 @@ namespace ReportTuner.Models
 		int FirmType { get; }
 	}
 
-	[ActiveRecord("usersettings.clientsdata")]
+	[ActiveRecord("Clientsdata", Schema = "Usersettings")]
 	public class Client : ActiveRecordBase<Client>, IClient
 	{
 		[PrimaryKey("FirmCode")]
@@ -53,7 +53,7 @@ namespace ReportTuner.Models
 		public virtual int FirmStatus { get; set; }
 	}
 
-	[ActiveRecord("future.Clients")]
+	[ActiveRecord("Clients", Schema = "Future")]
 	public class FutureClient : ActiveRecordBase<FutureClient>, IClient
 	{
 		[PrimaryKey]
@@ -68,8 +68,8 @@ namespace ReportTuner.Models
 		[BelongsTo("ContactGroupOwnerId")]
 		public virtual ContactGroupOwner ContactGroupOwner { get; set; }
 
-		[BelongsTo("PayerId")]
-		public virtual Payer BillingInstance { get; set; }
+		[HasAndBelongsToMany (typeof(Payer),  Schema = "Billing", Table = "PayerClients", ColumnKey = "ClientID", ColumnRef = "PayerID")]
+		public virtual IList<Payer> Payers { get; set; }
 
 		public string ShortNameAndId
 		{

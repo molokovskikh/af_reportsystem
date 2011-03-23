@@ -18,7 +18,7 @@ namespace ReportTuner.Reports
 		{
 			if (String.IsNullOrEmpty(Request["TemporaryId"]))
 			{
-				GeneralReport _generalReport = new GeneralReport() { Allow = true, Temporary = true, TemporaryCreationDate = DateTime.Now };
+				GeneralReport _generalReport = new GeneralReport() { Allow = true, Temporary = true, TemporaryCreationDate = DateTime.Now, Format = "Excel" };
 				//Выставляем плательщика 921 (Офис123)
 				//todo: Возможно потом это надо удалить
 				_generalReport.Payer = Payer.Find((uint)921);

@@ -385,8 +385,6 @@ namespace ReportTuner.Test
 			//    }
 			//}
 		}
-
-
 	}
 
 }
