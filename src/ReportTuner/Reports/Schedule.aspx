@@ -91,7 +91,7 @@ $().ready(function() {
                             Text="Выполнить и отослать на : " Checked="True" />
                         <br />
                         <asp:RadioButton ID="RadioMails" runat="server" GroupName="Mailing"
-                            Text="Выполнить и выстать на указанные адреса" />
+                            Text="Выполнить и выслать на указанные адреса" />
                         <br />
                         <br />
                         <asp:Label ID="Label5" runat="server" Width=420px Text="Адресаты (писать через запятую): " ></asp:Label>

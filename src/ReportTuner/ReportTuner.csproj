@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="JavaScript\jquery.validate.js" />
     <Content Include="Reports\base.aspx" />
     <Content Include="Reports\EnumValues.aspx" />
     <Content Include="Reports\error.aspx" />

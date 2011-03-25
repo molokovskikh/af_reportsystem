@@ -564,6 +564,7 @@ order by LogTime desc
 		if (thisTask.State != TaskState.Running)
 		{
 			thisTask.Run();
+			Thread.Sleep(2500);
 			Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
 		}
 	}
