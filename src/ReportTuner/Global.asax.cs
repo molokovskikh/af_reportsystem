@@ -14,7 +14,9 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Castle.MonoRail.Framework;
 using Castle.MonoRail.Framework.Configuration;
+using Castle.MonoRail.Framework.Container;
 using Castle.MonoRail.Framework.Internal;
+using Castle.MonoRail.Framework.Services;
 using Castle.MonoRail.Framework.Views.Aspx;
 using Castle.MonoRail.Views.Brail;
 using log4net;
@@ -29,7 +31,7 @@ using ReportTuner.Helpers;
 /// </summary>
 namespace Inforoom.ReportTuner
 {
-	public class Global : HttpApplication
+	public class Global : HttpApplication, IMonoRailContainerEvents
 	{
 		private System.ComponentModel.IContainer components;
 		private static readonly ILog _log = LogManager.GetLogger(typeof(Global));
@@ -200,6 +202,17 @@ namespace Inforoom.ReportTuner
 		void Application_End(object sender, EventArgs e)
 		{
 			//Code that runs on application shutdown
+		}
+
+		public void Created(IMonoRailContainer container)
+		{
+			//throw new NotImplementedException();
+		}
+
+		public void Initialized(IMonoRailContainer container)
+		{			
+			((DefaultViewComponentFactory)container.GetService<IViewComponentFactory>()).Inspect(Assembly.Load("ReportTuner"));
+			((DefaultViewComponentFactory)container.GetService<IViewComponentFactory>()).Inspect(Assembly.Load("Common.Web.Ui"));
 		}
 	}
 }

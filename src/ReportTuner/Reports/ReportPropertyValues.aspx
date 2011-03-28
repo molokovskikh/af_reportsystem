@@ -28,6 +28,7 @@
                 <asp:BoundField HeaderText="Значение" DataField="DisplayValue" />
             </Columns>
         </asp:GridView>    
-        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" />&nbsp;
+        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" 
+				style="height: 26px" />&nbsp;
     </div>
 </asp:Content>

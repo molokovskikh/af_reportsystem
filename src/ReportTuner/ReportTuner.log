@@ -10126,3 +10126,442 @@ Stack Trace:
 ----Session---
 --------------
 
+14:30:23.819 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:32:38.511 [12] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/ReportsTuning/SelectClients.rails?r=1&report=1560&rpv=14829&firmType=1
+--------------
+----Params----
+r: 1
+report: 1560
+rpv: 14829
+firmType: 1
+--------------
+----Error-----
+Message:
+Error processing MonoRail request. Action SelectClients on controller ReportsTuning
+Stack Trace:
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 111
+   в Castle.MonoRail.Framework.BaseHttpHandler.ProcessRequest(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 66
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Exception on process view: ReportsTuning\SelectClients
+Last accessed variable: report
+Stack Trace:
+   в Castle.MonoRail.Views.Brail.BooViewEngine.HandleException(String templateName, BrailBase view, Exception e) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 287
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 175
+   в Castle.MonoRail.Views.Brail.BooViewEngine.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 156
+   в Castle.MonoRail.Framework.Services.DefaultViewEngineManager.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewEngineManager.cs:строка 154
+   в Castle.MonoRail.Framework.Controller.ProcessView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1857
+   в Castle.MonoRail.Framework.Controller.RunActionAndRenderView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1729
+   в Castle.MonoRail.Framework.Controller.Process(IEngineContext engineContext, IControllerContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 109
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 94
+--------------
+Message:
+ViewComponent 'Bubble' could not be found. Was it registered? If you have enabled Windsor Integration, then it's likely that you have forgot to register the view component as a Windsor component. If you are sure you did it, then make sure the name used is the component id or the key passed to ViewComponentDetailsAttribute
+Stack Trace:
+   в Castle.MonoRail.Framework.Services.DefaultViewComponentRegistry.GetViewComponent(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewComponentRegistry.cs:строка 80
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.ResolveType(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 110
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.Create(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 75
+   в BrailView_SelectClients.Run()
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 171
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+--------------
+
+14:36:07.910 [23] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/ReportsTuning/SelectClients.rails?r=1&report=1560&rpv=14829&firmType=1
+--------------
+----Params----
+r: 1
+report: 1560
+rpv: 14829
+firmType: 1
+--------------
+----Error-----
+Message:
+Error processing MonoRail request. Action SelectClients on controller ReportsTuning
+Stack Trace:
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 111
+   в Castle.MonoRail.Framework.BaseHttpHandler.ProcessRequest(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 66
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Exception on process view: ReportsTuning\SelectClients
+Last accessed variable: report
+Stack Trace:
+   в Castle.MonoRail.Views.Brail.BooViewEngine.HandleException(String templateName, BrailBase view, Exception e) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 287
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 175
+   в Castle.MonoRail.Views.Brail.BooViewEngine.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 156
+   в Castle.MonoRail.Framework.Services.DefaultViewEngineManager.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewEngineManager.cs:строка 154
+   в Castle.MonoRail.Framework.Controller.ProcessView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1857
+   в Castle.MonoRail.Framework.Controller.RunActionAndRenderView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1729
+   в Castle.MonoRail.Framework.Controller.Process(IEngineContext engineContext, IControllerContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 109
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 94
+--------------
+Message:
+ViewComponent 'Bubble' could not be found. Was it registered? If you have enabled Windsor Integration, then it's likely that you have forgot to register the view component as a Windsor component. If you are sure you did it, then make sure the name used is the component id or the key passed to ViewComponentDetailsAttribute
+Stack Trace:
+   в Castle.MonoRail.Framework.Services.DefaultViewComponentRegistry.GetViewComponent(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewComponentRegistry.cs:строка 80
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.ResolveType(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 110
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.Create(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 75
+   в BrailView_SelectClients.Run()
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 171
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+--------------
+
+14:39:23.537 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/ReportsTuning/SelectClients.rails?r=1&report=1560&rpv=14829&firmType=1
+--------------
+----Params----
+r: 1
+report: 1560
+rpv: 14829
+firmType: 1
+--------------
+----Error-----
+Message:
+Error processing MonoRail request. Action SelectClients on controller ReportsTuning
+Stack Trace:
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 111
+   в Castle.MonoRail.Framework.BaseHttpHandler.ProcessRequest(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 66
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Exception on process view: ReportsTuning\SelectClients
+Last accessed variable: report
+Stack Trace:
+   в Castle.MonoRail.Views.Brail.BooViewEngine.HandleException(String templateName, BrailBase view, Exception e) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 287
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 175
+   в Castle.MonoRail.Views.Brail.BooViewEngine.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 156
+   в Castle.MonoRail.Framework.Services.DefaultViewEngineManager.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewEngineManager.cs:строка 154
+   в Castle.MonoRail.Framework.Controller.ProcessView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1857
+   в Castle.MonoRail.Framework.Controller.RunActionAndRenderView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1729
+   в Castle.MonoRail.Framework.Controller.Process(IEngineContext engineContext, IControllerContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 109
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 94
+--------------
+Message:
+ViewComponent 'Bubble' could not be found. Was it registered? If you have enabled Windsor Integration, then it's likely that you have forgot to register the view component as a Windsor component. If you are sure you did it, then make sure the name used is the component id or the key passed to ViewComponentDetailsAttribute
+Stack Trace:
+   в Castle.MonoRail.Framework.Services.DefaultViewComponentRegistry.GetViewComponent(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewComponentRegistry.cs:строка 80
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.ResolveType(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 110
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.Create(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 75
+   в BrailView_SelectClients.Run()
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 171
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+--------------
+
+14:40:33.267 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/ReportsTuning/SelectClients.rails?r=1&report=1560&rpv=14829&firmType=1
+--------------
+----Params----
+r: 1
+report: 1560
+rpv: 14829
+firmType: 1
+--------------
+----Error-----
+Message:
+Error processing MonoRail request. Action SelectClients on controller ReportsTuning
+Stack Trace:
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 111
+   в Castle.MonoRail.Framework.BaseHttpHandler.ProcessRequest(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 66
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Exception on process view: ReportsTuning\SelectClients
+Last accessed variable: report
+Stack Trace:
+   в Castle.MonoRail.Views.Brail.BooViewEngine.HandleException(String templateName, BrailBase view, Exception e) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 287
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 175
+   в Castle.MonoRail.Views.Brail.BooViewEngine.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 156
+   в Castle.MonoRail.Framework.Services.DefaultViewEngineManager.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewEngineManager.cs:строка 154
+   в Castle.MonoRail.Framework.Controller.ProcessView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1857
+   в Castle.MonoRail.Framework.Controller.RunActionAndRenderView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1729
+   в Castle.MonoRail.Framework.Controller.Process(IEngineContext engineContext, IControllerContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 109
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 94
+--------------
+Message:
+ViewComponent 'Bubble' could not be found. Was it registered? If you have enabled Windsor Integration, then it's likely that you have forgot to register the view component as a Windsor component. If you are sure you did it, then make sure the name used is the component id or the key passed to ViewComponentDetailsAttribute
+Stack Trace:
+   в Castle.MonoRail.Framework.Services.DefaultViewComponentRegistry.GetViewComponent(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewComponentRegistry.cs:строка 80
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.ResolveType(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 110
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.Create(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 75
+   в BrailView_SelectClients.Run()
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 171
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+--------------
+
+14:50:21.286 [19] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/ReportsTuning/SelectClients.rails?r=1&report=1560&rpv=14829&firmType=1
+--------------
+----Params----
+r: 1
+report: 1560
+rpv: 14829
+firmType: 1
+--------------
+----Error-----
+Message:
+Error processing MonoRail request. Action SelectClients on controller ReportsTuning
+Stack Trace:
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 111
+   в Castle.MonoRail.Framework.BaseHttpHandler.ProcessRequest(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 66
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Exception on process view: ReportsTuning\SelectClients
+Last accessed variable: report
+Stack Trace:
+   в Castle.MonoRail.Views.Brail.BooViewEngine.HandleException(String templateName, BrailBase view, Exception e) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 287
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 173
+   в Castle.MonoRail.Views.Brail.BooViewEngine.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 156
+   в Castle.MonoRail.Framework.Services.DefaultViewEngineManager.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewEngineManager.cs:строка 154
+   в Castle.MonoRail.Framework.Controller.ProcessView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1857
+   в Castle.MonoRail.Framework.Controller.RunActionAndRenderView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1729
+   в Castle.MonoRail.Framework.Controller.Process(IEngineContext engineContext, IControllerContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 109
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 94
+--------------
+Message:
+ViewComponent 'Bubble' could not be found. Was it registered? If you have enabled Windsor Integration, then it's likely that you have forgot to register the view component as a Windsor component. If you are sure you did it, then make sure the name used is the component id or the key passed to ViewComponentDetailsAttribute
+Stack Trace:
+   в Castle.MonoRail.Framework.Services.DefaultViewComponentRegistry.GetViewComponent(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewComponentRegistry.cs:строка 80
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.ResolveType(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 110
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.Create(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 75
+   в BrailView_SelectClients.Run()
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 171
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+--------------
+
+14:52:24.914 [18] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/ReportsTuning/SelectClients.rails?r=1&report=1560&rpv=14829&firmType=1
+--------------
+----Params----
+r: 1
+report: 1560
+rpv: 14829
+firmType: 1
+--------------
+----Error-----
+Message:
+Error processing MonoRail request. Action SelectClients on controller ReportsTuning
+Stack Trace:
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 111
+   в Castle.MonoRail.Framework.BaseHttpHandler.ProcessRequest(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 66
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Exception on process view: ReportsTuning\SelectClients
+Last accessed variable: report
+Stack Trace:
+   в Castle.MonoRail.Views.Brail.BooViewEngine.HandleException(String templateName, BrailBase view, Exception e) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 287
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 173
+   в Castle.MonoRail.Views.Brail.BooViewEngine.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 156
+   в Castle.MonoRail.Framework.Services.DefaultViewEngineManager.Process(String templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewEngineManager.cs:строка 154
+   в Castle.MonoRail.Framework.Controller.ProcessView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1857
+   в Castle.MonoRail.Framework.Controller.RunActionAndRenderView() в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 1729
+   в Castle.MonoRail.Framework.Controller.Process(IEngineContext engineContext, IControllerContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Controller.cs:строка 109
+   в Castle.MonoRail.Framework.BaseHttpHandler.Process(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\BaseHttpHandler.cs:строка 94
+--------------
+Message:
+ViewComponent 'Bubble' could not be found. Was it registered? If you have enabled Windsor Integration, then it's likely that you have forgot to register the view component as a Windsor component. If you are sure you did it, then make sure the name used is the component id or the key passed to ViewComponentDetailsAttribute
+Stack Trace:
+   в Castle.MonoRail.Framework.Services.DefaultViewComponentRegistry.GetViewComponent(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\DefaultViewComponentRegistry.cs:строка 80
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.ResolveType(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 110
+   в Castle.MonoRail.Framework.Services.AbstractViewComponentFactory.Create(String name) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\Services\AbstractViewComponentFactory.cs:строка 75
+   в BrailView_SelectClients.Run()
+   в Castle.MonoRail.Views.Brail.BooViewEngine.RenderView(String templateName, BrailBase view) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Views.Brail\BooViewEngine.cs:строка 171
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+--------------
+
+15:00:09.002 [15] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:00:19.719 [13] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/ReportsTuning/SelectClients.rails?r=1&report=1560&rpv=14829&firmType=1
+--------------
+----Params----
+r: 1
+report: 1560
+rpv: 14829
+firmType: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpException".
+Stack Trace:
+   в System.Web.HttpApplication.MapHttpHandler(HttpContext context, String requestType, VirtualPath path, String pathTranslated, Boolean useAppConfig)
+   в System.Web.HttpApplication.MapHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Невозможно загрузить файл или сборку "ReporTuner" или один из зависимых от них компонентов. Не удается найти указанный файл.
+Stack Trace:
+   в System.Reflection.RuntimeAssembly._nLoad(AssemblyName fileName, String codeBase, Evidence assemblySecurity, RuntimeAssembly locationHint, StackCrawlMark& stackMark, Boolean throwOnFileNotFound, Boolean forIntrospection, Boolean suppressSecurityChecks)
+   в System.Reflection.RuntimeAssembly.nLoad(AssemblyName fileName, String codeBase, Evidence assemblySecurity, RuntimeAssembly locationHint, StackCrawlMark& stackMark, Boolean throwOnFileNotFound, Boolean forIntrospection, Boolean suppressSecurityChecks)
+   в System.Reflection.RuntimeAssembly.InternalLoadAssemblyName(AssemblyName assemblyRef, Evidence assemblySecurity, StackCrawlMark& stackMark, Boolean forIntrospection, Boolean suppressSecurityChecks)
+   в System.Reflection.RuntimeAssembly.InternalLoad(String assemblyString, Evidence assemblySecurity, StackCrawlMark& stackMark, Boolean forIntrospection)
+   в System.Reflection.Assembly.Load(String assemblyString)
+   в Inforoom.ReportTuner.Global.Initialized(IMonoRailContainer container) в D:\Data\Projects\ReportSystem\src\ReportTuner\Global.asax.cs:строка 214
+   в Castle.MonoRail.Framework.MonoRailHttpHandlerFactory.FireContainerInitialized(HttpApplication instance, DefaultMonoRailContainer container) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\MonoRailHttpHandlerFactory.cs:строка 446
+   в Castle.MonoRail.Framework.MonoRailHttpHandlerFactory.CreateDefaultMonoRailContainer(IServiceProviderEx userServiceProvider, HttpApplication appInstance) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\MonoRailHttpHandlerFactory.cs:строка 354
+   в Castle.MonoRail.Framework.MonoRailHttpHandlerFactory.PerformOneTimeInitializationIfNecessary(HttpContext context) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\MonoRailHttpHandlerFactory.cs:строка 422
+   в Castle.MonoRail.Framework.MonoRailHttpHandlerFactory.GetHandler(HttpContext context, String requestType, String url, String pathTranslated) в c:\Tools\oss\Castle.MonoRail\src\Castle.MonoRail.Framework\MonoRailHttpHandlerFactory.cs:строка 83
+   в System.Web.HttpApplication.MapHttpHandler(HttpContext context, String requestType, VirtualPath path, String pathTranslated, Boolean useAppConfig)
+--------------
+--------------
+----Session---
+--------------
+
+15:00:31.754 [15] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:01:45.926 [13] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:01:48.750 [21] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
