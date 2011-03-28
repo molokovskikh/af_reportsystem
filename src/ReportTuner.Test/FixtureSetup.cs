@@ -2,19 +2,23 @@
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
+using System.IO;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using NUnit.Framework;
-
+using CassiniDev;
+using Settings = WatiN.Core.Settings;
 
 namespace ReportTuner.Test
 {
 	[SetUpFixture]
 	class FixtureSetup
 	{
+		private Server _webServer;
+
 		[SetUp]
-		public void InitTests()
-		{
+		public void SetupFixture()
+		{			
 			var connectionStringName = ConfigurationManager.ConnectionStrings.Cast<ConnectionStringSettings>().Skip(1).First().Name;
 			if (!ActiveRecordStarter.IsInitialized)
 			{
@@ -32,6 +36,19 @@ namespace ReportTuner.Test
 					});
 				ActiveRecordStarter.Initialize(new[] { Assembly.Load("Test.Support"), Assembly.Load("ReportTuner"), Assembly.Load("Common.Web.Ui") }, config);			 
 			}
+
+			var port = int.Parse(ConfigurationManager.AppSettings["webPort"]);
+			var webDir = ConfigurationManager.AppSettings["webDirectory"];	
+			_webServer = new Server(port, "/", Path.GetFullPath(webDir));
+			_webServer.Start();
+			Settings.Instance.AutoMoveMousePointerToTopLeft = false;
+			Settings.Instance.MakeNewIeInstanceVisible = false;			
+		}
+
+		[TearDown]
+		public void TeardownFixture()
+		{
+			_webServer.ShutDown();
 		}
 	}
 }

@@ -83,6 +83,6 @@ namespace ReportTuner.Test.Intagration
 				Assert.That(report.Payer.Clients[0].ShortName, Is.EqualTo("тестовый поставщик"));
 				Assert.That(report.Payer.FutureClients[0].ShortName, Is.EqualTo("тестовый клиент"));
 			}
-		}
+		}		
 	}
 }
