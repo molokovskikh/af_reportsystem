@@ -10565,3 +10565,711 @@ Stack Trace:
 ----Session---
 --------------
 
+16:41:10.320 [29] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Reports.aspx?r=1
+----Url-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+--------------
+----Params----
+rp: 1560
+r: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reportproperties_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_gclzuyif.7.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Reading from the stream has failed.
+Stack Trace:
+   в MySql.Data.MySqlClient.MySqlStream.LoadPacket()
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.AuthenticateNew()
+   в MySql.Data.MySqlClient.NativeDriver.Authenticate()
+   в MySql.Data.MySqlClient.NativeDriver.Open()
+   в MySql.Data.MySqlClient.Driver.Open()
+   в MySql.Data.MySqlClient.Driver.Create(MySqlConnectionStringBuilder settings)
+   в MySql.Data.MySqlClient.MySqlConnection.Open()
+   в Reports_ReportProperties.FillDDL(String proc, String filter, String id) в D:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 681
+   в Reports_ReportProperties.dgvNonOptional_RowDataBound(Object sender, GridViewRowEventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 427
+   в System.Web.UI.WebControls.GridView.OnRowDataBound(GridViewRowEventArgs e)
+   в System.Web.UI.WebControls.GridView.CreateRow(Int32 rowIndex, Int32 dataSourceIndex, DataControlRowType rowType, DataControlRowState rowState, Boolean dataBind, Object dataItem, DataControlField[] fields, TableRowCollection rows, PagedDataSource pagedDataSource)
+   в System.Web.UI.WebControls.GridView.CreateChildControls(IEnumerable dataSource, Boolean dataBinding)
+   в System.Web.UI.WebControls.CompositeDataBoundControl.PerformDataBinding(IEnumerable data)
+   в System.Web.UI.WebControls.GridView.PerformDataBinding(IEnumerable data)
+   в System.Web.UI.WebControls.DataBoundControl.OnDataSourceViewSelectCallback(IEnumerable data)
+   в System.Web.UI.DataSourceView.Select(DataSourceSelectArguments arguments, DataSourceViewSelectCallback callback)
+   в System.Web.UI.WebControls.DataBoundControl.PerformSelect()
+   в System.Web.UI.WebControls.BaseDataBoundControl.DataBind()
+   в System.Web.UI.WebControls.GridView.DataBind()
+   в Reports_ReportProperties.FillNonOptimal() в D:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 176
+   в Reports_ReportProperties.PostData() в D:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 103
+   в Reports_ReportProperties.Page_Load(Object sender, EventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 89
+   в System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e)
+   в System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   в System.Web.UI.Control.OnLoad(EventArgs e)
+   в System.Web.UI.Control.LoadRecursive()
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+Message:
+Не удается прочитать данные из транспортного соединения: Программа на вашем хост-компьютере разорвала установленное подключение.
+Stack Trace:
+   в MyNetworkStream.HandleOrRethrowException(Exception e)
+   в MyNetworkStream.Read(Byte[] buffer, Int32 offset, Int32 count)
+   в MySql.Data.MySqlClient.TimedStream.Read(Byte[] buffer, Int32 offset, Int32 count)
+   в System.IO.BufferedStream.Read(Byte[] array, Int32 offset, Int32 count)
+   в MySql.Data.MySqlClient.MySqlStream.ReadFully(Stream stream, Byte[] buffer, Int32 offset, Int32 count)
+   в MySql.Data.MySqlClient.MySqlStream.LoadPacket()
+--------------
+Message:
+Программа на вашем хост-компьютере разорвала установленное подключение
+Stack Trace:
+   в System.Net.Sockets.Socket.Receive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags)
+   в System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 size)
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+--------------
+
+17:38:34.809 [17] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+17:38:52.079 [17] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+----Url-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=1560&r=1
+--------------
+----Params----
+rp: 1560
+r: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reportproperties_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_gclzuyif.7.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Ссылка на объект не указывает на экземпляр объекта.
+Stack Trace:
+   в Reports_ReportProperties.CopyChangesToTable(GridView dgv, DataTable dt, String Column) в D:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 648
+   в Reports_ReportProperties.dgvNonOptional_RowCommand(Object sender, GridViewCommandEventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 712
+   в System.Web.UI.WebControls.GridView.OnRowCommand(GridViewCommandEventArgs e)
+   в System.Web.UI.WebControls.GridView.HandleEvent(EventArgs e, Boolean causesValidation, String validationGroup)
+   в System.Web.UI.WebControls.GridView.OnBubbleEvent(Object source, EventArgs e)
+   в System.Web.UI.Control.RaiseBubbleEvent(Object source, EventArgs args)
+   в System.Web.UI.WebControls.GridViewRow.OnBubbleEvent(Object source, EventArgs e)
+   в System.Web.UI.Control.RaiseBubbleEvent(Object source, EventArgs args)
+   в System.Web.UI.WebControls.Button.OnCommand(CommandEventArgs e)
+   в System.Web.UI.WebControls.Button.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.WebControls.Button.System.Web.UI.IPostBackEventHandler.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(IPostBackEventHandler sourceControl, String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(NameValueCollection postData)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+--------------
+
+11:10:26.031 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+11:10:29.459 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+11:10:30.212 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+11:24:56.557 [21] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+11:58:29.779 [33] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+12:06:38.868 [43] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+12:20:16.183 [44] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+12:41:26.469 [46] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+12:47:57.946 [50] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Reports.aspx?r=1
+----Url-------
+http://localhost:58935/Reports/Reports.aspx?r=1
+--------------
+----Params----
+r: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reports_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_moiwcgf5.10.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Ссылка на объект не указывает на экземпляр объекта.
+Stack Trace:
+   в Reports_Reports.CopyChangesToTable() в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 261
+   в Reports_Reports.btnApply_Click(Object sender, EventArgs e) в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 301
+   в System.Web.UI.WebControls.Button.OnClick(EventArgs e)
+   в System.Web.UI.WebControls.Button.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.WebControls.Button.System.Web.UI.IPostBackEventHandler.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(IPostBackEventHandler sourceControl, String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(NameValueCollection postData)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+StartTaskTime - 29.03.2011 12:41:54
+Inforoom.Reports.Schedule.DSSchedule - System.Data.DataSet
+--------------
+
+12:48:19.522 [40] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/Reports.aspx?r=1
+----Url-------
+http://localhost:58935/Reports/Reports.aspx?r=1
+--------------
+----Params----
+r: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reports_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_moiwcgf5.10.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Ссылка на объект не указывает на экземпляр объекта.
+Stack Trace:
+   в Reports_Reports.CopyChangesToTable() в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 261
+   в Reports_Reports.btnApply_Click(Object sender, EventArgs e) в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 301
+   в System.Web.UI.WebControls.Button.OnClick(EventArgs e)
+   в System.Web.UI.WebControls.Button.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.WebControls.Button.System.Web.UI.IPostBackEventHandler.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(IPostBackEventHandler sourceControl, String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(NameValueCollection postData)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+StartTaskTime - 29.03.2011 12:41:54
+Inforoom.Reports.Schedule.DSSchedule - System.Data.DataSet
+--------------
+
+12:54:26.264 [39] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=2&r=1
+----Url-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=2&r=1
+--------------
+----Params----
+rp: 2
+r: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reportproperties_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_moiwcgf5.6.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Connection must be valid and open to rollback transaction
+Stack Trace:
+   в MySql.Data.MySqlClient.MySqlTransaction.Rollback()
+   в Reports_ReportProperties.btnApply_Click(Object sender, EventArgs e) в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\ReportProperties.aspx.cs:строка 624
+   в System.Web.UI.WebControls.Button.OnClick(EventArgs e)
+   в System.Web.UI.WebControls.Button.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.WebControls.Button.System.Web.UI.IPostBackEventHandler.RaisePostBackEvent(String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(IPostBackEventHandler sourceControl, String eventArgument)
+   в System.Web.UI.Page.RaisePostBackEvent(NameValueCollection postData)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.Schedule.DSSchedule - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+--------------
+
+12:55:34.225 [41] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=2&r=1
+----Url-------
+http://localhost:58935/Reports/Reports.aspx?r=1
+--------------
+----Params----
+r: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reports_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_moiwcgf5.10.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Unable to connect to any of the specified MySQL hosts.
+Stack Trace:
+   в MySql.Data.MySqlClient.NativeDriver.Open()
+   в MySql.Data.MySqlClient.Driver.Open()
+   в MySql.Data.MySqlClient.Driver.Create(MySqlConnectionStringBuilder settings)
+   в MySql.Data.MySqlClient.MySqlConnection.Open()
+   в Reports_Reports.PostData() в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 64
+   в Reports_Reports.Page_Load(Object sender, EventArgs e) в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 55
+   в System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e)
+   в System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   в System.Web.UI.Control.OnLoad(EventArgs e)
+   в System.Web.UI.Control.LoadRecursive()
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.Schedule.DSSchedule - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+--------------
+
+13:01:58.618 [27] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:02:25.366 [30] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/Reports/ReportProperties.aspx?rp=2&r=1
+----Url-------
+http://localhost:58935/Reports/Reports.aspx?r=1
+--------------
+----Params----
+r: 1
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_reports_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_moiwcgf5.10.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Can't get hostname for your address
+Stack Trace:
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.Open()
+   в MySql.Data.MySqlClient.Driver.Open()
+   в MySql.Data.MySqlClient.Driver.Create(MySqlConnectionStringBuilder settings)
+   в MySql.Data.MySqlClient.MySqlConnection.Open()
+   в Reports_Reports.PostData() в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 64
+   в Reports_Reports.Page_Load(Object sender, EventArgs e) в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\Reports.aspx.cs:строка 55
+   в System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e)
+   в System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   в System.Web.UI.Control.OnLoad(EventArgs e)
+   в System.Web.UI.Control.LoadRecursive()
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.Schedule.DSSchedule - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+--------------
+
+13:02:49.357 [27] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/Reports/GeneralReports.aspx
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_generalreports_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_moiwcgf5.9.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Can't get hostname for your address
+Stack Trace:
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.Open()
+   в MySql.Data.MySqlClient.Driver.Open()
+   в MySql.Data.MySqlClient.Driver.Create(MySqlConnectionStringBuilder settings)
+   в MySql.Data.MySqlClient.MySqlConnection.Open()
+   в Reports_GeneralReports.PostData() в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\GeneralReports.aspx.cs:строка 70
+   в Reports_GeneralReports.Page_Load(Object sender, EventArgs e) в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\GeneralReports.aspx.cs:строка 55
+   в System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e)
+   в System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   в System.Web.UI.Control.OnLoad(EventArgs e)
+   в System.Web.UI.Control.LoadRecursive()
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.Schedule.DSSchedule - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+--------------
+
+13:04:40.935 [43] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/Reports/GeneralReports.aspx
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+Выдано исключение типа "System.Web.HttpUnhandledException".
+Stack Trace:
+   в System.Web.UI.Page.HandleError(Exception e)
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+   в System.Web.UI.Page.ProcessRequest()
+   в System.Web.UI.Page.ProcessRequestWithNoAssert(HttpContext context)
+   в System.Web.UI.Page.ProcessRequest(HttpContext context)
+   в ASP.reports_generalreports_aspx.ProcessRequest(HttpContext context) в c:\Windows\Microsoft.NET\Framework\v4.0.30319\Temporary ASP.NET Files\root\a5553eb5\1e558ee\App_Web_moiwcgf5.9.cs:строка 0
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+Message:
+Can't get hostname for your address
+Stack Trace:
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.Open()
+   в MySql.Data.MySqlClient.Driver.Open()
+   в MySql.Data.MySqlClient.Driver.Create(MySqlConnectionStringBuilder settings)
+   в MySql.Data.MySqlClient.MySqlConnection.Open()
+   в Reports_GeneralReports.PostData() в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\GeneralReports.aspx.cs:строка 70
+   в Reports_GeneralReports.Page_Load(Object sender, EventArgs e) в d:\Data\Projects\ReportSystem\src\ReportTuner\Reports\GeneralReports.aspx.cs:строка 55
+   в System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e)
+   в System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e)
+   в System.Web.UI.Control.OnLoad(EventArgs e)
+   в System.Web.UI.Control.LoadRecursive()
+   в System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint)
+--------------
+--------------
+----Session---
+UserName - tyutin
+Inforoom.Reports.Schedule.DSSchedule - System.Data.DataSet
+Inforoom.Reports.ReportProperties.DSParams - System.Data.DataSet
+Inforoom.Reports.Reports.DSReports - System.Data.DataSet
+Inforoom.Reports.GeneralReports.DSReports - System.Data.DataSet
+--------------
+
+13:55:07.485 [31] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:09.051 [23] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:10.148 [31] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/favicon.ico
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+

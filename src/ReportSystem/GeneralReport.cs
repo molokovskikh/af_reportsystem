@@ -204,7 +204,7 @@ where GeneralReport = ?GeneralReport;";
 
 			foreach (BaseReport bs in _reports)
 			{
-				bs.ReportToFile(_mainFileName);
+				bs.ReportToFile(_mainFileName);			
 			}
 
 			string ResFileName = ArchFile();

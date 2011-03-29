@@ -15,7 +15,7 @@ namespace ReportTuner.Test.Functional
 	{
 		[Test]
 		[Ignore]
-		public void Temp()
+		public void TestOneShortReport()
 		{			
 			using (var browser = new IE("http://localhost:53759/Reports/reports.aspx"))
 			{
@@ -45,9 +45,9 @@ namespace ReportTuner.Test.Functional
 					break;
 				}
 				Assert.That(finded, Is.True);
-				Thread.Sleep(5000);						
+				Thread.Sleep(15000);						
 				browser.Refresh();			
-				Thread.Sleep(5000);						
+				Thread.Sleep(15000);						
 				Assert.That(browser.Text, Is.StringContaining("Операция выполнена"));
 			}
 		}
