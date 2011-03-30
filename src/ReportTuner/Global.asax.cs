@@ -25,6 +25,7 @@ using ReportTuner.Models;
 using NHibernate.Criterion;
 using Microsoft.Win32.TaskScheduler;
 using ReportTuner.Helpers;
+using System.Diagnostics;
 
 /// <summary>
 /// Summary description for Global
@@ -48,7 +49,7 @@ namespace Inforoom.ReportTuner
 		}
 
 		void Application_Start(object sender, EventArgs e)
-		{
+		{			
 			XmlConfigurator.Configure();
 			ActiveRecordStarter.Initialize(new[]
 				                               	{

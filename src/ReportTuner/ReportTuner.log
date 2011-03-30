@@ -11273,3 +11273,713 @@ Stack Trace:
 ----Session---
 --------------
 
+13:36:21.695 [15] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:36:46.541 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/reports/error.aspx?aspxerrorpath=/
+--------------
+----Params----
+aspxerrorpath: /
+--------------
+----Error-----
+Message:
+Такой запрос не поддерживается. (Исключение из HRESULT: 0x80070032)
+Stack Trace:
+   в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password, Boolean forceV1)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+   в ReportTuner.Helpers.ScheduleHelper.GetService() в D:\Data\Projects\ReportSystem\src\ReportTuner\Helpers\ScheduleHelper.cs:строка 25
+   в Inforoom.ReportTuner.Global.Session_Start(Object sender, EventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Global.asax.cs:строка 90
+   в System.Web.SessionState.SessionStateModule.RaiseOnStart(EventArgs e)
+   в System.Web.SessionState.SessionStateModule.CompleteAcquireState()
+   в System.Web.SessionState.SessionStateModule.BeginAcquireState(Object source, EventArgs e, AsyncCallback cb, Object extraData)
+   в System.Web.HttpApplication.AsyncEventExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+UserName - tyutin
+--------------
+
+13:53:57.589 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:54:00.914 [17] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:42.304 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:55:56.025 [17] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:59:19.536 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+13:59:42.782 [41] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:01:27.767 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:01:45.063 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:18:43.532 [28] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:19:15.881 [22] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/reports/error.aspx?aspxerrorpath=/
+--------------
+----Params----
+aspxerrorpath: /
+--------------
+----Error-----
+Message:
+Такой запрос не поддерживается. (Исключение из HRESULT: 0x80070032)
+Stack Trace:
+   в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password, Boolean forceV1)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+   в ReportTuner.Helpers.ScheduleHelper.GetService() в D:\Data\Projects\ReportSystem\src\ReportTuner\Helpers\ScheduleHelper.cs:строка 25
+   в Inforoom.ReportTuner.Global.Session_Start(Object sender, EventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Global.asax.cs:строка 91
+   в System.Web.SessionState.SessionStateModule.RaiseOnStart(EventArgs e)
+   в System.Web.SessionState.SessionStateModule.CompleteAcquireState()
+   в System.Web.SessionState.SessionStateModule.BeginAcquireState(Object source, EventArgs e, AsyncCallback cb, Object extraData)
+   в System.Web.HttpApplication.AsyncEventExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+UserName - tyutin
+--------------
+
+14:20:03.646 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:21:45.968 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/reports/error.aspx?aspxerrorpath=/
+--------------
+----Params----
+aspxerrorpath: /
+--------------
+----Error-----
+Message:
+Попытка доступа к выгруженному объекту AppDomain. (Исключение из HRESULT: 0x80131014)
+Stack Trace:
+   в System.StubHelpers.StubHelpers.InternalGetCOMHRExceptionObject(Int32 hr, IntPtr pCPCMD, Object pThis)
+   в System.StubHelpers.StubHelpers.GetCOMHRExceptionObject(Int32 hr, IntPtr pCPCMD, Object pThis)
+   в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password, Boolean forceV1)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+   в ReportTuner.Helpers.ScheduleHelper.GetService() в D:\Data\Projects\ReportSystem\src\ReportTuner\Helpers\ScheduleHelper.cs:строка 25
+   в Inforoom.ReportTuner.Global.Session_Start(Object sender, EventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Global.asax.cs:строка 91
+   в System.Web.SessionState.SessionStateModule.RaiseOnStart(EventArgs e)
+   в System.Web.SessionState.SessionStateModule.CompleteAcquireState()
+   в System.Web.SessionState.SessionStateModule.BeginAcquireState(Object source, EventArgs e, AsyncCallback cb, Object extraData)
+   в System.Web.HttpApplication.AsyncEventExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+UserName - tyutin
+--------------
+
+14:25:23.238 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:27:49.416 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:30:47.896 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:30:56.788 [11] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/reports/error.aspx?aspxerrorpath=/
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+14:45:36.274 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/Reports/base.aspx
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+Попытка доступа к выгруженному объекту AppDomain. (Исключение из HRESULT: 0x80131014)
+Stack Trace:
+   в System.StubHelpers.StubHelpers.InternalGetCOMHRExceptionObject(Int32 hr, IntPtr pCPCMD, Object pThis)
+   в System.StubHelpers.StubHelpers.GetCOMHRExceptionObject(Int32 hr, IntPtr pCPCMD, Object pThis)
+   в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password, Boolean forceV1)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+   в ReportTuner.Helpers.ScheduleHelper.GetService() в D:\Data\Projects\ReportSystem\src\ReportTuner\Helpers\ScheduleHelper.cs:строка 25
+   в Inforoom.ReportTuner.Global.Session_Start(Object sender, EventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Global.asax.cs:строка 91
+   в System.Web.SessionState.SessionStateModule.RaiseOnStart(EventArgs e)
+   в System.Web.SessionState.SessionStateModule.CompleteAcquireState()
+   в System.Web.SessionState.SessionStateModule.BeginAcquireState(Object source, EventArgs e, AsyncCallback cb, Object extraData)
+   в System.Web.HttpApplication.AsyncEventExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+UserName - tyutin
+--------------
+
+14:45:58.419 [4] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/reports/error.aspx?aspxerrorpath=/Reports/base.aspx
+--------------
+----Params----
+aspxerrorpath: /Reports/base.aspx
+--------------
+----Error-----
+Message:
+Такой запрос не поддерживается. (Исключение из HRESULT: 0x80070032)
+Stack Trace:
+   в Microsoft.Win32.TaskScheduler.V2Interop.TaskSchedulerClass.Connect(Object serverName, Object user, Object domain, Object password)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password, Boolean forceV1)
+   в Microsoft.Win32.TaskScheduler.TaskService..ctor(String targetServer, String userName, String accountDomain, String password)
+   в ReportTuner.Helpers.ScheduleHelper.GetService() в D:\Data\Projects\ReportSystem\src\ReportTuner\Helpers\ScheduleHelper.cs:строка 25
+   в Inforoom.ReportTuner.Global.Session_Start(Object sender, EventArgs e) в D:\Data\Projects\ReportSystem\src\ReportTuner\Global.asax.cs:строка 91
+   в System.Web.SessionState.SessionStateModule.RaiseOnStart(EventArgs e)
+   в System.Web.SessionState.SessionStateModule.CompleteAcquireState()
+   в System.Web.SessionState.SessionStateModule.BeginAcquireState(Object source, EventArgs e, AsyncCallback cb, Object extraData)
+   в System.Web.HttpApplication.AsyncEventExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+UserName - tyutin
+--------------
+
+15:16:05.981 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:16:13.523 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:17:29.962 [11] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:21:35.103 [12] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:24:00.937 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:24:42.637 [5] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:24:46.162 [13] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:28:14.682 [12] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+15:28:21.481 [12] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+16:22:13.994 [12] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+16:22:16.536 [10] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+http://localhost:58935/
+----Url-------
+http://localhost:58935/Reports/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
+16:36:00.501 [11] ERROR Inforoom.ReportTuner.Global - ----UrlReferer-------
+
+----Url-------
+http://localhost:58935/
+--------------
+----Params----
+--------------
+----Error-----
+Message:
+File does not exist.
+Stack Trace:
+   в System.Web.StaticFileHandler.GetFileInfo(String virtualPathWithPathInfo, String physicalPath, HttpResponse response)
+   в System.Web.StaticFileHandler.ProcessRequestInternal(HttpContext context, String overrideVirtualPath)
+   в System.Web.DefaultHttpHandler.BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)
+   в System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   в System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+--------------
+--------------
+----Session---
+--------------
+
