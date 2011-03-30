@@ -52,5 +52,5 @@ Task @Clean:
 			FrameworkVersion : "4.0.30319").Execute()
 	Rm("${buildTo}*", true) if Exist(buildTo)
 	
-Task @deploy, [@Production, @Build, @Migrate, @SendDeployNotification]:
+Task @deploy, [@Backup, @Production, @Build, @Migrate, @SendDeployNotification]:
 	Cp(FileSet("*.*", BaseDirectory : buildTo), deployTo, true)
