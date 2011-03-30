@@ -187,8 +187,9 @@ namespace ReportTuner.Test.Intagration
 			DataTable result2 = FillClients("GetClientCodeWithNewUsers", "", supplier.Id.ToString());
 
 			DataRow row = result1.Rows[0];
-			uint id = (uint)row[0];
-			string name = row[1].ToString();
+
+			uint id = Convert.ToUInt32(row[0]);						
+			string name = Convert.ToString(row[1]);
 
 			Assert.That(result1.Rows.Count, Is.EqualTo(1));
 			Assert.That(result2.Rows.Count, Is.EqualTo(0));
