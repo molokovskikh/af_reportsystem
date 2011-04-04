@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using log4net;
 using log4net.Config;
 using MySql.Data.MySqlClient;
 using System.Configuration;
@@ -12,41 +13,51 @@ namespace Inforoom.ReportSystem
 {
 	class Program
 	{
+		private static ILog _log = LogManager.GetLogger(typeof(Program));
+
 		//Вспомогательная функция отправки письма
-		static void Mail(string From, string MessageTo, string Subject, string Body)
+		static void Mail(string from, string messageTo, string subject, string body)
 		{
 			try
 			{
-				MailMessage message = new MailMessage(From, MessageTo, Subject, Body);
-				SmtpClient Client = new SmtpClient(Settings.Default.SMTPHost);
+				var message = new MailMessage(from, messageTo, subject, body);
+				var client = new SmtpClient(Settings.Default.SMTPHost);
 				message.IsBodyHtml = false;
 				message.BodyEncoding = System.Text.Encoding.UTF8;
-				Client.Send(message);
+				client.Send(message);
 			}
-			catch
+			catch(Exception e)
 			{
+				_log.Error("Ошибка при отправке уведомления", e);
 			}
 		}
 
 		//Сообщение о глобальной ошибке, возникшей в результате работы программы
-		static void MailGlobalErr(string ErrDesc)
+		static void MailGlobalErr(string errDesc)
 		{
-			Mail(Properties.Settings.Default.ErrorFrom, Properties.Settings.Default.ErrorReportMail, "Ошибка при запуске программы отчетов",
-				String.Format("Параметры запуска : {0}\r\nОшибка : {1}", String.Join("  ", Environment.GetCommandLineArgs()), ErrDesc));
+			try
+			{
+				Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при запуске программы отчетов",
+					String.Format("Параметры запуска : {0}\r\nОшибка : {1}", String.Join("  ", Environment.GetCommandLineArgs()), errDesc));
+			}
+			catch (Exception e)
+			{
+				_log.Error("Ошибка при отправке уведомления", e);
+			}
 		}
 
 		//Сообщение об ошибке, возникшей в результате построения общего отчета
-		static void MailGeneralReportErr(string ErrDesc, string ShortName, ulong GeneralReportCode)
+		static void MailGeneralReportErr(string errDesc, string shortName, ulong generalReportCode)
 		{
-			Mail(Properties.Settings.Default.ErrorFrom, Properties.Settings.Default.ErrorReportMail, "Ошибка при запуске отчетa для " + ShortName,
-				String.Format("Код отчета : {0}\r\nОшибка : {1}", GeneralReportCode, ErrDesc));
+			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при запуске отчетa для " + shortName,
+				String.Format("Код отчета : {0}\r\nОшибка : {1}", generalReportCode, errDesc));
 		}
 
 		//Выбираем отчеты из базы
 		static DataTable GetGeneralReports(ReportsExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = e.SQL;
-			DataTable res = new DataTable();
+			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;
 		}
@@ -54,30 +65,23 @@ namespace Inforoom.ReportSystem
 		[STAThread]
 		static void Main(string[] args)
 		{
+			int generalReportId = 0;
 			try
 			{
 				XmlConfigurator.Configure();
 				//Попытка получить код общего отчета в параметрах
-				var GeneralReportID = -1;
-				var Interval = false;
+				var interval = false;
 				var dtFrom = new DateTime();
 				var dtTo = new DateTime();
-				try
+				generalReportId = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
+				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:")))
 				{
-					GeneralReportID = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
-					if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:")))
-					{
-						Interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:"));
-						dtFrom = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtFrom:"));
-						dtTo = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtTo:"));
-					}
-				}
-				catch (Exception)
-				{
-					throw;
+					interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:"));
+					dtFrom = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtFrom:"));
+					dtTo = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtTo:"));
 				}
 
-				if (GeneralReportID != -1)
+				if (generalReportId != -1)
 				{
 					var mc = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 					mc.Open();
@@ -92,10 +96,10 @@ FROM    reports.general_reports cr,
         billing.payers p
 WHERE   
      p.PayerId = cr.PayerId
-and cr.generalreportcode = " + GeneralReportID;
+and cr.generalreportcode = " + generalReportId;
 
 						//Выбирает отчеты согласно фильтру
-						DataTable dtGeneralReports = MethodTemplate.ExecuteMethod<ReportsExecuteArgs, DataTable>(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc);
+						var dtGeneralReports = MethodTemplate.ExecuteMethod(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc);
 
 						if ((dtGeneralReports != null) && (dtGeneralReports.Rows.Count > 0))
 						{
@@ -125,7 +129,7 @@ and cr.generalreportcode = " + GeneralReportID;
 										drReport[GeneralReportColumns.ReportArchName].ToString(),
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
-										propertiesLoader, Interval, dtFrom, dtTo);
+										propertiesLoader, interval, dtFrom, dtTo);
 									gr.ProcessReports();
 								}
 								catch (Exception ex)
@@ -138,7 +142,7 @@ and cr.generalreportcode = " + GeneralReportID;
 							}
 						}
 						else
-							MailGlobalErr(String.Format("Отчет с кодом {0} не существует.", GeneralReportID));
+							MailGlobalErr(String.Format("Отчет с кодом {0} не существует.", generalReportId));
 
 					}
 					finally
@@ -151,9 +155,9 @@ and cr.generalreportcode = " + GeneralReportID;
 			}
 			catch (Exception ex)
 			{
+				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
 				MailGlobalErr(ex.ToString());
 			}
-
 		}
 
 		//Аргументы для выбора отчетов из базы
