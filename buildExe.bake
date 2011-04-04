@@ -1,5 +1,4 @@
-﻿import file from common.bake
-import System
+﻿import System
 import System.Linq.Enumerable from System.Core
 import System.IO
 import System.ServiceProcess

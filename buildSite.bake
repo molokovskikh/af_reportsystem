@@ -1,6 +1,6 @@
-﻿import file from WebSiteSupport.bake
+﻿import System.IO
+import file from WebSiteSupport.bake
 import file from Migration.bake
-import System.IO
 import file from Deploy.bake
 
 Global(
