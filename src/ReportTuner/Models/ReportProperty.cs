@@ -6,7 +6,7 @@ using Castle.ActiveRecord;
 
 namespace ReportTuner.Models
 {
-	[ActiveRecord("reports.report_properties")]
+	[ActiveRecord("report_properties", Schema = "reports")]
 	public class ReportProperty : ActiveRecordBase<ReportProperty>
 	{
 		[PrimaryKey("ID")]
@@ -14,9 +14,6 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual ulong ReportCode { get; set; }
-
-		[Property]
-		public virtual ulong PropertyID { get; set; }
 
 		[BelongsTo("PropertyID")]
 		public virtual ReportTypeProperty PropertyType { get; set; }

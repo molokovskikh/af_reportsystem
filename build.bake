@@ -4,5 +4,7 @@ import file from Test.bake
 
 Global(
 	humanReadableName : "Генератор отчетов",
-	Platform : "x86"
+	Platform : "x86",
+	Project: "ReportTuner",
+	AdditionalAssemblies: ("Common.Web.Ui", )
 )

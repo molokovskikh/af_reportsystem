@@ -79,14 +79,16 @@ namespace ReportSystem.Test
 			properties.Tables[0].Rows.Add(row);
 		}
 
-		protected void BuildReport()
+		protected void BuildReport(string file = null)
 		{
-			if (File.Exists("test.xls"))
-				File.Delete("test.xls");
+			if (file == null)
+				file = "test.xls";
+			if (File.Exists(file))
+				File.Delete(file);
 			ProfileHelper.Start();
 			report.ReadReportParams();
 			report.ProcessReport();
-			report.ReportToFile(Path.GetFullPath("test.xls"));
+			report.ReportToFile(Path.GetFullPath(file));
 			ProfileHelper.Stop();
 
 		}

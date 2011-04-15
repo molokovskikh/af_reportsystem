@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Data;
 using System.Configuration;
 using System.IO;
@@ -58,7 +58,7 @@ namespace Inforoom.ReportTuner
 				                               	},
 										   ActiveRecordSectionHandler.Instance);
 
-			//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
+			//РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ С€Р°Р±Р»РѕРЅРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РІ Р±Р°Р·Рµ, РµСЃР»Рё РЅРµС‚, С‚Рѕ РїСЂРёР»РѕР¶РµРЅРёРµ РЅРµ Р·Р°РїСѓСЃРєР°РµРј
 			ulong _TemplateReportId;
 			if (ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out _TemplateReportId))
 			{
@@ -68,24 +68,24 @@ namespace Inforoom.ReportTuner
 				}
 				catch (NotFoundException exp)
 				{
-					throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
+					throw new ReportTunerException("Р’ С„Р°Р№Р»Рµ Web.Config РїР°СЂР°РјРµС‚СЂ TemplateReportId СѓРєР°Р·С‹РІР°РµС‚ РЅР° РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ Р·Р°РїРёСЃСЊ.", exp);
 				}
 			}
 			else
-				throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
+				throw new ReportTunerException("Р’ С„Р°Р№Р»Рµ Web.Config РїР°СЂР°РјРµС‚СЂ TemplateReportId РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РЅР°СЃС‚СЂРѕРµРЅ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕ.");
 
 		}
 
 		void Session_Start(object sender, EventArgs e)
 		{
-			//Это имя пользователя добавляем для того, чтобы корректно редактировались контакты
+			//Р­С‚Рѕ РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РґРѕР±Р°РІР»СЏРµРј РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РєРѕСЂСЂРµРєС‚РЅРѕ СЂРµРґР°РєС‚РёСЂРѕРІР°Р»РёСЃСЊ РєРѕРЅС‚Р°РєС‚С‹
 			string UserName = HttpContext.Current.User.Identity.Name;
 			if (UserName.StartsWith("ANALIT\\", StringComparison.OrdinalIgnoreCase))
 				UserName = UserName.Substring(7);
 			Session["UserName"] = UserName;
 
-			//Удаляем временные отчеты, которые старше 1 дня
-			GeneralReport[] _temporaryReportsForDelete = GeneralReport.FindAll(
+			//РЈРґР°Р»СЏРµРј РІСЂРµРјРµРЅРЅС‹Рµ РѕС‚С‡РµС‚С‹, РєРѕС‚РѕСЂС‹Рµ СЃС‚Р°СЂС€Рµ 1 РґРЅСЏ
+/*			GeneralReport[] _temporaryReportsForDelete = GeneralReport.FindAll(
 				Expression.Eq("Temporary", true),
 				Expression.Le("TemporaryCreationDate", DateTime.Now.AddDays(-1)));
 			using (TaskService taskService = ScheduleHelper.GetService())
@@ -111,8 +111,8 @@ namespace Inforoom.ReportTuner
 					catch (System.IO.FileNotFoundException)
 					{
 					}
-				}*/
-			}
+				}в™Ґ1в™Ґ
+			}*/
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)
@@ -190,13 +190,13 @@ namespace Inforoom.ReportTuner
 			//is set to InProc in the Web.config file. If session mode is set to StateServer 
 			//or SQLServer, the event is not raised.
 
-			//Проходим по всем объектам в сессии и если объект поддерживает интефейс IDisposable, то вызываем Dispose()
+			//РџСЂРѕС…РѕРґРёРј РїРѕ РІСЃРµРј РѕР±СЉРµРєС‚Р°Рј РІ СЃРµСЃСЃРёРё Рё РµСЃР»Рё РѕР±СЉРµРєС‚ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РёРЅС‚РµС„РµР№СЃ IDisposable, С‚Рѕ РІС‹Р·С‹РІР°РµРј Dispose()
 			for (int i = 0; i < Session.Count; i++)
 				if (Session[i] is IDisposable)
 					((IDisposable)Session[i]).Dispose();
-			//Очищаем коллекцию
+			//РћС‡РёС‰Р°РµРј РєРѕР»Р»РµРєС†РёСЋ
 			Session.Clear();
-			//Производим сборку мусора
+			//РџСЂРѕРёР·РІРѕРґРёРј СЃР±РѕСЂРєСѓ РјСѓСЃРѕСЂР°
 			GC.Collect();
 		}
 

@@ -120,6 +120,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.ActiveRecord">
+      <HintPath>..\..\lib\Castle.ActiveRecord.dll</HintPath>
+    </Reference>
     <Reference Include="ExcelLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ExcelLibrary.dll</HintPath>
@@ -173,6 +176,8 @@
     <Compile Include="ByOrders\OrderOutAllowedAssortment.cs" />
     <Compile Include="Helpers\ReadParameterHelper.cs" />
     <Compile Include="Model\Offer.cs" />
+    <Compile Include="Model\Region.cs" />
+    <Compile Include="Model\Supplier.cs" />
     <Compile Include="Writers\SupplierExcelWriter.cs" />
     <Content Include="App.ico" />
     <Compile Include="AssemblyInfo.cs">
