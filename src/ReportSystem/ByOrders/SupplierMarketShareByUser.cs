@@ -62,7 +62,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			new Grouping("oh.UserId",
  				new [] {
  					new Column("ClientName", "Клиент", "c.Name"), 
-					new Column("UserName", "Пользователь", "ifnull(c.Name, CAST(u.Id AS CHAR))"), 
+					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))"), 
 				}),
 			new Grouping("oh.AddressId", 
 				new [] {
