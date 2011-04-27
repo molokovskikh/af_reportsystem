@@ -145,7 +145,7 @@ order by rp.PropertyID;
 
 		[Test(Description = "создает отчеты по подобию отчета 'Отчет по оптимизации цен' для родительского отчета 238 с копированием всех свойств, меняя название заголовка отчета как краткое имя клиента и выставляя параметр 'Клиент'")
 		, Ignore("это не тест, а метод для выполнения действий с отчетами")
-		]		
+		]
 		public void CloneOptimizationEfficiencyReports()
 		{
 			ulong sourceGeneralReportId = 238;
@@ -207,7 +207,7 @@ where
     report_type_properties.ReportTypeCode = ?ReportTypeCode
 and report_type_properties.PropertyName = ?PropertyName;
 "
-					, 
+					,
 					connection);
 				updateReportCommand.Parameters.AddWithValue("?PropertyName", "ClientCode");
 				updateReportCommand.Parameters.AddWithValue("?ReportTypeCode", templateReport["ReportTypeCode"]);
@@ -479,13 +479,37 @@ select last_insert_id() as ReportCode;", connection);
 		}
 
 		[
-			Test(Description = "создает отчеты у родительского отчета 459 по подобию отчетов для родительского отчета 393 с копированием всех свойств, задача пришла от Павла"), 
+			Test(Description = "создает отчеты у родительского отчета 459 по подобию отчетов для родительского отчета 393 с копированием всех свойств, задача пришла от Павла"),
 			Ignore("это не тест, а метод для выполнения действий с отчетами")
 		]
-	    public void CloneReportsToDestinationBy434()
+		public void CloneReportsToDestinationBy434()
 		{
 			CopyReports(393, 459);
 		}
 
-    }
+		[
+			Test(Description = "копирует свойства отчетов у родительского отчета 479, задача пришла от Борисова"),
+			Ignore("это не тест, а метод для выполнения действий с отчетами")
+		]
+		public void CloneReportsForGeneralReport479()
+		{
+			CopyReportProperties(1595, 1605);
+			CopyReportProperties(1595, 1611);
+			CopyReportProperties(1595, 1617);
+			CopyReportProperties(1595, 1623);
+			CopyReportProperties(1595, 1629);
+
+			CopyReportProperties(1601, 1607);
+			CopyReportProperties(1601, 1613);
+			CopyReportProperties(1601, 1619);
+			CopyReportProperties(1601, 1625);
+			CopyReportProperties(1601, 1631);
+
+			CopyReportProperties(1603, 1609);
+			CopyReportProperties(1603, 1615);
+			CopyReportProperties(1603, 1621);
+			CopyReportProperties(1603, 1627);
+			CopyReportProperties(1603, 1633);
+		}
+	}
 }
