@@ -88,10 +88,10 @@ $().ready(function() {
                 <td valign="top" style="width:325px;" colspan=2>
                         <br />
                         <asp:RadioButton ID="RadioSelf" runat="server" GroupName="Mailing"
-                            Text="Выполнить и отослать на : " Checked="True" />
+                            Text="Выполнить и отослать на:" Checked="True" />
                         <br />
                         <asp:RadioButton ID="RadioMails" runat="server" GroupName="Mailing"
-                            Text="Выполнить и выслать на указанные адреса" />
+                            Text="Выполнить и выслать на указанные адреса:" />
                         <br />
                         <br />
                         <asp:Label ID="Label5" runat="server" Width=420px Text="Адресаты (писать через запятую): " ></asp:Label>

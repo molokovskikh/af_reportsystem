@@ -24,7 +24,7 @@ using ReportTuner.Models;
 using ReportTuner.Helpers;
 
 
-public partial class Reports_schedule : System.Web.UI.Page
+public partial class Reports_schedule : Page
 {
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
@@ -32,7 +32,7 @@ public partial class Reports_schedule : System.Web.UI.Page
 
 	private GeneralReport _generalReport;
 
-	TaskService taskService = null;
+	TaskService taskService;
 	TaskFolder reportsFolder;
 
     private DataSet DS;
@@ -67,10 +67,11 @@ public partial class Reports_schedule : System.Web.UI.Page
 
 		_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["r"]));        
 
-		taskService = ScheduleHelper.GetService();		
+		taskService = ScheduleHelper.GetService();
 		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
 		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
+
 
 		btnExecute.Enabled = currentTask.Enabled && (currentTask.State != TaskState.Running);
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
@@ -142,17 +143,26 @@ public partial class Reports_schedule : System.Web.UI.Page
 		{
 			ErrorMassage.Text = string.Empty;
 		}
-		var selfMail = GetSelfEmails();
-		if ((selfMail.Count != 0) && (selfMail[0].Length != 0))
-		{
-			RadioSelf.Text = "Выполнить и отослать на : " + selfMail[0][0];
-		}
-		mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
+		
 
-    	dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
-    	dtTo.SelectedDates.Add(DateTime.Now);
+		if (!IsPostBack)
+		{
+		}
+
+    	var _otherTriggers = new List<Trigger>();
     	if (!Page.IsPostBack)
+
         {
+			var selfMail = GetSelfEmails();
+			if ((selfMail.Count != 0) && (selfMail[0].Length != 0))
+			{
+				RadioSelf.Text = "Выполнить и отослать на: " + selfMail[0][0];
+			}
+
+			dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
+			dtTo.SelectedDates.Add(DateTime.Now);
+			mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
+
             //MyCn.Open();
 			try
 			{
@@ -208,27 +218,21 @@ order by LogTime desc
 			}
 			finally
 			{
-				MyCn.Close();				
+				MyCn.Close();
 			}
-            
-		    lblWork.Text = ((ExecAction)currentTask.Definition.Actions[0]).Path + " " + ((ExecAction)currentTask.Definition.Actions[0]).Arguments;
-            lblFolder.Text = ((ExecAction)currentTask.Definition.Actions[0]).WorkingDirectory;
+
 			chbAllow.Checked = currentTask.Enabled;
-			System.Collections.Generic.List<Trigger> _otherTriggers = new System.Collections.Generic.List<Trigger>();
-            TriggerCollection TL = currentTask.Definition.Triggers;
-            DaysOfTheWeek days;
-            for (int i = 0; i < TL.Count; i++)
-            {
-				if (TL[i] is WeeklyTrigger)
+			var tl = currentTask.Definition.Triggers;
+
+			for (int i = 0; i < tl.Count; i++)
+			{
+				if (tl[i] is WeeklyTrigger)
 				{
-					DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
-					WeeklyTrigger trigger = ((WeeklyTrigger)TL[i]);
-					dr[SStartHour.ColumnName] = ((WeeklyTrigger)(trigger)).StartBoundary.Hour;
-					dr[SStartMinute.ColumnName] = ((WeeklyTrigger)(trigger)).StartBoundary.Minute;
-					//               dr[SStart.ColumnName] = ((WeeklyTrigger)(trigger)).StartHour + ":" + ((WeeklyTrigger)(trigger)).StartMinute;
-					days = ((WeeklyTrigger)(trigger)).DaysOfWeek;
-					//days = days | DaysOfTheWeek.Friday | DaysOfTheWeek.Thursday;
-					System.Diagnostics.Debug.WriteLine(days);
+					var dr = DS.Tables[dtSchedule.TableName].NewRow();
+					var trigger = ((WeeklyTrigger)tl[i]);
+					dr[SStartHour.ColumnName] = trigger.StartBoundary.Hour;
+					dr[SStartMinute.ColumnName] = trigger.StartBoundary.Minute;
+					var days = trigger.DaysOfWeek;
 
 					SetWeekDays(dr, DaysOfTheWeek.Monday, days);
 					SetWeekDays(dr, DaysOfTheWeek.Tuesday, days);
@@ -241,8 +245,9 @@ order by LogTime desc
 					DS.Tables[dtSchedule.TableName].Rows.Add(dr);
 				}
 				else
-					_otherTriggers.Add(TL[i]);
+					_otherTriggers.Add(tl[i]);
 			}
+
             DS.Tables[dtSchedule.TableName].AcceptChanges();
             dgvSchedule.DataSource = DS;
             dgvSchedule.DataMember = dtSchedule.TableName;
@@ -547,8 +552,6 @@ order by LogTime desc
 
 	protected void btnExecute_Click(object sender, EventArgs e)
     {
-    	//var _runed = true;
-		//Process.Start(@"C:\Temp\ReportApp\ReportSystem.exe","/gr:1");
 		bool _runed = false;
 
 		if (this.IsValid && (currentTask.State != TaskState.Running))
@@ -585,11 +588,6 @@ order by LogTime desc
 
 	private void RunSelfTaskAndUpdateAction()
 	{
-		/*var thisTask = reportsFolder.Tasks.First(
-			task => task.Name.Equals("GR777", StringComparison.OrdinalIgnoreCase));*/
-		/*var thisDay = Convert.ToDateTime(DateTime.Now.ToShortDateString());
-		var timeDay = DateTime.Now.Subtract(thisDay);
-		var tempMin = timeDay.TotalSeconds;*/
 		const int tempNum = 0;
 		string user = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempNum), user, "temp");
@@ -680,12 +678,6 @@ and c.Type = ?ContactType");
 		return null;
 	}
 
-
-	/*protected void Send_in_mailing()
-	{
-		WriteEmailList(GetMailingAdresses());
-	}*/
-
 	protected void chbAllow_CheckedChanged(object sender, EventArgs e)
 	{
 
@@ -698,8 +690,5 @@ and c.Type = ?ContactType");
 		if (RadioMails.Checked)
 			Send_in_Emails();
 		RunSelfTaskAndUpdateAction();
-		//CloseTaskService();		
-//		Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
 	}
 }
-
