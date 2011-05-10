@@ -145,13 +145,8 @@ public partial class Reports_schedule : Page
 		}
 		
 
-		if (!IsPostBack)
-		{
-		}
-
     	var _otherTriggers = new List<Trigger>();
     	if (!Page.IsPostBack)
-
         {
 			var selfMail = GetSelfEmails();
 			if ((selfMail.Count != 0) && (selfMail[0].Length != 0))
@@ -222,6 +217,8 @@ order by LogTime desc
 			}
 
 			chbAllow.Checked = currentTask.Enabled;
+			lblWork.Text = ((ExecAction)currentTask.Definition.Actions[0]).Path + " " + ((ExecAction)currentTask.Definition.Actions[0]).Arguments;
+			lblFolder.Text = ((ExecAction)currentTask.Definition.Actions[0]).WorkingDirectory;
 			var tl = currentTask.Definition.Triggers;
 
 			for (int i = 0; i < tl.Count; i++)

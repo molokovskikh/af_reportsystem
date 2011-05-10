@@ -41,7 +41,7 @@ $().ready(function() {
 </script>
     <div align="center"><strong><font size ="2">        
 Задание для отчета "<asp:Label ID="lblReportComment" runat="server" Text="Label"/>" для плательщика "<asp:Label ID="lblClient" runat="server" Text="Label"/>"<br /><br />
-<asp:Label ID="ErrorMassage" runat="server" Text="Label"/>
+<asp:Label ID="ErrorMassage" runat="server" Text=""/>
 </font></strong></div>
     <div><font size ="2">
     <table width="100%">
