@@ -12,6 +12,7 @@ _resharper.*
 *.resharper.user
 *.resharper
 *.suo
+*.sln.docstates
 *.cache
 *.user
 *.log
