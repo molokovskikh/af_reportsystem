@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
 using System.Collections;
+using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -24,6 +26,7 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     private DataColumn PPropertyType;
     private DataColumn PPropertyValue;
     private DataColumn PPropertyEnumID;
+	private DataColumn PReportTypeCode;
     public DataTable dtEnumValues;
     private DataColumn PStoredProc;
     DataTable dtProcResult;
@@ -38,6 +41,7 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     private DataColumn OPStoredProc;
     private DataTable dtDDLOptionalParams;
     private DataColumn OPrtpID;
+	private DataColumn OPReportTypeCode;
 	private DataColumn CReportType;
 
     private const string DSParams = "Inforoom.Reports.ReportProperties.DSParams";
@@ -121,7 +125,8 @@ SELECT
     rtp.PropertyType as PPropertyType,
     rp.PropertyValue as PPropertyValue,
     rtp.PropertyEnumID as PPropertyEnumID,
-    rtp.selectstoredprocedure as PStoredProc
+    rtp.selectstoredprocedure as PStoredProc,
+	rtp.ReportTypeCode as PReportTypeCode
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
@@ -139,7 +144,8 @@ SELECT
     rtp.PropertyType as PPropertyType,
     rp.PropertyValue as PPropertyValue,
     rtp.PropertyEnumID as PPropertyEnumID,
-    rtp.selectstoredprocedure as PStoredProc
+    rtp.selectstoredprocedure as PStoredProc,
+	rtp.ReportTypeCode as PReportTypeCode
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
@@ -157,7 +163,8 @@ SELECT
     rtp.PropertyType as PPropertyType,
     rp.PropertyValue as PPropertyValue,
     rtp.PropertyEnumID as PPropertyEnumID,
-    rtp.selectstoredprocedure as PStoredProc
+    rtp.selectstoredprocedure as PStoredProc,
+	rtp.ReportTypeCode as PReportTypeCode
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
@@ -195,7 +202,9 @@ SELECT
     rtp.PropertyType as OPPropertyType,
     rp.PropertyValue as OPPropertyValue,
     rtp.PropertyEnumID as OPPropertyEnumID,
-    rtp.selectstoredprocedure as OPStoredProc
+    rtp.selectstoredprocedure as OPStoredProc,
+	rtp.ReportTypeCode as OPReportTypeCode
+	
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
@@ -223,6 +232,7 @@ AND rp.reportCode=?rp
 		this.PPropertyValue = new System.Data.DataColumn();
 		this.PPropertyEnumID = new System.Data.DataColumn();
 		this.PStoredProc = new System.Data.DataColumn();
+		this.PReportTypeCode = new System.Data.DataColumn();
 		this.dtClient = new System.Data.DataTable();
 		this.CReportCaption = new System.Data.DataColumn();
 		this.CReportType = new System.Data.DataColumn();
@@ -234,6 +244,7 @@ AND rp.reportCode=?rp
 		this.OPPropertyEnumID = new System.Data.DataColumn();
 		this.OPStoredProc = new System.Data.DataColumn();
 		this.OPrtpID = new System.Data.DataColumn();
+		this.OPReportTypeCode = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
@@ -255,7 +266,8 @@ AND rp.reportCode=?rp
             this.PPropertyType,
             this.PPropertyValue,
             this.PPropertyEnumID,
-            this.PStoredProc});
+            this.PStoredProc,
+			this.PReportTypeCode});
 		this.dtNonOptionalParams.TableName = "dtNonOptionalParams";
 		// 
 		// PID
@@ -284,6 +296,11 @@ AND rp.reportCode=?rp
 		// 
 		this.PStoredProc.ColumnName = "PStoredProc";
 		// 
+		// PReportTypeCode
+		// 
+		this.PReportTypeCode.ColumnName = "PReportTypeCode";
+		this.PReportTypeCode.DataType = typeof(long);
+		// 
 		// dtClient
 		// 
 		this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
@@ -308,7 +325,8 @@ AND rp.reportCode=?rp
             this.OPPropertyValue,
             this.OPPropertyEnumID,
             this.OPStoredProc,
-            this.OPrtpID});
+            this.OPrtpID,
+			this.OPReportTypeCode});
 		this.dtOptionalParams.TableName = "dtOptionalParams";
 		// 
 		// OPID
@@ -341,6 +359,11 @@ AND rp.reportCode=?rp
 		// 
 		this.OPrtpID.ColumnName = "OPrtpID";
 		this.OPrtpID.DataType = typeof(long);
+		//
+		// OPReportTypeCode
+		//
+    	this.OPReportTypeCode.ColumnName = "OPReportTypeCode";
+    	this.OPReportTypeCode.DataType = typeof (long);
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
@@ -429,8 +452,7 @@ AND rp.reportCode=?rp
 							"", 
 							((DataRowView)e.Row.DataItem)[PPropertyValue.ColumnName].ToString());
                         ShowSearchedParam(((DropDownList)e.Row.Cells[1].FindControl("ddlValue")), ((TextBox)e.Row.Cells[1].FindControl("tbSearch")), ((Button)e.Row.Cells[1].FindControl("btnFind")));
-
-                    }
+					}
                     else
                     {
                         ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible =false;
@@ -640,6 +662,7 @@ WHERE ID = ?OPID", MyCn, trans);
         {
             if (((DropDownList)dr.FindControl("ddlValue")).Visible == true)
             {
+				if (((DropDownList)dr.FindControl("ddlValue")).SelectedValue != null)
                 if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((DropDownList)dr.FindControl("ddlValue")).SelectedValue)
                     DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = ((DropDownList)dr.FindControl("ddlValue")).SelectedValue;
             }
@@ -757,13 +780,31 @@ WHERE ID = ?OPID", MyCn, trans);
 
     protected void ddlValue_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if(((DropDownList)sender).SelectedValue == "-1")
+		if(((DropDownList)sender).SelectedValue == "-1")
         {
             ((DropDownList)sender).Visible = false;
             ((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Visible = true;
             ((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Text = string.Empty;
             ((Button)((DropDownList)sender).Parent.FindControl("btnFind")).Visible = true;
         }
+		foreach (GridViewRow dr in dgvNonOptional.Rows)
+		{
+			if (dr.Cells[0].Text == "Клиент")
+			{
+				DropDownList ddl = (DropDownList)dr.Cells[1].FindControl("ddlValue");
+				if (ddl.UniqueID == ((DropDownList)sender).UniqueID)
+				{
+					foreach (GridViewRow dro in dgvOptional.Rows)
+					{
+						if (((Label)dro.Cells[0].FindControl("lblName")).Text == "Пользователь")
+						{
+							DropDownList ddlo = (DropDownList)dro.Cells[1].FindControl("ddlValue");
+							FillUserDDL(Convert.ToInt64(ddl.SelectedValue), ddlo);		
+						}
+					}
+				}
+			}
+		}
     }
 
     private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn)
@@ -803,11 +844,11 @@ WHERE ID = ?OPID", MyCn, trans);
             DropDownList ddlValues = ((DropDownList)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("ddlValue"));
             TextBox tbFind = ((TextBox)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
             Button btnFind = ((Button)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
-
-            FillDDL(
-				DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(),
-				tbFind.Text, 
-				String.Empty);
+        
+				FillDDL(
+					DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(),
+					tbFind.Text,
+					String.Empty);
             ShowSearchedParam(ddlValues, tbFind, btnFind);
         }
         else if (e.CommandName == "ShowValues")
@@ -868,6 +909,18 @@ WHERE ID = ?OPID", MyCn, trans);
             }
         }
     }
+
+	private void FillUserDDL(long clientID, DropDownList ddl)
+	{
+		if (clientID < 0) clientID = 0;
+		IList<FutureUser> users = FutureUser
+			.Queryable.Where(u => u.Client.Id == clientID).ToList();
+		IList<IUser> ulist = users.Cast<IUser>().OrderBy(u => u.ShortNameAndId).ToList();
+		ddl.DataSource = ulist;
+		ddl.DataTextField = "ShortNameAndId";
+		ddl.DataValueField = "Id";
+		ddl.DataBind();		
+	}
 
     private void FillDDLOptimal()
     {
@@ -978,13 +1031,29 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 
                     DropDownList ddlValues = ((DropDownList)e.Row.Cells[1].FindControl("ddlValue"));
                     ddlValues.Visible = true;
-                    FillDDL(Convert.ToInt64(((DataRowView)e.Row.DataItem)[OPPropertyEnumID.ColumnName]));
-                    ddlValues.DataSource = dtEnumValues;
-                    ddlValues.DataTextField = "evName";
-                    ddlValues.DataValueField = "evValue";
-                    if (!(((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName] is DBNull))
-                        ddlValues.SelectedValue = ((DataRowView)e.Row.DataItem)[OPPropertyValue.ColumnName].ToString();
-                    ddlValues.DataBind();
+
+					if (((DataRowView)e.Row.DataItem)[OPParamName.ColumnName].ToString() == "Пользователь")
+					{
+						foreach (GridViewRow dr in dgvNonOptional.Rows)
+						{
+							if (dr.Cells[0].Text == "Клиент")
+							{
+								DropDownList ddl = (DropDownList)dr.Cells[1].FindControl("ddlValue");
+								string id = ddl.SelectedValue;
+								FillUserDDL(Convert.ToInt64(id), ddlValues);
+							}
+						}
+					}
+					else
+					{
+						FillDDL(Convert.ToInt64(((DataRowView) e.Row.DataItem)[OPPropertyEnumID.ColumnName]));
+						ddlValues.DataSource = dtEnumValues;
+						ddlValues.DataTextField = "evName";
+						ddlValues.DataValueField = "evValue";
+						if (!(((DataRowView) e.Row.DataItem)[OPPropertyValue.ColumnName] is DBNull))
+							ddlValues.SelectedValue = ((DataRowView) e.Row.DataItem)[OPPropertyValue.ColumnName].ToString();
+						ddlValues.DataBind();
+					}
                 }
                 else if (((Label)e.Row.Cells[1].FindControl("lblType")).Text == "INT")
                 {
@@ -1010,7 +1079,7 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
                             ((DropDownList)e.Row.Cells[1].FindControl("ddlValue")).Visible = true;
                             ((TextBox)e.Row.Cells[1].FindControl("tbSearch")).Visible = false;
                             ((Button)e.Row.Cells[1].FindControl("btnFind")).Visible = false;
-
+		
                             FillDDL(
 								((DataRowView)e.Row.DataItem)[OPStoredProc.ColumnName].ToString(), 
 								"", 

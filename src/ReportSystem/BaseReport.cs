@@ -161,7 +161,9 @@ namespace Inforoom.ReportSystem
 						case "ENUM":
 							try
 							{
-								_reportParams.Add(currentPropertyName, Convert.ToInt32(drProperty[BaseReportColumns.colPropertyValue].ToString()));
+								string val = drProperty[BaseReportColumns.colPropertyValue].ToString();
+								if(!String.IsNullOrEmpty(val))
+									_reportParams.Add(currentPropertyName, Convert.ToInt32(drProperty[BaseReportColumns.colPropertyValue].ToString()));
 							}
 							catch (Exception ex)
 							{

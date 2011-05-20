@@ -57,6 +57,11 @@ namespace Inforoom.ReportSystem
 			_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
+			if (_reportParams.ContainsKey("UserCode"))
+			{
+				if (!String.IsNullOrEmpty(getReportParam("UserCode").ToString()))
+					_userCode = (int) getReportParam("UserCode");				
+			}
 		}
 
 		public override void GenerateReport(ExecuteArgs e)

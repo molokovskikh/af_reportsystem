@@ -19,6 +19,7 @@ namespace Inforoom.ReportSystem
 		protected int _clientCode;
 		protected int? _SupplierNoise = null;
 		protected bool IsNewClient = false;
+		protected int? _userCode = null;
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -220,7 +221,7 @@ and regions.RegionCode = activeprices.RegionCode";
 		protected void GetActivePricesNew()
 		{// Ќебольша€ маги€, через любого пользовател€ получаем прайсы клиента
 
-			// ѕолучаем первого попавшегос€ пользовател€
+			// ѕолучаем пользовател€
 			var userId = GetUserId();
 
 			// ѕолучаем дл€ него все прайсы
@@ -246,8 +247,17 @@ and regions.RegionCode = activeprices.RegionCode";
 
 		private uint GetUserId()
 		{
-			args.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode + " limit 1";
-			return Convert.ToUInt32(args.DataAdapter.SelectCommand.ExecuteScalar());
+			// ≈сли пользователь не передан в качестве параметра - берем первого попавшегос€
+			if (_userCode == null)
+			{
+				args.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode +
+				                                             " limit 1";
+				return Convert.ToUInt32(args.DataAdapter.SelectCommand.ExecuteScalar());
+			}
+			else
+			{
+				return Convert.ToUInt32(_userCode);
+			}
 		}
 
 		private void GetActivePricesOld()
