@@ -65,7 +65,7 @@ CD.ShortName AS Supplier,
 join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode
 join ordersold.OrdersList OL on OL.OrderId = O.RowId
 join catalogs.Products P on OL.ProductID = P.Id
-left join farm.BuyingMatrix BM on RC.BuyingMatrixPriceId = BM.PriceId and BM.CatalogID = P.CatalogID
+left join farm.BuyingMatrix BM on RC.BuyingMatrixPriceId = BM.PriceId and BM.ProductID = P.Id
 
 and if(OL.CodeFirmCr is null, BM.ProducerId is null, BM.ProducerId is null || BM.ProducerId = ol.CodeFirmCr)
 
