@@ -24,10 +24,8 @@
                 
                 <asp:TemplateField HeaderText="Биллинг код"  SortExpression="PayerID" HeaderStyle-Width="5%">
 					<ItemTemplate>
-						<a href='<%# String.Format(
-							    DataBinder.Eval(Container.DataItem, "IsNewClient").ToString() == "1" ? 
-								"https://stat.analit.net/FutureAdm/Billing/edit.rails?BillingCode={0}" : 
-								"https://stat.analit.net/adm/Billing/edit.rails?BillingCode={0}",
+						<a href='<%# String.Format(							    
+								"https://stat.analit.net/FutureAdm/Billing/edit.rails?BillingCode={0}",
 								DataBinder.Eval(Container.DataItem, "PayerID")) %>'> <%# DataBinder.Eval(Container.DataItem, "PayerID") %></a>
 					</ItemTemplate>
                 </asp:TemplateField>
