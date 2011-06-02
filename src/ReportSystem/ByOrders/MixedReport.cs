@@ -225,20 +225,19 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
-  join usersettings.retclientsset rcs on rcs.ClientCode = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
   join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.RegionCode
-  join billing.payers on payers.PayerId = IFNULL(cl.PayerId, cd.BillingCode) " +
+  join future.addresses adr on oh.AddressId = adr.Id
+  join billing.LegalEntities le on adr.LegalEntityId = le.Id
+  join billing.payers on payers.PayerId = le.PayerId" +
 	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + 
 	((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = ifnull({0}, 0)", firmCrField.primaryField): String.Empty)) : String.Empty) +
 @"
 where 
 ol.Junk = 0
-and ol.Await = 0
-and payers.PayerId <> 921
-and rcs.InvisibleOnFirm < 2";
+and ol.Await = 0";
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");

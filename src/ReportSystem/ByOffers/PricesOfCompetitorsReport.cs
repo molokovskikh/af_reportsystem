@@ -169,6 +169,10 @@ from Usersettings.ActivePrices Prices
 	{4}
 ", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere, firmcr);
 
+#if DEBUG
+				Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
+
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
 				NoisingCostInDataTable(offers, "Cost", "FirmCode", _SupplierNoise);

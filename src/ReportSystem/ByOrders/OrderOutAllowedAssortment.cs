@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using Common.Tools;
 using ExecuteTemplate;
@@ -18,8 +19,8 @@ namespace Inforoom.ReportSystem.ByOrders
 		private List<string> head;
 
 		//private const string _mandatoryOrderFilter = "oh.Deleted = 0 and oh.Submited = 1";
-		private const string _mandatoryClientFilter = "c.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
-		private const string _filters = /*_mandatoryOrderFilter + " and " +*/ _mandatoryClientFilter;
+		//private const string _mandatoryClientFilter = "c.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
+		//private const string _filters = /*_mandatoryOrderFilter + " and " +*/ _mandatoryClientFilter;
 
 		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -88,6 +89,9 @@ order by O.WriteTime");
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCode", _ClientId);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
+#if DEBUG
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
 			e.DataAdapter.Fill(_dsReport, "data");
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");

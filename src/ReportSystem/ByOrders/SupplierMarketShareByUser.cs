@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Castle.ActiveRecord;
@@ -81,7 +82,7 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		private Grouping _grouping;
 
-		private const string _filters = "u.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
+		//private const string _filters = "u.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
 
 		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -116,7 +117,7 @@ namespace Inforoom.ReportSystem.ByOrders
 					ActiveRecordSectionHandler.Instance);
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
-select {3},
+select {2},
 sum(ol.Cost * ol.Quantity) as TotalSum,
 sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
 from Orders.OrdersHead oh 
@@ -125,20 +126,22 @@ from Orders.OrdersHead oh
 		join Future.Users u on u.ClientId = c.Id and oh.UserId = u.Id
 	join Future.Addresses a on a.Id = oh.AddressId
 		join Billing.LegalEntities le on le.Id = a.LegalEntityId
-	join Usersettings.RetClientsSet rcs on rcs.ClientCode = oh.ClientCode
 	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 where oh.WriteTime > ?begin
 and oh.WriteTime < ?end
-and oh.RegionCode in ({1})
-and {0}
-group by {2}
-order by {4}", _filters, _regions.Implode(), _grouping.Group,
+and oh.RegionCode in ({0})
+group by {1}
+order by {3}",  _regions.Implode(), _grouping.Group,
 				_grouping.Columns.Implode(c => String.Format("{0} as {1}", c.Sql, c.Name)),
 				_grouping.Columns.Implode(c => c.Name));
 
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
+
+#if DEBUG
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
 			e.DataAdapter.Fill(_dsReport, "data");
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Common.Tools;
@@ -71,12 +72,12 @@ namespace Inforoom.ReportSystem
 			}
 			var payerWhere = string.Empty;
 			if (PayerEqual.Count != 0)
-			{
-				payerWhere += " AND fc.PayerId IN " + ConcatWhereIn(PayerEqual);
+			{				
+				payerWhere += " AND pc.PayerId IN " + ConcatWhereIn(PayerEqual);
 			}
 			if (PayerNonEqual.Count !=0)
-			{
-				payerWhere += " AND fc.PayerId NOT IN " + ConcatWhereIn(PayerNonEqual);
+			{				
+				payerWhere += " AND pc.PayerId NOT IN " + ConcatWhereIn(PayerNonEqual);
 			}
 			var clientWhere = string.Empty;
 			if (Clients.Count != 0)
@@ -91,9 +92,14 @@ namespace Inforoom.ReportSystem
 			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty))
 			where = regionalWhere + payerWhere + clientWhere;
 			e.DataAdapter.SelectCommand.CommandText = 
-			string.Format(@"SELECT fc.Id FROM future.Clients fc
+			string.Format(@"SELECT distinct fc.Id FROM future.Clients fc
+							join billing.PayerClients pc on fc.Id = pc.ClientId
 							join usersettings.RetClientsSet RCS on fc.id = RCS.ClientCode
 							WHERE RCS.ServiceClient = 0 and RCS.InvisibleOnFirm = 0 and fc.Status = 1 {0}", where);
+
+#if DEBUG
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			var result = new List<ulong>();
 			while (reader.Read())
