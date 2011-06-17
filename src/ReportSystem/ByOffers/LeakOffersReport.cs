@@ -45,11 +45,17 @@ join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode";
 			var data = new DataSet();
 			e.DataAdapter.Fill(data, "offers");
 
-			e.DataAdapter.SelectCommand.CommandText = @"
+			/*e.DataAdapter.SelectCommand.CommandText = @"
 select ap.PriceCode, cd.ShortName, ap.PriceName, ap.PositionCount
 from usersettings.activeprices ap
 join usersettings.clientsdata cd on cd.FirmCode = ap.FirmCode
+order by ap.PositionCount desc";*/
+            e.DataAdapter.SelectCommand.CommandText = @"
+select ap.PriceCode, supps.Name as ShortName, ap.PriceName, ap.PositionCount
+from usersettings.activeprices ap
+join future.suppliers supps on supps.Id = ap.FirmCode
 order by ap.PositionCount desc";
+
 			e.DataAdapter.Fill(_dsReport, "prices");
 
 			var groupByPrice = data.Tables["offers"].Rows.Cast<DataRow>().GroupBy(r => r["PriceCode"]);
