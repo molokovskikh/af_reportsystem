@@ -75,7 +75,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");
 
 			string CustomerFirmName;
-			DataRow drPrice = MySqlHelper.ExecuteDataRow(
+/*			DataRow drPrice = MySqlHelper.ExecuteDataRow(
 				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
 				@"
 select 
@@ -90,6 +90,22 @@ where
     pricesdata.PriceCode = ?PriceCode
 and clientsdata.FirmCode = pricesdata.FirmCode
 and regions.RegionCode = clientsdata.RegionCode
+limit 1", new MySqlParameter("?PriceCode", _priceCode));*/
+            DataRow drPrice = MySqlHelper.ExecuteDataRow(
+                            ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+                            @"
+select 
+  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
+  pricesdata.PriceCode, 
+  suppliers.HomeRegion
+from 
+  usersettings.pricesdata, 
+  future.suppliers,
+  farm.regions 
+where 
+    pricesdata.PriceCode = ?PriceCode
+and suppliers.Id = pricesdata.FirmCode
+and regions.RegionCode = suppliers.HomeRegion
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
 			if (drPrice != null)
 			{
@@ -131,12 +147,16 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (EnabledPrice == 0)
 			{
 				string ClientShortName = Convert.ToString(
-					MySqlHelper.ExecuteScalar(
+					/*MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						@"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode
 						union
 						  select Name from future.Clients where Id = ?FirmCode",
-						new MySqlParameter("?FirmCode", _clientCode)));
+						new MySqlParameter("?FirmCode", _clientCode)));*/
+                    MySqlHelper.ExecuteScalar(
+                        e.DataAdapter.SelectCommand.Connection,
+                        @"select Name from future.Clients where Id = ?FirmCode",
+                        new MySqlParameter("?FirmCode", _clientCode)));
 				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
 			}
 			

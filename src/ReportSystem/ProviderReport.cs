@@ -336,7 +336,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.ExecuteNonQuery();
 		}
 
-		protected void GetOffersOld()
+		/*protected void GetOffersOld()
 		{
 			//Проверка существования и отключения клиента
 			DataRow drClient = MySqlHelper.ExecuteDataRow(
@@ -356,18 +356,25 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
 			selectCommand.Parameters.AddWithValue("?FreshOnly", 0);
 			selectCommand.ExecuteNonQuery();
-		}
+		}*/
 
 		public static string GetSuppliers(ExecuteArgs e)
 		{
 			var suppliers = new List<string>();
-			e.DataAdapter.SelectCommand.CommandText = @"
+			/*e.DataAdapter.SelectCommand.CommandText = @"
 select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from Core cor
 	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
 	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
 group by cd.FirmCode
-order by cd.ShortName";
+order by cd.ShortName";*/
+            e.DataAdapter.SelectCommand.CommandText = @"
+select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
+from Core cor
+	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
+    join future.suppliers supps on supps.Id = pd.FirmCode
+group by supps.Id
+order by supps.Name";
 			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
 			{
 				while(reader.Read())
@@ -386,13 +393,20 @@ order by cd.ShortName";
 				return null;
 
 			var suppliers = new List<string>();
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			/*e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from usersettings.PricesData pd
 	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
 where pd.PriceCode in ({0})
 group by cd.FirmCode
-order by cd.ShortName", supplierIds.Implode());
+order by cd.ShortName", supplierIds.Implode());*/
+            e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
+from usersettings.PricesData pd
+    join future.suppliers supps on supps.Id = pd.FirmCode
+where pd.PriceCode in ({0})
+group by supps.Id
+order by supps.Name", supplierIds.Implode());
 			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
 			{
 				while(reader.Read())
@@ -422,7 +436,7 @@ where pricesdata.PriceCode = ?PriceCode
 ",
 					new MySqlParameter("?PriceCode", sourcePriceCode)));
 			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
-			var SourceRegionCode = Convert.ToUInt64(
+			/*var SourceRegionCode = Convert.ToUInt64(
 				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
 					@"select RegionCode 
 	from usersettings.clientsdata 
@@ -432,7 +446,14 @@ union
 select RegionCode
 	from future.Clients
 where Id = ?ClientCode",
-					new MySqlParameter("?ClientCode", _clientCode)));
+					new MySqlParameter("?ClientCode", _clientCode)));*/
+            var SourceRegionCode = Convert.ToUInt64(
+                MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+                    @"
+select RegionCode
+	from future.Clients
+where Id = ?ClientCode",
+                    new MySqlParameter("?ClientCode", _clientCode)));
 
 			var enabledCost = MySqlHelper.ExecuteScalar(
 				args.DataAdapter.SelectCommand.Connection,
