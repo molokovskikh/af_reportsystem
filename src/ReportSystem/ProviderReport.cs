@@ -19,7 +19,7 @@ namespace Inforoom.ReportSystem
 		// од клиента, необходимый дл€ получени€ текущих прайс-листов и предложений, относительно этого клиента
 		protected int _clientCode;
 		protected int? _SupplierNoise = null;
-		protected bool IsNewClient = false;
+		//protected bool IsNewClient = false;
 		protected int? _userCode = null;
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
@@ -29,10 +29,10 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
+			/*e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			IsNewClient = reader.Read();
-			reader.Close();
+			reader.Close();*/
 		}
 
 		public override void ReadReportParams()
@@ -161,10 +161,10 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			if(IsNewClient)
+			//if(IsNewClient)
 				GetActivePricesNew();
-			else
-				GetActivePricesOld();
+			//else
+				//GetActivePricesOld();
 
 			List<ulong> allowedFirms = null;
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
@@ -211,7 +211,7 @@ namespace Inforoom.ReportSystem
 
 			//ƒобавл€ем в таблицу ActivePrices поле FirmName и заполн€ем его также, как раньше дл€ отчетов
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			e.DataAdapter.SelectCommand.CommandText = @"
+/*			e.DataAdapter.SelectCommand.CommandText = @"
 alter table ActivePrices add column FirmName varchar(100);
 update 
   ActivePrices, usersettings.clientsdata, farm.regions 
@@ -219,7 +219,18 @@ set
   FirmName = concat(clientsdata.ShortName, '(', ActivePrices.PriceName, ') - ', regions.Region)
 where 
     activeprices.FirmCode = clientsdata.FirmCode 
+and regions.RegionCode = activeprices.RegionCode";*/
+
+		    e.DataAdapter.SelectCommand.CommandText = @"
+alter table ActivePrices add column FirmName varchar(100);
+update 
+  ActivePrices, future.suppliers, farm.regions 
+set 
+  FirmName = concat(suppliers.Name, '(', ActivePrices.PriceName, ') - ', regions.Region)
+where 
+    activeprices.FirmCode = suppliers.Id 
 and regions.RegionCode = activeprices.RegionCode";
+
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 		}
@@ -266,7 +277,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			}
 		}
 
-		private void GetActivePricesOld()
+		/*private void GetActivePricesOld()
 		{
 			var selectCommand = args.DataAdapter.SelectCommand;
 			selectCommand.CommandText = "usersettings.GetActivePrices";
@@ -274,17 +285,17 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
 			selectCommand.ExecuteNonQuery();
-		}
+		}*/
 
 		//ѕолучили список предложений дл€ интересующего клиента
 		protected void ExecuterGetOffers(ExecuteArgs e, int? noiseFirmCode)
 		{
 			GetActivePrices(e);
 
-			if(IsNewClient)
+			//if(IsNewClient)
 				GetOffersNew(noiseFirmCode);
-			else
-				GetOffersOld();
+			//else
+				//GetOffersOld();
 
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 		}
@@ -394,11 +405,11 @@ order by cd.ShortName", supplierIds.Implode());
 		{
 			_clientCode = Convert.ToInt32(clientId);
 
-			args.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
+			/*args.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
 			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
 			{
 				IsNewClient = reader.Read();
-			}
+			}*/
 
 			GetActivePrices(args);
 

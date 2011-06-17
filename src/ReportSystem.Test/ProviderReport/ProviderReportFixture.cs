@@ -21,10 +21,10 @@ namespace ReportSystem.Test.ProviderReport
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
+			/*e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			IsNewClient = reader.Read();
-			reader.Close();
+			reader.Close();*/
 
 			GetOffers();
 			var dataSet = MySqlHelper.ExecuteDataset(
@@ -58,10 +58,10 @@ from
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
+			/*e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			IsNewClient = reader.Read();
-			reader.Close();
+			reader.Close();*/
 
 			//var offers = GetOffers(4);
 			//Assert.That(offers.Count, Is.GreaterThan(0));

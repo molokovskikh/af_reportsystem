@@ -335,7 +335,7 @@ namespace Inforoom.ReportSystem
 			filterStr[filterStr.Length - 1] = ')';
 
 			var valuesList = new List<string>();
-			args.DataAdapter.SelectCommand.CommandText = String.Format(
+/*			args.DataAdapter.SelectCommand.CommandText = String.Format(
 @"
 select 
 	ifnull(c.Name, cd.ShortName) as Name
@@ -353,6 +353,15 @@ from
 where 
 	c.Id in {0}
 and cd.FirmCode is null
+order by 1", filterStr);*/
+            args.DataAdapter.SelectCommand.CommandText = String.Format(
+@"
+select 
+	c.Name
+from 
+	future.Clients c
+where 
+	c.Id in {0}
 order by 1", filterStr);
 			args.DataAdapter.SelectCommand.Parameters.Clear();
 			var dtValues = new DataTable();
