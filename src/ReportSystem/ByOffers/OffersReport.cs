@@ -91,7 +91,7 @@ limit 1", new MySqlParameter("?PriceCode", _priceCode));*/
 select 
   concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
   pricesdata.PriceCode, 
-  suppliers.HomeRegion
+  suppliers.HomeRegion as RegionCode
 from 
   usersettings.pricesdata, 
   future.suppliers,
