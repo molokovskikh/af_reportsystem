@@ -74,7 +74,7 @@ namespace Inforoom.ReportSystem
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
 
 			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
-			SourceRegionCode = Convert.ToInt64(
+			/*SourceRegionCode = Convert.ToInt64(
 				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
 					@"select RegionCode 
 	from usersettings.clientsdata 
@@ -84,9 +84,15 @@ union
 select RegionCode
 	from future.Clients
 where Id = ?ClientCode",
-					new MySqlParameter("?ClientCode", _clientCode)));
+					new MySqlParameter("?ClientCode", _clientCode)));*/
+            SourceRegionCode = Convert.ToInt64(
+                MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+                    @"select RegionCode
+	from future.Clients
+where Id = ?ClientCode",
+                                new MySqlParameter("?ClientCode", _clientCode)));
 
-			DataRow drPrice = MySqlHelper.ExecuteDataRow(
+/*			DataRow drPrice = MySqlHelper.ExecuteDataRow(
 				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
 				@"
 select 
@@ -101,6 +107,23 @@ where
     pricesdata.PriceCode = ?PriceCode
 and clientsdata.FirmCode = pricesdata.FirmCode
 and regions.RegionCode = clientsdata.RegionCode
+limit 1", new MySqlParameter("?PriceCode", _priceCode));*/
+
+            DataRow drPrice = MySqlHelper.ExecuteDataRow(
+                ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+                @"
+select 
+  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
+  pricesdata.PriceCode, 
+  suppliers.HomeRegion as RegionCode 
+from 
+  usersettings.pricesdata, 
+  future.suppliers, 
+  farm.regions 
+where 
+    pricesdata.PriceCode = ?PriceCode
+and suppliers.Id = pricesdata.FirmCode
+and regions.RegionCode = suppliers.HomeRegion
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
 
 			if (drPrice == null)

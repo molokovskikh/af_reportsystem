@@ -90,7 +90,7 @@ namespace Inforoom.ReportSystem
 		public string GetShortSuppliers(ExecuteArgs e)
 		{
 			var suppliers = new List<string>();
-			e.DataAdapter.SelectCommand.CommandText = @"
+/*			e.DataAdapter.SelectCommand.CommandText = @"
 select 
 	concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from 
@@ -98,7 +98,16 @@ from
 	join usersettings.PricesData pd on pd.PriceCode = p.PriceCode
 	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
 group by cd.FirmCode
-order by cd.ShortName";
+order by cd.ShortName";*/
+            e.DataAdapter.SelectCommand.CommandText = @"
+select 
+	concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
+from 
+	usersettings.ActivePrices p
+	join usersettings.PricesData pd on pd.PriceCode = p.PriceCode
+	join future.suppliers supps on supps.Id = pd.FirmCode
+group by supps.Id
+order by supps.Name";
 			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
 			{
 				while (reader.Read())
@@ -122,7 +131,7 @@ order by cd.ShortName";
 				//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 				if (_priceCode == 0)
 					throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
-				DataRow drPrice = MySqlHelper.ExecuteDataRow(
+				/*DataRow drPrice = MySqlHelper.ExecuteDataRow(
 					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
 					@"
 select 
@@ -137,6 +146,22 @@ where
     pricesdata.PriceCode = ?PriceCode
 and clientsdata.FirmCode = pricesdata.FirmCode
 and regions.RegionCode = clientsdata.RegionCode
+limit 1", new MySqlParameter("?PriceCode", _priceCode));*/
+                DataRow drPrice = MySqlHelper.ExecuteDataRow(
+                    ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+                    @"
+select 
+  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
+  pricesdata.PriceCode, 
+  suppliers.HomeRegion as RegionCode 
+from 
+  usersettings.pricesdata, 
+  future.suppliers, 
+  farm.regions 
+where 
+    pricesdata.PriceCode = ?PriceCode
+and suppliers.Id = pricesdata.FirmCode
+and regions.RegionCode = suppliers.HomeRegion
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
 
 				if (drPrice == null)
