@@ -15,8 +15,8 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual string ShortName { get; set; }
 
-		[HasMany(typeof(Client), Lazy = true, Inverse = true, OrderBy = "ShortName")]
-		public virtual IList<Client> Clients { get; set; }
+		/*[HasMany(typeof(Client), Lazy = true, Inverse = true, OrderBy = "ShortName")]
+		public virtual IList<Client> Clients { get; set; }*/
 		
 		[HasAndBelongsToMany(typeof(FutureClient), Schema = "Billing", Table = "PayerClients", 
 													ColumnKey = "PayerID", ColumnRef = "ClientID")]
@@ -27,7 +27,8 @@ namespace ReportTuner.Models
 		{			
 			get 
 			{ // Объединяем старых и новых клиентов 
-				return Clients.Cast<IClient>().Concat(FutureClients.Cast<IClient>()).OrderBy(rec => rec.ShortName).ToList();
+				//return Clients.Cast<IClient>().Concat(FutureClients.Cast<IClient>()).OrderBy(rec => rec.ShortName).ToList();
+                return FutureClients.Cast<IClient>().OrderBy(rec => rec.ShortName).ToList();
 			}
 		}
 	}

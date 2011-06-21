@@ -18,7 +18,7 @@ namespace ReportTuner.Models
 		int FirmType { get; }
 	}
 
-	[ActiveRecord("Clientsdata", Schema = "Usersettings")]
+	/*[ActiveRecord("Clientsdata", Schema = "Usersettings")]
 	public class Client : ActiveRecordBase<Client>, IClient
 	{
 		[PrimaryKey("FirmCode")]
@@ -52,7 +52,7 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual int FirmStatus { get; set; }
-	}
+	}*/
 
 	[ActiveRecord("Clients", Schema = "Future")]
 	public class FutureClient : ActiveRecordBase<FutureClient>, IClient

@@ -12,7 +12,7 @@ namespace ReportTuner.Models
 {
 	public static class ReportTunerModel
 	{
-		private const string allClientsSql =
+/*		private const string allClientsSql =
 @"
 select 
        cd.FirmCode Id,
@@ -43,9 +43,25 @@ select
    and cl.Name like ?filterStr
 group by Id
 {1} {2}
+";*/
+        private const string allClientsSql =
+@"
+select
+       cl.Id,
+       cl.Name ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from future.Clients cl
+       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+ where ?firmType = 1
+   and cl.Status = 1
+   and (cl.MaskRegion & ?region) > 0
+   and cl.Id not in {0}
+   and cl.Name like ?filterStr
+group by Id
+{1} {2}
 ";
 
-		private const string selectedClientsSql =
+/*		private const string selectedClientsSql =
 @"
 select 
        cd.FirmCode Id,
@@ -59,6 +75,18 @@ group by Id
 
 union
 
+select
+       cl.Id,
+       cl.Name ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from future.Clients cl
+       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+ where cl.Id in {0}
+group by Id
+{1} {2}
+";*/
+        private const string selectedClientsSql =
+@"
 select
        cl.Id,
        cl.Name ShortName,

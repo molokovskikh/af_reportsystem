@@ -7,6 +7,7 @@ using System;
 using System.Data;
 using System.Configuration;
 using MySql.Data.MySqlClient;
+using Test.Support.Suppliers;
 
 
 namespace ReportTuner.Test.Intagration
@@ -64,8 +65,8 @@ namespace ReportTuner.Test.Intagration
 		public void TestRecipientsList()
 		{
 			TestPayer payer;
-			TestOldClient supplier;
-			TestClient client;
+			TestClient client1;
+			TestClient client2;
 			ulong reportId;
 
 			var dt = DateTime.Now.ToString();
@@ -78,69 +79,44 @@ namespace ReportTuner.Test.Intagration
 				var contactGroupOwner = new TestContactGroupOwner();
 				contactGroupOwner.SaveAndFlush();
 
-				supplier = new TestOldClient()
-				               	{
-				               		Segment = Segment.Wholesale,
-				               		Status = ClientStatus.On,
-				               		Type = ClientType.Drugstore,
-				               		ShortName = "тестовый поставщик" + dt,
-				               		FullName = "тестовый поставщик" + dt,
-				               		RegionCode = 1UL,
-				               		MaskRegion = 1UL,
-				               		Payer = payer,
-				               		ContactGroupOwner = contactGroupOwner
-				               	};
-				supplier.SaveAndFlush();
+			    client1 = TestClient.Create();
+			    client2 = TestClient.Create();
 
-				client = new TestClient()
-				             	{
-				             		Segment = Segment.Wholesale,
-				             		Status = ClientStatus.On,
-				             		Type = ClientType.Drugstore,
-				             		Name = "тестовый клиент" + dt,
-				             		FullName = "тестовый клиент" + dt,
-				             		RegionCode = 1UL,
-				             		MaskRegion = 1UL,
-				             		Payer = payer,
-				             		ContactGroupOwner = contactGroupOwner,
-				             		Users = new List<TestUser>()
-				             	};
-				client.SaveAndFlush();
+                client1.Payers.Add(payer);
+                client2.Payers.Add(payer);
 
 				var session = ActiveRecordMediator.GetSessionFactoryHolder().CreateSession(typeof(ActiveRecordBase));
 				try
 				{
-					session.CreateSQLQuery(@"INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid, :payerid)")
-						.SetParameter("clientid", client.Id).SetParameter("payerid", payer.Id).ExecuteUpdate();						
+                    session.CreateSQLQuery(@"INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid1, :payerid);
+                                             INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid2, :payerid);")
+                        .SetParameter("clientid1", client1.Id).SetParameter("clientid2", client2.Id).SetParameter("payerid", payer.Id).ExecuteUpdate();
 				}
 				finally
 				{
 					ActiveRecordMediator.GetSessionFactoryHolder().ReleaseSession(session);
 				}
 
-				var repPayer = new Payer();
-				repPayer.Id = payer.Id;
+				var repPayer = Payer.Find(payer.Id);
 
 				var new_report = new GeneralReport() {Format = "Excel", Payer = repPayer, Comment = "Тестовый отчет"};
 				new_report.SaveAndFlush();
 				reportId = new_report.Id;
-
 			}
-
 			using (new SessionScope())
 			{
 				var report = GeneralReport.Find(Convert.ToUInt64(reportId));				
-				Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));
-				Assert.That(report.Payer.Clients[0].ShortName, Is.EqualTo("тестовый поставщик" + dt));
-				Assert.That(report.Payer.FutureClients[0].ShortName, Is.EqualTo("тестовый клиент" + dt));
+				Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));				
+                Assert.That(report.Payer.FutureClients[0].ShortName, Is.EqualTo(client1.Name));
+				Assert.That(report.Payer.FutureClients[1].ShortName, Is.EqualTo(client2.Name));
 			}
 		}
 		
 		[Test]
 		public void TestClientsListInCombineReport()
 		{
-			TestPayer payer;
-			TestOldClient supplier;
+			TestPayer payer;			
+		    TestSupplier supplier;
 			TestClient client;
 			ulong reportId;
 			var dt = DateTime.Now.ToString();
@@ -153,15 +129,13 @@ namespace ReportTuner.Test.Intagration
 				var contactGroupOwner = new TestContactGroupOwner();
 				contactGroupOwner.SaveAndFlush();
 
-				supplier = new TestOldClient()
+				supplier = new TestSupplier()
 				           	{
 				           		Segment = Segment.Wholesale,
-				           		Status = ClientStatus.On,
-				           		Type = ClientType.Drugstore,
-				           		ShortName = "тестовый поставщик" + dt,
+				           		Disabled = false,
+				           		Type = ServiceType.Drugstore,
+				           		Name = "тестовый поставщик" + dt,
 				           		FullName = "тестовый поставщик" + dt,
-				           		RegionCode = 1UL,
-				           		MaskRegion = 1UL,
 				           		Payer = payer,
 				           		ContactGroupOwner = contactGroupOwner
 				           	};
@@ -171,12 +145,11 @@ namespace ReportTuner.Test.Intagration
 				         	{
 				         		Segment = Segment.Wholesale,
 				         		Status = ClientStatus.On,
-				         		Type = ClientType.Drugstore,
+				         		Type = ServiceType.Drugstore,
 				         		Name = "тестовый клиент" + dt,
 				         		FullName = "тестовый клиент" + dt,
 				         		RegionCode = 1UL,
 				         		MaskRegion = 1UL,
-				         		Payer = payer,
 				         		ContactGroupOwner = contactGroupOwner,
 				         		Users = new List<TestUser>()
 				         	};

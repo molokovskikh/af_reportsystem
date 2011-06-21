@@ -4,7 +4,7 @@ using Castle.ActiveRecord;
 namespace ReportTuner.Models
 {
 	[ActiveRecord("farm.regions")]
-	public class Region : ActiveRecordBase<Region>
+	public class Regions : ActiveRecordBase<Regions>
 	{
 		[PrimaryKey("RegionCode")]
 		public virtual ulong RegionCode {get; set;}
