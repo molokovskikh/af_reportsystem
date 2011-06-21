@@ -73,12 +73,13 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 
 			selectCommand += @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
-  left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
+#  left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
-  join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
-  join farm.regions provrg on provrg.RegionCode = prov.RegionCode
+#  join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
+  join future.suppliers prov on prov.Id = pd.FirmCode
+  join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
   join future.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId 

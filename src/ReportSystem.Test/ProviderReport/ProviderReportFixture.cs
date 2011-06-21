@@ -197,6 +197,7 @@ limit 1"
 		}
 
 		[Test(Description = "ѕровер€ем работу метода со старыми клиентами")]
+        [Ignore("¬се клиенты перенесены в future.clients")]
 		public void CheckClientNamesWithOldClients()
 		{
 			var dsClients = GetClients(
@@ -238,6 +239,7 @@ limit 1"
 		}
 
 		[Test(Description = "ѕровер€ем работу метода с различными типами клиентов")]
+        [Ignore("¬се клиенты перенесены в future.clients")]
 		public void CheckClientNamesWithDifferentClients()
 		{
 			var dsClients = GetClients(

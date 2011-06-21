@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Common.Tools.Calendar;
 using MySql.Data.MySqlClient;
 using System.Data;
@@ -35,7 +36,8 @@ namespace Inforoom.ReportSystem
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
 select oh.writetime,
-	if(u.id is null, cd.ShortName, fc.Name) as ClientName,
+#	if(u.id is null, cd.ShortName, fc.Name) as ClientName,
+    if(u.id is null, cl.Name, fc.Name) as ClientName,
 	u.Name as UserName,
     ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
@@ -55,11 +57,16 @@ from ordersold.ordershead oh
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
   left join Future.Users u on u.Id = oh.UserId
     left join Future.Clients fc on fc.Id = u.ClientId
-  left join UserSettings.ClientsData cd on cd.FirmCode = oh.ClientCode
+#  left join UserSettings.ClientsData cd on cd.FirmCode = oh.ClientCode
+   left join Future.Clients cl on cl.Id = oh.ClientCode
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
 group by ol.RowId
 order by oh.writetime, ol.RowId;";
+
+#if DEBUG
+            Debug.WriteLine(command.CommandText);
+#endif
 
 			_endDate = DateTime.Today;
 			if (_byPreviousMonth) // Определяем интервал построения отчета
@@ -134,7 +141,7 @@ where diff < 0";
 
 			if(_clientId != 0)
 			{
-				command.CommandText =
+/*				command.CommandText =
 @"select concat(cd.ShortName, ' (', reg.Region, ')'), 0
     from usersettings.ClientsData cd
          join farm.Regions reg on reg.RegionCode = cd.RegionCode
@@ -142,6 +149,11 @@ where diff < 0";
     and not exists(select 1 from future.Clients where Id = ?clientId)
   union
   select concat(cl.Name, ' (', reg.Region, ')'), 1
+    from future.Clients cl
+         join farm.Regions reg on reg.RegionCode = cl.RegionCode
+   where Id = ?clientId";*/
+                command.CommandText =
+                @"select concat(cl.Name, ' (', reg.Region, ')'), 1
     from future.Clients cl
          join farm.Regions reg on reg.RegionCode = cl.RegionCode
    where Id = ?clientId";

@@ -164,8 +164,10 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
-			filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
+//			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
+            filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
+//			filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
+            filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + businessRivalsList + ") order by supps.Name")));
 
 			if (showCode || showCodeCr)
 				FillProviderCodes(e);
@@ -210,6 +212,8 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 @"from 
   ordersold.OrdersHead oh
   join ordersold.OrdersList ol on ol.OrderID = oh.RowID";
+
+
 	if(!includeProductName || !isProductName)
 		selectCommand +=
 @"
@@ -223,12 +227,13 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 	selectCommand +=
 @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
-  left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
+#  left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
-  join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
-  join farm.regions provrg on provrg.RegionCode = prov.RegionCode
+#  join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
+  join future.suppliers prov on prov.Id = pd.FirmCode
+  join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
   join future.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId" +
