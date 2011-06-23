@@ -44,11 +44,11 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			showCode = reportParamExists(showCodeProperty) ? (bool)getReportParam(showCodeProperty) : false;
-			showCodeCr = reportParamExists(showCodeCrProperty) ? (bool) getReportParam(showCodeCrProperty) : false;
+			showCode = reportParamExists(showCodeProperty) ? (bool)getReportParam(showCodeProperty) : false; // показывать код поставщика
+			showCodeCr = reportParamExists(showCodeCrProperty) ? (bool) getReportParam(showCodeCrProperty) : false; // показывать код изготовителя
 
-			sourceFirmCode = (int)getReportParam(sourceFirmCodeProperty);
-			businessRivals = (List<ulong>)getReportParam(businessRivalsProperty);
+			sourceFirmCode = (int)getReportParam(sourceFirmCodeProperty); // поставщик
+			businessRivals = (List<ulong>)getReportParam(businessRivalsProperty); // список конкурентов
 
 			if (sourceFirmCode == 0)
 				throw new ReportException("Не установлен параметр \"Поставщик\".");
@@ -176,7 +176,11 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 
 			var selectCommand = BuildSelect();
 
-			if (showCode)
+            if (firmCrPosition)
+                selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
+                                             .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, '')");
+
+		    if (showCode)
 				selectCommand += " ProviderCodes.Code, ";
 			if (showCodeCr)
 				selectCommand += " ProviderCodes.CodeCr, ";
@@ -214,16 +218,17 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
   join ordersold.OrdersList ol on ol.OrderID = oh.RowID";
 
 
-	if(!includeProductName || !isProductName)
+	if(!includeProductName || !isProductName || firmCrPosition)
 		selectCommand +=
 @"
   join catalogs.products p on p.Id = ol.ProductId";
-	if(!includeProductName)
+	if(!includeProductName || firmCrPosition)
 		selectCommand +=
 @"
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId";
+
 	selectCommand +=
 @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
@@ -246,6 +251,15 @@ and ol.Await = 0";
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
+
+            if(firmCrPosition)
+            {
+                var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
+                var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
+                selectCommand = selectCommand.Replace(groupPart, new_groupPart);
+            }
+
+           
 
 			if(includeProductName)
 				if(isProductName)

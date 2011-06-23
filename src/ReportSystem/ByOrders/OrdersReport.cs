@@ -36,6 +36,7 @@ namespace Inforoom.ReportSystem
 		protected bool SupportProductNameOptimization;
 		protected bool includeProductName;
 		protected bool isProductName = true;
+        protected bool firmCrPosition = false; // есть ли параметр "Позиция производителя"
 
 		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -116,6 +117,7 @@ namespace Inforoom.ReportSystem
 		{
 			/*if (!selectedField.Exists(x => x.visible))
 				throw new ReportException("Не выбраны поля для отображения в заголовке отчета.");*/
+            firmCrPosition = reportParamExists("FirmCrPosition");
 		}
 
 		protected string GetValuesFromSQL(string SQL)

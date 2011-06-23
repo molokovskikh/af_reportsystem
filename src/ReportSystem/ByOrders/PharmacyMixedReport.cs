@@ -34,6 +34,10 @@ namespace Inforoom.ReportSystem
 			var regionMask = GetClientRegionMask(e);
 			var selectCommand = BuildSelect();
 
+            if (firmCrPosition)
+                selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
+                                             .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, '')");
+
 			selectCommand = String.Concat(selectCommand, String.Format(@"
 sum(if(oh.ClientCode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
 sum(if(oh.ClientCode = {0}, ol.quantity, NULL)) SourceFirmCodeRows,
@@ -61,11 +65,11 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 @"from 
   ordersold.OrdersHead oh
   join ordersold.OrdersList ol on ol.OrderID = oh.RowID";
-			if (!includeProductName || !isProductName)
+			if (!includeProductName || !isProductName || firmCrPosition)
 				selectCommand +=@"
   join catalogs.products p on p.Id = ol.ProductId";
 
-			if (!includeProductName)
+			if (!includeProductName || firmCrPosition)
 				selectCommand += @"
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
@@ -90,6 +94,13 @@ and (oh.RegionCode & " + regionMask + @") > 0";
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
+
+            if (firmCrPosition)
+            {
+                var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
+                var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
+                selectCommand = selectCommand.Replace(groupPart, new_groupPart);
+            }
 
 			if (includeProductName)
 				if (isProductName)
