@@ -47,6 +47,21 @@ group by Id
         private const string allClientsSql =
 @"
 select
+       supps.Id,
+       supps.Name ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from future.Suppliers supps
+       left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+ where ?firmType = 0
+   and supps.Disabled = 0
+   and (supps.RegionMask & ?region) > 0
+   and supps.Id not in {0}
+   and supps.Name like ?filterStr
+group by Id
+
+union
+
+select
        cl.Id,
        cl.Name ShortName,
        GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
@@ -85,8 +100,21 @@ select
 group by Id
 {1} {2}
 ";*/
+
         private const string selectedClientsSql =
 @"
+select
+       supps.Id,
+       supps.Name ShortName,
+       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+  from future.Suppliers supps
+       left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+ where supps.Id in {0}
+     and not exists(select 1 from future.Clients where id = supps.Id)
+group by Id
+
+union
+
 select
        cl.Id,
        cl.Name ShortName,
@@ -139,7 +167,9 @@ group by Id
 			using(var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
 			{
 				var Ids = GetSelectedIds(reportProperty);
-				var sql = GetPreparedSql(allClientsSql, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
+
+                var sql = GetPreparedSql(allClientsSql, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
+				
 				var command = new MySqlCommand(sql, conn);
 
 				command.Parameters.AddWithValue("?firmType", firmType);
