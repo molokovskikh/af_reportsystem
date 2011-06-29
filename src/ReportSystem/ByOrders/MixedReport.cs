@@ -117,10 +117,15 @@ distinct " +
 					((showCodeCr) ? "ol.CodeCr, " : String.Empty) +
 @"ol.ProductId, 
   ol.CodeFirmCr
-from
-  ordersold.OrdersHead oh,
-  ordersold.OrdersList ol,
-  usersettings.pricesdata pd
+from " +
+#if DEBUG
+  @"orders.OrdersHead oh,
+  orders.OrdersList ol," +
+#else
+  @"ordersold.OrdersHead oh,
+  ordersold.OrdersList ol," +
+#endif
+ @" usersettings.pricesdata pd
 where
     ol.OrderID = oh.RowID
 and ol.Junk = 0
@@ -213,10 +218,14 @@ Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct pd.firmcode) as AllSuppliersSoldPosition,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
 			selectCommand +=
-@"from 
-  ordersold.OrdersHead oh
-  join ordersold.OrdersList ol on ol.OrderID = oh.RowID";
-
+@"from " +
+#if DEBUG
+@"orders.OrdersHead oh
+  join orders.OrdersList ol on ol.OrderID = oh.RowID ";
+#else
+@"ordersold.OrdersHead oh
+  join ordersold.OrdersList ol on ol.OrderID = oh.RowID ";
+#endif 
 
 	if(!includeProductName || !isProductName || firmCrPosition)
 		selectCommand +=

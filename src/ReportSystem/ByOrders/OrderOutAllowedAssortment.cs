@@ -63,9 +63,16 @@ Ol.Cost, Ol.Quantity,
 BM.Code as MatrixCode,
 #CD.ShortName AS Supplier,
 supps.Name AS Supplier,
-(Ol.Cost*Ol.Quantity) as Summ FROM ordersold.OrdersHead O
-join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode
-join ordersold.OrdersList OL on OL.OrderId = O.RowId
+(Ol.Cost*Ol.Quantity) as Summ 
+FROM " +
+#if DEBUG
+@"orders.OrdersHead O
+join orders.OrdersList OL on OL.OrderId = O.RowId " +
+#else
+@"ordersold.OrdersHead O
+join ordersold.OrdersList OL on OL.OrderId = O.RowId " +
+#endif
+ @" join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode
 join catalogs.Products P on OL.ProductID = P.Id
 left join farm.BuyingMatrix BM on RC.BuyingMatrixPriceId = BM.PriceId and BM.ProductID = P.Id
 

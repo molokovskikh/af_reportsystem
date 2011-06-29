@@ -62,10 +62,15 @@ Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
 			selectCommand +=
-@"from 
-  ordersold.OrdersHead oh
-  join ordersold.OrdersList ol on ol.OrderID = oh.RowID";
-			if (!includeProductName || !isProductName || firmCrPosition)
+@"from " +
+#if DEBUG
+@"orders.OrdersHead oh
+  join orders.OrdersList ol on ol.OrderID = oh.RowID ";
+#else
+@"ordersold.OrdersHead oh
+  join ordersold.OrdersList ol on ol.OrderID = oh.RowID ";
+#endif
+            if (!includeProductName || !isProductName || firmCrPosition)
 				selectCommand +=@"
   join catalogs.products p on p.Id = ol.ProductId";
 
