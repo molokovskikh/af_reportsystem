@@ -103,9 +103,9 @@ namespace Inforoom.ReportSystem
 				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
 				dtTo = dtTo.Date;
 			}
-			if (_Interval)
-				filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.AddDays(-1).ToString("dd.MM.yyyy HH:mm:ss")));
-			else
+			//if (_Interval)
+				//filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.AddDays(-1).ToString("dd.MM.yyyy HH:mm:ss")));
+			//else
 				filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 			selectedField = registredField.Where(f => f.LoadFromDB(this)).ToList();
 			CheckAfterLoadFields();

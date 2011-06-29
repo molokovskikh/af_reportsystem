@@ -77,7 +77,8 @@ $().ready(function() {
                          </asp:Calendar> 
                 </td>
                 <td>
-                         <asp:Label ID="Label4" runat="server" Text="Конец периода" Style="margin-left:5px;" SkinID="scheduleLabelSkin"></asp:Label>
+                         <asp:Label ID="Label4" runat="server" Text="Конец периода (включительно)" 
+                             Style="margin-left:5px;" SkinID="scheduleLabelSkin"></asp:Label>
                          <asp:Calendar id="dtTo" runat="server" Style="margin-left:5px;">
                                 <TitleStyle BackColor="white" ForeColor="black">
                           </TitleStyle>
