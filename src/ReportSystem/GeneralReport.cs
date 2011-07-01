@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
+using log4net;
 using LumiSoft.Net.SMTP.Client;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
@@ -54,6 +55,8 @@ namespace Inforoom.ReportSystem
 
 		private ReportFormats Format;
 
+        private ILog Logger;
+
 		//таблица отчетов, которая существует в общем отчете
 		DataTable _dtReports;
 
@@ -85,6 +88,7 @@ namespace Inforoom.ReportSystem
 			string ReportArchName, bool Temporary, ReportFormats format,
 			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo)
 		{
+            Logger = LogManager.GetLogger(GetType());
 			_reports = new List<BaseReport>();
 			_generalReportID = GeneralReportID;
 			_firmCode = FirmCode;
@@ -204,8 +208,9 @@ where GeneralReport = ?GeneralReport;";
 
 			foreach (BaseReport bs in _reports)
 			{
-				bs.ReportToFile(_mainFileName);			
+				bs.ReportToFile(_mainFileName);
 			}
+            
 
 			string ResFileName = ArchFile();
 
@@ -311,13 +316,22 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 
 			var zip = new FastZip();
 			var tempArchive = Path.GetTempFileName();
+            Logger.DebugFormat("zip.CreateZip {0}, {1}", tempArchive, _directoryName);
 			zip.CreateZip(tempArchive, _directoryName, false, null, null);
-
 			var archive = Path.Combine(_directoryName, resArchFileName);
+            Logger.DebugFormat("File.Move {0}, {1}", tempArchive, archive);
 			File.Move(tempArchive, archive);
-			File.Copy(archive, ResDirPath + resArchFileName);
-
-			return archive;
+            try
+            {
+                Logger.DebugFormat("File.Copy {0}, {1}", archive, ResDirPath + resArchFileName);
+                File.Copy(archive, ResDirPath + resArchFileName);
+            }
+            catch(Exception ex)
+            {
+                Logger.ErrorFormat("Message: {0}, Stack: {1}", ex.Message, ex.StackTrace);
+                Logger.Error("Exception:", ex);                
+            }
+		    return archive;
 		}
 
 		//Выбираем отчеты из базы
