@@ -14,7 +14,7 @@
                 <asp:BoundField DataField="PParamName" HeaderText="Наименование параметра" />
                 <asp:TemplateField HeaderText="Значение">
                     <ItemTemplate>
-                        <asp:CheckBox ID="chbValue" runat="server" Visible="False" />
+                        <asp:CheckBox ID="chbValue" runat="server" Visible="False" AutoPostBack="True" OnCheckedChanged="chbValue_CheckedChanged" />
                         <asp:TextBox ID="tbValue" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PPropertyValue")%>'></asp:TextBox>
                         <asp:TextBox ID="tbSearch"  SkinID="searchTextBoxSkin" runat="server" Width="30%"></asp:TextBox>
                         <asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" />

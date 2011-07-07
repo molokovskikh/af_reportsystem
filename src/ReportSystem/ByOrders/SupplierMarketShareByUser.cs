@@ -80,9 +80,7 @@ namespace Inforoom.ReportSystem.ByOrders
 				})
 		};
 
-		private Grouping _grouping;
-
-		//private const string _filters = "u.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
+		private Grouping _grouping;		
 
 		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)

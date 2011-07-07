@@ -75,22 +75,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");
 
 			string CustomerFirmName;
-/*			DataRow drPrice = MySqlHelper.ExecuteDataRow(
-				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
-				@"
-select 
-  concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
-  pricesdata.PriceCode, 
-  clientsdata.RegionCode 
-from 
-  usersettings.pricesdata, 
-  usersettings.clientsdata, 
-  farm.regions 
-where 
-    pricesdata.PriceCode = ?PriceCode
-and clientsdata.FirmCode = pricesdata.FirmCode
-and regions.RegionCode = clientsdata.RegionCode
-limit 1", new MySqlParameter("?PriceCode", _priceCode));*/
+
             DataRow drPrice = MySqlHelper.ExecuteDataRow(
                             ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
                             @"
@@ -147,12 +132,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (EnabledPrice == 0)
 			{
 				string ClientShortName = Convert.ToString(
-					/*MySqlHelper.ExecuteScalar(
-						e.DataAdapter.SelectCommand.Connection,
-						@"select ShortName from usersettings.clientsdata where FirmCode = ?FirmCode
-						union
-						  select Name from future.Clients where Id = ?FirmCode",
-						new MySqlParameter("?FirmCode", _clientCode)));*/
+					
                     MySqlHelper.ExecuteScalar(
                         e.DataAdapter.SelectCommand.Connection,
                         @"select Name from future.Clients where Id = ?FirmCode",

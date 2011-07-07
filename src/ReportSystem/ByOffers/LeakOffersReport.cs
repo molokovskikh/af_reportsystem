@@ -44,12 +44,7 @@ join farm.SynonymArchive s on s.SynonymCode = c0.SynonymCode
 join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode";
 			var data = new DataSet();
 			e.DataAdapter.Fill(data, "offers");
-
-			/*e.DataAdapter.SelectCommand.CommandText = @"
-select ap.PriceCode, cd.ShortName, ap.PriceName, ap.PositionCount
-from usersettings.activeprices ap
-join usersettings.clientsdata cd on cd.FirmCode = ap.FirmCode
-order by ap.PositionCount desc";*/
+			
             e.DataAdapter.SelectCommand.CommandText = @"
 select ap.PriceCode, supps.Name as ShortName, ap.PriceName, ap.PositionCount
 from usersettings.activeprices ap

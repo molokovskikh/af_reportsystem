@@ -19,9 +19,7 @@ namespace Inforoom.ReportSystem
 		private int _supplierId = 5;
 		private int _reportInterval;
 		private bool _byPreviousMonth;
-		private int _optimizedCount;
-	//	private int _lostCount;
-	//	private bool _showLostOrders = false;
+		private int _optimizedCount;	
 
 		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -153,17 +151,6 @@ where diff < 0";
 
 			if(_clientId != 0)
 			{
-/*				command.CommandText =
-@"select concat(cd.ShortName, ' (', reg.Region, ')'), 0
-    from usersettings.ClientsData cd
-         join farm.Regions reg on reg.RegionCode = cd.RegionCode
-   where FirmCode = ?clientId
-    and not exists(select 1 from future.Clients where Id = ?clientId)
-  union
-  select concat(cl.Name, ' (', reg.Region, ')'), 1
-    from future.Clients cl
-         join farm.Regions reg on reg.RegionCode = cl.RegionCode
-   where Id = ?clientId";*/
                 command.CommandText =
                 @"select concat(cl.Name, ' (', reg.Region, ')'), 1
     from future.Clients cl

@@ -169,9 +169,7 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-//			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg where rg.RegionCode = cd.RegionCode and cd.FirmCode = " + sourceFirmCode)));
             filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
-//			filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(cd.ShortName, ' - ', rg.Region) as FirmShortName from usersettings.clientsdata cd, farm.regions rg  where rg.RegionCode = cd.RegionCode and cd.FirmCode in (" + businessRivalsList + ") order by cd.ShortName")));
             filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + businessRivalsList + ") order by supps.Name")));
 
 			if (showCode || showCodeCr)

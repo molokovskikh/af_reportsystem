@@ -17,19 +17,7 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual uint FirmCode { get; set; }
-
-		/*public IClient Client
-		{
-			get
-			{
-				var futureClient = FutureClient.TryFind(FirmCode);
-				if (futureClient != null)
-					return futureClient;
-
-				var oldClient = ReportTuner.Models.Client.TryFind(FirmCode);
-				return oldClient;
-			}
-		}*/
+		
 		[Property]
 		public virtual bool Allow { get; set; }
 

@@ -18,42 +18,6 @@ namespace ReportTuner.Models
 		int FirmType { get; }
 	}
 
-	/*[ActiveRecord("Clientsdata", Schema = "Usersettings")]
-	public class Client : ActiveRecordBase<Client>, IClient
-	{
-		[PrimaryKey("FirmCode")]
-		public virtual uint Id { get; set; }
-
-		[Property]
-		public virtual string ShortName { get; set; }
-
-		[Property]
-		public virtual string FullName { get; set; }
-
-		[BelongsTo("ContactGroupOwnerId")]
-		public virtual ContactGroupOwner ContactGroupOwner { get; set; }
-
-		[BelongsTo("BillingCode")]
-		public virtual Payer BillingInstance { get; set; }
-
-		public string ShortNameAndId
-		{
-			get { return String.Format("{0} ({1})", ShortName, Id); }
-		}
-
-		[Property]
-		public virtual ulong RegionCode { get; set; }
-
-		[Property]
-		public virtual ulong MaskRegion { get; set; }
-
-		[Property]
-		public virtual int FirmType { get; set; }
-
-		[Property]
-		public virtual int FirmStatus { get; set; }
-	}*/
-
 	[ActiveRecord("Clients", Schema = "Future")]
 	public class FutureClient : ActiveRecordBase<FutureClient>, IClient
 	{

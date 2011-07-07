@@ -18,9 +18,13 @@ namespace Inforoom.ReportSystem
 	{
 		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
 		protected int _clientCode;
-		protected int? _SupplierNoise = null;
-		//protected bool IsNewClient = false;
+		protected int? _SupplierNoise = null;		
 		protected int? _userCode = null;
+	    protected bool _byBaseCosts = false; // строить отчет по базовым ценам
+        //Список прайсов, для которых нужно вычислять по базовым ценам
+        protected List<ulong> _prices;
+        //Список регионов, для которых нужно вычислять по базовым ценам
+        protected List<ulong> _regions;
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -29,16 +33,20 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			/*e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
-			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
-			IsNewClient = reader.Read();
-			reader.Close();*/
 		}
 
 		public override void ReadReportParams()
 		{
 			if (_reportParams.ContainsKey("SupplierNoise"))
 				_SupplierNoise = (int)getReportParam("SupplierNoise");
+
+            // если отчет строится по базовым ценам, определяем список прайсов и регионов
+            _byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
+            if (_byBaseCosts)
+            {
+                _prices = (List<ulong>) getReportParam("PriceCodeEqual");
+                _regions = (List<ulong>) getReportParam("RegionEqual");
+            }
 		}
 
 		public virtual List<ulong> GetClietnWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
@@ -161,10 +169,10 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			//if(IsNewClient)
-				GetActivePricesNew();
-			//else
-				//GetActivePricesOld();
+            if (_byBaseCosts)
+                GetRegionsPrices(e); // заполняем временную таблицу для передачи списка ПЛ и регионов в хранимую процедуру
+			
+			GetActivePricesNew();
 
 			List<ulong> allowedFirms = null;
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
@@ -211,15 +219,6 @@ namespace Inforoom.ReportSystem
 
 			//Добавляем в таблицу ActivePrices поле FirmName и заполняем его также, как раньше для отчетов
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-/*			e.DataAdapter.SelectCommand.CommandText = @"
-alter table ActivePrices add column FirmName varchar(100);
-update 
-  ActivePrices, usersettings.clientsdata, farm.regions 
-set 
-  FirmName = concat(clientsdata.ShortName, '(', ActivePrices.PriceName, ') - ', regions.Region)
-where 
-    activeprices.FirmCode = clientsdata.FirmCode 
-and regions.RegionCode = activeprices.RegionCode";*/
 
 		    e.DataAdapter.SelectCommand.CommandText = @"
 alter table ActivePrices add column FirmName varchar(100);
@@ -241,17 +240,27 @@ and regions.RegionCode = activeprices.RegionCode";
 			// Получаем пользователя
 			var userId = GetUserId();
 
+            var selectCommand = args.DataAdapter.SelectCommand;
 			// Получаем для него все прайсы
-			var selectCommand = args.DataAdapter.SelectCommand;
-			selectCommand.CommandText = "future.GetPrices";
-			selectCommand.CommandType = CommandType.StoredProcedure;
-			selectCommand.Parameters.Clear();
-			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
-			selectCommand.ExecuteNonQuery();
+            if(_byBaseCosts)
+            {
+                selectCommand.CommandText = "future.GetPricesWithBaseCosts";
+                selectCommand.CommandType = CommandType.StoredProcedure;
+                selectCommand.ExecuteNonQuery();
+            }
+            else
+            {
+                selectCommand.CommandText = "future.GetPrices";
+                selectCommand.CommandType = CommandType.StoredProcedure;
+                selectCommand.Parameters.Clear();
+                selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+                selectCommand.ExecuteNonQuery();
+            }
 
-			// Включаем для него все прайсы
+            // Включаем для него все прайсы
 			selectCommand.CommandType = CommandType.Text;
-			selectCommand.CommandText = "update Prices set DisabledByClient = 0";
+            if (_userCode == null) // если пользователь не выбран через интерфейс
+			    selectCommand.CommandText = "update Prices set DisabledByClient = 0"; 
 			selectCommand.ExecuteNonQuery();
 
 			// Получаем для пользователя активные (которыми теперь являются все) прайсы
@@ -277,25 +286,12 @@ and regions.RegionCode = activeprices.RegionCode";
 			}
 		}
 
-		/*private void GetActivePricesOld()
-		{
-			var selectCommand = args.DataAdapter.SelectCommand;
-			selectCommand.CommandText = "usersettings.GetActivePrices";
-			selectCommand.CommandType = CommandType.StoredProcedure;
-			selectCommand.Parameters.Clear();
-			selectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
-			selectCommand.ExecuteNonQuery();
-		}*/
-
 		//Получили список предложений для интересующего клиента
 		protected void ExecuterGetOffers(ExecuteArgs e, int? noiseFirmCode)
 		{
 			GetActivePrices(e);
 
-			//if(IsNewClient)
-				GetOffersNew(noiseFirmCode);
-			//else
-				//GetOffersOld();
+			GetOffersNew(noiseFirmCode);
 
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 		}
@@ -313,61 +309,70 @@ and regions.RegionCode = activeprices.RegionCode";
 		private void GetOffersNew(int? noiseFirmCode)
 		{ // Небольшая магия, через любого пользователя получаем предложение для клиента
 
-			// Получаем первого попавшегося пользователя
-			var userId = GetUserId();
-
-			//Проверка существования и отключения клиента
-			var selectCommand = args.DataAdapter.SelectCommand;
-			selectCommand.CommandText =
-				"select * from future.Clients cl where cl.Id = " + _clientCode;
-			using (var reader = selectCommand.ExecuteReader())
-			{
-				if (!reader.Read())
-					throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
-				if (Convert.ToByte(reader["Status"]) == 0)
-					throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", reader["Name"], _clientCode));
-			}
-
-			selectCommand.CommandText = "future.GetOffersReports";
+			// Получаем первого попавшегося пользователя			
+            var userId = GetUserId();
+            var selectCommand = args.DataAdapter.SelectCommand;
+            if (_byBaseCosts == false)
+            {
+                //Проверка существования и отключения клиента                
+                selectCommand.CommandText =
+                    "select * from future.Clients cl where cl.Id = " + _clientCode;
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    if (!reader.Read())
+                        throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
+                    if (Convert.ToByte(reader["Status"]) == 0)
+                        throw new ReportException(
+                            String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).",
+                                          reader["Name"], _clientCode));
+                }
+            }
+		    selectCommand.CommandText = "future.GetOffersReports";
 			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
-			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
-			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
+            if (_byBaseCosts == false)            
+                selectCommand.Parameters.AddWithValue("?UserIdParam", userId);            
+            else
+                selectCommand.Parameters.AddWithValue("?UserIdParam", null);            
+		    selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
+
 			selectCommand.ExecuteNonQuery();
 		}
-
-		/*protected void GetOffersOld()
-		{
-			//Проверка существования и отключения клиента
-			DataRow drClient = MySqlHelper.ExecuteDataRow(
-				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
-				"select FirmCode, FirmStatus, ShortName from usersettings.clientsdata cd where cd.FirmCode = ?FirmCode",
-				new MySqlParameter("?FirmCode", _clientCode));
-			if (drClient == null)
-				throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
-			else
-				if (Convert.ToByte(drClient["FirmStatus"]) == 0)
-					throw new ReportException(String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).", drClient["ShortName"], _clientCode));
-
-			var selectCommand = args.DataAdapter.SelectCommand;
-			selectCommand.CommandText = "usersettings.GetOffers";
-			selectCommand.CommandType = CommandType.StoredProcedure;
-			selectCommand.Parameters.Clear();
-			selectCommand.Parameters.AddWithValue("?ClientCodeParam", _clientCode);
-			selectCommand.Parameters.AddWithValue("?FreshOnly", 0);
-			selectCommand.ExecuteNonQuery();
-		}*/
+        
+        /// <summary>
+        /// Создает временную таблицу и заполняет ее данными из списков _prices и _regions (если отчет строится по базовым ценам)
+        /// Данная таблица затем будет использоваться для ограничения выборки в хранимой процедуре GetPricesWithBaseCosts()
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        private void GetRegionsPrices(ExecuteArgs e)
+        {
+            e.DataAdapter.SelectCommand.CommandText = @"
+drop temporary table IF EXISTS usersettings.TmpPricesRegions;
+CREATE temporary table usersettings.TmpPricesRegions(
+  PriceCode int(32) unsigned,   
+  RegionCode int(32) unsigned
+  ) engine=MEMORY;";
+            e.DataAdapter.SelectCommand.ExecuteNonQuery();
+            e.DataAdapter.SelectCommand.Parameters.Clear();
+            foreach (var price in _prices)
+            {                
+                foreach (var region in _regions)
+                {
+                    e.DataAdapter.SelectCommand.CommandText = @"
+INSERT INTO usersettings.TmpPricesRegions(PriceCode, RegionCode) VALUES(?pricecode, ?regioncode);";
+                    e.DataAdapter.SelectCommand.Parameters.AddWithValue("?pricecode", price);
+                    e.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
+                    e.DataAdapter.SelectCommand.ExecuteNonQuery();
+                    e.DataAdapter.SelectCommand.Parameters.Clear();
+                }
+            }
+        }
 
 		public static string GetSuppliers(ExecuteArgs e)
 		{
 			var suppliers = new List<string>();
-			/*e.DataAdapter.SelectCommand.CommandText = @"
-select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
-from Core cor
-	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-group by cd.FirmCode
-order by cd.ShortName";*/
+			
             e.DataAdapter.SelectCommand.CommandText = @"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from Core cor
@@ -393,13 +398,7 @@ order by supps.Name";
 				return null;
 
 			var suppliers = new List<string>();
-			/*e.DataAdapter.SelectCommand.CommandText = String.Format(@"
-select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
-from usersettings.PricesData pd
-	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-where pd.PriceCode in ({0})
-group by cd.FirmCode
-order by cd.ShortName", supplierIds.Implode());*/
+			
             e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from usersettings.PricesData pd
@@ -419,12 +418,6 @@ order by supps.Name", supplierIds.Implode());
 		{
 			_clientCode = Convert.ToInt32(clientId);
 
-			/*args.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
-			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
-			{
-				IsNewClient = reader.Read();
-			}*/
-
 			GetActivePrices(args);
 
 			var assortmentSupplierId = Convert.ToUInt32(
@@ -436,17 +429,6 @@ where pricesdata.PriceCode = ?PriceCode
 ",
 					new MySqlParameter("?PriceCode", sourcePriceCode)));
 			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
-			/*var SourceRegionCode = Convert.ToUInt64(
-				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
-					@"select RegionCode 
-	from usersettings.clientsdata 
-where FirmCode = ?ClientCode
-and not exists(select 1 from future.Clients where Id = ?ClientCode)
-union
-select RegionCode
-	from future.Clients
-where Id = ?ClientCode",
-					new MySqlParameter("?ClientCode", _clientCode)));*/
             var SourceRegionCode = Convert.ToUInt64(
                 MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
                     @"
@@ -554,42 +536,6 @@ if(if(round(cc0.Cost * c0Prices.Upcost, 2) < c0.MinBoundCost, c0.MinBoundCost, r
 	({1} (c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {0}) or (c0.Id = c00.Id))
 and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || sourcePriceCode == 0 ? "(c0.PriceCode is null) or" : string.Empty));
 
-
-
-//            GetOffers();
-
-//            args.DataAdapter.SelectCommand.CommandText =
-//                @"
-//select 
-//	p.CatalogId,
-//	c.ProductId,
-//	ifnull(c.CodeFirmCr, 0) as ProducerId,
-//	s.Synonym as ProductName,
-//	sfc.Synonym as ProducerName,
-//
-//	c.Id as CoreId,
-//	c.Code,
-//	ap.FirmCode as SupplierId,
-//	c.PriceCode as PriceId,
-//	ap.RegionCode as RegionId,
-//	c.Quantity,
-//	Core.Cost,
-//
-//	null as AssortmentCoreId,
-//	null as AssortmentCode,
-//	null as AssortmentSupplierId,
-//	null as AssortmentPriceId,
-//	null as AssortmentRegionId,
-//	null as Quantity,
-//	null as AssortmentCost
-//from
-//	Core
-//	inner join ActivePrices ap on ap.PriceCode = Core.PriceCode and ap.RegionCode = ap.RegionCode
-//	inner join farm.Core0 c on c.Id = Core.Id
-//	inner join catalogs.Products p on p.Id = c.ProductId
-//	left join farm.Synonym s on s.SynonymCode = c.SynonymCode
-//	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.SynonymFirmCrCode
-//";
 			Random random = null;
 			if (noiseSupplierId.HasValue)
 				random = new Random();

@@ -12,38 +12,6 @@ namespace ReportTuner.Models
 {
 	public static class ReportTunerModel
 	{
-/*		private const string allClientsSql =
-@"
-select 
-       cd.FirmCode Id,
-       cd.ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from usersettings.ClientsData cd
-       left join farm.Regions reg on (reg.regionCode & cd.MaskRegion) > 0
- where cd.FirmStatus = 1
-   and cd.FirmType = ?firmType
-   and (cd.MaskRegion & ?region) > 0
-   and cd.FirmCode not in {0}
-   and cd.ShortName like ?filterStr
-   and not exists(select 1 from future.Clients where id = cd.FirmCode and ?firmType = 1)
-group by Id
-
-union
-
-select
-       cl.Id,
-       cl.Name ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from future.Clients cl
-       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
- where ?firmType = 1
-   and cl.Status = 1
-   and (cl.MaskRegion & ?region) > 0
-   and cl.Id not in {0}
-   and cl.Name like ?filterStr
-group by Id
-{1} {2}
-";*/
         private const string allClientsSql =
 @"
 select
@@ -76,30 +44,6 @@ group by Id
 {1} {2}
 ";
 
-/*		private const string selectedClientsSql =
-@"
-select 
-       cd.FirmCode Id,
-       cd.ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from usersettings.ClientsData cd
-       left join farm.Regions reg on (reg.regionCode & cd.MaskRegion) > 0
- where cd.FirmCode in {0}
-   and not exists(select 1 from future.Clients where id = cd.FirmCode)
-group by Id
-
-union
-
-select
-       cl.Id,
-       cl.Name ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from future.Clients cl
-       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
- where cl.Id in {0}
-group by Id
-{1} {2}
-";*/
 
         private const string selectedClientsSql =
 @"

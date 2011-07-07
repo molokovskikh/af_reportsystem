@@ -28,8 +28,7 @@ namespace Inforoom.ReportSystem
 
 			GetActivePrices(e);
 
-//			if(IsNewClient)
-				e.DataAdapter.SelectCommand.CommandText = @"
+			e.DataAdapter.SelectCommand.CommandText = @"
 select at.FirmName, 0 PublicUpCost, regions.Region, rd.ContactInfo 
 from 
   ActivePrices at,
@@ -40,18 +39,7 @@ where
 and regions.RegionCode = at.RegionCode
 and at.RegionCode = rd.RegionCode
 order by PositionCount DESC";
-/*			else
-				e.DataAdapter.SelectCommand.CommandText = @"
-select at.FirmName, at.PublicUpCost, regions.Region, rd.ContactInfo 
-from 
-  ActivePrices at,
-  farm.regions,
-  usersettings.Regionaldata rd
-where
-    at.FirmCode = rd.FirmCode
-and regions.RegionCode = at.RegionCode
-and at.RegionCode = rd.RegionCode
-order by PositionCount DESC";*/
+
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(_dsReport, "Contacts");
 		}

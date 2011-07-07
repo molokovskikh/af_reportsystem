@@ -14,13 +14,8 @@ namespace Inforoom.ReportSystem.ByOrders
 	public class OrderOutAllowedAssortment : OrdersReport
 	{
 		private uint _ClientId;
-		private Period _period;
-		//private List<ulong> _regions;
-		private List<string> head;
-
-		//private const string _mandatoryOrderFilter = "oh.Deleted = 0 and oh.Submited = 1";
-		//private const string _mandatoryClientFilter = "c.PayerId <> 921 and rcs.InvisibleOnFirm < 2";
-		//private const string _filters = /*_mandatoryOrderFilter + " and " +*/ _mandatoryClientFilter;
+		private Period _period;		
+		private List<string> head;		
 
 		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -28,16 +23,9 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void ReadReportParams()
 		{
-			base.ReadReportParams();
-			/*if (_Interval)
-			{
-				dtFrom = _dtFrom;
-				dtTo = _dtTo;
-				dtTo = dtTo.Date.AddDays(1);
-			}*/
+			base.ReadReportParams();			
 			_ClientId = Convert.ToUInt32(getReportParam("ClientCode"));
-			_period = new Period(dtFrom,dtTo);
-			//_regions = (List<ulong>)getReportParam("Regions");
+			_period = new Period(dtFrom,dtTo);			
 		}
 		protected override IWriter GetWriter(ReportFormats format)
 		{

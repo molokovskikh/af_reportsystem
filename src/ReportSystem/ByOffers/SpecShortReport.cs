@@ -90,15 +90,7 @@ namespace Inforoom.ReportSystem
 		public string GetShortSuppliers(ExecuteArgs e)
 		{
 			var suppliers = new List<string>();
-/*			e.DataAdapter.SelectCommand.CommandText = @"
-select 
-	concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
-from 
-	usersettings.ActivePrices p
-	join usersettings.PricesData pd on pd.PriceCode = p.PriceCode
-	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-group by cd.FirmCode
-order by cd.ShortName";*/
+
             e.DataAdapter.SelectCommand.CommandText = @"
 select 
 	concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
@@ -131,22 +123,7 @@ order by supps.Name";
 				//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 				if (_priceCode == 0)
 					throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
-				/*DataRow drPrice = MySqlHelper.ExecuteDataRow(
-					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
-					@"
-select 
-  concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
-  pricesdata.PriceCode, 
-  clientsdata.RegionCode 
-from 
-  usersettings.pricesdata, 
-  usersettings.clientsdata, 
-  farm.regions 
-where 
-    pricesdata.PriceCode = ?PriceCode
-and clientsdata.FirmCode = pricesdata.FirmCode
-and regions.RegionCode = clientsdata.RegionCode
-limit 1", new MySqlParameter("?PriceCode", _priceCode));*/
+				
                 DataRow drPrice = MySqlHelper.ExecuteDataRow(
                     ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
                     @"

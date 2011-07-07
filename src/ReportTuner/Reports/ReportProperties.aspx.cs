@@ -106,6 +106,7 @@ and rts.ReportTypeCode = rt.ReportTypeCode
     {
         FillNonOptimal();
         FillOptimal();
+        ExtraRefresh();
     }
 
     private void FillNonOptimal()
@@ -805,6 +806,59 @@ WHERE ID = ?OPID", MyCn, trans);
 				}
 			}
 		}
+    }
+
+    protected void ExtraRefresh()
+    {
+        object obj = FindCheckBoxByKey("По базовым ценам");
+        if (obj != null) chbValue_CheckedChanged(obj, null);
+    }
+
+    protected object FindCheckBoxByKey(string key)
+    {
+        foreach (GridViewRow dr in dgvNonOptional.Rows)
+        {
+            if (dr.Cells[0].Text == "По базовым ценам")
+            {
+                return dr.Cells[1].FindControl("chbValue");
+            }
+        }
+        return null;
+    }
+
+
+    protected void chbValue_CheckedChanged(object sender, EventArgs e)
+    {
+        bool base_costs = false;
+        CheckBox chk = null;
+        foreach (GridViewRow dr in dgvNonOptional.Rows)
+        {
+            if (dr.Cells[0].Text == "По базовым ценам")
+            {
+                chk = (CheckBox) dr.Cells[1].FindControl("chbValue");
+                if (chk.UniqueID == ((CheckBox)sender).UniqueID)
+                {
+                    base_costs = true;
+                    break;
+                }                
+
+            }            
+        }
+        if (base_costs)
+        {
+            foreach (GridViewRow dr in dgvNonOptional.Rows)
+            {                             
+                if (dr.Cells[0].Text == "Список значений &quot;Прайс&quot;" ||
+                    dr.Cells[0].Text == "Список значений &quot;Региона&quot;")
+                {
+                    Button btn = (Button) dr.Cells[1].FindControl("btnListValue");
+                    if (btn == null) continue;
+                    dr.Cells[0].Visible = chk.Checked;
+                    btn.Visible = chk.Checked;
+                }
+
+            }
+        }
     }
 
     private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn)

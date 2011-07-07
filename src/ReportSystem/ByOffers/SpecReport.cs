@@ -54,7 +54,8 @@ namespace Inforoom.ReportSystem
 			_showPercents = (bool)getReportParam("ShowPercents");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
 			_reportSortedByPrice = (bool)getReportParam("ReportSortedByPrice");
-			_clientCode = (int)getReportParam("ClientCode");
+            if(_byBaseCosts == false)
+			    _clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			if (_reportParams.ContainsKey("UserCode"))
@@ -72,42 +73,27 @@ namespace Inforoom.ReportSystem
 			//≈сли прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, дл€ которого делаетс€ отчет
 			if (_priceCode == 0)
 				throw new ReportException("ƒл€ специального отчета не указан параметр \"ѕрайс-лист\".");
-
-			//«аполн€ем код региона прайс-листа как домашний код региона клиента, относительно которого строитс€ отчет
-			/*SourceRegionCode = Convert.ToInt64(
-				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-					@"select RegionCode 
-	from usersettings.clientsdata 
-where FirmCode = ?ClientCode
-and not exists(select 1 from future.Clients where Id = ?ClientCode)
-union
-select RegionCode
+            if (_byBaseCosts)
+            {   // ќтчет готовитс€ по базовым ценам
+                //«аполн€ем код региона прайс-листа как домашний код поставщика этого прайс-листа
+                SourceRegionCode = Convert.ToInt64(
+                    MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+                                              @"select s.HomeRegion
+    from usersettings.PricesData pd
+    inner join future.suppliers s on pd.FirmCode = s.Id
+    and pd.PriceCode = ?PriceCode;",
+                                              new MySqlParameter("?PriceCode", _priceCode)));
+            }
+            else
+            {   // отчет готовитс€ по клиенту
+                //«аполн€ем код региона прайс-листа как домашний код региона клиента, относительно которого строитс€ отчет			
+                SourceRegionCode = Convert.ToInt64(
+                    MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+                                              @"select RegionCode
 	from future.Clients
 where Id = ?ClientCode",
-					new MySqlParameter("?ClientCode", _clientCode)));*/
-            SourceRegionCode = Convert.ToInt64(
-                MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-                    @"select RegionCode
-	from future.Clients
-where Id = ?ClientCode",
-                                new MySqlParameter("?ClientCode", _clientCode)));
-
-/*			DataRow drPrice = MySqlHelper.ExecuteDataRow(
-				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
-				@"
-select 
-  concat(clientsdata.ShortName, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
-  pricesdata.PriceCode, 
-  clientsdata.RegionCode 
-from 
-  usersettings.pricesdata, 
-  usersettings.clientsdata, 
-  farm.regions 
-where 
-    pricesdata.PriceCode = ?PriceCode
-and clientsdata.FirmCode = pricesdata.FirmCode
-and regions.RegionCode = clientsdata.RegionCode
-limit 1", new MySqlParameter("?PriceCode", _priceCode));*/
+                                              new MySqlParameter("?ClientCode", _clientCode)));
+            }
 
             DataRow drPrice = MySqlHelper.ExecuteDataRow(
                 ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
@@ -368,14 +354,22 @@ group by c.pricecode";
 
 		protected void GetSourceCodes(ExecuteArgs e)
 		{
-			int EnabledPrice = Convert.ToInt32(			
-				MySqlHelper.ExecuteScalar(
-					e.DataAdapter.SelectCommand.Connection,
-					"select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
-					new MySqlParameter("?SourcePC", SourcePC),
-					new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
-
-			//ƒобавл€ем к таблице Core поле CatalogCode и заполн€ем его
+		    int EnabledPrice = Convert.ToInt32(
+                    MySqlHelper.ExecuteScalar(
+                        e.DataAdapter.SelectCommand.Connection,
+                        "select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
+                        new MySqlParameter("?SourcePC", SourcePC),
+                        new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
+            if(EnabledPrice == 0 && _byBaseCosts)
+            {
+                EnabledPrice = Convert.ToInt32(
+                    MySqlHelper.ExecuteScalar(
+                        e.DataAdapter.SelectCommand.Connection,
+                        "select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
+                        new MySqlParameter("?SourcePC", SourcePC)));                    
+            }
+            
+		    //ƒобавл€ем к таблице Core поле CatalogCode и заполн€ем его
 			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
