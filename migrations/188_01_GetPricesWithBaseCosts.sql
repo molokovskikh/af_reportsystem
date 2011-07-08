@@ -40,24 +40,24 @@ SELECT
     pd.firmcode,
     pd.PriceCode as PriceId,
     pc.CostCode,
-    ifnull(pd.ParentSynonym, pd.pricecode) PriceSynonymCode, #код родительского ПЛ
+    ifnull(pd.ParentSynonym, pd.pricecode) PriceSynonymCode,
     prd.RegionCode as RegionId,
-    0 as DelayOfPayment,        # задержка платежа
+    0 as DelayOfPayment,       
     0,
-    round((1 + pd.UpCost / 100) * (1 + prd.UpCost / 100), 5), # наценка относительно ПЛ, которая применяется к ценам
+    round((1 + pd.UpCost / 100) * (1 + prd.UpCost / 100), 5), 
     (to_seconds(now()) - to_seconds(pi.PriceDate)) < (f.maxold * 86400),
     pd.CostType,
     pi.PriceDate,
     1,
     pd.PriceName,
     pi.RowCount,
-    prd.MinReq, # значение мин. заказа
+    prd.MinReq, 
     0,
     0,
     supplier.Name as ShortName,
     0,
     0,
-    Storage, #есть ли склад у поставщика
+    Storage, 
     0,
     0
 FROM 
