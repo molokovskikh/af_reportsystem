@@ -1,6 +1,6 @@
-﻿DROP PROCEDURE IF EXISTS reports.`GetPricesWithBaseCosts`;
+﻿DROP PROCEDURE IF EXISTS future.`GetPricesWithBaseCosts`;
 
-CREATE DEFINER=`RootDBMS`@`127.0.0.1` PROCEDURE reports.`GetPricesWithBaseCosts`()
+CREATE DEFINER=`RootDBMS`@`127.0.0.1` PROCEDURE future.`GetPricesWithBaseCosts`()
 BEGIN
 
 drop temporary table IF EXISTS Usersettings.Prices;

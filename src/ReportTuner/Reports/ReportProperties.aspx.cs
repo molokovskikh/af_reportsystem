@@ -976,7 +976,16 @@ WHERE ID = ?OPID", MyCn, trans);
 		ddl.DataSource = ulist;
 		ddl.DataTextField = "ShortNameAndId";
 		ddl.DataValueField = "Id";
-		ddl.DataBind();		
+		ddl.DataBind();
+	    uint report_code = Convert.ToUInt32(Request["rp"]);
+	    ReportProperty property = ReportProperty
+                                  .Queryable
+                                  .Where(p => p.ReportCode == report_code && 
+                                              p.PropertyType.PropertyName == "UserCode").FirstOrDefault();
+        if (property == null) return;
+	    IUser user = ulist.Where(u => u.Id == Convert.ToUInt32(property.Value)).FirstOrDefault();
+	    int index = ulist.IndexOf(user);
+	    ddl.SelectedIndex = index;
 	}
 
     private void FillDDLOptimal()

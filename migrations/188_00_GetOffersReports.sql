@@ -1,5 +1,5 @@
-﻿DROP PROCEDURE IF EXISTS reports.`GetOffersReports`;
-CREATE DEFINER=`RootDBMS`@`127.0.0.1` PROCEDURE reports.`GetOffersReports`(IN UserIdParam INT UNSIGNED, IN NoiseFirmCode INT UNSIGNED)
+﻿DROP PROCEDURE IF EXISTS future.`GetOffersReports`;
+CREATE DEFINER=`RootDBMS`@`127.0.0.1` PROCEDURE future.`GetOffersReports`(IN UserIdParam INT UNSIGNED, IN NoiseFirmCode INT UNSIGNED)
 BEGIN
 
 Declare TableExsists Bool DEFAULT false;
