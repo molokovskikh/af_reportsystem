@@ -180,8 +180,6 @@ where GeneralReport = ?GeneralReport;";
 						}
 					}
 				}
-				//var reportCode = _dtReports.AsEnumerable().Select(r => r[BaseReportColumns.colReportCode]);
-
 			}
 			else
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");

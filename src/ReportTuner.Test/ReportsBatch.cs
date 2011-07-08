@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Castle.ActiveRecord;
 using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Reflection;
 using System.Data;
+using ReportTuner.Models;
 
 
 namespace ReportTuner.Test
@@ -511,5 +513,45 @@ select last_insert_id() as ReportCode;", connection);
 			CopyReportProperties(1603, 1627);
 			CopyReportProperties(1603, 1633);
 		}
+
+        [Test, Ignore("Для добавления новых параметров")]
+        public void AddNewOptions()
+        {
+            string conn = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+
+            ulong reportTypeCode = 1;
+
+            using (new SessionScope())
+            {
+                var reports = Report.Queryable.Where(r => r.ReportType.Id == reportTypeCode).ToList();
+
+                var prop_types = ReportTypeProperty.Queryable
+                                                   .Where(pt => pt.ReportType.Id == reportTypeCode)
+                                                   .Where(pt => pt.PropertyName == "ByBaseCosts" ||
+                                                                pt.PropertyName == "PriceCodeEqual" ||
+                                                                pt.PropertyName == "RegionEqual").ToList();
+
+                foreach (var report in reports)
+                {
+
+
+                    foreach (var prop_type in prop_types)
+                    {
+                        var prop =
+                            ReportProperty.Queryable.Where(
+                                p => p.ReportCode == report.Id && p.PropertyType.Id == prop_type.Id).ToList();
+                        if (prop.Count != 0) continue;
+                        ReportProperty property = new ReportProperty()
+                        {
+                            ReportCode = report.Id,
+                            PropertyType = prop_type,
+                            Value = prop_type.DefaultValue
+                        };
+
+                        property.Save();
+                    }
+                }
+            }
+        }
 	}
 }

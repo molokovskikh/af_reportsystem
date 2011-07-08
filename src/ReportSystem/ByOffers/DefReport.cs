@@ -129,7 +129,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					e.DataAdapter.SelectCommand.Connection,
 					"select PriceCode from ActivePrices where PriceCode = ?PriceCode",
 					new MySqlParameter("?PriceCode", _priceCode)));
-			if (EnabledPrice == 0)
+			if (EnabledPrice == 0 && !_byBaseCosts)
 			{
 				string ClientShortName = Convert.ToString(
 					

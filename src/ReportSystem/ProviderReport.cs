@@ -47,6 +47,12 @@ namespace Inforoom.ReportSystem
                 _prices = (List<ulong>) getReportParam("PriceCodeEqual");
                 _regions = (List<ulong>) getReportParam("RegionEqual");
             }
+
+            if (_reportParams.ContainsKey("UserCode"))
+            {
+                if (!String.IsNullOrEmpty(getReportParam("UserCode").ToString()))
+                    _userCode = (int)getReportParam("UserCode");
+            }
 		}
 
 		public virtual List<ulong> GetClietnWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,

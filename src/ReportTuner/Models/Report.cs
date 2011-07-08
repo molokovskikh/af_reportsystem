@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Web;
 using Castle.ActiveRecord;
+using Castle.ActiveRecord.Framework;
 using Common.Web.Ui.Models;
 
 namespace ReportTuner.Models
 {
 	[ActiveRecord("reports.reports")]
-	public class Report : ActiveRecordBase<Report>
+	public class Report : ActiveRecordLinqBase<Report>
 	{
 		[PrimaryKey("ReportCode")]
 		public virtual ulong Id { get; set; }

@@ -830,6 +830,7 @@ WHERE ID = ?OPID", MyCn, trans);
     protected void chbValue_CheckedChanged(object sender, EventArgs e)
     {
         bool base_costs = false;
+        int base_costs_index = 0;
         CheckBox chk = null;
         foreach (GridViewRow dr in dgvNonOptional.Rows)
         {
@@ -842,21 +843,23 @@ WHERE ID = ?OPID", MyCn, trans);
                     break;
                 }                
 
-            }            
+            }
+            base_costs_index++;
         }
         if (base_costs)
         {
+            int index = 0;
             foreach (GridViewRow dr in dgvNonOptional.Rows)
             {                             
-                if (dr.Cells[0].Text == "Список значений &quot;Прайс&quot;" ||
-                    dr.Cells[0].Text == "Список значений &quot;Региона&quot;")
+                if ((dr.Cells[0].Text == "Список значений &quot;Прайс&quot;" ||
+                    dr.Cells[0].Text == "Список значений &quot;Региона&quot;") && index - base_costs_index <= 2 && index - base_costs_index > 0)
                 {
                     Button btn = (Button) dr.Cells[1].FindControl("btnListValue");
                     if (btn == null) continue;
                     dr.Cells[0].Visible = chk.Checked;
                     btn.Visible = chk.Checked;
                 }
-
+                index++;
             }
         }
     }

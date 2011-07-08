@@ -21,5 +21,13 @@ namespace ReportSystem.Test
 			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialNewDifficult);
 		}
+
+        [Test]
+        public void SpecialByBaseCosts()
+        {
+            var props = TestHelper.LoadProperties(ReportsTypes.SpecialByBaseCosts);
+            var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+            TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCosts);
+        }
 	}
 }

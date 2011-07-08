@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
+using Castle.ActiveRecord.Framework;
 
 namespace ReportTuner.Models
 {
@@ -57,7 +58,7 @@ namespace ReportTuner.Models
 	}
 
 	[ActiveRecord("reports.report_type_properties")]
-	public class ReportTypeProperty : ActiveRecordBase<ReportTypeProperty>
+	public class ReportTypeProperty : ActiveRecordLinqBase<ReportTypeProperty>
 	{
 		public ReportTypeProperty()
 		{}
@@ -91,6 +92,9 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual bool Optional { get; set; }
+
+        [Property]
+        public virtual string DefaultValue { get; set; }
 
 		[BelongsTo("PropertyEnumId", Cascade = CascadeEnum.All)]
 		public virtual PropertyEnum Enum { get; set; }

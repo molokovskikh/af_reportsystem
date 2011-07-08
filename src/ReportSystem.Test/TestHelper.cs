@@ -29,6 +29,7 @@ namespace ReportSystem.Test
 		Special,
 		SpecialNew,
 		SpecialNewDifficult,
+        SpecialByBaseCosts,
 		RatingNotJunkOnly,
 		RatingJunkOnly,
 		Rating,

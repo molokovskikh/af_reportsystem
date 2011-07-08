@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
+using Castle.ActiveRecord.Framework;
 
 namespace ReportTuner.Models
 {
 	[ActiveRecord("report_properties", Schema = "reports")]
-	public class ReportProperty : ActiveRecordBase<ReportProperty>
+	public class ReportProperty : ActiveRecordLinqBase<ReportProperty>
 	{
 		[PrimaryKey("ID")]
 		public virtual ulong Id { get; set; }
