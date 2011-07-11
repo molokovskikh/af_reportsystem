@@ -266,10 +266,12 @@ and regions.RegionCode = activeprices.RegionCode";
             // Включаем для него все прайсы
 			selectCommand.CommandType = CommandType.Text;
             if (_userCode == null) // если пользователь не выбран через интерфейс
-			    selectCommand.CommandText = "update Prices set DisabledByClient = 0"; 
-			selectCommand.ExecuteNonQuery();
+            {
+                selectCommand.CommandText = "update Prices set DisabledByClient = 0";
+                selectCommand.ExecuteNonQuery();
+            }
 
-			// Получаем для пользователя активные (которыми теперь являются все) прайсы
+		    // Получаем для пользователя активные (которыми теперь являются все) прайсы
 			selectCommand.CommandText = "future.GetActivePrices";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
