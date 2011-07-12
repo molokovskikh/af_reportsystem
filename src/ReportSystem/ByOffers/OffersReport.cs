@@ -144,6 +144,14 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
                         e.DataAdapter.SelectCommand.Connection,
                         "select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
                         new MySqlParameter("?SourcePC", _sourcePriceCode)));
+                if (enabledPrice != 0)
+                {
+                    _sourceRegionCode = Convert.ToInt32(
+                    MySqlHelper.ExecuteScalar(
+                        e.DataAdapter.SelectCommand.Connection,
+                        "select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
+                        new MySqlParameter("?SourcePC", _sourcePriceCode)));
+                }
             }
 
 			//Добавляем к таблице Core поле CatalogCode и заполняем его

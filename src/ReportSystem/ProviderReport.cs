@@ -345,6 +345,12 @@ and regions.RegionCode = activeprices.RegionCode";
 		    selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
 
 			selectCommand.ExecuteNonQuery();
+#if DEBUG
+            var count = MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+                                                  "select count(*) from usersettings.Core where PriceCode = 200;");
+#endif
+
+
 		}
         
         /// <summary>

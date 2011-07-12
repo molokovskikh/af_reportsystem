@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -361,7 +362,15 @@ group by c.pricecode";
                     MySqlHelper.ExecuteScalar(
                         e.DataAdapter.SelectCommand.Connection,
                         "select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
-                        new MySqlParameter("?SourcePC", SourcePC)));                    
+                        new MySqlParameter("?SourcePC", SourcePC)));
+                if(EnabledPrice != 0)
+                {
+                    SourceRegionCode = Convert.ToInt32(
+                    MySqlHelper.ExecuteScalar(
+                        e.DataAdapter.SelectCommand.Connection,
+                        "select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
+                        new MySqlParameter("?SourcePC", SourcePC)));
+                }
             }
             
 		    //Добавляем к таблице Core поле CatalogCode и заполняем его
@@ -454,6 +463,11 @@ and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+
+#if DEBUG
+		    var count = MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+		                                          "select count(*) from TmpSourceCodes;");
+#endif
 
 e.DataAdapter.SelectCommand.CommandText = @"
 select 
@@ -551,7 +565,7 @@ where
   and FarmCore.Id = AllPrices.Id";
 
 				SqlCommandText += @"
-  and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
+and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
       or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
@@ -574,6 +588,12 @@ order by SourcePrice.ID";
 order by FullName, FirmCr";
 			e.DataAdapter.SelectCommand.CommandText = SqlCommandText;
 			e.DataAdapter.Fill(_dsReport, "Catalog");
+
+#if DEBUG
+            Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+		   var cnt = _dsReport.Tables["Catalog"].Rows.Count;
+#endif
+
 		}
 
 		protected override void FormatExcel(string FileName)

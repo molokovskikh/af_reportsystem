@@ -663,9 +663,14 @@ WHERE ID = ?OPID", MyCn, trans);
         {
             if (((DropDownList)dr.FindControl("ddlValue")).Visible == true)
             {
-				if (((DropDownList)dr.FindControl("ddlValue")).SelectedValue != null)
-                if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() != ((DropDownList)dr.FindControl("ddlValue")).SelectedValue)
-                    DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] = ((DropDownList)dr.FindControl("ddlValue")).SelectedValue;
+                if (dr.FindControl("ddlValue") != null)
+                {
+                    if (((DropDownList) dr.FindControl("ddlValue")).SelectedValue != null)
+                        if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column].ToString() !=
+                            ((DropDownList) dr.FindControl("ddlValue")).SelectedValue)
+                            DS.Tables[dt.TableName].DefaultView[dr.RowIndex][Column] =
+                                ((DropDownList) dr.FindControl("ddlValue")).SelectedValue;
+                }
             }
             else if (((CheckBox)dr.FindControl("chbValue")).Visible == true)
             {
@@ -852,13 +857,12 @@ WHERE ID = ?OPID", MyCn, trans);
             foreach (GridViewRow dr in dgvNonOptional.Rows)
             {                             
                 if ((dr.Cells[0].Text == "Список значений &quot;Прайс&quot;" ||
-                    dr.Cells[0].Text == "Список значений &quot;Региона&quot;") && index - base_costs_index <= 2 && index - base_costs_index > 0)
-                {
-                    Button btn = (Button) dr.Cells[1].FindControl("btnListValue");
-                    if (btn == null) continue;
-                    dr.Cells[0].Visible = chk.Checked;
-                    btn.Visible = chk.Checked;
-                }
+                    dr.Cells[0].Text == "Список значений &quot;Региона&quot;") /*&& index - base_costs_index <= 2 && index - base_costs_index > 0*/
+                    )
+                
+                    dr.Visible = chk.Checked;                
+                if (dr.Cells[0].Text == "Клиент")
+                    dr.Visible = !chk.Checked;
                 index++;
             }
         }
@@ -982,7 +986,9 @@ WHERE ID = ?OPID", MyCn, trans);
                                   .Queryable
                                   .Where(p => p.ReportCode == report_code && 
                                               p.PropertyType.PropertyName == "UserCode").FirstOrDefault();
-        if (property == null) return;
+        if (property == null ) return;
+        if (String.IsNullOrEmpty(property.Value)) return;
+
 	    IUser user = ulist.Where(u => u.Id == Convert.ToUInt32(property.Value)).FirstOrDefault();
 	    int index = ulist.IndexOf(user);
 	    ddl.SelectedIndex = index;
@@ -1105,8 +1111,12 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 							if (dr.Cells[0].Text == "Клиент")
 							{
 								DropDownList ddl = (DropDownList)dr.Cells[1].FindControl("ddlValue");
-								string id = ddl.SelectedValue;
-								FillUserDDL(Convert.ToInt64(id), ddlValues);
+                                if (ddl != null)
+                                {
+                                    string id = ddl.SelectedValue;
+                                    if(!String.IsNullOrEmpty(id))
+                                        FillUserDDL(Convert.ToInt64(id), ddlValues);
+                                }
 							}
 						}
 					}

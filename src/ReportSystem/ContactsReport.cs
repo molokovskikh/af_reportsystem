@@ -20,7 +20,8 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
             base.ReadReportParams();
-			_clientCode = (int)getReportParam("ClientCode");
+            if(_byBaseCosts == false)
+			    _clientCode = (int)getReportParam("ClientCode");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
