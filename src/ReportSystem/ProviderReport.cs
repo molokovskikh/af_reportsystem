@@ -365,7 +365,7 @@ and regions.RegionCode = activeprices.RegionCode";
 drop temporary table IF EXISTS usersettings.TmpPricesRegions;
 CREATE temporary table usersettings.TmpPricesRegions(
   PriceCode int(32) unsigned,   
-  RegionCode int(32) unsigned
+  RegionCode bigint unsigned
   ) engine=MEMORY;";
             e.DataAdapter.SelectCommand.ExecuteNonQuery();
             e.DataAdapter.SelectCommand.Parameters.Clear();
