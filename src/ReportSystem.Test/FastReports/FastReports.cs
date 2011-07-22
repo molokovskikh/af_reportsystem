@@ -17,9 +17,9 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_report_with_producer()
 		{
-			AddProperty("IncludeQuantity", 1);
-			AddProperty("IncludeProducer", 1);
-			AddProperty("ClientCode", 2575);
+			Property("IncludeQuantity", 1);
+			Property("IncludeProducer", 1);
+			Property("ClientCode", 2575);
 			CreateReport();
 			BuildReport();
 		}
@@ -27,9 +27,9 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_report_without_producer()
 		{
-			AddProperty("IncludeQuantity", 1);
-			AddProperty("IncludeProducer", 0);
-			AddProperty("ClientCode", 2575);
+			Property("IncludeQuantity", 1);
+			Property("IncludeProducer", 0);
+			Property("ClientCode", 2575);
 			CreateReport();
 			BuildReport();
 		}
@@ -37,10 +37,10 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_report_with_cost_diff_threshold()
 		{
-			AddProperty("IncludeQuantity", 1);
-			AddProperty("IncludeProducer", 1);
-			AddProperty("CostDiffThreshold", 10);
-			AddProperty("ClientCode", 2575);
+			Property("IncludeQuantity", 1);
+			Property("IncludeProducer", 1);
+			Property("CostDiffThreshold", 10);
+			Property("ClientCode", 2575);
 			CreateReport();
 			BuildReport();
 		}
@@ -48,10 +48,10 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_report_with_ignored_suppliers()
 		{
-			AddProperty("IncludeQuantity", 1);
-			AddProperty("IncludeProducer", 1);
-			AddProperty("ClientCode", 2575);
-			AddProperty("IgnoredSuppliers", new [] {5, 7});
+			Property("IncludeQuantity", 1);
+			Property("IncludeProducer", 1);
+			Property("ClientCode", 2575);
+			Property("IgnoredSuppliers", new [] {5, 7});
 			CreateReport();
 			BuildReport();
 		}
@@ -59,10 +59,10 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_report_with_pricelist()
 		{
-			AddProperty("IncludeQuantity", 1);
-			AddProperty("IncludeProducer", 1);
-			AddProperty("ClientCode", 2575);
-			AddProperty("PriceCode", 4649);
+			Property("IncludeQuantity", 1);
+			Property("IncludeProducer", 1);
+			Property("ClientCode", 2575);
+			Property("PriceCode", 4649);
 			CreateReport();
 			BuildReport();
 		}
@@ -70,10 +70,10 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_report_with_pricelist_without_producer_and_quantity()
 		{
-			AddProperty("IncludeQuantity", 0);
-			AddProperty("IncludeProducer", 0);
-			AddProperty("ClientCode", 2575);
-			AddProperty("PriceCode", 4649);
+			Property("IncludeQuantity", 0);
+			Property("IncludeProducer", 0);
+			Property("ClientCode", 2575);
+			Property("PriceCode", 4649);
 			CreateReport();
 			BuildReport();
 		}
@@ -81,11 +81,11 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_full_report_with_pricelist()
 		{
-			AddProperty("IncludeQuantity", 1);
-			AddProperty("IncludeProducer", 1);
-			AddProperty("ClientCode", 2575);
-			AddProperty("PriceCode", 4649);
-			AddProperty("ReportIsFull", 1);
+			Property("IncludeQuantity", 1);
+			Property("IncludeProducer", 1);
+			Property("ClientCode", 2575);
+			Property("PriceCode", 4649);
+			Property("ReportIsFull", 1);
 			CreateReport();
 			BuildReport();
 		}
@@ -93,11 +93,11 @@ namespace ReportSystem.Test.FastReports
 		[Test]
 		public void Build_full_report_with_pricelist_without_producer_and_quantity()
 		{
-			AddProperty("IncludeQuantity", 0);
-			AddProperty("IncludeProducer", 0);
-			AddProperty("ClientCode", 2575);
-			AddProperty("PriceCode", 4649);
-			AddProperty("ReportIsFull", 1);
+			Property("IncludeQuantity", 0);
+			Property("IncludeProducer", 0);
+			Property("ClientCode", 2575);
+			Property("PriceCode", 4649);
+			Property("ReportIsFull", 1);
 			CreateReport();
 			BuildReport();
 		}
@@ -106,10 +106,10 @@ namespace ReportSystem.Test.FastReports
 		[ExpectedException(typeof(ReportException), ExpectedMessage = "Не найден прайс-лист с кодом: 0.")]
 		public void Build_report_with_non_exists_pricelist()
 		{
-			AddProperty("IncludeQuantity", 0);
-			AddProperty("IncludeProducer", 0);
-			AddProperty("ClientCode", 2575);
-			AddProperty("PriceCode", 0);
+			Property("IncludeQuantity", 0);
+			Property("IncludeProducer", 0);
+			Property("ClientCode", 2575);
+			Property("PriceCode", 0);
 			CreateReport();
 			BuildReport();
 		}
@@ -118,10 +118,10 @@ namespace ReportSystem.Test.FastReports
 		[ExpectedException(typeof(ReportException), ExpectedMessage = "(1) нет предложений.", MatchType = MessageMatch.Contains)]
 		public void Build_report_with_pricelist_without_offers()
 		{
-			AddProperty("IncludeQuantity", 0);
-			AddProperty("IncludeProducer", 0);
-			AddProperty("ClientCode", 2575);
-			AddProperty("PriceCode", 1);
+			Property("IncludeQuantity", 0);
+			Property("IncludeProducer", 0);
+			Property("ClientCode", 2575);
+			Property("PriceCode", 1);
 			CreateReport();
 			BuildReport();
 		}

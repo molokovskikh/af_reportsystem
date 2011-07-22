@@ -47,7 +47,7 @@ namespace ReportSystem.Test
 			ProfileHelper.End();
 		}
 
-		public void AddProperty(string name, object value)
+		public void Property(string name, object value)
 		{
 			var row = properties.Tables[0].NewRow();
 			row["ID"] = i;
@@ -79,8 +79,11 @@ namespace ReportSystem.Test
 			properties.Tables[0].Rows.Add(row);
 		}
 
-		protected void BuildReport(string file = null)
+		protected void BuildReport(string file = null, Type reportType = null)
 		{
+			if (reportType != null && report == null)
+				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, false, ReportFormats.Excel, properties);
+
 			if (file == null)
 				file = "test.xls";
 			if (File.Exists(file))
@@ -90,7 +93,6 @@ namespace ReportSystem.Test
 			report.ProcessReport();
 			report.ReportToFile(Path.GetFullPath(file));
 			ProfileHelper.Stop();
-
 		}
 	}
 }
