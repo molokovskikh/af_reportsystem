@@ -54,7 +54,7 @@ namespace Inforoom.ReportSystem
 			base.GenerateReport(e);
 
 			ProfileHelper.Next("Get Offers");
-			GetOffers(e, _SupplierNoise);
+			GetOffers(_SupplierNoise);
 			ProfileHelper.Next("Processing1");
 			e.DataAdapter.SelectCommand.CommandText = "select " ;
 

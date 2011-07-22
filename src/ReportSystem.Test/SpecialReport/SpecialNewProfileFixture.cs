@@ -29,5 +29,18 @@ namespace ReportSystem.Test
             var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
             TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCosts);
         }
+
+		[Test]
+		public void Get_report_for_retail()
+		{
+			Property("Retail", true);
+			Property("ReportType", 0);
+			Property("PriceCode", 200);
+			Property("ShowPercents", false);
+			Property("ReportIsFull", false);
+			Property("CalculateByCatalog", false);
+			Property("ReportSortedByPrice", false);
+			BuildReport(reportType: typeof(SpecReport));
+		}
 	}
 }

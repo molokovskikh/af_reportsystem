@@ -26,7 +26,7 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			base.GenerateReport(e);
-			GetOffers(e, _SupplierNoise);
+			GetOffers(_SupplierNoise);
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select c0.Code,

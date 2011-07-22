@@ -55,7 +55,7 @@ namespace Inforoom.ReportSystem
 			_showPercents = (bool)getReportParam("ShowPercents");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
 			_reportSortedByPrice = (bool)getReportParam("ReportSortedByPrice");
-            if(_byBaseCosts == false)
+            if(!_byBaseCosts && !_isRetail)
 			    _clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
@@ -137,7 +137,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 
-			GetOffers(e, _SupplierNoise);
+			GetOffers(_SupplierNoise);
 			ProfileHelper.Next("GetCodes");
 			//Получили предложения интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes(e);

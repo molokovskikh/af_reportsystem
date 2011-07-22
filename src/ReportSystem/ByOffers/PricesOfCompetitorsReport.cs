@@ -135,7 +135,7 @@ namespace Inforoom.ReportSystem
 			{
 				_clientCode = Convert.ToInt32(client);
 				base.GenerateReport(e);
-				GetActivePrices(e);
+				InvokeGetActivePrices();
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
 				string withWithoutPropertiesText;
 				if (_WithWithoutProperties)

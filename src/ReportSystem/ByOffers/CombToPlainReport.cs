@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 			base.GenerateReport(e);
 
 			//Выбираем 
-			GetOffers(e, _SupplierNoise);
+			GetOffers(_SupplierNoise);
 
             e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select

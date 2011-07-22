@@ -122,7 +122,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 
-			GetOffers(e, _SupplierNoise);
+			GetOffers(_SupplierNoise);
 			ProfileHelper.Next("Processing");
 			int EnabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(

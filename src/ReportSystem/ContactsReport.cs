@@ -28,7 +28,7 @@ namespace Inforoom.ReportSystem
 		{
 			base.GenerateReport(e);
 
-			GetActivePrices(e);
+			InvokeGetActivePrices();
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select at.FirmName, 0 PublicUpCost, regions.Region, rd.ContactInfo 

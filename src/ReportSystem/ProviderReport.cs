@@ -42,6 +42,8 @@ namespace Inforoom.ReportSystem
 
             // если отчет строится по базовым ценам, определяем список прайсов и регионов
             _byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
+			if (reportParamExists("Retail"))
+				_isRetail = (bool)getReportParam("Retail");
             if (_byBaseCosts)
             {
                 _prices = (List<ulong>) getReportParam("PriceCodeEqual");
@@ -158,27 +160,18 @@ namespace Inforoom.ReportSystem
 			return result;
 		}
 
-		protected void GetActivePrices()
-		{
-			GetActivePrices(args);
-		}
-
-		protected void GetOffers()
-		{
-			GetOffers(args, null);
-		}
-
 		//Получили список действующих прайс-листов для интересующего клиента
-		protected void GetActivePrices(ExecuteArgs e)
+		protected void InvokeGetActivePrices()
 		{
+			ExecuteArgs e = args;
 			//удаление временных таблиц
 			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-            if (_byBaseCosts)
-                GetRegionsPrices(e); // заполняем временную таблицу для передачи списка ПЛ и регионов в хранимую процедуру
+			if (_byBaseCosts)
+				GetRegionsPrices(e); // заполняем временную таблицу для передачи списка ПЛ и регионов в хранимую процедуру
 			
-			GetActivePricesNew();
+			GetBareActivePrices();
 
 			List<ulong> allowedFirms = null;
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
@@ -240,42 +233,57 @@ and regions.RegionCode = activeprices.RegionCode";
 
 		}
 
-		protected void GetActivePricesNew()
-		{// Небольшая магия, через любого пользователя получаем прайсы клиента
+		private void GetBareActivePrices()
+		{
+			var selectCommand = args.DataAdapter.SelectCommand;
 
-			// Получаем пользователя
-			var userId = GetUserId();
+			if (_isRetail)
+			{
+				GetRetailActivePrices();
+				return;
+			}
 
-            var selectCommand = args.DataAdapter.SelectCommand;
+			uint userId = 0;
 			// Получаем для него все прайсы
-            if(_byBaseCosts)
-            {
-                selectCommand.CommandText = "future.GetPricesWithBaseCosts";
-                selectCommand.CommandType = CommandType.StoredProcedure;
-                selectCommand.ExecuteNonQuery();
-            }
-            else
-            {
-                selectCommand.CommandText = "future.GetPrices";
-                selectCommand.CommandType = CommandType.StoredProcedure;
-                selectCommand.Parameters.Clear();
-                selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
-                selectCommand.ExecuteNonQuery();
-            }
+			if(_byBaseCosts)
+			{
+				selectCommand.CommandText = "future.GetPricesWithBaseCosts";
+				selectCommand.CommandType = CommandType.StoredProcedure;
+				selectCommand.ExecuteNonQuery();
+			}
+			else
+			{
+				// Получаем пользователя
+				userId = GetUserId();
+				selectCommand.CommandText = "future.GetPrices";
+				selectCommand.CommandType = CommandType.StoredProcedure;
+				selectCommand.Parameters.Clear();
+				selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+				selectCommand.ExecuteNonQuery();
+			}
 
-            // Включаем для него все прайсы
+			// Включаем для него все прайсы
 			selectCommand.CommandType = CommandType.Text;
-            if (_userCode == null) // если пользователь не выбран через интерфейс
-            {
-                selectCommand.CommandText = "update Prices set DisabledByClient = 0";
-                selectCommand.ExecuteNonQuery();
-            }
+			if (_userCode == null) // если пользователь не выбран через интерфейс
+			{
+				selectCommand.CommandText = "update Prices set DisabledByClient = 0";
+				selectCommand.ExecuteNonQuery();
+			}
 
-		    // Получаем для пользователя активные (которыми теперь являются все) прайсы
+			// Получаем для пользователя активные (которыми теперь являются все) прайсы
 			selectCommand.CommandText = "future.GetActivePrices";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+			selectCommand.ExecuteNonQuery();
+		}
+
+		private void GetRetailActivePrices()
+		{
+			var selectCommand = args.DataAdapter.SelectCommand;
+			selectCommand.CommandText = "usersettings.GetActivePrices";
+			selectCommand.CommandType = CommandType.StoredProcedure;
+			selectCommand.Parameters.AddWithValue("?ClientCodeParam", 4474);
 			selectCommand.ExecuteNonQuery();
 		}
 
@@ -284,73 +292,51 @@ and regions.RegionCode = activeprices.RegionCode";
 			// Если пользователь не передан в качестве параметра - берем первого попавшегося
 			if (_userCode == null)
 			{
-				args.DataAdapter.SelectCommand.CommandText = "select Id from future.Users where ClientId = " + _clientCode +
+				var command = args.DataAdapter.SelectCommand;
+				//Проверка существования и отключения клиента
+				command.CommandText = "select * from future.Clients cl where cl.Id = " + _clientCode;
+				command.CommandType = CommandType.Text;
+				using (var reader = command.ExecuteReader())
+				{
+					if (!reader.Read())
+						throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
+					if (Convert.ToByte(reader["Status"]) == 0)
+						throw new ReportException(
+							String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).",
+											reader["Name"], _clientCode));
+				}
+				command.CommandText = "select Id from future.Users where ClientId = " + _clientCode +
 				                                             " limit 1";
-				return Convert.ToUInt32(args.DataAdapter.SelectCommand.ExecuteScalar());
+				return Convert.ToUInt32(command.ExecuteScalar());
 			}
 			else
 			{
-				return Convert.ToUInt32(_userCode);
+				return Convert.ToUInt32(_userCode.Value);
 			}
 		}
 
 		//Получили список предложений для интересующего клиента
-		protected void ExecuterGetOffers(ExecuteArgs e, int? noiseFirmCode)
+		protected void GetOffers(int? noiseFirmCode = null)
 		{
-			GetActivePrices(e);
-
-			GetOffersNew(noiseFirmCode);
-
-			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			InvokeGetActivePrices();
+			InvokeGetOffers(noiseFirmCode);
+			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 		}
 
-		protected void GetOffers(ExecuteArgs e)
+		private void InvokeGetOffers(int? noiseFirmCode)
 		{
-			ExecuterGetOffers(e, null);
-		}
-
-		protected void GetOffers(ExecuteArgs e, int? noiseFirmCode)
-		{
-			ExecuterGetOffers(e, noiseFirmCode);
-		}
-
-		private void GetOffersNew(int? noiseFirmCode)
-		{ // Небольшая магия, через любого пользователя получаем предложение для клиента
-
-			// Получаем первого попавшегося пользователя			
-            var userId = GetUserId();
-            var selectCommand = args.DataAdapter.SelectCommand;
-            if (_byBaseCosts == false)
-            {
-                //Проверка существования и отключения клиента                
-                selectCommand.CommandText =
-                    "select * from future.Clients cl where cl.Id = " + _clientCode;
-                using (var reader = selectCommand.ExecuteReader())
-                {
-                    if (!reader.Read())
-                        throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
-                    if (Convert.ToByte(reader["Status"]) == 0)
-                        throw new ReportException(
-                            String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).",
-                                          reader["Name"], _clientCode));
-                }
-            }
-		    selectCommand.CommandText = "future.GetOffersReports";
-			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+			var selectCommand = args.DataAdapter.SelectCommand;
 			selectCommand.Parameters.Clear();
-            if (_byBaseCosts == false)            
-                selectCommand.Parameters.AddWithValue("?UserIdParam", userId);            
-            else
-                selectCommand.Parameters.AddWithValue("?UserIdParam", null);            
-		    selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
 
+			if (_byBaseCosts || _isRetail)
+				selectCommand.Parameters.AddWithValue("?UserIdParam", null);
+			else
+				selectCommand.Parameters.AddWithValue("?UserIdParam", GetUserId());
+
+			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
+			selectCommand.CommandText = "future.GetOffersReports";
+			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
-#if DEBUG
-            var count = MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
-                                                  "select count(*) from usersettings.Core where PriceCode = 200;");
-#endif
-
-
 		}
         
         /// <summary>
@@ -432,7 +418,7 @@ order by supps.Name", supplierIds.Implode());
 		{
 			_clientCode = Convert.ToInt32(clientId);
 
-			GetActivePrices(args);
+			InvokeGetActivePrices();
 
 			var assortmentSupplierId = Convert.ToUInt32(
 				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,

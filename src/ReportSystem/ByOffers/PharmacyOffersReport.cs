@@ -238,7 +238,7 @@ into @OffersSynonymCode;
 			CheckPriceCode(e);
 
 			ProfileHelper.Next("GetOffers");
-			GetOffers(e, _SupplierNoise);
+			GetOffers(_SupplierNoise);
 
 			ProfileHelper.Next("GetData");
 

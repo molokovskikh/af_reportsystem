@@ -117,7 +117,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (actualPrice == 0)
 				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", _customerFirmName, _sourcePriceCode));
 
-			GetOffers(e, _SupplierNoise);
+			GetOffers(_SupplierNoise);
 
 			//Получили предложения интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes(e);

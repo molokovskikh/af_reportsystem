@@ -76,6 +76,7 @@ namespace Inforoom.ReportSystem
 		protected ExecuteArgs args;
 
 		protected ILog Logger;
+		protected bool _isRetail;
 
 		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, 
 			ReportFormats format, DataSet dsProperties)
