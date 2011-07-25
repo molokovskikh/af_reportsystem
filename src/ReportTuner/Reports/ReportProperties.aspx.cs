@@ -823,14 +823,13 @@ WHERE ID = ?OPID", MyCn, trans);
     {
         foreach (GridViewRow dr in dgvNonOptional.Rows)
         {
-            if (dr.Cells[0].Text == "По базовым ценам")
+            if (dr.Cells[0].Text == key)
             {
                 return dr.Cells[1].FindControl("chbValue");
             }
         }
         return null;
     }
-
 
 	protected void chbValue_CheckedChanged(object sender, EventArgs e)
 	{
