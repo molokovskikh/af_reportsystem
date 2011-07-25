@@ -832,43 +832,47 @@ WHERE ID = ?OPID", MyCn, trans);
     }
 
 
-    protected void chbValue_CheckedChanged(object sender, EventArgs e)
-    {
-        bool base_costs = false;
-        int base_costs_index = 0;
-        CheckBox chk = null;
-        foreach (GridViewRow dr in dgvNonOptional.Rows)
-        {
-            if (dr.Cells[0].Text == "По базовым ценам")
-            {
-                chk = (CheckBox) dr.Cells[1].FindControl("chbValue");
-                if (chk.UniqueID == ((CheckBox)sender).UniqueID)
-                {
-                    base_costs = true;
-                    break;
-                }                
+	protected void chbValue_CheckedChanged(object sender, EventArgs e)
+	{
+		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
+		var retail = GetValueByLabel(dgvNonOptional.Rows, "Готовить по розничному сегменту");
 
-            }
-            base_costs_index++;
-        }
-        if (base_costs)
-        {
-            int index = 0;
-            foreach (GridViewRow dr in dgvNonOptional.Rows)
-            {                             
-                if ((dr.Cells[0].Text == "Список значений &quot;Прайс&quot;" ||
-                    dr.Cells[0].Text == "Список значений &quot;Региона&quot;") /*&& index - base_costs_index <= 2 && index - base_costs_index > 0*/
-                    )
-                
-                    dr.Visible = chk.Checked;                
-                if (dr.Cells[0].Text == "Клиент")
-                    dr.Visible = !chk.Checked;
-                index++;
-            }
-        }
-    }
+		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !retail && !base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !retail);
+		SetRowVisibility(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
+	}
 
-    private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn)
+	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)
+	{
+		foreach (GridViewRow dr in dgvNonOptional.Rows)
+		{
+			if (dr.Cells.Count < 1)
+				continue;
+
+			var cell = dr.Cells[0];
+			if (cell.Text == label)
+				dr.Visible = visible;
+		}
+	}
+
+	private bool GetValueByLabel(GridViewRowCollection rows, string label)
+	{
+		bool value = false;
+		foreach (GridViewRow dr in dgvNonOptional.Rows)
+		{
+			if (dr.Cells.Count > 1 && dr.Cells[0].Text == label)
+			{
+				var chk = (CheckBox) dr.Cells[1].FindControl("chbValue");
+				value = chk.Checked;
+				break;
+			}
+		}
+		return value;
+	}
+
+	private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn)
     {
         if (dtProcResult.Rows.Count > 0)
         {
