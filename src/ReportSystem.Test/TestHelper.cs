@@ -6,7 +6,6 @@ using Inforoom.ReportSystem;
 using System.Data;
 using System.IO;
 using Inforoom.ReportSystem.Helpers;
-using ReportSystem.Test.Properties;
 
 namespace ReportSystem.Test
 {
@@ -95,8 +94,7 @@ namespace ReportSystem.Test
 
 		public static string GetFileName(ReportsTypes type)
 		{
-			string fileName = Path.Combine(Settings.Default.ExcelDir, type.ToString() + ".xls");
-			return fileName;
+			return Path.GetFullPath(type.ToString() + ".xls");
 		}
 
 		public static string EnsureDeletion(ReportsTypes type)

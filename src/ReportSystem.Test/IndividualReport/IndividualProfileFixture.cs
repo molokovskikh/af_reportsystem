@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
-using ReportSystem.Test.Properties;
 
 namespace ReportSystem.Test
 {
