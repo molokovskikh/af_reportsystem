@@ -296,13 +296,8 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 
 		private string ArchFile()
 		{
-#if (TESTING)
-			string ResDirPath = "C:\\Temp\\Reports\\";
-#else
-			string ResDirPath = Properties.Settings.Default.FTPOptBoxPath;
-#endif
-
-			string resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
+			var ResDirPath = Properties.Settings.Default.FTPOptBoxPath;
+			var resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
 
 			ResDirPath += _firmCode.ToString("000") + "\\Reports\\";
 

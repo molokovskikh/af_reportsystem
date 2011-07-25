@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Web;
 using Microsoft.Win32.TaskScheduler;
 using System.Configuration;
@@ -11,18 +12,23 @@ namespace ReportTuner.Helpers
 {
 	public static class ScheduleHelper
 	{
-		readonly static string ScheduleServer = ConfigurationManager.AppSettings["ScheduleServer"];
-		readonly static string ScheduleDomainName = ConfigurationManager.AppSettings["ScheduleDomainName"];
-		readonly static string ScheduleUserName = ConfigurationManager.AppSettings["ScheduleUserName"];
-		readonly static string SchedulePassword = ConfigurationManager.AppSettings["SchedulePassword"];
-		public readonly static string ScheduleWorkDir = ConfigurationManager.AppSettings["ScheduleWorkDir"];
-		public readonly static string ScheduleAppPath = ConfigurationManager.AppSettings["ScheduleAppPath"];
-		readonly static string ReportsFolderName = ConfigurationManager.AppSettings["ReportsFolderName"];
+		public static string ScheduleServer = ConfigurationManager.AppSettings["ScheduleServer"];
+		public static string ScheduleDomainName = ConfigurationManager.AppSettings["ScheduleDomainName"];
+		public static string ScheduleUserName = ConfigurationManager.AppSettings["ScheduleUserName"];
+		public static string SchedulePassword = ConfigurationManager.AppSettings["SchedulePassword"];
+
+		public static string ScheduleWorkDir = ConfigurationManager.AppSettings["ScheduleWorkDir"];
+		public static string ScheduleAppPath = ConfigurationManager.AppSettings["ScheduleAppPath"];
+		public static string ReportsFolderName = ConfigurationManager.AppSettings["ReportsFolderName"];
 		
 
 		public static TaskService GetService()
 		{
+#if DEBUG
+			return new TaskService();
+#else
 			return new TaskService(ScheduleServer, ScheduleUserName, ScheduleDomainName, SchedulePassword);
+#endif
 		}
 
 		public static TaskFolder GetReportsFolder(TaskService taskService)
@@ -68,9 +74,13 @@ namespace ReportTuner.Helpers
 				prefix + generalReportId,
 				createTaskDefinition,
 				TaskCreation.Create,
+#if DEBUG
+				null, null, TaskLogonType.InteractiveToken,
+#else
 				ScheduleDomainName + "\\" + ScheduleUserName,
 				SchedulePassword,
 				TaskLogonType.Password,
+#endif
 				null);
 		}
 
@@ -86,9 +96,13 @@ namespace ReportTuner.Helpers
 				prefix + generalReportId,
 				updateTaskDefinition,
 				TaskCreation.Update,
+#if DEBUG
+				null, null, TaskLogonType.InteractiveToken,
+#else
 				ScheduleDomainName + "\\" + ScheduleUserName,
 				SchedulePassword,
 				TaskLogonType.Password,
+#endif
 				null);
 		}
 

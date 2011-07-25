@@ -73,6 +73,11 @@ namespace ReportTuner.Models
 				Enum = new PropertyEnum();
 				Enum.Name = name;
 			}
+
+			if (String.Equals(type, "bool", StringComparison.InvariantCultureIgnoreCase))
+			{
+				DefaultValue = "0";
+			}
 		}
 
 		[PrimaryKey]

@@ -10,6 +10,16 @@ namespace ReportTuner.Models
 	[ActiveRecord("report_properties", Schema = "reports")]
 	public class ReportProperty : ActiveRecordLinqBase<ReportProperty>
 	{
+		public ReportProperty()
+		{}
+
+		public ReportProperty(Report report, ReportTypeProperty property)
+		{
+			ReportCode = report.Id;
+			PropertyType = property;
+			Value = property.DefaultValue;
+		}
+
 		[PrimaryKey("ID")]
 		public virtual ulong Id { get; set; }
 
@@ -22,7 +32,7 @@ namespace ReportTuner.Models
 		[Property("PropertyValue")]
 		public virtual string Value { get; set; }
 
-		[HasMany(typeof(ReportPropertyValue), "ReportPropertyId", "reports.report_property_values")]
+		[HasMany(typeof(ReportPropertyValue), "ReportPropertyId", "report_property_values", Schema = "reports")]
 		public virtual IList<ReportPropertyValue> Values { get; set; }
 	}
 }

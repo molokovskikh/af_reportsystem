@@ -2,6 +2,7 @@
 using System.Data;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -34,29 +35,41 @@ namespace Inforoom.ReportTuner
 {
 	public class Global : HttpApplication, IMonoRailContainerEvents
 	{
-		private System.ComponentModel.IContainer components;
 		private static readonly ILog _log = LogManager.GetLogger(typeof(Global));
 
 		public Global()
 		{
-			InitializeComponent();
-		}
-
-		[System.Diagnostics.DebuggerStepThrough()]
-		private void InitializeComponent()
-		{
-			components = new System.ComponentModel.Container();
 		}
 
 		void Application_Start(object sender, EventArgs e)
 		{			
 			XmlConfigurator.Configure();
-			ActiveRecordStarter.Initialize(new[]
-				                               	{
-				                               		Assembly.Load("ReportTuner"),
-				                               		Assembly.Load("Common.Web.Ui")
-				                               	},
-										   ActiveRecordSectionHandler.Instance);
+			ActiveRecordStarter.Initialize(new[] {
+					Assembly.Load("ReportTuner"),
+					Assembly.Load("Common.Web.Ui")
+				},
+				ActiveRecordSectionHandler.Instance);
+
+			if (!Path.IsPathRooted(ScheduleHelper.ScheduleAppPath))
+				ScheduleHelper.ScheduleAppPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ScheduleHelper.ScheduleAppPath));
+
+			if (!Path.IsPathRooted(ScheduleHelper.ScheduleWorkDir))
+				ScheduleHelper.ScheduleWorkDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ScheduleHelper.ScheduleWorkDir));
+
+
+#if DEBUG
+			ScheduleHelper.ScheduleUserName = Environment.UserName;
+			ScheduleHelper.ScheduleDomainName = Environment.UserDomainName;
+			ScheduleHelper.SchedulePassword = "";
+			ScheduleHelper.ScheduleServer = Environment.MachineName;
+
+			var taskService = ScheduleHelper.GetService();
+			var root = taskService.RootFolder;
+			var folder = root.SubFolders.Cast<TaskFolder>()
+				.FirstOrDefault(f => String.Equals(f.Name, ScheduleHelper.ReportsFolderName, StringComparison.CurrentCultureIgnoreCase));
+			if (folder == null)
+				root.CreateFolder(ScheduleHelper.ReportsFolderName, null);
+#endif
 
 			//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
 			ulong _TemplateReportId;
@@ -111,8 +124,9 @@ namespace Inforoom.ReportTuner
 					catch (System.IO.FileNotFoundException)
 					{
 					}
-				}♥1♥
-			}*/
+				}
+			}
+*/
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)

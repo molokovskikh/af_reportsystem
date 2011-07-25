@@ -588,7 +588,8 @@ order by LogTime desc
 		const int tempNum = 0;
 		string user = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempNum), user, "temp");
-		var newAction = new ExecAction(Path.GetDirectoryName(ScheduleHelper.ScheduleAppPath) + @"\ReportSystemBoot.exe",
+
+		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath,
 			"/gr:" + _generalReport.Id +
 			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1}", dtFrom.SelectedDate.ToShortDateString(), dtTo.SelectedDate.ToShortDateString()),
 			ScheduleHelper.ScheduleWorkDir);
