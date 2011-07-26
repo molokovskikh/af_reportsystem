@@ -38,6 +38,7 @@ namespace Inforoom.ReportSystem
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
 			reportCaptionPreffix = "Комбинированный отчет";
+			DbfSupported = true;
 		}
 
 		public override void ReadReportParams()

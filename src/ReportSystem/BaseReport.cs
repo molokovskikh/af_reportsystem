@@ -236,7 +236,7 @@ namespace Inforoom.ReportSystem
 		protected virtual void FormatExcel(string fileName)
 		{}
 
-		public virtual bool DbfSupported { get; private set; }
+		public virtual bool DbfSupported { get; set; }
 
 		protected virtual void DataTableToDbf(DataTable dtExport, string fileName)
 		{

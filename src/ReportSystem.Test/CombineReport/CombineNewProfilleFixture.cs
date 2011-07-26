@@ -19,6 +19,14 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void CombineWithOutSuppliersListDbf()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.CombineNew);
+			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.DBF, props);
+			TestHelper.ProcessReport(report, ReportsTypes.CombineNew);
+		}
+
+		[Test]
 		public void CombineWithSuppliersList()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineNewWithSuppliers);
