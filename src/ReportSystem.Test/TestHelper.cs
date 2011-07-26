@@ -88,7 +88,7 @@ namespace ReportSystem.Test
 		public static System.Data.DataSet LoadProperties(ReportsTypes type)
 		{
 			DataSet result = new DataSet();
-			result.ReadXml(@"..\..\..\TestData\" + type.ToString() + ".xml");
+			result.ReadXml(@"..\..\TestData\" + type.ToString() + ".xml");
 			return result;
 		}
 
