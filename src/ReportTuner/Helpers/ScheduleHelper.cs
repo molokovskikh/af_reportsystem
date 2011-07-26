@@ -24,11 +24,7 @@ namespace ReportTuner.Helpers
 
 		public static TaskService GetService()
 		{
-#if DEBUG
-			return new TaskService();
-#else
 			return new TaskService(ScheduleServer, ScheduleUserName, ScheduleDomainName, SchedulePassword);
-#endif
 		}
 
 		public static TaskFolder GetReportsFolder(TaskService taskService)
@@ -74,13 +70,9 @@ namespace ReportTuner.Helpers
 				prefix + generalReportId,
 				createTaskDefinition,
 				TaskCreation.Create,
-#if DEBUG
-				null, null, TaskLogonType.InteractiveToken,
-#else
-				ScheduleDomainName + "\\" + ScheduleUserName,
-				SchedulePassword,
-				TaskLogonType.Password,
-#endif
+				GetUser(),
+				GetPassword(),
+				GetLogonType(),
 				null);
 		}
 
@@ -96,14 +88,31 @@ namespace ReportTuner.Helpers
 				prefix + generalReportId,
 				updateTaskDefinition,
 				TaskCreation.Update,
-#if DEBUG
-				null, null, TaskLogonType.InteractiveToken,
-#else
-				ScheduleDomainName + "\\" + ScheduleUserName,
-				SchedulePassword,
-				TaskLogonType.Password,
-#endif
+				GetUser(),
+				GetPassword(),
+				GetLogonType(),
 				null);
+		}
+
+		public static TaskLogonType GetLogonType()
+		{
+			if (!String.IsNullOrEmpty(SchedulePassword))
+				return TaskLogonType.Password;
+			return TaskLogonType.InteractiveToken;
+		}
+
+		public static string GetPassword()
+		{
+			if (!String.IsNullOrEmpty(SchedulePassword))
+				return SchedulePassword;
+			return null;
+		}
+
+		public static string GetUser()
+		{
+			if (!String.IsNullOrEmpty(SchedulePassword))
+				return ScheduleDomainName + "\\" + ScheduleUserName;
+			return null;
 		}
 
 		public static IEnumerable<Task> GetAllTempTask(TaskFolder reportsFolder)

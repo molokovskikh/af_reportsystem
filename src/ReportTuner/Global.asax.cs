@@ -58,11 +58,6 @@ namespace Inforoom.ReportTuner
 
 
 #if DEBUG
-			ScheduleHelper.ScheduleUserName = Environment.UserName;
-			ScheduleHelper.ScheduleDomainName = Environment.UserDomainName;
-			ScheduleHelper.SchedulePassword = "";
-			ScheduleHelper.ScheduleServer = Environment.MachineName;
-
 			var taskService = ScheduleHelper.GetService();
 			var root = taskService.RootFolder;
 			var folder = root.SubFolders.Cast<TaskFolder>()
