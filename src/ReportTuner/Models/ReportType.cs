@@ -23,6 +23,9 @@ namespace ReportTuner.Models
 		public virtual string ReportTypeName { get; set; }
 
 		[Property]
+		public virtual string ReportClassName { get; set; }
+
+		[Property]
 		public virtual string AlternateSubject { get; set; }
 
 		[Property]
@@ -30,6 +33,21 @@ namespace ReportTuner.Models
 
 		[HasMany(Cascade = ManyRelationCascadeEnum.All, Inverse = true)]
 		public IList<ReportTypeProperty> Properties { get; set; }
+
+		public bool IsOrderReport
+		{
+			get
+			{
+				return new [] {
+					"MixedReport",
+					"OrderOutAllowedAssortment",
+					"PharmacyMixedReport",
+					"ProviderRatingReport",
+					"RatingReport",
+					"SupplierMarketShareByUser"
+				}.Any(n => ReportClassName.EndsWith(n, StringComparison.InvariantCultureIgnoreCase));
+			}
+		}
 
 		public void AddProperty(ReportTypeProperty property)
 		{

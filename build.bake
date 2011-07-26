@@ -8,3 +8,5 @@ Global(
 	Project: "ReportTuner",
 	AdditionalAssemblies: ("Common.Web.Ui", )
 )
+
+Engine.Execute("LoadProject")

@@ -1,0 +1,24 @@
+import System
+import ReportTuner.Helpers
+import ReportTuner.Models
+import file from Db.boo
+
+task @ResendReports, [@InitActiveRecord]:
+	begin = DateTime.Parse(Configuration.begin).ToString("yyyy-MM-dd HH:mm:ss")
+	ScheduleHelper.ScheduleServer = "fms.adc.analit.net"
+	ScheduleHelper.ScheduleDomainName = "analit"
+	ScheduleHelper.ScheduleUserName = "runer"
+	ScheduleHelper.SchedulePassword = "zcxvcb"
+	ScheduleHelper.ReportsFolderName = "Отчеты"
+	sql = "select GeneralReportCode from logs.ReportsLogs where logTime > '${begin}' group by GeneralReportCode" 
+	print sql
+	for reportId in Db.Read(sql):
+			id = Convert.ToUInt64(reportId.GeneralReportCode)
+			report = GeneralReport.Find(id)
+			print id
+			if report.IsOrderReport():
+					service = ScheduleHelper.GetService()
+					folder = ScheduleHelper.GetReportsFolder(service)
+					reportTask = ScheduleHelper.FindTask(service, folder, id, "GR")
+					reportTask.Run()
+					print "runned $id"
