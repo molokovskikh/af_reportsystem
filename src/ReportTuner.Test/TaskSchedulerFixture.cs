@@ -13,35 +13,6 @@ namespace ReportTuner.Test
 	[TestFixture]
 	public class TaskSchedulerFixture
 	{
-
-		[Test]
-		public void SimpleConnectTest()
-		{
-			//using (TaskService taskService = new TaskService("offdcold", "morozov_sam", "analit", "LtAtylth7", true))
-			//{
-			//    foreach (Task task in taskService.RootFolder.Tasks)
-			//    {
-			//        Console.WriteLine("task name : {0}", task.Name);
-			//    }
-			//}
-
-			//using (TaskService taskService = new TaskService("offdc", "morozov_sam", "analit", "LtAtylth7"))
-			//{
-			//    foreach (Task task in taskService.RootFolder.Tasks)
-			//    {
-			//        Console.WriteLine("task name : {0}", task.Name);
-			//    }
-			//}
-
-			using (TaskService taskService = new TaskService("localhost", "", "", ""))
-			{
-				foreach (Task task in taskService.RootFolder.Tasks)
-				{
-					Console.WriteLine("task name : {0}", task.Name);
-				}
-			}
-		}
-
 		[Test]
 		public void RunTask()
 		{
@@ -186,56 +157,6 @@ namespace ReportTuner.Test
 
 					Console.WriteLine("statistic allCount = {0}, emptyTriggerCount = {1}, standartTriggerCount = {2}, anotherTriggerCount = {3}, existsCount = {4}", allCount, emptyTriggerCount, standartTriggerCount, anotherTriggerCount, existsCount);
 				}
-			}
-		}
-
-		[Test]
-		public void FindTaskTest()
-		{
-			using (TaskService toTaskService = new TaskService("offdc", "runer", "analit", "zcxvcb"))
-			{
-				Task gr1Task = toTaskService.GetTask("GR1");
-				Assert.IsNotNull(gr1Task, "Проблема, не нашли отчет с номером 1");
-				try
-				{
-					Task notFoundTask = toTaskService.GetTask("GR_dsjfhdkhffdj");
-					Assert.Fail("Метод GetTask должен был вернуть исключение, а он вернул объект {0}", notFoundTask);
-				}
-				catch (System.IO.FileNotFoundException)
-				{
-				}
-				catch (Exception exception)
-				{
-					Assert.Fail("Метод GetTask вернул неожидаемое исключение {0}", exception);
-				}
-			}
-		}
-
-		[Test]
-		public void ClearAllTriggers()
-		{
-			using (TaskService toTaskService = new TaskService())
-			{
-				Task gr1Task = toTaskService.GetTask("GR1");
-
-				TaskDefinition taskDefinition = gr1Task.Definition;
-
-				//taskDefinition.Settings.AllowDemandStart = true;
-
-				//taskDefinition.Settings.AllowHardTerminate = true;
-
-				//taskDefinition.Settings.ExecutionTimeLimit = TimeSpan.FromHours(1);
-
-
-				//WeeklyTrigger trigger = new WeeklyTrigger();
-				//trigger.DaysOfWeek = DaysOfTheWeek.Monday;
-				//trigger.StartBoundary = DateTime.Now;
-				//trigger.WeeksInterval = 1;
-
-				//taskDefinition.Triggers.Add(trigger);
-
-				//toTaskService.RootFolder.RegisterTaskDefinition(gr1Task.Path, taskDefinition, TaskCreation.Update, "analit\\runer", "zcxvcb", TaskLogonType.Password, null);
-				//toTaskService.RootFolder.RegisterTaskDefinition(gr1Task.Path, taskDefinition, TaskCreation.Update, "system", null, TaskLogonType.ServiceAccount, null);
 			}
 		}
 

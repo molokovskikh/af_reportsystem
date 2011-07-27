@@ -12,7 +12,7 @@ using Settings = WatiN.Core.Settings;
 namespace ReportTuner.Test
 {
 	[SetUpFixture]
-	class FixtureSetup
+	public class FixtureSetup
 	{
 		private Server _webServer;
 
