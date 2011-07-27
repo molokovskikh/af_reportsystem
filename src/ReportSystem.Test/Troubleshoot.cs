@@ -84,6 +84,7 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 								false, ReportFormats.Excel,
 								prop
 							});
+						bs.ReadReportParams();
 						bs.ProcessReport();
 						bs.ReportToFile(Path.GetFullPath("test.xls"));
 
