@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
+using System.Configuration;
 
 namespace Inforoom.ReportSystem
 {
@@ -52,6 +53,8 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+		    string conn = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+
 			base.GenerateReport(e);
 
 			ProfileHelper.Next("Get Offers");
@@ -181,17 +184,31 @@ order by 2, 5";
 			var firstColumnCount = dtRes.Columns.Count;
 
 			var priceIndex = 0;
-			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
-			{
-				dtRes.Columns.Add("Cost" + priceIndex, typeof(decimal));
-				if (!_showPercents)
-					dtRes.Columns.Add("Quantity" + priceIndex);
-				else
-					dtRes.Columns.Add("Percents" + priceIndex, typeof(double));
-				priceIndex++;
-			}
+            
+            
+            foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
+            {
+                if(Format == ReportFormats.DBF)
+                    dtRes.Columns.Add(drPrice["PriceCode"].ToString(), typeof(decimal));
+                else
+                    dtRes.Columns.Add("Cost" + priceIndex, typeof (decimal));
+                if (!_showPercents)
+                {
+                    if(Format == ReportFormats.DBF)
+                        dtRes.Columns.Add("Q" + drPrice["PriceCode"]);
+                    else
+                        dtRes.Columns.Add("Quantity" + priceIndex);
+                }
+                else
+                    if (Format == ReportFormats.DBF)
+                        dtRes.Columns.Add("P" + drPrice["PriceCode"], typeof(double));
+                    else
+                        dtRes.Columns.Add("Percents" + priceIndex, typeof (double));
+                priceIndex++;
+            }
+            
 
-			DataRow[] drsMin;
+		    DataRow[] drsMin;
 			DataRow newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
 

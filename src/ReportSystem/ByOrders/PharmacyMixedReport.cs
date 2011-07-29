@@ -94,7 +94,7 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
   join billing.payers on payers.PayerId = le.PayerId 
 where 
 ol.Junk = 0
-and ol.Await = 0
+#and ol.Await = 0
 and (oh.RegionCode & " + regionMask + @") > 0";
 
 			selectCommand = ApplyFilters(selectCommand);

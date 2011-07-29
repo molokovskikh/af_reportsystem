@@ -129,7 +129,7 @@ from " +
 where
     ol.OrderID = oh.RowID
 and ol.Junk = 0
-and ol.Await = 0
+#and ol.Await = 0
 and pd.PriceCode = oh.PriceCode
 and pd.FirmCode = " + sourceFirmCode.ToString() +
 				" and oh.WriteTime > '" + dtFrom.ToString(MySQLDateFormat) + "' " +
@@ -254,7 +254,7 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 @"
 where 
 ol.Junk = 0
-and ol.Await = 0";
+#and ol.Await = 0";
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
