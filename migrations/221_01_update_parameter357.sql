@@ -1,0 +1,1 @@
+UPDATE `reports`.`report_type_properties` SET `SelectStoredProcedure`='GetAllPriceCodeWithOrder' WHERE `ID`='357';
