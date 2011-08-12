@@ -1,0 +1,2 @@
+﻿INSERT INTO `reports`.`report_type_properties` (`ReportTypeCode`, `PropertyName`, `DisplayName`, `PropertyType`, `Optional`, `SelectStoredProcedure`, `DefaultValue`) VALUES (19, 'FirmCodeEqual', 'Список поставщиков', 'LIST', 1, 'GetFirmCode', '0');
+INSERT INTO `reports`.`report_type_properties` (`ReportTypeCode`, `PropertyName`, `DisplayName`, `PropertyType`, `Optional`, `SelectStoredProcedure`, `DefaultValue`) VALUES (19, 'IgnoredSuppliers', 'Список игнорируемых поставщиков', 'LIST', 1, 'GetFirmCode', '0');

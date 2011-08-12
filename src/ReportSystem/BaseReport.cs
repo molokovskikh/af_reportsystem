@@ -90,8 +90,7 @@ namespace Inforoom.ReportSystem
 			_conn = Conn;
 
 			_parentIsTemporary = Temporary;
-
-			//DataSet dsTab = 
+            
 			dtReportProperties = dsProperties.Tables["ReportProperties"];
 			dtReportPropertyValues = dsProperties.Tables["ReportPropertyValues"];
 

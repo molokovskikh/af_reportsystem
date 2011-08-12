@@ -211,7 +211,7 @@ where GeneralReport = ?GeneralReport;";
             
 
 			string ResFileName = ArchFile();
-
+            
 
 #if (TESTING)
 			MailWithAttach(ResFileName, Settings.Default.ErrorReportMail);

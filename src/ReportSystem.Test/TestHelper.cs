@@ -80,7 +80,8 @@ namespace ReportSystem.Test
 		OffersReport,
 		LeakOffers,
 		PricesOfCompetitors,
-		OrderOutAllowedAssortment
+		OrderOutAllowedAssortment,
+        PriceCollectionForClientReport
 	}
 
 	public static class TestHelper

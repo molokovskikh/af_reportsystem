@@ -1,0 +1,2 @@
+﻿insert into reports.report_type_properties(ReportTypeCode, PropertyName, DisplayName, PropertyType, Optional, SelectStoredProcedure, DefaultValue)
+values(19, 'Clients', 'Список аптек', 'LIST', 0, 'GetClientCodeWithNewUsers', '0');

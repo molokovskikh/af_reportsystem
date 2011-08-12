@@ -172,6 +172,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ByOffers\PriceCollectionForClientReport.cs" />
     <Compile Include="ByOffers\PricesOfCompetitorsReport.cs" />
     <Compile Include="ByOrders\OrderOutAllowedAssortment.cs" />
     <Compile Include="Helpers\ReadParameterHelper.cs" />

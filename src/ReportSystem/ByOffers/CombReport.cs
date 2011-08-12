@@ -52,9 +52,7 @@ namespace Inforoom.ReportSystem
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
-		{
-		    string conn = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
-
+		{		    
 			base.GenerateReport(e);
 
 			ProfileHelper.Next("Get Offers");

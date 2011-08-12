@@ -1,0 +1,1 @@
+﻿INSERT INTO `reports`.`report_type_properties` (`ReportTypeCode`, `PropertyName`, `DisplayName`, `PropertyType`, `Optional`, `SelectStoredProcedure`, `DefaultValue`) VALUES (19, 'PriceCodeValues', 'Список значений "Прайс"', 'LIST', 1, 'GetAllPriceCode', '0');

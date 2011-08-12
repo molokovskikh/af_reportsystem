@@ -85,6 +85,7 @@
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
     <Compile Include="OrderOutAllowedAssortmentFixture.cs" />
     <Compile Include="PharmacyMixed\PharmacyMixedProfileFixture.cs" />
+    <Compile Include="PriceCollectionForClientReport\PriceCollectionForClientReportProfileFixture.cs" />
     <Compile Include="PricesOfCompetitors\PricesOfcompetitorsFixture.cs" />
     <Compile Include="ProviderReport\OfferFixture.cs" />
     <Compile Include="ProviderReport\ProviderReportFixture.cs" />

@@ -31,22 +31,8 @@ namespace Inforoom.ReportSystem.Helpers
 			return result;
 		}
 
-		/*public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
-		{
-			var command = string.Format(@"
-select concat(cd.ShortName, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')') as SupplierName
-from usersettings.Core cor
-	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-	join usersettings.ClientsData cd on cd.FirmCode = pd.FirmCode
-where cd.FirmCode in {0}
-group by cd.FirmCode
-order by cd.ShortName", ProviderReport.ConcatWhereIn(suppliers));
-			return GetNames(r => r["SupplierName"].ToString(), command, e);
-		}*/
-
 		public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
-		{
-			//var command = @"select cd.ShortName from usersettings.ClientsData cd where cd.FirmCode in " + ProviderReport.ConcatWhereIn(suppliers);
+		{			
             var command = @"select supps.Name as ShortName from future.suppliers supps where supps.Id in " + ProviderReport.ConcatWhereIn(suppliers);
 			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
@@ -64,10 +50,7 @@ order by cd.ShortName", ProviderReport.ConcatWhereIn(suppliers));
 		}
 
 		public static List<String> GetPriceName(List<ulong> _priceCode, ExecuteArgs e)
-		{
-			/*var command = @"SELECT cd.ShortName FROM usersettings.PricesData P 
-							join usersettings.ClientsData cd on cd.FirmCode = p.FirmCode
-							where p.PriceCode = " + _priceCode[0];*/
+		{			
             var command = @"SELECT supps.Name as ShortName FROM usersettings.PricesData P 
 							join future.suppliers supps on supps.Id = p.FirmCode
 							where p.PriceCode = " + _priceCode[0];
@@ -87,14 +70,7 @@ order by cd.ShortName", ProviderReport.ConcatWhereIn(suppliers));
 		}
 
 		public static List<String> GetPriceNames(List<ulong> _prices, ExecuteArgs e)
-		{
-			/*var command = @"select pd.PriceCode as PriceCode,
-	convert(concat(cd.ShortName, ' (', pd.PriceName, ') - ', rg.Region) using cp1251) as PriceName
-  from
-    usersettings.pricesdata pd
-    inner join usersettings.clientsdata cd on cd.FirmCode = pd.FirmCode
-    inner join farm.regions rg on rg.RegionCode = cd.RegionCode
-	where pd.PriceCode in " + ProviderReport.ConcatWhereIn(_prices);*/
+		{			
             var command = @"select pd.PriceCode as PriceCode,
 	convert(concat(supps.Name, ' (', pd.PriceName, ') - ', rg.Region) using cp1251) as PriceName
   from

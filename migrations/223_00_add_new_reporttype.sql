@@ -1,0 +1,1 @@
+﻿insert into reports.reporttypes(ReportTypeName, ReportTypeFilePrefix, AlternateSubject, ReportClassName) values('Сборник прайсов для аптеки Единый', 'PriceCollectionForClientReport', 'Сборник прайсов для аптеки Единый', 'Inforoom.ReportSystem.PriceCollectionForClientReport');
