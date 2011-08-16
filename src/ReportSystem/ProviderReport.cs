@@ -266,7 +266,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.CommandType = CommandType.Text;
 			if (_userCode == null) // если пользователь не выбран через интерфейс
 			{
-				selectCommand.CommandText = "update Prices set DisabledByClient = 0";
+				selectCommand.CommandText = "update usersettings.Prices set DisabledByClient = 0";
 				selectCommand.ExecuteNonQuery();
 			}
 

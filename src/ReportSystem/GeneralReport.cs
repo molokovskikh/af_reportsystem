@@ -198,16 +198,28 @@ where GeneralReport = ?GeneralReport;";
 
 			_mainFileName = _directoryName + "\\" + ((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + _generalReportID.ToString() + ".xls") : _reportFileName);
 
-			foreach (BaseReport bs in _reports)
+
+		    while (_reports.Count > 0)
+		    {
+		        BaseReport bs = _reports.First();
+
+                bs.ReadReportParams();
+                bs.ProcessReport();
+
+                bs.ReportToFile(_mainFileName);
+		        _reports.Remove(bs);		        
+		    }
+
+		/*	foreach (BaseReport bs in _reports)
 			{
 				bs.ReadReportParams();
 				bs.ProcessReport();
-			}
+			}*/
 
-			foreach (BaseReport bs in _reports)
+			/*foreach (BaseReport bs in _reports)
 			{
 				bs.ReportToFile(_mainFileName);
-			}
+			}*/
             
 
 			string ResFileName = ArchFile();
@@ -308,15 +320,12 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 				File.Delete(ResDirPath + resArchFileName);
 
 			var zip = new FastZip();
-			var tempArchive = Path.GetTempFileName();
-            Logger.DebugFormat("zip.CreateZip {0}, {1}", tempArchive, _directoryName);
+			var tempArchive = Path.GetTempFileName();            
 			zip.CreateZip(tempArchive, _directoryName, false, null, null);
-			var archive = Path.Combine(_directoryName, resArchFileName);
-            Logger.DebugFormat("File.Move {0}, {1}", tempArchive, archive);
+			var archive = Path.Combine(_directoryName, resArchFileName);            
 			File.Move(tempArchive, archive);
             try
-            {
-                Logger.DebugFormat("File.Copy {0}, {1}", archive, ResDirPath + resArchFileName);
+            {                
                 File.Copy(archive, ResDirPath + resArchFileName);
             }
             catch(Exception ex)
