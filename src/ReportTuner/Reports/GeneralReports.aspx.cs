@@ -2,9 +2,11 @@ using System;
 using System.Data;
 using System.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Common.Tools;
 using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
 using ReportTuner.Helpers;
@@ -37,8 +39,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
     private DataColumn PPayerID;
     private DataColumn GRPayerShortName;
 	private DataColumn GRPayerID;
-	private DataColumn dataColumn1;
-
+	private DataColumn dataColumn1;	
 
 
     private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
@@ -681,22 +682,83 @@ select last_insert_id() as GRLastInsertID;
 		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Empty;
 	}
 
+	protected static IList<string> GetMailAddresses(string inStr)
+	{
+		// валидатор e-mail адресов
+		var emailValidator = 
+			new RegexStringValidator(@"^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,})$");
+		var lines = inStr.Split(',').ToList();
+		var emails = new List<string>();
+		lines.Each(l =>
+		           	{
+		           		try
+		           		{
+		           			emailValidator.Validate(l.Trim());
+		           			emails.Add(l.Trim());
+		           		}
+		           		catch (ArgumentException)
+		           		{}
+		           	});
+		return emails;
+	}
+
+	protected IList<uint> GetReportCodesByEmails(IList<string> emails)
+	{
+		var codes = new List<uint>();
+		var condition = new List<string>();
+		emails.Each(m => condition.Add(String.Format("c.ContactText like '%{0}%'", m)));
+		try
+		{
+			if (MyCn.State != ConnectionState.Open)
+				MyCn.Open();
+			MyCmd.Connection = MyCn;
+			MyDA.SelectCommand = MyCmd;
+			MyCmd.CommandText = String.Format(@"
+select distinct gr.GeneralReportCode from reports.general_reports gr
+inner join contacts.contacts c on gr.ContactGroupId = c.ContactOwnerId and c.Type = 0
+and ({0});
+", String.Join(" or ", condition.ToArray()));
+			using (var reader = MyCmd.ExecuteReader())
+			{
+				while (reader.Read())
+				{
+					codes.Add(Convert.ToUInt32(reader[0]));
+				}
+			}
+		}
+		finally
+		{
+			MyCn.Close();
+		}
+		return codes;
+	}
+
 	private void SetFilter()
 	{
 		List<string> filter = new List<string>();
-		int testInt;
-		if (int.TryParse(tbFilter.Text, out testInt))
-		{
-			filter.Add(String.Format("(GeneralReportCode = {0})", testInt));
-			filter.Add(String.Format("(PayerID = {0})", testInt));
+		IList<string> emails = GetMailAddresses(tbFilter.Text);
+		if (emails.Count > 0)
+		{ // если в фильтре указаны e-mail адреса, ищем отчеты, для которых они указаны в списке рассылок 
+			var codes = GetReportCodesByEmails(emails);
+			filter.Add(codes.Count > 0
+			           	? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
+			           	: "(GeneralReportCode is null)");
 		}
+		else
+		{
+			int testInt;
+			if (int.TryParse(tbFilter.Text, out testInt))
+			{
+				filter.Add(String.Format("(GeneralReportCode = {0})", testInt));
+				filter.Add(String.Format("(PayerID = {0})", testInt));
+			}
 
-		filter.Add(String.Format("(PayerShortName like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(Comment like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(EMailSubject like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(ReportFileName like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(ReportArchName like '%{0}%')", tbFilter.Text));
-
+			filter.Add(String.Format("(PayerShortName like '%{0}%')", tbFilter.Text));
+			filter.Add(String.Format("(Comment like '%{0}%')", tbFilter.Text));
+			filter.Add(String.Format("(EMailSubject like '%{0}%')", tbFilter.Text));
+			filter.Add(String.Format("(ReportFileName like '%{0}%')", tbFilter.Text));
+			filter.Add(String.Format("(ReportArchName like '%{0}%')", tbFilter.Text));
+		}
 		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Join(" or ", filter.ToArray());
 	}
 
@@ -712,5 +774,4 @@ select last_insert_id() as GRLastInsertID;
 		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
 		dgvReports.DataBind();
 	}
-
 }

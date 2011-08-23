@@ -5,7 +5,7 @@
         <strong style="font-size:small;">Настройка отчетов</strong><br/><br/>
         <asp:Label ID="lblFilter" runat="server" Text="Фильтр:" />
         <asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin" 
-            ontextchanged="btnFilter_Click"/>
+            ontextchanged="btnFilter_Click" ToolTip="e-mail адреса можно задавать через запятую"/>
         <asp:Button ID="btnFilter" runat="server" Text="Фильтровать" 
             onclick="btnFilter_Click" /><br/><br/>
         <br/>

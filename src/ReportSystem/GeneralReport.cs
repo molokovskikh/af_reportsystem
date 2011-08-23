@@ -210,18 +210,6 @@ where GeneralReport = ?GeneralReport;";
 		        _reports.Remove(bs);		        
 		    }
 
-		/*	foreach (BaseReport bs in _reports)
-			{
-				bs.ReadReportParams();
-				bs.ProcessReport();
-			}*/
-
-			/*foreach (BaseReport bs in _reports)
-			{
-				bs.ReportToFile(_mainFileName);
-			}*/
-            
-
 			string ResFileName = ArchFile();
             
 
