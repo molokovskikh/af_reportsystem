@@ -45,12 +45,13 @@ namespace ReportTuner.Reports
 				PostData();
 			}
 			else
-				DS = ((DataSet)Session[DSReports]);
+			{
+				DS = ((DataSet) Session[DSReports]);
+				if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+					Reports_GeneralReports.Redirect(this);
+			}
 
-			if (dgvReports.Rows.Count > 0)
-				btnApply.Visible = true;
-			else
-				btnApply.Visible = false;
+			btnApply.Visible = dgvReports.Rows.Count > 0;
 		}
 
 		private void InitializeComponent()

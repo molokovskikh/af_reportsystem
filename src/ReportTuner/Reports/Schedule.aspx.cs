@@ -157,26 +157,9 @@ public partial class Reports_schedule : Page
 			dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
 			dtTo.SelectedDates.Add(DateTime.Now);
 			mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
-
-            //MyCn.Open();
+            
 			try
 			{
-			/*	MyCmd.Connection = MyCn;
-				MyDA.SelectCommand = MyCmd;
-
-				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
-				lblReportComment.Text = _generalReport.Comment;
-
-				MyCmd.Parameters.Clear();
-				MyCmd.Parameters.AddWithValue("?GeneralReportCode", _generalReport.Id);
-				MyCmd.CommandText = @"
-SELECT
-  Max(LogTime) as MaxLogTime
-FROM
-  logs.reportslogs
-WHERE 
-  reportslogs.GeneralReportCode = ?GeneralReportCode
-";*/
 				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
 				lblReportComment.Text = _generalReport.Comment;
 				var lastLogTimes = ObjectFromQuery(new[] { new MySqlParameter("?GeneralReportCode", _generalReport.Id) },
@@ -187,7 +170,7 @@ FROM
   logs.reportslogs
 WHERE 
   reportslogs.GeneralReportCode = ?GeneralReportCode
-");//MyCmd.ExecuteScalar();
+");
 				if ((lastLogTimes.Count > 0) && (lastLogTimes[0].Length > 0))
 				if (lastLogTimes[0][0] is DateTime)
 				{
@@ -260,6 +243,8 @@ order by LogTime desc
         else
         {
             DS = ((DataSet)Session[DSSchedule]);
+			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+				Reports_GeneralReports.Redirect(this);
         }
     }
 

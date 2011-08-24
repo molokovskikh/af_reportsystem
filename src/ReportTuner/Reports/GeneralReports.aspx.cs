@@ -1,19 +1,25 @@
 using System;
-using System.Data;
-using System.Configuration;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Common.Tools;
-using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
+using MySql.Data.MySqlClient;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
 
 public partial class Reports_GeneralReports : System.Web.UI.Page
 {
+	public static void Redirect(Page CurrentPage)
+	{
+		CurrentPage.Session["redirected"] = true;
+		CurrentPage.Response.Redirect("GeneralReports.aspx");
+	}
+
 	public enum GeneralReportFields : int
 	{
 		Code = 0,
@@ -39,10 +45,9 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
     private DataColumn PPayerID;
     private DataColumn GRPayerShortName;
 	private DataColumn GRPayerID;
-	private DataColumn dataColumn1;	
+	private DataColumn dataColumn1;
 
-
-    private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
+	private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
 
     protected void Page_Init(object sender, System.EventArgs e)
     {
@@ -58,11 +63,21 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
         else
         {
             DS = ((DataSet)Session[DSReports]);
+			if (DS == null) // веро€тно, сесси€ завершилась и все ее данные утер€ны
+				Redirect(this);
         }
-        if (dgvReports.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+
+        btnApply.Visible = dgvReports.Rows.Count > 0;
+    	
+		if(Session["redirected"] != null && Convert.ToBoolean(Session["redirected"]))
+		{
+			lblMessage.Text = "¬следствие закрыти€ сессии, ¬ы были переведены на главную страницу. ѕовторите запрос.";
+			Session["redirected"] = null;
+		}
+		else
+		{
+			lblMessage.Text = "";
+		}
     }
 
     private void PostData()
@@ -281,10 +296,11 @@ Order by p.ShortName
     }
 
     private void CopyChangesToTable()
-    {
-        foreach (GridViewRow dr in dgvReports.Rows)
+    {		
+    	foreach (GridViewRow dr in dgvReports.Rows)
         {
 			DataRow changedRow = null;
+
 
 			if (Convert.IsDBNull(dgvReports.DataKeys[dr.RowIndex].Value))
 			{

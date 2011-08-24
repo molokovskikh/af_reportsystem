@@ -73,31 +73,32 @@ public partial class Reports_ReportTypeProperties : System.Web.UI.Page
         if (Request["rtc"] == null)
             Response.Redirect("ReportTypes.aspx");
         FillTypes();
-        if (!(Page.IsPostBack))
-        {
-            MyCn.Open();
-            MyCmd.Connection = MyCn;
-            MyDA.SelectCommand = MyCmd;
-            MyCmd.Parameters.Clear();
-            MyCmd.Parameters.AddWithValue("rtCode", Request["rtc"]);
-            MyCmd.CommandText = @"
+		if (!(Page.IsPostBack))
+		{
+			MyCn.Open();
+			MyCmd.Connection = MyCn;
+			MyDA.SelectCommand = MyCmd;
+			MyCmd.Parameters.Clear();
+			MyCmd.Parameters.AddWithValue("rtCode", Request["rtc"]);
+			MyCmd.CommandText = @"
 SELECT 
     ReportTypeName
 FROM 
     reports.reporttypes rt
 WHERE ReportTypeCode = ?rtCode
 ";
-            lblReportName.Text = MyCmd.ExecuteScalar().ToString();
-            MyCn.Close();
+			lblReportName.Text = MyCmd.ExecuteScalar().ToString();
+			MyCn.Close();
 
-            PostData();
-        }
-        else
-            DS = ((DataSet)Session[DSReportTypes]);
-        if (dgvProperties.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+			PostData();
+		}
+		else
+		{
+			DS = ((DataSet) Session[DSReportTypes]);
+			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+				Reports_GeneralReports.Redirect(this);
+		}
+    	btnApply.Visible = dgvProperties.Rows.Count > 0;
     }
 
     private void PostData()
@@ -298,10 +299,7 @@ SET
             {
                 MyCn.Close();
             }
-            if (dgvProperties.Rows.Count > 0)
-                btnApply.Visible = true;
-            else
-                btnApply.Visible = false;
+            btnApply.Visible = dgvProperties.Rows.Count > 0;
         }
     }
 

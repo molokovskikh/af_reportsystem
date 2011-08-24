@@ -115,6 +115,8 @@ and rt.ReportTypeCode = r.ReportTypeCode
         else
         {
             DS = ((DataSet)Session[DSValues]);
+			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+				Reports_GeneralReports.Redirect(this);
             ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
             ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
 			dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
@@ -491,6 +493,7 @@ and ?Enabled = 0;", MyCn, trans);
 
 	protected void dgvListValues_DataBound(object sender, EventArgs e)
 	{
+		if (dgvListValues.Rows.Count == 0) return;
 		CheckBox cb = (CheckBox)dgvListValues.HeaderRow.Cells[0].FindControl("cbSet");
 		DataRow[] drs = ((DataView)dgvListValues.DataSource).ToTable().Select("Enabled = 1");
 		cb.Checked = (drs.Length == ((DataView)dgvListValues.DataSource).Count);

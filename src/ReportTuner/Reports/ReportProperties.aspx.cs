@@ -95,11 +95,10 @@ and rts.ReportTypeCode = rt.ReportTypeCode
         else
         {
             DS = ((DataSet)Session[DSParams]);
+			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+				Reports_GeneralReports.Redirect(this);
         }
-        if (dgvNonOptional.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+        btnApply.Visible = dgvNonOptional.Rows.Count > 0;
     }
 
     private void PostData()

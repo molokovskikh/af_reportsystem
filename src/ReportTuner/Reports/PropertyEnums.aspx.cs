@@ -30,23 +30,20 @@ public partial class Reports_PropertyEnums : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (!Page.IsPostBack)
+    	if (!Page.IsPostBack)
         {
-            PostData();
-            //dgReportTypes.DataSource = DS;
-            //dgReportTypes.DataMember = DS.Tables[dtReportTypes.TableName].TableName;
+            PostData();            
         }
         else
         {
             DS = ((DataSet)Session[DSEnums]);
+			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+				Reports_GeneralReports.Redirect(this);
         }
-        if (dgvEnums.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+    	btnApply.Visible = dgvEnums.Rows.Count > 0;
     }
 
-    private void PostData()
+	private void PostData()
     {
         if(MyCn.State != ConnectionState.Open)
             MyCn.Open();

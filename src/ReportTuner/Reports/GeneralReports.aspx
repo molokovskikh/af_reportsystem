@@ -3,6 +3,7 @@
 <asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align="center">
         <strong style="font-size:small;">Настройка отчетов</strong><br/><br/>
+		<asp:Label ID="lblMessage" runat="server" Text="" /><br/><br/>
         <asp:Label ID="lblFilter" runat="server" Text="Фильтр:" />
         <asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin" 
             ontextchanged="btnFilter_Click" ToolTip="e-mail адреса можно задавать через запятую"/>

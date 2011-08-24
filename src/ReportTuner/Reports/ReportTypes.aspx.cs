@@ -86,21 +86,20 @@ public partial class Reports_ReportTypes : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (!Page.IsPostBack)
+    	if (!Page.IsPostBack)
         {
             PostData();
         }
         else
         {
             DS = ((DataSet)Session[DSReports]);
+			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+				Reports_GeneralReports.Redirect(this);
         }
-        if (dgvReportTypes.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+    	btnApply.Visible = dgvReportTypes.Rows.Count > 0;
     }
 
-    private void PostData()
+	private void PostData()
     {
         if(MyCn.State != ConnectionState.Open)
             MyCn.Open();
@@ -120,9 +119,7 @@ FROM
 ";
         MyDA.Fill(DS, dtReportTypes.TableName);
         MyCn.Close();
-
-        //dgReportTypes.DataSource = DS;
-        //dgReportTypes.DataMember = DS.Tables[dtReportTypes.TableName].TableName;
+        
         Session.Add(DSReports, DS);
         dgvReportTypes.DataSource = DS;
         dgvReportTypes.DataMember = DS.Tables[dtReportTypes.TableName].TableName;

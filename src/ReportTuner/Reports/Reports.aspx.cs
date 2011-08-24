@@ -50,12 +50,16 @@ public partial class Reports_Reports : System.Web.UI.Page
 			else
 				((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"].ToString();
 
-        if (!(Page.IsPostBack))
-        {
-            PostData();
-        }
-        else
-            DS = ((DataSet)Session[DSReports]);
+		if (!(Page.IsPostBack))
+		{
+			PostData();
+		}
+		else
+		{
+			DS = ((DataSet) Session[DSReports]);
+			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+				Reports_GeneralReports.Redirect(this);
+		}
     }
 
     private void PostData()
