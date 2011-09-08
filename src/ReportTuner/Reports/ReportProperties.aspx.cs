@@ -1297,15 +1297,17 @@ public class PropertiesHelper
 					if (client != null)
 					{
 						long clientMaskRegion = client.MaskRegion;
-						var regionMask = clientMaskRegion + regEqual.Values
-							.Select(v =>
-							        	{
-							        		uint reg;
-							        		if (UInt32.TryParse(v.Value, out reg))
-							        			return reg;
-							        		return 0u;
-							        	})
-							.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r); // маска для списка регионов, недоступных клиенту
+						var regionMask = clientMaskRegion;
+						if(regEqual != null)
+							regionMask = clientMaskRegion + regEqual.Values
+								.Select(v =>
+							        		{
+							        			uint reg;
+							        			if (UInt32.TryParse(v.Value, out reg))
+							        				return reg;
+							        			return 0u;
+							        		})
+								.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r); // маска для списка регионов, недоступных клиенту
 						return regionMask.ToString(); // результирующая маска, включает доступные и ранее выбранные недоступные клиенту регионы
 					}
 				}
