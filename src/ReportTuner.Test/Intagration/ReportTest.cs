@@ -235,7 +235,7 @@ namespace ReportTuner.Test.Intagration
 				dtNonOptionalParams.Rows.Add(dr);
 
 				var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, null);
-				var res = propertyHelper.GetRelativeProperty(regionProperty);
+				var res = propertyHelper.GetRelativeValue(regionProperty);
 
 				Assert.That(res, Is.Not.Null);
 				Assert.That(res.Length, Is.GreaterThan(0));

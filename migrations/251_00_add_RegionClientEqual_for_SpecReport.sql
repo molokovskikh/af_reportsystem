@@ -1,0 +1,1 @@
+﻿INSERT INTO `reports`.`report_type_properties` (`ReportTypeCode`, `PropertyName`, `DisplayName`, `PropertyType`, `Optional`, `SelectStoredProcedure`, `DefaultValue`) VALUES (1, 'RegionClientEqual', 'Список доступных клиенту регионов', 'LIST', 1, 'GetRegionsForClient', '0');

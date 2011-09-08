@@ -969,7 +969,7 @@ WHERE ID = ?OPID", MyCn, trans);
 				else
 				{
 					propertiesHelper = (PropertiesHelper)Session[PropHelper];
-					var result = propertiesHelper.GetRelativeProperty(prop);
+					var result = propertiesHelper.GetRelativeValue(prop);
 					if (String.IsNullOrEmpty(result))
 					{
 						url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
@@ -1278,41 +1278,48 @@ public class PropertiesHelper
 		dtOptionalParams = optionalParams;
 	}
 
-	public string GetRelativeProperty(ReportProperty prop)
+
+	private string CalcMaskRegionByClient(ReportProperty regionProp, string [] regionPropNames, string [] clientPropNames)
+	{		
+		if (regionPropNames.Contains(regionProp.PropertyType.PropertyName))
+		{
+			// получаем свойство " лиент"			
+			DataRow dr = dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => clientPropNames.Contains(r["PPropertyName"].ToString())).FirstOrDefault();
+			if (dr != null)
+			{
+				// текущий список регионов
+				var regEqual = reportProperties.Where(p => p.PropertyType.PropertyName == regionProp.PropertyType.PropertyName).FirstOrDefault();
+				uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента
+				FutureClient client = FutureClient.TryFind(clientId);
+				if (client != null)
+				{
+					long clientMaskRegion = client.MaskRegion;
+					var regionMask = clientMaskRegion;
+					if (regEqual != null)
+						regionMask = clientMaskRegion + regEqual.Values
+							.Select(v =>
+							{
+								uint reg;
+								if (UInt32.TryParse(v.Value, out reg))
+									return reg;
+								return 0u;
+							})
+							.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r); // маска дл€ списка регионов, недоступных клиенту
+					return regionMask.ToString(); // результирующа€ маска, включает доступные и ранее выбранные недоступные клиенту регионы
+				}
+			}
+		}
+		return String.Empty;
+	}
+	public string GetRelativeValue(ReportProperty prop)
 	{
 		if (report == null) return null;
 		// ¬ смешанном дл€ аптеки отчете в списки регионов должны включатьс€ только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
-		if (report.ReportType.ReportClassName.Contains("PharmacyMixedReport")) 
-		{
-			if (prop.PropertyType.PropertyName == "RegionEqual" || prop.PropertyType.PropertyName == "RegionNonEqual")
-			{
-				// получаем свойство " лиент"
-				DataRow dr = dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => r["PPropertyName"].ToString() == "SourceFirmCode").FirstOrDefault();				
-				if (dr != null)
-				{
-					// текущий список регионов
-					var regEqual = reportProperties.Where(p => p.PropertyType.PropertyName == prop.PropertyType.PropertyName).FirstOrDefault();
-					uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента
-					FutureClient client = FutureClient.TryFind(clientId);
-					if (client != null)
-					{
-						long clientMaskRegion = client.MaskRegion;
-						var regionMask = clientMaskRegion;
-						if(regEqual != null)
-							regionMask = clientMaskRegion + regEqual.Values
-								.Select(v =>
-							        		{
-							        			uint reg;
-							        			if (UInt32.TryParse(v.Value, out reg))
-							        				return reg;
-							        			return 0u;
-							        		})
-								.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r); // маска дл€ списка регионов, недоступных клиенту
-						return regionMask.ToString(); // результирующа€ маска, включает доступные и ранее выбранные недоступные клиенту регионы
-					}
-				}
-			}
-		}		
+		if (report.ReportType.ReportClassName.Contains("PharmacyMixedReport"))
+			return CalcMaskRegionByClient(prop, new[] { "RegionEqual", "RegionNonEqual" }, new[] { "SourceFirmCode" });
+		// ¬ специальном отчете в списки регионов должны включатьс€ только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+		if (report.ReportType.ReportClassName.Contains("SpecReport"))
+			return CalcMaskRegionByClient(prop, new[] { "RegionClientEqual"}, new[] { "ClientCode" });		
 		return String.Empty;
 	}
 }

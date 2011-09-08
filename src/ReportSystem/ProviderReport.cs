@@ -179,7 +179,7 @@ namespace Inforoom.ReportSystem
 			if(allowedFirms != null && allowedFirms.Count > 0)
 			{
 				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where FirmCode not in ({0})", allowedFirms.Implode());
+				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode not in ({0})", allowedFirms.Implode());
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			}
 
@@ -189,7 +189,7 @@ namespace Inforoom.ReportSystem
 				if (suppliers != null && suppliers.Count > 0)
 				{
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where FirmCode in ({0})", suppliers.Implode());
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode in ({0})", suppliers.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
@@ -212,6 +212,18 @@ namespace Inforoom.ReportSystem
 				{
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode in ({0})", PriceCodeNonValues.Implode());
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				}
+			}
+
+			// В списке регионов только доступные клиенту регионы
+			if (!_byBaseCosts && _reportParams.ContainsKey("RegionClientEqual"))
+			{
+				var RegionClientEqual = (List<ulong>) _reportParams["RegionClientEqual"];
+				if(RegionClientEqual != null && RegionClientEqual.Count > 0)
+				{
+					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where RegionCode not in ({0})", RegionClientEqual.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
