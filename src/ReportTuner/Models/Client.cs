@@ -30,6 +30,9 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual string FullName { get; set; }
 
+		[Property]
+		public virtual long MaskRegion { get; set; }
+
 		[BelongsTo("ContactGroupOwnerId")]
 		public virtual ContactGroupOwner ContactGroupOwner { get; set; }
 
@@ -47,7 +50,7 @@ namespace ReportTuner.Models
 		public int FirmType
 		{
 			get { return 1; }
-		}
+		}		
 	}
 
 	public interface IUser

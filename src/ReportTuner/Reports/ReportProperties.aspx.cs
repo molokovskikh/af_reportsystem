@@ -27,6 +27,7 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     private DataColumn PPropertyValue;
     private DataColumn PPropertyEnumID;
 	private DataColumn PReportTypeCode;
+	private DataColumn PPropertyName;
     public DataTable dtEnumValues;
     private DataColumn PStoredProc;
     DataTable dtProcResult;
@@ -39,12 +40,16 @@ public partial class Reports_ReportProperties : System.Web.UI.Page
     private DataColumn OPPropertyValue;
     private DataColumn OPPropertyEnumID;
     private DataColumn OPStoredProc;
+	private DataColumn OPPropertyName;
     private DataTable dtDDLOptionalParams;
     private DataColumn OPrtpID;
 	private DataColumn OPReportTypeCode;
 	private DataColumn CReportType;
 
     private const string DSParams = "Inforoom.Reports.ReportProperties.DSParams";
+	private const string PropHelper = "Inforoom.Reports.ReportProperties.PropHelper";
+
+	private PropertiesHelper propertiesHelper;
 
     protected void Page_Init(object sender, System.EventArgs e)
     {
@@ -89,13 +94,15 @@ and rts.ReportTypeCode = rt.ReportTypeCode
 			lblReportType.Text = DS.Tables[dtClient.TableName].Rows[0][CReportType.ColumnName].ToString();
 
             MyCn.Close();
-
             PostData();
+			propertiesHelper = new PropertiesHelper(Convert.ToUInt32(Request["rp"]), dtNonOptionalParams, dtOptionalParams);
+        	Session[PropHelper] = propertiesHelper;
         }
         else
         {
             DS = ((DataSet)Session[DSParams]);
-			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+        	propertiesHelper = (PropertiesHelper) Session[PropHelper];
+			if (DS == null || propertiesHelper == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
         }
         btnApply.Visible = dgvNonOptional.Rows.Count > 0;
@@ -108,7 +115,7 @@ and rts.ReportTypeCode = rt.ReportTypeCode
         ExtraRefresh();
     }
 
-    private void FillNonOptimal()
+    protected void FillNonOptimal()
     {
         if (MyCn.State != ConnectionState.Open)
             MyCn.Open();
@@ -126,7 +133,8 @@ SELECT
     rp.PropertyValue as PPropertyValue,
     rtp.PropertyEnumID as PPropertyEnumID,
     rtp.selectstoredprocedure as PStoredProc,
-	rtp.ReportTypeCode as PReportTypeCode
+	rtp.ReportTypeCode as PReportTypeCode,
+	rtp.PropertyName as PPropertyName
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
@@ -145,7 +153,8 @@ SELECT
     rp.PropertyValue as PPropertyValue,
     rtp.PropertyEnumID as PPropertyEnumID,
     rtp.selectstoredprocedure as PStoredProc,
-	rtp.ReportTypeCode as PReportTypeCode
+	rtp.ReportTypeCode as PReportTypeCode,
+	rtp.PropertyName as PPropertyName
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
@@ -164,7 +173,8 @@ SELECT
     rp.PropertyValue as PPropertyValue,
     rtp.PropertyEnumID as PPropertyEnumID,
     rtp.selectstoredprocedure as PStoredProc,
-	rtp.ReportTypeCode as PReportTypeCode
+	rtp.ReportTypeCode as PReportTypeCode,
+	rtp.PropertyName as PPropertyName
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
 WHERE 
@@ -203,7 +213,8 @@ SELECT
     rp.PropertyValue as OPPropertyValue,
     rtp.PropertyEnumID as OPPropertyEnumID,
     rtp.selectstoredprocedure as OPStoredProc,
-	rtp.ReportTypeCode as OPReportTypeCode
+	rtp.ReportTypeCode as OPReportTypeCode,
+	rtp.PropertyName as OPPropertyName
 	
 FROM 
     reports.report_properties rp, reports.report_type_properties rtp
@@ -231,6 +242,7 @@ AND rp.reportCode=?rp
 		this.PPropertyType = new System.Data.DataColumn();
 		this.PPropertyValue = new System.Data.DataColumn();
 		this.PPropertyEnumID = new System.Data.DataColumn();
+    	this.PPropertyName = new System.Data.DataColumn();
 		this.PStoredProc = new System.Data.DataColumn();
 		this.PReportTypeCode = new System.Data.DataColumn();
 		this.dtClient = new System.Data.DataTable();
@@ -242,6 +254,7 @@ AND rp.reportCode=?rp
 		this.OPPropertyType = new System.Data.DataColumn();
 		this.OPPropertyValue = new System.Data.DataColumn();
 		this.OPPropertyEnumID = new System.Data.DataColumn();
+    	this.OPPropertyName = new System.Data.DataColumn();
 		this.OPStoredProc = new System.Data.DataColumn();
 		this.OPrtpID = new System.Data.DataColumn();
 		this.OPReportTypeCode = new System.Data.DataColumn();
@@ -267,7 +280,9 @@ AND rp.reportCode=?rp
             this.PPropertyValue,
             this.PPropertyEnumID,
             this.PStoredProc,
-			this.PReportTypeCode});
+			this.PReportTypeCode,
+			this.PPropertyName
+		});
 		this.dtNonOptionalParams.TableName = "dtNonOptionalParams";
 		// 
 		// PID
@@ -278,6 +293,10 @@ AND rp.reportCode=?rp
 		// PParamName
 		// 
 		this.PParamName.ColumnName = "PParamName";
+		// 
+		// PPropertyName
+		// 
+		this.PPropertyName.ColumnName = "PPropertyName";
 		// 
 		// PPropertyType
 		// 
@@ -326,7 +345,9 @@ AND rp.reportCode=?rp
             this.OPPropertyEnumID,
             this.OPStoredProc,
             this.OPrtpID,
-			this.OPReportTypeCode});
+			this.OPReportTypeCode,
+			this.OPPropertyName
+		});
 		this.dtOptionalParams.TableName = "dtOptionalParams";
 		// 
 		// OPID
@@ -337,6 +358,10 @@ AND rp.reportCode=?rp
 		// OPParamName
 		// 
 		this.OPParamName.ColumnName = "OPParamName";
+		// 
+		// OPPropertyName
+		// 
+		this.OPPropertyName.ColumnName = "OPPropertyName";
 		// 
 		// OPPropertyType
 		// 
@@ -752,6 +777,9 @@ WHERE ID = ?OPID", MyCn, trans);
         }
         else if (e.CommandName == "ShowValues")
         {
+			CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+			CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+
 			string url = String.Empty;
 			var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));			
 
@@ -916,6 +944,9 @@ WHERE ID = ?OPID", MyCn, trans);
         }
         else if (e.CommandName == "ShowValues")
         {
+			CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+			CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+
 			string url = String.Empty;
 			if (!String.IsNullOrEmpty(Request["TemporaryId"]))
 				url = String.Format("ReportPropertyValues.aspx?TemporaryId={0}&rp={1}&rpv={2}",
@@ -936,10 +967,24 @@ WHERE ID = ?OPID", MyCn, trans);
 						Request["rp"],
 						e.CommandArgument);
 				else
-					url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
-						Request["r"],
-						Request["rp"],
-						e.CommandArgument);
+				{
+					propertiesHelper = (PropertiesHelper)Session[PropHelper];
+					var result = propertiesHelper.GetRelativeProperty(prop);
+					if (String.IsNullOrEmpty(result))
+					{
+						url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+						                    Request["r"],
+						                    Request["rp"],
+						                    e.CommandArgument);
+					}
+					else
+					{
+						url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}&inID={3}",
+											Request["r"],
+											Request["rp"],
+											e.CommandArgument, result);
+					}
+				}
 			}
 
             Response.Redirect(url);
@@ -1214,5 +1259,58 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 	protected void btnNext_Click(object sender, EventArgs e)
 	{
 		Response.Redirect("TemporaryReportSchedule.aspx?TemporaryId=" + Request["TemporaryId"]);
+	}
+}
+
+
+public class PropertiesHelper
+{
+	private DataTable dtNonOptionalParams;
+	private DataTable dtOptionalParams;
+	private Report report;
+	private IList<ReportProperty> reportProperties;
+
+	public PropertiesHelper(ulong reportCode, DataTable nonOptionalParams, DataTable optionalParams)
+	{
+		report = Report.TryFind(Convert.ToUInt64(reportCode));
+		reportProperties = ReportProperty.Queryable.Where(p => p.ReportCode == report.Id).ToList();
+		dtNonOptionalParams = nonOptionalParams;
+		dtOptionalParams = optionalParams;
+	}
+
+	public string GetRelativeProperty(ReportProperty prop)
+	{
+		if (report == null) return null;
+		// В смешанном для аптеки отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+		if (report.ReportType.ReportClassName.Contains("PharmacyMixedReport")) 
+		{
+			if (prop.PropertyType.PropertyName == "RegionEqual" || prop.PropertyType.PropertyName == "RegionNonEqual")
+			{
+				// получаем свойство "Клиент"
+				DataRow dr = dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => r["PPropertyName"].ToString() == "SourceFirmCode").FirstOrDefault();				
+				if (dr != null)
+				{
+					// текущий список регионов
+					var regEqual = reportProperties.Where(p => p.PropertyType.PropertyName == prop.PropertyType.PropertyName).FirstOrDefault();
+					uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента
+					FutureClient client = FutureClient.TryFind(clientId);
+					if (client != null)
+					{
+						long clientMaskRegion = client.MaskRegion;
+						var regionMask = clientMaskRegion + regEqual.Values
+							.Select(v =>
+							        	{
+							        		uint reg;
+							        		if (UInt32.TryParse(v.Value, out reg))
+							        			return reg;
+							        		return 0u;
+							        	})
+							.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r); // маска для списка регионов, недоступных клиенту
+						return regionMask.ToString(); // результирующая маска, включает доступные и ранее выбранные недоступные клиенту регионы
+					}
+				}
+			}
+		}		
+		return String.Empty;
 	}
 }

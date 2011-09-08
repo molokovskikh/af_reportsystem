@@ -11,3 +11,6 @@
 	path = src/Test.Support
 	url = ssh://git.analit.net/var/www/git/Test.Support.git
 
+[submodule "lib/MonoRail.Debugger.Toolbar"]
+	path = lib/MonoRail.Debugger.Toolbar
+	url = ssh://git.analit.net/var/www/git/MonoRail.Debugger.Toolbar

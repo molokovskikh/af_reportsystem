@@ -38,6 +38,9 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
 	private DataColumn LReportType;
     private const string PPCN = "Inforoom.Reports.ReportPropertyValues.PP";
 
+	private string inFilter; // параметры для хранимых процедур
+	private long? inID = null;
+
     protected void Page_Init(object sender, System.EventArgs e)
     {
         InitializeComponent();
@@ -59,8 +62,14 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
 				Response.Redirect(String.Format("ReportProperties.aspx?r={0}&rp={1}", Request["r"], Request["rp"]));
 			else
 				Response.Redirect(String.Format("ReportProperties.aspx?TemporaryId={0}&rp={1}", Request["TemporaryId"], Request["rp"]));
+		if(!String.IsNullOrEmpty(Request["inID"]))
+		{
+			long id;
+			if (long.TryParse(Request["inID"], out id)) 
+				inID = id;
+		}
 
-		if (!(Page.IsPostBack))
+    	if (!(Page.IsPostBack))
         {
             try
             {
@@ -302,12 +311,11 @@ WHERE
             MyCmd.Parameters.Clear();
             MyCmd.Parameters.AddWithValue("inFilter", null);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
-            MyCmd.Parameters.AddWithValue("inID", null);
-            MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
+        	MyCmd.Parameters.AddWithValue("inID", !inID.HasValue ? null : inID);
+        	MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
             MyCmd.CommandText = ListProc;
             MyCmd.CommandType = CommandType.StoredProcedure;
             MyDA.Fill(DS, dtProcResult.TableName);
-
         }
         finally
         {

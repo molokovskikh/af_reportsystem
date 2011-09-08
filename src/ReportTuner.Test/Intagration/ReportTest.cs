@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Castle.ActiveRecord;
 using NUnit.Framework;
 using Test.Support;
@@ -183,6 +184,63 @@ namespace ReportTuner.Test.Intagration
 		{
 			var mails = FakeReports_GeneralReports.GetMailAddresses("a.tyutin@analit.net, _test@mail.ru, 123_@qwe.ertert.net, .incorrect@mail.ru");
 			Assert.That(mails.Count, Is.EqualTo(3));			
+		}
+
+		[Test]
+		public void test_region_mask_for_PharmacyMixedReport()
+		{
+			Report report;		
+			using (new SessionScope())
+			{				
+				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("PharmacyMixedReport") && r.Enabled).ToList();
+				report = reports.Select(r =>
+					      	{
+					      		var properties = ReportProperty.Queryable.Where(p => p.ReportCode == r.Id).ToList();
+								var prop = properties.Where(p => p.PropertyType.PropertyName == "RegionEqual").FirstOrDefault();
+								if (prop != null) return r;
+					      		return null;
+					      	}).Where(r => r != null).FirstOrDefault();
+				var reportProperties = ReportProperty.Queryable.Where(p => p.ReportCode == report.Id).ToList();
+				var clientProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "SourceFirmCode").FirstOrDefault();
+				var regionProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "RegionEqual").FirstOrDefault();
+				var clientid = Convert.ToUInt32(clientProperty.Value);
+				var client = FutureClient.TryFind(clientid);
+				if(client == null)
+				{
+					TestClient tc = TestClient.Create();
+					clientProperty.Value = tc.Id.ToString();
+					clientProperty.Save();
+					client = FutureClient.TryFind(tc.Id);
+				}
+				var clientMask = client.MaskRegion;
+				var regMask = regionProperty.Values.Where(v =>
+				                                          	{
+				                                          		var reg = Convert.ToUInt32(v.Value);
+																if ((reg & clientMask) > 0) return false;
+																return true;				                                          		
+				                                          	}).Sum(v => Convert.ToUInt32(v.Value));
+				var mask = clientMask + regMask;
+
+				var dtNonOptionalParams = new DataTable();
+				dtNonOptionalParams.Columns.AddRange(new[]
+				{
+				    new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
+				    new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
+				    new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
+				});
+				DataRow dr = dtNonOptionalParams.NewRow();
+				dr["PID"] = clientProperty.Id;
+				dr["PPropertyName"] = "SourceFirmCode";
+				dr["PPropertyValue"] = client.Id;
+				dtNonOptionalParams.Rows.Add(dr);
+
+				var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, null);
+				var res = propertyHelper.GetRelativeProperty(regionProperty);
+
+				Assert.That(res, Is.Not.Null);
+				Assert.That(res.Length, Is.GreaterThan(0));
+				Assert.That(res, Is.EqualTo(mask.ToString()));
+			}
 		}
 	}
 }

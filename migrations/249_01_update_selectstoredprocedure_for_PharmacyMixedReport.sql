@@ -1,0 +1,1 @@
+﻿update reports.report_type_properties r set SelectStoredProcedure = 'GetRegionsForClient' where ReportTypeCode = 11 and PropertyName in ('RegionEqual', 'RegionNonEqual');

@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Support", "Test.Suppor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationTasks", "MigrationTasks\MigrationTasks.csproj", "{624AF152-8D1A-43B7-94D5-AD5D74552765}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoRail.Debugger.Toolbar", "..\lib\MonoRail.Debugger.Toolbar\src\MonoRail.Debugger.Toolbar\MonoRail.Debugger.Toolbar.csproj", "{BF858A13-1FE7-42F0-AF78-D9909FA193D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +130,12 @@ Global
 		{624AF152-8D1A-43B7-94D5-AD5D74552765}.Release|Any CPU.Build.0 = Release|Any CPU
 		{624AF152-8D1A-43B7-94D5-AD5D74552765}.Release|x86.ActiveCfg = Release|x86
 		{624AF152-8D1A-43B7-94D5-AD5D74552765}.Release|x86.Build.0 = Release|x86
+		{BF858A13-1FE7-42F0-AF78-D9909FA193D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF858A13-1FE7-42F0-AF78-D9909FA193D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF858A13-1FE7-42F0-AF78-D9909FA193D1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BF858A13-1FE7-42F0-AF78-D9909FA193D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF858A13-1FE7-42F0-AF78-D9909FA193D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF858A13-1FE7-42F0-AF78-D9909FA193D1}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,5 +147,6 @@ Global
 		{95E2C313-46FA-4B4B-9EFF-3228662908F4} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
 		{D3BA9766-79FD-4DC9-9A44-B847C6625E0A} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
 		{A215E837-1208-49E3-AF93-A9612223122C} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
+		{BF858A13-1FE7-42F0-AF78-D9909FA193D1} = {32B9D67D-B11D-44FB-A13A-D61B09EAAE11}
 	EndGlobalSection
 EndGlobal
