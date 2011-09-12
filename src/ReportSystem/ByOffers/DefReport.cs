@@ -170,36 +170,26 @@ and Catalog.Id = products.CatalogId;
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice ( 
   NameId int Unsigned, 
+  Code VARCHAR(20) not NULL,
   key NameId(NameId))engine=MEMORY PACK_KEYS = 0;
 INSERT INTO OtherByPrice 
-select distinct Catalog.NameId 
+select distinct Catalog.NameId, FarmCore.Code
 from 
   (
-  Core c, 
-  Catalogs.Products,
-  Catalogs.Catalog 
+  Core c 
+  inner join Catalogs.Products on c.ProductId = Products.Id
+  inner join Catalogs.Catalog  on Products.CatalogId = Catalog.Id
   )
+  inner join farm.Core0 FarmCore on FarmCore.Id = c.Id
   left join SummaryByPrices st on st.NameId = Catalog.NameId 
-where 
-    c.PriceCode=?SourcePC 
-and st.NameId is NULL
-and Products.Id = c.ProductId
-and Catalog.Id = products.CatalogId;
+where     
+  c.PriceCode=?SourcePC
+  and st.NameId is NULL;
 
-select distinct FarmCore.Code, CatalogNames.Name 
+select distinct OtherByPrice.Code, CatalogNames.Name 
 from 
- (
-  OtherByPrice,
-  catalogs.CatalogNames,
-  catalogs.catalog,
-  catalogs.products
- )
-  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
-  left join farm.Core0 FarmCore on FarmCore.Id = c.Id 
-where 
-    CatalogNames.Id = OtherByPrice.NameId
-and catalog.NameId = CatalogNames.Id
-and products.CatalogId = catalog.Id
+  OtherByPrice
+  inner join catalogs.CatalogNames on OtherByPrice.NameId = CatalogNames.Id
 order by CatalogNames.Name;";
 						break;
 					}
@@ -224,37 +214,28 @@ and Products.Id = c.ProductId;
 
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice ( 
-  CatalogId int Unsigned, 
+  CatalogId int Unsigned,
+  Code VARCHAR(20) not NULL, 
   key CatalogId(CatalogId) ) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO OtherByPrice 
-select distinct Products.CatalogId
+select distinct Products.CatalogId, FarmCore.Code
 from 
   (
-  Core c, 
-  Catalogs.Products
+  Core c 
+  inner join Catalogs.Products on c.ProductId = Products.Id
   )
+  inner join farm.Core0 FarmCore on FarmCore.Id = c.Id
   left join SummaryByPrices st on st.CatalogId = Products.CatalogId 
-where 
-    c.PriceCode=?SourcePC 
-and st.CatalogId is NULL
-and Products.Id = c.ProductId;
+where    
+  c.PriceCode=?SourcePC
+  and st.CatalogId is NULL;
 
-select distinct FarmCore.Code, CatalogNames.Name, CatalogForms.Form 
+select distinct OtherByPrice.Code, CatalogNames.Name, CatalogForms.Form 
 from 
- (
-  OtherByPrice,
-  catalogs.catalog,
-  catalogs.CatalogNames,
-  catalogs.CatalogForms,
-  catalogs.products
- )
-  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
-  left join farm.Core0 FarmCore on FarmCore.Id = c.Id 
-where 
-    catalog.Id = OtherByPrice.CatalogId
-and CatalogNames.Id = catalog.NameId
-and CatalogForms.Id = catalog.FormId
-and products.CatalogId = catalog.Id
+  OtherByPrice
+  inner join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+  inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
 order by CatalogNames.Name, CatalogForms.Form;";
 						break;
 					}
@@ -284,41 +265,32 @@ and FarmCore.Id = c.Id;
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice ( 
   CatalogId int Unsigned, 
-  CodeFirmCr int Unsigned, 
+  CodeFirmCr int Unsigned,
+  Code VARCHAR(20) not NULL, 
   key CatalogId(CatalogId),
   key CodeFirmCr(CodeFirmCr) ) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO OtherByPrice 
-select distinct Products.CatalogId, FarmCore.CodeFirmCr
+select distinct Products.CatalogId, FarmCore.CodeFirmCr, FarmCore.Code
 from 
   (
-  Core c, 
-  farm.Core0 FarmCore, 
-  Catalogs.Products
+  Core c
+  inner join farm.Core0 FarmCore on c.Id = FarmCore.Id
+  inner join Catalogs.Products on c.ProductId = Products.Id
   )
   left join SummaryByPrices st on st.CatalogId = Products.CatalogId and st.CodeFirmCr = FarmCore.CodeFirmCr
 where 
     c.PriceCode=?SourcePC 
-and st.CatalogId is NULL
-and Products.Id = c.ProductId
-and FarmCore.Id = c.Id;
+and st.CatalogId is NULL;
 
-select distinct FarmCore.Code, CatalogNames.Name, CatalogForms.Form, Producers.Name as FirmCr 
+select distinct OtherByPrice.Code, CatalogNames.Name, CatalogForms.Form, Producers.Name as FirmCr
 from 
  (
-  OtherByPrice,
-  catalogs.catalog,
-  catalogs.CatalogNames,
-  catalogs.CatalogForms,
-  catalogs.products
+  OtherByPrice
+  inner join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+  inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id  
  )
-  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
-  left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr
   left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
-where 
-    catalog.Id = OtherByPrice.CatalogId
-and CatalogNames.Id = catalog.NameId
-and CatalogForms.Id = catalog.FormId
-and products.CatalogId = catalog.Id
 order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
 						break;
 					}
@@ -341,12 +313,14 @@ and apt.PriceCode=c.PriceCode;
 
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice ( 
-  ProductId int Unsigned, 
+  ProductId int Unsigned,
+  Code VARCHAR(20) not NULL,  
   key ProductId(ProductId)) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO OtherByPrice 
-select distinct c.ProductId
+select distinct c.ProductId, FarmCore.Code
 from 
   Core c
+  inner join farm.Core0 FarmCore on FarmCore.Id = c.Id
   left join SummaryByPrices st on st.ProductId = c.ProductId
 where 
     c.PriceCode=?SourcePC 
@@ -354,22 +328,16 @@ and st.ProductId is NULL;
 
 select 
   distinct 
-  FarmCore.Code, 
+  OtherByPrice.Code,  
   CatalogNames.Name,
   {0} as FullForm
 from 
  (
-  OtherByPrice,
-  catalogs.catalog,
-  catalogs.CatalogNames,
-  catalogs.products
+  OtherByPrice
+  inner join catalogs.products on OtherByPrice.ProductId = products.Id
+  inner join catalogs.catalog on products.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
  )
-  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
-  left join farm.Core0 FarmCore on FarmCore.Id = c.Id
-where 
-    products.Id = OtherByPrice.ProductId
-and catalog.Id = products.CatalogId
-and CatalogNames.Id = catalog.NameId
 order by CatalogNames.Name, FullForm;
 ", GetFullFormSubquery("OtherByPrice.ProductId"));
 						break;
@@ -398,42 +366,36 @@ and FarmCore.Id = c.Id;
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice ( 
   ProductId int Unsigned, 
-  CodeFirmCr int Unsigned, 
+  CodeFirmCr int Unsigned,
+  Code VARCHAR(20) not NULL, 
   key ProductId(ProductId),
   key CodeFirmCr(CodeFirmCr) ) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO OtherByPrice 
-select distinct c.ProductId, FarmCore.CodeFirmCr
+select distinct c.ProductId, FarmCore.CodeFirmCr, FarmCore.Code
 from 
   (
-  Core c, 
-  farm.Core0 FarmCore
+  Core c
+  inner join farm.Core0 FarmCore on FarmCore.Id = c.Id
   )
   left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = FarmCore.CodeFirmCr
-where 
+where
     c.PriceCode=?SourcePC 
-and st.ProductId is NULL
-and FarmCore.Id = c.Id;
+and st.ProductId is NULL;
 
 select 
   distinct 
-  FarmCore.Code, 
+  OtherByPrice.Code, 
   CatalogNames.Name,
   {0} as FullForm,
   Producers.Name as FirmCr 
 from 
  (
-  OtherByPrice,
-  catalogs.catalog,
-  catalogs.CatalogNames,
-  catalogs.products
+  OtherByPrice
+  inner join catalogs.products on OtherByPrice.ProductId = products.Id
+  inner join catalogs.catalog on products.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
  )
-  left join Core c on c.ProductId = products.Id and c.PriceCode = ?SourcePC 
-  left join farm.Core0 FarmCore on FarmCore.Id = c.Id and FarmCore.CodeFirmCr = OtherByPrice.CodeFirmCr
   left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
-where 
-    products.Id = OtherByPrice.ProductId
-and catalog.Id = products.CatalogId
-and CatalogNames.Id = catalog.NameId
 order by CatalogNames.Name, FullForm, Producers.Name;
 ", GetFullFormSubquery("OtherByPrice.ProductId"));
 						break;
