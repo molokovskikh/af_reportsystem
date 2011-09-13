@@ -198,16 +198,22 @@ where GeneralReport = ?GeneralReport;";
 
 			_mainFileName = _directoryName + "\\" + ((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + _generalReportID.ToString() + ".xls") : _reportFileName);
 
-
 		    while (_reports.Count > 0)
 		    {
 		        BaseReport bs = _reports.First();
-
-                bs.ReadReportParams();
-                bs.ProcessReport();
-
-                bs.ReportToFile(_mainFileName);
-		        _reports.Remove(bs);		        
+				try
+				{
+					bs.ReadReportParams();
+					bs.ProcessReport();
+					bs.ReportToFile(_mainFileName);
+					_reports.Remove(bs);
+					bs.ToLog(_generalReportID);
+				}
+				catch(Exception ex)
+				{
+					bs.ToLog(_generalReportID, ex.ToString());
+					throw; // пока передаем наверх
+				}
 		    }
 
 			string ResFileName = ArchFile();

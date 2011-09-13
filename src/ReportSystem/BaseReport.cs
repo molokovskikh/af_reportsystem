@@ -4,6 +4,7 @@ using System.Text;
 using System.Data;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
+using Inforoom.ReportSystem.Model;
 using log4net;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
@@ -77,6 +78,9 @@ namespace Inforoom.ReportSystem
 
 		protected ILog Logger;
 		protected bool _isRetail;
+
+		protected DateTime _dtStart; // время запуска отчета
+		protected DateTime _dtStop; // время завершения работы отчета
 
 		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, 
 			ReportFormats format, DataSet dsProperties)
@@ -183,8 +187,6 @@ namespace Inforoom.ReportSystem
 					throw new ReportException(String.Format("Параметр '{0}' задан дважды.", currentPropertyName));
 				}
 			}
-
-			//ReadReportParams();
 		}
 
 		public abstract void GenerateReport(ExecuteArgs e);
@@ -193,6 +195,7 @@ namespace Inforoom.ReportSystem
 
 		public void ProcessReport()
 		{
+			_dtStart = DateTime.Now;
 			MethodTemplate.ExecuteMethod(new ExecuteArgs(), ProcessReportExec, false, _conn);
 		}
 
@@ -351,6 +354,12 @@ order by 1", filterStr);
 				valuesList.Add(dr[0].ToString());
 
 			return String.Join(", ", valuesList.ToArray());
+		}
+
+		public void ToLog(ulong generalReportCode, string errDesc = null)
+		{
+			_dtStop = DateTime.Now;
+			ReportResultLog.Log(generalReportCode, _reportCode, _dtStart, _dtStop, errDesc);
 		}
 	}
 }

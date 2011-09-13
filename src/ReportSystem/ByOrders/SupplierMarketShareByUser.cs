@@ -109,11 +109,6 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			if (!ActiveRecordStarter.IsInitialized)
-				ActiveRecordStarter.Initialize(
-					typeof(SupplierMarketShareByUser).Assembly,
-					ActiveRecordSectionHandler.Instance);
-
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select {2},
 sum(ol.Cost * ol.Quantity) as TotalSum,

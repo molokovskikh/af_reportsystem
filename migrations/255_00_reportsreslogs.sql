@@ -1,0 +1,11 @@
+CREATE TABLE `logs`.`reportsreslogs` (
+  `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  `GeneralReportCode` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
+  `ReportCode` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
+  `StartTime` DATETIME,
+  `StopTime` DATETIME,
+  `ErrorMessage` MEDIUMTEXT,
+  PRIMARY KEY(`id`)
+)
+ENGINE = InnoDB
+CHARACTER SET cp1251 COLLATE cp1251_general_ci;
