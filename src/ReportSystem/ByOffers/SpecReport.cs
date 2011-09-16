@@ -464,11 +464,6 @@ and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-#if DEBUG
-		    var count = MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-		                                          "select count(*) from TmpSourceCodes;");
-#endif
-
 e.DataAdapter.SelectCommand.CommandText = @"
 select 
   Core.Id,

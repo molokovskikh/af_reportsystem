@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
+using System.IO;
+using System.Text;
 using Common.Tools;
+using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
+using Inforoom.ReportSystem.ReportSettings;
+using Inforoom.ReportSystem.Writers;
 using log4net;
 using MySql.Data.MySqlClient;
-using ExecuteTemplate;
-using System.Data.OleDb;
-using System.IO;
-using Inforoom.ReportSystem.Writers;
-using Inforoom.ReportSystem.ReportSettings;
 
 namespace Inforoom.ReportSystem
 {	//Костыль т.к. не используем ActiveRecord модели, то пришлось копировать enum
@@ -81,6 +80,12 @@ namespace Inforoom.ReportSystem
 
 		protected DateTime _dtStart; // время запуска отчета
 		protected DateTime _dtStop; // время завершения работы отчета
+
+		public ulong ReportCode { get; protected set; }
+		public ulong ReportCaption { get; protected set; }
+
+		protected BaseReport() // конструктор для возможности тестирования
+		{}
 
 		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, 
 			ReportFormats format, DataSet dsProperties)

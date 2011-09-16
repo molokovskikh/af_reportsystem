@@ -184,6 +184,7 @@
     <Compile Include="ByOffers\PricesOfCompetitorsReport.cs" />
     <Compile Include="ByOrders\OrderOutAllowedAssortment.cs" />
     <Compile Include="Helpers\ReadParameterHelper.cs" />
+    <Compile Include="Mailer.cs" />
     <Compile Include="Model\Offer.cs" />
     <Compile Include="Model\Region.cs" />
     <Compile Include="Model\ReportResultLog.cs" />

@@ -55,6 +55,8 @@ namespace Inforoom.ReportSystem
 
 		private ReportFormats Format;
 
+		private string _payer;
+
         private ILog Logger;
 
 		//таблица отчетов, которая существует в общем отчете
@@ -63,7 +65,7 @@ namespace Inforoom.ReportSystem
 		//таблица контактов, по которым надо отправить отчет
 		DataTable _dtContacts;
 
-		List<BaseReport> _reports;
+		protected List<BaseReport> _reports;
 
 		// Проверка спика отчетов
 		private void CheckReports()
@@ -83,10 +85,13 @@ namespace Inforoom.ReportSystem
 					}
 		}
 
+		protected GeneralReport() // конструктор для возможности тестирования
+		{}
+
 		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
 			string ReportArchName, bool Temporary, ReportFormats format,
-			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo)
+			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo, string payer)
 		{
             Logger = LogManager.GetLogger(GetType());
 			_reports = new List<BaseReport>();
@@ -98,6 +103,7 @@ namespace Inforoom.ReportSystem
 			_reportFileName = ReportFileName;
 			_reportArchName = ReportArchName;
 			_temporary = Temporary;
+			_payer = payer;
 			Format = format;
 
 			bool addContacts = false;
@@ -198,23 +204,32 @@ where GeneralReport = ?GeneralReport;";
 
 			_mainFileName = _directoryName + "\\" + ((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + _generalReportID.ToString() + ".xls") : _reportFileName);
 
+			bool emptyReport = true;
 		    while (_reports.Count > 0)
 		    {
 		        BaseReport bs = _reports.First();
 				try
 				{
+					_reports.Remove(bs);
 					bs.ReadReportParams();
 					bs.ProcessReport();
-					bs.ReportToFile(_mainFileName);
-					_reports.Remove(bs);
-					bs.ToLog(_generalReportID);
+					bs.ReportToFile(_mainFileName);					
+					bs.ToLog(_generalReportID); // логируем успешное выполнение отчета					
+					emptyReport = false;
 				}
 				catch(Exception ex)
 				{
-					bs.ToLog(_generalReportID, ex.ToString());
-					throw; // пока передаем наверх
+					bs.ToLog(_generalReportID, ex.ToString()); // логируем ошибку при выполнении отчета
+					if(ex is ReportException)
+					{		
+						Mailer.MailGeneralReportErr(ex.ToString(), _payer, _generalReportID);						
+						continue; // выполняем следующий отчет
+					}
+					throw; // передаем наверх
 				}
-		    }
+		    }			
+
+			if(emptyReport) throw new ReportException("Отчет пуст.");
 
 			string ResFileName = ArchFile();
             

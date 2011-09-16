@@ -1,61 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using ExecuteTemplate;
+using Inforoom.Common;
 using Inforoom.ReportSystem.Model;
 using log4net;
 using log4net.Config;
 using MySql.Data.MySqlClient;
-using System.Configuration;
-using System.Net.Mail;
-using Inforoom.Common;
-using ExecuteTemplate;
-using Inforoom.ReportSystem.Properties;
 
 namespace Inforoom.ReportSystem
 {
 	class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
-
-		//Вспомогательная функция отправки письма
-		static void Mail(string from, string messageTo, string subject, string body)
-		{
-			try
-			{
-				var message = new MailMessage(from, messageTo, subject, body);
-				var client = new SmtpClient(Settings.Default.SMTPHost);
-				message.IsBodyHtml = false;
-				message.BodyEncoding = System.Text.Encoding.UTF8;
-				client.Send(message);
-			}
-			catch(Exception e)
-			{
-				_log.Error("Ошибка при отправке уведомления", e);
-			}
-		}
-
-		//Сообщение о глобальной ошибке, возникшей в результате работы программы
-		static void MailGlobalErr(string errDesc)
-		{
-			try
-			{
-				Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при запуске программы отчетов",
-					String.Format("Параметры запуска : {0}\r\nОшибка : {1}", String.Join("  ", Environment.GetCommandLineArgs()), errDesc));
-			}
-			catch (Exception e)
-			{
-				_log.Error("Ошибка при отправке уведомления", e);
-			}
-		}
-
-		//Сообщение об ошибке, возникшей в результате построения общего отчета
-		static void MailGeneralReportErr(string errDesc, string shortName, ulong generalReportCode)
-		{
-			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при запуске отчетa для " + shortName,
-				String.Format("Код отчета : {0}\r\nОшибка : {1}", generalReportCode, errDesc));
-		}
 
 		//Выбираем отчеты из базы
 		static DataTable GetGeneralReports(ReportsExecuteArgs e)
@@ -112,7 +72,7 @@ and cr.generalreportcode = " + generalReportId;
 							{
 								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]))
 								{
-									MailGeneralReportErr(
+									Mailer.MailGeneralReportErr(
 										"Невозможно выполнить отчет, т.к. отчет выключен.",
 										(string)drReport[GeneralReportColumns.ShortName],
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
@@ -134,12 +94,12 @@ and cr.generalreportcode = " + generalReportId;
 										drReport[GeneralReportColumns.ReportArchName].ToString(),
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
-										propertiesLoader, interval, dtFrom, dtTo);
+										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString());
 									gr.ProcessReports();
 								}
 								catch (Exception ex)
 								{
-									MailGeneralReportErr(
+									Mailer.MailGeneralReportErr(
 										ex.ToString(),
 										(string)drReport[GeneralReportColumns.ShortName],
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
@@ -147,7 +107,7 @@ and cr.generalreportcode = " + generalReportId;
 							}
 						}
 						else
-							MailGlobalErr(String.Format("Отчет с кодом {0} не существует.", generalReportId));
+							Mailer.MailGlobalErr(String.Format("Отчет с кодом {0} не существует.", generalReportId));
 
 					}
 					finally
@@ -156,12 +116,12 @@ and cr.generalreportcode = " + generalReportId;
 					}
 				}
 				else
-					MailGlobalErr("Не указан код отчета для запуска в параметре gr.");
+					Mailer.MailGlobalErr("Не указан код отчета для запуска в параметре gr.");
 			}
 			catch (Exception ex)
 			{
 				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
-				MailGlobalErr(ex.ToString());
+				Mailer.MailGlobalErr(ex.ToString());
 			}
 		}
 

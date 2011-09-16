@@ -100,6 +100,5 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 				throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
 			return t;
 		}
-
 	}
 }

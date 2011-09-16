@@ -37,6 +37,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.ActiveRecord, Version=3.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Castle.ActiveRecord.dll</HintPath>
+    </Reference>
     <Reference Include="ExcelLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="MySql.Data, Version=5.1.6.1, Culture=neutral, PublicKeyToken=56e353737e921561, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -97,6 +101,7 @@
     <Compile Include="SupplierMarketShareByUser.cs" />
     <Compile Include="SuppliersRatingReport\SuppliersRatingProfileFixture.cs" />
     <Compile Include="TestHelper.cs" />
+    <Compile Include="TestProcessReport.cs" />
     <Compile Include="Troubleshoot.cs" />
   </ItemGroup>
   <ItemGroup>
