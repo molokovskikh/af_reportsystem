@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 
             if (firmCrPosition)
                 selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
-                                             .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, '')");
+											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
 			selectCommand = String.Concat(selectCommand, String.Format(@"
 sum(if(oh.ClientCode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,

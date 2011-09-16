@@ -32,7 +32,7 @@ namespace Inforoom.ReportSystem
 			var selectCommand = BuildSelect();
             if (firmCrPosition)
                 selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
-                                             .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, '')");
+											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
 			selectCommand = String.Concat(selectCommand, @"
 Sum(ol.cost*ol.Quantity) as Cost, 
@@ -57,13 +57,10 @@ from " +
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
-#  left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
-#  join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
   join future.suppliers prov on prov.Id = pd.FirmCode
-#  join farm.regions provrg on provrg.RegionCode = prov.RegionCode
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
   join future.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
