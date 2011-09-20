@@ -227,7 +227,7 @@ where GeneralReport = ?GeneralReport;";
 					}
 					throw; // передаем наверх
 				}
-		    }			
+		    }
 
 			if(emptyReport) throw new ReportException("Отчет пуст.");
 

@@ -195,7 +195,7 @@ Min(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMinCost,
 Avg(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeAvgCost,
 Max(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMaxCost,
 Count(distinct if(pd.firmcode = {0}, oh.RowId, NULL)) as SourceFirmDistinctOrderId,
-Count(distinct if(pd.firmcode = {0}, oh.ClientCode, NULL)) as SourceFirmDistinctClientCode,
+Count(distinct if(pd.firmcode = {0}, oh.AddressId, NULL)) as SourceFirmDistinctAddressId,
 Count(distinct if(pd.firmcode = {0}, pd.FirmCode, NULL)) as SourceSuppliersSoldPosition,
 
 sum(if(pd.firmcode in ({1}), ol.cost*ol.quantity, NULL)) as RivalsSum,
@@ -204,7 +204,7 @@ Min(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsMinCost,
 Avg(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsAvgCost,
 Max(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsMaxCost,
 Count(distinct if(pd.firmcode in ({1}), oh.RowId, NULL)) as RivalsDistinctOrderId,
-Count(distinct if(pd.firmcode in ({1}), oh.ClientCode, NULL)) as RivalsDistinctClientCode,
+Count(distinct if(pd.firmcode in ({1}), oh.AddressId, NULL)) as RivalsDistinctAddressId,
 Count(distinct if(pd.firmcode in ({1}), pd.FirmCode, NULL)) as RivalsSuppliersSoldPosition,
 
 sum(ol.cost*ol.quantity) as AllSum,
@@ -214,7 +214,7 @@ Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct pd.firmcode) as AllSuppliersSoldPosition,
-Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
+Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, businessRivalsList));
 			selectCommand +=
 @"from " +
 #if DEBUG
@@ -341,9 +341,9 @@ ol.Junk = 0
 			dc = res.Columns.Add("SourceFirmDistinctOrderId", typeof (Int32));
 			dc.Caption = " ол-во за€вок по препарату по поставщику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
-			dc.ExtendedProperties.Add("Width", (int?) 4);
-			dc = res.Columns.Add("SourceFirmDistinctClientCode", typeof (Int32));
-			dc.Caption = " ол-во клиентов, заказавших препарат, по постащику";
+			dc.ExtendedProperties.Add("Width", (int?) 4);			
+			dc = res.Columns.Add("SourceFirmDistinctAddressId", typeof (Int32));
+			dc.Caption = " ол-во адресов доставки, заказавших препарат, по постащику";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(197, 217, 241));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("SourceSuppliersSoldPosition", typeof(Int32));
@@ -374,9 +374,9 @@ ol.Junk = 0
 			dc = res.Columns.Add("RivalsDistinctOrderId", typeof (Int32));
 			dc.Caption = " ол-во за€вок по препарату по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
-			dc.ExtendedProperties.Add("Width", (int?) 4);
-			dc = res.Columns.Add("RivalsDistinctClientCode", typeof (Int32));
-			dc.Caption = " ол-во клиентов, заказавших препарат, по конкурентам";
+			dc.ExtendedProperties.Add("Width", (int?) 4);			
+			dc = res.Columns.Add("RivalsDistinctAddressId", typeof(Int32));
+			dc.Caption = " ол-во адресов доставки, заказавших препарат, по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("RivalsSuppliersSoldPosition", typeof(Int32));
@@ -408,8 +408,8 @@ ol.Junk = 0
 			dc.Caption = " ол-во за€вок по препарату по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
-			dc = res.Columns.Add("AllDistinctClientCode", typeof (Int32));
-			dc.Caption = " ол-во клиентов, заказавших препарат, по всем";
+			dc = res.Columns.Add("AllDistinctAddressId", typeof(Int32));
+			dc.Caption = " ол-во адресов доставки, заказавших препарат, по всем";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("AllSuppliersSoldPosition", typeof(Int32));

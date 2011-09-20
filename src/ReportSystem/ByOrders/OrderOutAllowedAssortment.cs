@@ -49,7 +49,6 @@ Cat.Name as NameForm,
 Prod.Name as Producer,
 Ol.Cost, Ol.Quantity,
 BM.Code as MatrixCode,
-#CD.ShortName AS Supplier,
 supps.Name AS Supplier,
 (Ol.Cost*Ol.Quantity) as Summ 
 FROM " +
@@ -70,7 +69,6 @@ join future.Clients CL on CL.ID = O.ClientCode
 join future.Users U on U.ID = O.UserID
 join catalogs.Catalog Cat on Cat.Id = P.CatalogID
 join usersettings.PricesData PD on O.PriceCode = PD.PriceCode
-#join usersettings.ClientsData CD on PD.FirmCode = CD.FirmCode
 join future.Suppliers supps on PD.FirmCode = supps.Id
 left join catalogs.Producers Prod on Prod.Id = Ol.CodeFirmCr
 

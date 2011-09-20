@@ -52,7 +52,7 @@ Min(if(oh.ClientCode in ({1}), ol.cost, NULL)) as RivalsMinCost,
 Avg(if(oh.ClientCode in ({1}), ol.cost, NULL)) as RivalsAvgCost,
 Max(if(oh.ClientCode in ({1}), ol.cost, NULL)) as RivalsMaxCost,
 Count(distinct if(oh.ClientCode in ({1}), oh.RowId, NULL)) as RivalsDistinctOrderId,
-Count(distinct if(oh.ClientCode in ({1}), oh.ClientCode, NULL)) as RivalsDistinctClientCode,
+Count(distinct if(oh.ClientCode in ({1}), oh.AddressId, NULL)) as RivalsDistinctAddressId,
 
 sum(ol.cost*ol.quantity) as AllSum,
 sum(ol.quantity) AllRows,
@@ -60,7 +60,7 @@ Min(ol.cost) as AllMinCost,
 Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
-Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, businessRivalsList));
+Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, businessRivalsList));
 			selectCommand +=
 @"from " +
 #if DEBUG
@@ -82,11 +82,9 @@ Count(distinct oh.ClientCode) as AllDistinctClientCode ", sourceFirmCode, busine
 
 			selectCommand += @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
-#  left join usersettings.clientsdata cd on cd.FirmCode = oh.ClientCode
   left join future.Clients cl on cl.Id = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
-#  join usersettings.clientsdata prov on prov.FirmCode = pd.FirmCode
   join future.suppliers prov on prov.Id = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
   join future.addresses adr on oh.AddressId = adr.Id
@@ -213,9 +211,9 @@ and (oh.RegionCode & " + regionMask + @") > 0";
 			dc.Caption = "Кол-во заявок препарата по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
-
-			dc = res.Columns.Add("RivalsDistinctClientCode", typeof (Int32));
-			dc.Caption = "Кол-во клиентов, заказавших препарат, по конкурентам";
+			
+			dc = res.Columns.Add("RivalsDistinctAddressId", typeof(Int32));
+			dc.Caption = "Кол-во адресов доставки, заказавших препарат, по конкурентам";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(234, 241, 221));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 
@@ -248,9 +246,9 @@ and (oh.RegionCode & " + regionMask + @") > 0";
 			dc.Caption = "Кол-во заявок препарата по рынку";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
-
-			dc = res.Columns.Add("AllDistinctClientCode", typeof (Int32));
-			dc.Caption = "Кол-во аптек, заказавших препарат, по рынку";
+			
+			dc = res.Columns.Add("AllDistinctAddressId", typeof(Int32));
+			dc.Caption = "Кол-во адресов доставки, заказавших препарат, по рынку";
 			dc.ExtendedProperties.Add("Color", Color.FromArgb(253, 233, 217));
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 		}

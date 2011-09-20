@@ -41,7 +41,7 @@ Min(ol.Cost) as MinCost,
 Avg(ol.Cost) as AvgCost,
 Max(ol.Cost) as MaxCost,
 Count(distinct oh.RowId) as DistinctOrderId,
-Count(distinct oh.ClientCode) as DistinctClientCode ");
+Count(distinct oh.AddressId) as DistinctAddressId ");
 			selectCommand = String.Concat(
 				selectCommand, @"
 from " + 
@@ -111,9 +111,9 @@ where 1=1");
 			dc = result.Columns.Add("MaxCost", typeof (Decimal));
 			dc.Caption = "Максимальная цена";
 			dc = result.Columns.Add("DistinctOrderId", typeof (Int32));
-			dc.Caption = "Кол-во заявок по препарату";
-			dc = result.Columns.Add("DistinctClientCode", typeof (Int32));
-			dc.Caption = "Кол-во клиентов, заказавших препарат";
+			dc.Caption = "Кол-во заявок по препарату";			
+			dc = result.Columns.Add("DistinctAddressId", typeof(Int32));
+			dc.Caption = "Кол-во адресов доставки, заказавших препарат";
 
 			CopyData(selectTable, result);
 

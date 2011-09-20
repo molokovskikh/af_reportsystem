@@ -464,6 +464,10 @@ and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
+#if DEBUG
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
+
 e.DataAdapter.SelectCommand.CommandText = @"
 select 
   Core.Id,
@@ -479,6 +483,10 @@ from
 where
   FarmCore.Id = core.id";
 
+#if DEBUG
+	Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
+
 			//todo: изменить заполнение в другую таблицу
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
@@ -493,6 +501,9 @@ order by ActivePrices.PositionCount DESC";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+#if DEBUG
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
 			e.DataAdapter.Fill(_dsReport, "Prices");
 		}
 
