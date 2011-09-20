@@ -78,7 +78,7 @@ namespace ReportTuner.Helpers
 
 		public static Task FindTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string prefix)
 		{
-			return reportsFolder.Tasks.First(
+			return reportsFolder.Tasks.FirstOrDefault(
 				task => task.Name.Equals(prefix + generalReportId, StringComparison.OrdinalIgnoreCase));
 		}
 
