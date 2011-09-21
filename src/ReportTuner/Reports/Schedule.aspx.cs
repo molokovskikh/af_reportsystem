@@ -79,69 +79,65 @@ public partial class Reports_schedule : Page
 		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 
-		if (tempTask.State == TaskState.Running)
+		switch (tempTask.State)
 		{
-			if (tempTask.Definition.RegistrationInfo.Description == userName)
-			{
-				ErrorMassage.Text = "Успешно запущен разовый отчет, ожидайте окончания выполнения операции";
-				ErrorMassage.BackColor = Color.LightGreen;
-			}
-			else
-			{
-				ErrorMassage.Text = string.Format("Уже запущен разовый отчет, выполнение данного очета отложено (запустил: {0})" , userName);
-				ErrorMassage.BackColor = Color.Red;
-			}
-			btn_Mailing.Enabled = false;
-			RadioSelf.Enabled = false;
-			RadioMails.Enabled = false;
-			//RadioMailing.Enabled = false;
-		}
-		else if (tempTask.State == TaskState.Queued)
-		{
-			if (tempTask.Definition.RegistrationInfo.Description == userName)
-			{
-				ErrorMassage.Text = "Запускается разовый отчет, ожидайте окончания выполнения операции";
-				ErrorMassage.BackColor = Color.LightGreen;
-			}
-			else
-			{
-				ErrorMassage.Text = string.Format("Запускается разовый отчет (запустил: {0}), выполнение данного очета отложено)", userName);
-				ErrorMassage.BackColor = Color.Red;
-			}
-			btn_Mailing.Enabled = false;
-			RadioSelf.Enabled = false;
-			RadioMails.Enabled = false;
-		}
-		else if(tempTask.State == TaskState.Ready)
-		{
-			if (tempTask.Definition.RegistrationInfo.Description == userName)
-			{
-				// отчет выполнен				
-				if (Session["StartTaskTime"] != null)
+			case TaskState.Running:
+				if (tempTask.Definition.RegistrationInfo.Description == userName)
 				{
-					Session.Remove("StartTaskTime");
-					ErrorMassage.Text = "Операция выполнена";
+					ErrorMassage.Text = "Успешно запущен разовый отчет, ожидайте окончания выполнения операции";
 					ErrorMassage.BackColor = Color.LightGreen;
 				}
 				else
+				{
+					ErrorMassage.Text = String.Format("Уже запущен разовый отчет, выполнение данного очета отложено (запустил: {0})", tempTask.Definition.RegistrationInfo.Description);
+					ErrorMassage.BackColor = Color.Red;
+				}
+				btn_Mailing.Enabled = false;
+				RadioSelf.Enabled = false;
+				RadioMails.Enabled = false;
+				break;
+			case TaskState.Queued:
+				if (tempTask.Definition.RegistrationInfo.Description == userName)
+				{
+					ErrorMassage.Text = "Запускается разовый отчет, ожидайте окончания выполнения операции";
+					ErrorMassage.BackColor = Color.LightGreen;
+				}
+				else
+				{
+					ErrorMassage.Text = string.Format("Запускается разовый отчет (запустил: {0}), выполнение данного очета отложено)", tempTask.Definition.RegistrationInfo.Description);
+					ErrorMassage.BackColor = Color.Red;
+				}
+				btn_Mailing.Enabled = false;
+				RadioSelf.Enabled = false;
+				RadioMails.Enabled = false;
+				break;
+			case TaskState.Ready:
+				if (tempTask.Definition.RegistrationInfo.Description == userName)
+				{
+					// отчет выполнен				
+					if (Session["StartTaskTime"] != null)
+					{
+						Session.Remove("StartTaskTime");
+						ErrorMassage.Text = "Операция выполнена";
+						ErrorMassage.BackColor = Color.LightGreen;
+					}
+					else
+						ErrorMassage.Text = "";
+				}
+				break;
+			case TaskState.Disabled:
+				if (Session["StartTaskTime"] != null)
+				{
+					Session.Remove("StartTaskTime");
+					ErrorMassage.Text = "Операция отменена";
+					ErrorMassage.BackColor = Color.Red;
+				}
+				else
 					ErrorMassage.Text = "";
-			}
-		}
-		else if(tempTask.State == TaskState.Disabled)
-		{
-			// операция отменена
-			if (Session["StartTaskTime"] != null)
-			{
-				Session.Remove("StartTaskTime");
-				ErrorMassage.Text = "Операция отменена";
-				ErrorMassage.BackColor = Color.Red;
-			}
-			else
-				ErrorMassage.Text = "";
-		}
-		else
-		{
-			ErrorMassage.Text = string.Empty;
+				break;
+			default:
+				ErrorMassage.Text = string.Empty;
+				break;
 		}
 		
 
