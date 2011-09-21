@@ -95,7 +95,9 @@ and cr.generalreportcode = " + generalReportId;
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
 										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString());
+									_log.DebugFormat("Запуск отчета {0}", gr._generalReportID);
 									gr.ProcessReports();
+									_log.DebugFormat("Отчет {0} выполнился успешно", gr._generalReportID);
 								}
 								catch (Exception ex)
 								{
@@ -103,6 +105,8 @@ and cr.generalreportcode = " + generalReportId;
 										ex.ToString(),
 										(string)drReport[GeneralReportColumns.ShortName],
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
+									_log.DebugFormat("В процессе выполнения отчета {0} произошла ошибка: {1}", 
+										(ulong)drReport[GeneralReportColumns.GeneralReportCode], ex.ToString());
 								}
 							}
 						}

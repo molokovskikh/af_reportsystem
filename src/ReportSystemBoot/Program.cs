@@ -22,9 +22,13 @@ namespace ReportSystemBoot
 				bootAppName += arg;
 			logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
 			try
-			{				
+			{	
+#if !DEBUG			
 				ProcessStarter.StartProcessInteractivly(bootAppName,"runer", "zcxvcb", "analit");
-				logger.Info("Отчет отработал успешно");
+#else
+				ProcessStarter.StartProcessInteractivly(bootAppName, "tyutin", "******", "analit");
+#endif
+				logger.InfoFormat("Отчет {0} отработал успешно", bootAppName);
 			}
 			catch (Exception exception)
 			{
