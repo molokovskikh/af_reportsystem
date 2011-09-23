@@ -14,7 +14,7 @@ namespace ReportTuner.Controllers
 	{
 		public void SelectClients(ulong? report, int? sortOrder, int? startPage, int? pageSize, int? rowsCount,
 			int? currentPage, ulong? region, string addBtn, string delBtn, ulong? rpv, 
-			byte firmType, ulong r, string findStr)
+			byte firmType, ulong r, string findStr, ulong? userId)
 		{
 			ControllerHelper.InitParameter(ref sortOrder, "sortOrder", 2, PropertyBag);
 			ControllerHelper.InitParameter(ref startPage, "startPage", 0, PropertyBag);
@@ -22,7 +22,7 @@ namespace ReportTuner.Controllers
 			ControllerHelper.InitParameter(ref currentPage, "currentPage", 0, PropertyBag);
 			ControllerHelper.InitParameter(ref region, "region", ulong.MaxValue, PropertyBag);
 			PropertyBag["firmType"] = firmType;
-			PropertyBag["findStr"] = findStr;
+			PropertyBag["findStr"] = findStr;			
 
 			if (delBtn != null)
 			{
@@ -31,8 +31,8 @@ namespace ReportTuner.Controllers
 						ReportTunerModel.DeleteClient(rpv.Value, Convert.ToUInt64(Request.Params[key]));
 
 				Response.RedirectToUrl(
-					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={8}",
-						sortOrder, startPage, pageSize, currentPage, region, report, rpv, firmType, r));
+					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={8}&userId={9}",
+						sortOrder, startPage, pageSize, currentPage, region, report, rpv, firmType, r, userId));
 				return;
 			}
 
@@ -43,25 +43,26 @@ namespace ReportTuner.Controllers
 						ReportTunerModel.AddClient(rpv.Value, Convert.ToUInt64(Request.Params[key]));
 
 				Response.RedirectToUrl(
-					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={8}",
-						sortOrder, startPage, pageSize, currentPage, region, report, rpv, firmType, r));
+					String.Format("SelectClients.rails?sortOrder={0}&startPage={1}&pageSize={2}&currentPage={3}&region={4}&report={5}&rpv={6}&firmType={7}&r={8}&userId={9}",
+						sortOrder, startPage, pageSize, currentPage, region, report, rpv, firmType, r, userId));
 				return;
 			}
 
 			if (region == 0)
 				region = ulong.MaxValue;
 
-			var regions = Regions.FindAll().OrderBy(reg => reg.Name).OrderBy(reg => reg.RegionCode != 0);
+			var regions = ReportTunerModel.GetAllRegions();
 			PropertyBag["Regions"] = regions;
-
+						
 			PropertyBag["FilteredClients"] =
-				ReportTunerModel.GetAllSuppliers(rpv.Value, sortOrder.Value, currentPage.Value, 
-					pageSize.Value, ref rowsCount, region.Value, firmType, findStr);
+				ReportTunerModel.GetAllSuppliers(rpv.Value, sortOrder.Value, currentPage.Value,
+				                                 pageSize.Value, ref rowsCount, region.Value, firmType, findStr, userId);
 
 			PropertyBag["AddedClients"] =
 				ReportTunerModel.GetAddedSuppliers(report.Value, rpv.Value, sortOrder.Value, startPage.Value, pageSize.Value);
 
 			PropertyBag["rowsCount"] = rowsCount.Value;
+			
 		}
 	}
 }

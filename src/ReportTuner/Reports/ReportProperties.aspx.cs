@@ -10,6 +10,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
+using Castle.ActiveRecord;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using ReportTuner.Models;
@@ -956,38 +957,41 @@ WHERE ID = ?OPID", MyCn, trans);
 			else
 			{
 				var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));
-				if (prop.PropertyType.PropertyName == "ClientCodeEqual")
-					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
-						Request["r"],
-						Request["rp"],
-						e.CommandArgument);
-				else if(prop.PropertyType.PropertyName == "FirmCodeEqual" || prop.PropertyType.PropertyName == "IgnoredSuppliers")
-					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
-						Request["r"],
-						Request["rp"],
-						e.CommandArgument);
-				else
+				propertiesHelper = (PropertiesHelper)Session[PropHelper];
+				var result = propertiesHelper.GetRelativeValue(prop);
+
+				switch (prop.PropertyType.PropertyName)
 				{
-					propertiesHelper = (PropertiesHelper)Session[PropHelper];
-					var result = propertiesHelper.GetRelativeValue(prop);
-					if (String.IsNullOrEmpty(result))
-					{
-						url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+					case "ClientCodeEqual":
+						url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
 						                    Request["r"],
 						                    Request["rp"],
 						                    e.CommandArgument);
-					}
-					else
-					{
-						url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}&inID={3}",
-											Request["r"],
-											Request["rp"],
-											e.CommandArgument, result);
-					}
+						break;
+					case "IgnoredSuppliers":
+					case "FirmCodeEqual":
+						url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
+						                    Request["r"],
+						                    Request["rp"],
+						                    e.CommandArgument);
+						if (!String.IsNullOrEmpty(result))
+							url = String.Format("{0}&{1}", url, result);
+						break;
+					default:
+						{							
+							
+							url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+								                    Request["r"],
+								                    Request["rp"],
+								                    e.CommandArgument);
+							if (!String.IsNullOrEmpty(result))
+								url = String.Format("{0}&{1}", url, result);
+						}
+						break;
 				}
 			}
 
-            Response.Redirect(url);
+        	Response.Redirect(url);
         }
         else if (e.CommandName == "Add")
         {
@@ -1287,39 +1291,119 @@ public class PropertiesHelper
 			DataRow dr = dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => clientPropNames.Contains(r["PPropertyName"].ToString())).FirstOrDefault();
 			if (dr != null)
 			{
-				// текущий список регионов
-				var regEqual = reportProperties.Where(p => p.PropertyType.PropertyName == regionProp.PropertyType.PropertyName).FirstOrDefault();
-				uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента
-				FutureClient client = FutureClient.TryFind(clientId);
-				if (client != null)
+				using(new SessionScope())
 				{
-					long clientMaskRegion = client.MaskRegion;
-					var regionMask = clientMaskRegion;
-					if (regEqual != null)
-						regionMask = clientMaskRegion + regEqual.Values
-							.Select(v =>
-							{
-								uint reg;
-								if (UInt32.TryParse(v.Value, out reg))
-									return reg;
-								return 0u;
-							})
-							.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r); // маска для списка регионов, недоступных клиенту
-					return regionMask.ToString(); // результирующая маска, включает доступные и ранее выбранные недоступные клиенту регионы
+					// текущий список регионов
+					var regEqual =
+						reportProperties.Where(p => p.PropertyType.PropertyName == regionProp.PropertyType.PropertyName).FirstOrDefault();
+					if (!(dr["PPropertyValue"] is DBNull))
+					{
+						uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента				
+						FutureClient client = FutureClient.TryFind(clientId);
+						if (client != null)
+						{
+							long clientMaskRegion = client.MaskRegion;
+							var regionMask = clientMaskRegion;
+							if (regEqual != null)
+								regionMask = clientMaskRegion + regEqual.Values
+								                                	.Select(v =>
+								                                	        	{
+								                                	        		uint reg;
+								                                	        		if (UInt32.TryParse(v.Value, out reg))
+								                                	        			return reg;
+								                                	        		return 0u;
+								                                	        	})
+								                                	.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r);
+							// маска для списка регионов, недоступных клиенту
+							return String.Format("inID={0}", regionMask);
+							// результирующая маска, включает доступные и ранее выбранные недоступные клиенту регионы
+						}
+					}
 				}
 			}
 		}
 		return String.Empty;
 	}
+
+	private string GetUserByClient(ReportProperty selectedProp, string [] suppliersPropNames, string [] clientPropNames, string userPropName)
+	{
+		if(suppliersPropNames.Contains(selectedProp.PropertyType.PropertyName))
+		{
+			// получаем свойство "Пользователь" (если выбрано)
+			DataRow drUser = dtOptionalParams.Rows.Cast<DataRow>().Where(r => r["OPPropertyName"].ToString() == userPropName).FirstOrDefault();
+			uint? userid = null;
+			if (drUser != null)
+			{
+				if (!(drUser["OPPropertyValue"] is DBNull))
+				{
+					userid = Convert.ToUInt32(drUser["OPPropertyValue"]);
+				}
+			}
+			else
+			{
+				// получаем свойство "Клиент"			
+				DataRow drClient =
+					dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => clientPropNames.Contains(r["PPropertyName"].ToString())).
+						FirstOrDefault();
+				if (drClient != null)
+				{
+					using (new SessionScope())
+					{
+						if (!(drClient["PPropertyValue"] is DBNull))
+						{
+							uint clientId = Convert.ToUInt32(drClient["PPropertyValue"]); // код клиента				
+							FutureClient client = FutureClient.TryFind(clientId);
+							if(client != null)
+							{
+								var user = client.Users.FirstOrDefault();
+								if (user != null)
+									userid = user.Id;
+							}
+						}
+					}
+				}
+			}
+			if(userid != null) return String.Format("userId={0}", userid);
+		}
+		return String.Empty;
+	}
+
 	public string GetRelativeValue(ReportProperty prop)
 	{
-		if (report == null) return null;
-		// В смешанном для аптеки отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+		if (report == null) return null;		
 		if (report.ReportType.ReportClassName.Contains("PharmacyMixedReport"))
-			return CalcMaskRegionByClient(prop, new[] { "RegionEqual", "RegionNonEqual" }, new[] { "SourceFirmCode" });
-		// В специальном отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+		{
+			// В смешанном для аптеки отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+			var res = CalcMaskRegionByClient(prop, new[] {"RegionEqual", "RegionNonEqual"}, new[] {"SourceFirmCode"});
+			if (!String.IsNullOrEmpty(res)) return res;
+		}	
 		if (report.ReportType.ReportClassName.Contains("SpecReport"))
-			return CalcMaskRegionByClient(prop, new[] { "RegionClientEqual"}, new[] { "ClientCode" });		
+		{
+			// В специальном отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+			var res = CalcMaskRegionByClient(prop, new[] {"RegionClientEqual"}, new[] {"ClientCode"});
+			if (!String.IsNullOrEmpty(res)) return res;
+			// В специальном отчете список поставщиков должен формироваться с учетом выбранного клиента
+			res = GetUserByClient(prop, new[] {"IgnoredSuppliers", "FirmCodeEqual"}, new[] {"ClientCode"}, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+		}
+		if(report.ReportType.ReportClassName.Contains("CombReport"))
+		{
+			// В комбинированном отчете список поставщиков должен формироваться с учетом выбранного клиента
+			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+		}
+		if (report.ReportType.ReportClassName.Contains("DefReport"))
+		{
+			// В дефектурном отчете список поставщиков должен формироваться с учетом выбранного клиента
+			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers" }, new[] { "ClientCode" }, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+		}
+		if (report.ReportType.ReportClassName.Contains("LeakOffersReport"))
+		{			
+			// В отчете "Сборник прайсов для аптеки" список поставщиков должен формироваться с учетом выбранного клиента
+			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+		}
 		return String.Empty;
 	}
 }

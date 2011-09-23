@@ -23,6 +23,7 @@ ${FormHelper.HiddenField('report')}
 ${FormHelper.HiddenField('rpv')}
 ${FormHelper.HiddenField('r')}
 ${FormHelper.HiddenField('firmType')}
+${FormHelper.HiddenField('userId')}
 <table style="width:100%;">
 	<tr> <!-- Заголовок -->
 		<td class="DocumentHeader">Редактирование значений списка <%if firmType == 0: %> поставщиков <%else:%> клиентов<%end%></td>

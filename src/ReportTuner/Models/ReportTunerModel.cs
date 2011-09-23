@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using NHibernate.Criterion;
 using System.Text;
@@ -44,6 +45,23 @@ group by Id
 {1} {2}
 ";
 
+		private const string suppliersFromActivePrices =
+@"select 
+	supps.Id,
+	supps.Name ShortName,
+	GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+from usersettings.ActivePrices AP
+	inner join future.suppliers supps on AP.FirmCode = supps.Id
+	left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+where
+	?firmType = 0
+	and supps.Disabled = 0
+	and (supps.RegionMask & ?region) > 0
+	and supps.Id not in {0}
+	and supps.Name like ?filterStr
+group by Id
+{1} {2}
+";
 
         private const string selectedClientsSql =
 @"
@@ -104,23 +122,42 @@ group by Id
 			return clients.Cast<object>().ToList();
 		}
 
+		public static void FillActivePrices(MySqlConnection conn, ulong userId)
+		{						
+				var da = new MySqlDataAdapter(new MySqlCommand());
+				var selectCommand = da.SelectCommand;
+				selectCommand.Connection = conn;
+				selectCommand.CommandText = "future.GetActivePrices";
+				selectCommand.CommandType = CommandType.StoredProcedure;
+				selectCommand.Parameters.Clear();
+				selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+				selectCommand.ExecuteNonQuery();
+		}
+
 		public static List<object> GetAllSuppliers(ulong reportProperty, int sortOrder, int currenPage, int pageSize,
-			ref int? rowsCount, ulong region, byte firmType, string findStr)
+			ref int? rowsCount, ulong region, byte firmType, string findStr, ulong? userId)
 		{
 			List<object> clients;
 			using(var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
 			{
+				conn.Open();
 				var Ids = GetSelectedIds(reportProperty);
 
-                var sql = GetPreparedSql(allClientsSql, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
-				
+				string sql = String.Empty;
+
+				if (userId == null)
+					sql = GetPreparedSql(allClientsSql, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
+				else
+				{
+					FillActivePrices(conn, userId.Value);
+					sql = GetPreparedSql(suppliersFromActivePrices, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
+				}
+
 				var command = new MySqlCommand(sql, conn);
 
 				command.Parameters.AddWithValue("?firmType", firmType);
 				command.Parameters.AddWithValue("?region", region);
 				command.Parameters.AddWithValue("?filterStr", "%" + findStr + "%");
-
-				conn.Open();
 
 				clients = ExtractClientsFromCommand(command);
 				if (!rowsCount.HasValue)
@@ -167,5 +204,10 @@ group by Id
 
 			property.CreateAndFlush();
 		}
+
+		public static IEnumerable<Regions> GetAllRegions()
+		{
+			return Regions.FindAll().OrderBy(reg => reg.Name).OrderBy(reg => reg.RegionCode != 0);
+		}		
 	}
 }

@@ -239,7 +239,7 @@ namespace ReportTuner.Test.Intagration
 
 				Assert.That(res, Is.Not.Null);
 				Assert.That(res.Length, Is.GreaterThan(0));
-				Assert.That(res, Is.EqualTo(mask.ToString()));
+				Assert.That(res, Is.EqualTo(String.Format("inID={0}", mask)));
 			}
 		}
 	}
