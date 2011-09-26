@@ -86,7 +86,11 @@ ${FormHelper.HiddenField('userId')}
 						<%for i, item in enumerate(FilteredClients):%>
 							<tr class="${ViewHelper.GetRowStyle(i)}">
 								<td>
-									<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" class="nsCheckBox"/>
+									<%if FilteredClients.Count == 1: %>
+										<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" class="nsCheckBox" checked/>
+									<%else: %>
+										<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" class="nsCheckBox"/>
+									<%end %>
 								</td>
 								
 								<td>
