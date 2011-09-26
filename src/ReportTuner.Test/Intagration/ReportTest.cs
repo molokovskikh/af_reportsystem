@@ -242,5 +242,63 @@ namespace ReportTuner.Test.Intagration
 				Assert.That(res, Is.EqualTo(String.Format("inID={0}", mask)));
 			}
 		}
+
+		[Test]
+		public void test_userId_SpecReport()
+		{
+			Report report;
+			using (new SessionScope())
+			{
+				var reports =
+					Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("SpecReport") && r.Enabled).ToList();
+				report = reports.Select(r =>
+				                        	{
+				                        		var properties = ReportProperty.Queryable.Where(p => p.ReportCode == r.Id).ToList();
+				                        		var prop =
+													properties.Where(p => p.PropertyType.PropertyName == "FirmCodeEqual").FirstOrDefault();
+				                        		if (prop != null) return r;
+				                        		return null;
+				                        	}).Where(r => r != null).FirstOrDefault();
+				var reportProperties = ReportProperty.Queryable.Where(p => p.ReportCode == report.Id).ToList();
+				var clientProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "ClientCode").FirstOrDefault();
+				var firmCodeProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "FirmCodeEqual").FirstOrDefault();
+				var clientid = Convert.ToUInt32(clientProperty.Value);
+				var client = FutureClient.TryFind(clientid);
+				var user = client.Users.FirstOrDefault();
+
+				var dtNonOptionalParams = new DataTable();
+				dtNonOptionalParams.Columns.AddRange(new[]
+				{
+				    new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
+				    new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
+				    new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
+				});
+				DataRow dr = dtNonOptionalParams.NewRow();
+				dr["PID"] = clientProperty.Id;
+				dr["PPropertyName"] = "ClientCode";
+				dr["PPropertyValue"] = client.Id;
+				dtNonOptionalParams.Rows.Add(dr);
+
+				var dtOptionalParams = new DataTable();
+				dtOptionalParams.Columns.AddRange(new[]
+				{
+				    new DataColumn() {ColumnName = "OPID", DataType = typeof (long)},
+				    new DataColumn() {ColumnName = "OPPropertyName", DataType = typeof (string)},
+				    new DataColumn() {ColumnName = "OPPropertyValue", DataType = typeof (string)}
+				});
+				dr = dtOptionalParams.NewRow();
+				dr["OPID"] = firmCodeProperty.Id;
+				dr["OPPropertyName"] = "FirmCodeEqual";
+				dr["OPPropertyValue"] = firmCodeProperty.Value;
+				dtOptionalParams.Rows.Add(dr);
+
+				var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, dtOptionalParams);
+				var res = propertyHelper.GetRelativeValue(firmCodeProperty);
+
+				Assert.That(res, Is.Not.Null);
+				Assert.That(res.Length, Is.GreaterThan(0));
+				Assert.That(res, Is.EqualTo(String.Format("userId={0}", user.Id)));
+			}
+		}
 	}
 }

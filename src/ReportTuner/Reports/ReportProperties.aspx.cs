@@ -1388,19 +1388,26 @@ public class PropertiesHelper
 		}
 		if(report.ReportType.ReportClassName.Contains("CombReport"))
 		{
-			// В комбинированном отчете список поставщиков должен формироваться с учетом выбранного клиента
 			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
 			if (!String.IsNullOrEmpty(res)) return res;
 		}
 		if (report.ReportType.ReportClassName.Contains("DefReport"))
 		{
-			// В дефектурном отчете список поставщиков должен формироваться с учетом выбранного клиента
 			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers" }, new[] { "ClientCode" }, "UserCode");
 			if (!String.IsNullOrEmpty(res)) return res;
 		}
 		if (report.ReportType.ReportClassName.Contains("LeakOffersReport"))
-		{			
-			// В отчете "Сборник прайсов для аптеки" список поставщиков должен формироваться с учетом выбранного клиента
+		{
+			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+		}
+		if (report.ReportType.ReportClassName.Contains("OffersReport"))
+		{
+			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+		}
+		if (report.ReportType.ReportClassName.Contains("PharmacyOffersReport"))
+		{
 			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
 			if (!String.IsNullOrEmpty(res)) return res;
 		}

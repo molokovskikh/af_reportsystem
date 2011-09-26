@@ -50,9 +50,8 @@ namespace ReportTuner.Controllers
 
 			if (region == 0)
 				region = ulong.MaxValue;
-
-			var regions = ReportTunerModel.GetAllRegions();
-			PropertyBag["Regions"] = regions;
+			
+			PropertyBag["Regions"] = ReportTunerModel.GetAllRegions(); ;
 						
 			PropertyBag["FilteredClients"] =
 				ReportTunerModel.GetAllSuppliers(rpv.Value, sortOrder.Value, currentPage.Value,
