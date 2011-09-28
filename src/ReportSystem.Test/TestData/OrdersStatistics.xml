@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>24039</ID>
+    <ReportCode>1866</ReportCode>
+    <PropertyID>389</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>389</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>ByPreviousMonth</PropertyName>
+    <DisplayName>За предыдущий месяц</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>24040</ID>
+    <ReportCode>1866</ReportCode>
+    <PropertyID>390</PropertyID>
+    <PropertyValue>NOW</PropertyValue>
+    <ID1>390</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>DateFrom</PropertyName>
+    <DisplayName>Начало периода</DisplayName>
+    <PropertyType>DATETIME</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>NOW</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>24041</ID>
+    <ReportCode>1866</ReportCode>
+    <PropertyID>391</PropertyID>
+    <PropertyValue>NOW</PropertyValue>
+    <ID1>391</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>DateTo</PropertyName>
+    <DisplayName>Конец периода (включительно)</DisplayName>
+    <PropertyType>DATETIME</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>NOW</DefaultValue>
+  </ReportProperties>
+</NewDataSet>

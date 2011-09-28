@@ -843,8 +843,10 @@ WHERE ID = ?OPID", MyCn, trans);
 
     protected void ExtraRefresh()
     {
-        object obj = FindCheckBoxByKey("По базовым ценам");
+    	object obj = FindCheckBoxByKey("По базовым ценам"); 
         if (obj != null) chbValue_CheckedChanged(obj, null);
+		obj = FindCheckBoxByKey("За предыдущий месяц");
+		if (obj != null) chbValue_CheckedChanged(obj, null);
     }
 
     protected object FindCheckBoxByKey(string key)
@@ -863,12 +865,15 @@ WHERE ID = ?OPID", MyCn, trans);
 	{
 		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
 		var retail = GetValueByLabel(dgvNonOptional.Rows, "Готовить по розничному сегменту");
+		var byPreviousMonth = GetValueByLabel(dgvNonOptional.Rows, "За предыдущий месяц");
 
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !retail && !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !retail);
 		SetRowVisibility(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Начало периода", !byPreviousMonth);
+		SetRowVisibility(dgvNonOptional.Rows, "Конец периода (включительно)", !byPreviousMonth);
 	}
 
 	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)
