@@ -647,11 +647,16 @@ WHERE ID = ?OPID", MyCn, trans);
         CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
 
         MyCn.Open();
-        foreach (DataRow dr in DS.Tables[dtOptionalParams.TableName].Rows)
+
+		var drows = DS.Tables[dtOptionalParams.TableName].Rows.Cast<DataRow>().Where( dr => (dr.RowState == DataRowState.Added) && (dr[OPrtpID.ColumnName] is DBNull)).ToArray();
+		for (var i = 0; i < drows.Count(); i++)
+				DS.Tables[dtOptionalParams.TableName].Rows.Remove(drows[i]);		
+
+    	foreach (DataRow dr in DS.Tables[dtOptionalParams.TableName].Rows)
         {
             if (dr.RowState == DataRowState.Added)
-            {
-                dr[OPPropertyValue.ColumnName] = MySqlHelper.ExecuteScalar(MyCn, "SELECT DefaultValue FROM reports.report_type_properties WHERE ID=" + dr[OPrtpID.ColumnName].ToString());
+            {            	
+					dr[OPPropertyValue.ColumnName] = MySqlHelper.ExecuteScalar(MyCn, "SELECT DefaultValue FROM reports.report_type_properties WHERE ID=" + dr[OPrtpID.ColumnName].ToString());
             }
         }
         MyCn.Close();
@@ -717,10 +722,13 @@ WHERE ID = ?OPID", MyCn, trans);
             {
                 if (((DropDownList)dr.FindControl("ddlName")).Visible == true)
                 {
-                    if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][OPrtpID.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlName")).SelectedValue)
-                    {
-                        DS.Tables[dt.TableName].DefaultView[dr.RowIndex][OPrtpID.ColumnName] = ((DropDownList)dr.FindControl("ddlName")).SelectedValue;
-                    }
+					if (((DropDownList)dr.FindControl("ddlName")).SelectedValue != null)
+					{
+						if (DS.Tables[dt.TableName].DefaultView[dr.RowIndex][OPrtpID.ColumnName].ToString() != ((DropDownList) dr.FindControl("ddlName")).SelectedValue)
+						{
+							DS.Tables[dt.TableName].DefaultView[dr.RowIndex][OPrtpID.ColumnName] = ((DropDownList) dr.FindControl("ddlName")).SelectedValue;
+						}
+					}
                 }
             }
         }
