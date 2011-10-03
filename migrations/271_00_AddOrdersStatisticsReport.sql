@@ -35,7 +35,7 @@ FROM
     left join future.clients cl on cl.id=oh.clientcode
     left join billing.FreeOrders free on free.ClientPayerId=cl.PayerId and free.SupplierPayerId = supps.Payer
 where 
-    oh.writetime between '2011-09-01' and '2011-09-28'    
+    oh.writetime between StartDate and EndDate  
     and supps.segment = 0   
     and rcs.invisibleonfirm < 2
     and if(cl.id is not null, cl.PayerId!=921,1)
