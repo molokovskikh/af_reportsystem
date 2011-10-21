@@ -9,4 +9,5 @@ Global(
 	AdditionalAssemblies: ("Common.Web.Ui", )
 )
 
-Engine.Execute("LoadProject")
+unless Configuration.IsDefined(@notInteractive):
+	Engine.Execute("LoadProject")
