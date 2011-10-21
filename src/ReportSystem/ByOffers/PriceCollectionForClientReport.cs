@@ -21,8 +21,6 @@ namespace Inforoom.ReportSystem
         public PriceCollectionForClientReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
         {
-            dsProperties.WriteXml(@"C:\prop.xml");
-
             _reportData = new List<ReportData>();
 		}
 

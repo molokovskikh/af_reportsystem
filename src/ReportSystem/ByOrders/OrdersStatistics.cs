@@ -44,7 +44,7 @@ namespace Inforoom.ReportSystem.ByOrders
 				dtTo = dtTo.Date.AddDays(1);
 			}
 			filterDescriptions = new List<string>();
-			filterDescriptions.Add(String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy HH:mm:ss")));
+			filterDescriptions.Add(String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
 		}
 
 		public override void GenerateReport(ExecuteArgs e)

@@ -1,0 +1,94 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>24296</ID>
+    <ReportCode>1894</ReportCode>
+    <PropertyID>399</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>399</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>ByPreviousMonth</PropertyName>
+    <DisplayName>За предыдущий месяц</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>24297</ID>
+    <ReportCode>1894</ReportCode>
+    <PropertyID>400</PropertyID>
+    <PropertyValue>44</PropertyValue>
+    <ID1>400</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>SourceFirmCode</PropertyName>
+    <DisplayName>Поставщик</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetFirmCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>24298</ID>
+    <ReportCode>1894</ReportCode>
+    <PropertyID>401</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>401</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>ReportType</PropertyName>
+    <DisplayName>Вариант отчета</DisplayName>
+    <PropertyType>ENUM</PropertyType>
+    <Optional>0</Optional>
+    <PropertyEnumID>15</PropertyEnumID>
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>24299</ID>
+    <ReportCode>1894</ReportCode>
+    <PropertyID>402</PropertyID>
+    <PropertyValue>2011-10-01</PropertyValue>
+    <ID1>402</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>DateFrom</PropertyName>
+    <DisplayName>Начало периода</DisplayName>
+    <PropertyType>DATETIME</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>NOW</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>24300</ID>
+    <ReportCode>1894</ReportCode>
+    <PropertyID>403</PropertyID>
+    <PropertyValue>2011-10-31</PropertyValue>
+    <ID1>403</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>DateTo</PropertyName>
+    <DisplayName>Конец периода (включительно)</DisplayName>
+    <PropertyType>DATETIME</PropertyType>
+    <Optional>0</Optional>
+    <DefaultValue>NOW</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>24304</ID>
+    <ReportCode>1894</ReportCode>
+    <PropertyID>404</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>404</ID1>
+    <ReportTypeCode>25</ReportTypeCode>
+    <PropertyName>RegionEqual</PropertyName>
+    <DisplayName>Список значений "Региона"</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure>GetRegion</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportPropertyValues>
+    <ID>37419</ID>
+    <ReportPropertyID>24304</ReportPropertyID>
+    <Value>128</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>37420</ID>
+    <ReportPropertyID>24304</ReportPropertyID>
+    <Value>16777216</Value>
+  </ReportPropertyValues>
+</NewDataSet>

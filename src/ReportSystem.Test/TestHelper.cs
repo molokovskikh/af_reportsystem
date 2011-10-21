@@ -82,7 +82,9 @@ namespace ReportSystem.Test
 		PricesOfCompetitors,
 		OrderOutAllowedAssortment,
         PriceCollectionForClientReport,
-		OrdersStatistics
+		OrdersStatistics,
+		SupplierOrdersStatisticsType1,
+		SupplierOrdersStatisticsType2
 	}
 
 	public static class TestHelper
