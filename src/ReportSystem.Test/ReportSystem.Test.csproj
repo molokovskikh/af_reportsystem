@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\ProjectLib.properties" Condition="Exists('..\ProjectLib.properties')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,8 +13,7 @@
     <AssemblyName>ReportSystem.Test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
+    <FileUpgradeFlags></FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
     <TargetFrameworkProfile />
@@ -41,10 +41,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Castle.ActiveRecord.dll</HintPath>
     </Reference>
+    <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="ExcelLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="MySql.Data, Version=5.1.6.1, Culture=neutral, PublicKeyToken=56e353737e921561, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate, Version=3.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -72,6 +80,7 @@
     <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="FastReports\FastReports.cs" />
+    <Compile Include="FixtureSetup.cs" />
     <Compile Include="Helpers\DataRowAdapter.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="LeakOffersReportFixture.cs" />
@@ -324,6 +333,10 @@
     <ProjectReference Include="..\ExecuteTemplate\ExecuteTemplate\ExecuteTemplate.csproj">
       <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
       <Name>ExecuteTemplate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Test.Support\Test.Support\Test.Support.csproj">
+      <Project>{A215E837-1208-49E3-AF93-A9612223122C}</Project>
+      <Name>Test.Support</Name>
     </ProjectReference>
     <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">
       <Project>{BDC750F3-0940-43DB-9501-87A219530C35}</Project>

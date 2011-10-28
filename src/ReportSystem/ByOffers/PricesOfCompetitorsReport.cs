@@ -125,14 +125,17 @@ namespace Inforoom.ReportSystem
 		{
 			ProfileHelper.Next("Начало формирования запроса");
 			ex = e;
-			_clients = GetClietnWithSetFilter(_RegionEqual, _RegionNonEqual,
-				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, e);
+			_clients = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual,
+				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, null, e);
 
 			var hash = new Hashtable();
 			var data = new List<ReportData>();
 			Console.WriteLine("всего клиентов {0}", _clients.Count);
 			foreach (var client in _clients)
 			{
+				// проверка клиента на доступность
+				var cl = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual, _PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, client, e);
+				if(cl == null || cl.Count == 0) continue; // возможно, клиент был заблокирован во время подготовки отчета
 				_clientCode = Convert.ToInt32(client);
 				base.GenerateReport(e);
 				InvokeGetActivePrices();

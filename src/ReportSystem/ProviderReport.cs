@@ -57,9 +57,9 @@ namespace Inforoom.ReportSystem
             }
 		}
 
-		public virtual List<ulong> GetClietnWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
+		public virtual List<ulong> GetClientWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
 														List<ulong> PayerEqual, List<ulong> PayerNonEqual,
-														List<ulong> Clients, List<ulong> ClientsNON, ExecuteArgs e)
+														List<ulong> Clients, List<ulong> ClientsNON, ulong? checkClientId, ExecuteArgs e)
 		{
 			var regionalWhere = "(";
 			if (RegionEqual.Count != 0)
@@ -104,9 +104,13 @@ namespace Inforoom.ReportSystem
 			{
 				clientWhere += " AND fc.Id NOT IN " + ConcatWhereIn(ClientsNON);
 			}
+			var clientIdWhere = string.Empty;
+			if(checkClientId != null) {
+				clientIdWhere = String.Format(" AND fc.Id = {0}", checkClientId);
+			}
 			var where = string.Empty;
-			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty))
-			where = regionalWhere + payerWhere + clientWhere;
+			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty) || (clientIdWhere != string.Empty))
+				where = regionalWhere + payerWhere + clientWhere + clientIdWhere;
 			e.DataAdapter.SelectCommand.CommandText = 
 			string.Format(@"SELECT distinct fc.Id FROM future.Clients fc
 							join billing.PayerClients pc on fc.Id = pc.ClientId

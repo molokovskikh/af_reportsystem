@@ -7,7 +7,7 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class IndividualProfileFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore]
 		public void Individual()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.Individual);

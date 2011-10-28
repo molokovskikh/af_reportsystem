@@ -17,9 +17,9 @@ namespace ReportTuner.Test.Functional
 		[Ignore]
 		public void TestOneShortReport()
 		{			
-			using (var browser = new IE("http://localhost:53759/Reports/reports.aspx"))
+			using (var browser = new IE("http://localhost:53759/Reports/GeneralReports.aspx"))
 			{
-				//browser.Visible = true;
+				browser.Visible = true;
 				TableRow row = browser.Table(Find.ByClass("DocumentDataTable HighLightCurrentRow")).TableRows.First();
 				TableRow row2 = (TableRow)row.NextSibling;
 				TableCellCollection cells = row2.OwnTableCells;
