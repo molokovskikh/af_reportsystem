@@ -11,12 +11,12 @@ namespace ReportSystem.Test
 	[TestFixture]
 	class PricesOfCompetitorsReportFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore]
 		public void PricesOfCompetitorsReport()
 		{
 			var type = ReportsTypes.PricesOfCompetitors;
 			var props = TestHelper.LoadProperties(type);
-			var report = new RatingReport(0, "PricesOfCompetitors", Conn, false, ReportFormats.Excel, props);
+			var report = new PricesOfCompetitorsReport(0, "PricesOfCompetitors", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 	}

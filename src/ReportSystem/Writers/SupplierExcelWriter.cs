@@ -103,7 +103,8 @@ namespace Inforoom.ReportSystem.Writers
 						{
 							var tempList = new List<ulong> {value};
 							var namesList = (AssiciateReportParams[reportParam.Key](tempList, e));
-							reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + namesList[0]);
+							if(namesList.Count > 0)
+								reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + namesList[0]);
 						}
 						else
 						{

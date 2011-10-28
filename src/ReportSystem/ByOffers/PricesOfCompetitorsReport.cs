@@ -131,11 +131,16 @@ namespace Inforoom.ReportSystem
 			var hash = new Hashtable();
 			var data = new List<ReportData>();
 			Console.WriteLine("всего клиентов {0}", _clients.Count);
+			var clientsCount = _clients.Count;
+
 			foreach (var client in _clients)
 			{
 				// проверка клиента на доступность
 				var cl = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual, _PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, client, e);
-				if(cl == null || cl.Count == 0) continue; // возможно, клиент был заблокирован во время подготовки отчета
+				if(cl == null || cl.Count == 0) {
+					clientsCount--;
+					continue; // возможно, клиент был заблокирован во время подготовки отчета
+				}
 				_clientCode = Convert.ToInt32(client);
 				base.GenerateReport(e);
 				InvokeGetActivePrices();
@@ -190,7 +195,7 @@ from Usersettings.ActivePrices Prices
 				Console.WriteLine("Код клиента: "+ _clientCode + " Строк в таблице: " + data.Count);
 #endif
 			}
-			ProfileHelper.SpendedTime(string.Format("По {0}ти клиентам запрос выполнен за ", _clients.Count));
+			ProfileHelper.SpendedTime(string.Format("По {0}ти клиентам запрос выполнен за ", clientsCount));
 
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("Code");
@@ -215,7 +220,7 @@ from Usersettings.ActivePrices Prices
 			var costNumber = new List<int>();
 			for (double i = 0.01; i < 0.7; i += 0.1)
 			{
-				var okrugl = Math.Round((i*_clients.Count) + 1);
+				var okrugl = Math.Round((i*clientsCount) + 1);
 				if (okrugl > 1)
 				{
 					if (!costNumber.Contains((int)okrugl))
