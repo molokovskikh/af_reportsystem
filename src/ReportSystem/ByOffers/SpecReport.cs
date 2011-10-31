@@ -387,21 +387,22 @@ group by c.pricecode";
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;
-CREATE temporary table TmpSourceCodes( 
-  ID int(32) unsigned, 
-  PriceCode int(32) unsigned, 
-  RegionCode int(32) unsigned, 
+CREATE temporary table TmpSourceCodes(
+  ID bigint unsigned,
+  PriceCode int(32) unsigned,
+  RegionCode bigint unsigned,
   Code char(20), 
-  BaseCost decimal(8,2) unsigned, 
-  CatalogCode int(32) unsigned, 
-  CodeFirmCr int(32) unsigned, 
-  SynonymCode int(32) unsigned, 
-  SynonymFirmCrCode int(32) unsigned, 
-  key ID(ID), 
-  key CatalogCode(CatalogCode), 
-  key CodeFirmCr(CodeFirmCr), 
-  key SynonymFirmCrCode(SynonymFirmCrCode), 
-  key SynonymCode(SynonymCode))engine=MEMORY PACK_KEYS = 0;";
+  BaseCost decimal(8,2) unsigned,
+  CatalogCode int(32) unsigned,
+  CodeFirmCr int(32) unsigned,
+  SynonymCode int(32) unsigned,
+  SynonymFirmCrCode int(32) unsigned,
+  key ID(ID),
+  key CatalogCode(CatalogCode),
+  key CodeFirmCr(CodeFirmCr),
+  key SynonymFirmCrCode(SynonymFirmCrCode),
+  key SynonymCode(SynonymCode)
+) engine = MEMORY PACK_KEYS = 0;";
 
 			if (EnabledPrice == 0)
 			{
