@@ -41,6 +41,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			ProfileHelper.Next("GenerateReport");
 
 			string db = "ordersold";
+//			string db = "orders";
 #if DEBUG
 	db = "orders";	
 #endif
@@ -80,6 +81,7 @@ from
     inner join farm.regions r on oh.regioncode = r.regioncode
     inner join future.users u on oh.userid = u.id
     inner join future.clients cl on oh.clientcode = cl.id
+	inner join usersettings.retclientsset rcs on cl.id = rcs.clientcode
     inner join future.addresses a on oh.addressid = a.id
     inner join future.intersection fi on fi.clientid = cl.id
         and fi.regionid = oh.regioncode
@@ -91,6 +93,9 @@ where
 
 			if(!String.IsNullOrEmpty(regionsString))
 				selectCommand += String.Format("and oh.regioncode in ({0}) ", regionsString);
+//#if DEBUG
+//		selectCommand += "and u.PayerId <> 921 and oh.deleted = 0 and oh.submited = 1 and rcs.InvisibleOnFirm < 2 and rcs.ServiceClient = 0 ";
+//#endif
 			selectCommand += String.Format("group by {0} order by {1}", groupbyColumns, orderbyColumns);
 
 #if DEBUG

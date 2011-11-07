@@ -235,6 +235,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		private void GetOffersByClient(int clientId)
 		{
 			ProfileHelper.Next("GetOffers for client: " + clientId);
+			Client client = Client.TryFind((uint)clientId);
+			if(client == null) return;
+			if(client.Status == false) return;
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
 			ProfileHelper.WriteLine("Offers count: " + offers.Count);
 			ProfileHelper.Next("ProcessOffers for client: " + clientId);
@@ -288,6 +291,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_Clients = (List<ulong>)getReportParam("Clients");
 			if (_Clients.Count == 0)
 				throw new ReportException("Не установлен параметр \"Список аптек\".");
+			var clients = _Clients.Select(c => Client.TryFind((uint)c)).Where(c => c != null && c.Status == true).ToList();
+			_Clients = clients.Select(c => (ulong)c.Id).ToList();
+			
 			if (_reportParams.ContainsKey("WithoutAssortmentPrice"))
 				WithoutAssortmentPrice = (bool)getReportParam("WithoutAssortmentPrice");
 			if (WithoutAssortmentPrice)
