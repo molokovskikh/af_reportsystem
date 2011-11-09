@@ -504,6 +504,8 @@ select
 
 	c0.Id as AssortmentCoreId,
 	c0.Code as AssortmentCode,
+	c0.CodeCr as AssortmentCodeCr,
+
 	{9} as AssortmentSupplierId,
 	c0.PriceCode as AssortmentPriceId,
 	{10} as AssortmentRegionId,
@@ -555,6 +557,10 @@ and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || 
 			Random random = null;
 			if (noiseSupplierId.HasValue)
 				random = new Random();
+
+#if DEBUG
+			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+#endif
 
 			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
 			{

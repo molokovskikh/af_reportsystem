@@ -14,6 +14,7 @@ namespace Inforoom.ReportSystem.Model
 
 		public ulong CoreId { get; set; }
 		public string Code { get; set; }
+		public string CodeCr { get; set; }
 		public uint SupplierId { get; set; }
 		public uint PriceId { get; set; }
 		public ulong RegionId { get; set; }
@@ -23,6 +24,7 @@ namespace Inforoom.ReportSystem.Model
 
 		public ulong? AssortmentCoreId { get; set; }
 		public string AssortmentCode { get; set; }
+		public string AssortmentCodeCr { get; set; }
 		public uint? AssortmentSupplierId { get; set; }
 		public uint? AssortmentPriceId { get; set; }
 		public ulong? AssortmentRegionId { get; set; }
@@ -58,6 +60,7 @@ namespace Inforoom.ReportSystem.Model
 			{
 				AssortmentCoreId = Convert.ToUInt64(row["AssortmentCoreId"]);
 				AssortmentCode = Convert.ToString(row["AssortmentCode"]);
+				AssortmentCodeCr = Convert.ToString(row["AssortmentCodeCr"]);
 				AssortmentSupplierId = Convert.ToUInt32(row["AssortmentSupplierId"]);
 				AssortmentPriceId = Convert.ToUInt32(row["AssortmentPriceId"]);
 				AssortmentRegionId = Convert.ToUInt64(row["AssortmentRegionId"]);

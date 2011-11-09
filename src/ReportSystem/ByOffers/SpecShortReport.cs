@@ -17,6 +17,7 @@ namespace Inforoom.ReportSystem
 	public class SpecShortReportData
 	{
 		public string Code { get; set; }
+		public string CodeCr { get; set; }
 		public string ProductName { get; set; }
 		public string ProducerName { get; set; }
 
@@ -28,6 +29,7 @@ namespace Inforoom.ReportSystem
 		public SpecShortReportData(Offer offer)
 		{
 			Code = offer.AssortmentCode;
+			CodeCr = offer.AssortmentCodeCr;
 			ProductName = offer.ProductName;
 			ProducerName = offer.ProducerName;
 			MinCost = offer.Cost;
@@ -62,6 +64,8 @@ namespace Inforoom.ReportSystem
 		private Hashtable _hash;
 
 		protected List<ulong> _Clients;
+
+		protected bool _firmCrPosition;
 
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -186,6 +190,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.TableName = "Results";
 
 			dtNewRes.Columns.Add("Code", typeof(string));
+//			if(_firmCrPosition)
+				dtNewRes.Columns.Add("CodeCr", typeof(string));
 			dtNewRes.Columns.Add("FullName", typeof(string));
 			dtNewRes.Columns.Add("FirmCr", typeof(string));
 			dtNewRes.Columns.Add("CustomerCost", typeof(decimal));
@@ -194,6 +200,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.Columns.Add("LeaderName", typeof(string));
 
 			dtNewRes.Columns["Code"].Caption = "Код";
+		//	if(_firmCrPosition)
+				dtNewRes.Columns["CodeCr"].Caption = "Код производителя";
 			dtNewRes.Columns["FullName"].Caption = "Наименование";
 			dtNewRes.Columns["FirmCr"].Caption = "Производитель";
 			dtNewRes.Columns["CustomerCost"].Caption = CustomerFirmName;
@@ -212,6 +220,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			{
 				var newRow = dtNewRes.NewRow();
 				newRow["Code"] = specShortReportData.Code;
+				if(_firmCrPosition)
+					newRow["CodeCr"] = specShortReportData.CodeCr;
+
 				newRow["FullName"] = specShortReportData.ProductName;
 				newRow["FirmCr"] = specShortReportData.ProducerName;
 
@@ -288,12 +299,17 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
+			if (reportParamExists("FirmCrPosition")) // показывать код изготовителя
+				_firmCrPosition = (bool)_reportParams["FirmCrPosition"];
+			else
+				_firmCrPosition = false;
+			
 			_Clients = (List<ulong>)getReportParam("Clients");
-			if (_Clients.Count == 0)
-				throw new ReportException("Не установлен параметр \"Список аптек\".");
 			var clients = _Clients.Select(c => Client.TryFind((uint)c)).Where(c => c != null && c.Status == true).ToList();
 			_Clients = clients.Select(c => (ulong)c.Id).ToList();
-			
+			if (_Clients.Count == 0)
+				throw new ReportException("Не установлен параметр \"Список аптек\".");
+
 			if (_reportParams.ContainsKey("WithoutAssortmentPrice"))
 				WithoutAssortmentPrice = (bool)getReportParam("WithoutAssortmentPrice");
 			if (WithoutAssortmentPrice)
@@ -303,8 +319,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		protected override void Calculate()
 		{
 			base.Calculate();
-			DataTable dtNewRes = _dsReport.Tables["Results"].DefaultView.ToTable("Results", false,
-				new[] { "Code", "FullName", "FirmCr", "CustomerCost", "CustomerQuantity", "MinCost", "LeaderName" });
+			DataTable dtNewRes;
+				dtNewRes = _dsReport.Tables["Results"].DefaultView.ToTable("Results", false,
+					new[] { "Code", "CodeCr", "FullName", "FirmCr", "CustomerCost", "CustomerQuantity", "MinCost", "LeaderName" });
+			
 			foreach (DataRow drRes in dtNewRes.Rows)
 				if (!drRes["LeaderName"].Equals("+"))
 					drRes["LeaderName"] = String.Empty;
@@ -333,25 +351,28 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtExport.Rows[0].Delete(); // ибо они пустые, ибо оставлены под шапку в Excel
 
 			dtExport.Columns[0].ColumnName = "CODE";
-			dtExport.Columns[1].ColumnName = "PRODUCT";
-			dtExport.Columns[2].ColumnName = "PRODUCER";
-			dtExport.Columns[3].ColumnName = "PRICECOST";
-			dtExport.Columns[4].ColumnName = "QUANTITY";
-			dtExport.Columns[5].ColumnName = "MINCOST";
-			dtExport.Columns[6].ColumnName = "LEADER";
+			dtExport.Columns[1].ColumnName = "CODECR";
+			dtExport.Columns[2].ColumnName = "PRODUCT";
+			dtExport.Columns[3].ColumnName = "PRODUCER";
+			dtExport.Columns[4].ColumnName = "PRICECOST";
+			dtExport.Columns[5].ColumnName = "QUANTITY";
+			dtExport.Columns[6].ColumnName = "MINCOST";
+			dtExport.Columns[7].ColumnName = "LEADER";
 
 			if (!WithoutAssortmentPrice)
 			{
 				if ((_reportType != 2) && (_reportType != 4))
-					dtExport.Columns.Remove(dtExport.Columns[4]);
+					dtExport.Columns.Remove(dtExport.Columns[5]);
 			}
 			else
 			{
-				dtExport.Columns.Remove(dtExport.Columns[6].ColumnName);
+				dtExport.Columns.Remove(dtExport.Columns[7].ColumnName);
+				dtExport.Columns.Remove(dtExport.Columns[5].ColumnName);
 				dtExport.Columns.Remove(dtExport.Columns[4].ColumnName);
-				dtExport.Columns.Remove(dtExport.Columns[3].ColumnName);
 				dtExport.Columns.Remove(dtExport.Columns[0].ColumnName);
 			}
+			if(!_firmCrPosition)
+				dtExport.Columns.Remove(dtExport.Columns[1].ColumnName);
 
 			base.DataTableToDbf(dtExport, fileName);
 		}

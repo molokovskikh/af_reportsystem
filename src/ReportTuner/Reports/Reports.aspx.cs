@@ -406,7 +406,7 @@ SET
 			report.ReportFileName = tbReportFileName.Text;
 			report.ReportArchName = tbReportArchName.Text;
 			report.Format = ReportFormatDD.Text;
-			uint newRecipientId = Convert.ToUInt32(Recipients.SelectedValue);
+//			uint newRecipientId = Convert.ToUInt32(Recipients.SelectedValue);
 //!!!			/*if (newRecipientId != report.Client.Id)
 				/*report.FirmCode = newRecipientId;*/
 
