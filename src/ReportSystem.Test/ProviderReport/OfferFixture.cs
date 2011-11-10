@@ -38,6 +38,7 @@ namespace ReportSystem.Test.ProviderReport
 
 			_dataTable.Columns.Add("AssortmentCoreId", typeof(ulong));
 			_dataTable.Columns.Add("AssortmentCode", typeof(string));
+			_dataTable.Columns.Add("AssortmentCodeCr", typeof (string));
 			_dataTable.Columns.Add("AssortmentSupplierId", typeof(uint));
 			_dataTable.Columns.Add("AssortmentPriceId", typeof(uint));
 			_dataTable.Columns.Add("AssortmentRegionId", typeof(ulong));
