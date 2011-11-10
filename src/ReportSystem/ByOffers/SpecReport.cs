@@ -42,6 +42,8 @@ namespace Inforoom.ReportSystem
 
 		protected bool WithoutAssortmentPrice;
 
+		protected bool _showCodeCr = false;
+
 		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -184,6 +186,8 @@ group by c.pricecode";
 			_dsReport.Tables.Add(dtRes);
 			dtRes.Columns.Add("Code");
 			dtRes.Columns["Code"].Caption = "Код";
+			dtRes.Columns.Add("CodeCr");
+			dtRes.Columns["CodeCr"].Caption = "Код производителя";
 			dtRes.Columns.Add("FullName");
 			dtRes.Columns["FullName"].Caption = "Наименование";
 			dtRes.Columns.Add("FirmCr");
@@ -635,25 +639,32 @@ order by FullName, FirmCr";
 					((Range)ws.Columns[1, Type.Missing]).AutoFit();
 				else
 					((Range)ws.Cells[tableBeginRowIndex, 1]).ColumnWidth = 0;
+
+				if(_showCodeCr)
+					((Range)ws.Columns[2, Type.Missing]).AutoFit();
+				if(!_showCodeCr)
+					((Range)ws.Cells[tableBeginRowIndex, 2]).ColumnWidth = 0;
+
+
 				//Наименование
-				((Range)ws.Cells[tableBeginRowIndex, 2]).ColumnWidth = 20;
+				((Range)ws.Cells[tableBeginRowIndex, 3]).ColumnWidth = 20;
 				//Производитель
-				((Range)ws.Cells[tableBeginRowIndex, 3]).ColumnWidth = 10;
+				((Range)ws.Cells[tableBeginRowIndex, 4]).ColumnWidth = 10;
 				//Цена прайс-листа
 				if (WithoutAssortmentPrice)
-					((Range)ws.Cells[tableBeginRowIndex, 4]).ColumnWidth = 0;
+					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 0;
 				//Количество
 				if (!WithoutAssortmentPrice && (_reportType == 2 || _reportType == 4))
-					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 4;
+					((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 4;
 				else
-					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 0;
+					((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 0;
 				//min
-				((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 6;
+				((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 6;
 				//Лидер
 				if (!WithoutAssortmentPrice)
-					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 9;
+					((Range)ws.Cells[tableBeginRowIndex, 8]).ColumnWidth = 9;
 				else
-					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 0;
+					((Range)ws.Cells[tableBeginRowIndex, 8]).ColumnWidth = 0;
 
 				//Форматирование заголовков прайс-листов
 				FormatLeaderAndPrices(ws);
@@ -721,19 +732,19 @@ order by FullName, FirmCr";
 
 		protected virtual void FormatLeaderAndPrices(_Worksheet ws)
 		{
-			int ColumnPrefix = 12;
+			int ColumnPrefix = 13;
 			//Разница
-			((Range)ws.Cells[3, 8]).ColumnWidth = 6;
-			ws.Cells[3, 8] = "Разница";
+			((Range)ws.Cells[3, 9]).ColumnWidth = 6;
+			ws.Cells[3, 9] = "Разница";
 			//% разницы
-			((Range)ws.Cells[3, 9]).ColumnWidth = 4;
-			ws.Cells[3, 9] = "% разницы";
+			((Range)ws.Cells[3, 10]).ColumnWidth = 4;
+			ws.Cells[3, 10] = "% разницы";
 			//средняя
-			((Range)ws.Cells[3, 10]).ColumnWidth = 6;
-			ws.Cells[3, 10] = "Средняя цена";
-			//max
 			((Range)ws.Cells[3, 11]).ColumnWidth = 6;
-			ws.Cells[3, 11] = "Макс. цена";
+			ws.Cells[3, 11] = "Средняя цена";
+			//max
+			((Range)ws.Cells[3, 12]).ColumnWidth = 6;
+			ws.Cells[3, 12] = "Макс. цена";
 
 			int PriceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)

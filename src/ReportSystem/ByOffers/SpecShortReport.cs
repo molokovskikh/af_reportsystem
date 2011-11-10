@@ -65,8 +65,6 @@ namespace Inforoom.ReportSystem
 
 		protected List<ulong> _Clients;
 
-		protected bool _firmCrPosition;
-
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
@@ -190,8 +188,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.TableName = "Results";
 
 			dtNewRes.Columns.Add("Code", typeof(string));
-//			if(_firmCrPosition)
-				dtNewRes.Columns.Add("CodeCr", typeof(string));
+			dtNewRes.Columns.Add("CodeCr", typeof(string));
 			dtNewRes.Columns.Add("FullName", typeof(string));
 			dtNewRes.Columns.Add("FirmCr", typeof(string));
 			dtNewRes.Columns.Add("CustomerCost", typeof(decimal));
@@ -200,8 +197,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.Columns.Add("LeaderName", typeof(string));
 
 			dtNewRes.Columns["Code"].Caption = "Код";
-		//	if(_firmCrPosition)
-				dtNewRes.Columns["CodeCr"].Caption = "Код производителя";
+			dtNewRes.Columns["CodeCr"].Caption = "Код производителя";
 			dtNewRes.Columns["FullName"].Caption = "Наименование";
 			dtNewRes.Columns["FirmCr"].Caption = "Производитель";
 			dtNewRes.Columns["CustomerCost"].Caption = CustomerFirmName;
@@ -220,7 +216,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			{
 				var newRow = dtNewRes.NewRow();
 				newRow["Code"] = specShortReportData.Code;
-				if(_firmCrPosition)
+				if(_showCodeCr)
 					newRow["CodeCr"] = specShortReportData.CodeCr;
 
 				newRow["FullName"] = specShortReportData.ProductName;
@@ -299,10 +295,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
-			if (reportParamExists("FirmCrPosition")) // показывать код изготовителя
-				_firmCrPosition = (bool)_reportParams["FirmCrPosition"];
+			if (reportParamExists("ShowCodeCr")) // показывать код изготовителя
+				_showCodeCr = (bool)_reportParams["ShowCodeCr"];
 			else
-				_firmCrPosition = false;
+				_showCodeCr = false;
 			
 			_Clients = (List<ulong>)getReportParam("Clients");
 			var clients = _Clients.Select(c => Client.TryFind((uint)c)).Where(c => c != null && c.Status == true).ToList();
@@ -350,30 +346,27 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtExport.Rows[0].Delete(); // обрезаем две первые строчки
 			dtExport.Rows[0].Delete(); // ибо они пустые, ибо оставлены под шапку в Excel
 
-			dtExport.Columns[0].ColumnName = "CODE";
-			dtExport.Columns[1].ColumnName = "CODECR";
-			dtExport.Columns[2].ColumnName = "PRODUCT";
-			dtExport.Columns[3].ColumnName = "PRODUCER";
-			dtExport.Columns[4].ColumnName = "PRICECOST";
-			dtExport.Columns[5].ColumnName = "QUANTITY";
-			dtExport.Columns[6].ColumnName = "MINCOST";
-			dtExport.Columns[7].ColumnName = "LEADER";
+			dtExport.Columns["Code"].ColumnName = "CODE";
+			dtExport.Columns["CodeCr"].ColumnName = "CODECR";
+			dtExport.Columns["FullName"].ColumnName = "PRODUCT";
+			dtExport.Columns["FirmCr"].ColumnName = "PRODUCER";
+			dtExport.Columns["CustomerCost"].ColumnName = "PRICECOST";
+			dtExport.Columns["CustomerQuantity"].ColumnName = "QUANTITY";
+			dtExport.Columns["MinCost"].ColumnName = "MINCOST";
+			dtExport.Columns["LeaderName"].ColumnName = "LEADER";
 
-			if (!WithoutAssortmentPrice)
-			{
+			if (!WithoutAssortmentPrice) {
 				if ((_reportType != 2) && (_reportType != 4))
-					dtExport.Columns.Remove(dtExport.Columns[5]);
+					dtExport.Columns.Remove("QUANTITY");
 			}
-			else
-			{
-				dtExport.Columns.Remove(dtExport.Columns[7].ColumnName);
-				dtExport.Columns.Remove(dtExport.Columns[5].ColumnName);
-				dtExport.Columns.Remove(dtExport.Columns[4].ColumnName);
-				dtExport.Columns.Remove(dtExport.Columns[0].ColumnName);
+			else {
+				dtExport.Columns.Remove("LEADER");
+				dtExport.Columns.Remove("QUANTITY");
+				dtExport.Columns.Remove("PRICECOST");
+				dtExport.Columns.Remove("CODE");
 			}
-			if(!_firmCrPosition)
-				dtExport.Columns.Remove(dtExport.Columns[1].ColumnName);
-
+			if(!_showCodeCr)
+				dtExport.Columns.Remove("CODECR");
 			base.DataTableToDbf(dtExport, fileName);
 		}
 	}
