@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Data;
 using System.Threading;
 
@@ -32,13 +32,15 @@ namespace Inforoom.ReportSystem.Model
 		public float? AssortmentRealCost { get; set; }
 		public float? AssortmentCost { get; set; }
 
+//		public string CodeWithoutProducer { get; set; }  // (С‚СЂРµР±РѕРІР°РЅРёРµ 6937)
+
 		public Offer(IDataRecord row, uint? noiseSupplierId, Random random)
 		{
 			if (row == null)
 				throw new ArgumentNullException("row");
 
 			if (noiseSupplierId.HasValue && random == null)
-				throw new ArgumentNullException("random", "При установленном параметре noiseSupplierId не установлен параметр random: генератор случайных чисел");
+				throw new ArgumentNullException("random", "РџСЂРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј РїР°СЂР°РјРµС‚СЂРµ noiseSupplierId РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїР°СЂР°РјРµС‚СЂ random: РіРµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»");
 
 			CatalogId = Convert.ToUInt32(row["CatalogId"]);
 			ProductId = Convert.ToUInt32(row["ProductId"]);

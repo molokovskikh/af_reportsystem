@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
@@ -65,10 +65,12 @@ namespace Inforoom.ReportSystem
 
 		protected List<ulong> _Clients;
 
+		protected bool _codesWithoutProducer;
+
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
-			reportCaptionPreffix = "Отчет по минимальным ценам";
+			reportCaptionPreffix = "РћС‚С‡РµС‚ РїРѕ РјРёРЅРёРјР°Р»СЊРЅС‹Рј С†РµРЅР°Рј";
 			_reportData = new List<SpecShortReportData>();
 			_hash = new Hashtable();
 		}
@@ -122,9 +124,9 @@ order by supps.Name";
 			}
 			else
 			{
-				//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
+				//Р•СЃР»Рё РїСЂР°Р№СЃ-Р»РёСЃС‚ СЂР°РІРµРЅ 0, С‚Рѕ РѕРЅ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ, РїРѕСЌС‚РѕРјСѓ Р±РµСЂРµРј РїСЂР°Р№СЃ-Р»РёСЃС‚ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєР»РёРµРЅС‚Р°, РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ РґРµР»Р°РµС‚СЃСЏ РѕС‚С‡РµС‚
 				if (_priceCode == 0)
-					throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
+					throw new ReportException("Р”Р»СЏ СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РЅРµ СѓРєР°Р·Р°РЅ РїР°СЂР°РјРµС‚СЂ \"РџСЂР°Р№СЃ-Р»РёСЃС‚\".");
 				
                 DataRow drPrice = MySqlHelper.ExecuteDataRow(
                     ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
@@ -144,12 +146,12 @@ and regions.RegionCode = suppliers.HomeRegion
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
 
 				if (drPrice == null)
-					throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+					throw new ReportException(String.Format("РќРµ РЅР°Р№РґРµРЅ РїСЂР°Р№СЃ-Р»РёСЃС‚ СЃ РєРѕРґРѕРј {0}.", _priceCode));
 
 				SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
 				CustomerFirmName = drPrice["FirmName"].ToString();
 
-				//Проверка актуальности прайс-листа
+				//РџСЂРѕРІРµСЂРєР° Р°РєС‚СѓР°Р»СЊРЅРѕСЃС‚Рё РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
 				int ActualPrice = Convert.ToInt32(
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
@@ -169,7 +171,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 						new MySqlParameter("?SourcePC", SourcePC)));
 #if !DEBUG
 				if (ActualPrice == 0)
-					throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
+					throw new ReportException(String.Format("РџСЂР°Р№СЃ-Р»РёСЃС‚ {0} ({1}) РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р°РєС‚СѓР°Р»СЊРЅС‹Рј.", CustomerFirmName, SourcePC));
 #endif
 			}
 
@@ -196,14 +198,14 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.Columns.Add("MinCost", typeof(decimal));
 			dtNewRes.Columns.Add("LeaderName", typeof(string));
 
-			dtNewRes.Columns["Code"].Caption = "Код";
-			dtNewRes.Columns["CodeCr"].Caption = "Код производителя";
-			dtNewRes.Columns["FullName"].Caption = "Наименование";
-			dtNewRes.Columns["FirmCr"].Caption = "Производитель";
+			dtNewRes.Columns["Code"].Caption = "РљРѕРґ";
+			dtNewRes.Columns["CodeCr"].Caption = "РљРѕРґ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ";
+			dtNewRes.Columns["FullName"].Caption = "РќР°РёРјРµРЅРѕРІР°РЅРёРµ";
+			dtNewRes.Columns["FirmCr"].Caption = "РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ";
 			dtNewRes.Columns["CustomerCost"].Caption = CustomerFirmName;
-			dtNewRes.Columns["CustomerQuantity"].Caption = "Количество";
-			dtNewRes.Columns["MinCost"].Caption = "Мин. цена";
-			dtNewRes.Columns["LeaderName"].Caption = "Лидер";
+			dtNewRes.Columns["CustomerQuantity"].Caption = "РљРѕР»РёС‡РµСЃС‚РІРѕ";
+			dtNewRes.Columns["MinCost"].Caption = "РњРёРЅ. С†РµРЅР°";
+			dtNewRes.Columns["LeaderName"].Caption = "Р›РёРґРµСЂ";
 
 
 			var emptyRow = dtNewRes.NewRow();
@@ -246,6 +248,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if(client == null) return;
 			if(client.Status == false) return;
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
+
+//			var assortmentGroups = offers.Where(o => o.AssortmentCoreId.HasValue).GroupBy(o => o.ProductId); // РІРµСЃСЊ Р°СЃСЃРѕСЂС‚РёРјРµРЅС‚ РіСЂСѓРїРїРёСЂСѓРµРј РїРѕ productid (С‚СЂРµР±РѕРІР°РЅРёРµ 6937)
+
 			ProfileHelper.WriteLine("Offers count: " + offers.Count);
 			ProfileHelper.Next("ProcessOffers for client: " + clientId);
 			var groups = offers.GroupBy(o => GetKey(o));
@@ -253,6 +258,19 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			{
 				var ordered = group.OrderBy(o => o.Cost);
 				var minOffer = ordered.First();
+
+/* (С‚СЂРµР±РѕРІР°РЅРёРµ 6937)
+				if(_reportType > 2 && _codesWithoutProducer) { // РѕС‚С‡РµС‚ СЃ СѓС‡РµС‚РѕРј РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ Рё РІС‹Р±СЂР°РЅР° РѕРїС†РёСЏ "Р’С‹СЃС‚Р°РІР»РµРЅРёРµ РєРѕРґРѕРІ Р±РµР· СѓС‡РµС‚Р° РёР·РіРѕС‚РѕРІРёС‚РµР»СЏ."
+					// РЅР°С…РѕРґРёРј РіСЂСѓРїРїСѓ СЃ РІС‹Р±СЂР°РЅРЅС‹Рј productId
+					var assortmentGroup = assortmentGroups.Where(g => g.Key == minOffer.ProductId).FirstOrDefault();
+					var assortment = assortmentGroup.FirstOrDefault(); // Р±РµСЂРµРј РїРµСЂРІС‹Р№ (РµСЃР»Рё РєРѕРґС‹ РїСЂРµРѕР±СЂР°Р·СѓСЋС‚СЃСЏ РІ С‡РёСЃР»Р° - РЅСѓР¶РЅРѕ Р±СЂР°С‚СЊ РјРёРЅ. Р·РЅР°С‡РµРЅРёРµ)
+					if(assortment != null) {
+						var assortmentCode = assortment.Code;
+						if(!String.IsNullOrEmpty(assortmentCode))
+							minOffer.CodeWithoutProducer = assortmentCode;
+					}
+				}
+ */
 				var item = FindItem(_hash, minOffer, _reportData);
 				item.UpdateMinCost(minOffer);
 
@@ -295,7 +313,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
-			if (reportParamExists("ShowCodeCr")) // показывать код изготовителя
+			if (reportParamExists("ShowCodeCr")) // РїРѕРєР°Р·С‹РІР°С‚СЊ РєРѕРґ РёР·РіРѕС‚РѕРІРёС‚РµР»СЏ
 				_showCodeCr = (bool)_reportParams["ShowCodeCr"];
 			else
 				_showCodeCr = false;
@@ -304,7 +322,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			var clients = _Clients.Select(c => Client.TryFind((uint)c)).Where(c => c != null && c.Status == true).ToList();
 			_Clients = clients.Select(c => (ulong)c.Id).ToList();
 			if (_Clients.Count == 0)
-				throw new ReportException("Не установлен параметр \"Список аптек\".");
+				throw new ReportException("РќРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїР°СЂР°РјРµС‚СЂ \"РЎРїРёСЃРѕРє Р°РїС‚РµРє\".");
 
 			if (_reportParams.ContainsKey("WithoutAssortmentPrice"))
 				WithoutAssortmentPrice = (bool)getReportParam("WithoutAssortmentPrice");
@@ -328,7 +346,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 		protected override void FormatLeaderAndPrices(MSExcel._Worksheet ws)
 		{
-			//Выравниваем все колонки по ширине
+			//Р’С‹СЂР°РІРЅРёРІР°РµРј РІСЃРµ РєРѕР»РѕРЅРєРё РїРѕ С€РёСЂРёРЅРµ
 			//ws.Columns.AutoFit();
 			//((MSExcel.Range)ws.Columns[1, _dsReport.Tables["Results"].Columns.Count]).AutoFit();
 		}
@@ -343,8 +361,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 		protected override void DataTableToDbf(DataTable dtExport, string fileName)
 		{
-			dtExport.Rows[0].Delete(); // обрезаем две первые строчки
-			dtExport.Rows[0].Delete(); // ибо они пустые, ибо оставлены под шапку в Excel
+			dtExport.Rows[0].Delete(); // РѕР±СЂРµР·Р°РµРј РґРІРµ РїРµСЂРІС‹Рµ СЃС‚СЂРѕС‡РєРё
+			dtExport.Rows[0].Delete(); // РёР±Рѕ РѕРЅРё РїСѓСЃС‚С‹Рµ, РёР±Рѕ РѕСЃС‚Р°РІР»РµРЅС‹ РїРѕРґ С€Р°РїРєСѓ РІ Excel
 
 			dtExport.Columns["Code"].ColumnName = "CODE";
 			dtExport.Columns["CodeCr"].ColumnName = "CODECR";
