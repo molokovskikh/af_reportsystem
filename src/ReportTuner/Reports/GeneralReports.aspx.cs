@@ -544,9 +544,8 @@ select last_insert_id() as GRLastInsertID;
 				{
 					GeneralReport _report = GeneralReport.Find(_updatedReportId);
 					ScheduleHelper.GetTask(taskService, reportsFolder, _updatedReportId, _report.Comment, "GR");
-					ScheduleHelper.SetTaskEnableStatus(_updatedReportId, _report.Allow, "GR");
+					ScheduleHelper.SetTaskEnableStatus(_updatedReportId, _report.Allow, "GR"); // включаем/выключаем отчет
 				}
-
 				foreach (ulong _deletedReportId in _deletedReports)
 					ScheduleHelper.DeleteTask(reportsFolder, _deletedReportId, "GR");
 			}

@@ -16,7 +16,7 @@ namespace Inforoom.ReportSystem
 	class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
-
+		public static GeneralReport generalReport { get; private set; }
 		//Выбираем отчеты из базы
 		static DataTable GetGeneralReports(ReportsExecuteArgs e)
 		{
@@ -95,6 +95,7 @@ and cr.generalreportcode = " + generalReportId;
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
 										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString());
+									generalReport = gr;
 									_log.DebugFormat("Запуск отчета {0}", gr._generalReportID);
 									gr.ProcessReports();
 									_log.DebugFormat("Отчет {0} выполнился успешно", gr._generalReportID);

@@ -368,6 +368,15 @@ where
 
 			AddRow(dataTable, row);
 
+			bool cut = false;
+			while(dataTable.Columns.Count >= 256) {
+				dataTable.Columns.RemoveAt(255);
+				cut = true;
+			}
+			if(cut) {
+				Mailer.MailReportNotify("При формировании отчета произошло урезание количества столбцов из-за превышения допустимого количества в 256", Program.generalReport._payer, Program.generalReport._generalReportID, _reportCode);
+			}
+
 			return dataTable;
 		}
 

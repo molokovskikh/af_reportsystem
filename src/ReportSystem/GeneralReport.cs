@@ -55,7 +55,7 @@ namespace Inforoom.ReportSystem
 
 		private ReportFormats Format;
 
-		private string _payer;
+		public string _payer;
 
         private ILog Logger;
 
@@ -223,7 +223,7 @@ where GeneralReport = ?GeneralReport;";
 					if(ex is ReportException)
 					{		
 						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), _payer, _generalReportID, bs.ReportCode, bs.ReportCaption);
+						Mailer.MailReportErr(ex.ToString(), _payer, _generalReportID, bs.ReportCode);
 						continue; // выполняем следующий отчет
 					}
 					throw; // передаем наверх

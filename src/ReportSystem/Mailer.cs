@@ -47,10 +47,16 @@ namespace Inforoom.ReportSystem
 		}
 
 		//Сообщение об ошибке, возникшей в результате построения одного из отчетов (листов)
-		public static void MailReportErr(string errDesc, string shortName, ulong generalReportCode, ulong reportCode, ulong reportCaption)
+		public static void MailReportErr(string errDesc, string shortName, ulong generalReportCode, ulong reportCode)
 		{
 			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при формировании одного из подотчетов для " + shortName,
-				String.Format("Код отчета : {0}\r\nКод подотчета: {1}\r\nПри формировании подотчета '{2}' возникла ошибка : {3}", generalReportCode, reportCode, reportCaption, errDesc));
+				String.Format("Код отчета : {0}\r\nКод подотчета: {1}\r\nПри формировании подотчета возникла ошибка : {2}", generalReportCode, reportCode, errDesc));
+		}
+
+		public static void MailReportNotify(string msg, string shortName, ulong generalReportCode, ulong reportCode)
+		{
+			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Уведомление о событии при формировании отчета для " + shortName,
+				String.Format("Код отчета : {0}\r\nКод подотчета: {1}\r\nУведомление : {2}", generalReportCode, reportCode, msg));
 		}
 	}
 }
