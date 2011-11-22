@@ -45,5 +45,12 @@ namespace Inforoom.ReportSystem
 			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при запуске отчетa для " + shortName,
 				String.Format("Код отчета : {0}\r\nОшибка : {1}", generalReportCode, errDesc));
 		}
+
+		//Сообщение об ошибке, возникшей в результате построения одного из отчетов (листов)
+		public static void MailReportErr(string errDesc, string shortName, ulong generalReportCode, ulong reportCode, ulong reportCaption)
+		{
+			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при формировании одного из подотчетов для " + shortName,
+				String.Format("Код отчета : {0}\r\nКод подотчета: {1}\r\nПри формировании подотчета '{2}' возникла ошибка : {3}", generalReportCode, reportCode, reportCaption, errDesc));
+		}
 	}
 }
