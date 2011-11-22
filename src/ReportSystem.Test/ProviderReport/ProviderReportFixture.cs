@@ -1,11 +1,15 @@
-using System;
+п»їusing System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Diagnostics;
+using Castle.ActiveRecord;
+using Castle.ActiveRecord.Framework.Config;
 using Common.Tools;
 using ExecuteTemplate;
 using Inforoom.ReportSystem;
+using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 
@@ -87,10 +91,89 @@ from
 		}
 	}
 
+	public class SpecShortReportFake : SpecShortReport
+	{
+		public List<SpecShortReportData> ReportData { get { return _reportData; } }
+
+		//public SpecShortReportFake(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+//			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public SpecShortReportFake()
+		{
+			_reportData = new List<SpecShortReportData>();
+			_hash = new Hashtable();
+		}
+
+		public override void ReadReportParams()
+		{
+			_reportType = 3; // СЃ СѓС‡РµС‚РѕРј РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ Рё Р±РµР· РєРѕР»-РІР°
+			_showCodeCr = true;
+			_codesWithoutProducer = true;
+		}
+
+		public override List<Offer> GetOffers(int clientId, uint sourcePriceCode, uint? noiseSupplierId, bool allAssortment, bool byCatalog, bool withProducers)
+		{
+			var result = new List<Offer>();
+			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 10, AssortmentCoreId = 1, AssortmentCode = "4", AssortmentCodeCr = "1"});
+			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 3, AssortmentCoreId = 1, AssortmentCode = "2", AssortmentCodeCr = "3"});
+			result.Add(new Offer {ProductId = 1, ProducerId = 2, Cost = 1, AssortmentCoreId = 2, AssortmentCode = "5", AssortmentCodeCr = "1"});
+			result.Add(new Offer {ProductId = 2, ProducerId = 2, Cost = 5, AssortmentCoreId = 3, AssortmentCode = "7", AssortmentCodeCr = "4"});
+			result.Add(new Offer {ProductId = 3, ProducerId = 2, Cost = 8, AssortmentCoreId = 4, AssortmentCode = "15", AssortmentCodeCr = "4"});
+			result.Add(new Offer {ProductId = 3, ProducerId = 8, Cost = 5, AssortmentCoreId = 5, AssortmentCode = "11", AssortmentCodeCr = "4"});
+
+			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 5, AssortmentCode = null, AssortmentCodeCr = null});
+			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 2, AssortmentCode = null, AssortmentCodeCr = null});
+			result.Add(new Offer {ProductId = 1, ProducerId = 2, Cost = 5, AssortmentCode = null, AssortmentCodeCr = null});
+			result.Add(new Offer {ProductId = 2, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null});
+			result.Add(new Offer {ProductId = 3, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null});
+			result.Add(new Offer {ProductId = 5, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null});
+
+			return result;
+		}
+
+		public void GetOffersByClient(int clientId)
+		{
+			base.GetOffersByClient(clientId);
+		}
+	}
+
 	[TestFixture]
 	public class ProviderReportFixture : BaseProfileFixture
 	{
-		[Test, Ignore("Это временный тест для проверки скорости выборки предложений")]
+		[Test]
+		public void GetOffersByClientIfCodesWithoutProducerTest()
+		{
+			if (!ActiveRecordStarter.IsInitialized)
+				ActiveRecordStarter.Initialize( typeof(Client).Assembly, ActiveRecordSectionHandler.Instance);
+			var report = new SpecShortReportFake();
+			report.ReadReportParams();
+			using(new SessionScope()) {
+				var client = Client.Queryable.FirstOrDefault();
+				report.GetOffersByClient((int) client.Id);
+			}
+			Assert.That(report.ReportData.Count, Is.EqualTo(10));
+			
+			Assert.That(report.ReportData[0].Code, Is.EqualTo("2"));
+			Assert.That(report.ReportData[0].CodeWithoutProducer, Is.EqualTo("2"));
+			Assert.That(report.ReportData[1].Code, Is.EqualTo("5"));
+			Assert.That(report.ReportData[1].CodeWithoutProducer, Is.EqualTo("2"));
+			Assert.That(report.ReportData[2].Code, Is.EqualTo("7"));
+			Assert.That(report.ReportData[2].CodeWithoutProducer, Is.EqualTo("7"));
+			Assert.That(report.ReportData[3].Code, Is.EqualTo("15"));
+			Assert.That(report.ReportData[3].CodeWithoutProducer, Is.EqualTo("11"));
+			Assert.That(report.ReportData[4].Code, Is.EqualTo("11"));
+			Assert.That(report.ReportData[4].CodeWithoutProducer, Is.EqualTo("11"));
+
+			Assert.That(report.ReportData[5].Code, Is.Null);
+			Assert.That(report.ReportData[5].CodeWithoutProducer, Is.EqualTo("2"));
+			Assert.That(report.ReportData[6].Code, Is.Null);
+			Assert.That(report.ReportData[6].CodeWithoutProducer, Is.EqualTo("2"));
+			Assert.That(report.ReportData[7].Code, Is.Null);
+			Assert.That(report.ReportData[7].CodeWithoutProducer, Is.EqualTo("7"));
+			Assert.That(report.ReportData[8].Code, Is.Null);
+			Assert.That(report.ReportData[8].CodeWithoutProducer, Is.EqualTo("11"));
+		}
+
+		[Test, Ignore("Р­С‚Рѕ РІСЂРµРјРµРЅРЅС‹Р№ С‚РµСЃС‚ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃРєРѕСЂРѕСЃС‚Рё РІС‹Р±РѕСЂРєРё РїСЂРµРґР»РѕР¶РµРЅРёР№")]
 		public void CheckSpeedLoad()
 		{
 			// Create new stopwatch
@@ -149,8 +232,8 @@ from
 			var dsClients = MySqlHelper.ExecuteDataset(
 				Conn,
 				sql);
-			Assert.That(dsClients.Tables.Count, Is.EqualTo(1), "Не выбрали клиентов, удовлетворяющих условию теста");
-			Assert.That(dsClients.Tables[0].Rows.Count, Is.EqualTo(rowCount), "Не выбрали клиентов, удовлетворяющих условию теста");
+			Assert.That(dsClients.Tables.Count, Is.EqualTo(1), "РќРµ РІС‹Р±СЂР°Р»Рё РєР»РёРµРЅС‚РѕРІ, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёС… СѓСЃР»РѕРІРёСЋ С‚РµСЃС‚Р°");
+			Assert.That(dsClients.Tables[0].Rows.Count, Is.EqualTo(rowCount), "РќРµ РІС‹Р±СЂР°Р»Рё РєР»РёРµРЅС‚РѕРІ, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёС… СѓСЃР»РѕРІРёСЋ С‚РµСЃС‚Р°");
 
 			return dsClients;
 		}
@@ -176,7 +259,7 @@ from
 			Assert.That(names, Is.EqualTo(list.Select(c => c.Name).Implode()));
 		}
 
-		[Test(Description = "Проверяем работу метода с новыми клиентами")]
+		[Test(Description = "РџСЂРѕРІРµСЂСЏРµРј СЂР°Р±РѕС‚Сѓ РјРµС‚РѕРґР° СЃ РЅРѕРІС‹РјРё РєР»РёРµРЅС‚Р°РјРё")]
 		public void CheckClientNamesWithNewClients()
 		{
 			var dsClients = GetClients(
@@ -196,8 +279,8 @@ limit 1"
 			CheckClientsName(dsClients.Tables[0]);
 		}
 
-		[Test(Description = "Проверяем работу метода со старыми клиентами")]
-        [Ignore("Все клиенты перенесены в future.clients")]
+		[Test(Description = "РџСЂРѕРІРµСЂСЏРµРј СЂР°Р±РѕС‚Сѓ РјРµС‚РѕРґР° СЃРѕ СЃС‚Р°СЂС‹РјРё РєР»РёРµРЅС‚Р°РјРё")]
+        [Ignore("Р’СЃРµ РєР»РёРµРЅС‚С‹ РїРµСЂРµРЅРµСЃРµРЅС‹ РІ future.clients")]
 		public void CheckClientNamesWithOldClients()
 		{
 			var dsClients = GetClients(
@@ -218,7 +301,7 @@ limit 1"
 			CheckClientsName(dsClients.Tables[0]);
 		}
 
-		[Test(Description = "Проверяем работу метода с новыми клиентами, для которых существуют старые клиенты с другим именем")]
+		[Test(Description = "РџСЂРѕРІРµСЂСЏРµРј СЂР°Р±РѕС‚Сѓ РјРµС‚РѕРґР° СЃ РЅРѕРІС‹РјРё РєР»РёРµРЅС‚Р°РјРё, РґР»СЏ РєРѕС‚РѕСЂС‹С… СЃСѓС‰РµСЃС‚РІСѓСЋС‚ СЃС‚Р°СЂС‹Рµ РєР»РёРµРЅС‚С‹ СЃ РґСЂСѓРіРёРј РёРјРµРЅРµРј")]
 		public void CheckClientNamesWithNewAndOldClients()
 		{
 			var dsClients = GetClients(
@@ -238,8 +321,8 @@ limit 1"
 			CheckClientsName(dsClients.Tables[0]);
 		}
 
-		[Test(Description = "Проверяем работу метода с различными типами клиентов")]
-        [Ignore("Все клиенты перенесены в future.clients")]
+		[Test(Description = "РџСЂРѕРІРµСЂСЏРµРј СЂР°Р±РѕС‚Сѓ РјРµС‚РѕРґР° СЃ СЂР°Р·Р»РёС‡РЅС‹РјРё С‚РёРїР°РјРё РєР»РёРµРЅС‚РѕРІ")]
+        [Ignore("Р’СЃРµ РєР»РёРµРЅС‚С‹ РїРµСЂРµРЅРµСЃРµРЅС‹ РІ future.clients")]
 		public void CheckClientNamesWithDifferentClients()
 		{
 			var dsClients = GetClients(

@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
@@ -13,18 +13,21 @@ using System.Configuration;
 
 namespace Inforoom.ReportSystem
 {
-	//Вспомогательный отчет, создаваемый по заказу поставщиков
+	//Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РѕС‚С‡РµС‚, СЃРѕР·РґР°РІР°РµРјС‹Р№ РїРѕ Р·Р°РєР°Р·Сѓ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
 	public abstract class ProviderReport : BaseReport
 	{
-		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
+		//РљРѕРґ РєР»РёРµРЅС‚Р°, РЅРµРѕР±С…РѕРґРёРјС‹Р№ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С‚РµРєСѓС‰РёС… РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ Рё РїСЂРµРґР»РѕР¶РµРЅРёР№, РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЌС‚РѕРіРѕ РєР»РёРµРЅС‚Р°
 		protected int _clientCode;
 		protected int? _SupplierNoise = null;		
 		protected int? _userCode = null;
-	    protected bool _byBaseCosts = false; // строить отчет по базовым ценам
-        //Список прайсов, для которых нужно вычислять по базовым ценам
+	    protected bool _byBaseCosts = false; // СЃС‚СЂРѕРёС‚СЊ РѕС‚С‡РµС‚ РїРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј
+        //РЎРїРёСЃРѕРє РїСЂР°Р№СЃРѕРІ, РґР»СЏ РєРѕС‚РѕСЂС‹С… РЅСѓР¶РЅРѕ РІС‹С‡РёСЃР»СЏС‚СЊ РїРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј
         protected List<ulong> _prices;
-        //Список регионов, для которых нужно вычислять по базовым ценам
+        //РЎРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ, РґР»СЏ РєРѕС‚РѕСЂС‹С… РЅСѓР¶РЅРѕ РІС‹С‡РёСЃР»СЏС‚СЊ РїРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј
         protected List<ulong> _regions;
+
+		protected ProviderReport() // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
+		{}
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -40,7 +43,7 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("SupplierNoise"))
 				_SupplierNoise = (int)getReportParam("SupplierNoise");
 
-            // если отчет строится по базовым ценам, определяем список прайсов и регионов
+            // РµСЃР»Рё РѕС‚С‡РµС‚ СЃС‚СЂРѕРёС‚СЃСЏ РїРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј, РѕРїСЂРµРґРµР»СЏРµРј СЃРїРёСЃРѕРє РїСЂР°Р№СЃРѕРІ Рё СЂРµРіРёРѕРЅРѕРІ
             _byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
 			if (reportParamExists("Retail"))
 				_isRetail = (bool)getReportParam("Retail");
@@ -148,7 +151,7 @@ namespace Inforoom.ReportSystem
 
 
 		/// <summary>
-		/// Метод по списку ID формарует строку для вставки в запрос вида: where t.item in (id1, id2, id3...)
+		/// РњРµС‚РѕРґ РїРѕ СЃРїРёСЃРєСѓ ID С„РѕСЂРјР°СЂСѓРµС‚ СЃС‚СЂРѕРєСѓ РґР»СЏ РІСЃС‚Р°РІРєРё РІ Р·Р°РїСЂРѕСЃ РІРёРґР°: where t.item in (id1, id2, id3...)
 		/// </summary>
 		/// <param name="items"></param>
 		/// <returns></returns>
@@ -164,16 +167,16 @@ namespace Inforoom.ReportSystem
 			return result;
 		}
 
-		//Получили список действующих прайс-листов для интересующего клиента
+		//РџРѕР»СѓС‡РёР»Рё СЃРїРёСЃРѕРє РґРµР№СЃС‚РІСѓСЋС‰РёС… РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ РґР»СЏ РёРЅС‚РµСЂРµСЃСѓСЋС‰РµРіРѕ РєР»РёРµРЅС‚Р°
 		protected void InvokeGetActivePrices()
 		{
 			ExecuteArgs e = args;
-			//удаление временных таблиц
+			//СѓРґР°Р»РµРЅРёРµ РІСЂРµРјРµРЅРЅС‹С… С‚Р°Р±Р»РёС†
 			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 			if (_byBaseCosts)
-				GetRegionsPrices(e); // заполняем временную таблицу для передачи списка ПЛ и регионов в хранимую процедуру
+				GetRegionsPrices(e); // Р·Р°РїРѕР»РЅСЏРµРј РІСЂРµРјРµРЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ РґР»СЏ РїРµСЂРµРґР°С‡Рё СЃРїРёСЃРєР° РџР› Рё СЂРµРіРёРѕРЅРѕРІ РІ С…СЂР°РЅРёРјСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ
 			
 			GetBareActivePrices();
 
@@ -220,7 +223,7 @@ namespace Inforoom.ReportSystem
 				}
 			}
 
-			// В списке регионов только доступные клиенту регионы
+			// Р’ СЃРїРёСЃРєРµ СЂРµРіРёРѕРЅРѕРІ С‚РѕР»СЊРєРѕ РґРѕСЃС‚СѓРїРЅС‹Рµ РєР»РёРµРЅС‚Сѓ СЂРµРіРёРѕРЅС‹
 			if (!_byBaseCosts && _reportParams.ContainsKey("RegionClientEqual"))
 			{
 				var RegionClientEqual = (List<ulong>) _reportParams["RegionClientEqual"];
@@ -232,7 +235,7 @@ namespace Inforoom.ReportSystem
 				}
 			}
 
-			//Добавляем в таблицу ActivePrices поле FirmName и заполняем его также, как раньше для отчетов
+			//Р”РѕР±Р°РІР»СЏРµРј РІ С‚Р°Р±Р»РёС†Сѓ ActivePrices РїРѕР»Рµ FirmName Рё Р·Р°РїРѕР»РЅСЏРµРј РµРіРѕ С‚Р°РєР¶Рµ, РєР°Рє СЂР°РЅСЊС€Рµ РґР»СЏ РѕС‚С‡РµС‚РѕРІ
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 
 		    e.DataAdapter.SelectCommand.CommandText = @"
@@ -260,7 +263,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			}
 
 			uint userId = 0;
-			// Получаем для него все прайсы
+			// РџРѕР»СѓС‡Р°РµРј РґР»СЏ РЅРµРіРѕ РІСЃРµ РїСЂР°Р№СЃС‹
 			if(_byBaseCosts)
 			{
 				selectCommand.CommandText = "future.GetPricesWithBaseCosts";
@@ -269,8 +272,8 @@ and regions.RegionCode = activeprices.RegionCode";
 			}
 			else
 			{
-				// Получаем пользователя
-				userId = GetUserId();
+				// РџРѕР»СѓС‡Р°РµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+					userId = GetUserId();
 				selectCommand.CommandText = "future.GetPrices";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.Parameters.Clear();
@@ -278,15 +281,15 @@ and regions.RegionCode = activeprices.RegionCode";
 				selectCommand.ExecuteNonQuery();
 			}
 
-			// Включаем для него все прайсы
+			// Р’РєР»СЋС‡Р°РµРј РґР»СЏ РЅРµРіРѕ РІСЃРµ РїСЂР°Р№СЃС‹
 			selectCommand.CommandType = CommandType.Text;
-			if (_userCode == null) // если пользователь не выбран через интерфейс
+			if (_userCode == null) // РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РІС‹Р±СЂР°РЅ С‡РµСЂРµР· РёРЅС‚РµСЂС„РµР№СЃ
 			{
 				selectCommand.CommandText = "update usersettings.Prices set DisabledByClient = 0";
 				selectCommand.ExecuteNonQuery();
 			}
 
-			// Получаем для пользователя активные (которыми теперь являются все) прайсы
+			// РџРѕР»СѓС‡Р°РµРј РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Р°РєС‚РёРІРЅС‹Рµ (РєРѕС‚РѕСЂС‹РјРё С‚РµРїРµСЂСЊ СЏРІР»СЏСЋС‚СЃСЏ РІСЃРµ) РїСЂР°Р№СЃС‹
 			selectCommand.CommandText = "future.GetActivePrices";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
@@ -305,20 +308,20 @@ and regions.RegionCode = activeprices.RegionCode";
 
 		private uint GetUserId()
 		{
-			// Если пользователь не передан в качестве параметра - берем первого попавшегося
+			// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РїРµСЂРµРґР°РЅ РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° - Р±РµСЂРµРј РїРµСЂРІРѕРіРѕ РїРѕРїР°РІС€РµРіРѕСЃСЏ
 			if (_userCode == null)
 			{
 				var command = args.DataAdapter.SelectCommand;
-				//Проверка существования и отключения клиента
+				//РџСЂРѕРІРµСЂРєР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ Рё РѕС‚РєР»СЋС‡РµРЅРёСЏ РєР»РёРµРЅС‚Р°
 				command.CommandText = "select * from future.Clients cl where cl.Id = " + _clientCode;
 				command.CommandType = CommandType.Text;
 				using (var reader = command.ExecuteReader())
 				{
 					if (!reader.Read())
-						throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
+						throw new ReportException(String.Format("РќРµРІРѕР·РјРѕР¶РЅРѕ РЅР°Р№С‚Рё РєР»РёРµРЅС‚Р° СЃ РєРѕРґРѕРј {0}.", _clientCode));
 					if (Convert.ToByte(reader["Status"]) == 0)
 						throw new ReportException(
-							String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).",
+							String.Format("РќРµРІРѕР·РјРѕР¶РЅРѕ СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РѕС‚С‡РµС‚ РїРѕ РѕС‚РєР»СЋС‡РµРЅРЅРѕРјСѓ РєР»РёРµРЅС‚Сѓ {0} ({1}).",
 											reader["Name"], _clientCode));
 				}
 				command.CommandText = "select Id from future.Users where ClientId = " + _clientCode +
@@ -331,7 +334,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			}
 		}
 
-		//Получили список предложений для интересующего клиента
+		//РџРѕР»СѓС‡РёР»Рё СЃРїРёСЃРѕРє РїСЂРµРґР»РѕР¶РµРЅРёР№ РґР»СЏ РёРЅС‚РµСЂРµСЃСѓСЋС‰РµРіРѕ РєР»РёРµРЅС‚Р°
 		protected void GetOffers(int? noiseFirmCode = null)
 		{
 			InvokeGetActivePrices();
@@ -356,8 +359,8 @@ and regions.RegionCode = activeprices.RegionCode";
 		}
         
         /// <summary>
-        /// Создает временную таблицу и заполняет ее данными из списков _prices и _regions (если отчет строится по базовым ценам)
-        /// Данная таблица затем будет использоваться для ограничения выборки в хранимой процедуре GetPricesWithBaseCosts()
+        /// РЎРѕР·РґР°РµС‚ РІСЂРµРјРµРЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ Рё Р·Р°РїРѕР»РЅСЏРµС‚ РµРµ РґР°РЅРЅС‹РјРё РёР· СЃРїРёСЃРєРѕРІ _prices Рё _regions (РµСЃР»Рё РѕС‚С‡РµС‚ СЃС‚СЂРѕРёС‚СЃСЏ РїРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј)
+        /// Р”Р°РЅРЅР°СЏ С‚Р°Р±Р»РёС†Р° Р·Р°С‚РµРј Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РІС‹Р±РѕСЂРєРё РІ С…СЂР°РЅРёРјРѕР№ РїСЂРѕС†РµРґСѓСЂРµ GetPricesWithBaseCosts()
         /// </summary>
         /// <param name="e"></param>
         /// <returns></returns>
@@ -430,7 +433,7 @@ order by supps.Name", supplierIds.Implode());
 			return suppliers.Distinct().Implode();
 		}
 
-		public List<Offer> GetOffers(int clientId, uint sourcePriceCode, uint? noiseSupplierId, bool allAssortment, bool byCatalog, bool withProducers)
+		public virtual List<Offer> GetOffers(int clientId, uint sourcePriceCode, uint? noiseSupplierId, bool allAssortment, bool byCatalog, bool withProducers)
 		{
 			_clientCode = Convert.ToInt32(clientId);
 
@@ -444,7 +447,7 @@ select FirmCode
 where pricesdata.PriceCode = ?PriceCode
 ",
 					new MySqlParameter("?PriceCode", sourcePriceCode)));
-			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
+			//Р—Р°РїРѕР»РЅСЏРµРј РєРѕРґ СЂРµРіРёРѕРЅР° РїСЂР°Р№СЃ-Р»РёСЃС‚Р° РєР°Рє РґРѕРјР°С€РЅРёР№ РєРѕРґ СЂРµРіРёРѕРЅР° РєР»РёРµРЅС‚Р°, РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєРѕС‚РѕСЂРѕРіРѕ СЃС‚СЂРѕРёС‚СЃСЏ РѕС‚С‡РµС‚
             var SourceRegionCode = Convert.ToUInt64(
                 MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
                     @"
