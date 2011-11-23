@@ -38,7 +38,12 @@ namespace Inforoom.ReportSystem
 				var interval = false;
 				var dtFrom = new DateTime();
 				var dtTo = new DateTime();
+				var manual = false;
 				generalReportId = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
+				if(!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/manual:"))) {
+					manual = Convert.ToBoolean(CommandLineUtils.GetStr(@"/manual:"));
+				}
+				
 				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:")))
 				{
 					interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:"));
@@ -70,7 +75,7 @@ and cr.generalreportcode = " + generalReportId;
 						{
 							foreach (DataRow drReport in dtGeneralReports.Rows)
 							{
-								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]))
+								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]) && !manual)
 								{
 									Mailer.MailGeneralReportErr(
 										"Невозможно выполнить отчет, т.к. отчет выключен.",
