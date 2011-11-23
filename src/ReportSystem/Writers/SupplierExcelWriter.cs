@@ -21,29 +21,27 @@ namespace Inforoom.ReportSystem.Writers
 
 		public PricesOfCompetitorsWriter(Dictionary<string, object> reportParams, ExecuteArgs ex, string reportCaprion)
 		{
-			ParamNOVisualisation = new List<string>
-			                     	{
-			                     		"AllAssortment",
-										"WithWithoutProperties",
-										"SupplierNoise"
-			                     	};
+			ParamNOVisualisation = new List<string> {
+				"AllAssortment",
+				"WithWithoutProperties",
+				"SupplierNoise"
+			};
 
-			AssiciateReportParams = new Dictionary<string, GetterNames>
-			                        	{
-			                        		 {"PayerEqual", ReadParameterHelper.GetPayerNames},
-											 {"FirmCodeEqual", ReadParameterHelper.GetSupplierNames},
-											 {"PriceCode", ReadParameterHelper.GetPriceName},
-											 {"FirmCrEqual", ReadParameterHelper.GetCrNames},
-											 {"FirmCrNonEqual", ReadParameterHelper.GetCrNames},
-											 {"IgnoredSuppliers", ReadParameterHelper.GetSupplierNames},
-											 {"RegionEqual", ReadParameterHelper.GetRegionNames},
-											 {"RegionNonEqual", ReadParameterHelper.GetRegionNames},
-											 {"PriceCodeValues", ReadParameterHelper.GetPriceNames},
-											 {"PriceCodeNonValues", ReadParameterHelper.GetPriceNames},
-											 {"ClientsNON", ReadParameterHelper.GetClientNames},
-											 {"Clients", ReadParameterHelper.GetClientNames},
-											 {"PayerNonEqual", ReadParameterHelper.GetPayerNames},
-			                        	};
+			AssiciateReportParams = new Dictionary<string, GetterNames> {
+				{"PayerEqual", ReadParameterHelper.GetPayerNames},
+				{"FirmCodeEqual", ReadParameterHelper.GetSupplierNames},
+				{"PriceCode", ReadParameterHelper.GetPriceName},
+				{"FirmCrEqual", ReadParameterHelper.GetCrNames},
+				{"FirmCrNonEqual", ReadParameterHelper.GetCrNames},
+				{"IgnoredSuppliers", ReadParameterHelper.GetSupplierNames},
+				{"RegionEqual", ReadParameterHelper.GetRegionNames},
+				{"RegionNonEqual", ReadParameterHelper.GetRegionNames},
+				{"PriceCodeValues", ReadParameterHelper.GetPriceNames},
+				{"PriceCodeNonValues", ReadParameterHelper.GetPriceNames},
+				{"ClientsNON", ReadParameterHelper.GetClientNames},
+				{"Clients", ReadParameterHelper.GetClientNames},
+				{"PayerNonEqual", ReadParameterHelper.GetPayerNames},
+			};
 			ReportParams = reportParams;
 			_reportCaption = reportCaprion;
 			e = ex;
@@ -189,23 +187,16 @@ namespace Inforoom.ReportSystem.Writers
 	}
 
 
-    public class SupplierExcelWriter : BaseExcelWriter
-    {
-    	//private List<string> locallist;
-		/*public SupplierExcelWriter(List<string> L)
-		{
-			locallist = L;
-		}*/
-
-    	public override void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
-         {
-             DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
-             UseExcel.Workbook(fileName, b =>
-                                             {
-                                                 var ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
-                                                 base.FormatExcelFile(ws, reportData.Tables["Results"], settings.ReportCaption, 6);
-                                             });
-             ProfileHelper.End();
-         }
-    }
+	public class SupplierExcelWriter : BaseExcelWriter
+	{
+		public override void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
+		 {
+			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
+			UseExcel.Workbook(fileName, b => {
+				var ws = (MSExcel._Worksheet) b.Worksheets["rep" + settings.ReportCode.ToString()];
+				FormatExcelFile(ws, reportData.Tables["Results"], settings.ReportCaption, 6);
+			});
+			ProfileHelper.End();
+		 }
+	}
 }

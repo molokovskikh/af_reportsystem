@@ -11,9 +11,7 @@ namespace Inforoom.ReportSystem.Helpers
 			try
 			{
 				exApp.DisplayAlerts = false;
-				var workbook = exApp.Workbooks.Open(file, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
-					Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
-					Type.Missing);
+				var workbook = exApp.Workbooks.Open(file);
 				_Worksheet worksheet;
 				try
 				{
@@ -23,7 +21,7 @@ namespace Inforoom.ReportSystem.Helpers
 					}
 					finally
 					{
-						workbook.SaveAs(file, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+						workbook.SaveAs(file, FileFormat: 56);
 					}
 				}
 				finally

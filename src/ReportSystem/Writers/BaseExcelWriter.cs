@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Data.OleDb;
+using System.Globalization;
+using System.Threading;
 using Inforoom.ReportSystem.Helpers;
 using System.Collections.Generic;
 using Inforoom.ReportSystem.ReportSettings;
@@ -23,7 +25,7 @@ namespace Inforoom.ReportSystem.Writers
 		protected void DataTableToExcel(DataTable dtExport, string ExlFileName, string listName)
 		{
 			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти
-			OleDbConnection ExcellCon = new OleDbConnection();
+			var ExcellCon = new OleDbConnection();
 			try
 			{
 				ExcellCon.ConnectionString = @"
@@ -52,11 +54,11 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 					else
 						CreateSQL += ",";
 				}
-				OleDbCommand cmd = new OleDbCommand(CreateSQL, ExcellCon);
+				var cmd = new OleDbCommand(CreateSQL, ExcellCon);
 				ExcellCon.Open();
 				cmd.ExecuteNonQuery();
-				OleDbDataAdapter daExcel = new OleDbDataAdapter("select * from [" + listName + "]", ExcellCon);
-				OleDbCommandBuilder cdExcel = new OleDbCommandBuilder(daExcel);
+				var daExcel = new OleDbDataAdapter("select * from [" + listName + "]", ExcellCon);
+				var cdExcel = new OleDbCommandBuilder(daExcel);
 				cdExcel.QuotePrefix = "[";
 				cdExcel.QuoteSuffix = "]";
 				daExcel.Update(dtExport);
@@ -67,35 +69,33 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			}
 		}
 
-		public void FormatExcelFile(MSExcel._Worksheet _ws, DataTable _result, string _caption, int CountDownRows /*List<string > L*/)
-        {
-			System.Globalization.CultureInfo oldCI = System.Threading.Thread.CurrentThread.CurrentCulture;
-			System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-            //MSExcel._Worksheet _ws = (MSExcel._Worksheet)_wb.Worksheets["rep" + _reportId.ToString()];
-        	//int CountDownRows = L.Count+3;
-            _ws.Name = _caption.Substring(0, (_caption.Length < MaxListName) ? _caption.Length : MaxListName);
+		public void FormatExcelFile(_Worksheet _ws, DataTable _result, string _caption, int CountDownRows)
+		{
+			var oldCI = Thread.CurrentThread.CurrentCulture;
+			Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+			_ws.Name = _caption.Substring(0, (_caption.Length < MaxListName) ? _caption.Length : MaxListName);
 
-            if (CountDownRows > 0)
-            {
-                for (int j = 1; j < 4; j++)
-                {
-                    for (int i = 0; i < CountDownRows - 3; i++)
-                    {
-                        _ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
-                    }
-                    _ws.Cells[CountDownRows - 2, j] = "";
+			if (CountDownRows > 0)
+			{
+				for (int j = 1; j < 4; j++)
+				{
+					for (int i = 0; i < CountDownRows - 3; i++)
+					{
+						_ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
+					}
+					_ws.Cells[CountDownRows - 2, j] = "";
 					_ws.get_Range("A" + j.ToString(), "B" + j.ToString()).Merge();
-                }
-            }
-            if (CountDownRows == 0)
-            {
-                CountDownRows = 2;
-            }
+				}
+			}
+			if (CountDownRows == 0)
+			{
+				CountDownRows = 2;
+			}
 			for (int i = 4; i < 20;i++ )
 			{
 				_ws.Cells[1, i] = "";
 			}
-        	for (int i = 0; i < _result.Columns.Count; i++)
+			for (int i = 0; i < _result.Columns.Count; i++)
 				{
 					_ws.Cells[CountDownRows - 1, i + 1] = "";
 					_ws.Cells[CountDownRows - 1, i + 1] = _result.Columns[i].Caption;
@@ -104,75 +104,42 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 						_ws.Cells[1, 4] = "";
 					}
 					if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
-						((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
+						((Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
 					else
-						((MSExcel.Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
+						((Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
 					if (_result.Columns[i].ExtendedProperties.ContainsKey("Color"))
 						_ws.get_Range(_ws.Cells[CountDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)_result.Columns[i].ExtendedProperties["Color"]);
 				}
 
 
-            //рисуем границы на всю таблицу
-            _ws.get_Range(_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+			//рисуем границы на всю таблицу
+			_ws.get_Range(_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = XlBorderWeight.xlThin;
 
 			//Устанавливаем шрифт листа
-            _ws.Rows.Font.Size = 8;
-            _ws.Rows.Font.Name = "Arial Narrow";
-            _ws.Activate();
+			_ws.Rows.Font.Size = 8;
+			_ws.Rows.Font.Name = "Arial Narrow";
+			_ws.Activate();
 
-            //Устанавливаем АвтоФильтр на все колонки
-            _ws.Range[_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
-            ((MSExcel.Range)_ws.Application.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
-            //MSExcel.Worksheet rws = new Worksheet();
-            //rws = _ws;
-            //return (_wb);
+			//Устанавливаем АвтоФильтр на все колонки
+			_ws.Range[_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
+			((Range)_ws.Application.Selection).AutoFilter(1, System.Reflection.Missing.Value, XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
-			System.Threading.Thread.CurrentThread.CurrentCulture = oldCI;
-        }
+			Thread.CurrentThread.CurrentCulture = oldCI;
+		}
 
 
-	    public virtual void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
+		public virtual void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			ProfileHelper.Next("FormatExcel");
-			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			var file = fileName;
 			var result = reportData.Tables["Results"];
 			var reportId = settings.ReportCode;
 			var caption = settings.ReportCaption;
-			try
-			{
-				exApp.DisplayAlerts = false;
-				MSExcel.Workbook wb = exApp.Workbooks.Open(file, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
-				MSExcel._Worksheet ws;
-				try
-				{
-					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + reportId.ToString()];
-
-					try
-					{
-					    FormatExcelFile(ws, result, caption, 0/* new List<string>()*/);
-					}
-					finally
-					{
-						wb.SaveAs(file, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-					}
-				}
-				finally
-				{
-					ws = null;
-					wb = null;
-					try { exApp.Workbooks.Close(); }
-					catch { }
-				}
-			}
-			finally
-			{
-				try
-				{exApp.Quit();}
-				catch { }
-				exApp = null;
-			}
+			UseExcel.Workbook(file, b => {
+				var ws = (_Worksheet)b.Worksheets["rep" + reportId.ToString()];
+				FormatExcelFile(ws, result, caption, 0);
+			});
 			ProfileHelper.End();
 		}
 	}

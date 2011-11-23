@@ -1,4 +1,5 @@
 ﻿using System;
+using Inforoom.ReportSystem.Helpers;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Data;
 using Inforoom.ReportSystem.ReportSettings;
@@ -31,204 +32,140 @@ namespace Inforoom.ReportSystem.Writers
 
 		private void FormatExcel(DataSet dsReport, string fileName)
 		{
-			int row = 1;
-			MSExcel.Application exApp = new MSExcel.ApplicationClass();
-			try
-			{
-				exApp.DisplayAlerts = false;
-				MSExcel.Workbook wb = exApp.Workbooks.Open(fileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
-				MSExcel._Worksheet ws;
-				try
+			var row = 1;
+			UseExcel.Workbook(fileName, b => {
+				var exApp = b.Application;
+				var wb = b;
+				var ws = (MSExcel._Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
+
+				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+
+				ws.Cells[row, 1] = String.Format("Статистика оптимизации цен {2} за период с {0} по {1}",
+					_beginDate.ToString("dd.MM.yyyy"),
+					_endDate.ToString("dd.MM.yyyy"),
+					(_clientId != 0) ?
+						"для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
+						"для всех клиентов");
+				((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
+				((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
+
+
+				ws.Cells[row++, 1] = String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
+								dsReport.Tables["Common"].Rows[0][0],
+								Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
+								_optimizedCount);
+
+				ws.Cells[row++, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
+						dsReport.Tables["OverPrice"].Rows[0]["Count"],
+						dsReport.Tables["OverPrice"].Rows[0]["Summ"]);
+
+				ws.Cells[row++, 1] = String.Format("Суммарный экономический эффект {0} руб.",
+						Convert.ToDouble(dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"));
+
+				ws.Cells[row++, 1] = String.Format("Цены занижены у {0} позиции в среднем на {1}%",
+						dsReport.Tables["UnderPrice"].Rows[0]["Count"],
+						dsReport.Tables["UnderPrice"].Rows[0]["Summ"]);
+
+				double percent = 0;
+				double allCost = Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]);
+				double cost = Convert.ToDouble(dsReport.Tables["Volume"].Rows[0][0]);
+				if(allCost > 0)
+					percent = Math.Round(cost/(allCost - cost) * 100, 2);
+				ws.Cells[row++, 1] = String.Format("Суммарное увеличение продаж {0} руб. ({1}%)",
+					Convert.ToDouble(dsReport.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"),
+					percent);
+				row++;
+
+				int col = 1;
+				//Форматируем заголовок отчета
+				((MSExcel.Range) ws.Cells[row, col]).RowHeight = 25;
+
+				ws.Cells[row, col] = "Дата";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
+
+				if (_clientId == 0)
 				{
-					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
+					ws.Cells[row, col] = "Аптека";
+					((MSExcel.Range) ws.Cells[row, col++]).ColumnWidth = 18;
+				}
 
-					try
-					{
-						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+				if (_clientId == 0 || Convert.ToBoolean(dsReport.Tables["Client"].Rows[0][1]))
+				{
+					ws.Cells[row, col] = "Пользователь";
+					((MSExcel.Range) ws.Cells[row, col++]).ColumnWidth = 18;
+				}
 
-						ws.Cells[row, 1] = String.Format("Статистика оптимизации цен {2} за период с {0} по {1}",
-							_beginDate.ToString("dd.MM.yyyy"),
-							_endDate.ToString("dd.MM.yyyy"),
-							(_clientId != 0) ?
-								"для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
-								"для всех клиентов");
-						((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
-						((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
+				ws.Cells[row, col] = "Код товара";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11.5;
 
+				ws.Cells[row, col] = "Код производителя";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
-						ws.Cells[row++, 1] = String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
-										dsReport.Tables["Common"].Rows[0][0],
-										Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
-										_optimizedCount);
+				ws.Cells[row, col] = "Наименование";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 30;
 
-						ws.Cells[row++, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
-								dsReport.Tables["OverPrice"].Rows[0]["Count"],
-								dsReport.Tables["OverPrice"].Rows[0]["Summ"]);
+				ws.Cells[row, col] = "Производитель";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 25;
 
-						ws.Cells[row++, 1] = String.Format("Суммарный экономический эффект {0} руб.",
-								Convert.ToDouble(dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"));
+				ws.Cells[row, col] = "Количество";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
-						ws.Cells[row++, 1] = String.Format("Цены занижены у {0} позиции в среднем на {1}%",
-								dsReport.Tables["UnderPrice"].Rows[0]["Count"],
-								dsReport.Tables["UnderPrice"].Rows[0]["Summ"]);
+				ws.Cells[row, col] = "Исходная цена (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 15.5;
 
-						double percent = 0;
-						double allCost = Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]);
-						double cost = Convert.ToDouble(dsReport.Tables["Volume"].Rows[0][0]);
-						if(allCost > 0)
-							percent = Math.Round(cost/(allCost - cost) * 100, 2);
-						ws.Cells[row++, 1] = String.Format("Суммарное увеличение продаж {0} руб. ({1}%)",
-							Convert.ToDouble(dsReport.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"),
-							percent);
-						row++;
+				ws.Cells[row, col] = "Результирующая цена (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 19;
 
-						int col = 1;
-						//Форматируем заголовок отчета
-						((MSExcel.Range) ws.Cells[row, col]).RowHeight = 25;
+				ws.Cells[row, col] = "Разница (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11;
 
-						ws.Cells[row, col] = "Дата";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
+				ws.Cells[row, col] = "Разница (%)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11;
 
-						if (_clientId == 0)
-						{
-							ws.Cells[row, col] = "Аптека";
-							((MSExcel.Range) ws.Cells[row, col++]).ColumnWidth = 18;
-						}
+				ws.Cells[row, col] = "Экономический эффект (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 
-						if (_clientId == 0 || Convert.ToBoolean(dsReport.Tables["Client"].Rows[0][1]))
-						{
-							ws.Cells[row, col] = "Пользователь";
-							((MSExcel.Range) ws.Cells[row, col++]).ColumnWidth = 18;
-						}
-
-						ws.Cells[row, col] = "Код товара";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11.5;
-
-						ws.Cells[row, col] = "Код производителя";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
-
-						ws.Cells[row, col] = "Наименование";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 30;
-
-						ws.Cells[row, col] = "Производитель";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 25;
-
-						ws.Cells[row, col] = "Количество";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
-
-						ws.Cells[row, col] = "Исходная цена (руб.)";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 15.5;
-
-						ws.Cells[row, col] = "Результирующая цена (руб.)";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 19;
-
-						ws.Cells[row, col] = "Разница (руб.)";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11;
-
-						ws.Cells[row, col] = "Разница (%)";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11;
-
-						ws.Cells[row, col] = "Экономический эффект (руб.)";
-						((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
-
-						ws.Cells[row, col] = "Увеличение продаж (руб.)";
-						((MSExcel.Range)ws.Cells[row, col]).ColumnWidth = 18;
+				ws.Cells[row, col] = "Увеличение продаж (руб.)";
+				((MSExcel.Range)ws.Cells[row, col]).ColumnWidth = 18;
 										
 
-						for(int i = 1; i <= col; i++)
-						{
-							((MSExcel.Range)ws.Cells[row, i]).WrapText = true;
-							((MSExcel.Range)ws.Cells[row, i]).Font.Bold = true;
-							((MSExcel.Range)ws.Cells[row, i]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
-						}
-
-
-						int lastRow = dsReport.Tables["Results"].Rows.Count + 2;
-
-						ws.Cells[lastRow, 1] = "Итого:";
-						((MSExcel.Range)ws.Cells[lastRow, 1]).Font.Bold = true;
-
-						ws.Cells[lastRow, 11] = dsReport.Tables["Money"].Rows[0][0];
-						((MSExcel.Range)ws.Cells[lastRow, 11]).Font.Bold = true;
-
-						ws.Cells[lastRow, 12] = dsReport.Tables["Volume"].Rows[0][0];
-						((MSExcel.Range)ws.Cells[lastRow, 12]).Font.Bold = true;
-
-
-						((MSExcel.Range)ws.Cells[1, 7]).Clear();
-						//рисуем границы на всю таблицу
-						ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count+2, dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
-
-						ws.Activate();
-
-						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count - 2, dsReport.Tables["Results"].Columns.Count])).Select();
-						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
-
-						//Объединяем несколько ячеек, чтобы в них написать текст
-						((MSExcel.Range)ws.get_Range("A1:L1", System.Reflection.Missing.Value)).Select();
-						((MSExcel.Range)exApp.Selection).Merge(null);
-
-						// объединяем Итого
-						((MSExcel.Range)ws.get_Range(ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count - 2])).Merge(null);
-
-						/*
-						row = lastRow+4;
-						((MSExcel.Range)ws.get_Range(ws.Cells[row, 1], ws.Cells[row, 9])).Merge(null);
-						ws.Cells[row, 1] = "Статистика заказов у конкурентов по оптимизированным позициям";
-						((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
-
-						row++; row++;
-						col = 1;
-						//Форматируем заголовок отчета2
-						((MSExcel.Range)ws.Cells[row, col]).RowHeight = 25;
-
-						ws.Cells[row, col++] = "Дата";
-						ws.Cells[row, col++] = "Код товара";
-						ws.Cells[row, col++] = "Код производителя";
-						ws.Cells[row, col++] = "Наименование";
-						ws.Cells[row, col++] = "Производитель";
-						ws.Cells[row, col++] = "Количество";
-						ws.Cells[row, col++] = "Цена конкурента(руб.)";
-						ws.Cells[row, col++] = "Оптимизированная цена (руб.)";
-						ws.Cells[row, col] = "Сумма (руб.)";
-						for (int i = 1; i <= col; i++)
-						{
-							((MSExcel.Range)ws.Cells[row, i]).WrapText = true;
-							((MSExcel.Range)ws.Cells[row, i]).Font.Bold = true;
-							((MSExcel.Range)ws.Cells[row, i]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
-						}
-
-						//рисуем границы на всю таблицу2
-						ws.get_Range(ws.Cells[row, 1], ws.Cells[row + _lostCount + 1, 9]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
-
-						ws.Activate();
-
-						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count+1, 9])).Select();
-						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);*/
-
-					}
-					finally
-					{
-						wb.SaveAs(fileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, MSExcel.XlSaveConflictResolution.xlLocalSessionChanges, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-					}
-				}
-				finally
+				for(int i = 1; i <= col; i++)
 				{
-					ws = null;
-					wb = null;
-					try { exApp.Workbooks.Close(); }
-					catch { }
+					((MSExcel.Range)ws.Cells[row, i]).WrapText = true;
+					((MSExcel.Range)ws.Cells[row, i]).Font.Bold = true;
+					((MSExcel.Range)ws.Cells[row, i]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 				}
-			}
-			finally
-			{
-				try { exApp.Quit(); }
-				catch { }
-				exApp = null;
-			}
-		}
 
+
+				int lastRow = dsReport.Tables["Results"].Rows.Count + 2;
+
+				ws.Cells[lastRow, 1] = "Итого:";
+				((MSExcel.Range)ws.Cells[lastRow, 1]).Font.Bold = true;
+
+				ws.Cells[lastRow, 11] = dsReport.Tables["Money"].Rows[0][0];
+				((MSExcel.Range)ws.Cells[lastRow, 11]).Font.Bold = true;
+
+				ws.Cells[lastRow, 12] = dsReport.Tables["Volume"].Rows[0][0];
+				((MSExcel.Range)ws.Cells[lastRow, 12]).Font.Bold = true;
+
+
+				((MSExcel.Range)ws.Cells[1, 7]).Clear();
+				//рисуем границы на всю таблицу
+				ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count+2, dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+
+				ws.Activate();
+
+				//Устанавливаем АвтоФильтр на все колонки
+				ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count - 2, dsReport.Tables["Results"].Columns.Count]).Select();
+				((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
+
+				//Объединяем несколько ячеек, чтобы в них написать текст
+				ws.get_Range("A1:L1", System.Reflection.Missing.Value).Select();
+				((MSExcel.Range)exApp.Selection).Merge(null);
+
+				// объединяем Итого
+				ws.get_Range(ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count - 2]).Merge(null);
+			});
+		}
 	}
 }
