@@ -14,8 +14,7 @@ namespace Inforoom.ReportSystem.ByOrders
 {
 	public class OrdersStatistics : OrdersReport
 	{
-		protected const string dtFromProperty = "DateFrom";
-		protected const string dtToProperty = "DateTo";
+		protected const string reportIntervalProperty = "ReportInterval";
 
 		public OrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -39,9 +38,9 @@ namespace Inforoom.ReportSystem.ByOrders
 			}
 			else
 			{
-				dtFrom = Convert.ToDateTime(getReportParam(dtFromProperty));
-				dtTo = Convert.ToDateTime(getReportParam(dtToProperty));
-				dtTo = dtTo.Date.AddDays(1);
+				_reportInterval = (int)getReportParam(reportIntervalProperty);
+				dtTo = DateTime.Now.Date;
+				dtFrom = dtTo.AddDays(-_reportInterval).Date;
 			}
 			filterDescriptions = new List<string>();
 			filterDescriptions.Add(String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
