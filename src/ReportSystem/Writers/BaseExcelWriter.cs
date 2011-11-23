@@ -25,7 +25,9 @@ namespace Inforoom.ReportSystem.Writers
 				cut = true;
 			}
 			if(cut) {
+#if !DEBUG
 				Mailer.MailReportNotify("При формировании отчета произошло урезание количества столбцов из-за превышения допустимого количества в 256", Program.generalReport._payer, Program.generalReport._generalReportID, reportCode);
+#endif
 			}	
 
 			DataTableToExcel(dtExport, ExlFileName, "rep" + reportCode);
