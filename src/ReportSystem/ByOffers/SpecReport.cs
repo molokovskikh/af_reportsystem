@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -18,14 +18,14 @@ using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
-	//Специальный отчет прайс-листов
+	//РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РѕС‚С‡РµС‚ РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ
 	public class SpecReport : ProviderReport
 	{
 		protected int _reportType;
 		protected bool _showPercents;
 		protected bool _reportIsFull;
 		protected bool _reportSortedByPrice;
-		//Расчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производится по продуктам (ProductId)
+		//Р Р°СЃС‡РёС‚С‹РІР°С‚СЊ РѕС‚С‡РµС‚ РїРѕ РєР°С‚Р°Р»РѕРіСѓ (CatalogId, Name, Form), РµСЃР»Рё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ, С‚Рѕ СЂР°СЃС‡РµС‚ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ РїРѕ РїСЂРѕРґСѓРєС‚Р°Рј (ProductId)
 		protected bool _calculateByCatalog;
 
 		protected int SourcePC, FirmCode;
@@ -44,10 +44,15 @@ namespace Inforoom.ReportSystem
 
 		protected bool _showCodeCr = false;
 
+		protected bool _codesWithoutProducer = false;
+
+		protected SpecReport()// РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
+		{}
+
 		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
-			reportCaptionPreffix = "Специальный отчет";
+			reportCaptionPreffix = "РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РѕС‚С‡РµС‚";
 		}
 
 		public override void ReadReportParams()
@@ -68,12 +73,12 @@ namespace Inforoom.ReportSystem
 			base.GenerateReport(e);
 
 			ProfileHelper.Next("PreGetOffers");
-			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
+			//Р•СЃР»Рё РїСЂР°Р№СЃ-Р»РёСЃС‚ СЂР°РІРµРЅ 0, С‚Рѕ РѕРЅ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ, РїРѕСЌС‚РѕРјСѓ Р±РµСЂРµРј РїСЂР°Р№СЃ-Р»РёСЃС‚ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєР»РёРµРЅС‚Р°, РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ РґРµР»Р°РµС‚СЃСЏ РѕС‚С‡РµС‚
 			if (_priceCode == 0)
-				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
+				throw new ReportException("Р”Р»СЏ СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РЅРµ СѓРєР°Р·Р°РЅ РїР°СЂР°РјРµС‚СЂ \"РџСЂР°Р№СЃ-Р»РёСЃС‚\".");
             if (_byBaseCosts)
-            {   // Отчет готовится по базовым ценам
-                //Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
+            {   // РћС‚С‡РµС‚ РіРѕС‚РѕРІРёС‚СЃСЏ РїРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј
+                //Р—Р°РїРѕР»РЅСЏРµРј РєРѕРґ СЂРµРіРёРѕРЅР° РїСЂР°Р№СЃ-Р»РёСЃС‚Р° РєР°Рє РґРѕРјР°С€РЅРёР№ РєРѕРґ РїРѕСЃС‚Р°РІС‰РёРєР° СЌС‚РѕРіРѕ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
                 SourceRegionCode = Convert.ToInt64(
                     MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
                                               @"select s.HomeRegion
@@ -83,8 +88,8 @@ namespace Inforoom.ReportSystem
                                               new MySqlParameter("?PriceCode", _priceCode)));
             }
             else
-            {   // отчет готовится по клиенту
-                //Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет			
+            {   // РѕС‚С‡РµС‚ РіРѕС‚РѕРІРёС‚СЃСЏ РїРѕ РєР»РёРµРЅС‚Сѓ
+                //Р—Р°РїРѕР»РЅСЏРµРј РєРѕРґ СЂРµРіРёРѕРЅР° РїСЂР°Р№СЃ-Р»РёСЃС‚Р° РєР°Рє РґРѕРјР°С€РЅРёР№ РєРѕРґ СЂРµРіРёРѕРЅР° РєР»РёРµРЅС‚Р°, РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєРѕС‚РѕСЂРѕРіРѕ СЃС‚СЂРѕРёС‚СЃСЏ РѕС‚С‡РµС‚			
                 SourceRegionCode = Convert.ToInt64(
                     MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
                                               @"select RegionCode
@@ -111,12 +116,12 @@ and regions.RegionCode = suppliers.HomeRegion
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
 
 			if (drPrice == null)
-				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+				throw new ReportException(String.Format("РќРµ РЅР°Р№РґРµРЅ РїСЂР°Р№СЃ-Р»РёСЃС‚ СЃ РєРѕРґРѕРј {0}.", _priceCode));
 
 			SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
 			CustomerFirmName = drPrice["FirmName"].ToString();
 
-			//Проверка актуальности прайс-листа
+			//РџСЂРѕРІРµСЂРєР° Р°РєС‚СѓР°Р»СЊРЅРѕСЃС‚Рё РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
 			int ActualPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
@@ -136,17 +141,17 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					new MySqlParameter("?SourcePC", SourcePC)));
 #if !DEBUG
 			if (ActualPrice == 0)
-				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
+				throw new ReportException(String.Format("РџСЂР°Р№СЃ-Р»РёСЃС‚ {0} ({1}) РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р°РєС‚СѓР°Р»СЊРЅС‹Рј.", CustomerFirmName, SourcePC));
 #endif
 
 			ProfileHelper.Next("GetOffers");
-			//Выбираем 
+			//Р’С‹Р±РёСЂР°РµРј 
 			GetOffers(_SupplierNoise);
 			ProfileHelper.Next("GetCodes");
-			//Получили предложения интересующего прайс-листа в отдельную таблицу
+			//РџРѕР»СѓС‡РёР»Рё РїСЂРµРґР»РѕР¶РµРЅРёСЏ РёРЅС‚РµСЂРµСЃСѓСЋС‰РµРіРѕ РїСЂР°Р№СЃ-Р»РёСЃС‚Р° РІ РѕС‚РґРµР»СЊРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ
 			GetSourceCodes(e);
 			ProfileHelper.Next("GetMinPrices");
-			//Получили лучшие предложения из всех прайс-листов с учетом требований
+			//РџРѕР»СѓС‡РёР»Рё Р»СѓС‡С€РёРµ РїСЂРµРґР»РѕР¶РµРЅРёСЏ РёР· РІСЃРµС… РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ СЃ СѓС‡РµС‚РѕРј С‚СЂРµР±РѕРІР°РЅРёР№
 			GetMinPrice(e);
 			ProfileHelper.Next("Calculate");
 			Calculate();
@@ -167,7 +172,7 @@ group by c.pricecode";
 			args.DataAdapter.Fill(data);
 			if (data.Rows.Count > 0)
 			{
-				Logger.DebugFormat("Отчет {1}, Прайс листы {0} обновились для них не будет предложений",
+				Logger.DebugFormat("РћС‚С‡РµС‚ {1}, РџСЂР°Р№СЃ Р»РёСЃС‚С‹ {0} РѕР±РЅРѕРІРёР»РёСЃСЊ РґР»СЏ РЅРёС… РЅРµ Р±СѓРґРµС‚ РїСЂРµРґР»РѕР¶РµРЅРёР№",
 					data.Rows.Cast<DataRow>().Select(r => Convert.ToUInt32(r["PriceCode"])).Implode(),
 					_reportCode);
 			}
@@ -175,55 +180,57 @@ group by c.pricecode";
 
 		protected virtual void Calculate()
 		{
-			//Кол-во первых фиксированных колонок
+			//РљРѕР»-РІРѕ РїРµСЂРІС‹С… С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹С… РєРѕР»РѕРЅРѕРє
 			int FirstColumnCount;
 
-			//todo: посмотреть почему здесь используется таблицы AllCoreT и Prices
+			//todo: РїРѕСЃРјРѕС‚СЂРµС‚СЊ РїРѕС‡РµРјСѓ Р·РґРµСЃСЊ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚Р°Р±Р»РёС†С‹ AllCoreT Рё Prices
 			DataTable dtCore = _dsReport.Tables["AllCoreT"];
 			DataTable dtPrices = _dsReport.Tables["Prices"];
 
 			DataTable dtRes = new DataTable("Results");
 			_dsReport.Tables.Add(dtRes);
 			dtRes.Columns.Add("Code");
-			dtRes.Columns["Code"].Caption = "Код";
+			dtRes.Columns["Code"].Caption = "РљРѕРґ";
+			dtRes.Columns.Add("CodeWithoutProducer");
+			dtRes.Columns["CodeWithoutProducer"].Caption = "РљРѕРґ Р±РµР· РёР·РіРѕС‚.";
 			dtRes.Columns.Add("CodeCr");
-			dtRes.Columns["CodeCr"].Caption = "Код производителя";
+			dtRes.Columns["CodeCr"].Caption = "РљРѕРґ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ";
 			dtRes.Columns.Add("FullName");
-			dtRes.Columns["FullName"].Caption = "Наименование";
+			dtRes.Columns["FullName"].Caption = "РќР°РёРјРµРЅРѕРІР°РЅРёРµ";
 			dtRes.Columns.Add("FirmCr");
-			dtRes.Columns["FirmCr"].Caption = "Производитель";
+			dtRes.Columns["FirmCr"].Caption = "РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ";
 			dtRes.Columns.Add("CustomerCost", typeof(decimal));
 			dtRes.Columns["CustomerCost"].Caption = CustomerFirmName;
 			dtRes.Columns.Add("CustomerQuantity");
-			dtRes.Columns["CustomerQuantity"].Caption = "Количество";
+			dtRes.Columns["CustomerQuantity"].Caption = "РљРѕР»РёС‡РµСЃС‚РІРѕ";
 			dtRes.Columns.Add("MinCost", typeof(decimal));
-			dtRes.Columns["MinCost"].Caption = "Мин. цена";
+			dtRes.Columns["MinCost"].Caption = "РњРёРЅ. С†РµРЅР°";
 			dtRes.Columns.Add("LeaderName");
-			dtRes.Columns["LeaderName"].Caption = "Лидер";
+			dtRes.Columns["LeaderName"].Caption = "Р›РёРґРµСЂ";
 			dtRes.Columns.Add("Differ", typeof(decimal));
-			dtRes.Columns["Differ"].Caption = "Разница";
+			dtRes.Columns["Differ"].Caption = "Р Р°Р·РЅРёС†Р°";
 			dtRes.Columns.Add("DifferPercents", typeof(double));
-			dtRes.Columns["DifferPercents"].Caption = "% разницы";
+			dtRes.Columns["DifferPercents"].Caption = "% СЂР°Р·РЅРёС†С‹";
 			dtRes.Columns.Add("AvgCost", typeof(decimal));
-			dtRes.Columns["AvgCost"].Caption = "Средняя цена";
+			dtRes.Columns["AvgCost"].Caption = "РЎСЂРµРґРЅСЏСЏ С†РµРЅР°";
 			dtRes.Columns.Add("MaxCost", typeof(decimal));
-			dtRes.Columns["MaxCost"].Caption = "Макс. цена";
+			dtRes.Columns["MaxCost"].Caption = "РњР°РєСЃ. С†РµРЅР°";
 			FirstColumnCount = dtRes.Columns.Count;
 
 			int PriceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
 				dtRes.Columns.Add("Cost" + PriceIndex.ToString(), typeof(decimal));
-				dtRes.Columns["Cost" + PriceIndex.ToString()].Caption = "Цена";
+				dtRes.Columns["Cost" + PriceIndex.ToString()].Caption = "Р¦РµРЅР°";
 				if (!_showPercents)
 				{
 					dtRes.Columns.Add("Quantity" + PriceIndex.ToString());
-					dtRes.Columns["Quantity" + PriceIndex.ToString()].Caption = "Кол-во";
+					dtRes.Columns["Quantity" + PriceIndex.ToString()].Caption = "РљРѕР»-РІРѕ";
 				}
 				else
 				{
 					dtRes.Columns.Add("Percents" + PriceIndex.ToString(), typeof(double));
-					dtRes.Columns["Percents" + PriceIndex.ToString()].Caption = "% разницы";
+					dtRes.Columns["Percents" + PriceIndex.ToString()].Caption = "% СЂР°Р·РЅРёС†С‹";
 				}
 				PriceIndex++;
 			}
@@ -244,14 +251,14 @@ group by c.pricecode";
 				newrow["AvgCost"] = Convert.ToDecimal(drCatalog["AvgCost"]);
 				newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
 
-				//Если есть ID, то мы можем заполнить поле Code и, возможно, остальные поля   предложение SourcePC существует
+				//Р•СЃР»Рё РµСЃС‚СЊ ID, С‚Рѕ РјС‹ РјРѕР¶РµРј Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ Code Рё, РІРѕР·РјРѕР¶РЅРѕ, РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїРѕР»СЏ   РїСЂРµРґР»РѕР¶РµРЅРёРµ SourcePC СЃСѓС‰РµСЃС‚РІСѓРµС‚
 				if (!(drCatalog["ID"] is DBNull))
 				{
 					newrow["Code"] = drCatalog["Code"];
-					//Производим поиск предложения по данной позиции по интересующему прайс-листу
+					//РџСЂРѕРёР·РІРѕРґРёРј РїРѕРёСЃРє РїСЂРµРґР»РѕР¶РµРЅРёСЏ РїРѕ РґР°РЅРЅРѕР№ РїРѕР·РёС†РёРё РїРѕ РёРЅС‚РµСЂРµСЃСѓСЋС‰РµРјСѓ РїСЂР°Р№СЃ-Р»РёСЃС‚Сѓ
 					drsMin = dtCore.Select("ID = " + drCatalog["ID"].ToString());
-					//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
-					//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
+					//Р•СЃР»Рё РІ Core РїСЂРµРґР»РѕР¶РµРЅРёР№ РїРѕ РґР°РЅРЅРѕРјСѓ SourcePC РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ РїСЂР°Р№СЃ-Р»РёСЃС‚ Р°СЃРѕСЂС‚РёРјРµРЅС‚РЅС‹Р№ РёР»Рё РЅРµ РІРєР»СЋС‡РµРЅ РєР»РёРµРЅС‚РѕРј РІ РѕР±Р·РѕСЂ
+					//Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РґР°РЅРЅС‹Рµ РїРѕР»СЏ РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ Рё РІ СЃСЂР°РІРЅРµРЅРёРё С‚Р°РєРѕР№ РїСЂР°Р№СЃ-Р»РёСЃС‚ РЅРµ СѓС‡Р°СЃС‚РІСѓРµС‚
 					if ((drsMin.Length > 0) && !(drsMin[0]["Cost"] is DBNull))
 					{
 						newrow["CustomerCost"] = Convert.ToDecimal(drsMin[0]["Cost"]);
@@ -261,17 +268,17 @@ group by c.pricecode";
 					}
 				}
 
-				//Если имя лидера неустановлено, то выставляем имя лидера
+				//Р•СЃР»Рё РёРјСЏ Р»РёРґРµСЂР° РЅРµСѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ, С‚Рѕ РІС‹СЃС‚Р°РІР»СЏРµРј РёРјСЏ Р»РёРґРµСЂР°
 				if (newrow["LeaderName"] is DBNull)
 				{
-					//Устанавливаем разность между ценой SourcePC и минимальной ценой
+					//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РЅРѕСЃС‚СЊ РјРµР¶РґСѓ С†РµРЅРѕР№ SourcePC Рё РјРёРЅРёРјР°Р»СЊРЅРѕР№ С†РµРЅРѕР№
 					if (!(newrow["CustomerCost"] is DBNull))
 					{
 						newrow["Differ"] = (decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"];
 						newrow["DifferPercents"] = Convert.ToDouble((((decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"]) * 100) / (decimal)newrow["CustomerCost"]);
 					}
 
-					//Выбираем позиции с минимальной ценой, отличные от SourcePC
+					//Р’С‹Р±РёСЂР°РµРј РїРѕР·РёС†РёРё СЃ РјРёРЅРёРјР°Р»СЊРЅРѕР№ С†РµРЅРѕР№, РѕС‚Р»РёС‡РЅС‹Рµ РѕС‚ SourcePC
 					drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}", 
 						drCatalog["CatalogCode"], 
 						GetProducerFilter(drCatalog),
@@ -294,7 +301,7 @@ group by c.pricecode";
 				}
 				else
 				{
-					//Ищем первую цену, которая будет больше минимальной цены
+					//РС‰РµРј РїРµСЂРІСѓСЋ С†РµРЅСѓ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ Р±РѕР»СЊС€Рµ РјРёРЅРёРјР°Р»СЊРЅРѕР№ С†РµРЅС‹
 					drsMin = dtCore.Select(
 						"CatalogCode = " + drCatalog["CatalogCode"] +
 						" and PriceCode <> " + SourcePC +
@@ -309,7 +316,7 @@ group by c.pricecode";
 					}
 				}
 
-				//Выбираем позиции и сортируем по возрастанию цен для того, чтобы по каждому прайс-листы выбрать минимальную цену по одному и тому же CatalogCode
+				//Р’С‹Р±РёСЂР°РµРј РїРѕР·РёС†РёРё Рё СЃРѕСЂС‚РёСЂСѓРµРј РїРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ С†РµРЅ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїРѕ РєР°Р¶РґРѕРјСѓ РїСЂР°Р№СЃ-Р»РёСЃС‚С‹ РІС‹Р±СЂР°С‚СЊ РјРёРЅРёРјР°Р»СЊРЅСѓСЋ С†РµРЅСѓ РїРѕ РѕРґРЅРѕРјСѓ Рё С‚РѕРјСѓ Р¶Рµ CatalogCode
 				drsMin = dtCore.Select(
 					"CatalogCode = " + drCatalog["CatalogCode"] + GetProducerFilter(drCatalog),
 					"Cost asc");
@@ -317,13 +324,13 @@ group by c.pricecode";
 				foreach (DataRow dtPos in drsMin)
 				{
 					DataRow[] dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"].ToString() + " and RegionCode = " + dtPos["RegionCode"].ToString());
-					//Проверка на случай получения прайса SourcePC, т.к. этот прайс не будет в dtPrices
+					//РџСЂРѕРІРµСЂРєР° РЅР° СЃР»СѓС‡Р°Р№ РїРѕР»СѓС‡РµРЅРёСЏ РїСЂР°Р№СЃР° SourcePC, С‚.Рє. СЌС‚РѕС‚ РїСЂР°Р№СЃ РЅРµ Р±СѓРґРµС‚ РІ dtPrices
 					if (dr.Length > 0)
 					{
 						PriceIndex = dtPrices.Rows.IndexOf(dr[0]);
 
-						//Если мы еще не установили значение у поставщика, то делаем это
-						//раньше вставляли последнее значение, которое было максимальным
+						//Р•СЃР»Рё РјС‹ РµС‰Рµ РЅРµ СѓСЃС‚Р°РЅРѕРІРёР»Рё Р·РЅР°С‡РµРЅРёРµ Сѓ РїРѕСЃС‚Р°РІС‰РёРєР°, С‚Рѕ РґРµР»Р°РµРј СЌС‚Рѕ
+						//СЂР°РЅСЊС€Рµ РІСЃС‚Р°РІР»СЏР»Рё РїРѕСЃР»РµРґРЅРµРµ Р·РЅР°С‡РµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ Р±С‹Р»Рѕ РјР°РєСЃРёРјР°Р»СЊРЅС‹Рј
 						if (newrow[FirstColumnCount + PriceIndex * 2] is DBNull)
 						{
 							newrow[FirstColumnCount + PriceIndex * 2] = dtPos["Cost"];
@@ -379,7 +386,7 @@ group by c.pricecode";
                 }
             }
             
-		    //Добавляем к таблице Core поле CatalogCode и заполняем его
+		    //Р”РѕР±Р°РІР»СЏРµРј Рє С‚Р°Р±Р»РёС†Рµ Core РїРѕР»Рµ CatalogCode Рё Р·Р°РїРѕР»РЅСЏРµРј РµРіРѕ
 			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -410,7 +417,7 @@ CREATE temporary table TmpSourceCodes(
 
 			if (EnabledPrice == 0)
 			{
-				//Если прайс-лист не включен клиентом или прайс-лист ассортиментный, то добавляем его в таблицу источников TmpSourceCodes, но с ценами NULL
+				//Р•СЃР»Рё РїСЂР°Р№СЃ-Р»РёСЃС‚ РЅРµ РІРєР»СЋС‡РµРЅ РєР»РёРµРЅС‚РѕРј РёР»Рё РїСЂР°Р№СЃ-Р»РёСЃС‚ Р°СЃСЃРѕСЂС‚РёРјРµРЅС‚РЅС‹Р№, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РµРіРѕ РІ С‚Р°Р±Р»РёС†Сѓ РёСЃС‚РѕС‡РЅРёРєРѕРІ TmpSourceCodes, РЅРѕ СЃ С†РµРЅР°РјРё NULL
 				e.DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes 
 Select 
@@ -494,7 +501,7 @@ where
 	Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 #endif
 
-			//todo: изменить заполнение в другую таблицу
+			//todo: РёР·РјРµРЅРёС‚СЊ Р·Р°РїРѕР»РЅРµРЅРёРµ РІ РґСЂСѓРіСѓСЋ С‚Р°Р±Р»РёС†Сѓ
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -526,11 +533,11 @@ select
 			else
 				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("AllPrices.ProductId"));
 			SqlCommandText += @"
-  min(AllPrices.cost) As MinCost, -- здесь должна быть минимальная цена
-  avg(AllPrices.cost) As AvgCost, -- здесь должна быть средняя цена
-  max(AllPrices.cost) As MaxCost, -- здесь должна быть минимальная цена";
+  min(AllPrices.cost) As MinCost, -- Р·РґРµСЃСЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РјРёРЅРёРјР°Р»СЊРЅР°СЏ С†РµРЅР°
+  avg(AllPrices.cost) As AvgCost, -- Р·РґРµСЃСЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЃСЂРµРґРЅСЏСЏ С†РµРЅР°
+  max(AllPrices.cost) As MaxCost, -- Р·РґРµСЃСЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РјРёРЅРёРјР°Р»СЊРЅР°СЏ С†РµРЅР°";
 
-			//Если отчет без учета производителя, то код не учитываем и выводим "-"
+			//Р•СЃР»Рё РѕС‚С‡РµС‚ Р±РµР· СѓС‡РµС‚Р° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ, С‚Рѕ РєРѕРґ РЅРµ СѓС‡РёС‚С‹РІР°РµРј Рё РІС‹РІРѕРґРёРј "-"
 			if (_reportType <= 2)
 				SqlCommandText += @"
   '-' as FirmCr,
@@ -546,7 +553,7 @@ from
   catalogs.products,
   farm.core0 FarmCore,";
 
-			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
+			//Р•СЃР»Рё РѕС‚С‡РµС‚ РїРѕР»РЅС‹Р№, С‚Рѕ РёРЅС‚РµСЂРµСЃСѓСЋС‚ РІСЃРµ РїСЂР°Р№СЃ-Р»РёСЃС‚С‹, РµСЃР»Рё РЅРµС‚, С‚Рѕ С‚РѕР»СЊРєРѕ SourcePC
 			if (_reportIsFull)
 			{
 				if (_reportType <= 2)
@@ -565,7 +572,7 @@ from
   Core AllPrices, 
   TmpSourceCodes SourcePrice
  )";
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Р•СЃР»Рё РѕС‚С‡РµС‚ СЃ СѓС‡РµС‚РѕРј РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ, С‚Рѕ РїРµСЂРµСЃРµРєР°РµРј СЃ С‚Р°Р±Р»РёС†РѕР№ Producers
 			if (_reportType > 2)
 				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
@@ -581,7 +588,7 @@ where
 and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
       or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
-			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
+			//Р•СЃР»Рё РѕС‚С‡РµС‚ РЅРµ РїРѕР»РЅС‹Р№, С‚Рѕ РІС‹Р±РёСЂР°РµРј С‚РѕР»СЊРєРѕ С‚Рµ, РєРѕС‚РѕСЂС‹Рµ РµСЃС‚СЊ РІ SourcePC
 			if (!_reportIsFull)
 			{
 				if (_reportType <= 2)
@@ -622,124 +629,129 @@ order by FullName, FirmCr";
 				var rowCount = result.Rows.Count;
 				var columnCount = result.Columns.Count;
 
-				if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Выбранные аптеки: {0}", _clientsNames));
+				if (!String.IsNullOrEmpty(_clientsNames)) // Р”РѕР±Р°РІР»СЏРµРј СЃС‚СЂРѕРєСѓ С‡С‚РѕР±С‹ РІСЃС‚Р°РІРёС‚СЊ РІС‹Р±СЂР°РЅРЅС‹Рµ Р°РїС‚РµРєРё
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Р’С‹Р±СЂР°РЅРЅС‹Рµ Р°РїС‚РµРєРё: {0}", _clientsNames));
 				if (!String.IsNullOrEmpty(_suppliers))
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Список поставщиков: {0}", _suppliers));
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("РЎРїРёСЃРѕРє РїРѕСЃС‚Р°РІС‰РёРєРѕРІ: {0}", _suppliers));
 				if (!String.IsNullOrEmpty(_ignoredSuppliers))
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("РРіРЅРѕСЂРёСЂСѓРµРјС‹Рµ РїРѕСЃС‚Р°РІС‰РёРєРё: {0}", _ignoredSuppliers));
 
 				var lastRowIndex = rowCount + tableBeginRowIndex;
 
 				for (var i = 0; i < result.Columns.Count; i++)
 					ws.Cells[tableBeginRowIndex, i + 1] = result.Columns[i].Caption;
 
-				//Код
+				//РљРѕРґ
 				if (!WithoutAssortmentPrice)
 					((Range)ws.Columns[1, Type.Missing]).AutoFit();
 				else
 					((Range)ws.Cells[tableBeginRowIndex, 1]).ColumnWidth = 0;
 
-				if(_showCodeCr)
+				if(_codesWithoutProducer && _reportType > 2)
 					((Range)ws.Columns[2, Type.Missing]).AutoFit();
-				if(!_showCodeCr)
+				else
 					((Range)ws.Cells[tableBeginRowIndex, 2]).ColumnWidth = 0;
 
+				if(_showCodeCr)
+					((Range)ws.Columns[3, Type.Missing]).AutoFit();
+				else
+					((Range)ws.Cells[tableBeginRowIndex, 3]).ColumnWidth = 0;
 
-				//Наименование
-				((Range)ws.Cells[tableBeginRowIndex, 3]).ColumnWidth = 20;
-				//Производитель
-				((Range)ws.Cells[tableBeginRowIndex, 4]).ColumnWidth = 10;
-				//Цена прайс-листа
+
+				//РќР°РёРјРµРЅРѕРІР°РЅРёРµ
+				((Range)ws.Cells[tableBeginRowIndex, 4]).ColumnWidth = 20;
+				//РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ
+				((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 10;
+				//Р¦РµРЅР° РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
 				if (WithoutAssortmentPrice)
-					((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 0;
-				//Количество
-				if (!WithoutAssortmentPrice && (_reportType == 2 || _reportType == 4))
-					((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 4;
-				else
 					((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 0;
-				//min
-				((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 6;
-				//Лидер
-				if (!WithoutAssortmentPrice)
-					((Range)ws.Cells[tableBeginRowIndex, 8]).ColumnWidth = 9;
+				//РљРѕР»РёС‡РµСЃС‚РІРѕ
+				if (!WithoutAssortmentPrice && (_reportType == 2 || _reportType == 4))
+					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 4;
 				else
-					((Range)ws.Cells[tableBeginRowIndex, 8]).ColumnWidth = 0;
+					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 0;
+				//min
+				((Range)ws.Cells[tableBeginRowIndex, 8]).ColumnWidth = 6;
+				//Р›РёРґРµСЂ
+				if (!WithoutAssortmentPrice)
+					((Range)ws.Cells[tableBeginRowIndex, 9]).ColumnWidth = 9;
+				else
+					((Range)ws.Cells[tableBeginRowIndex, 9]).ColumnWidth = 0;
 
-				//Форматирование заголовков прайс-листов
+				//Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ Р·Р°РіРѕР»РѕРІРєРѕРІ РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ
 				FormatLeaderAndPrices(ws);
 
-				//рисуем границы на всю таблицу
+				//СЂРёСЃСѓРµРј РіСЂР°РЅРёС†С‹ РЅР° РІСЃСЋ С‚Р°Р±Р»РёС†Сѓ
 				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[lastRowIndex, columnCount]].Borders.Weight = XlBorderWeight.xlThin;
-				//Устанавливаем цвет колонки "min"
+				//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РІРµС‚ РєРѕР»РѕРЅРєРё "min"
 				ws.Range["F" + tableBeginRowIndex, "F" + lastRowIndex].Interior.Color = ColorTranslator.ToOle(Color.LightSeaGreen);
-				//Устанавливаем цвет колонки "Лидер"
+				//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РІРµС‚ РєРѕР»РѕРЅРєРё "Р›РёРґРµСЂ"
 				ws.Range["G" + tableBeginRowIndex, "G" + lastRowIndex].Interior.Color = ColorTranslator.ToOle(Color.LightSkyBlue);
 
-				//Устанавливаем шрифт листа
+				//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С€СЂРёС„С‚ Р»РёСЃС‚Р°
 				ws.Rows.Font.Size = 8;
 				ws.Rows.Font.Name = "Arial Narrow";
 
-				//Устанавливаем АвтоФильтр на все колонки
+				//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РђРІС‚РѕР¤РёР»СЊС‚СЂ РЅР° РІСЃРµ РєРѕР»РѕРЅРєРё
 				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[rowCount, columnCount]].Select();
 				((Range)wb.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
-				//Замораживаем некоторые колонки и столбцы
+				//Р—Р°РјРѕСЂР°Р¶РёРІР°РµРј РЅРµРєРѕС‚РѕСЂС‹Рµ РєРѕР»РѕРЅРєРё Рё СЃС‚РѕР»Р±С†С‹
 				ws.Range["L4", Missing.Value].Select();
 				wb.Application.ActiveWindow.FreezePanes = true;
 
-				//Объединяем несколько ячеек, чтобы в них написать текст
+				//РћР±СЉРµРґРёРЅСЏРµРј РЅРµСЃРєРѕР»СЊРєРѕ СЏС‡РµРµРє, С‡С‚РѕР±С‹ РІ РЅРёС… РЅР°РїРёСЃР°С‚СЊ С‚РµРєСЃС‚
 				ws.Range["A1:K2", Missing.Value].Select();
 				((Range)wb.Application.Selection).Merge(null);
 				if (!WithoutAssortmentPrice)
 				{
 					if (_reportType < 3)
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " Р±РµР· СѓС‡РµС‚Р° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ РїРѕ РїСЂР°Р№СЃСѓ " + CustomerFirmName + " СЃРѕР·РґР°РЅ " + DateTime.Now.ToString();
 					else
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " СЃ СѓС‡РµС‚РѕРј РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ РїРѕ РїСЂР°Р№СЃСѓ " + CustomerFirmName + " СЃРѕР·РґР°РЅ " + DateTime.Now.ToString();
 				}
 				else
 				{
 					if (_reportType < 3)
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " Р±РµР· СѓС‡РµС‚Р° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ СЃРѕР·РґР°РЅ " + DateTime.Now.ToString();
 					else
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " СЃ СѓС‡РµС‚РѕРј РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ СЃРѕР·РґР°РЅ " + DateTime.Now.ToString();
 				}
 			});
 		}
 
 		protected virtual void FormatLeaderAndPrices(_Worksheet ws)
 		{
-			int ColumnPrefix = 13;
-			//Разница
-			((Range)ws.Cells[3, 9]).ColumnWidth = 6;
-			ws.Cells[3, 9] = "Разница";
-			//% разницы
-			((Range)ws.Cells[3, 10]).ColumnWidth = 4;
-			ws.Cells[3, 10] = "% разницы";
-			//средняя
-			((Range)ws.Cells[3, 11]).ColumnWidth = 6;
-			ws.Cells[3, 11] = "Средняя цена";
-			//max
+			int ColumnPrefix = 14;
+			//Р Р°Р·РЅРёС†Р°
+			((Range)ws.Cells[3, 10]).ColumnWidth = 6;
+			ws.Cells[3, 9] = "Р Р°Р·РЅРёС†Р°";
+			//% СЂР°Р·РЅРёС†С‹
+			((Range)ws.Cells[3, 11]).ColumnWidth = 4;
+			ws.Cells[3, 10] = "% СЂР°Р·РЅРёС†С‹";
+			//СЃСЂРµРґРЅСЏСЏ
 			((Range)ws.Cells[3, 12]).ColumnWidth = 6;
-			ws.Cells[3, 12] = "Макс. цена";
+			ws.Cells[3, 11] = "РЎСЂРµРґРЅСЏСЏ С†РµРЅР°";
+			//max
+			((Range)ws.Cells[3, 13]).ColumnWidth = 6;
+			ws.Cells[3, 12] = "РњР°РєСЃ. С†РµРЅР°";
 
 			int PriceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
-				//Устанавливаем название фирмы
+				//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅР°Р·РІР°РЅРёРµ С„РёСЂРјС‹
 				ws.Cells[1, ColumnPrefix + PriceIndex * 2] = drPrice["FirmName"].ToString();
 				((Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2]).ColumnWidth = 6;
 
-				//Устанавливаем дату фирмы
+				//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РґР°С‚Сѓ С„РёСЂРјС‹
 				ws.Cells[2, ColumnPrefix + PriceIndex * 2] = drPrice["PriceDate"].ToString();
 				//((MSExcel.Range)ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
 
-				ws.Cells[3, ColumnPrefix + PriceIndex * 2] = "Цена";
+				ws.Cells[3, ColumnPrefix + PriceIndex * 2] = "Р¦РµРЅР°";
 				if (!_showPercents)
-					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Кол-во";
+					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "РљРѕР»-РІРѕ";
 				else
-					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Разница в %";
+					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Р Р°Р·РЅРёС†Р° РІ %";
 
 				if ((_reportType == 2) || (_reportType == 4))
 					((Range)ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;

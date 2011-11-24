@@ -201,7 +201,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ByOffers\CombReport.cs" />
-    <Compile Include="ByOffers\CombShortReport.cs" />
     <Compile Include="ByOffers\CombToPlainReport.cs" />
     <Compile Include="ByOrders\SupplierMarketShareByUser.cs" />
     <Compile Include="ContactsReport.cs" />

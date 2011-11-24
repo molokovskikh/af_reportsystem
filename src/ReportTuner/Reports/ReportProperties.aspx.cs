@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
@@ -103,7 +103,7 @@ and rts.ReportTypeCode = rt.ReportTypeCode
         {
             DS = ((DataSet)Session[DSParams]);
         	propertiesHelper = (PropertiesHelper) Session[PropHelper];
-			if (DS == null || propertiesHelper == null) // вероятно, сессия завершилась и все ее данные утеряны
+			if (DS == null || propertiesHelper == null) // РІРµСЂРѕСЏС‚РЅРѕ, СЃРµСЃСЃРёСЏ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ Рё РІСЃРµ РµРµ РґР°РЅРЅС‹Рµ СѓС‚РµСЂСЏРЅС‹
 				Reports_GeneralReports.Redirect(this);
         }
         btnApply.Visible = dgvNonOptional.Rows.Count > 0;
@@ -831,14 +831,14 @@ WHERE ID = ?OPID", MyCn, trans);
         }
 		foreach (GridViewRow dr in dgvNonOptional.Rows)
 		{
-			if (dr.Cells[0].Text == "Клиент")
+			if (dr.Cells[0].Text == "РљР»РёРµРЅС‚")
 			{
 				DropDownList ddl = (DropDownList)dr.Cells[1].FindControl("ddlValue");
 				if (ddl.UniqueID == ((DropDownList)sender).UniqueID)
 				{
 					foreach (GridViewRow dro in dgvOptional.Rows)
 					{
-						if (((Label)dro.Cells[0].FindControl("lblName")).Text == "Пользователь")
+						if (((Label)dro.Cells[0].FindControl("lblName")).Text == "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ")
 						{
 							DropDownList ddlo = (DropDownList)dro.Cells[1].FindControl("ddlValue");
 							FillUserDDL(Convert.ToInt64(ddl.SelectedValue), ddlo);		
@@ -851,9 +851,9 @@ WHERE ID = ?OPID", MyCn, trans);
 
     protected void ExtraRefresh()
     {
-    	object obj = FindCheckBoxByKey("По базовым ценам"); 
+    	object obj = FindCheckBoxByKey("РџРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј"); 
         if (obj != null) chbValue_CheckedChanged(obj, null);
-		obj = FindCheckBoxByKey("За предыдущий месяц");
+		obj = FindCheckBoxByKey("Р—Р° РїСЂРµРґС‹РґСѓС‰РёР№ РјРµСЃСЏС†");
 		if (obj != null) chbValue_CheckedChanged(obj, null);
     }
 
@@ -871,17 +871,16 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	protected void chbValue_CheckedChanged(object sender, EventArgs e)
 	{
-		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
-		var retail = GetValueByLabel(dgvNonOptional.Rows, "Готовить по розничному сегменту");
-		var byPreviousMonth = GetValueByLabel(dgvNonOptional.Rows, "За предыдущий месяц");
+		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "РџРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј");
+		var retail = GetValueByLabel(dgvNonOptional.Rows, "Р“РѕС‚РѕРІРёС‚СЊ РїРѕ СЂРѕР·РЅРёС‡РЅРѕРјСѓ СЃРµРіРјРµРЅС‚Сѓ");
+		var byPreviousMonth = GetValueByLabel(dgvNonOptional.Rows, "Р—Р° РїСЂРµРґС‹РґСѓС‰РёР№ РјРµСЃСЏС†");
 
-		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !retail && !base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !retail);
-		SetRowVisibility(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Начало периода", !byPreviousMonth);
-		SetRowVisibility(dgvNonOptional.Rows, "Конец периода (включительно)", !byPreviousMonth);
+		SetRowVisibility(dgvNonOptional.Rows, "РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ &quot;РџСЂР°Р№СЃ&quot;", base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ &quot;Р РµРіРёРѕРЅР°&quot;", base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "РљР»РёРµРЅС‚", !retail && !base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "РџРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј", !retail);
+		SetRowVisibility(dgvNonOptional.Rows, "Р“РѕС‚РѕРІРёС‚СЊ РїРѕ СЂРѕР·РЅРёС‡РЅРѕРјСѓ СЃРµРіРјРµРЅС‚Сѓ", !base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "РРЅС‚РµСЂРІР°Р» РѕС‚С‡РµС‚Р° (РґРЅРё) РѕС‚ С‚РµРєСѓС‰РµР№ РґР°С‚С‹", !byPreviousMonth);
 	}
 
 	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)
@@ -924,7 +923,7 @@ WHERE ID = ?OPID", MyCn, trans);
             ddl.DataValueField = "ID";
             ddl.DataBind();
             ListItem li = new ListItem();
-            li.Text = "<изменить>";
+            li.Text = "<РёР·РјРµРЅРёС‚СЊ>";
             li.Value = "-1";
             ddl.Items.Insert(0, li);
             ddl.SelectedIndex = 1;
@@ -1168,11 +1167,11 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
                     DropDownList ddlValues = ((DropDownList)e.Row.Cells[1].FindControl("ddlValue"));
                     ddlValues.Visible = true;
 
-					if (((DataRowView)e.Row.DataItem)[OPParamName.ColumnName].ToString() == "Пользователь")
+					if (((DataRowView)e.Row.DataItem)[OPParamName.ColumnName].ToString() == "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ")
 					{
 						foreach (GridViewRow dr in dgvNonOptional.Rows)
 						{
-							if (dr.Cells[0].Text == "Клиент")
+							if (dr.Cells[0].Text == "РљР»РёРµРЅС‚")
 							{
 								DropDownList ddl = (DropDownList)dr.Cells[1].FindControl("ddlValue");
                                 if (ddl != null)
@@ -1300,18 +1299,18 @@ public class PropertiesHelper
 	{		
 		if (regionPropNames.Contains(regionProp.PropertyType.PropertyName))
 		{
-			// получаем свойство "Клиент"			
+			// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ "РљР»РёРµРЅС‚"			
 			DataRow dr = dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => clientPropNames.Contains(r["PPropertyName"].ToString())).FirstOrDefault();
 			if (dr != null)
 			{
 				using(new SessionScope())
 				{
-					// текущий список регионов
+					// С‚РµРєСѓС‰РёР№ СЃРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ
 					var regEqual =
 						reportProperties.Where(p => p.PropertyType.PropertyName == regionProp.PropertyType.PropertyName).FirstOrDefault();
 					if (!(dr["PPropertyValue"] is DBNull))
 					{
-						uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента				
+						uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // РєРѕРґ РєР»РёРµРЅС‚Р°				
 						FutureClient client = FutureClient.TryFind(clientId);
 						if (client != null)
 						{
@@ -1327,9 +1326,9 @@ public class PropertiesHelper
 								                                	        		return 0u;
 								                                	        	})
 								                                	.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r);
-							// маска для списка регионов, недоступных клиенту
+							// РјР°СЃРєР° РґР»СЏ СЃРїРёСЃРєР° СЂРµРіРёРѕРЅРѕРІ, РЅРµРґРѕСЃС‚СѓРїРЅС‹С… РєР»РёРµРЅС‚Сѓ
 							return String.Format("inID={0}", regionMask);
-							// результирующая маска, включает доступные и ранее выбранные недоступные клиенту регионы
+							// СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰Р°СЏ РјР°СЃРєР°, РІРєР»СЋС‡Р°РµС‚ РґРѕСЃС‚СѓРїРЅС‹Рµ Рё СЂР°РЅРµРµ РІС‹Р±СЂР°РЅРЅС‹Рµ РЅРµРґРѕСЃС‚СѓРїРЅС‹Рµ РєР»РёРµРЅС‚Сѓ СЂРµРіРёРѕРЅС‹
 						}
 					}
 				}
@@ -1342,7 +1341,7 @@ public class PropertiesHelper
 	{
 		if(suppliersPropNames.Contains(selectedProp.PropertyType.PropertyName))
 		{
-			// получаем свойство "Пользователь" (если выбрано)
+			// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ" (РµСЃР»Рё РІС‹Р±СЂР°РЅРѕ)
 			DataRow drUser = dtOptionalParams.Rows.Cast<DataRow>().Where(r => r["OPPropertyName"].ToString() == userPropName).FirstOrDefault();
 			uint? userid = null;
 			if (drUser != null)
@@ -1354,7 +1353,7 @@ public class PropertiesHelper
 			}
 			else
 			{
-				// получаем свойство "Клиент"			
+				// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ "РљР»РёРµРЅС‚"			
 				DataRow drClient =
 					dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => clientPropNames.Contains(r["PPropertyName"].ToString())).
 						FirstOrDefault();
@@ -1364,7 +1363,7 @@ public class PropertiesHelper
 					{
 						if (!(drClient["PPropertyValue"] is DBNull))
 						{
-							uint clientId = Convert.ToUInt32(drClient["PPropertyValue"]); // код клиента				
+							uint clientId = Convert.ToUInt32(drClient["PPropertyValue"]); // РєРѕРґ РєР»РёРµРЅС‚Р°				
 							FutureClient client = FutureClient.TryFind(clientId);
 							if(client != null)
 							{
@@ -1386,16 +1385,16 @@ public class PropertiesHelper
 		if (report == null) return null;		
 		if (report.ReportType.ReportClassName.Contains("PharmacyMixedReport"))
 		{
-			// В смешанном для аптеки отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+			// Р’ СЃРјРµС€Р°РЅРЅРѕРј РґР»СЏ Р°РїС‚РµРєРё РѕС‚С‡РµС‚Рµ РІ СЃРїРёСЃРєРё СЂРµРіРёРѕРЅРѕРІ РґРѕР»Р¶РЅС‹ РІРєР»СЋС‡Р°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РґРѕСЃС‚СѓРїРЅС‹Рµ РєР»РёРµРЅС‚Сѓ СЂРµРіРёРѕРЅС‹ (Р° С‚Р°РєР¶Рµ С‚Рµ, РєРѕС‚РѕСЂС‹Рµ СЂР°РЅРµРµ Р±С‹Р»Рё РґРѕСЃС‚СѓРїРЅС‹, С‡С‚РѕР±С‹ РёС… РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РІС‹РєР»СЋС‡РёС‚СЊ)
 			var res = CalcMaskRegionByClient(prop, new[] {"RegionEqual", "RegionNonEqual"}, new[] {"SourceFirmCode"});
 			if (!String.IsNullOrEmpty(res)) return res;
 		}	
 		if (report.ReportType.ReportClassName.Contains("SpecReport"))
 		{
-			// В специальном отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+			// Р’ СЃРїРµС†РёР°Р»СЊРЅРѕРј РѕС‚С‡РµС‚Рµ РІ СЃРїРёСЃРєРё СЂРµРіРёРѕРЅРѕРІ РґРѕР»Р¶РЅС‹ РІРєР»СЋС‡Р°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РґРѕСЃС‚СѓРїРЅС‹Рµ РєР»РёРµРЅС‚Сѓ СЂРµРіРёРѕРЅС‹ (Р° С‚Р°РєР¶Рµ С‚Рµ, РєРѕС‚РѕСЂС‹Рµ СЂР°РЅРµРµ Р±С‹Р»Рё РґРѕСЃС‚СѓРїРЅС‹, С‡С‚РѕР±С‹ РёС… РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РІС‹РєР»СЋС‡РёС‚СЊ)
 			var res = CalcMaskRegionByClient(prop, new[] {"RegionClientEqual"}, new[] {"ClientCode"});
 			if (!String.IsNullOrEmpty(res)) return res;
-			// В специальном отчете список поставщиков должен формироваться с учетом выбранного клиента
+			// Р’ СЃРїРµС†РёР°Р»СЊРЅРѕРј РѕС‚С‡РµС‚Рµ СЃРїРёСЃРѕРє РїРѕСЃС‚Р°РІС‰РёРєРѕРІ РґРѕР»Р¶РµРЅ С„РѕСЂРјРёСЂРѕРІР°С‚СЊСЃСЏ СЃ СѓС‡РµС‚РѕРј РІС‹Р±СЂР°РЅРЅРѕРіРѕ РєР»РёРµРЅС‚Р°
 			res = GetUserByClient(prop, new[] {"IgnoredSuppliers", "FirmCodeEqual"}, new[] {"ClientCode"}, "UserCode");
 			if (!String.IsNullOrEmpty(res)) return res;
 		}

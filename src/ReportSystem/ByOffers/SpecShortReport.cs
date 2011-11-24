@@ -26,6 +26,8 @@ namespace Inforoom.ReportSystem
 		public string AssortmentQuantity { get; set; }
 		public float? AssortmentMinCost { get; set; }
 
+		public string CodeWithoutProducer { get; set; }
+
 		public SpecShortReportData(Offer offer)
 		{
 			Code = offer.AssortmentCode;
@@ -34,6 +36,9 @@ namespace Inforoom.ReportSystem
 			ProducerName = offer.ProducerName;
 			MinCost = offer.Cost;
 			AssortmentQuantity = offer.AssortmentQuantity;
+			if(!String.IsNullOrEmpty(offer.CodeWithoutProducer)) {
+				CodeWithoutProducer = offer.CodeWithoutProducer;
+			}
 		}
 
 		public void UpdateMinCost(Offer offer)
@@ -60,12 +65,13 @@ namespace Inforoom.ReportSystem
 
 	public class SpecShortReport : SpecReport
 	{
-		private List<SpecShortReportData> _reportData;
-		private Hashtable _hash;
+		protected List<SpecShortReportData> _reportData;
+		protected Hashtable _hash;
 
 		protected List<ulong> _Clients;
 
-		protected bool _codesWithoutProducer;
+		protected SpecShortReport()// конструктор для возможности тестирования
+		{}
 
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -77,11 +83,6 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			//base.GenerateReport(e);
-
-			//_suppliers = GetSuppliers(e);
-			//_ignoredSuppliers = GetIgnoredSuppliers(e);
-
 			NewGeneratereport(e);
 
 			_suppliers = GetShortSuppliers(e);
@@ -190,6 +191,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.TableName = "Results";
 
 			dtNewRes.Columns.Add("Code", typeof(string));
+			dtNewRes.Columns.Add("CodeWithoutProducer", typeof (string));
 			dtNewRes.Columns.Add("CodeCr", typeof(string));
 			dtNewRes.Columns.Add("FullName", typeof(string));
 			dtNewRes.Columns.Add("FirmCr", typeof(string));
@@ -199,6 +201,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.Columns.Add("LeaderName", typeof(string));
 
 			dtNewRes.Columns["Code"].Caption = "Код";
+			dtNewRes.Columns["CodeWithoutProducer"].Caption = "Код без изгот.";
+
 			dtNewRes.Columns["CodeCr"].Caption = "Код производителя";
 			dtNewRes.Columns["FullName"].Caption = "Наименование";
 			dtNewRes.Columns["FirmCr"].Caption = "Производитель";
@@ -218,6 +222,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			{
 				var newRow = dtNewRes.NewRow();
 				newRow["Code"] = specShortReportData.Code;
+				if(_codesWithoutProducer)
+					newRow["CodeWithoutProducer"] = specShortReportData.CodeWithoutProducer;
 				if(_showCodeCr)
 					newRow["CodeCr"] = specShortReportData.CodeCr;
 
@@ -241,7 +247,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_dsReport.Tables.Add(dtNewRes);
 		}
 
-		private void GetOffersByClient(int clientId)
+		protected void GetOffersByClient(int clientId)
 		{
 			ProfileHelper.Next("GetOffers for client: " + clientId);
 			Client client = Client.TryFind((uint)clientId);
@@ -249,28 +255,53 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if(client.Status == false) return;
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
 
-//			var assortmentGroups = offers.Where(o => o.AssortmentCoreId.HasValue).GroupBy(o => o.ProductId); // весь ассортимент группируем по productid (требование 6937)
-
+			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();
+			IEnumerable<IGrouping<uint, Offer>> assortmentGroups = null;
+			if(_reportType > 2 && _codesWithoutProducer) {
+				assortmentGroups = offers.Where(o => o.AssortmentCoreId.HasValue).GroupBy(o => o.ProductId); // весь ассортимент группируем по productid (требование 6937)	
+				if(assortmentGroups != null) {
+					foreach (var agroup in assortmentGroups) {
+						assortmentMap[agroup.Key] = agroup;
+					}
+				}
+			}
 			ProfileHelper.WriteLine("Offers count: " + offers.Count);
 			ProfileHelper.Next("ProcessOffers for client: " + clientId);
 			var groups = offers.GroupBy(o => GetKey(o));
-			foreach (var @group in groups)
-			{
+			foreach (var @group in groups) {
 				var ordered = group.OrderBy(o => o.Cost);
 				var minOffer = ordered.First();
-
-/* (требование 6937)
-				if(_reportType > 2 && _codesWithoutProducer) { // отчет с учетом производителя и выбрана опция "Выставление кодов без учета изготовителя."
+				
+				if (_reportType > 2 && _codesWithoutProducer) {
+					// отчет с учетом производителя и выбрана опция "Выставление кодов без учета изготовителя."
 					// находим группу с выбранным productId
-					var assortmentGroup = assortmentGroups.Where(g => g.Key == minOffer.ProductId).FirstOrDefault();
-					var assortment = assortmentGroup.FirstOrDefault(); // берем первый (если коды преобразуются в числа - нужно брать мин. значение)
-					if(assortment != null) {
-						var assortmentCode = assortment.Code;
-						if(!String.IsNullOrEmpty(assortmentCode))
-							minOffer.CodeWithoutProducer = assortmentCode;
+					//var assortmentGroup = assortmentGroups.Where(g => g.Key == minOffer.ProductId).FirstOrDefault();
+					if(assortmentMap.ContainsKey(minOffer.ProductId)) {
+						var assortmentGroup = assortmentMap[minOffer.ProductId];
+						if(assortmentGroup != null) {
+							IList<long> codes = new List<long>();
+							foreach (var offer in assortmentGroup) {
+								long val;
+								if (long.TryParse(offer.AssortmentCode, out val))
+									codes.Add(val);
+							}
+							if (codes.Count == assortmentGroup.Count() && codes.Count != 0) {
+								codes = codes.OrderBy(c => c).ToList();
+								minOffer.CodeWithoutProducer = codes.First().ToString();
+							}
+							else {
+								var offer = assortmentGroup.FirstOrDefault();
+								// берем первый (если коды преобразуются в числа - нужно брать мин. значение)	
+								if (offer != null) {
+									var assortmentCode = offer.AssortmentCode;
+									if (!String.IsNullOrEmpty(assortmentCode))
+										minOffer.CodeWithoutProducer = assortmentCode;
+								}
+							}
+						}
 					}
 				}
- */
+			
 				var item = FindItem(_hash, minOffer, _reportData);
 				item.UpdateMinCost(minOffer);
 
@@ -288,7 +319,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				if (_reportType <= 2)
 					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, ProducerId = 0};
 				else
-					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, offer.ProducerId};
+					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, offer.ProducerId}; // с учетом производителя
 			}
 		}
 
@@ -328,6 +359,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				WithoutAssortmentPrice = (bool)getReportParam("WithoutAssortmentPrice");
 			if (WithoutAssortmentPrice)
 				_reportIsFull = true;
+
+			if(_reportParams.ContainsKey("CodesWithoutProducer")) // Выставление кодов без учета изготовителя
+				_codesWithoutProducer = (bool) getReportParam("CodesWithoutProducer");
 		}
 
 		protected override void Calculate()
@@ -365,6 +399,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtExport.Rows[0].Delete(); // ибо они пустые, ибо оставлены под шапку в Excel
 
 			dtExport.Columns["Code"].ColumnName = "CODE";
+			dtExport.Columns["CodeWithoutProducer"].ColumnName = "CODE2";
 			dtExport.Columns["CodeCr"].ColumnName = "CODECR";
 			dtExport.Columns["FullName"].ColumnName = "PRODUCT";
 			dtExport.Columns["FirmCr"].ColumnName = "PRODUCER";
@@ -385,6 +420,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			}
 			if(!_showCodeCr)
 				dtExport.Columns.Remove("CODECR");
+			if(!_codesWithoutProducer)
+				dtExport.Columns.Remove("CODE2");
 			base.DataTableToDbf(dtExport, fileName);
 		}
 	}

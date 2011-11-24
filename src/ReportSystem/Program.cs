@@ -16,7 +16,7 @@ namespace Inforoom.ReportSystem
 	class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
-
+		public static GeneralReport generalReport { get; private set; }
 		//Выбираем отчеты из базы
 		static DataTable GetGeneralReports(ReportsExecuteArgs e)
 		{
@@ -38,7 +38,12 @@ namespace Inforoom.ReportSystem
 				var interval = false;
 				var dtFrom = new DateTime();
 				var dtTo = new DateTime();
+				var manual = false;
 				generalReportId = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
+				if(!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/manual:"))) {
+					manual = Convert.ToBoolean(CommandLineUtils.GetStr(@"/manual:"));
+				}
+				
 				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:")))
 				{
 					interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:"));
@@ -70,7 +75,7 @@ and cr.generalreportcode = " + generalReportId;
 						{
 							foreach (DataRow drReport in dtGeneralReports.Rows)
 							{
-								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]))
+								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]) && !manual)
 								{
 									Mailer.MailGeneralReportErr(
 										"Невозможно выполнить отчет, т.к. отчет выключен.",
@@ -95,6 +100,7 @@ and cr.generalreportcode = " + generalReportId;
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
 										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString());
+									generalReport = gr;
 									_log.DebugFormat("Запуск отчета {0}", gr._generalReportID);
 									gr.ProcessReports();
 									_log.DebugFormat("Отчет {0} выполнился успешно", gr._generalReportID);

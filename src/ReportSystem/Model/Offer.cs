@@ -32,7 +32,9 @@ namespace Inforoom.ReportSystem.Model
 		public float? AssortmentRealCost { get; set; }
 		public float? AssortmentCost { get; set; }
 
-//		public string CodeWithoutProducer { get; set; }  // (требование 6937)
+		public string CodeWithoutProducer { get; set; }
+
+		public Offer(){}
 
 		public Offer(IDataRecord row, uint? noiseSupplierId, Random random)
 		{

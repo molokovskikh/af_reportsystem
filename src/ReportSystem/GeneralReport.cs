@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Data;
 using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
@@ -14,7 +14,7 @@ using Inforoom.ReportSystem.Properties;
 namespace Inforoom.ReportSystem
 {
 
-	//Содержит названия полей, используемых при создании общего очета
+	//РЎРѕРґРµСЂР¶РёС‚ РЅР°Р·РІР°РЅРёСЏ РїРѕР»РµР№, РёСЃРїРѕР»СЊР·СѓРµРјС‹С… РїСЂРё СЃРѕР·РґР°РЅРёРё РѕР±С‰РµРіРѕ РѕС‡РµС‚Р°
 	public sealed class GeneralReportColumns
 	{
 		public const string GeneralReportCode = "GeneralReportCode";
@@ -45,7 +45,7 @@ namespace Inforoom.ReportSystem
 		private string _reportFileName;
 		private string _reportArchName;
 
-		//отчет является разовым?
+		//РѕС‚С‡РµС‚ СЏРІР»СЏРµС‚СЃСЏ СЂР°Р·РѕРІС‹Рј?
 		private bool _temporary;
 
 		private MySqlConnection _conn;
@@ -55,23 +55,23 @@ namespace Inforoom.ReportSystem
 
 		private ReportFormats Format;
 
-		private string _payer;
+		public string _payer;
 
         private ILog Logger;
 
-		//таблица отчетов, которая существует в общем отчете
+		//С‚Р°Р±Р»РёС†Р° РѕС‚С‡РµС‚РѕРІ, РєРѕС‚РѕСЂР°СЏ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РІ РѕР±С‰РµРј РѕС‚С‡РµС‚Рµ
 		DataTable _dtReports;
 
-		//таблица контактов, по которым надо отправить отчет
+		//С‚Р°Р±Р»РёС†Р° РєРѕРЅС‚Р°РєС‚РѕРІ, РїРѕ РєРѕС‚РѕСЂС‹Рј РЅР°РґРѕ РѕС‚РїСЂР°РІРёС‚СЊ РѕС‚С‡РµС‚
 		DataTable _dtContacts;
 
 		protected List<BaseReport> _reports;
 
-		// Проверка спика отчетов
+		// РџСЂРѕРІРµСЂРєР° СЃРїРёРєР° РѕС‚С‡РµС‚РѕРІ
 		private void CheckReports()
 		{
-			foreach (DataRow drGReport1 in _dtReports.Rows) // Проверяем чтобы не было
-				foreach (DataRow drGReport2 in _dtReports.Rows)  // двух листов с одинаковыми названиями
+			foreach (DataRow drGReport1 in _dtReports.Rows) // РџСЂРѕРІРµСЂСЏРµРј С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ
+				foreach (DataRow drGReport2 in _dtReports.Rows)  // РґРІСѓС… Р»РёСЃС‚РѕРІ СЃ РѕРґРёРЅР°РєРѕРІС‹РјРё РЅР°Р·РІР°РЅРёСЏРјРё
 					if(Convert.ToBoolean(drGReport1[BaseReportColumns.colEnabled]) &&
 						Convert.ToBoolean(drGReport2[BaseReportColumns.colEnabled]) &&
 						Convert.ToUInt32(drGReport1[BaseReportColumns.colReportCode]) != 
@@ -80,12 +80,12 @@ namespace Inforoom.ReportSystem
 							Convert.ToString(drGReport2[BaseReportColumns.colReportCaption]))
 					{
 						throw new ReportException(
-							String.Format("В отчете {0} содержатся листы с одинаковым названием {1}.",
+							String.Format("Р’ РѕС‚С‡РµС‚Рµ {0} СЃРѕРґРµСЂР¶Р°С‚СЃСЏ Р»РёСЃС‚С‹ СЃ РѕРґРёРЅР°РєРѕРІС‹Рј РЅР°Р·РІР°РЅРёРµРј {1}.",
 								_generalReportID, drGReport1[BaseReportColumns.colReportCaption]));
 					}
 		}
 
-		protected GeneralReport() // конструктор для возможности тестирования
+		protected GeneralReport() // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
 		{}
 
 		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, 
@@ -156,12 +156,12 @@ where GeneralReport = ?GeneralReport;";
 			}
 			if ((_dtReports != null) && (_dtReports.Rows.Count > 0))
 			{
-				CheckReports(); // Проверяем отчеты, если что-то не нравится выдаем исключение
+				CheckReports(); // РџСЂРѕРІРµСЂСЏРµРј РѕС‚С‡РµС‚С‹, РµСЃР»Рё С‡С‚Рѕ-С‚Рѕ РЅРµ РЅСЂР°РІРёС‚СЃСЏ РІС‹РґР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ
 				foreach (DataRow drGReport in _dtReports.Rows)
 				{
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled]))
 					{
-						//Создаем отчеты и добавляем их в список отчетов
+						//РЎРѕР·РґР°РµРј РѕС‚С‡РµС‚С‹ Рё РґРѕР±Р°РІР»СЏРµРј РёС… РІ СЃРїРёСЃРѕРє РѕС‚С‡РµС‚РѕРІ
 						BaseReport bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], 
@@ -173,11 +173,11 @@ where GeneralReport = ?GeneralReport;";
 						bs._dtTo = dtTo;
 						_reports.Add(bs);
 
-						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
+						//Р•СЃР»Рё Сѓ РѕР±С‰РµРіРѕ РѕС‚С‡РµС‚Р° РЅРµ РІС‹СЃС‚Р°РІР»РµРЅР° С‚РµРјР° РїРёСЃСЊРјР°, С‚Рѕ Р±РµСЂРµРј РµРµ Сѓ РїРµСЂРІРѕРіРѕ РїРѕРїР°РІС€РµРіРѕСЃСЏ РѕС‚С‡РµС‚Р°
 						if (String.IsNullOrEmpty(_eMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
 							_eMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
 
-						//Если в отчетах содержится или комбинированый или специальный отчет, то добавляем в отчеты Контакты
+						//Р•СЃР»Рё РІ РѕС‚С‡РµС‚Р°С… СЃРѕРґРµСЂР¶РёС‚СЃСЏ РёР»Рё РєРѕРјР±РёРЅРёСЂРѕРІР°РЅС‹Р№ РёР»Рё СЃРїРµС†РёР°Р»СЊРЅС‹Р№ РѕС‚С‡РµС‚, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РІ РѕС‚С‡РµС‚С‹ РљРѕРЅС‚Р°РєС‚С‹
 						if (!addContacts)
 						{
 							addContacts = (bs.GetType() == typeof(CombReport)) || (bs.GetType() == typeof(SpecReport));
@@ -188,13 +188,13 @@ where GeneralReport = ?GeneralReport;";
 				}
 			}
 			else
-				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
+				throw new ReportException("РЈ РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РЅРµС‚ РґРѕС‡РµСЂРЅРёС… РѕС‚С‡РµС‚РѕРІ.");
 
 			if (addContacts && Format == ReportFormats.Excel)
-				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, Format, propertiesLoader.LoadProperties(_conn, contactsCode)));
+				_reports.Add(new ContactsReport(contactsCode, "РљРѕРЅС‚Р°РєС‚С‹", _conn, Temporary, Format, propertiesLoader.LoadProperties(_conn, contactsCode)));
 		}
 
-		//Производится построение отчетов
+		//РџСЂРѕРёР·РІРѕРґРёС‚СЃСЏ РїРѕСЃС‚СЂРѕРµРЅРёРµ РѕС‚С‡РµС‚РѕРІ
 		public void ProcessReports()
 		{
 			_directoryName = Path.GetTempPath() + "Rep" + _generalReportID.ToString();
@@ -214,22 +214,23 @@ where GeneralReport = ?GeneralReport;";
 					bs.ReadReportParams();
 					bs.ProcessReport();
 					bs.ReportToFile(_mainFileName);					
-					bs.ToLog(_generalReportID); // логируем успешное выполнение отчета					
+					bs.ToLog(_generalReportID); // Р»РѕРіРёСЂСѓРµРј СѓСЃРїРµС€РЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ РѕС‚С‡РµС‚Р°					
 					emptyReport = false;
 				}
 				catch(Exception ex)
 				{
-					bs.ToLog(_generalReportID, ex.ToString()); // логируем ошибку при выполнении отчета
+					bs.ToLog(_generalReportID, ex.ToString()); // Р»РѕРіРёСЂСѓРµРј РѕС€РёР±РєСѓ РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РѕС‚С‡РµС‚Р°
 					if(ex is ReportException)
 					{		
-						Mailer.MailGeneralReportErr(ex.ToString(), _payer, _generalReportID);						
-						continue; // выполняем следующий отчет
+						// СѓРІРµРґРѕРјР»РµРЅРёРµ РѕР± РѕС€РёР±РєРµ РїСЂРё С„РѕСЂРјРёСЂРѕРІР°РЅРёРё РѕРґРЅРѕРіРѕ РёР· РїРѕРґРѕС‚С‡РµС‚РѕРІ
+						Mailer.MailReportErr(ex.ToString(), _payer, _generalReportID, bs.ReportCode);
+						continue; // РІС‹РїРѕР»РЅСЏРµРј СЃР»РµРґСѓСЋС‰РёР№ РѕС‚С‡РµС‚
 					}
-					throw; // передаем наверх
+					throw; // РїРµСЂРµРґР°РµРј РЅР°РІРµСЂС…
 				}
 		    }
 
-			if(emptyReport) throw new ReportException("Отчет пуст.");
+			if(emptyReport) throw new ReportException("РћС‚С‡РµС‚ РїСѓСЃС‚.");
 
 			string ResFileName = ArchFile();
             
@@ -241,7 +242,7 @@ where GeneralReport = ?GeneralReport;";
 				foreach (DataRow drContact in _dtContacts.Rows)
 					MailWithAttach(ResFileName, drContact[0].ToString());
 #endif
-			//Написать удаление записей из таблицы !!
+			//РќР°РїРёСЃР°С‚СЊ СѓРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРµР№ РёР· С‚Р°Р±Р»РёС†С‹ !!
 			MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
 			                                                	{
 																	//args.DataAdapter.DeleteCommand = new MySqlCommand();
@@ -260,7 +261,7 @@ where GeneralReport = ?GeneralReport;";
 			var message = new Mime(); 
 			var mainEntry = message.MainEntity; 
 
-			mainEntry.From = new AddressList {new MailboxAddress("АК Инфорум", "report@analit.net")};
+			mainEntry.From = new AddressList {new MailboxAddress("РђРљ РРЅС„РѕСЂСѓРј", "report@analit.net")};
 
 			mainEntry.To = new LumiSoft.Net.Mime.AddressList();
 			mainEntry.To.Parse(EMailAddress); 
@@ -345,7 +346,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 		    return archive;
 		}
 
-		//Выбираем отчеты из базы
+		//Р’С‹Р±РёСЂР°РµРј РѕС‚С‡РµС‚С‹ РёР· Р±Р°Р·С‹
 		private DataTable GetReports(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
@@ -368,7 +369,7 @@ and rt.ReportTypeCode = r.ReportTypeCode",
 		{
 			Type t = Type.GetType(ReportTypeClassName);
 			if (t == null)
-				throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
+				throw new ReportException(String.Format("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РѕС‚С‡РµС‚Р° : {0}", ReportTypeClassName));
 			return t;
 		}
 	}
