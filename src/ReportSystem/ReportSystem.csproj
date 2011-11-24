@@ -181,6 +181,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ByOffers\CostDynamic.cs" />
     <Compile Include="ByOffers\PriceCollectionForClientReport.cs" />
     <Compile Include="ByOffers\PricesOfCompetitorsReport.cs" />
     <Compile Include="ByOrders\OrderOutAllowedAssortment.cs" />
@@ -193,6 +194,7 @@
     <Compile Include="Model\Region.cs" />
     <Compile Include="Model\ReportResultLog.cs" />
     <Compile Include="Model\Supplier.cs" />
+    <Compile Include="Writers\CostDynamicWriter.cs" />
     <Compile Include="Writers\SupplierExcelWriter.cs" />
     <Content Include="App.ico" />
     <Compile Include="AssemblyInfo.cs">

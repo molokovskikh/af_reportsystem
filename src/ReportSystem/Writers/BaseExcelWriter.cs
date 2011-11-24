@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data;
 using System.Data.OleDb;
+using System.Drawing;
 using System.Globalization;
+using System.Reflection;
 using System.Threading;
 using Inforoom.ReportSystem.Helpers;
 using System.Collections.Generic;
@@ -96,20 +98,20 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 				_ws.Cells[1, i] = "";
 			}
 			for (int i = 0; i < _result.Columns.Count; i++)
+			{
+				_ws.Cells[CountDownRows - 1, i + 1] = "";
+				_ws.Cells[CountDownRows - 1, i + 1] = _result.Columns[i].Caption;
+				if (CountDownRows != 2)
 				{
-					_ws.Cells[CountDownRows - 1, i + 1] = "";
-					_ws.Cells[CountDownRows - 1, i + 1] = _result.Columns[i].Caption;
-					if (CountDownRows != 2)
-					{
-						_ws.Cells[1, 4] = "";
-					}
-					if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
-						((Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
-					else
-						((Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
-					if (_result.Columns[i].ExtendedProperties.ContainsKey("Color"))
-						_ws.get_Range(_ws.Cells[CountDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)_result.Columns[i].ExtendedProperties["Color"]);
+					_ws.Cells[1, 4] = "";
 				}
+				if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
+					((Range)_ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)_result.Columns[i].ExtendedProperties["Width"]).Value;
+				else
+					((Range)_ws.Columns[i + 1, Type.Missing]).AutoFit();
+				if (_result.Columns[i].ExtendedProperties.ContainsKey("Color"))
+					_ws.get_Range(_ws.Cells[CountDownRows, i + 1], _ws.Cells[_result.Rows.Count + 1, i + 1]).Interior.Color = ColorTranslator.ToOle((Color)_result.Columns[i].ExtendedProperties["Color"]);
+			}
 
 
 			//рисуем границы на всю таблицу
@@ -122,7 +124,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 
 			//Устанавливаем АвтоФильтр на все колонки
 			_ws.Range[_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
-			((Range)_ws.Application.Selection).AutoFilter(1, System.Reflection.Missing.Value, XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
+			((Range)_ws.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 			Thread.CurrentThread.CurrentCulture = oldCI;
 		}

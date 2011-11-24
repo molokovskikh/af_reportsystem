@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem.Helpers
@@ -8,9 +9,11 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void Workbook(string file, Action<Workbook> action)
 		{
 			Application exApp = new ApplicationClass();
+			Console.WriteLine(File.Exists(file));
 			try
 			{
 				exApp.DisplayAlerts = false;
+				file = Path.GetFullPath(file);
 				var workbook = exApp.Workbooks.Open(file);
 				_Worksheet worksheet;
 				try

@@ -14,3 +14,6 @@
 [submodule "lib/MonoRail.Debugger.Toolbar"]
 	path = lib/MonoRail.Debugger.Toolbar
 	url = ssh://git.analit.net/var/www/git/MonoRail.Debugger.Toolbar
+[submodule "src/Common.MySql"]
+	path = src/Common.MySql
+	url = ssh://git.analit.net/var/www/git/Common.MySql

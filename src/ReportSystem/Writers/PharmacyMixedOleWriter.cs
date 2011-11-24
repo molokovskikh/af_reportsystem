@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Data;
+using System.Drawing;
+using System.Reflection;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
+using Microsoft.Office.Interop.Excel;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using Inforoom.ReportSystem.Filters;
+using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem.Writers
 {
@@ -18,10 +22,10 @@ namespace Inforoom.ReportSystem.Writers
 		public void FormatExcel(DataSet reportData, string fileName, PharmacyMixedSettings settings)
 		{
 			ProfileHelper.Next("FormatExcel");
-			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			UseExcel.Workbook(fileName, b => {
+				var exApp = b.Application;
 				var wb = b;
-				var ws = (MSExcel._Worksheet) wb.Worksheets["rep" + settings.ReportCode.ToString()];
+				var ws = (_Worksheet) wb.Worksheets["rep" + settings.ReportCode.ToString()];
 
 				ws.Name = settings.ReportCaption.Substring(0,
 					(settings.ReportCaption.Length < MaxListName) ? settings.ReportCaption.Length : MaxListName);
@@ -32,18 +36,18 @@ namespace Inforoom.ReportSystem.Writers
 					ws.Cells[1, i + 1] = "";
 					ws.Cells[1 + settings.Filter.Count, i + 1] = res.Columns[i].Caption;
 					if (res.Columns[i].ExtendedProperties.ContainsKey("Width"))
-						((MSExcel.Range) ws.Columns[i + 1, Type.Missing]).ColumnWidth =
+						((Range) ws.Columns[i + 1, Type.Missing]).ColumnWidth =
 							((int?) res.Columns[i].ExtendedProperties["Width"]).Value;
 					else
-						((MSExcel.Range) ws.Columns[i + 1, Type.Missing]).AutoFit();
+						((Range) ws.Columns[i + 1, Type.Missing]).AutoFit();
 					if (res.Columns[i].ExtendedProperties.ContainsKey("Color"))
 						ws.get_Range(ws.Cells[1 + settings.Filter.Count, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]).Interior.Color =
-							System.Drawing.ColorTranslator.ToOle((System.Drawing.Color) res.Columns[i].ExtendedProperties["Color"]);
+							ColorTranslator.ToOle((Color) res.Columns[i].ExtendedProperties["Color"]);
 				}
 
 				//рисуем границы на всю таблицу
-				ws.get_Range(ws.Cells[1 + settings.Filter.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]).Borders.
-					Weight = MSExcel.XlBorderWeight.xlThin;
+				ws.get_Range(ws.Cells[1 + settings.Filter.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count])
+					.Borders.Weight = XlBorderWeight.xlThin;
 
 				//Устанавливаем шрифт листа
 				ws.Rows.Font.Size = 8;
@@ -52,8 +56,8 @@ namespace Inforoom.ReportSystem.Writers
 
 				//Устанавливаем АвтоФильтр на все колонки
 				ws.get_Range(ws.Cells[1 + settings.Filter.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]).Select();
-				((MSExcel.Range) exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value,
-					Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
+				((Range) exApp.Selection).AutoFilter(1, Missing.Value,
+					XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 				for (int i = 0; i < settings.Filter.Count; i++)
 					ws.Cells[1 + i, 1] = settings.Filter[i];

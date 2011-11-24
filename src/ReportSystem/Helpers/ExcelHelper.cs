@@ -4,7 +4,14 @@ using System.Linq;
 using System.Text;
 using ExcelLibrary.SpreadSheet;
 using System.Data;
+using Microsoft.Office.Interop.Excel;
 using MySql.Data.Types;
+using Borders = ExcelLibrary.SpreadSheet.Borders;
+using CellFormat = ExcelLibrary.SpreadSheet.CellFormat;
+using DataTable = System.Data.DataTable;
+using Font = ExcelLibrary.SpreadSheet.Font;
+using Workbook = Microsoft.Office.Interop.Excel.Workbook;
+using Worksheet = ExcelLibrary.SpreadSheet.Worksheet;
 
 namespace Inforoom.ReportSystem.Helpers
 {
@@ -99,6 +106,54 @@ namespace Inforoom.ReportSystem.Helpers
 		{
 			for (ushort i = 0; i < widths.Length; i++)
 				ws.Cells.ColumnWidth[i] = widths[i];
+		}
+
+		public static int PutHeader(_Worksheet ws, int beginRow, int columnCount, string message)
+		{
+			((Range) ws.Cells[beginRow + 1, 1]).Select();
+			var row = ((Range) ws.Application.Selection).EntireRow;
+			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
+			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
+			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
+
+			beginRow += 3;
+			var range = ws.Range[
+				ws.Cells[beginRow - 3, 1], 
+				ws.Cells[beginRow - 1, columnCount]];
+			range.Select();
+			((Range)ws.Application.Selection).Merge();
+			var activeCell = ws.Application.ActiveCell;
+			activeCell.FormulaR1C1 = message;
+			activeCell.WrapText = true;
+			activeCell.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+			activeCell.VerticalAlignment = XlVAlign.xlVAlignTop;
+			return beginRow;
+		}
+
+		public static void Header(_Worksheet ws, int beginRow, int columnCount, string message)
+		{
+			((Range) ws.Cells[beginRow + 1, 1]).Select();
+			var row = ((Range) ws.Application.Selection).EntireRow;
+			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
+
+			Merge(ws, beginRow, 0, columnCount, message);
+		}
+
+		public static void Merge(_Worksheet ws, int beginRow, int beginColumn, int columnCount, string message)
+		{
+			var range = ws.Range[
+				ws.Cells[beginRow + 1, beginColumn + 1],
+				ws.Cells[beginRow + 1, beginColumn + columnCount]];
+			range.Merge();
+			range.FormulaR1C1 = message;
+			range.WrapText = true;
+			range.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+			range.VerticalAlignment = XlVAlign.xlVAlignTop;
+		}
+
+		public static _Worksheet GetSheet(Workbook wb, ulong reportId)
+		{
+			return (_Worksheet)wb.Worksheets["rep" + reportId.ToString()];
 		}
 	}
 }

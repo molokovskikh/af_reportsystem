@@ -1,1 +1,1 @@
-<%@ Application Inherits="Inforoom.ReportTuner.Global" Language="C#" %>
+<%@ Application Inherits="ReportTuner.Global" Language="C#" %>

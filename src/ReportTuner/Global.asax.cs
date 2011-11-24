@@ -1,45 +1,25 @@
 ﻿using System;
-using System.Data;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Text;
 using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Castle.MonoRail.Framework;
-using Castle.MonoRail.Framework.Configuration;
 using Castle.MonoRail.Framework.Container;
-using Castle.MonoRail.Framework.Internal;
 using Castle.MonoRail.Framework.Services;
-using Castle.MonoRail.Framework.Views.Aspx;
-using Castle.MonoRail.Views.Brail;
 using log4net;
 using log4net.Config;
 using ReportTuner.Models;
-using NHibernate.Criterion;
 using Microsoft.Win32.TaskScheduler;
 using ReportTuner.Helpers;
-using System.Diagnostics;
 
-/// <summary>
-/// Summary description for Global
-/// </summary>
-namespace Inforoom.ReportTuner
+namespace ReportTuner
 {
 	public class Global : HttpApplication, IMonoRailContainerEvents
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof(Global));
-
-		public Global()
-		{
-		}
 
 		void Application_Start(object sender, EventArgs e)
 		{			
@@ -60,7 +40,7 @@ namespace Inforoom.ReportTuner
 #if DEBUG
 			var taskService = ScheduleHelper.GetService();
 			var root = taskService.RootFolder;
-			var folder = root.SubFolders.Cast<TaskFolder>()
+			var folder = root.SubFolders
 				.FirstOrDefault(f => String.Equals(f.Name, ScheduleHelper.ReportsFolderName, StringComparison.CurrentCultureIgnoreCase));
 			if (folder == null)
 				root.CreateFolder(ScheduleHelper.ReportsFolderName, null);
@@ -72,7 +52,7 @@ namespace Inforoom.ReportTuner
 			{
 				try
 				{
-					GeneralReport _templateReport = GeneralReport.Find(_TemplateReportId);
+					GeneralReport.Find(_TemplateReportId);
 				}
 				catch (NotFoundException exp)
 				{
@@ -91,37 +71,6 @@ namespace Inforoom.ReportTuner
 			if (UserName.StartsWith("ANALIT\\", StringComparison.OrdinalIgnoreCase))
 				UserName = UserName.Substring(7);
 			Session["UserName"] = UserName;
-
-			//Удаляем временные отчеты, которые старше 1 дня
-/*			GeneralReport[] _temporaryReportsForDelete = GeneralReport.FindAll(
-				Expression.Eq("Temporary", true),
-				Expression.Le("TemporaryCreationDate", DateTime.Now.AddDays(-1)));
-			using (TaskService taskService = ScheduleHelper.GetService())
-			using (TaskFolder reportsFolder = ScheduleHelper.GetReportsFolder(taskService))
-			{
-				if (_temporaryReportsForDelete.Length > 0)
-					using (new TransactionScope())
-					{
-
-						foreach (GeneralReport _report in _temporaryReportsForDelete)
-						{
-							ScheduleHelper.DeleteTask(reportsFolder, _report.Id, "GR");
-							_report.Delete();
-						}
-					}
-				/*foreach (var delTask in ScheduleHelper.GetAllTempTask(reportsFolder))
-				{
-					if (delTask.State != TaskState.Running)
-					try
-					{
-						reportsFolder.DeleteTask(delTask.Name);
-					}
-					catch (System.IO.FileNotFoundException)
-					{
-					}
-				}
-			}
-*/
 		}
 
 		void Application_BeginRequest(object sender, EventArgs e)
@@ -176,22 +125,6 @@ namespace Inforoom.ReportTuner
 			_log.Error(builder.ToString());
 		}
 
-		/*public void Configure(IMonoRailConfiguration configuration)
-		{
-			configuration.ControllersConfig.AddAssembly("ReportTuner");
-			configuration.ControllersConfig.AddAssembly("Common.Web.Ui");
-			configuration.ViewComponentsConfig.Assemblies = new[] {
-				"ReportTuner",
-				"Common.Web.Ui"
-			};
-			configuration.ViewEngineConfig.ViewPathRoot = "Views";
-			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(BooViewEngine), false));
-			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(WebFormsViewEngine), false));
-			configuration.ViewEngineConfig.AssemblySources.Add(new AssemblySourceInfo("Common.Web.Ui", "Common.Web.Ui.Views"));
-			configuration.ViewEngineConfig.VirtualPathRoot = configuration.ViewEngineConfig.ViewPathRoot;
-			configuration.ViewEngineConfig.ViewPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configuration.ViewEngineConfig.ViewPathRoot);
-		}*/
-
 		void Session_End(object sender, EventArgs e)
 		{
 			//Code that runs when a session ends. 
@@ -209,20 +142,14 @@ namespace Inforoom.ReportTuner
 			GC.Collect();
 		}
 
-		void Application_End(object sender, EventArgs e)
-		{
-			//Code that runs on application shutdown
-		}
-
 		public void Created(IMonoRailContainer container)
-		{
-			//throw new NotImplementedException();
-		}
+		{}
 
 		public void Initialized(IMonoRailContainer container)
-		{			
-			((DefaultViewComponentFactory)container.GetService<IViewComponentFactory>()).Inspect(Assembly.Load("ReportTuner"));
-			((DefaultViewComponentFactory)container.GetService<IViewComponentFactory>()).Inspect(Assembly.Load("Common.Web.Ui"));
+		{
+			var defaultViewComponentFactory = ((DefaultViewComponentFactory)container.GetService<IViewComponentFactory>());
+			defaultViewComponentFactory.Inspect(Assembly.Load("ReportTuner"));
+			defaultViewComponentFactory.Inspect(Assembly.Load("Common.Web.Ui"));
 		}
 	}
 }

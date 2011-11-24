@@ -623,11 +623,11 @@ order by FullName, FirmCr";
 				var columnCount = result.Columns.Count;
 
 				if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
-					tableBeginRowIndex = PutHeader(ws, tableBeginRowIndex, 12, String.Format("Выбранные аптеки: {0}", _clientsNames));
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Выбранные аптеки: {0}", _clientsNames));
 				if (!String.IsNullOrEmpty(_suppliers))
-					tableBeginRowIndex = PutHeader(ws, tableBeginRowIndex, 12, String.Format("Список поставщиков: {0}", _suppliers));
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Список поставщиков: {0}", _suppliers));
 				if (!String.IsNullOrEmpty(_ignoredSuppliers))
-					tableBeginRowIndex = PutHeader(ws, tableBeginRowIndex, 12, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
 
 				var lastRowIndex = rowCount + tableBeginRowIndex;
 
@@ -706,28 +706,6 @@ order by FullName, FirmCr";
 						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
 				}
 			});
-		}
-
-		private int PutHeader(_Worksheet ws, int beginRow, int columnCount, string message)
-		{
-			((Range) ws.Cells[beginRow + 1, 1]).Select();
-			var row = ((Range) ws.Application.Selection).EntireRow;
-			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
-			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
-			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
-
-			beginRow += 3;
-			var range = ws.Range[
-				ws.Cells[beginRow - 3, 1], 
-				ws.Cells[beginRow - 1, columnCount]];
-			range.Select();
-			((Range)ws.Application.Selection).Merge();
-			var activeCell = ws.Application.ActiveCell;
-			activeCell.FormulaR1C1 = message;
-			activeCell.WrapText = true;
-			activeCell.HorizontalAlignment = XlHAlign.xlHAlignLeft;
-			activeCell.VerticalAlignment = XlVAlign.xlVAlignTop;
-			return beginRow;
 		}
 
 		protected virtual void FormatLeaderAndPrices(_Worksheet ws)

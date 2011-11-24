@@ -1,5 +1,6 @@
 ﻿using System;
 using Inforoom.ReportSystem.Helpers;
+using Microsoft.Office.Interop.Excel;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Data;
 using Inforoom.ReportSystem.ReportSettings;
@@ -36,7 +37,7 @@ namespace Inforoom.ReportSystem.Writers
 			UseExcel.Workbook(fileName, b => {
 				var exApp = b.Application;
 				var wb = b;
-				var ws = (MSExcel._Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
+				var ws = ExcelHelper.GetSheet(wb, _reportCode);
 
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
