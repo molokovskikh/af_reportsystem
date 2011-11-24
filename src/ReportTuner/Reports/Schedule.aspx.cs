@@ -22,6 +22,7 @@ using Microsoft.Win32.TaskScheduler;
 using System.Threading;
 using ReportTuner.Models;
 using ReportTuner.Helpers;
+using Action = Microsoft.Win32.TaskScheduler.Action;
 
 
 public partial class Reports_schedule : Page
@@ -46,6 +47,7 @@ public partial class Reports_schedule : Page
     private DataColumn SSaturday;
     private DataColumn SSunday;
     Task currentTask;
+	private Task temp1Task;
 	TaskDefinition currentTaskDefinition;
     DaysOfTheWeek triggerDays = 0;
     private DataColumn SStartHour;
@@ -71,10 +73,20 @@ public partial class Reports_schedule : Page
 		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
 		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
-
-
-		btnExecute.Enabled = currentTask.Enabled && (currentTask.State != TaskState.Running);
+    	
+    	temp1Task = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(1), "tempTask1", "temp");
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(1), currentTaskDefinition, "temp");
+		ScheduleHelper.SetTaskEnableStatus(1, true, "temp");
+    	var taskDefinition = temp1Task.Definition;
+		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath, "/gr:" + _generalReport.Id + string.Format(" /manual:true"), ScheduleHelper.ScheduleWorkDir);
+		taskDefinition.Actions.RemoveAt(0);
+		taskDefinition.Actions.Add(newAction);
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(1), taskDefinition, "temp");
+		
+		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
+
+		string args = ((ExecAction) temp1Task.Definition.Actions.FirstOrDefault()).Arguments;
 
 		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
@@ -264,10 +276,7 @@ order by LogTime desc
 				var temp = new object[MyReader.FieldCount];
 				MyReader.GetValues(temp);
 				result.Add(temp);
-				//MyReader.Get
-				//result.Add(MyReader.GetValues(parameters.ToList().Select(p=>p.ParameterName).ToArray()));
 			}
-			//result = MyCmd.ExecuteReader();
 		}
 		finally
 		{
@@ -305,7 +314,6 @@ order by LogTime desc
         foreach (GridViewRow drv in dgvSchedule.Rows)
         {
             DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
-            //dr[SStart.ColumnName] = ((TextBox)drv.FindControl("tbStart")).Text;
             string h = ((TextBox)drv.FindControl("tbStart")).Text;
             string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
             if (m.StartsWith("0"))
@@ -331,7 +339,7 @@ order by LogTime desc
 		_generalReport.Allow = chbAllow.Checked;
 		_generalReport.Save();
 
-		btnExecute.Enabled = currentTaskDefinition.Settings.Enabled && (currentTask.State != TaskState.Running);
+		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, _generalReport.Id, currentTaskDefinition, "GR");
@@ -531,10 +539,10 @@ order by LogTime desc
 	protected void btnExecute_Click(object sender, EventArgs e)
     {
 		bool _runed = false;
-
-		if (this.IsValid && (currentTask.State != TaskState.Running))
+		Task task = null;
+		if (this.IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running))
         {
-            currentTask.Run();
+			temp1Task.Run();
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
 			btnExecute.Text = StatusNotRunning;
@@ -557,6 +565,10 @@ order by LogTime desc
 			currentTask.Dispose();
 			currentTask = null;
 		}
+		if(temp1Task != null) {
+			temp1Task.Dispose();
+			temp1Task = null;
+		}
 		if (taskService != null)
 		{
 			taskService.Dispose();
@@ -572,8 +584,9 @@ order by LogTime desc
 
 		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath,
 			"/gr:" + _generalReport.Id +
-			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1}", dtFrom.SelectedDate.ToShortDateString(), dtTo.SelectedDate.ToShortDateString()),
+			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1} /manual:true", dtFrom.SelectedDate.ToShortDateString(), dtTo.SelectedDate.ToShortDateString()),
 			ScheduleHelper.ScheduleWorkDir);
+		
 		var taskDefinition = thisTask.Definition;
 
 		taskDefinition.Actions.RemoveAt(0);
