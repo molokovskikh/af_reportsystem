@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using ExcelLibrary.SpreadSheet;
@@ -89,7 +90,6 @@ namespace Inforoom.ReportSystem.Helpers
 				row++;
 			}
 
-			curCol = col;
 			foreach (DataRow curRow in table.Rows)
 			{
 				curCol = col;
@@ -154,6 +154,21 @@ namespace Inforoom.ReportSystem.Helpers
 		public static _Worksheet GetSheet(Workbook wb, ulong reportId)
 		{
 			return (_Worksheet)wb.Worksheets["rep" + reportId.ToString()];
+		}
+
+		public static void FormatHeader(_Worksheet sheet, int row, DataTable table)
+		{
+			for (var i = 0; i < table.Columns.Count; i++)
+			{
+				sheet.Cells[row, i + 1] = "";
+				sheet.Cells[row, i + 1] = table.Columns[i].Caption;
+				if (table.Columns[i].ExtendedProperties.ContainsKey("Width"))
+					((Range)sheet.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)table.Columns[i].ExtendedProperties["Width"]).Value;
+				else
+					((Range)sheet.Columns[i + 1, Type.Missing]).AutoFit();
+				if (table.Columns[i].ExtendedProperties.ContainsKey("Color"))
+					sheet.get_Range(sheet.Cells[row, i + 1], sheet.Cells[table.Rows.Count + 1, i + 1]).Interior.Color = ColorTranslator.ToOle((Color)table.Columns[i].ExtendedProperties["Color"]);
+			}
 		}
 	}
 }

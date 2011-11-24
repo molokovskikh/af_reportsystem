@@ -26,44 +26,6 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
-		public void Export()
-		{
-			var results = new DataTable("Results");
-
-/*			var adapter = new MySqlDataAdapter("", "Database=usersettings;Data Source=testsql.analit.net;User Id=system;Password=newpass;pooling=false; default command timeout=0;Allow user variables=true;convert zero datetime=yes;");
-			adapter.SelectCommand.CommandText = String.Format(@"select Id, Name
-from Future.Suppliers
-where id in ({0})", new List<ulong> {5, 7, 14}.Implode());
-			adapter.Fill(results);*/
-
-			results.Columns.Add("t1");
-			results.Rows.Add(results.NewRow());
-			//results.Columns.Add("MarketShare", typeof (decimal));
-			//results.Columns.Add("MarketShareDiff", typeof (decimal));
-			//results.Columns.Add("CostDiff", typeof (int));
-
-/*
-			results.Columns.Add("PrevMonthMarketShareDiff", typeof (decimal));
-			results.Columns.Add("PrevMonthCostDiff", typeof (decimal));
-
-			results.Columns.Add("PrevWeekMarketShareDiff", typeof (decimal));
-			results.Columns.Add("PrevWeekCostDiff", typeof (decimal));
-
-			results.Columns.Add("PrevDayMarketShareDiff", typeof (decimal));
-			results.Columns.Add("PrevDayCostDiff", typeof (decimal));
-*/
-			//results.Rows[0]["CostDiff"] = 1;
-			results.Rows[0]["t1"] = "123";
-			var writer = new BaseExcelWriter();
-			var file = "test12213.xls";
-
-			if (File.Exists(file))
-				File.Delete(file);
-
-			writer.DataTableToExcel(results, file, 1);
-		}
-
-		[Test]
 		public void Format()
 		{
 			var report = new CostDynamic();
@@ -88,7 +50,6 @@ where id in ({0})", new List<ulong> {5, 7, 14}.Implode());
 			if (File.Exists(file))
 				File.Delete(file);
 
-			results.Columns.Remove("Id");
 			writer.WriteReportToFile(data, file, settings);
 		}
 	}

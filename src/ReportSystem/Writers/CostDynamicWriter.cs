@@ -14,7 +14,9 @@ namespace Inforoom.ReportSystem.Writers
 		{
 			var settings = (CostDynamicSettings) reportSettings;
 			var results = reportData.Tables["Results"];
+			results.Columns.Remove("Id");
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
+
 			UseExcel.Workbook(fileName, b => {
 				var sheet = ExcelHelper.GetSheet(b, settings.ReportCode);
 				sheet.Activate();
@@ -34,19 +36,11 @@ namespace Inforoom.ReportSystem.Writers
 				ExcelHelper.Merge(sheet, row, 6, 2, settings.PrevWeekLabel());
 				ExcelHelper.Merge(sheet, row, 8, 2, settings.PrevDayLabel());
 				row++;
+				MakeHeder(row, sheet);
 
-				for(var i = 1; i <= results.Columns.Count; i++)
-				{
-					var columnRange = ((Range)sheet.Columns[i, Type.Missing]);
-					
-					var column = results.Columns[i - 1];
-					sheet.Cells[row + 1, i] = column.Caption;
-					if (column.ExtendedProperties.ContainsKey("Width"))
-						columnRange.ColumnWidth = column.ExtendedProperties["Width"].Value;
-					else
-						columnRange.AutoFit();
-				}
 				row++;
+				ExcelHelper.FormatHeader(sheet, row, results);
+				MakeHeder(row, sheet);
 /*
 				((Range) sheet.Cells[row + 1, 1]).Select();
 				var sheetRow = ((Range) sheet.Application.Selection).EntireRow;
@@ -64,6 +58,15 @@ namespace Inforoom.ReportSystem.Writers
 				var range = sheet.get_Range(sheet.Cells[tableBegin, 1], sheet.Cells[tableEnd, columnCount]);
 				range.Borders.Weight = XlBorderWeight.xlThin;
 			});
+		}
+
+		private static void MakeHeder(int row, _Worksheet sheet)
+		{
+			var sheetRow = sheet.get_Range(sheet.Cells[row, 1], sheet.Cells[row, 1]).EntireRow;
+			sheetRow.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+			sheetRow.VerticalAlignment = XlVAlign.xlVAlignTop;
+			sheetRow.WrapText = true;
+			sheetRow.RowHeight = 27;
 		}
 	}
 }

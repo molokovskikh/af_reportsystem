@@ -305,7 +305,7 @@ order by 2, 5";
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
 				var table = _dsReport.Tables["Results"];
-				FormatHeader(ws, i + 2, table);
+				ExcelHelper.FormatHeader(ws, i + 2, table);
 
 				var rowCount = table.Rows.Count;
 				var columnCount = table.Columns.Count;
@@ -358,21 +358,6 @@ order by 2, 5";
 					exApp.ActiveCell.VerticalAlignment = XlVAlign.xlVAlignTop;
 				}
 			});
-		}
-
-		public static void FormatHeader(_Worksheet sheet, int row, DataTable table)
-		{
-			for (var i = 0; i < table.Columns.Count; i++)
-			{
-				sheet.Cells[row, i + 1] = "";
-				sheet.Cells[row, i + 1] = table.Columns[i].Caption;
-				if (table.Columns[i].ExtendedProperties.ContainsKey("Width"))
-					((Range)sheet.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)table.Columns[i].ExtendedProperties["Width"]).Value;
-				else
-					((Range)sheet.Columns[i + 1, Type.Missing]).AutoFit();
-				if (table.Columns[i].ExtendedProperties.ContainsKey("Color"))
-					sheet.get_Range(sheet.Cells[row, i + 1], sheet.Cells[table.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)table.Columns[i].ExtendedProperties["Color"]);
-			}
 		}
 
 		protected virtual void FormatLeaderAndPrices(_Worksheet ws, int beginColumn)
