@@ -1,33 +1,37 @@
 using System;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using Inforoom.ReportSystem.Helpers;
+using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Configuration;
+using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
-	// ÓÏ·ËÌËÓ‚‡ÌÌ˚È ÓÚ˜ÂÚ Ô‡ÈÒ-ÎËÒÚÓ‚
+	//–ö–æ–º–±–∏–Ω–∏—Ä–æ–≤–∞–Ω–Ω—ã–π –æ—Ç—á–µ—Ç –ø—Ä–∞–π—Å-–ª–∏—Å—Ç–æ–≤
 	public class CombReport : ProviderReport
 	{
 		/*
-		 * ReportType 
-		 *   1 - ·ÂÁ Û˜ÂÚ‡ ÔÓËÁ‚Ó‰ËÚÂÎˇ Ë ·ÂÁ ÍÓÎ-‚‡
-		 *   2 - ·ÂÁ Û˜ÂÚ‡ ÔÓËÁ‚Ó‰ËÚÂÎˇ Ë Ò ÍÓÎ-‚ÓÏ
-		 *   3 - Ò Û˜ÂÚÓÏ ÔÓËÁ‚Ó‰ËÚÂÎˇ Ë ·ÂÁ ÍÓÎ-‚‡
-		 *   4 - Ò Û˜ÂÚÓÏ ÔÓËÁ‚Ó‰ËÚÂÎˇ Ë Ò ÍÓÎ-‚ÓÏ
-		 * 
+		 * ReportType
+		 *   1 - –±–µ–∑ —É—á–µ—Ç–∞ –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—è –∏ –±–µ–∑ –∫–æ–ª-–≤–∞
+		 *   2 - –±–µ–∑ —É—á–µ—Ç–∞ –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—è –∏ —Å –∫–æ–ª-–≤–æ–º
+		 *   3 - —Å —É—á–µ—Ç–æ–º –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—è –∏ –±–µ–∑ –∫–æ–ª-–≤–∞
+		 *   4 - —Å —É—á–µ—Ç–æ–º –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—è –∏ —Å –∫–æ–ª-–≤–æ–º
+		 *
 		 * ShowPercents
-		 *   0 - ÔÓÍ‡Á˚‚‡Ú¸ ÍÓÎ-‚Ó
-		 *   1 - ‚ÏÂÒÚÓ ÍÓÎ-‚‡ ÔÓÍ‡Á˚‚‡Ú¸ ÔÓˆÂÌÚ˚
-		 * 
+		 *   0 - –ø–æ–∫–∞–∑—ã–≤–∞—Ç—å –∫–æ–ª-–≤–æ
+		 *   1 - –≤–º–µ—Å—Ç–æ –∫–æ–ª-–≤–∞ –ø–æ–∫–∞–∑—ã–≤–∞—Ç—å –ø—Ä–æ—Ü–µ–Ω—Ç—ã
+		 *
 		 */
 
 		protected int _reportType;
 		protected bool _showPercents;
-		//–‡Ò˜ËÚ˚‚‡Ú¸ ÓÚ˜ÂÚ ÔÓ Í‡Ú‡ÎÓ„Û (CatalogId, Name, Form), ÂÒÎË ÌÂ ÛÒÚ‡ÌÓ‚ÎÂÌÓ, ÚÓ ‡Ò˜ÂÚ ·Û‰ÂÚ ÔÓËÁ‚Ó‰ËÚÒˇ ÔÓ ÔÓ‰ÛÍÚ‡Ï (ProductId)
+		//–†–∞—Å—á–∏—Ç—ã–≤–∞—Ç—å –æ—Ç—á–µ—Ç –ø–æ –∫–∞—Ç–∞–ª–æ–≥—É (CatalogId, Name, Form), –µ—Å–ª–∏ –Ω–µ —É—Å—Ç–∞–Ω–æ–≤–ª–µ–Ω–æ, —Ç–æ —Ä–∞—Å—á–µ—Ç –±—É–¥–µ—Ç –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç—Å—è –ø–æ –ø—Ä–æ–¥—É–∫—Ç–∞–º (ProductId)
 		protected bool _calculateByCatalog;
 
 		protected string reportCaptionPreffix;
@@ -38,7 +42,7 @@ namespace Inforoom.ReportSystem
 		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
-			reportCaptionPreffix = " ÓÏ·ËÌËÓ‚‡ÌÌ˚È ÓÚ˜ÂÚ";
+			reportCaptionPreffix = "–ö–æ–º–±–∏–Ω–∏—Ä–æ–≤–∞–Ω–Ω—ã–π –æ—Ç—á–µ—Ç";
 			DbfSupported = true;
 		}
 
@@ -52,7 +56,7 @@ namespace Inforoom.ReportSystem
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
-		{		    
+		{
 			base.GenerateReport(e);
 
 			ProfileHelper.Next("Get Offers");
@@ -68,8 +72,8 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.CommandText += @"
   Core.Cost as Cost,
   ActivePrices.FirmName,
-  FarmCore.Quantity, 
-  Core.RegionCode, 
+  FarmCore.Quantity,
+  Core.RegionCode,
   Core.PriceCode, ";
 			if (_reportType > 2)
 			{
@@ -80,74 +84,76 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandText += "0";
 			}
 			e.DataAdapter.SelectCommand.CommandText += @"
-As Cfc 
-from 
-  Core, 
+As Cfc
+from
+  Core,
   farm.core0 FarmCore,
   catalogs.products,
   catalogs.catalog,
   catalogs.catalognames,
   catalogs.catalogforms,
   ActivePrices
-where 
-    FarmCore.id = Core.Id
+where
+	FarmCore.id = Core.Id
 and products.id = core.productid
 and catalog.id = products.catalogid
 and catalognames.id = catalog.NameId
 and catalogforms.id = catalog.FormId
-and Core.pricecode = ActivePrices.pricecode 
-and Core.RegionCode = ActivePrices.RegionCode 
+and Core.pricecode = ActivePrices.pricecode
+and Core.RegionCode = ActivePrices.RegionCode
 order by CatalogCode, Cfc, PositionCount DESC";
 			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Core");
 
-			e.DataAdapter.SelectCommand.CommandText = "select  ";   
+			e.DataAdapter.SelectCommand.CommandText = "select  ";
 			if (_calculateByCatalog)
 				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
 			else
 				e.DataAdapter.SelectCommand.CommandText += @"products.Id as CatalogCode, (select left(cast(concat(cn.Name, ' ', cf.Form, ' ', ifnull(group_concat(distinct pv.Value ORDER BY prop.PropertyName, pv.Value SEPARATOR ', '), '')) as CHAR), 250)
-     from catalogs.Products as p
-     join Catalogs.Catalog as c on p.catalogid = c.id
-     JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
-     JOIN Catalogs.CatalogForms cf on cf.id = c.formid
-     LEFT JOIN Catalogs.ProductProperties pp on pp.ProductId = p.Id
-     LEFT JOIN Catalogs.PropertyValues pv on pv.id = pp.PropertyValueId
-     LEFT JOIN Catalogs.Properties prop on prop.Id = pv.PropertyId
+	from catalogs.Products as p
+	join Catalogs.Catalog as c on p.catalogid = c.id
+	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
+	JOIN Catalogs.CatalogForms cf on cf.id = c.formid
+	LEFT JOIN Catalogs.ProductProperties pp on pp.ProductId = p.Id
+	LEFT JOIN Catalogs.PropertyValues pv on pv.id = pp.PropertyValueId
+	LEFT JOIN Catalogs.Properties prop on prop.Id = pv.PropertyId
 where p.id = core.productid) as Name, ";
 
 			e.DataAdapter.SelectCommand.CommandText += @"
-  min(Core.Cost) as MinCost, 
-  avg(Core.Cost) as AvgCost, 
+  min(Core.Cost) as MinCost,
+  avg(Core.Cost) as AvgCost,
   max(Core.Cost) as MaxCost, ";
 			if (_reportType > 2)
 			{
-				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(Producers.Name, 250) as FirmCr ";
+				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(Producers.Name, 250) as FirmCr, ";
 			}
 			else
 			{
-				e.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr ";
+				e.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
 			}
 			e.DataAdapter.SelectCommand.CommandText += @"
-from 
-  (Core,
-  farm.core0 FarmCore,
-  catalogs.products,
-  catalogs.catalog,
+	m.Mnn
+from
+	(Core,
+	farm.core0 FarmCore,
+	catalogs.products,
+	catalogs.catalog,
+	ActivePrices)
+	join Catalogs.CatalogNames cn on cn.Id = catalog.NameId
+	left join Catalogs.Mnn m on m.Id = cn.MnnId";
 
-  ActivePrices)";
-
-			//≈ÒÎË ÓÚ˜ÂÚ Ò Û˜ÂÚÓÏ ÔÓËÁ‚Ó‰ËÚÂÎˇ, ÚÓ ÔÂÂÒÂÍ‡ÂÏ Ò Ú‡·ÎËˆÓÈ Producers
+			//–ï—Å–ª–∏ –æ—Ç—á–µ—Ç —Å —É—á–µ—Ç–æ–º –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—è, —Ç–æ –ø–µ—Ä–µ—Å–µ–∫–∞–µ–º —Å —Ç–∞–±–ª–∏—Ü–æ–π Producers
 			if (_reportType > 2)
 				e.DataAdapter.SelectCommand.CommandText += @"
   left join catalogs.Producers on Producers.Id = FarmCore.codefirmcr ";
- 
+
 			e.DataAdapter.SelectCommand.CommandText += @"
-where 
-    FarmCore.id = Core.Id
+where
+	FarmCore.id = Core.Id
 and products.id = core.productid
 and catalog.id = products.catalogid
 
-and Core.pricecode = ActivePrices.pricecode 
+and Core.pricecode = ActivePrices.pricecode
 and Core.RegionCode = ActivePrices.RegionCode ";
 
 			e.DataAdapter.SelectCommand.CommandText += @"
@@ -167,46 +173,71 @@ order by 2, 5";
 
 		protected virtual void Calculate()
 		{
-			// ÓÎ-‚Ó ÔÂ‚˚ı ÙËÍÒËÓ‚‡ÌÌ˚ı ÍÓÎÓÌÓÍ
+			//–ö–æ–ª-–≤–æ –ø–µ—Ä–≤—ã—Ö —Ñ–∏–∫—Å–∏—Ä–æ–≤–∞–Ω–Ω—ã—Ö –∫–æ–ª–æ–Ω–æ–∫
 			var dtCore = _dsReport.Tables["Core"];
 			var dtPrices = _dsReport.Tables["Prices"];
 
 			var dtRes = new DataTable("Results");
-			dtRes.Columns.Add("FullName");
-			dtRes.Columns.Add("FirmCr");
-			dtRes.Columns.Add("MinCost", typeof(decimal));
-			dtRes.Columns.Add("AvgCost", typeof(decimal));
-			dtRes.Columns.Add("MaxCost", typeof(decimal));
-			dtRes.Columns.Add("LeaderName");
+
+			var column = dtRes.Columns.Add("FullName");
+			column.Caption = "–ù–∞–∏–º–µ–Ω–æ–≤–∞–Ω–∏–µ";
+			column.ExtendedProperties.Add("Width", 20);
+
+			column = dtRes.Columns.Add("Mnn");
+			column.Caption = "–ú–Ω–Ω";
+			column.ExtendedProperties.Add("Width", 20);
+
+			column = dtRes.Columns.Add("FirmCr");
+			column.Caption = "–ü—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—å";
+			column.ExtendedProperties.Add("Width", 10);
+
+			column = dtRes.Columns.Add("MinCost", typeof(decimal));
+			column.Caption = "–ú–∏–Ω. —Ü–µ–Ω–∞";
+			column.ExtendedProperties.Add("Width", 6);
+			column.ExtendedProperties.Add("Color", System.Drawing.Color.LightSeaGreen);
+
+			column = dtRes.Columns.Add("AvgCost", typeof(decimal));
+			column.Caption = "–°—Ä–µ–¥–Ω—è—è —Ü–µ–Ω–∞";
+			column.ExtendedProperties.Add("Width", 6);
+
+			column = dtRes.Columns.Add("MaxCost", typeof(decimal));
+			column.Caption = "–ú–∞–∫—Å. —Ü–µ–Ω–∞";
+			column.ExtendedProperties.Add("Width", 6);
+
+			column = dtRes.Columns.Add("LeaderName");
+			column.Caption = "–õ–∏–¥–µ—Ä";
+			column.ExtendedProperties.Add("Width", 9);
+			column.ExtendedProperties.Add("Color", System.Drawing.Color.LightSkyBlue);
+
 			_dsReport.Tables.Add(dtRes);
 			var firstColumnCount = dtRes.Columns.Count;
 
 			var priceIndex = 0;
-            
-            
-            foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
-            {
-                if(Format == ReportFormats.DBF)
-                    dtRes.Columns.Add(drPrice["PriceCode"].ToString(), typeof(decimal));
-                else
-                    dtRes.Columns.Add("Cost" + priceIndex, typeof (decimal));
-                if (!_showPercents)
-                {
-                    if(Format == ReportFormats.DBF)
-                        dtRes.Columns.Add("Q" + drPrice["PriceCode"]);
-                    else
-                        dtRes.Columns.Add("Quantity" + priceIndex);
-                }
-                else
-                    if (Format == ReportFormats.DBF)
-                        dtRes.Columns.Add("P" + drPrice["PriceCode"], typeof(double));
-                    else
-                        dtRes.Columns.Add("Percents" + priceIndex, typeof (double));
-                priceIndex++;
-            }
-            
 
-		    DataRow[] drsMin;
+
+			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
+			{
+				if(Format == ReportFormats.DBF)
+					dtRes.Columns.Add(drPrice["PriceCode"].ToString(), typeof(decimal));
+				else
+					dtRes.Columns.Add("Cost" + priceIndex, typeof (decimal));
+				if (!_showPercents)
+				{
+					if(Format == ReportFormats.DBF)
+						dtRes.Columns.Add("Q" + drPrice["PriceCode"]);
+					else
+						dtRes.Columns.Add("Quantity" + priceIndex);
+				}
+				else
+					if (Format == ReportFormats.DBF)
+						dtRes.Columns.Add("P" + drPrice["PriceCode"], typeof(double));
+					else
+						dtRes.Columns.Add("Percents" + priceIndex, typeof (double));
+				priceIndex++;
+			}
+
+
+			DataRow[] drsMin;
 			DataRow newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
 
@@ -214,6 +245,7 @@ order by 2, 5";
 			{
 				newrow = dtRes.NewRow();
 				newrow["FullName"] = drCatalog["Name"];
+				newrow["Mnn"] = drCatalog["Mnn"] == DBNull.Value ? "-" : drCatalog["Mnn"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
 				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
 				newrow["AvgCost"] = Convert.ToDecimal(drCatalog["AvgCost"]);
@@ -225,21 +257,21 @@ order by 2, 5";
 
 				drsMin = dtCore.Select(string.Format("CatalogCode = {0} and {1} and Cost = {2}",
 					drCatalog["CatalogCode"],
-					producerFilter, 
+					producerFilter,
 					((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat)));
 
 				if (drsMin.Length > 0)
 					newrow["LeaderName"] = drsMin[0]["FirmName"];
 
-				//¬˚·Ë‡ÂÏ ÔÓÁËˆËË Ë ÒÓÚËÛÂÏ ÔÓ ‚ÓÁ‡ÒÚ‡ÌË˛ ˆÂÌ
+				//–í—ã–±–∏—Ä–∞–µ–º –ø–æ–∑–∏—Ü–∏–∏ –∏ —Å–æ—Ä—Ç–∏—Ä—É–µ–º –ø–æ –≤–æ–∑—Ä–∞—Å—Ç–∞–Ω–∏—é —Ü–µ–Ω
 				drsMin = dtCore.Select(String.Format("CatalogCode = {0} and {1}", drCatalog["CatalogCode"], producerFilter), "Cost asc");
 				foreach (var dtPos in drsMin)
 				{
 					var dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"] + " and RegionCode = " + dtPos["RegionCode"])[0];
 					priceIndex = dtPrices.Rows.IndexOf(dr);
 
-					//≈ÒÎË Ï˚ Â˘Â ÌÂ ÛÒÚ‡ÌÓ‚ËÎË ÁÌ‡˜ÂÌËÂ Û ÔÓÒÚ‡‚˘ËÍ‡, ÚÓ ‰ÂÎ‡ÂÏ ˝ÚÓ
-					//‡Ì¸¯Â ‚ÒÚ‡‚ÎˇÎË ÔÓÒÎÂ‰ÌÂÂ ÁÌ‡˜ÂÌËÂ, ÍÓÚÓÓÂ ·˚ÎÓ Ï‡ÍÒËÏ‡Î¸Ì˚Ï
+					//–ï—Å–ª–∏ –º—ã –µ—â–µ –Ω–µ —É—Å—Ç–∞–Ω–æ–≤–∏–ª–∏ –∑–Ω–∞—á–µ–Ω–∏–µ —É –ø–æ—Å—Ç–∞–≤—â–∏–∫–∞, —Ç–æ –¥–µ–ª–∞–µ–º —ç—Ç–æ
+					//—Ä–∞–Ω—å—à–µ –≤—Å—Ç–∞–≤–ª—è–ª–∏ –ø–æ—Å–ª–µ–¥–Ω–µ–µ –∑–Ω–∞—á–µ–Ω–∏–µ, –∫–æ—Ç–æ—Ä–æ–µ –±—ã–ª–æ –º–∞–∫—Å–∏–º–∞–ª—å–Ω—ã–º
 					if (newrow[firstColumnCount + priceIndex * 2] is DBNull)
 					{
 						newrow[firstColumnCount + priceIndex * 2] = dtPos["Cost"];
@@ -262,149 +294,108 @@ order by 2, 5";
 		protected override void FormatExcel(string fileName)
 		{
 			int i = 0;
-			if (!String.IsNullOrEmpty(_clientsNames)) // ƒÓ·‡‚ÎˇÂÏ ÒÚÓÍÛ ˜ÚÓ·˚ ‚ÒÚ‡‚ËÚ¸ ‚˚·‡ÌÌ˚Â ‡ÔÚÂÍË
+			if (!String.IsNullOrEmpty(_clientsNames)) // –î–æ–±–∞–≤–ª—è–µ–º —Å—Ç—Ä–æ–∫—É —á—Ç–æ–±—ã –≤—Å—Ç–∞–≤–∏—Ç—å –≤—ã–±—Ä–∞–Ω–Ω—ã–µ –∞–ø—Ç–µ–∫–∏
 				i++;
 			if (!String.IsNullOrEmpty(_suppliersNames))
 				i += 4;
 
-			ProfileHelper.Next("FormatExcel");
-			MSExcel.Application exApp = new MSExcel.ApplicationClass();
-			try
-			{
-				exApp.DisplayAlerts = false;
-				MSExcel.Workbook wb = exApp.Workbooks.Open(fileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
-				MSExcel._Worksheet ws;
-				try
+			UseExcel.Workbook(fileName, b => {
+				var exApp = b.Application;
+				var ws = (_Worksheet)b.Worksheets["rep" + _reportCode.ToString()];
+				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+
+				var table = _dsReport.Tables["Results"];
+				FormatHeader(ws, i + 2, table);
+
+				var rowCount = table.Rows.Count;
+				var columnCount = table.Columns.Count;
+				var captionedColumnCount = table.Columns.Cast<DataColumn>().TakeWhile(c => !c.Caption.StartsWith("F")).Count();
+
+				//–§–æ—Ä–º–∞—Ç–∏—Ä—É–µ–º –∫–æ–ª–æ–Ω–∫—É "–õ–∏–¥–µ—Ä" –∏ —à–∞–ø–∫—É –¥–ª—è —Ñ–∏—Ä–º
+				FormatLeaderAndPrices(ws, captionedColumnCount + 1);
+
+				//—Ä–∏—Å—É–µ–º –≥—Ä–∞–Ω–∏—Ü—ã –Ω–∞ –≤—Å—é —Ç–∞–±–ª–∏—Ü—É
+				ws.get_Range(ws.Cells[1, 1], ws.Cells[rowCount + 1, columnCount]).Borders.Weight = XlBorderWeight.xlThin;
+
+				//–£—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ–º —à—Ä–∏—Ñ—Ç –ª–∏—Å—Ç–∞
+				ws.Rows.Font.Size = 8;
+				ws.Rows.Font.Name = "Arial Narrow";
+				ws.Activate();
+
+				//–£—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ–º –ê–≤—Ç–æ–§–∏–ª—å—Ç—Ä –Ω–∞ –≤—Å–µ –∫–æ–ª–æ–Ω–∫–∏
+				ws.get_Range(ws.Cells[i+2, 1], ws.Cells[rowCount, columnCount]).Select();
+				((Range)exApp.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
+
+				//–û–±—ä–µ–¥–∏–Ω—è–µ–º –Ω–µ—Å–∫–æ–ª—å–∫–æ —è—á–µ–µ–∫, —á—Ç–æ–±—ã –≤ –Ω–∏—Ö –Ω–∞–ø–∏—Å–∞—Ç—å —Ç–µ–∫—Å—Ç
+				ws.get_Range(ws.Cells[1, 1], ws.Cells[1, captionedColumnCount]).Select();
+				((Range)exApp.Selection).Merge(null);
+
+				if (_reportType < 3)
+					exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " –±–µ–∑ —É—á–µ—Ç–∞ –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—è —Å–æ–∑–¥–∞–Ω " + DateTime.Now;
+				else
+					exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " —Å —É—á–µ—Ç–æ–º –ø—Ä–æ–∏–∑–≤–æ–¥–∏—Ç–µ–ª—è —Å–æ–∑–¥–∞–Ω " + DateTime.Now;
+
+				// –í—ã–≤–æ–¥–∏–º —Å–ø–∏—Å–æ–∫ –≤—ã–±—Ä–∞–Ω–Ω—ã—Ö –∞–ø—Ç–µ–∫
+				if (!String.IsNullOrEmpty(_clientsNames))
 				{
-					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
+					ws.get_Range(ws.Cells[2, 1], ws.Cells[2, captionedColumnCount]).Select();
+					((Range)exApp.Selection).Merge(null);
 
-					try
-					{
-						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
-
-						//‘ÓÏ‡ÚËÛÂÏ Á‡„ÓÎÓ‚ÓÍ ÓÚ˜ÂÚ‡
-						ws.Cells[i+2, 1] = "Õ‡ËÏÂÌÓ‚‡ÌËÂ";
-						((MSExcel.Range)ws.Cells[i+2, 1]).ColumnWidth = 20;
-						ws.Cells[i+2, 2] = "œÓËÁ‚Ó‰ËÚÂÎ¸";
-						((MSExcel.Range)ws.Cells[i+2, 2]).ColumnWidth = 10;
-						ws.Cells[i+2, 3] = "ÃËÌ. ˆÂÌ‡";
-						((MSExcel.Range)ws.Cells[i+2, 3]).ColumnWidth = 6;
-						((MSExcel.Range)ws.Cells[1, 1]).Clear();
-						((MSExcel.Range)ws.Cells[1, 2]).Clear();
-						((MSExcel.Range)ws.Cells[1, 3]).Clear();
-						
-						//‘ÓÏ‡ÚËÛÂÏ ÍÓÎÓÌÍÛ "ÀË‰Â" Ë ¯‡ÔÍÛ ‰Îˇ ÙËÏ
-						FormatLeaderAndPrices(ws);
-
-						//ËÒÛÂÏ „‡ÌËˆ˚ Ì‡ ‚Ò˛ Ú‡·ÎËˆÛ
-						ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count + 1, _dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
-						//”ÒÚ‡Ì‡‚ÎË‚‡ÂÏ ˆ‚ÂÚ ÍÓÎÓÌÍË "ÃËÌ ÷ÂÌ‡"
-						ws.get_Range("C" + (i + 2), "C" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSeaGreen);
-
-						//”ÒÚ‡Ì‡‚ÎË‚‡ÂÏ ¯ËÙÚ ÎËÒÚ‡
-						ws.Rows.Font.Size = 8;
-						ws.Rows.Font.Name = "Arial Narrow";
-						ws.Activate();
-
-						//”ÒÚ‡Ì‡‚ÎË‚‡ÂÏ ¿‚ÚÓ‘ËÎ¸Ú Ì‡ ‚ÒÂ ÍÓÎÓÌÍË
-						((MSExcel.Range)ws.get_Range(ws.Cells[i+2, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count, _dsReport.Tables["Results"].Columns.Count])).Select();
-						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
-
-						//«‡ÏÓ‡ÊË‚‡ÂÏ ÌÂÍÓÚÓ˚Â ÍÓÎÓÌÍË Ë ÒÚÓÎ·ˆ˚
-						if (!(this is CombShortReport))
-						{
-							((MSExcel.Range)ws.get_Range("G" + (3 + i), System.Reflection.Missing.Value)).Select();
-							exApp.ActiveWindow.FreezePanes = true;
-						}
-
-						//Œ·˙Â‰ËÌˇÂÏ ÌÂÒÍÓÎ¸ÍÓ ˇ˜ÂÂÍ, ˜ÚÓ·˚ ‚ ÌËı Ì‡ÔËÒ‡Ú¸ ÚÂÍÒÚ
-						((MSExcel.Range)ws.get_Range("A1:F1", System.Reflection.Missing.Value)).Select();
-						((MSExcel.Range)exApp.Selection).Merge(null);
-
-						if (_reportType < 3)
-							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " ·ÂÁ Û˜ÂÚ‡ ÔÓËÁ‚Ó‰ËÚÂÎˇ ÒÓÁ‰‡Ì " + DateTime.Now;
-						else
-							exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " Ò Û˜ÂÚÓÏ ÔÓËÁ‚Ó‰ËÚÂÎˇ ÒÓÁ‰‡Ì " + DateTime.Now;
-
-						// ¬˚‚Ó‰ËÏ ÒÔËÒÓÍ ‚˚·‡ÌÌ˚ı ‡ÔÚÂÍ
-						if (!String.IsNullOrEmpty(_clientsNames))
-						{
-							((MSExcel.Range)ws.get_Range("A2:F2", System.Reflection.Missing.Value)).Select();
-							((MSExcel.Range)exApp.Selection).Merge(null);
-
-							exApp.ActiveCell.FormulaR1C1 = "¬˚·‡ÌÌ˚Â ‡ÔÚÂÍË: " + _clientsNames;
-						}
-
-						// ¬˚‚Ó‰ËÏ ÒÔËÒÓÍ Û˜‡ÒÚ‚Ó‚‡‚¯Ëı ÔÓÒÚ‡‚˘ËÍÓ‚
-						if (!String.IsNullOrEmpty(_suppliersNames))
-						{
-							var tmp = (i > 1) ? 3 : 2;
-							((MSExcel.Range)ws.get_Range(
-								String.Format("A{0}:K{1}", tmp, tmp+3), System.Reflection.Missing.Value)).Select();
-							((MSExcel.Range)exApp.Selection).Merge(null);
-
-							exApp.ActiveCell.FormulaR1C1 = "—ÔËÒÓÍ ÔÓÒÚ‡‚˘ËÍÓ‚: " + _suppliersNames;
-							exApp.ActiveCell.WrapText = true;
-							exApp.ActiveCell.HorizontalAlignment = MSExcel.XlHAlign.xlHAlignLeft;
-							exApp.ActiveCell.VerticalAlignment = MSExcel.XlVAlign.xlVAlignTop;
-						}
-					}
-					finally
-					{
-						wb.SaveAs(fileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, MSExcel.XlSaveConflictResolution.xlLocalSessionChanges, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-					}
+					exApp.ActiveCell.FormulaR1C1 = "–í—ã–±—Ä–∞–Ω–Ω—ã–µ –∞–ø—Ç–µ–∫–∏: " + _clientsNames;
 				}
-				finally
+
+				// –í—ã–≤–æ–¥–∏–º —Å–ø–∏—Å–æ–∫ —É—á–∞—Å—Ç–≤–æ–≤–∞–≤—à–∏—Ö –ø–æ—Å—Ç–∞–≤—â–∏–∫–æ–≤
+				if (!String.IsNullOrEmpty(_suppliersNames))
 				{
-					ws = null;
-					wb = null;
-					try { exApp.Workbooks.Close(); }
-					catch { }
+					var tmp = (i > 1) ? 3 : 2;
+					ws.get_Range(
+						String.Format("A{0}:K{1}", tmp, tmp+3), Missing.Value).Select();
+					((Range)exApp.Selection).Merge(null);
+
+					exApp.ActiveCell.FormulaR1C1 = "–°–ø–∏—Å–æ–∫ –ø–æ—Å—Ç–∞–≤—â–∏–∫–æ–≤: " + _suppliersNames;
+					exApp.ActiveCell.WrapText = true;
+					exApp.ActiveCell.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+					exApp.ActiveCell.VerticalAlignment = XlVAlign.xlVAlignTop;
 				}
-			}
-			finally
+			});
+		}
+
+		public static void FormatHeader(_Worksheet sheet, int row, DataTable table)
+		{
+			for (var i = 0; i < table.Columns.Count; i++)
 			{
-				try { exApp.Quit(); }
-				catch { }
-				exApp = null;
+				sheet.Cells[row, i + 1] = "";
+				sheet.Cells[row, i + 1] = table.Columns[i].Caption;
+				if (table.Columns[i].ExtendedProperties.ContainsKey("Width"))
+					((Range)sheet.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)table.Columns[i].ExtendedProperties["Width"]).Value;
+				else
+					((Range)sheet.Columns[i + 1, Type.Missing]).AutoFit();
+				if (table.Columns[i].ExtendedProperties.ContainsKey("Color"))
+					sheet.get_Range(sheet.Cells[row, i + 1], sheet.Cells[table.Rows.Count + 1, i + 1]).Interior.Color = System.Drawing.ColorTranslator.ToOle((System.Drawing.Color)table.Columns[i].ExtendedProperties["Color"]);
 			}
 		}
 
-		protected virtual void FormatLeaderAndPrices(MSExcel._Worksheet ws)
+		protected virtual void FormatLeaderAndPrices(_Worksheet ws, int beginColumn)
 		{
-			int ColumnPrefix = 7;
-
-			ws.Cells[2, 4] = "—Â‰Ìˇˇ ˆÂÌ‡";
-			((MSExcel.Range)ws.Cells[2, 4]).ColumnWidth = 6;
-			((MSExcel.Range)ws.Cells[1, 4]).Clear();
-			ws.Cells[2, 5] = "Ã‡ÍÒ. ˆÂÌ‡";
-			((MSExcel.Range)ws.Cells[2, 5]).ColumnWidth = 6;
-			((MSExcel.Range)ws.Cells[1, 5]).Clear();
-			ws.Cells[2, 6] = "ÀË‰Â";
-			((MSExcel.Range)ws.Cells[2, 6]).ColumnWidth = 9;
-			((MSExcel.Range)ws.Cells[1, 6]).Clear();
-
-			int PriceIndex = 0;
+			int priceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
-				//”ÒÚ‡Ì‡‚ÎË‚‡ÂÏ Ì‡Á‚‡ÌËÂ ÙËÏ˚
-				ws.Cells[1, ColumnPrefix + PriceIndex * 2] = drPrice["FirmName"].ToString();
-				((MSExcel.Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2]).ColumnWidth = 8;
+				//–£—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ–º –Ω–∞–∑–≤–∞–Ω–∏–µ —Ñ–∏—Ä–º—ã
+				ws.Cells[1, beginColumn + priceIndex * 2] = drPrice["FirmName"].ToString();
+				((Range)ws.Cells[1, beginColumn + priceIndex * 2]).ColumnWidth = 8;
 
-				//”ÒÚ‡Ì‡‚ÎË‚‡ÂÏ ‰‡ÚÛ ÙËÏ˚
-				ws.Cells[1, ColumnPrefix + PriceIndex * 2 + 1] = drPrice["PriceDate"].ToString();
-				((MSExcel.Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
+				//–£—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ–º –¥–∞—Ç—É —Ñ–∏—Ä–º—ã
+				ws.Cells[1, beginColumn + priceIndex * 2 + 1] = drPrice["PriceDate"].ToString();
+				((Range)ws.Cells[1, beginColumn + priceIndex * 2 + 1]).ColumnWidth = 4;
 
-				ws.Cells[2, ColumnPrefix + PriceIndex * 2] = "÷ÂÌ‡";
+				ws.Cells[2, beginColumn + priceIndex * 2] = "–¶–µ–Ω–∞";
 				if (!_showPercents)
-					ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1] = " ÓÎ-‚Ó";
+					ws.Cells[2, beginColumn + priceIndex * 2 + 1] = "–ö–æ–ª-–≤–æ";
 				else
-					ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1] = "–‡ÁÌËˆ‡ ‚ %";
+					ws.Cells[2, beginColumn + priceIndex * 2 + 1] = "–†–∞–∑–Ω–∏—Ü–∞ –≤ %";
 
-				PriceIndex++;
+				priceIndex++;
 			}
-			//”ÒÚ‡Ì‡‚ÎË‚‡ÂÏ ˆ‚ÂÚ ÍÓÎÓÌÍË "ÀË‰Â"
-			ws.get_Range("F2", "F" + (_dsReport.Tables["Results"].Rows.Count + 1).ToString()).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightSkyBlue);
 		}
 	}
 }
