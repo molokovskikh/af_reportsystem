@@ -83,9 +83,6 @@ public partial class Reports_schedule : Page
 		taskDefinition.Actions.Add(newAction);
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(1), taskDefinition, "temp");
 		
-
-
-		//btnExecute.Enabled = currentTask.Enabled && (currentTask.State != TaskState.Running);
 		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
@@ -279,10 +276,7 @@ order by LogTime desc
 				var temp = new object[MyReader.FieldCount];
 				MyReader.GetValues(temp);
 				result.Add(temp);
-				//MyReader.Get
-				//result.Add(MyReader.GetValues(parameters.ToList().Select(p=>p.ParameterName).ToArray()));
 			}
-			//result = MyCmd.ExecuteReader();
 		}
 		finally
 		{
@@ -320,7 +314,6 @@ order by LogTime desc
         foreach (GridViewRow drv in dgvSchedule.Rows)
         {
             DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
-            //dr[SStart.ColumnName] = ((TextBox)drv.FindControl("tbStart")).Text;
             string h = ((TextBox)drv.FindControl("tbStart")).Text;
             string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
             if (m.StartsWith("0"))
@@ -346,7 +339,7 @@ order by LogTime desc
 		_generalReport.Allow = chbAllow.Checked;
 		_generalReport.Save();
 
-		btnExecute.Enabled = /*currentTaskDefinition.Settings.Enabled &&*/ currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
+		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, _generalReport.Id, currentTaskDefinition, "GR");
@@ -549,12 +542,7 @@ order by LogTime desc
 		Task task = null;
 		if (this.IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running))
         {
-		/*	if(currentTask.Definition.Settings.Enabled == true) {
-				currentTask.Run();
-			}
-			else {*/
 			temp1Task.Run();
-			//}
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
 			btnExecute.Text = StatusNotRunning;
