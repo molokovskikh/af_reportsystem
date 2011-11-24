@@ -68,6 +68,9 @@ public partial class Reports_ReportPropertyValues : System.Web.UI.Page
 			if (long.TryParse(Request["inID"], out id)) 
 				inID = id;
 		}
+		if(!String.IsNullOrEmpty(Request["inFilter"])) {
+			inFilter = Request["inFilter"];
+		}
 
     	if (!(Page.IsPostBack))
         {
@@ -309,7 +312,7 @@ WHERE
             MyDA.SelectCommand = MyCmd;
             DS.Tables[dtProcResult.TableName].Clear();
             MyCmd.Parameters.Clear();
-            MyCmd.Parameters.AddWithValue("inFilter", null);
+            MyCmd.Parameters.AddWithValue("inFilter", String.IsNullOrEmpty(inFilter) ? null : inFilter);
             MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
         	MyCmd.Parameters.AddWithValue("inID", !inID.HasValue ? null : inID);
         	MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
