@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using Common.Web.Ui.ActiveRecordExtentions;
 using ExecuteTemplate;
 using Inforoom.Common;
 using Inforoom.ReportSystem.Model;
@@ -33,7 +34,8 @@ namespace Inforoom.ReportSystem
 			try
 			{
 				XmlConfigurator.Configure();
-				InitActiveRecord();
+				ActiveRecordInitialize.Init("DB", typeof(Supplier).Assembly);
+
 				//Попытка получить код общего отчета в параметрах
 				var interval = false;
 				var dtFrom = new DateTime();
@@ -133,21 +135,6 @@ and cr.generalreportcode = " + generalReportId;
 				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
 				Mailer.MailGlobalErr(ex.ToString());
 			}
-		}
-
-		private static void InitActiveRecord()
-		{
-			var config = new InPlaceConfigurationSource();
-			config.Add(typeof(ActiveRecordBase),
-				new Dictionary<string, string> {
-					{NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect"},
-					{NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver"},
-					{NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider"},
-                    {NHibernate.Cfg.Environment.ConnectionStringName, "DB"},
-					{NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle"},
-					{NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none"}
-				});
-			ActiveRecordStarter.Initialize(new[] { typeof(Supplier).Assembly }, config);
 		}
 
 		//Аргументы для выбора отчетов из базы

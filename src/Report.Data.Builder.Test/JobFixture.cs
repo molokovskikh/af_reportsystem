@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Web.Ui.Models.Jobs;
 using NUnit.Framework;
 
 namespace Report.Data.Builder.Test

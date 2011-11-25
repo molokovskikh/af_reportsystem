@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Web.Ui.Models.Jobs;
 
 namespace Report.Data.Builder
 {

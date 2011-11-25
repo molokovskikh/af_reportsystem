@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Castle.ActiveRecord.Framework;
-using Integration.Models;
+using Common.Web.Ui.Models.Jobs;
 using NUnit.Framework;
 using Rhino.Mocks;
 using Test.Support;

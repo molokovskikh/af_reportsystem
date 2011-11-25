@@ -2,7 +2,7 @@
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
-using Integration.Models;
+using Common.Web.Ui.Models.Jobs;
 using NHibernate.Cfg;
 using NUnit.Framework;
 
