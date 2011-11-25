@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Data;
 using System.Linq;
 using NUnit.Framework;
-using log4net.Config;
 
 namespace Report.Data.Builder.Test
 {
@@ -12,7 +9,6 @@ namespace Report.Data.Builder.Test
 	{
 		private CostCalculator calculator;
 		private ClientRating[] ratings;
-		private uint[] clients;
 
 		[SetUp]
 		public void Setup()
@@ -21,30 +17,29 @@ namespace Report.Data.Builder.Test
 
 			ratings = RatingCalculator
 				.Caclucated(DateTime.Today.AddDays(-10), DateTime.Today)
+				.Take(3)
 				.ToArray();
-
-			clients = new[] {1606u, 369u};
 		}
 
 		[Test]
 		public void Calculate_average_costs()
 		{
-			BasicConfigurator.Configure();
-			var result = calculator.Calculate(calculator.Offers(ratings, 5));
+			var result = calculator.Calculate(calculator.Offers(ratings, 2));
 			Assert.That(result.Count, Is.GreaterThan(0));
 		}
 
 		[Test]
 		public void Save_costs()
 		{
-			var result = calculator.Calculate(calculator.Offers(ratings, 10));
+			var result = calculator.Calculate(calculator.Offers(ratings, 2));
 			calculator.Save(DateTime.Today, result);
 		}
 
 		[Test]
 		public void Get_offers()
 		{
-			var offers = calculator.GetOffers(1606);
+			var clientId = ratings.First().ClientId;
+			var offers = calculator.GetOffers(clientId);
 			Assert.That(offers.Length, Is.GreaterThan(0));
 		}
 	}

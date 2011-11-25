@@ -11,7 +11,7 @@ namespace Report.Data.Builder.Test
 		public void Is_job_ready()
 		{
 			var job = new Job {
-				NextRun = DateTime.Now
+				NextRun = DateTime.Now.AddMinutes(1)
 			};
 
 			Assert.That(job.IsReady(), Is.False);

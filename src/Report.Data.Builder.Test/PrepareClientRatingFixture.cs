@@ -17,11 +17,11 @@ namespace Report.Data.Builder.Test
 			var regional = new[] {Tuple.Create(500m, 1ul)};
 			var clients = new[] {new ClientRating(100u, 1ul, 100m), };
 			var rating = calculator.Calculate(regional, clients);
-			var result = new [] { Tuple.Create(0.2m, 100u, 1ul) };
+			var result = new [] { new ClientRating(100u, 1ul, 0.2m) };
 			Assert.That(rating.ToArray(), Is.EquivalentTo(result));
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void Save_rating()
 		{
 			var calculator = new RatingCalculator(DateTime.Today.AddDays(-7), DateTime.Today);

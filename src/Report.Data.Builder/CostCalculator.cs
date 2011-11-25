@@ -43,6 +43,16 @@ namespace Report.Data.Builder
 			RegionId = regionId;
 			Value = value;
 		}
+
+		public override bool Equals(object obj)
+		{
+			var rating = obj as ClientRating;
+			if (rating == null)
+				return false;
+			return rating.ClientId == ClientId
+				&& rating.RegionId == RegionId
+				&& rating.Value == Value;
+		}
 	}
 
 	public class Offer

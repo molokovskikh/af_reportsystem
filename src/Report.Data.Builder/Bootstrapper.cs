@@ -5,7 +5,7 @@ using log4net.Config;
 
 namespace Report.Data.Builder
 {
-	public class Bootstrapper : Bootstrapper<JobRunner>
+	/*public class Bootstrapper : Bootstrapper<JobRunner>
 	{
 		public void InitializeHostedService(IServiceConfigurator<JobRunner> cfg)
 		{
@@ -21,6 +21,5 @@ namespace Report.Data.Builder
 			cfg.WhenStarted(s => s.DoStart());
 			cfg.WhenStopped(s => s.Stop());
 		}
-	}
-
+	}*/
 }

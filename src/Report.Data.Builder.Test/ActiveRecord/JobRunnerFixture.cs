@@ -44,7 +44,7 @@ namespace Report.Data.Builder.Test.ActiveRecord
 
 			var activeRecordJob = GetJob();
 			Assert.That(activeRecordJob, Is.Not.Null);
-			Assert.That(activeRecordJob.LastRun.Value, Is.EqualTo(DateTime.Now).Within(1).Seconds);
+			Assert.That(activeRecordJob.LastRun, Is.EqualTo(DateTime.Now).Within(1).Seconds);
 			Assert.That(activeRecordJob.NextRun, Is.EqualTo(DateTime.Today));
 			Assert.That(activeRecordJob.RunInterval, Is.EqualTo(TimeSpan.Zero));
 

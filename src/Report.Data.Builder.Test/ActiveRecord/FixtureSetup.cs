@@ -27,7 +27,7 @@ namespace Report.Data.Builder.Test.ActiveRecord
 					{Environment.FormatSql, "true"},
 					{Environment.UseSqlComments, "true"}
 				});
-			ActiveRecordStarter.Initialize(new[] {typeof (Job).Assembly, typeof(JobLog).Assembly}, config);
+			ActiveRecordStarter.Initialize(new[] {typeof (Job).Assembly}, config);
 		}
 	}
 }

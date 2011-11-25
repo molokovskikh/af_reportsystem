@@ -1,5 +1,6 @@
 ﻿using System;
 using Castle.ActiveRecord;
+using Common.Web.Ui.Models.Jobs;
 using NUnit.Framework;
 using Test.Support;
 
