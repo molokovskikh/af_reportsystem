@@ -113,7 +113,8 @@ where p.Actual = 1
 				.ToArray();
 
 			watch.Stop();
-			Console.WriteLine("{0}s {1} loaded at", watch.Elapsed.TotalSeconds, client);
+			if (log.IsDebugEnabled)
+				log.DebugFormat("«агрузка предложений дл€ клиента {0} зан€ла {1}с", client, watch.Elapsed.TotalSeconds);
 
 			return data;
 		}
