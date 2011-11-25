@@ -6,7 +6,7 @@ using Castle.ActiveRecord;
 
 namespace ReportTuner.Models
 {
-	[ActiveRecord("reports.report_property_values")]
+	[ActiveRecord("report_property_values", Schema = "reports")]
 	public class ReportPropertyValue : ActiveRecordBase<ReportPropertyValue>
 	{
 		[PrimaryKey]

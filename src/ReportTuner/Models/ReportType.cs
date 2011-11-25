@@ -8,7 +8,7 @@ using Common.Web.Ui.Models;
 
 namespace ReportTuner.Models
 {
-	[ActiveRecord("reports.reporttypes")]
+	[ActiveRecord("reporttypes", Schema = "reports")]
 	public class ReportType : ActiveRecordBase<ReportType>
 	{
 		public ReportType()

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Castle.ActiveRecord;
+﻿using Castle.ActiveRecord;
 
 namespace ReportTuner.Models
 {
-	[ActiveRecord("reports.Mailing_Addresses")]
+	[ActiveRecord("Mailing_Addresses", Schema = "reports")]
 	public class MailingAddresses : ActiveRecordBase<MailingAddresses>
 	{
 		[PrimaryKey]

@@ -57,7 +57,7 @@ namespace ReportTuner.Models
 		public string DisplayValue { get; set; }
 	}
 
-	[ActiveRecord("reports.report_type_properties")]
+	[ActiveRecord("report_type_properties", Schema = "reports")]
 	public class ReportTypeProperty : ActiveRecordLinqBase<ReportTypeProperty>
 	{
 		public ReportTypeProperty()
@@ -98,8 +98,8 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual bool Optional { get; set; }
 
-        [Property]
-        public virtual string DefaultValue { get; set; }
+		[Property]
+		public virtual string DefaultValue { get; set; }
 
 		[BelongsTo("PropertyEnumId", Cascade = CascadeEnum.All)]
 		public virtual PropertyEnum Enum { get; set; }

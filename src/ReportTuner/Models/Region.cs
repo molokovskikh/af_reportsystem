@@ -3,7 +3,7 @@ using Castle.ActiveRecord;
 
 namespace ReportTuner.Models
 {
-	[ActiveRecord("farm.regions")]
+	[ActiveRecord("regions", Schema = "farm")]
 	public class Regions : ActiveRecordBase<Regions>
 	{
 		[PrimaryKey("RegionCode")]

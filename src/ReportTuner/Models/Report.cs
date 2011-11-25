@@ -7,7 +7,7 @@ using Common.Web.Ui.Models;
 
 namespace ReportTuner.Models
 {
-	[ActiveRecord("reports.reports")]
+	[ActiveRecord("reports", Schema = "reports")]
 	public class Report : ActiveRecordLinqBase<Report>
 	{
 		[PrimaryKey("ReportCode")]
