@@ -1,6 +1,8 @@
 ﻿using Common.Web.Ui.ActiveRecordExtentions;
 using Common.Web.Ui.Helpers;
 using Common.Web.Ui.Models.Jobs;
+using Topshelf.Configuration.Dsl;
+using Topshelf.Shelving;
 using log4net.Config;
 
 namespace Report.Data.Builder
@@ -17,8 +19,9 @@ namespace Report.Data.Builder
 			cfg.HowToBuildService(n => {
 				var runner = new JobRunner();
 				runner.Jobs.Add(new CalculatorJob(config));
+				return runner;
 			});
-			cfg.WhenStarted(s => s.DoStart());
+			cfg.WhenStarted(s => s.Start());
 			cfg.WhenStopped(s => s.Stop());
 		}
 	}
