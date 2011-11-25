@@ -10,12 +10,17 @@ namespace Report.Data.Builder
 	{
 		private DateTime _begin;
 		private DateTime _end;
+		private string _ordersSchema = "OrdersOld";
 
 		public RatingCalculator()
 		{}
 
 		public RatingCalculator(DateTime begin, DateTime end)
 		{
+#if DEBUG
+			_ordersSchema = "Orders";
+#endif
+
 			_begin = begin;
 			_end = end;
 		}
@@ -37,13 +42,13 @@ namespace Report.Data.Builder
 
 		private IEnumerable<Tuple<decimal, ulong>> CalculateRegionalTotals()
 		{
-			var sql = @"
+			var sql = String.Format(@"
 select sum(ol.Quantity * ol.Cost) as total, oh.RegionCode
-from Orders.OrdersHead oh
-join Orders.OrdersList ol on ol.OrderId = oh.RowId
-where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
+from {0}.OrdersHead oh
+join {0}.OrdersList ol on ol.OrderId = oh.RowId
+where oh.WriteTime >= ?begin and oh.WriteTime < ?end
 group by oh.RegionCode
-";
+", _ordersSchema);
 			return Db.Read(sql,
 				r => Tuple.Create(
 					r.GetDecimal("total"),
@@ -53,13 +58,13 @@ group by oh.RegionCode
 
 		private IEnumerable<ClientRating> CalculateRating()
 		{
-			var sql = @"
+			var sql = String.Format(@"
 select sum(ol.Quantity * ol.Cost) as total, oh.ClientCode, oh.RegionCode
-from Orders.OrdersHead oh
-join Orders.OrdersList ol on ol.OrderId = oh.RowId
-where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
+from {0}.OrdersHead oh
+join {0}.OrdersList ol on ol.OrderId = oh.RowId
+where oh.WriteTime >= ?begin and oh.WriteTime < ?end
 group by oh.ClientCode, oh.RegionCode
-";
+", _ordersSchema);
 			return Db.Read(sql,
 				r => new ClientRating(
 					r.GetUInt32("ClientCode"),
