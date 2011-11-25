@@ -1,6 +1,9 @@
 ﻿import System.IO
+import System.Linq.Enumerable
+import file from AppSupport.bake
 import file from Migration.bake
 import file from Test.bake
+import file from Deploy.bake
 
 Global(
 	humanReadableName : "Генератор отчетов",
@@ -11,3 +14,19 @@ Global(
 
 unless Configuration.IsDefined(@notInteractive):
 	Engine.Execute("LoadProject")
+
+task @DeployBackground, [@BuildBackground]:
+	Globals.Project = "Report.Data.Builder"
+	Globals.DeployTo = """\\fms\TopShelf\Services\""" + Globals.Project
+	Engine.Tasks.First({t| t.Name == "WebDeploy"}).Executed = false
+	Engine.Execute("WebDeploy")
+
+task @BuildBackground:
+	oldProject = Globals.Project
+	project = "Report.Data.Builder"
+	Globals.Project = project
+	Engine.Tasks.First({t| t.Name == "BuildApp"}).Executed = false
+	Engine.Execute("BuildApp")
+	Cp("src/$project/app.release.config", "output/$project/$project.config")
+	Rm("output/$project/$project.*.config")
+	Globals.Project = oldProject
