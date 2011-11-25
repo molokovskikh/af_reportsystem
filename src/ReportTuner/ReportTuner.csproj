@@ -170,7 +170,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\Bubble.cs" />
     <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Controllers\ReportsTuningController.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
