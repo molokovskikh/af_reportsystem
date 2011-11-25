@@ -886,8 +886,8 @@ WHERE ID = ?OPID", MyCn, trans);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !retail && !base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !retail);
-		SetRowVisibility(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
+		SetRowEnablity(dgvNonOptional.Rows, "По базовым ценам", !retail);
+		SetRowEnablity(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
 	}
 
@@ -901,6 +901,19 @@ WHERE ID = ?OPID", MyCn, trans);
 			var cell = dr.Cells[0];
 			if (cell.Text == label)
 				dr.Visible = visible;
+		}
+	}
+
+	private void SetRowEnablity(GridViewRowCollection rows, string label, bool enable)
+	{
+		foreach (GridViewRow dr in dgvNonOptional.Rows)
+		{
+			if (dr.Cells.Count < 1)
+				continue;
+
+			var cell = dr.Cells[0];
+			if (cell.Text == label)
+				dr.Enabled = enable;
 		}
 	}
 
@@ -1310,15 +1323,15 @@ public class PropertiesHelper
 
 			
 
-			long regionMask = 0;
+			decimal regionMask = 0;
 			string pricesStr = String.Empty;
 			// получаем свойство 'Список значений "Региона"'
 			var regEqual = reportProperties.Where(p => regionPropNames.Contains(p.PropertyType.PropertyName)).FirstOrDefault();
 			if(regEqual != null) {
 				regionMask = regEqual.Values.Select(v => {
-					uint regionCode;
-					return UInt32.TryParse(v.Value, out regionCode) ? regionCode : 0u;
-				}).Sum(r => r);
+					UInt64 regionCode;
+					return UInt64.TryParse(v.Value, out regionCode) ? regionCode : Convert.ToUInt64(0);
+				}).Sum(r => Convert.ToDecimal(r));
 			}
 			if(prices != null) {
 				var priceCodes = prices.Values.Select(v => {
@@ -1329,7 +1342,7 @@ public class PropertiesHelper
 				}).Where(v => v >= 0);
 				pricesStr = priceCodes.Implode(",");
 			}
-			return String.Format("inID={0}&inFilter={1}", regionMask, pricesStr);
+			return String.Format("inID={0}&inFilter={1}", Convert.ToUInt64(regionMask), pricesStr);
 		}
 		return String.Empty;
 	}
