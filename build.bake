@@ -1,12 +1,12 @@
-import System.IO
+п»їimport System.IO
 import file from Migration.bake
 import file from Test.bake
 
 Global(
-	humanReadableName : "Генератор отчетов",
+	humanReadableName : "Р“РµРЅРµСЂР°С‚РѕСЂ РѕС‚С‡РµС‚РѕРІ",
 	Platform : "x86",
 	Project: "ReportTuner",
-	AdditionalAssemblies: ("Common.Web.Ui", )
+	AdditionalAssemblies: ("Common.Web.Ui", "Report.Data.Builder")
 )
 
 unless Configuration.IsDefined(@notInteractive):

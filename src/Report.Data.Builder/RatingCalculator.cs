@@ -4,7 +4,7 @@ using System.Linq;
 using Common.MySql;
 using MySql.Data.MySqlClient;
 
-namespace Report.Data.Builder.Test
+namespace Report.Data.Builder
 {
 	public class RatingCalculator
 	{
@@ -20,16 +20,19 @@ namespace Report.Data.Builder.Test
 			_end = end;
 		}
 
-		public IEnumerable<Tuple<decimal, uint, ulong>> Ratings()
+		public IEnumerable<ClientRating> Ratings()
 		{
 			return Calculate(CalculateRegionalTotals(), CalculateRating());
 		}
 
-		public IEnumerable<Tuple<decimal, uint, ulong>> Calculate(
+		public IEnumerable<ClientRating> Calculate(
 			IEnumerable<Tuple<decimal, ulong>> regional, 
-			IEnumerable<Tuple<decimal, uint, ulong>> clients)
+			IEnumerable<ClientRating> clients)
 		{
-			return clients.Join(regional, c => c.Item3, r => r.Item2, (c, r) => Tuple.Create(c.Item1/r.Item1, c.Item2, c.Item3));
+			return clients.Join(regional,
+				c => c.RegionId,
+				r => r.Item2,
+				(c, r) => new ClientRating(c.ClientId, c.RegionId, c.Value/r.Item1));
 		}
 
 		private IEnumerable<Tuple<decimal, ulong>> CalculateRegionalTotals()
@@ -48,7 +51,7 @@ group by oh.RegionCode
 				new { begin = _begin, end = _end });
 		}
 
-		private IEnumerable<Tuple<decimal, uint, ulong>> CalculateRating()
+		private IEnumerable<ClientRating> CalculateRating()
 		{
 			var sql = @"
 select sum(ol.Quantity * ol.Cost) as total, oh.ClientCode, oh.RegionCode
@@ -58,21 +61,19 @@ where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
 group by oh.ClientCode, oh.RegionCode
 ";
 			return Db.Read(sql,
-				r => Tuple.Create(
-					r.GetDecimal("total"),
+				r => new ClientRating(
 					r.GetUInt32("ClientCode"),
-					r.GetUInt64("RegionCode")),
+					r.GetUInt64("RegionCode"),
+					r.GetDecimal("total")),
 				new { begin = _begin, end = _end });
 		}
 
-		public static IEnumerable<Rating> Caclucated(DateTime begin, DateTime end)
+		public static IEnumerable<ClientRating> Caclucated(DateTime begin, DateTime end)
 		{
-			return new RatingCalculator(begin, end)
-				.Ratings()
-				.Select(t => new Rating(t.Item2, t.Item3, t.Item1));
+			return new RatingCalculator(begin, end).Ratings();
 		}
 
-		public void Save(DateTime date, IEnumerable<Tuple<decimal, uint, ulong>> ratings)
+		public void Save(DateTime date, IEnumerable<ClientRating> ratings)
 		{
 			With.Transaction(t => {
 				var sql = "insert into Reports.ClientRatings(Date, ClientId, RegionId, Rating) value (?Date, ?ClientId, ?RegionId, ?Rating)";
@@ -82,12 +83,12 @@ group by oh.ClientCode, oh.RegionCode
 				command.Parameters.Add("RegionId", MySqlDbType.UInt64);
 				command.Parameters.Add("Rating", MySqlDbType.Decimal);
 				command.Prepare();
-				foreach (var tuple in ratings)
+				foreach (var rating in ratings)
 				{
 					command.Parameters["Date"].Value = date;
-					command.Parameters["ClientId"].Value = tuple.Item2;
-					command.Parameters["RegionId"].Value = tuple.Item3;
-					command.Parameters["Rating"].Value = tuple.Item1;
+					command.Parameters["ClientId"].Value = rating.ClientId;
+					command.Parameters["RegionId"].Value = rating.RegionId;
+					command.Parameters["Rating"].Value = rating.Value;
 					command.ExecuteNonQuery();
 				}
 			});

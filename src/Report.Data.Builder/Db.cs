@@ -4,7 +4,7 @@ using Common.MySql;
 using Common.Tools;
 using MySql.Data.MySqlClient;
 
-namespace Report.Data.Builder.Test
+namespace Report.Data.Builder
 {
 	public class Db
 	{

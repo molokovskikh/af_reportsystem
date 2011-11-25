@@ -3,64 +3,15 @@ using System.Collections;
 using System.Data;
 using System.Linq;
 using NUnit.Framework;
+using log4net.Config;
 
 namespace Report.Data.Builder.Test
 {
-	public struct OfferId
-	{
-		public uint SupplierId;
-		public ulong RegionId;
-
-		public OfferId(uint supplierId, ulong regionId)
-		{
-			SupplierId = supplierId;
-			RegionId = regionId;
-		}
-	}
-
-	public class AvgCost
-	{
-		public OfferId Id;
-
-		public uint AssortmentId;
-		public DateTime Date;
-		public decimal Cost;
-	}
-
-	public class Rating
-	{
-		public uint ClientId;
-		public ulong RegionId;
-		public decimal Value;
-
-		public Rating(uint clientId, ulong regionId, decimal value)
-		{
-			ClientId = clientId;
-			RegionId = regionId;
-			Value = value;
-		}
-	}
-
-	public class Offer
-	{
-		public OfferId Id;
-
-		public uint AssortmentId;
-		public decimal Cost;
-
-		public Offer(OfferId id, uint assortmentId, decimal cost)
-		{
-			Id = id;
-			AssortmentId = assortmentId;
-			Cost = cost;
-		}
-	}
-
 	[TestFixture]
 	public class CalculateCostFixture
 	{
 		private CostCalculator calculator;
-		private Rating[] ratings;
+		private ClientRating[] ratings;
 		private uint[] clients;
 
 		[SetUp]
@@ -78,15 +29,23 @@ namespace Report.Data.Builder.Test
 		[Test]
 		public void Calculate_average_costs()
 		{
-			var result = calculator.Calculate(clients, ratings);
+			BasicConfigurator.Configure();
+			var result = calculator.Calculate(calculator.Offers(ratings, 5));
 			Assert.That(result.Count, Is.GreaterThan(0));
 		}
 
 		[Test]
 		public void Save_costs()
 		{
-			var result = calculator.Calculate(clients, ratings);
+			var result = calculator.Calculate(calculator.Offers(ratings, 10));
 			calculator.Save(DateTime.Today, result);
+		}
+
+		[Test]
+		public void Get_offers()
+		{
+			var offers = calculator.GetOffers(1606);
+			Assert.That(offers.Length, Is.GreaterThan(0));
 		}
 	}
 }
