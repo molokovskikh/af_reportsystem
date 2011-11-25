@@ -31,6 +31,7 @@ namespace Inforoom.ReportSystem.ByOffers
 			}
 		}
 
+		public DateTime SomeDate;
 		public DateTime PrevMonth;
 		public DateTime PrevWeek;
 		public DateTime PrevDay;
@@ -43,7 +44,7 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		public string DateGroupLabel()
 		{
-			return String.Format("Относительно {0:d MMMM yyyy}", Date);
+			return String.Format("Относительно {0:d MMMM yyyy}", SomeDate);
 		}
 
 		public string PrevMonthLabel()
@@ -67,6 +68,7 @@ namespace Inforoom.ReportSystem.ByOffers
 		private ulong[] regions;
 		private uint[] suppliers;
 		private DateTime date;
+		private DateTime someDate;
 		private CostDynamicSettings settings;
 
 		public CostDynamic()
@@ -82,7 +84,8 @@ namespace Inforoom.ReportSystem.ByOffers
 			settings = new CostDynamicSettings(_reportCode, _reportCaption) {
 				Regions = regions,
 				Suppliers = suppliers,
-				Date = date
+				Date = date,
+				SomeDate = someDate
 			};
 
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", date.ToShortDateString()));
@@ -131,31 +134,37 @@ where id in ({0})", suppliers.Implode());
 			}
 
 			var dateMap = new Dictionary<string, DateTime> {
+				{"CostDiff", settings.SomeDate},
 				{"PrevMonthCostDiff", settings.PrevMonth},
 				{"PrevWeekCostDiff", settings.PrevWeek},
 				{"PrevDayCostDiff", settings.PrevDay}
 			};
 
-			var beginOrderTotals = GetMarketShare(suppliers, regions, date);
+			var baseOrderTotals = GetMarketShare(suppliers, regions, date);
+			var someDayOrderTotals = GetMarketShare(suppliers, regions, date);
 			var prevDayOrderTotals = GetMarketShare(suppliers, regions, settings.PrevDay);
 			var prevWeekOrderTotals = GetMarketShare(suppliers, regions, settings.PrevWeek);
 			var prevMonthOrder = GetMarketShare(suppliers, regions, settings.PrevMonth);
+			var marketTotal = GetMarketValue(regions, date);
 
 			foreach (var supplier in suppliers)
 			{
 				var row = results.Rows.Cast<DataRow>().First(r => Convert.ToUInt32(r["Id"]) == supplier);
-				var beginPrice = regions.Sum(r => CalculatePriceCost(begin, supplier, r, quantities));
-				if (beginPrice == 0)
-					break;
 
-				row["PrevDayMarketShareDiff"] = CalculateShareDiff(beginOrderTotals, prevDayOrderTotals, supplier);
-				row["PrevWeekMarketShareDiff"] = CalculateShareDiff(beginOrderTotals, prevWeekOrderTotals, supplier);
-				row["PrevMonthMarketShareDiff"] = CalculateShareDiff(beginOrderTotals, prevMonthOrder, supplier);
-				
+				var baseTotal = GetTotal(baseOrderTotals, supplier);
+				row["MarketShare"] = InPercentOf(baseTotal, marketTotal);
+				row["MarketShareDiff"] = CalculateShareDiff(baseTotal, someDayOrderTotals, supplier);
+				row["PrevDayMarketShareDiff"] = CalculateShareDiff(baseTotal, prevDayOrderTotals, supplier);
+				row["PrevWeekMarketShareDiff"] = CalculateShareDiff(baseTotal, prevWeekOrderTotals, supplier);
+				row["PrevMonthMarketShareDiff"] = CalculateShareDiff(baseTotal, prevMonthOrder, supplier);
+
+				var baseCostIndex = regions.Sum(r => CalculateCostIndex(begin, supplier, r, quantities));
+				if (baseCostIndex == 0)
+					break;
 				foreach (var dateToColumn in dateMap)
 				{
-					var endPrice = regions.Sum(r => CalculatePriceCost(dateToColumn.Value, supplier, r, quantities));
-					row[dateToColumn.Key] = InPercentOf(endPrice, beginPrice);
+					var currentCostIndex = regions.Sum(r => CalculateCostIndex(dateToColumn.Value, supplier, r, quantities));
+					row[dateToColumn.Key] = InPercentOf(baseCostIndex, currentCostIndex);
 				}
 			}
 
@@ -170,26 +179,46 @@ where id in ({0})", suppliers.Implode());
 			results.Rows.Add(resultRow);
 		}
 
-		private static decimal CalculateShareDiff(DataTable beginOrderTotals, DataTable prevDayOrderTotals, uint supplier)
+		private static decimal CalculateShareDiff(decimal valueTotal, DataTable currentOrderTotals, uint supplier)
 		{
-			var currentRow = beginOrderTotals.Rows.Cast<DataRow>()
-				.Where(r => r["SupplierId"] != DBNull.Value)
-				.FirstOrDefault(r => Convert.ToUInt32(r["SupplierId"]) == supplier);
-			var baseRow = prevDayOrderTotals.Rows.Cast<DataRow>()
-				.Where(r => r["SupplierId"] != DBNull.Value)
-				.FirstOrDefault(r => Convert.ToUInt32(r["SupplierId"]) == supplier);
-
-			if (currentRow == null || baseRow == null)
-				return 0;
+			var baseTotal = GetTotal(currentOrderTotals, supplier);
 
 			return InPercentOf(
-				Convert.ToDecimal(currentRow["total"]),
-				Convert.ToDecimal(baseRow["total"]));
+				Convert.ToDecimal(valueTotal),
+				Convert.ToDecimal(baseTotal));
+		}
+
+		private static decimal GetTotal(DataTable table, uint supplier)
+		{
+			var row = table.Rows.Cast<DataRow>()
+				.Where(r => r["SupplierId"] != DBNull.Value)
+				.FirstOrDefault(r => Convert.ToUInt32(r["SupplierId"]) == supplier);
+			return Convert.ToDecimal(row["total"]);
 		}
 
 		private static decimal InPercentOf(decimal value, decimal @base)
 		{
 			return Math.Round((value/@base - 1)*100, 2);
+		}
+
+		private decimal GetMarketValue(ulong[] regions, DateTime date)
+		{
+			var command = args.DataAdapter.SelectCommand;
+			command.CommandText = String.Format(@"
+select sum(ol.Cost * ol.Quantity) as total
+from Orders.OrdersHead oh
+join Orders.OrdersList ol on oh.RowId = ol.OrderId
+where writetime >= ?begin and writetime < ?end
+and oh.RegionCode in ({0})
+group by pd.FirmCode
+", regions.Implode());
+
+			command.Parameters.Clear();
+			command.Parameters.AddWithValue("begin", date.Date);
+			command.Parameters.AddWithValue("end", date.Date.AddDays(1));
+			var table = new DataTable();
+			args.DataAdapter.Fill(table);
+			return Convert.ToDecimal(table.Rows[0][0]);
 		}
 
 		private DataTable GetMarketShare(uint[] suppliers, ulong[] regions, DateTime date)
@@ -202,6 +231,7 @@ join Orders.OrdersList ol on oh.RowId = ol.OrderId
 join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 where writetime >= ?begin and writetime < ?end
 and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
+group by pd.FirmCode
 ", suppliers.Implode(), regions.Implode());
 
 			command.Parameters.Clear();
@@ -260,7 +290,7 @@ and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
 			return results;
 		}
 
-		public decimal CalculatePriceCost(DateTime date, uint supplierId, ulong regionId, Hashtable quantities)
+		public decimal CalculateCostIndex(DateTime date, uint supplierId, ulong regionId, Hashtable quantities)
 		{
 			decimal result = 0;
 
@@ -296,6 +326,7 @@ and Date = ?date
 			if (reportParamExists("date"))
 				date = (DateTime) getReportParam("date");
 
+			date = (DateTime) getReportParam("someDate");
 			regions = ((List<ulong>) getReportParam("regions")).ToArray();
 			suppliers = ((List<ulong>) getReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
 		}
