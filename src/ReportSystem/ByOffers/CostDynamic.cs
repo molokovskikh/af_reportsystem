@@ -21,7 +21,7 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		public DateTime Date
 		{
-			get { return _date;  }
+			get { return _date; }
 			set
 			{
 				_date = value;
@@ -141,10 +141,11 @@ where id in ({0})", suppliers.Implode());
 			};
 
 			var baseOrderTotals = GetMarketShare(suppliers, regions, date);
-			var someDayOrderTotals = GetMarketShare(suppliers, regions, date);
+			var someDayOrderTotals = GetMarketShare(suppliers, regions, settings.SomeDate);
 			var prevDayOrderTotals = GetMarketShare(suppliers, regions, settings.PrevDay);
 			var prevWeekOrderTotals = GetMarketShare(suppliers, regions, settings.PrevWeek);
 			var prevMonthOrder = GetMarketShare(suppliers, regions, settings.PrevMonth);
+
 			var marketTotal = GetMarketValue(regions, date);
 
 			foreach (var supplier in suppliers)
@@ -152,19 +153,20 @@ where id in ({0})", suppliers.Implode());
 				var row = results.Rows.Cast<DataRow>().First(r => Convert.ToUInt32(r["Id"]) == supplier);
 
 				var baseTotal = GetTotal(baseOrderTotals, supplier);
-				row["MarketShare"] = InPercentOf(baseTotal, marketTotal);
-				row["MarketShareDiff"] = CalculateShareDiff(baseTotal, someDayOrderTotals, supplier);
-				row["PrevDayMarketShareDiff"] = CalculateShareDiff(baseTotal, prevDayOrderTotals, supplier);
-				row["PrevWeekMarketShareDiff"] = CalculateShareDiff(baseTotal, prevWeekOrderTotals, supplier);
-				row["PrevMonthMarketShareDiff"] = CalculateShareDiff(baseTotal, prevMonthOrder, supplier);
+
+				row.SetField("MarketShare", SaveInPercentOf(baseTotal, marketTotal));
+				row.SetField("MarketShareDiff", CalculateShareDiff(baseTotal, someDayOrderTotals, supplier));
+				row.SetField("PrevDayMarketShareDiff", CalculateShareDiff(baseTotal, prevDayOrderTotals, supplier));
+				row.SetField("PrevWeekMarketShareDiff", CalculateShareDiff(baseTotal, prevWeekOrderTotals, supplier));
+				row.SetField("PrevMonthMarketShareDiff", CalculateShareDiff(baseTotal, prevMonthOrder, supplier));
 
 				var baseCostIndex = regions.Sum(r => CalculateCostIndex(begin, supplier, r, quantities));
 				if (baseCostIndex == 0)
-					break;
+					continue;
 				foreach (var dateToColumn in dateMap)
 				{
 					var currentCostIndex = regions.Sum(r => CalculateCostIndex(dateToColumn.Value, supplier, r, quantities));
-					row[dateToColumn.Key] = InPercentOf(baseCostIndex, currentCostIndex);
+					row.SetField(dateToColumn.Key, SaveInPercentOf(baseCostIndex, currentCostIndex));
 				}
 			}
 
@@ -179,26 +181,41 @@ where id in ({0})", suppliers.Implode());
 			results.Rows.Add(resultRow);
 		}
 
-		private static decimal CalculateShareDiff(decimal valueTotal, DataTable currentOrderTotals, uint supplier)
+		private static decimal? CalculateShareDiff(decimal? valueTotal, DataTable currentOrderTotals, uint supplier)
 		{
 			var baseTotal = GetTotal(currentOrderTotals, supplier);
-
-			return InPercentOf(
-				Convert.ToDecimal(valueTotal),
-				Convert.ToDecimal(baseTotal));
+			return SaveInPercentOf(valueTotal, baseTotal);
 		}
 
-		private static decimal GetTotal(DataTable table, uint supplier)
+		private static decimal? SaveInPercentOf(decimal valueTotal, decimal baseTotal)
 		{
-			var row = table.Rows.Cast<DataRow>()
-				.Where(r => r["SupplierId"] != DBNull.Value)
-				.FirstOrDefault(r => Convert.ToUInt32(r["SupplierId"]) == supplier);
-			return Convert.ToDecimal(row["total"]);
+			if (baseTotal == 0)
+				return null;
+
+			return InPercentOf(valueTotal, baseTotal);
+		}
+
+		private static decimal? SaveInPercentOf(decimal? valueTotal, decimal? baseTotal)
+		{
+			if (valueTotal == null || baseTotal == null)
+				return null;
+
+			return SaveInPercentOf(valueTotal.Value, baseTotal.Value);
 		}
 
 		private static decimal InPercentOf(decimal value, decimal @base)
 		{
-			return Math.Round((value/@base - 1)*100, 2);
+			return Math.Round((value/@base - 1), 2);
+		}
+
+		private static decimal? GetTotal(DataTable table, uint supplier)
+		{
+			var row = table.Rows.Cast<DataRow>()
+				.Where(r => r["SupplierId"] != DBNull.Value)
+				.FirstOrDefault(r => Convert.ToUInt32(r["SupplierId"]) == supplier);
+			if (row == null)
+				return null;
+			return Convert.ToDecimal(row["total"]);
 		}
 
 		private decimal GetMarketValue(ulong[] regions, DateTime date)
@@ -210,7 +227,6 @@ from Orders.OrdersHead oh
 join Orders.OrdersList ol on oh.RowId = ol.OrderId
 where writetime >= ?begin and writetime < ?end
 and oh.RegionCode in ({0})
-group by pd.FirmCode
 ", regions.Implode());
 
 			command.Parameters.Clear();
@@ -218,7 +234,10 @@ group by pd.FirmCode
 			command.Parameters.AddWithValue("end", date.Date.AddDays(1));
 			var table = new DataTable();
 			args.DataAdapter.Fill(table);
-			return Convert.ToDecimal(table.Rows[0][0]);
+			var value = table.Rows[0][0];
+			if (value == DBNull.Value)
+				return 0;
+			return Convert.ToDecimal(value);
 		}
 
 		private DataTable GetMarketShare(uint[] suppliers, ulong[] regions, DateTime date)
@@ -240,6 +259,34 @@ group by pd.FirmCode
 			var table = new DataTable();
 			args.DataAdapter.Fill(table);
 			return table;
+		}
+
+		public decimal CalculateCostIndex(DateTime date, uint supplierId, ulong regionId, Hashtable quantities)
+		{
+			decimal result = 0;
+
+			var command = args.DataAdapter.SelectCommand;
+			command.CommandText = @"
+select AssortmentId, Cost
+from Reports.AverageCosts
+where SupplierId = ?supplierId
+and RegionId = ?regionId
+and Date = ?date
+";
+			command.Parameters.Clear();
+			command.Parameters.AddWithValue("supplierId", supplierId);
+			command.Parameters.AddWithValue("regionId", regionId);
+			command.Parameters.AddWithValue("date", date);
+			var table = new DataTable();
+			args.DataAdapter.Fill(table);
+			foreach (DataRow row in table.Rows)
+			{
+				var quantiry = quantities[row["AssortmentId"]];
+				if (quantiry == null)
+					continue;
+				result = Convert.ToDecimal(row["Cost"])*Convert.ToDecimal(quantiry);
+			}
+			return result;
 		}
 
 		public DataTable CreateResultTable()
@@ -288,36 +335,6 @@ group by pd.FirmCode
 			column.ExtendedProperties.Add("Width", 13);
 
 			return results;
-		}
-
-		public decimal CalculateCostIndex(DateTime date, uint supplierId, ulong regionId, Hashtable quantities)
-		{
-			decimal result = 0;
-
-			var command = args.DataAdapter.SelectCommand;
-			command.CommandText = @"
-select AssortmentId, Cost
-from Reports.AverageCosts
-where SupplierId = ?supplierId
-and RegionId = ?regionId
-and Date = ?date
-";
-			command.Parameters.Clear();
-			command.Parameters.AddWithValue("supplierId", supplierId);
-			command.Parameters.AddWithValue("regionId", regionId);
-			command.Parameters.AddWithValue("date", date);
-			var table = new DataTable();
-			args.DataAdapter.Fill(table);
-			foreach (DataRow row in table.Rows)
-			{
-				var quantiry = quantities[row["AssortmentId"]];
-				if (quantiry == null)
-					continue;
-				result = Convert.ToDecimal(row["Cost"])*Convert.ToDecimal(quantiry);
-			}
-			if (result == 0)
-				throw new Exception(String.Format("Данные за период {0} не подготовленны, в таблице reports.AverageCosts нет данных для этой даты", date.ToShortDateString()));
-			return result;
 		}
 
 		public override void ReadReportParams()
