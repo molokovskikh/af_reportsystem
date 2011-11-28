@@ -14,7 +14,7 @@ namespace Report.Data.Builder.Test
 			var result = TaskLoader.ParallelLoader(items, i => i, 10).ToArray();
 			Assert.That(result.Length, Is.EqualTo(5));
 			var tuples = Enumerable.Range(1, 5).Select(i => Tuple.Create(i, i)).ToArray();
-			Assert.That(result, Is.EqualTo(tuples));
+			Assert.That(result, Is.EquivalentTo(tuples));
 		}
 	}
 }

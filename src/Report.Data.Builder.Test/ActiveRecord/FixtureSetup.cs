@@ -22,6 +22,7 @@ namespace Report.Data.Builder.Test.ActiveRecord
 					{Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver"},
 					{Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider"},
 					{Environment.ConnectionStringName, ConnectionHelper.GetConnectionName()},
+					{Environment.Isolation, "ReadCommitted"},
 					{Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle"},
 					{Environment.Hbm2ddlKeyWords, "none"},
 					{Environment.FormatSql, "true"},
