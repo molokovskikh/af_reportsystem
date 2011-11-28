@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Tools.Calendar;
 using Common.Web.Ui.Models.Jobs;
 
 namespace Report.Data.Builder
@@ -15,12 +16,10 @@ namespace Report.Data.Builder
 
 		public void Work()
 		{
-			var ratingCalculator = new RatingCalculator(Date, Date.AddDays(1));
-			var rating = ratingCalculator.Ratings();
-			ratingCalculator.Save(Date, rating);
+			var ratings = RatingCalculator.CaclucatedAndSave(Date.AddMonths(-1).FirstDayOfMonth());
 
 			var costCalculator = new CostCalculator();
-			var offers = costCalculator.Offers(rating, Config.ThreadCount);
+			var offers = costCalculator.Offers(ratings, Config.ThreadCount);
 			var averageCosts = costCalculator.Calculate(offers);
 			costCalculator.Save(Date, averageCosts);
 		}

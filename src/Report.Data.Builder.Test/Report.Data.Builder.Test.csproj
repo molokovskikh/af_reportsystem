@@ -58,7 +58,7 @@
     <Compile Include="FixtureSetup.cs" />
     <Compile Include="JobFixture.cs" />
     <Compile Include="ActiveRecord\JobRunnerFixture.cs" />
-    <Compile Include="PrepareClientRatingFixture.cs" />
+    <Compile Include="ClientRatingFixture.cs" />
     <Compile Include="TaskLoaderFixture.cs" />
   </ItemGroup>
   <ItemGroup>

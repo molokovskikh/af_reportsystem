@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Report.Data.Builder.Test
 {
 	[TestFixture]
-	public class PrepareClientRatingFixture
+	public class ClientRatingFixture
 	{
 		[Test]
 		public void Calculate_client_rating()
@@ -26,7 +26,14 @@ namespace Report.Data.Builder.Test
 		{
 			var calculator = new RatingCalculator(DateTime.Today.AddDays(-7), DateTime.Today);
 			var ratings = calculator.Ratings();
-			calculator.Save(DateTime.Today.FirstDayOfMonth(), ratings);
+			RatingCalculator.Save(DateTime.Today.FirstDayOfMonth(), ratings);
+		}
+
+		[Test]
+		public void Calculate_and_save_rating()
+		{
+			var ratings = RatingCalculator.CaclucatedAndSave(DateTime.Now.FirstDayOfMonth());
+			Assert.That(ratings.Count(), Is.GreaterThan(0));
 		}
 	}
 }

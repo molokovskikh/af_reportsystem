@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.MySql;
+using Common.Tools.Calendar;
 using MySql.Data.MySqlClient;
 
 namespace Report.Data.Builder
@@ -78,7 +79,7 @@ group by oh.ClientCode, oh.RegionCode
 			return new RatingCalculator(begin, end).Ratings();
 		}
 
-		public void Save(DateTime date, IEnumerable<ClientRating> ratings)
+		public static void Save(DateTime date, IEnumerable<ClientRating> ratings)
 		{
 			With.Transaction(t => {
 				var sql = "insert into Reports.ClientRatings(Date, ClientId, RegionId, Rating) value (?Date, ?ClientId, ?RegionId, ?Rating)";
@@ -97,6 +98,22 @@ group by oh.ClientCode, oh.RegionCode
 					command.ExecuteNonQuery();
 				}
 			});
+		}
+
+		public static IEnumerable<ClientRating> CaclucatedAndSave(DateTime date)
+		{
+			var ratings = Db.Read("select ClientId, RegionId, Rating from Reports.ClientRatings where date = ?date",
+				r => new ClientRating(r.GetUInt32("ClientId"), r.GetUInt64("RegionId"), r.GetDecimal("Rating")),
+				new {date})
+				.ToArray();
+
+			if (ratings.Length > 0)
+				return ratings;
+
+			var calculator = new RatingCalculator(date, date.LastDayOfMonth());
+			ratings = calculator.Ratings().ToArray();
+			Save(date, ratings);
+			return ratings;
 		}
 	}
 }
