@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Common.Web.Ui.Models.Jobs;
 using NUnit.Framework;
 using Rhino.Mocks;
 using Test.Support;
+using Test.Support.log4net;
 
 namespace Report.Data.Builder.Test.ActiveRecord
 {
@@ -22,6 +24,10 @@ namespace Report.Data.Builder.Test.ActiveRecord
 			job = MockRepository.GenerateStub<IJob>();
 			name = job.GetType().Name;
 			runner.Jobs.Add(job);
+
+			var logs = ActiveRecordLinqBase<JobLog>.Queryable.Where(l => l.Name == name);
+			foreach (var log in logs)
+				ActiveRecordMediator.Delete(log);
 		}
 
 		[Test]
@@ -37,7 +43,7 @@ namespace Report.Data.Builder.Test.ActiveRecord
 		}
 
 		[Test]
-		public void Run_exists_job()
+		public void Run_new_job()
 		{
 			runner.DefaultInterval = TimeSpan.Zero;
 			runner.Run();
@@ -47,6 +53,29 @@ namespace Report.Data.Builder.Test.ActiveRecord
 			Assert.That(activeRecordJob.LastRun, Is.EqualTo(DateTime.Now).Within(1).Seconds);
 			Assert.That(activeRecordJob.NextRun, Is.EqualTo(DateTime.Today));
 			Assert.That(activeRecordJob.RunInterval, Is.EqualTo(TimeSpan.Zero));
+			job.AssertWasCalled(j => j.Work());
+
+			var logs = ActiveRecordLinqBase<JobLog>.Queryable.Where(l => l.Name == name).ToList();
+			Assert.That(logs.Count, Is.EqualTo(1));
+		}
+
+		[Test]
+		public void Run_exist_job()
+		{
+			var activeRecordJob = new Job(name, runner.DefaultInterval);
+			activeRecordJob.NextRun = DateTime.Now.AddHours(-1);
+			ActiveRecordMediator.Save(activeRecordJob);
+			scope.Flush();
+			scope.Dispose();
+			scope = new SessionScope();
+
+			runner.Run();
+
+			ActiveRecordMediator.Refresh(activeRecordJob);
+			Assert.That(activeRecordJob.LastRun, Is.EqualTo(DateTime.Now).Within(2).Seconds);
+			Assert.That(activeRecordJob.NextRun, Is.EqualTo(DateTime.Today + runner.DefaultInterval));
+			Assert.That(activeRecordJob.RunInterval, Is.EqualTo(runner.DefaultInterval));
+			job.AssertWasCalled(j => j.Work());
 
 			var logs = ActiveRecordLinqBase<JobLog>.Queryable.Where(l => l.Name == name).ToList();
 			Assert.That(logs.Count, Is.EqualTo(1));

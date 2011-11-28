@@ -1,4 +1,5 @@
-﻿using Common.Web.Ui.ActiveRecordExtentions;
+﻿using Common.MySql;
+using Common.Web.Ui.ActiveRecordExtentions;
 using Common.Web.Ui.Helpers;
 using Common.Web.Ui.Models.Jobs;
 using Topshelf.Configuration.Dsl;
@@ -12,6 +13,7 @@ namespace Report.Data.Builder
 		public void InitializeHostedService(IServiceConfigurator<JobRunner> cfg)
 		{
 			XmlConfigurator.Configure();
+			With.DefaultConnectionStringName = "production";
 			ActiveRecordInitialize.Init("production", typeof(Job).Assembly);
 			var config = new Config();
 			ConfigReader.LoadSettings(config);

@@ -146,7 +146,13 @@ where p.Actual = 1
 					if (value != null)
 						cost = (decimal) value;
 
-					costs[offer.AssortmentId] = cost + offer.Cost*rating[offer.Id.RegionId];
+					decimal regionRating = 0;
+					if (rating.ContainsKey(offer.Id.RegionId))
+						regionRating = rating[offer.Id.RegionId];
+					else
+						continue;
+
+					costs[offer.AssortmentId] = cost + offer.Cost*regionRating;
 				}
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Client {0} calculated", client);
@@ -184,33 +190,10 @@ where p.Actual = 1
 		public IEnumerable<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> Offers(IEnumerable<ClientRating> ratings, int count)
 		{
 			var clients = ratings.Select(r => r.ClientId).Distinct().ToList();
-			if (count > clients.Count)
-				count = clients.Count;
-			var tasks = new Task<IEnumerable<Offer>>[count];
-			for(var i = 0; i < count; i++)
-			{
-				tasks[i] = RunTask(clients[i]);
-			}
-
-			while (clients.Count > 0)
-			{
-				var index = Task.WaitAny(tasks);
-				var task = tasks[index];
-				if (clients.Count > count)
-					tasks[index] = RunTask(clients.Skip(count).First());
-				var id = (uint) task.AsyncState;
-				clients.Remove(id);
-				yield return Tuple.Create(ratings.Where(r => r.ClientId == id), task.Result);
-			}
-		}
-
-		private Task<IEnumerable<Offer>> RunTask(uint id)
-		{
-			var task = new Task<IEnumerable<Offer>>(
-				clientId => GetOffers((uint) clientId),
-				id);
-			task.Start();
-			return task;
+			return TaskLoader.ParallelLoader(clients, GetOffers, count)
+				.Select(t => Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					ratings.Where(r => r.ClientId == t.Item1).ToArray(),
+					t.Item2));
 		}
 	}
 }
