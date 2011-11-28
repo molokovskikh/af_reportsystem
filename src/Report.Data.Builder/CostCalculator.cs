@@ -107,14 +107,14 @@ where p.Actual = 1
 			var watch = Stopwatch.StartNew();
 			watch.Start();
 
-			var data = Db.Read(sql, 
+			var data = Db.Read(sql,
 				r => new Offer(new OfferId(r.GetUInt32("FirmCode"), r.GetUInt64("RegionCode")), r.GetUInt32("Id"), r.GetDecimal("Cost")),
 				new {client})
 				.ToArray();
 
 			watch.Stop();
 			if (log.IsDebugEnabled)
-				log.DebugFormat("�������� ����������� ��� ������� {0} ������ {1}�", client, watch.Elapsed.TotalSeconds);
+				log.DebugFormat("Загрузка предложений для клиента {0} заняла {1}с", client, watch.Elapsed.TotalSeconds);
 
 			return data;
 		}
@@ -122,14 +122,22 @@ where p.Actual = 1
 		public Hashtable Calculate(IEnumerable<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> data)
 		{
 			var result = new Hashtable();
+			var watch = new Stopwatch();
+			watch.Start();
+
 			foreach (var item in data)
 			{
+				watch.Stop();
+
 				if (item.Item1.Count() == 0)
 					continue;
 
+				if (log.IsDebugEnabled)
+					log.DebugFormat("Ожидание данных {0}с", watch.Elapsed.TotalSeconds);
+
 				var client = item.Item1.First().ClientId;
 				if (log.IsDebugEnabled)
-					log.DebugFormat("Client {0} calculation begin", client);
+					log.DebugFormat("Начал вычисление средних цен для клиента {0}", client);
 				var rating = item.Item1.ToDictionary(r => r.RegionId, r => r.Value);
 
 				foreach (var offer in item.Item2)
@@ -146,16 +154,17 @@ where p.Actual = 1
 					if (value != null)
 						cost = (decimal) value;
 
-					decimal regionRating = 0;
-					if (rating.ContainsKey(offer.Id.RegionId))
-						regionRating = rating[offer.Id.RegionId];
-					else
+					if (!rating.ContainsKey(offer.Id.RegionId))
 						continue;
 
+					var regionRating = rating[offer.Id.RegionId];
 					costs[offer.AssortmentId] = cost + offer.Cost*regionRating;
 				}
 				if (log.IsDebugEnabled)
-					log.DebugFormat("Client {0} calculated", client);
+					log.DebugFormat("Закончил вычисление средних цена для клиента {0}", client);
+
+				watch.Reset();
+				watch.Start();
 			}
 			return result;
 		}
