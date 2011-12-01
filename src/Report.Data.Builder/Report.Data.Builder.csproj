@@ -57,7 +57,6 @@
     <Compile Include="CostCalculator.cs" />
     <Compile Include="RatingCalculator.cs" />
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="TaskLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">

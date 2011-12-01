@@ -59,7 +59,6 @@
     <Compile Include="JobFixture.cs" />
     <Compile Include="ActiveRecord\JobRunnerFixture.cs" />
     <Compile Include="ClientRatingFixture.cs" />
-    <Compile Include="TaskLoaderFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
