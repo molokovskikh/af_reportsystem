@@ -9,7 +9,7 @@ namespace Report.Data.Builder
 	{
 		private ILog log = LogManager.GetLogger(typeof (CalculatorJob));
 		public Config Config;
-		public DateTime Date = DateTime.Today.AddDays(-1);
+		public DateTime Date;
 
 		public CalculatorJob(Config config)
 		{
@@ -18,6 +18,7 @@ namespace Report.Data.Builder
 
 		public void Work()
 		{
+			Date = DateTime.Today.AddDays(-1);
 			var ratings = RatingCalculator.CaclucatedAndSave(Date.AddMonths(-1).FirstDayOfMonth());
 
 			var costCalculator = new CostCalculator();
