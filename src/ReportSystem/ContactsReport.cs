@@ -117,7 +117,6 @@ order by PositionCount DESC";
 					{
 						if (!String.IsNullOrEmpty(ContactInfo[I]))
 						{
-							Console.WriteLine(ContactInfo[I]);
 							wsContacts.Cells[StartPosition + SplitCount, 2] = ContactInfo[I];
 							SplitCount = SplitCount + 1;
 						}

@@ -9,7 +9,6 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void Workbook(string file, Action<Workbook> action)
 		{
 			Application exApp = new ApplicationClass();
-			Console.WriteLine(File.Exists(file));
 			try
 			{
 				exApp.DisplayAlerts = false;

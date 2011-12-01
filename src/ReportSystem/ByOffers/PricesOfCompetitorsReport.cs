@@ -130,7 +130,6 @@ namespace Inforoom.ReportSystem
 
 			var hash = new Hashtable();
 			var data = new List<ReportData>();
-			Console.WriteLine("всего клиентов {0}", _clients.Count);
 			var clientsCount = _clients.Count;
 
 			foreach (var client in _clients)

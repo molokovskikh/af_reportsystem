@@ -104,6 +104,7 @@ from Usersettings.Prices p
 	join Catalogs.Catalog c on c.Id = p.CatalogId
 	join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = c0.CodeFirmCr
 where p.Actual = 1
+and c0.Junk = 0
 ;", QueryParts.CostSubQuery("c0", "cc", "p"));
 			var watch = Stopwatch.StartNew();
 			watch.Start();
