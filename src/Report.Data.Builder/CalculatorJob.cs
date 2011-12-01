@@ -25,8 +25,8 @@ namespace Report.Data.Builder
 			var offers = costCalculator.Offers(ratings, Config.ThreadCount);
 			var averageCosts = costCalculator.Calculate(offers);
 			log.DebugFormat("Начинаю сохранять средние цены");
-			costCalculator.Save(Date, averageCosts);
-			log.DebugFormat("Закончил сохранять средние цены");
+			var inserted = costCalculator.Save(Date, averageCosts);
+			log.DebugFormat("Закончил сохранять средние цены, всего {0}", inserted);
 		}
 	}
 }

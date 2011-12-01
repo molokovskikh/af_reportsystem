@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Common.MySql;
 using Common.Tools.Threading;
@@ -171,31 +173,53 @@ and c0.Junk = 0
 			return result;
 		}
 
-		public void Save(DateTime date, Hashtable hash)
+		public int Save(DateTime date, Hashtable hash)
 		{
-			var sql = "insert into Reports.AverageCosts(Date, SupplierId, RegionId, AssortmentId, Cost) value (?Date, ?SupplierId, ?RegionId, ?AssortmentId, ?Cost)";
+			var header = "insert into Reports.AverageCosts(Date, SupplierId, RegionId, AssortmentId, Cost) values ";
+			var page = 100;
+			var totalCount = 0;
 			With.Transaction(t => {
-				var command = new MySqlCommand(sql, t.Connection);
-				command.Parameters.Add("Date", MySqlDbType.DateTime);
-				command.Parameters.Add("SupplierId", MySqlDbType.UInt32);
-				command.Parameters.Add("RegionId", MySqlDbType.UInt64);
-				command.Parameters.Add("AssortmentId", MySqlDbType.UInt32);
-				command.Parameters.Add("Cost", MySqlDbType.Decimal);
-				command.Prepare();
+				var sql = new StringBuilder();
+				sql.Append(header);
+				var command = new MySqlCommand("", t.Connection);
+				var index = 0;
 				foreach (OfferId key in hash.Keys)
 				{
 					var costs = ((Hashtable) hash[key]);
 					foreach (uint assortmentId in costs.Keys)
 					{
-						command.Parameters["Date"].Value = date;
-						command.Parameters["SupplierId"].Value = key.SupplierId;
-						command.Parameters["RegionId"].Value = key.RegionId;
-						command.Parameters["AssortmentId"].Value = assortmentId;
-						command.Parameters["Cost"].Value = costs[assortmentId];
-						command.ExecuteNonQuery();
+						totalCount++;
+						if (sql.Length > header.Length)
+							sql.Append(", ");
+
+						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4})",
+							date.ToString("yyyy-MM-dd"),
+							key.SupplierId,
+							key.RegionId,
+							assortmentId,
+							((decimal)costs[assortmentId]).ToString(CultureInfo.InvariantCulture));
+
+						index++;
+						if (index >= page)
+						{
+							Apply(header, sql, command);
+							index = 0;
+						}
 					}
 				}
+
+				if (sql.Length > header.Length)
+					Apply(header, sql, command);
 			});
+			return totalCount;
+		}
+
+		private static void Apply(string header, StringBuilder sql, MySqlCommand command)
+		{
+			command.CommandText = sql.ToString();
+			command.ExecuteNonQuery();
+			sql.Clear();
+			sql.Append(header);
 		}
 
 		public IEnumerable<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> Offers(IEnumerable<ClientRating> ratings, int count)
