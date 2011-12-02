@@ -31,7 +31,7 @@ namespace Inforoom.ReportSystem.Writers
 				var sheetRow = ((Range) sheet.Application.Selection).EntireRow;
 				sheetRow.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
 
-				ExcelHelper.Merge(sheet, row, 1, 3, settings.DateGroupLabel());
+				ExcelHelper.Merge(sheet, row, 2, 2, settings.DateGroupLabel());
 				ExcelHelper.Merge(sheet, row, 4, 2, settings.PrevMonthLabel());
 				ExcelHelper.Merge(sheet, row, 6, 2, settings.PrevWeekLabel());
 				ExcelHelper.Merge(sheet, row, 8, 2, settings.PrevDayLabel());

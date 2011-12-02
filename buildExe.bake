@@ -13,8 +13,8 @@ Global(
 	project : "ReportSystem",
 	projectBoot : "ReportSystemBoot",
 	humanReadableName : "Генератор отчетов"
-)	
-	
+)
+
 buildTo = Path.GetFullPath("build/ReportSystem/")
 projectFile = ".\\src\\${Globals.project}\\${Globals.project}.csproj"
 projectBootFile = ".\\src\\${Globals.projectBoot}\\${Globals.projectBoot}.csproj"
@@ -34,26 +34,25 @@ Task @Build, [@Clean]:
 	MsBuild(projectFile,
 			Target : "build",
 			Parameters : { "OutDir" : buildTo,
-						"Configuration" : "Release",
-						"Platform" : "x86"},
+						"Configuration" : "Release"},
 			FrameworkVersion : "4.0.30319").Execute()
 	Cp("./src/ReportSystem/app.release.config", "${buildTo}ReportSystem.exe.config", true)
 	Cp("./src/ReportSystemBoot/app.release.config", "${buildTo}ReportSystemBoot.exe.config", true)
-	
+
 Task @Clean:
 	MsBuild(projectBootFile,
 			Target : "clean",
 			Parameters : { "OutDir" : buildTo,
-						   "Configuration" : "release" },
+						"Configuration" : "release" },
 			FrameworkVersion : "4.0.30319").Execute()
 	MsBuild(projectFile,
 			Target : "clean",
 			Parameters : { "OutDir" : buildTo,
-						   "Configuration" : "release" },
+						"Configuration" : "release" },
 			FrameworkVersion : "4.0.30319").Execute()
 	Rm("${buildTo}*", true) if Exist(buildTo)
-	                                         
-# Отложенное обновление. Файлы обновляются, как только все отчеты отработают. 
+
+# Отложенное обновление. Файлы обновляются, как только все отчеты отработают.
 # Не обновляются: ReportSystemBoot, log4net и ProcessPrivileges (т.к. используются в ReportSystemBoot).
 Task @deploy, [@Backup, @Production, @Build, @Migrate, @SendDeployNotification]:
 	Cp(FileSet("*.*", BaseDirectory : buildTo), releaseTo, true)
