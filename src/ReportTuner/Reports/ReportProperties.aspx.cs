@@ -11,6 +11,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using Castle.ActiveRecord;
+using Common.Tools;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using ReportTuner.Models;
@@ -816,11 +817,18 @@ WHERE ID = ?OPID", MyCn, trans);
 						Request["rp"],
 						e.CommandArgument);
 			}
-			else
+			else {
+				propertiesHelper = (PropertiesHelper)Session[PropHelper];
+				var result = propertiesHelper.GetRelativeValue(prop);
+
 				url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
-					Request["r"],
-					Request["rp"],
-					e.CommandArgument);
+									Request["r"],
+									Request["rp"],
+									e.CommandArgument);
+
+				if (!String.IsNullOrEmpty(result))
+					url = String.Format("{0}&{1}", url, result);
+			}
 			Response.Redirect(url);
 		}
 	}
@@ -883,8 +891,8 @@ WHERE ID = ?OPID", MyCn, trans);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !retail && !base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !retail);
-		SetRowVisibility(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
+		SetRowEnablity(dgvNonOptional.Rows, "По базовым ценам", !retail);
+		SetRowEnablity(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
 	}
 
@@ -898,6 +906,19 @@ WHERE ID = ?OPID", MyCn, trans);
 			var cell = dr.Cells[0];
 			if (cell.Text == label)
 				dr.Visible = visible;
+		}
+	}
+
+	private void SetRowEnablity(GridViewRowCollection rows, string label, bool enable)
+	{
+		foreach (GridViewRow dr in dgvNonOptional.Rows)
+		{
+			if (dr.Cells.Count < 1)
+				continue;
+
+			var cell = dr.Cells[0];
+			if (cell.Text == label)
+				dr.Enabled = enable;
 		}
 	}
 
@@ -1299,6 +1320,37 @@ public class PropertiesHelper
 		dtOptionalParams = optionalParams;
 	}
 
+	private string CalcMaskRegionForSelectedRegions(ReportProperty priceProp, string [] pricePropNames, string [] regionPropNames)
+	{
+		if(pricePropNames.Contains(priceProp.PropertyType.PropertyName)) {
+			// получаем свойство 'Список значений "Прайс"'
+			var prices = reportProperties.Where(p => pricePropNames.Contains(p.PropertyType.PropertyName)).FirstOrDefault();
+
+			
+
+			decimal regionMask = 0;
+			string pricesStr = String.Empty;
+			// получаем свойство 'Список значений "Региона"'
+			var regEqual = reportProperties.Where(p => regionPropNames.Contains(p.PropertyType.PropertyName)).FirstOrDefault();
+			if(regEqual != null) {
+				regionMask = regEqual.Values.Select(v => {
+					UInt64 regionCode;
+					return UInt64.TryParse(v.Value, out regionCode) ? regionCode : Convert.ToUInt64(0);
+				}).Sum(r => Convert.ToDecimal(r));
+			}
+			if(prices != null) {
+				var priceCodes = prices.Values.Select(v => {
+					int priceCode;
+					if (Int32.TryParse(v.Value, out priceCode))
+						return priceCode;
+					return -1;
+				}).Where(v => v >= 0);
+				pricesStr = priceCodes.Implode(",");
+			}
+			return String.Format("inID={0}&inFilter={1}", Convert.ToUInt64(regionMask), pricesStr);
+		}
+		return String.Empty;
+	}
 
 	private string CalcMaskRegionByClient(ReportProperty regionProp, string [] regionPropNames, string [] clientPropNames)
 	{		
@@ -1401,15 +1453,24 @@ public class PropertiesHelper
 			// В специальном отчете список поставщиков должен формироваться с учетом выбранного клиента
 			res = GetUserByClient(prop, new[] {"IgnoredSuppliers", "FirmCodeEqual"}, new[] {"ClientCode"}, "UserCode");
 			if (!String.IsNullOrEmpty(res)) return res;
+			// В специальном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
+			res = CalcMaskRegionForSelectedRegions(prop, new[] {"PriceCodeEqual"}, new[] {"RegionEqual"});
+			if (!String.IsNullOrEmpty(res)) return res;
 		}
 		if(report.ReportType.ReportClassName.Contains("CombReport"))
 		{
 			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
 			if (!String.IsNullOrEmpty(res)) return res;
+			// В комбинированном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
+			res = CalcMaskRegionForSelectedRegions(prop, new[] {"PriceCodeEqual"}, new[] {"RegionEqual"});
+			if (!String.IsNullOrEmpty(res)) return res;
 		}
 		if (report.ReportType.ReportClassName.Contains("DefReport"))
 		{
 			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers" }, new[] { "ClientCode" }, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+			// В дефектурном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
+			res = CalcMaskRegionForSelectedRegions(prop, new[] {"PriceCodeEqual"}, new[] {"RegionEqual"});
 			if (!String.IsNullOrEmpty(res)) return res;
 		}
 		if (report.ReportType.ReportClassName.Contains("LeakOffersReport"))
@@ -1420,6 +1481,8 @@ public class PropertiesHelper
 		if (report.ReportType.ReportClassName.Contains("OffersReport"))
 		{
 			var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
+			if (!String.IsNullOrEmpty(res)) return res;
+			res = CalcMaskRegionForSelectedRegions(prop, new[] {"PriceCodeEqual"}, new[] {"RegionEqual"});
 			if (!String.IsNullOrEmpty(res)) return res;
 		}
 		if (report.ReportType.ReportClassName.Contains("PharmacyOffersReport"))

@@ -284,6 +284,7 @@ order by 1",
 			}
 
 			ClearSearch();
+			Response.Redirect("Contacts.aspx?GeneralReport=" + _currentReport.Id);
 		}
 
 	}
