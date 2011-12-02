@@ -29,43 +29,43 @@ public partial class Reports_schedule : Page
 {
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
-    private MySqlDataAdapter MyDA = new MySqlDataAdapter();
+	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 
 	private GeneralReport _generalReport;
 
 	TaskService taskService;
 	TaskFolder reportsFolder;
 
-    private DataSet DS;
-    private DataTable dtSchedule;
-    private DataColumn SWeek;
-    private DataColumn SMonday;
-    private DataColumn STuesday;
-    private DataColumn SWednesday;
-    private DataColumn SThursday;
-    private DataColumn SFriday;
-    private DataColumn SSaturday;
-    private DataColumn SSunday;
-    Task currentTask;
+	private DataSet DS;
+	private DataTable dtSchedule;
+	private DataColumn SWeek;
+	private DataColumn SMonday;
+	private DataColumn STuesday;
+	private DataColumn SWednesday;
+	private DataColumn SThursday;
+	private DataColumn SFriday;
+	private DataColumn SSaturday;
+	private DataColumn SSunday;
+	Task currentTask;
 	private Task temp1Task;
 	TaskDefinition currentTaskDefinition;
-    DaysOfTheWeek triggerDays = 0;
-    private DataColumn SStartHour;
-    private DataColumn SStartMinute;
-    private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
+	DaysOfTheWeek triggerDays = 0;
+	private DataColumn SStartHour;
+	private DataColumn SStartMinute;
+	private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
 
 	private const string StatusRunning = "¬ыполнить задание";
 	private const string StatusNotRunning = "¬ыполн€етс€...";
 
-    protected void Page_Init(object sender, System.EventArgs e)
-    {
-        InitializeComponent();
-    }
+	protected void Page_Init(object sender, System.EventArgs e)
+	{
+		InitializeComponent();
+	}
 
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (Request["r"] == null)
-            Response.Redirect("GeneralReports.aspx");
+	protected void Page_Load(object sender, EventArgs e)
+	{
+		if (Request["r"] == null)
+			Response.Redirect("GeneralReports.aspx");
 
 		_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["r"]));        
 
@@ -73,11 +73,11 @@ public partial class Reports_schedule : Page
 		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
 		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
-    	
-    	temp1Task = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(1), "tempTask1", "temp");
+		
+		temp1Task = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(1), "tempTask1", "temp");
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(1), currentTaskDefinition, "temp");
 		ScheduleHelper.SetTaskEnableStatus(1, true, "temp");
-    	var taskDefinition = temp1Task.Definition;
+		var taskDefinition = temp1Task.Definition;
 		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath, "/gr:" + _generalReport.Id + string.Format(" /manual:true"), ScheduleHelper.ScheduleWorkDir);
 		taskDefinition.Actions.RemoveAt(0);
 		taskDefinition.Actions.Add(newAction);
@@ -153,9 +153,9 @@ public partial class Reports_schedule : Page
 		}
 		
 
-    	var _otherTriggers = new List<Trigger>();
-    	if (!Page.IsPostBack)
-        {
+		var _otherTriggers = new List<Trigger>();
+		if (!Page.IsPostBack)
+		{
 			var selfMail = GetSelfEmails();
 			if ((selfMail.Count != 0) && (selfMail[0].Length != 0))
 			{
@@ -165,7 +165,7 @@ public partial class Reports_schedule : Page
 			dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
 			dtTo.SelectedDates.Add(DateTime.Now);
 			mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
-            
+			
 			try
 			{
 				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
@@ -191,7 +191,7 @@ SELECT
 FROM
   logs.reportslogs
 WHERE 
-    reportslogs.GeneralReportCode = ?GeneralReportCode
+	reportslogs.GeneralReportCode = ?GeneralReportCode
 and reportslogs.LogTime > ?LastLogTime
 order by LogTime desc
 ";
@@ -236,25 +236,25 @@ order by LogTime desc
 					_otherTriggers.Add(tl[i]);
 			}
 
-            DS.Tables[dtSchedule.TableName].AcceptChanges();
-            dgvSchedule.DataSource = DS;
-            dgvSchedule.DataMember = dtSchedule.TableName;
-            dgvSchedule.DataBind();
+			DS.Tables[dtSchedule.TableName].AcceptChanges();
+			dgvSchedule.DataSource = DS;
+			dgvSchedule.DataMember = dtSchedule.TableName;
+			dgvSchedule.DataBind();
 
 			gvOtherTriggers.DataSource = _otherTriggers;
 			gvOtherTriggers.DataBind();
 
-            Session[DSSchedule] = DS;
+			Session[DSSchedule] = DS;
 
 			CloseTaskService();
-        }
-        else
-        {
-            DS = ((DataSet)Session[DSSchedule]);
+		}
+		else
+		{
+			DS = ((DataSet)Session[DSSchedule]);
 			if (DS == null) // веро€тно, сесси€ завершилась и все ее данные утер€ны
 				Reports_GeneralReports.Redirect(this);
-        }
-    }
+		}
+	}
 
 	private List<object[]> ObjectFromQuery(MySqlParameter[] parameters, string commandText)
 	{
@@ -286,55 +286,55 @@ order by LogTime desc
 	}
 
 	private void SetWeekDays(DataRow dr, DaysOfTheWeek weekDay, DaysOfTheWeek days)
-    {
-        string column = "S" + weekDay.ToString();
-        if ((weekDay & days) == weekDay)
-            dr[column] = 1;
-        else
-            dr[column] = 0;
-    }
+	{
+		string column = "S" + weekDay.ToString();
+		if ((weekDay & days) == weekDay)
+			dr[column] = 1;
+		else
+			dr[column] = 0;
+	}
 
-    protected void btnApply_Click(object sender, EventArgs e)
-    {
-        if (this.IsValid)
-        {
-            CopyChangesToTable();
+	protected void btnApply_Click(object sender, EventArgs e)
+	{
+		if (this.IsValid)
+		{
+			CopyChangesToTable();
 
-            SaveTriggers();
+			SaveTriggers();
 
-            SaveTaskChanges();
-        }
+			SaveTaskChanges();
+		}
 
 		CloseTaskService();
-    }
+	}
 
-    private void CopyChangesToTable()
-    {
-        DS.Tables[dtSchedule.TableName].Rows.Clear();
-        foreach (GridViewRow drv in dgvSchedule.Rows)
-        {
-            DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
-            string h = ((TextBox)drv.FindControl("tbStart")).Text;
-            string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
-            if (m.StartsWith("0"))
-                m = m.Substring(1, 1);
+	private void CopyChangesToTable()
+	{
+		DS.Tables[dtSchedule.TableName].Rows.Clear();
+		foreach (GridViewRow drv in dgvSchedule.Rows)
+		{
+			DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
+			string h = ((TextBox)drv.FindControl("tbStart")).Text;
+			string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
+			if (m.StartsWith("0"))
+				m = m.Substring(1, 1);
 
-            dr[SStartHour.ColumnName] = Convert.ToInt16(h.Substring(0, h.IndexOf(':')));
-            dr[SStartMinute.ColumnName] = Convert.ToInt16(m);
-            dr[SMonday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbMonday")).Checked);
-            dr[STuesday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbTuesday")).Checked);
-            dr[SWednesday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbWednesday")).Checked);
-            dr[SThursday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbThursday")).Checked);
-            dr[SFriday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbFriday")).Checked);
-            dr[SSaturday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbSaturday")).Checked);
-            dr[SSunday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbSunday")).Checked);
-            DS.Tables[dtSchedule.TableName].Rows.Add(dr);
-        }
-        DS.Tables[dtSchedule.TableName].AcceptChanges(); 
-    }
+			dr[SStartHour.ColumnName] = Convert.ToInt16(h.Substring(0, h.IndexOf(':')));
+			dr[SStartMinute.ColumnName] = Convert.ToInt16(m);
+			dr[SMonday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbMonday")).Checked);
+			dr[STuesday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbTuesday")).Checked);
+			dr[SWednesday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbWednesday")).Checked);
+			dr[SThursday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbThursday")).Checked);
+			dr[SFriday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbFriday")).Checked);
+			dr[SSaturday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbSaturday")).Checked);
+			dr[SSunday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbSunday")).Checked);
+			DS.Tables[dtSchedule.TableName].Rows.Add(dr);
+		}
+		DS.Tables[dtSchedule.TableName].AcceptChanges(); 
+	}
 
-    private void SaveTaskChanges()
-    {
+	private void SaveTaskChanges()
+	{
 		currentTaskDefinition.Settings.Enabled = chbAllow.Checked;
 		_generalReport.Allow = chbAllow.Checked;
 		_generalReport.Save();
@@ -343,177 +343,177 @@ order by LogTime desc
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, _generalReport.Id, currentTaskDefinition, "GR");
-    }
+	}
 
-    private void SaveTriggers()
-    {
+	private void SaveTriggers()
+	{
 		for (int i = currentTaskDefinition.Triggers.Count - 1; i >= 0; i--)
 			if (currentTaskDefinition.Triggers[i] is WeeklyTrigger)
 				currentTaskDefinition.Triggers.RemoveAt(i);		
 
-        foreach(DataRow dr in DS.Tables[dtSchedule.TableName].Rows)
-        {
-            short h = Convert.ToInt16(dr[SStartHour.ColumnName]);
-            short m = Convert.ToInt16(dr[SStartMinute.ColumnName]);
+		foreach(DataRow dr in DS.Tables[dtSchedule.TableName].Rows)
+		{
+			short h = Convert.ToInt16(dr[SStartHour.ColumnName]);
+			short m = Convert.ToInt16(dr[SStartMinute.ColumnName]);
 
-            triggerDays = 0;
-            AddDay(dr, DaysOfTheWeek.Monday);
-            AddDay(dr, DaysOfTheWeek.Tuesday);
-            AddDay(dr, DaysOfTheWeek.Wednesday);
-            AddDay(dr, DaysOfTheWeek.Thursday);
-            AddDay(dr, DaysOfTheWeek.Friday);
-            AddDay(dr, DaysOfTheWeek.Saturday);
-            AddDay(dr, DaysOfTheWeek.Sunday);
+			triggerDays = 0;
+			AddDay(dr, DaysOfTheWeek.Monday);
+			AddDay(dr, DaysOfTheWeek.Tuesday);
+			AddDay(dr, DaysOfTheWeek.Wednesday);
+			AddDay(dr, DaysOfTheWeek.Thursday);
+			AddDay(dr, DaysOfTheWeek.Friday);
+			AddDay(dr, DaysOfTheWeek.Saturday);
+			AddDay(dr, DaysOfTheWeek.Sunday);
 
 			WeeklyTrigger trigger = (WeeklyTrigger)currentTaskDefinition.Triggers.AddNew(TaskTriggerType.Weekly);			
 			trigger.DaysOfWeek = triggerDays;
 			trigger.WeeksInterval = 1;
 			trigger.StartBoundary = DateTime.Now.Date.AddHours(h).AddMinutes(m);
-        }
-    }
+		}
+	}
 
-    private void AddDay(DataRow dr, DaysOfTheWeek weekDay)
-    {
-        string column = "S" + weekDay.ToString();
-        if (dr[column].ToString() == "1")
-        {
-            if (triggerDays == 0)
-                triggerDays = weekDay;
-            else
-                triggerDays = triggerDays | weekDay;
-        }
-    }
+	private void AddDay(DataRow dr, DaysOfTheWeek weekDay)
+	{
+		string column = "S" + weekDay.ToString();
+		if (dr[column].ToString() == "1")
+		{
+			if (triggerDays == 0)
+				triggerDays = weekDay;
+			else
+				triggerDays = triggerDays | weekDay;
+		}
+	}
 
-    private void InitializeComponent()
-    {
-        this.DS = new System.Data.DataSet();
-        this.dtSchedule = new System.Data.DataTable();
-        this.SWeek = new System.Data.DataColumn();
-        this.SMonday = new System.Data.DataColumn();
-        this.STuesday = new System.Data.DataColumn();
-        this.SWednesday = new System.Data.DataColumn();
-        this.SThursday = new System.Data.DataColumn();
-        this.SFriday = new System.Data.DataColumn();
-        this.SSaturday = new System.Data.DataColumn();
-        this.SSunday = new System.Data.DataColumn();
-        this.SStartHour = new System.Data.DataColumn();
-        this.SStartMinute = new System.Data.DataColumn();
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).BeginInit();
-        // 
-        // DS
-        // 
-        this.DS.DataSetName = "NewDataSet";
-        this.DS.Tables.AddRange(new System.Data.DataTable[] {
-            this.dtSchedule});
-        // 
-        // dtSchedule
-        // 
-        this.dtSchedule.Columns.AddRange(new System.Data.DataColumn[] {
-            this.SWeek,
-            this.SMonday,
-            this.STuesday,
-            this.SWednesday,
-            this.SThursday,
-            this.SFriday,
-            this.SSaturday,
-            this.SSunday,
-            this.SStartHour,
-            this.SStartMinute});
-        this.dtSchedule.TableName = "dtSchedule";
-        // 
-        // SWeek
-        // 
-        this.SWeek.ColumnName = "SWeek";
-        this.SWeek.DataType = typeof(int);
-        // 
-        // SMonday
-        // 
-        this.SMonday.ColumnName = "SMonday";
-        this.SMonday.DataType = typeof(byte);
-        this.SMonday.DefaultValue = ((byte)(0));
-        // 
-        // STuesday
-        // 
-        this.STuesday.ColumnName = "STuesday";
-        this.STuesday.DataType = typeof(byte);
-        this.STuesday.DefaultValue = ((byte)(0));
-        // 
-        // SWednesday
-        // 
-        this.SWednesday.ColumnName = "SWednesday";
-        this.SWednesday.DataType = typeof(byte);
-        this.SWednesday.DefaultValue = ((byte)(0));
-        // 
-        // SThursday
-        // 
-        this.SThursday.ColumnName = "SThursday";
-        this.SThursday.DataType = typeof(byte);
-        this.SThursday.DefaultValue = ((byte)(0));
-        // 
-        // SFriday
-        // 
-        this.SFriday.ColumnName = "SFriday";
-        this.SFriday.DataType = typeof(byte);
-        this.SFriday.DefaultValue = ((byte)(0));
-        // 
-        // SSaturday
-        // 
-        this.SSaturday.ColumnName = "SSaturday";
-        this.SSaturday.DataType = typeof(byte);
-        this.SSaturday.DefaultValue = ((byte)(0));
-        // 
-        // SSunday
-        // 
-        this.SSunday.ColumnName = "SSunday";
-        this.SSunday.DataType = typeof(byte);
-        this.SSunday.DefaultValue = ((byte)(0));
-        // 
-        // SStartHour
-        // 
-        this.SStartHour.ColumnName = "SStartHour";
-        this.SStartHour.DataType = typeof(short);
-        this.SStartHour.DefaultValue = ((short)(0));
-        // 
-        // SStartMinute
-        // 
-        this.SStartMinute.ColumnName = "SStartMinute";
-        this.SStartMinute.DataType = typeof(short);
-        this.SStartMinute.DefaultValue = ((short)(0));
-        ((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
-        ((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).EndInit();
+	private void InitializeComponent()
+	{
+		this.DS = new System.Data.DataSet();
+		this.dtSchedule = new System.Data.DataTable();
+		this.SWeek = new System.Data.DataColumn();
+		this.SMonday = new System.Data.DataColumn();
+		this.STuesday = new System.Data.DataColumn();
+		this.SWednesday = new System.Data.DataColumn();
+		this.SThursday = new System.Data.DataColumn();
+		this.SFriday = new System.Data.DataColumn();
+		this.SSaturday = new System.Data.DataColumn();
+		this.SSunday = new System.Data.DataColumn();
+		this.SStartHour = new System.Data.DataColumn();
+		this.SStartMinute = new System.Data.DataColumn();
+		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).BeginInit();
+		// 
+		// DS
+		// 
+		this.DS.DataSetName = "NewDataSet";
+		this.DS.Tables.AddRange(new System.Data.DataTable[] {
+			this.dtSchedule});
+		// 
+		// dtSchedule
+		// 
+		this.dtSchedule.Columns.AddRange(new System.Data.DataColumn[] {
+			this.SWeek,
+			this.SMonday,
+			this.STuesday,
+			this.SWednesday,
+			this.SThursday,
+			this.SFriday,
+			this.SSaturday,
+			this.SSunday,
+			this.SStartHour,
+			this.SStartMinute});
+		this.dtSchedule.TableName = "dtSchedule";
+		// 
+		// SWeek
+		// 
+		this.SWeek.ColumnName = "SWeek";
+		this.SWeek.DataType = typeof(int);
+		// 
+		// SMonday
+		// 
+		this.SMonday.ColumnName = "SMonday";
+		this.SMonday.DataType = typeof(byte);
+		this.SMonday.DefaultValue = ((byte)(0));
+		// 
+		// STuesday
+		// 
+		this.STuesday.ColumnName = "STuesday";
+		this.STuesday.DataType = typeof(byte);
+		this.STuesday.DefaultValue = ((byte)(0));
+		// 
+		// SWednesday
+		// 
+		this.SWednesday.ColumnName = "SWednesday";
+		this.SWednesday.DataType = typeof(byte);
+		this.SWednesday.DefaultValue = ((byte)(0));
+		// 
+		// SThursday
+		// 
+		this.SThursday.ColumnName = "SThursday";
+		this.SThursday.DataType = typeof(byte);
+		this.SThursday.DefaultValue = ((byte)(0));
+		// 
+		// SFriday
+		// 
+		this.SFriday.ColumnName = "SFriday";
+		this.SFriday.DataType = typeof(byte);
+		this.SFriday.DefaultValue = ((byte)(0));
+		// 
+		// SSaturday
+		// 
+		this.SSaturday.ColumnName = "SSaturday";
+		this.SSaturday.DataType = typeof(byte);
+		this.SSaturday.DefaultValue = ((byte)(0));
+		// 
+		// SSunday
+		// 
+		this.SSunday.ColumnName = "SSunday";
+		this.SSunday.DataType = typeof(byte);
+		this.SSunday.DefaultValue = ((byte)(0));
+		// 
+		// SStartHour
+		// 
+		this.SStartHour.ColumnName = "SStartHour";
+		this.SStartHour.DataType = typeof(short);
+		this.SStartHour.DefaultValue = ((short)(0));
+		// 
+		// SStartMinute
+		// 
+		this.SStartMinute.ColumnName = "SStartMinute";
+		this.SStartMinute.DataType = typeof(short);
+		this.SStartMinute.DefaultValue = ((short)(0));
+		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
+		((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).EndInit();
 
-    }
-    protected void dgvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Add")
-        {
-            CopyChangesToTable();
+	}
+	protected void dgvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
+	{
+		if (e.CommandName == "Add")
+		{
+			CopyChangesToTable();
 
-            DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
-            DS.Tables[dtSchedule.TableName].Rows.Add(dr);
+			DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
+			DS.Tables[dtSchedule.TableName].Rows.Add(dr);
 
-            dgvSchedule.DataSource = DS;
-            dgvSchedule.DataBind();
-        }
-    }
+			dgvSchedule.DataSource = DS;
+			dgvSchedule.DataBind();
+		}
+	}
 
-    protected void dgvSchedule_RowDeleting(object sender, GridViewDeleteEventArgs e)
-    {
-        CopyChangesToTable();
-        DS.Tables[dtSchedule.TableName].DefaultView[e.RowIndex].Delete();
-        dgvSchedule.DataSource = DS;
-        dgvSchedule.DataBind();
-    }
+	protected void dgvSchedule_RowDeleting(object sender, GridViewDeleteEventArgs e)
+	{
+		CopyChangesToTable();
+		DS.Tables[dtSchedule.TableName].DefaultView[e.RowIndex].Delete();
+		dgvSchedule.DataSource = DS;
+		dgvSchedule.DataBind();
+	}
 
-    protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            TextBox tb = ((TextBox)e.Row.Cells[0].FindControl("tbStart"));
-            tb.Text = ((DataRowView)e.Row.DataItem)[SStartHour.ColumnName].ToString() + ":" + ((DataRowView)e.Row.DataItem)[SStartMinute.ColumnName].ToString().PadLeft(2,'0');
-        }
-    }
+	protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
+	{
+		if (e.Row.RowType == DataControlRowType.DataRow)
+		{
+			TextBox tb = ((TextBox)e.Row.Cells[0].FindControl("tbStart"));
+			tb.Text = ((DataRowView)e.Row.DataItem)[SStartHour.ColumnName].ToString() + ":" + ((DataRowView)e.Row.DataItem)[SStartMinute.ColumnName].ToString().PadLeft(2,'0');
+		}
+	}
 
 	protected bool Send_in_Emails()
 	{
@@ -524,10 +524,10 @@ order by LogTime desc
 			{
 				mails[i] = mails[i].Trim(new [] {' ','\n','\r'});
 				var recordMail = new MailingAddresses
-				                 	{
-				                 		Mail = mails[i],
-				                 		GeneralReport = _generalReport
-				                 	};
+									{
+										Mail = mails[i],
+										GeneralReport = _generalReport
+									};
 				recordMail.SaveAndFlush();
 			}
 
@@ -537,11 +537,11 @@ order by LogTime desc
 	}
 
 	protected void btnExecute_Click(object sender, EventArgs e)
-    {
+	{
 		bool _runed = false;
 		Task task = null;
 		if (this.IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running))
-        {
+		{
 			temp1Task.Run();
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
@@ -631,28 +631,28 @@ order by LogTime desc
 	private List<object[]> GetMailingAdresses()
 	{
 		var sqlSelectReports = ObjectFromQuery(new[] {new MySqlParameter("?GeneralReportID", _generalReport.Id)},
-		                                       @"
+											   @"
 SELECT    ContactGroupId 
 FROM    reports.general_reports cr,
-        billing.payers p
+		billing.payers p
 WHERE   
-     p.PayerId = cr.PayerId
+	 p.PayerId = cr.PayerId
 and cr.generalreportcode = ?GeneralReportID");
 		if (sqlSelectReports.Count > 0)
 		{
 			var emails = ObjectFromQuery(new[]
-			                             	{
-			                             		new MySqlParameter("?ContactGroupId", sqlSelectReports[0][0]),
-			                             		new MySqlParameter("?ContactGroupType", 6),
-			                             		new MySqlParameter("?ContactType", 0.ToString())
-			                             	},
-			                             @"
+											{
+												new MySqlParameter("?ContactGroupId", sqlSelectReports[0][0]),
+												new MySqlParameter("?ContactGroupType", 6),
+												new MySqlParameter("?ContactType", 0.ToString())
+											},
+										 @"
 select lower(c.contactText)
 from
   contacts.contact_groups cg
   join contacts.contacts c on cg.Id = c.ContactOwnerId
 where
-    cg.Id = ?ContactGroupId
+	cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType
 union
@@ -662,7 +662,7 @@ from
   join contacts.persons p on cg.id = p.ContactGroupId
   join contacts.contacts c on p.Id = c.ContactOwnerId
 where
-    cg.Id = ?ContactGroupId
+	cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType");
 			return emails;

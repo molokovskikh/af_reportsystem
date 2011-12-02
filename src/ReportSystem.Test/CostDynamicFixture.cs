@@ -19,7 +19,9 @@ namespace ReportSystem.Test
 		[Test]
 		public void Builder_report()
 		{
-			Property("someDate", DateTime.Today);
+			Property("date", new DateTime(2011, 11, 26));
+			Property("someDate", new DateTime(2011, 11, 25));
+			//Property("someDate", DateTime.Today);
 			Property("suppliers", new List<ulong> {5, 7, 14});
 			Property("regions", new List<ulong> {1});
 			report = new CostDynamic(1, "CostDynamic.xls", Conn, false, ReportFormats.Excel, properties);

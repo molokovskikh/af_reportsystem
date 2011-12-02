@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Common.MySql;
 using Common.Tools.Calendar;
 using ExecuteTemplate;
 using Common.Tools;
@@ -71,12 +72,18 @@ namespace Inforoom.ReportSystem.ByOffers
 		private DateTime someDate;
 		private CostDynamicSettings settings;
 
+		private string _ordersSchema = "Orders";
+
 		public CostDynamic()
 		{
 		}
 
-		public CostDynamic(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties) : base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public CostDynamic(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
+#if !DEBUG
+			_ordersSchema = "OrdersOld";
+#endif
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -95,16 +102,16 @@ namespace Inforoom.ReportSystem.ByOffers
 			var end = date;
 			//join Catalogs.Catalog c on c.Id = p.CatalogId вроде бы не нужен 
 			//но без него оптимизатор строит неправильный план
-			args.DataAdapter.SelectCommand.CommandText = @"
+			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select a.Id, sum(ol.Quantity) as quantity
-from Orders.OrdersHead oh
-join Orders.OrdersList ol on oh.RowId = ol.OrderId
+from {0}.OrdersHead oh
+join {0}.OrdersList ol on oh.RowId = ol.OrderId
 join Catalogs.Products p on p.Id = ol.ProductId
 join Catalogs.Catalog c on c.Id = p.CatalogId
 join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = ol.CodeFirmCr
 where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
 group by a.Id
-";
+", _ordersSchema);
 			args.DataAdapter.SelectCommand.Parameters.AddWithValue("begin", begin);
 			args.DataAdapter.SelectCommand.Parameters.AddWithValue("end", end);
 			var quantityTable = new DataTable();
@@ -141,12 +148,19 @@ where id in ({0})", suppliers.Implode());
 			};
 
 			var baseOrderTotals = GetMarketShare(suppliers, regions, date);
-			var someDayOrderTotals = GetMarketShare(suppliers, regions, settings.SomeDate);
-			var prevDayOrderTotals = GetMarketShare(suppliers, regions, settings.PrevDay);
-			var prevWeekOrderTotals = GetMarketShare(suppliers, regions, settings.PrevWeek);
-			var prevMonthOrder = GetMarketShare(suppliers, regions, settings.PrevMonth);
+			var marketTotalOnCurrentDate = GetMarketValue(regions, date);
 
-			var marketTotal = GetMarketValue(regions, date);
+			var someDayOrderTotals = GetMarketShare(suppliers, regions, settings.SomeDate);
+			var marketTotalOnSomeDate = GetMarketValue(regions, settings.SomeDate);
+
+			var prevDayOrderTotals = GetMarketShare(suppliers, regions, settings.PrevDay);
+			var marketTotalOnPrevDate = GetMarketValue(regions, settings.PrevDay);
+
+			var prevWeekOrderTotals = GetMarketShare(suppliers, regions, settings.PrevWeek);
+			var marketTotalOnPrevWeek = GetMarketValue(regions, settings.PrevWeek);
+
+			var prevMonthOrder = GetMarketShare(suppliers, regions, settings.PrevMonth);
+			var marketTotalOnPrevMonth = GetMarketValue(regions, settings.PrevMonth);
 
 			foreach (var supplier in suppliers)
 			{
@@ -154,19 +168,19 @@ where id in ({0})", suppliers.Implode());
 
 				var baseTotal = GetTotal(baseOrderTotals, supplier);
 
-				row.SetField("MarketShare", SaveInPercentOf(baseTotal, marketTotal));
-				row.SetField("MarketShareDiff", CalculateShareDiff(baseTotal, someDayOrderTotals, supplier));
-				row.SetField("PrevDayMarketShareDiff", CalculateShareDiff(baseTotal, prevDayOrderTotals, supplier));
-				row.SetField("PrevWeekMarketShareDiff", CalculateShareDiff(baseTotal, prevWeekOrderTotals, supplier));
-				row.SetField("PrevMonthMarketShareDiff", CalculateShareDiff(baseTotal, prevMonthOrder, supplier));
+				var marketShare = SaveInPercentOf(baseTotal, marketTotalOnCurrentDate);
+				row.SetField("MarketShare", marketShare);
+				row.SetField("MarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnSomeDate, someDayOrderTotals, supplier));
+				row.SetField("PrevDayMarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnPrevDate, prevDayOrderTotals, supplier));
+				row.SetField("PrevWeekMarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnPrevWeek, prevWeekOrderTotals, supplier));
+				row.SetField("PrevMonthMarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnPrevMonth, prevMonthOrder, supplier));
 
-				var baseCostIndex = regions.Sum(r => CalculateCostIndex(begin, supplier, r, quantities));
-				if (baseCostIndex == 0)
-					continue;
 				foreach (var dateToColumn in dateMap)
 				{
-					var currentCostIndex = regions.Sum(r => CalculateCostIndex(dateToColumn.Value, supplier, r, quantities));
-					row.SetField(dateToColumn.Key, SaveInPercentOf(baseCostIndex, currentCostIndex));
+					var currentDate = dateToColumn.Value;
+					var baseCostIndex = regions.Sum(r => CalculateCostIndex(begin, currentDate, supplier, r, quantities));
+					var currentCostIndex = regions.Sum(r => CalculateCostIndex(currentDate, begin, supplier, r, quantities));
+					row.SetField(dateToColumn.Key, SaveInPercentOf(baseCostIndex, currentCostIndex) - 1);
 				}
 			}
 
@@ -184,7 +198,7 @@ where id in ({0})", suppliers.Implode());
 		private static decimal? CalculateShareDiff(decimal? valueTotal, DataTable currentOrderTotals, uint supplier)
 		{
 			var baseTotal = GetTotal(currentOrderTotals, supplier);
-			return SaveInPercentOf(valueTotal, baseTotal);
+			return SaveInPercentOf(baseTotal, valueTotal);
 		}
 
 		private static decimal? SaveInPercentOf(decimal valueTotal, decimal baseTotal)
@@ -205,7 +219,7 @@ where id in ({0})", suppliers.Implode());
 
 		private static decimal InPercentOf(decimal value, decimal @base)
 		{
-			return Math.Round((value/@base - 1), 2);
+			return Math.Round(value/@base, 4);
 		}
 
 		private static decimal? GetTotal(DataTable table, uint supplier)
@@ -223,11 +237,11 @@ where id in ({0})", suppliers.Implode());
 			var command = args.DataAdapter.SelectCommand;
 			command.CommandText = String.Format(@"
 select sum(ol.Cost * ol.Quantity) as total
-from Orders.OrdersHead oh
-join Orders.OrdersList ol on oh.RowId = ol.OrderId
+from {1}.OrdersHead oh
+join {1}.OrdersList ol on oh.RowId = ol.OrderId
 where writetime >= ?begin and writetime < ?end
 and oh.RegionCode in ({0})
-", regions.Implode());
+", regions.Implode(), _ordersSchema);
 
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("begin", date.Date);
@@ -245,13 +259,13 @@ and oh.RegionCode in ({0})
 			var command = args.DataAdapter.SelectCommand;
 			command.CommandText = String.Format(@"
 select sum(ol.Cost * ol.Quantity) as total, pd.FirmCode as SupplierId
-from Orders.OrdersHead oh
-join Orders.OrdersList ol on oh.RowId = ol.OrderId
+from {2}.OrdersHead oh
+join {2}.OrdersList ol on oh.RowId = ol.OrderId
 join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 where writetime >= ?begin and writetime < ?end
 and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
 group by pd.FirmCode
-", suppliers.Implode(), regions.Implode());
+", suppliers.Implode(), regions.Implode(), _ordersSchema);
 
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("begin", date.Date);
@@ -260,23 +274,94 @@ group by pd.FirmCode
 			args.DataAdapter.Fill(table);
 			return table;
 		}
+		//оптимизированный способ выборки попробуем пока без него
+/*		public struct CostIndexKey
+		{
+			public DateTime Date;
+			public ulong RegionId;
+			public uint SupplierId;
 
-		public decimal CalculateCostIndex(DateTime date, uint supplierId, ulong regionId, Hashtable quantities)
+			public CostIndexKey(DateTime date, ulong regionId, uint supplierId)
+			{
+				Date = date;
+				RegionId = regionId;
+				SupplierId = supplierId;
+			}
+		}
+
+		public struct AssortmentKey
+		{
+			public uint SupplierId;
+			public ulong RegionId;
+
+			public AssortmentKey(uint supplierId, ulong regionId)
+			{
+				SupplierId = supplierId;
+				RegionId = regionId;
+			}
+		}
+
+		public Hashtable c(DateTime[] dates, Hashtable assortments)
+		{
+			Hashtable quantities = null;
+			Hashtable results = null;
+			var command = args.DataAdapter.SelectCommand;
+			command.CommandText = String.Format(@"
+select Date, RegionId, SupplierId, AssortmentId, Cost
+from Reports.AverageCosts
+where SupplierId = ({1})
+and RegionId in ({0})
+and Date in ({2})
+", suppliers.Implode(), regions.Implode(), dates.Implode(d => "'" + d.ToString("yyyy-MM-dd") + "'"));
+
+			using(var reader = command.ExecuteReader())
+			{
+				while (reader.Read())
+				{
+					var assortmentId = reader.GetUInt32("AssortmentId");
+					var cost = reader.GetDecimal("Cost");
+					var quantity = (decimal)quantities[assortmentId];
+
+					var regionId = reader.GetUInt64("RegionId");
+					var supplierId = reader.GetUInt32("SupplierId");
+					var key = new CostIndexKey(reader.GetDateTime("Date"),
+						regionId,
+						supplierId);
+
+					var availableAssortment = (HashSet<uint>)assortments[new AssortmentKey(supplierId, regionId)];
+					if (!availableAssortment.Contains(assortmentId))
+						continue;
+
+					decimal result = 0;
+					var resultValue = results[key];
+					if (resultValue != null)
+						result = (decimal)resultValue;
+
+					result += cost*quantity;
+
+					results[key] = result;
+				}
+			}
+		}*/
+
+		public decimal CalculateCostIndex(DateTime date, DateTime toDate, uint supplierId, ulong regionId, Hashtable quantities)
 		{
 			decimal result = 0;
 
 			var command = args.DataAdapter.SelectCommand;
 			command.CommandText = @"
-select AssortmentId, Cost
-from Reports.AverageCosts
-where SupplierId = ?supplierId
-and RegionId = ?regionId
-and Date = ?date
+select a.AssortmentId, a.Cost
+from Reports.AverageCosts a
+join Reports.AverageCosts a1 on a.SupplierId = a1.SupplierId and a.RegionId = a1.RegionId and a.AssortmentId = a1.AssortmentId and a1.Date = ?toDate
+where a.SupplierId = ?supplierId
+and a.RegionId = ?regionId
+and a.Date = ?date
 ";
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("supplierId", supplierId);
 			command.Parameters.AddWithValue("regionId", regionId);
 			command.Parameters.AddWithValue("date", date);
+			command.Parameters.AddWithValue("toDate", toDate);
 			var table = new DataTable();
 			args.DataAdapter.Fill(table);
 			foreach (DataRow row in table.Rows)
@@ -284,7 +369,7 @@ and Date = ?date
 				var quantiry = quantities[row["AssortmentId"]];
 				if (quantiry == null)
 					continue;
-				result = Convert.ToDecimal(row["Cost"])*Convert.ToDecimal(quantiry);
+				result += Convert.ToDecimal(row["Cost"])*Convert.ToDecimal(quantiry);
 			}
 			return result;
 		}
@@ -343,7 +428,10 @@ and Date = ?date
 			if (reportParamExists("date"))
 				date = (DateTime) getReportParam("date");
 
-			date = (DateTime) getReportParam("someDate");
+			if (_dtFrom != DateTime.MinValue)
+				date = _dtFrom;
+
+			someDate = (DateTime) getReportParam("someDate");
 			regions = ((List<ulong>) getReportParam("regions")).ToArray();
 			suppliers = ((List<ulong>) getReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
 		}

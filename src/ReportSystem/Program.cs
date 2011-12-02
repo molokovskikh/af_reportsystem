@@ -65,9 +65,9 @@ namespace Inforoom.ReportSystem
   cr.*,   
   p.ShortName  
 FROM    reports.general_reports cr,
-        billing.payers p
+		billing.payers p
 WHERE   
-     p.PayerId = cr.PayerId
+	 p.PayerId = cr.PayerId
 and cr.generalreportcode = " + generalReportId;
 
 						//Выбирает отчеты согласно фильтру
@@ -109,12 +109,14 @@ and cr.generalreportcode = " + generalReportId;
 								}
 								catch (Exception ex)
 								{
+									var message = String.Format("Ошибка при запуске отчета {0}",
+										drReport[GeneralReportColumns.ShortName]);
+									_log.Error(message, ex);
+
 									Mailer.MailGeneralReportErr(
 										ex.ToString(),
 										(string)drReport[GeneralReportColumns.ShortName],
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
-									_log.DebugFormat("В процессе выполнения отчета {0} произошла ошибка: {1}", 
-										(ulong)drReport[GeneralReportColumns.GeneralReportCode], ex.ToString());
 								}
 							}
 						}

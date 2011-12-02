@@ -57,7 +57,7 @@ namespace Inforoom.ReportSystem
 
 		public string _payer;
 
-        private ILog Logger;
+		private ILog Logger;
 
 		//таблица отчетов, которая существует в общем отчете
 		DataTable _dtReports;
@@ -93,7 +93,7 @@ namespace Inforoom.ReportSystem
 			string ReportArchName, bool Temporary, ReportFormats format,
 			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo, string payer)
 		{
-            Logger = LogManager.GetLogger(GetType());
+			Logger = LogManager.GetLogger(GetType());
 			_reports = new List<BaseReport>();
 			_generalReportID = GeneralReportID;
 			_firmCode = FirmCode;
@@ -109,10 +109,10 @@ namespace Inforoom.ReportSystem
 			bool addContacts = false;
 			ulong contactsCode = 0;
 
-			_dtReports = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), GetReports, null, _conn);
+			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
 
 			if (!Interval)
-				_dtContacts = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), delegate(ExecuteArgs args)
+				_dtContacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
 				{
 					args.DataAdapter.SelectCommand.CommandText = @"
 select lower(c.contactText)
@@ -120,7 +120,7 @@ from
   contacts.contact_groups cg
   join contacts.contacts c on cg.Id = c.ContactOwnerId
 where
-    cg.Id = ?ContactGroupId
+	cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType
 union
@@ -130,7 +130,7 @@ from
   join contacts.persons p on cg.id = p.ContactGroupId
   join contacts.contacts c on p.Id = c.ContactOwnerId
 where
-    cg.Id = ?ContactGroupId
+	cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType";
 					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupId", _contactGroupId);
@@ -143,7 +143,7 @@ and c.Type = ?ContactType";
 					null, _conn);
 			else
 			{
-				_dtContacts = MethodTemplate.ExecuteMethod<ExecuteArgs, DataTable>(new ExecuteArgs(), delegate(ExecuteArgs args)
+				_dtContacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
 				{
 				args.DataAdapter.SelectCommand.CommandText = @"
 select Mail FROM reports.Mailing_Addresses M
@@ -205,9 +205,9 @@ where GeneralReport = ?GeneralReport;";
 			_mainFileName = _directoryName + "\\" + ((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + _generalReportID.ToString() + ".xls") : _reportFileName);
 
 			bool emptyReport = true;
-		    while (_reports.Count > 0)
-		    {
-		        BaseReport bs = _reports.First();
+			while (_reports.Count > 0)
+			{
+				BaseReport bs = _reports.First();
 				try
 				{
 					_reports.Remove(bs);
@@ -228,12 +228,12 @@ where GeneralReport = ?GeneralReport;";
 					}
 					throw; // передаем наверх
 				}
-		    }
+			}
 
 			if(emptyReport) throw new ReportException("Отчет пуст.");
 
 			string ResFileName = ArchFile();
-            
+			
 
 #if (TESTING)
 			MailWithAttach(ResFileName, Settings.Default.ErrorReportMail);
@@ -244,12 +244,12 @@ where GeneralReport = ?GeneralReport;";
 #endif
 			//Написать удаление записей из таблицы !!
 			MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
-			                                                	{
+																{
 																	//args.DataAdapter.DeleteCommand = new MySqlCommand();
-			                                                		args.DataAdapter.SelectCommand.CommandText =
-			                                                			"delete FROM reports.Mailing_Addresses";
+																	args.DataAdapter.SelectCommand.CommandText =
+																		"delete FROM reports.Mailing_Addresses";
 																	args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			                                                		return new DataTable();
+																	return new DataTable();
 																}, null, _conn);
 
 			if (Directory.Exists(_directoryName))
@@ -263,7 +263,7 @@ where GeneralReport = ?GeneralReport;";
 
 			mainEntry.From = new AddressList {new MailboxAddress("АК Инфорум", "report@analit.net")};
 
-			mainEntry.To = new LumiSoft.Net.Mime.AddressList();
+			mainEntry.To = new AddressList();
 			mainEntry.To.Parse(EMailAddress); 
 
 			mainEntry.Subject = _eMailSubject; 
@@ -279,7 +279,7 @@ where GeneralReport = ?GeneralReport;";
 			attachmentEntity.ContentType = MediaType_enum.Application_octet_stream; 
 			attachmentEntity.ContentDisposition = ContentDisposition_enum.Attachment; 
 			attachmentEntity.ContentTransferEncoding = ContentTransferEncoding_enum.Base64; 
-			attachmentEntity.ContentDisposition_FileName = System.IO.Path.GetFileName(archFileName); 
+			attachmentEntity.ContentDisposition_FileName = Path.GetFileName(archFileName); 
 			attachmentEntity.DataFromFile(archFileName);
 
 			int? SMTPID = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
@@ -318,7 +318,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 
 		private string ArchFile()
 		{
-			var ResDirPath = Properties.Settings.Default.FTPOptBoxPath;
+			var ResDirPath = Settings.Default.FTPOptBoxPath;
 			var resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
 
 			ResDirPath += _firmCode.ToString("000") + "\\Reports\\";
@@ -330,20 +330,20 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 				File.Delete(ResDirPath + resArchFileName);
 
 			var zip = new FastZip();
-			var tempArchive = Path.GetTempFileName();            
+			var tempArchive = Path.GetTempFileName();
 			zip.CreateZip(tempArchive, _directoryName, false, null, null);
-			var archive = Path.Combine(_directoryName, resArchFileName);            
+			var archive = Path.Combine(_directoryName, resArchFileName);
 			File.Move(tempArchive, archive);
-            try
-            {                
-                File.Copy(archive, ResDirPath + resArchFileName);
-            }
-            catch(Exception ex)
-            {
-                Logger.ErrorFormat("Message: {0}, Stack: {1}", ex.Message, ex.StackTrace);
-                Logger.Error("Exception:", ex);                
-            }
-		    return archive;
+			try
+			{
+				File.Copy(archive, ResDirPath + resArchFileName);
+			}
+			catch(Exception ex)
+			{
+				Logger.ErrorFormat("Message: {0}, Stack: {1}", ex.Message, ex.StackTrace);
+				Logger.Error("Exception:", ex);                
+			}
+			return archive;
 		}
 
 		//Выбираем отчеты из базы
@@ -356,18 +356,18 @@ from
   reports.Reports r,
   reports.reporttypes rt
 where
-    r.{0} = ?{0}
+	r.{0} = ?{0}
 and rt.ReportTypeCode = r.ReportTypeCode", 
 				 GeneralReportColumns.GeneralReportCode);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + GeneralReportColumns.GeneralReportCode, _generalReportID);
-			DataTable res = new DataTable();
+			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;
 		}
 
 		private Type GetReportTypeByName(string ReportTypeClassName)
 		{
-			Type t = Type.GetType(ReportTypeClassName);
+			var t = Type.GetType(ReportTypeClassName);
 			if (t == null)
 				throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
 			return t;
