@@ -163,6 +163,10 @@ and c0.Junk = 0
 
 					var regionRating = rating[offer.Id.RegionId];
 					costs[offer.AssortmentId] = cost + offer.Cost*regionRating;
+#if DEBUG
+					if (offer.AssortmentId == DebugAssortmentId && offer.Id.SupplierId == DebugSupplierId)
+						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offer.AssortmentId], client, regionRating, offer.Cost);
+#endif
 				}
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Закончил вычисление средних цена для клиента {0}", client);
@@ -172,6 +176,9 @@ and c0.Junk = 0
 			}
 			return result;
 		}
+
+		public uint DebugAssortmentId;
+		public uint DebugSupplierId;
 
 		public int Save(DateTime date, Hashtable hash)
 		{
