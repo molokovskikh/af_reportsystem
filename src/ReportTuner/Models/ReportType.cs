@@ -16,6 +16,15 @@ namespace ReportTuner.Models
 			Properties = new List<ReportTypeProperty>();
 		}
 
+		public ReportType(string name, string clazz)
+			: this()
+		{
+			ReportTypeName = name;
+			AlternateSubject = name;
+			ReportClassName = clazz;
+			ReportTypeFilePrefix = clazz.Split('.').Last();
+		}
+
 		[PrimaryKey("ReportTypeCode")]
 		public virtual ulong Id { get; set; }
 

@@ -68,6 +68,12 @@ namespace ReportTuner.Models
 			PropertyName = name;
 			DisplayName = displayName;
 			PropertyType = type;
+
+			if (String.Equals(name, "regions", StringComparison.OrdinalIgnoreCase))
+			{
+				SelectStoredProcedure = "GetRegion";
+			}
+
 			if (type.ToLowerInvariant() == "enum")
 			{
 				Enum = new PropertyEnum();
@@ -85,6 +91,9 @@ namespace ReportTuner.Models
 
 		[BelongsTo("ReportTypeCode")]
 		public virtual ReportType ReportType { get; set; }
+
+		[Property]
+		public virtual string SelectStoredProcedure { get; set; }
 
 		[Property]
 		public virtual string PropertyName { get; set; }

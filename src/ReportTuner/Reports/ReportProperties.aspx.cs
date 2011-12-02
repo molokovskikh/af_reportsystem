@@ -803,7 +803,8 @@ WHERE ID = ?OPID", MyCn, trans);
 					Request["TemporaryId"], 
 					Request["rp"], 
 					e.CommandArgument);
-			else if (prop.PropertyType.PropertyName == "BusinessRivals")
+			else if (prop.PropertyType.PropertyName == "BusinessRivals"
+				|| prop.PropertyType.PropertyName == "suppliers")
 			{
 				var report = Report.Find(prop.ReportCode);
 				if (report.ReportType.ReportTypeFilePrefix != "PharmacyMixed")
@@ -1006,6 +1007,7 @@ WHERE ID = ?OPID", MyCn, trans);
 											Request["rp"],
 											e.CommandArgument);
 						break;
+					case "suppliers":
 					case "IgnoredSuppliers":
 					case "FirmCodeEqual":
 						url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
