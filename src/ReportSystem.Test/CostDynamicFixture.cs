@@ -21,9 +21,19 @@ namespace ReportSystem.Test
 		{
 			Property("date", new DateTime(2011, 11, 26));
 			Property("someDate", new DateTime(2011, 11, 25));
-			//Property("someDate", DateTime.Today);
 			Property("suppliers", new List<ulong> {5, 7, 14});
 			Property("regions", new List<ulong> {1});
+			report = new CostDynamic(1, "CostDynamic.xls", Conn, false, ReportFormats.Excel, properties);
+			BuildReport("CostDynamic.xls");
+		}
+
+		[Test]
+		public void Builder_report_for_all()
+		{
+			Property("date", new DateTime(2011, 11, 26));
+			Property("someDate", new DateTime(2011, 11, 25));
+			Property("suppliers", new List<ulong>());
+			Property("regions", new List<ulong>());
 			report = new CostDynamic(1, "CostDynamic.xls", Conn, false, ReportFormats.Excel, properties);
 			BuildReport("CostDynamic.xls");
 		}

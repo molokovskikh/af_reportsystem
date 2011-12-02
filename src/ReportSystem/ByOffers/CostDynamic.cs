@@ -88,6 +88,38 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			var command = args.DataAdapter.SelectCommand;
+			if (regions.Length == 0)
+			{
+				command.CommandText = String.Format(@"
+select oh.RegionCode
+from {0}.OrdersHead oh
+where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
+group by oh.RegionCode", _ordersSchema);
+				command.Parameters.AddWithValue("begin", date);
+				command.Parameters.AddWithValue("end", date.AddDays(1));
+				var regionTable = new DataTable();
+				args.DataAdapter.Fill(regionTable);
+				regions = regionTable.AsEnumerable().Select(r => Convert.ToUInt64(r["RegionCode"])).ToArray();
+			}
+
+			if (suppliers.Length == 0 && regions.Length > 0)
+			{
+				command.CommandText = String.Format(@"
+select pd.FirmCode
+from {0}.OrdersHead oh
+join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
+and oh.RegionCode in ({1})
+group by pd.FirmCode", _ordersSchema, regions.Implode());
+				command.Parameters.Clear();
+				command.Parameters.AddWithValue("begin", date);
+				command.Parameters.AddWithValue("end", date.AddDays(1));
+				var supplierIdTable = new DataTable();
+				args.DataAdapter.Fill(supplierIdTable);
+				suppliers = supplierIdTable.AsEnumerable().Select(r => Convert.ToUInt32(r["FirmCode"])).ToArray();
+			}
+
 			settings = new CostDynamicSettings(_reportCode, _reportCaption) {
 				Regions = regions,
 				Suppliers = suppliers,
@@ -102,7 +134,7 @@ namespace Inforoom.ReportSystem.ByOffers
 			var end = date;
 			//join Catalogs.Catalog c on c.Id = p.CatalogId вроде бы не нужен 
 			//но без него оптимизатор строит неправильный план
-			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			command.CommandText = String.Format(@"
 select a.Id, sum(ol.Quantity) as quantity
 from {0}.OrdersHead oh
 join {0}.OrdersList ol on oh.RowId = ol.OrderId
@@ -112,8 +144,9 @@ join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = ol.CodeFirmC
 where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
 group by a.Id
 ", _ordersSchema);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("begin", begin);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("end", end);
+			command.Parameters.Clear();
+			command.Parameters.AddWithValue("begin", begin);
+			command.Parameters.AddWithValue("end", end);
 			var quantityTable = new DataTable();
 			args.DataAdapter.Fill(quantityTable);
 			var quantities = new Hashtable();
@@ -123,7 +156,7 @@ group by a.Id
 				quantities.Add(Convert.ToUInt32(row["Id"]), Convert.ToDecimal(row["quantity"]));
 			}
 
-			args.DataAdapter.SelectCommand.CommandText = String.Format(@"select Id, Name
+			command.CommandText = String.Format(@"select Id, Name
 from Future.Suppliers
 where id in ({0})", suppliers.Implode());
 			var supplierTable = new DataTable();
