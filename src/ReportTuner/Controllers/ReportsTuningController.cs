@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using Castle.MonoRail.Framework;
 using ReportTuner.Models;
-using NHibernate.Criterion;
 using ReportTuner.Helpers;
 
 namespace ReportTuner.Controllers
@@ -22,7 +18,7 @@ namespace ReportTuner.Controllers
 			ControllerHelper.InitParameter(ref currentPage, "currentPage", 0, PropertyBag);
 			ControllerHelper.InitParameter(ref region, "region", ulong.MaxValue, PropertyBag);
 			PropertyBag["firmType"] = firmType;
-			PropertyBag["findStr"] = findStr;			
+			PropertyBag["findStr"] = findStr;
 
 			if (delBtn != null)
 			{
@@ -50,9 +46,9 @@ namespace ReportTuner.Controllers
 
 			if (region == 0)
 				region = ulong.MaxValue;
-			
-			PropertyBag["Regions"] = ReportTunerModel.GetAllRegions(); ;
-						
+
+			PropertyBag["Regions"] = ReportTunerModel.GetAllRegions();
+
 			PropertyBag["FilteredClients"] =
 				ReportTunerModel.GetAllSuppliers(rpv.Value, sortOrder.Value, currentPage.Value,
 				                                 pageSize.Value, ref rowsCount, region.Value, firmType, findStr, userId);

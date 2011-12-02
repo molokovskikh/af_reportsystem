@@ -13,14 +13,14 @@ namespace ReportTuner.Models
 {
 	public static class ReportTunerModel
 	{
-        private const string allClientsSql =
+		private const string allClientsSql =
 @"
 select
-       supps.Id,
-       supps.Name ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   supps.Id,
+	   supps.Name ShortName,
+	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
   from future.Suppliers supps
-       left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+	   left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
  where ?firmType = 0
    and supps.Disabled = 0
    and (supps.RegionMask & ?region) > 0
@@ -31,11 +31,11 @@ group by Id
 union
 
 select
-       cl.Id,
-       cl.Name ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   cl.Id,
+	   cl.Name ShortName,
+	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
   from future.Clients cl
-       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+	   left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
  where ?firmType = 1
    and cl.Status = 1
    and (cl.MaskRegion & ?region) > 0
@@ -63,26 +63,26 @@ group by Id
 {1} {2}
 ";
 
-        private const string selectedClientsSql =
+		private const string selectedClientsSql =
 @"
 select
-       supps.Id,
-       supps.Name ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   supps.Id,
+	   supps.Name ShortName,
+	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
   from future.Suppliers supps
-       left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+	   left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
  where supps.Id in {0}
-     and not exists(select 1 from future.Clients where id = supps.Id)
+	 and not exists(select 1 from future.Clients where id = supps.Id)
 group by Id
 
 union
 
 select
-       cl.Id,
-       cl.Name ShortName,
-       GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   cl.Id,
+	   cl.Name ShortName,
+	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
   from future.Clients cl
-       left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+	   left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
  where cl.Id in {0}
 group by Id
 {1} {2}
@@ -102,8 +102,8 @@ group by Id
 		{
 			string[] headers = new[] { "", "Id", "ShortName", "RegionCode" };
 			string order = (sortOrder < 1)
-        		? ""
-        		: ("order by " + headers[Math.Abs(sortOrder) - 1] + ((sortOrder > 0) ? " asc" : " desc"));
+				? ""
+				: ("order by " + headers[Math.Abs(sortOrder) - 1] + ((sortOrder > 0) ? " asc" : " desc"));
 			string limit = usePadding ? String.Format("limit {0}, {1}", currenPage*pageSize, pageSize) : "";
 
 			return String.Format(sql, selectedIds, order, limit);
