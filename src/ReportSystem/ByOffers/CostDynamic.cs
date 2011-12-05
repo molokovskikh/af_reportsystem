@@ -74,6 +74,8 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		private string _ordersSchema = "Orders";
 
+		private MySqlCommand command;
+
 		public CostDynamic()
 		{
 		}
@@ -88,7 +90,7 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			var command = args.DataAdapter.SelectCommand;
+			command = args.DataAdapter.SelectCommand;
 			if (regions.Length == 0)
 			{
 				command.CommandText = String.Format(@"
@@ -130,31 +132,7 @@ group by pd.FirmCode", _ordersSchema, regions.Implode());
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", date.ToShortDateString()));
 			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => Region.Find(r).Name).Implode()));
 
-			var begin = date.AddMonths(-1);
-			var end = date;
-			//join Catalogs.Catalog c on c.Id = p.CatalogId вроде бы не нужен 
-			//но без него оптимизатор строит неправильный план
-			command.CommandText = String.Format(@"
-select a.Id, sum(ol.Quantity) as quantity
-from {0}.OrdersHead oh
-join {0}.OrdersList ol on oh.RowId = ol.OrderId
-join Catalogs.Products p on p.Id = ol.ProductId
-join Catalogs.Catalog c on c.Id = p.CatalogId
-join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = ol.CodeFirmCr
-where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
-group by a.Id
-", _ordersSchema);
-			command.Parameters.Clear();
-			command.Parameters.AddWithValue("begin", begin);
-			command.Parameters.AddWithValue("end", end);
-			var quantityTable = new DataTable();
-			args.DataAdapter.Fill(quantityTable);
-			var quantities = new Hashtable();
-
-			foreach (DataRow row in quantityTable.Rows)
-			{
-				quantities.Add(Convert.ToUInt32(row["Id"]), Convert.ToDecimal(row["quantity"]));
-			}
+			var quantities = GetQuantities();
 
 			command.CommandText = String.Format(@"select Id, Name
 from Future.Suppliers
@@ -211,8 +189,8 @@ where id in ({0})", suppliers.Implode());
 				foreach (var dateToColumn in dateMap)
 				{
 					var currentDate = dateToColumn.Value;
-					var baseCostIndex = regions.Sum(r => CalculateCostIndex(begin, currentDate, supplier, r, quantities));
-					var currentCostIndex = regions.Sum(r => CalculateCostIndex(currentDate, begin, supplier, r, quantities));
+					var baseCostIndex = regions.Sum(r => CalculateCostIndex(date, currentDate, supplier, r, quantities));
+					var currentCostIndex = regions.Sum(r => CalculateCostIndex(currentDate, date, supplier, r, quantities));
 					row.SetField(dateToColumn.Key, SaveInPercentOf(baseCostIndex, currentCostIndex) - 1);
 				}
 			}
@@ -226,6 +204,35 @@ where id in ({0})", suppliers.Implode());
 					.Sum(r => Convert.ToDecimal(r[column]));
 			}
 			results.Rows.Add(resultRow);
+		}
+
+		private Hashtable GetQuantities()
+		{
+			var begin = date.AddMonths(-1);
+			var end = date;
+			//join Catalogs.Catalog c on c.Id = p.CatalogId вроде бы не нужен 
+			//но без него оптимизатор строит неправильный план
+			command.CommandText = String.Format(@"
+select a.Id, sum(ol.Quantity) as quantity
+from {0}.OrdersHead oh
+join {0}.OrdersList ol on oh.RowId = ol.OrderId
+join Catalogs.Products p on p.Id = ol.ProductId
+join Catalogs.Catalog c on c.Id = p.CatalogId
+join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = ol.CodeFirmCr
+where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
+group by a.Id", _ordersSchema);
+			command.Parameters.Clear();
+			command.Parameters.AddWithValue("begin", begin);
+			command.Parameters.AddWithValue("end", end);
+			var quantityTable = new DataTable();
+			args.DataAdapter.Fill(quantityTable);
+			var quantities = new Hashtable();
+
+			foreach (DataRow row in quantityTable.Rows)
+			{
+				quantities.Add(Convert.ToUInt32(row["Id"]), Convert.ToDecimal(row["quantity"]));
+			}
+			return quantities;
 		}
 
 		private static decimal? CalculateShareDiff(decimal? valueTotal, DataTable currentOrderTotals, uint supplier)
