@@ -300,9 +300,10 @@ and regions.RegionCode = activeprices.RegionCode";
 		private void GetRetailActivePrices()
 		{
 			var selectCommand = args.DataAdapter.SelectCommand;
-			selectCommand.CommandText = "usersettings.GetActivePrices";
+			selectCommand.CommandText = "Future.GetActivePrices";
 			selectCommand.CommandType = CommandType.StoredProcedure;
-			selectCommand.Parameters.AddWithValue("?ClientCodeParam", 4474);
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?UserIdParam", 2958);
 			selectCommand.ExecuteNonQuery();
 		}
 
