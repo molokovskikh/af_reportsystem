@@ -13,9 +13,8 @@ namespace Inforoom.ReportSystem.ByOrders
 {
 	public class OrderOutAllowedAssortment : OrdersReport
 	{
-		private uint _ClientId;
-		private Period _period;		
-		private List<string> head;		
+		private uint _clientId;
+		private Period _period;
 
 		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -23,9 +22,9 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void ReadReportParams()
 		{
-			base.ReadReportParams();			
-			_ClientId = Convert.ToUInt32(getReportParam("ClientCode"));
-			_period = new Period(dtFrom,dtTo);			
+			base.ReadReportParams();
+			_clientId = Convert.ToUInt32(getReportParam("ClientCode"));
+			_period = new Period(dtFrom,dtTo);
 		}
 		protected override IWriter GetWriter(ReportFormats format)
 		{
@@ -81,7 +80,7 @@ order by O.WriteTime");
 
 // Если написать and BM.ID is NOT null and то будут выводится совпадающие позиции
 // сейчас выводятся несовпадающие
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCode", _ClientId);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCode", _clientId);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
 #if DEBUG
@@ -103,10 +102,10 @@ order by O.WriteTime");
 
 			result.Rows.Add("Заказ вне разрешенного ассортимента");
 			result.Rows[0][2] = "Сформирован :" + DateTime.Now.ToString();
-			MySqlCommand headParameterCommand = _conn.CreateCommand();
-			String shPCommand = "select CL.Name from future.Clients CL where CL.ID = " + _ClientId.ToString();
+			var headParameterCommand = _conn.CreateCommand();
+			var shPCommand = "select CL.Name from future.Clients CL where CL.ID = " + _clientId.ToString();
 			headParameterCommand.CommandText = shPCommand;
-			MySqlDataReader headParameterReader = headParameterCommand.ExecuteReader();
+			var headParameterReader = headParameterCommand.ExecuteReader();
 			result.Rows.Add("Клиент");
 
 			if (headParameterReader.Read())
@@ -117,7 +116,6 @@ order by O.WriteTime");
 			result.Rows.Add("Период: ");
 			result.Rows[2][2] = "с " + _period.Begin.Date.ToShortDateString() + " по " + _period.End.Date.ToShortDateString();
 			result.Rows.Add("");
-			//result.Rows[1][2] = "";
 
 			result.Columns["MatrixCode"].Caption = "Код";
 			result.Columns["Supplier"].Caption = "Поставщик";

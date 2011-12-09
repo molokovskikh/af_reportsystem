@@ -34,8 +34,8 @@ namespace Inforoom.ReportSystem
 			var regionMask = GetClientRegionMask(e);
 			var selectCommand = BuildSelect();
 
-            if (firmCrPosition)
-                selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
+			if (firmCrPosition)
+				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
 			selectCommand = String.Concat(selectCommand, String.Format(@"
@@ -70,7 +70,7 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, business
 @"ordersold.OrdersHead oh
   join ordersold.OrdersList ol on ol.OrderID = oh.RowID ";
 #endif
-            if (!includeProductName || !isProductName || firmCrPosition)
+			if (!includeProductName || !isProductName || firmCrPosition)
 				selectCommand +=@"
   join catalogs.products p on p.Id = ol.ProductId";
 
@@ -98,12 +98,12 @@ and (oh.RegionCode & " + regionMask + @") > 0";
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
 
-            if (firmCrPosition)
-            {
-                var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
-                var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
-                selectCommand = selectCommand.Replace(groupPart, new_groupPart);
-            }
+			if (firmCrPosition)
+			{
+				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
+				var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
+				selectCommand = selectCommand.Replace(groupPart, new_groupPart);
+			}
 
 			if (includeProductName)
 				if (isProductName)

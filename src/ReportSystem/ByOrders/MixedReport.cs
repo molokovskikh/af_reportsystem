@@ -127,7 +127,7 @@ from " +
 #endif
  @" usersettings.pricesdata pd
 where
-    ol.OrderID = oh.RowID
+	ol.OrderID = oh.RowID
 and ol.Junk = 0
 #and ol.Await = 0
 and pd.PriceCode = oh.PriceCode
@@ -147,7 +147,7 @@ from
   usersettings.Pricesdata pd,
   farm.Core0 core
 where
-    pd.FirmCode = " + sourceFirmCode.ToString()
+	pd.FirmCode = " + sourceFirmCode.ToString()
 + @" and core.PriceCode = pd.PriceCode
 )) CoreCodes,
   catalogs.products p,
@@ -155,7 +155,7 @@ where
   catalogs.catalognames cn)
   left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
 where
-    p.Id = CoreCodes.ProductId
+	p.Id = CoreCodes.ProductId
 and c.Id = p.CatalogId
 and cn.id = c.NameId
 group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : String.Empty);
@@ -169,8 +169,8 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-            filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
-            filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + businessRivalsList + ") order by supps.Name")));
+			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
+			filterDescriptions.Add(String.Format("Список поставщиков-конкурентов : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + businessRivalsList + ") order by supps.Name")));
 
 			if (showCode || showCodeCr)
 				FillProviderCodes(e);
@@ -179,11 +179,11 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 
 			var selectCommand = BuildSelect();
 
-            if (firmCrPosition)
-                selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
+			if (firmCrPosition)
+				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
-		    if (showCode)
+			if (showCode)
 				selectCommand += " ProviderCodes.Code, ";
 			if (showCodeCr)
 				selectCommand += " ProviderCodes.CodeCr, ";
@@ -257,14 +257,14 @@ ol.Junk = 0
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
 
-            if(firmCrPosition)
-            {
-                var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
-                var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
-                selectCommand = selectCommand.Replace(groupPart, new_groupPart);
-            }
+			if(firmCrPosition)
+			{
+				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
+				var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
+				selectCommand = selectCommand.Replace(groupPart, new_groupPart);
+			}
 
-           
+		   
 
 			if(includeProductName)
 				if(isProductName)

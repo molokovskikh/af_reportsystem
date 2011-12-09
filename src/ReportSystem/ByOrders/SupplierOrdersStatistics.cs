@@ -41,9 +41,8 @@ namespace Inforoom.ReportSystem.ByOrders
 			ProfileHelper.Next("GenerateReport");
 
 			string db = "ordersold";
-//			string db = "orders";
 #if DEBUG
-	db = "orders";	
+			db = "orders";
 #endif
 			string selectedColumns;
 			string groupbyColumns;
@@ -68,7 +67,7 @@ namespace Inforoom.ReportSystem.ByOrders
 	cl.name shortname, 
 	r.Region, 
 	ROUND(SUM(ol.cost*ol.Quantity),2) summa";
-				groupbyColumns = "u.PayerId";
+				groupbyColumns = "cl.Id, oh.RegionCode";
 				orderbyColumns = "cl.Name";
 			}
 
@@ -93,13 +92,11 @@ where
 
 			if(!String.IsNullOrEmpty(regionsString))
 				selectCommand += String.Format("and oh.regioncode in ({0}) ", regionsString);
-//#if DEBUG
-//		selectCommand += "and u.PayerId <> 921 and oh.deleted = 0 and oh.submited = 1 and rcs.InvisibleOnFirm < 2 and rcs.ServiceClient = 0 ";
-//#endif
+
 			selectCommand += String.Format("group by {0} order by {1}", groupbyColumns, orderbyColumns);
 
 #if DEBUG
-	Debug.WriteLine(selectCommand);
+			Debug.WriteLine(selectCommand);
 #endif
 			var dtNewRes = new DataTable();
 			if(reportType == 1)
@@ -112,7 +109,7 @@ where
 				dtNewRes.Columns.Add("RowCount", typeof(int));
 				dtNewRes.Columns.Add("Summa", typeof(decimal));
 				dtNewRes.Columns["WriteTime"].Caption = "Дата заявки";
-				dtNewRes.Columns["PriceDate"].Caption = "Дата прайса";				
+				dtNewRes.Columns["PriceDate"].Caption = "Дата прайса";
 				dtNewRes.Columns["RowCount"].Caption = "Позиций";
 			}
 			else
@@ -131,7 +128,7 @@ where
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			foreach (string t in filterDescriptions)
+			foreach (var t in filterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);
 
 			var res = dtNewRes.DefaultView.ToTable();

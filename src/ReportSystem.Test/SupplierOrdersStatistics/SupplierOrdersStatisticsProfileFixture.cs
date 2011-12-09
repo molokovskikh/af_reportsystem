@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Inforoom.ReportSystem;
+﻿using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
 using NUnit.Framework;
 
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	class SupplierOrdersStatisticsProfileFixture : BaseProfileFixture
+	public class SupplierOrdersStatisticsProfileFixture : BaseProfileFixture
 	{
 		[Test]
 		public void SupplierOrdersStatisticsType1Check()

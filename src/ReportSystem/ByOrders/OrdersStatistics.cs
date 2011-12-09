@@ -68,10 +68,10 @@ namespace Inforoom.ReportSystem.ByOrders
 			e.DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (string t in filterDescriptions)
-				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);			
+				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);
 
 			var res = dtNewRes.DefaultView.ToTable();
-			res.TableName = "Results";			
+			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
 		}
 

@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 		protected bool SupportProductNameOptimization;
 		protected bool includeProductName;
 		protected bool isProductName = true;
-        protected bool firmCrPosition = false; // есть ли параметр "Позиция производителя"
+		protected bool firmCrPosition = false; // есть ли параметр "Позиция производителя"
 
 		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
@@ -66,9 +66,9 @@ namespace Inforoom.ReportSystem
 			registredField.Add(new FilterField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета", 40));
 			registredField.Add(new FilterField("cfc.Id", "cfc.Name as FirmCr", "FirmCr", "FirmCr", "Производитель", "catalogs.Producers cfc", null, 1, "В отчет включены следующие производители", "Следующие производители исключены из отчета", 15));
 			registredField.Add(new FilterField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", null, 2, "В отчет включены следующие регионы", "Следующие регионы исключены из отчета"));
-            registredField.Add(new FilterField("prov.Id", "concat(prov.Name, ' - ', provrg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "future.suppliers prov, farm.regions provrg", "and prov.HomeRegion = provrg.RegionCode", 3, "В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета", 10));
-            registredField.Add(new FilterField("pd.PriceCode", "concat(prov.Name , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, future.suppliers prov, farm.regions provrg", "and prov.Id = pd.FirmCode and prov.HomeRegion = provrg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета", 10));
-            registredField.Add(new FilterField("cl.Id", "cl.Name as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "future.clients cl", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
+			registredField.Add(new FilterField("prov.Id", "concat(prov.Name, ' - ', provrg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "future.suppliers prov, farm.regions provrg", "and prov.HomeRegion = provrg.RegionCode", 3, "В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета", 10));
+			registredField.Add(new FilterField("pd.PriceCode", "concat(prov.Name , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, future.suppliers prov, farm.regions provrg", "and prov.Id = pd.FirmCode and prov.HomeRegion = provrg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета", 10));
+			registredField.Add(new FilterField("cl.Id", "cl.Name as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "future.clients cl", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
 			registredField.Add(new FilterField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", null, 6, "В отчет включены следующие плательщики", "Следующие плательщики исключены из отчета"));
 		}
 
@@ -80,8 +80,8 @@ namespace Inforoom.ReportSystem
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
 			if (_Interval)
 			{
-				dtFrom = _dtFrom; //((DateTime)getReportParam("StartDate")).Date;
-				dtTo = _dtTo; //(DateTime)getReportParam("EndDate");
+				dtFrom = _dtFrom;
+				dtTo = _dtTo;
 				dtTo = dtTo.Date.AddDays(1);
 			}
 			else 
@@ -100,10 +100,7 @@ namespace Inforoom.ReportSystem
 				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
 				dtTo = dtTo.Date;
 			}
-			//if (_Interval)
-				//filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.AddDays(-1).ToString("dd.MM.yyyy HH:mm:ss")));
-			//else
-				filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
+			filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 			selectedField = registredField.Where(f => f.LoadFromDB(this)).ToList();
 			CheckAfterLoadFields();
 
@@ -112,9 +109,7 @@ namespace Inforoom.ReportSystem
 
 		protected virtual void CheckAfterLoadFields()
 		{
-			/*if (!selectedField.Exists(x => x.visible))
-				throw new ReportException("Не выбраны поля для отображения в заголовке отчета.");*/
-            firmCrPosition = reportParamExists("FirmCrPosition");
+			firmCrPosition = reportParamExists("FirmCrPosition");
 		}
 
 		protected string GetValuesFromSQL(string SQL)
