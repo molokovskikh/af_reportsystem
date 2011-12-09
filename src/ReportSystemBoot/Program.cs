@@ -12,26 +12,18 @@ namespace ReportSystemBoot
 {
 	class Program
 	{
-		public static string NormalizeDir(string InputDir)
-		{
-			string result = Path.GetFullPath(InputDir);
-			if ((result.Length > 0) && (result[result.Length - 1] != Path.DirectorySeparatorChar))
-				result += Path.DirectorySeparatorChar;
-			return result;
-		}
-
 		static void DeployFiles(ILog logger)
 		{
 			try {
-				var releasePath = NormalizeDir(Settings.Default.ReleasePath);				
-				var toPath = NormalizeDir(".");
+				var releasePath = Settings.Default.ReleasePath;
+				var toPath = ".";
 				if(!Directory.Exists(releasePath)) Directory.CreateDirectory(releasePath);
 				var files = Directory.GetFiles(releasePath).ToList();
 				var releaseFiles = files.Where(f => !f.Contains("ReportSystemBoot") && !f.Contains("log4net") && !f.Contains("ProcessPrivileges")).ToList();
 				if (releaseFiles.Count == 0) return;
 				logger.Info("Обновление файлов...");
 				foreach (var file in releaseFiles) {
-					File.Copy(file, toPath + Path.GetFileName(file), true);
+					File.Copy(file, Path.Combine(toPath, Path.GetFileName(file)), true);
 				}
 				foreach (var file in files) {
 					File.Delete(file);
@@ -48,12 +40,12 @@ namespace ReportSystemBoot
 		{
 			
 			XmlConfigurator.Configure();
-			ILog logger = LogManager.GetLogger(typeof(Program));
+			var logger = LogManager.GetLogger(typeof(Program));
 
 			DeployFiles(logger);
 
-			System.Reflection.Assembly ass = System.Reflection.Assembly.GetExecutingAssembly();
-			var bootAppName = System.IO.Path.GetFileNameWithoutExtension(ass.Location).Replace("Boot", null);
+			var ass = Assembly.GetExecutingAssembly();
+			var bootAppName = Path.GetFileNameWithoutExtension(ass.Location).Replace("Boot", null);
 			var arg = args.Aggregate(string.Empty, (current, s) => current + " " + s);
 			if (args.Length >= 1)
 				bootAppName += arg;
