@@ -27,8 +27,14 @@ namespace Inforoom.ReportSystem.ByOffers
 			{
 				_date = value;
 				PrevDay = _date.AddDays(-1);
-				PrevWeek = _date.AddDays(-7 - (_date.DayOfWeek - DayOfWeek.Monday));
-				PrevMonth = _date.AddMonths(-1).FirstDayOfMonth();
+				PrevWeek = _date.AddDays(-(_date.DayOfWeek - DayOfWeek.Monday));
+
+				if (PrevWeek == Date)
+					PrevWeek = PrevWeek.AddDays(-7);
+
+				PrevMonth = _date.FirstDayOfMonth();
+				if (PrevMonth == Date)
+					PrevMonth = PrevMonth.AddMonths(-1);
 			}
 		}
 
@@ -50,17 +56,17 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		public string PrevMonthLabel()
 		{
-			return String.Format("Относительно 1 числа прошлого месяца ({0})", PrevMonth.ToShortDateString());
+			return String.Format("Относительно 1-го числа ({0})", PrevMonth.ToShortDateString());
 		}
 
 		public string PrevWeekLabel()
 		{
-			return String.Format("Относительно понедельника прошедшей недели ({0})", PrevWeek.ToShortDateString());
+			return String.Format("Относительно предыдущего понедельника ({0})", PrevWeek.ToShortDateString());
 		}
 
 		public string PrevDayLabel()
 		{
-			return String.Format("Относительно вчерашнего дня ({0})", PrevDay.ToShortDateString());
+			return String.Format("Относительно предыдущего дня ({0})", PrevDay.ToShortDateString());
 		}
 	}
 
@@ -464,7 +470,7 @@ and a.Date = ?date
 
 		public override void ReadReportParams()
 		{
-			date = DateTime.Today;
+			date = DateTime.Today.AddDays(-1);
 			if (reportParamExists("date"))
 				date = (DateTime) getReportParam("date");
 

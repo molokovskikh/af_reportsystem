@@ -19,6 +19,7 @@ namespace Inforoom.ReportSystem.Writers
 
 			UseExcel.Workbook(fileName, b => {
 				var sheet = ExcelHelper.GetSheet(b, settings.ReportCode);
+				sheet.Name = reportSettings.ListName;
 				sheet.Activate();
 				var row = 0;
 				foreach (var filter in settings.Filters)
@@ -31,6 +32,7 @@ namespace Inforoom.ReportSystem.Writers
 				var sheetRow = ((Range) sheet.Application.Selection).EntireRow;
 				sheetRow.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
 
+				((Range)sheet.Cells[row + 1, 2]).Value2 = settings.Date.ToShortDateString();
 				ExcelHelper.Merge(sheet, row, 2, 2, settings.DateGroupLabel());
 				ExcelHelper.Merge(sheet, row, 4, 2, settings.PrevMonthLabel());
 				ExcelHelper.Merge(sheet, row, 6, 2, settings.PrevWeekLabel());

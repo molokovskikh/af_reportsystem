@@ -39,6 +39,21 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void Settings_fixture()
+		{
+			var settings = new CostDynamicSettings(1, "");
+			settings.Date = new DateTime(2011, 12, 20);
+			Assert.That(settings.PrevWeek, Is.EqualTo(new DateTime(2011, 12, 19)));
+			Assert.That(settings.PrevMonth, Is.EqualTo(new DateTime(2011, 12, 1)));
+
+			settings.Date = new DateTime(2011, 12, 19);
+			Assert.That(settings.PrevWeek, Is.EqualTo(new DateTime(2011, 12, 12)));
+
+			settings.Date = new DateTime(2011, 12, 1);
+			Assert.That(settings.PrevMonth, Is.EqualTo(new DateTime(2011, 11, 1)));
+		}
+
+		[Test]
 		public void Format()
 		{
 			var report = new CostDynamic();
@@ -53,7 +68,7 @@ namespace ReportSystem.Test
 			var data = new DataSet();
 			data.Tables.Add(results);
 
-			var settings = new CostDynamicSettings(1, "") {
+			var settings = new CostDynamicSettings(1, "отчет") {
 				Regions = new ulong[] {1}
 			};
 			settings.Date = DateTime.Today;

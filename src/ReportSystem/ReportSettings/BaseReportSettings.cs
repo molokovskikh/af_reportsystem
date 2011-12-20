@@ -1,4 +1,6 @@
 ﻿
+using Inforoom.ReportSystem.Writers;
+
 namespace Inforoom.ReportSystem.ReportSettings
 {
 	public class BaseReportSettings
@@ -11,5 +13,14 @@ namespace Inforoom.ReportSystem.ReportSettings
 
 		public ulong ReportCode;
 		public string ReportCaption;
+
+		public string ListName
+		{
+			get
+			{
+				var length = (ReportCaption.Length < BaseExcelWriter.MaxListName) ? ReportCaption.Length : BaseExcelWriter.MaxListName;
+				return ReportCaption.Substring(0, length);
+			}
+		}
 	}
 }
