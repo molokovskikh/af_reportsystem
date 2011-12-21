@@ -53,17 +53,11 @@ namespace Inforoom.ReportSystem
 			var selectCommand = BuildSelect();
 
 			selectCommand = String.Concat(
-				selectCommand, @"
+				selectCommand, String.Format(@"
 Sum(ol.cost*ol.Quantity) as Summ
-from " +
-#if DEBUG
-  @"orders.OrdersHead oh 
-  join orders.OrdersList ol on ol.OrderID = oh.RowID " +
-#else
-  @"ordersold.OrdersHead oh 
-  join ordersold.OrdersList ol on ol.OrderID = oh.RowID " +
-#endif
- @"join catalogs.products p on p.Id = ol.ProductId
+from {0}.OrdersHead oh 
+  join {0}.OrdersList ol on ol.OrderID = oh.RowID 
+  join catalogs.products p on p.Id = ol.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId
@@ -76,7 +70,7 @@ from " +
   join future.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
-where 1=1");
+where 1=1", OrdersSchema));
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "Summ desc");
@@ -92,15 +86,15 @@ where 1=1");
 
 			ProfileHelper.Next("Processing2");
 
-			decimal AllSumm = 0m;
-			decimal OtherSumm = 0m;
-			int currentCount = 0;
+			var allSumm = 0m;
+			var otherSumm = 0m;
+			var currentCount = 0;
 			foreach (var dr in selectTable.Rows.Cast<DataRow>())
 			{
 				currentCount++;
-				AllSumm += Convert.ToDecimal(dr["Summ"]);
+				allSumm += Convert.ToDecimal(dr["Summ"]);
 				if (currentCount > providerCount)
-					OtherSumm += Convert.ToDecimal(dr["Summ"]);
+					otherSumm += Convert.ToDecimal(dr["Summ"]);
 			}
 
 			var res = BuildResultTable(selectTable);
@@ -117,7 +111,7 @@ where 1=1");
 
 				newrow["FirmShortName"] = dr["FirmShortName"];
 
-				newrow["SummPercent"] = Decimal.Round(((decimal)dr["Summ"] * 100) / AllSumm, 2);
+				newrow["SummPercent"] = Decimal.Round(((decimal)dr["Summ"] * 100) / allSumm, 2);
 
 				res.Rows.Add(newrow);
 
@@ -125,11 +119,11 @@ where 1=1");
 					break;
 			}
 
-			if (OtherSumm > 0)
+			if (otherSumm > 0)
 			{
 				newrow = res.NewRow();
 				newrow["FirmShortName"] = "Остальные";
-				newrow["SummPercent"] = Decimal.Round((OtherSumm * 100) / AllSumm, 2);
+				newrow["SummPercent"] = Decimal.Round((otherSumm * 100) / allSumm, 2);
 				res.Rows.Add(newrow);
 			}
 			res.EndLoadData();

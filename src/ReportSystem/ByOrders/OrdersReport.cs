@@ -31,16 +31,23 @@ namespace Inforoom.ReportSystem
 		protected int _reportInterval;
 
 		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
-		protected List<string> filterDescriptions;
+		protected List<string> filterDescriptions = new List<string>();
 
 		protected bool SupportProductNameOptimization;
 		protected bool includeProductName;
 		protected bool isProductName = true;
 		protected bool firmCrPosition = false; // есть ли параметр "Позиция производителя"
+		protected string OrdersSchema = "Orders";
+
+		public OrdersReport()
+		{}
 
 		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		{
+#if !DEBUG
+			OrdersSchema = "OrdersOld";
+#endif
 		}
 
 		protected void FillFilterFields()
@@ -74,9 +81,6 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-			FillFilterFields();
-			filterDescriptions = new List<string>();
-
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
 			if (_Interval)
 			{
@@ -101,10 +105,17 @@ namespace Inforoom.ReportSystem
 				dtTo = dtTo.Date;
 			}
 			filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
-			selectedField = registredField.Where(f => f.LoadFromDB(this)).ToList();
+
+			LoadFilters();
 			CheckAfterLoadFields();
 
 			selectedField.Sort((x, y) => (x.position - y.position));
+		}
+
+		protected void LoadFilters()
+		{
+			FillFilterFields();
+			selectedField = registredField.Where(f => f.LoadFromDB(this)).ToList();
 		}
 
 		protected virtual void CheckAfterLoadFields()
@@ -208,30 +219,36 @@ namespace Inforoom.ReportSystem
 
 		protected string ApplyFilters(string selectCommand)
 		{
-			foreach (FilterField rf in selectedField)
-			{
-				if (rf.equalValues != null && rf.equalValues.Count > 0)
-				{
-					selectCommand = String.Concat(selectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
-					if (rf.reportPropertyPreffix == "ClientCode") // Список клиентов особенный т.к. выбирается из двух таблиц
-						filterDescriptions.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetClientsNamesFromSQL(rf.equalValues)));
-					else
-						filterDescriptions.Add(String.Format("{0}: {1}", rf.equalValuesCaption, GetValuesFromSQL(rf.GetEqualValuesSQL())));
-				}
-				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
-				{
-					selectCommand = String.Concat(selectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
-					if (rf.reportPropertyPreffix == "ClientCode") // Список клиентов особенный т.к. выбирается из двух таблиц
-						filterDescriptions.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetClientsNamesFromSQL(rf.nonEqualValues)));
-					else
-						filterDescriptions.Add(String.Format("{0}: {1}", rf.nonEqualValuesCaption, GetValuesFromSQL(rf.GetNonEqualValuesSQL())));
-				}
-			}
+			FillFilterDescriptions();
+			selectCommand = ApplyUserFilters(selectCommand);
 
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
 
 			return selectCommand;
+		}
+
+		protected string ApplyUserFilters(string selectCommand)
+		{
+			foreach (var rf in selectedField)
+			{
+				if (rf.equalValues != null && rf.equalValues.Count > 0)
+					selectCommand = String.Concat(selectCommand, Environment.NewLine + "and ", rf.GetEqualValues());
+				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
+					selectCommand = String.Concat(selectCommand, Environment.NewLine + "and ", rf.GetNonEqualValues());
+			}
+			return selectCommand;
+		}
+
+		protected void FillFilterDescriptions()
+		{
+			foreach (var field in selectedField)
+			{
+				if (field.nonEqualValues != null && field.nonEqualValues.Count > 0)
+					filterDescriptions.Add(String.Format("{0}: {1}", field.nonEqualValuesCaption, GetValuesFromSQL(field.GetNonEqualValuesSQL())));
+				if (field.equalValues != null && field.equalValues.Count > 0)
+					filterDescriptions.Add(String.Format("{0}: {1}", field.equalValuesCaption, GetValuesFromSQL(field.GetEqualValuesSQL())));
+			}
 		}
 
 		protected string BuildSelect()

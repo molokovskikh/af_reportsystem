@@ -70,7 +70,7 @@ namespace Inforoom.ReportSystem.ByOffers
 		}
 	}
 
-	public class CostDynamic : BaseReport
+	public class CostDynamic : OrdersReport
 	{
 		private ulong[] regions;
 		private uint[] suppliers;
@@ -78,21 +78,14 @@ namespace Inforoom.ReportSystem.ByOffers
 		private DateTime someDate;
 		private CostDynamicSettings settings;
 
-		private string _ordersSchema = "Orders";
-
 		private MySqlCommand command;
 
 		public CostDynamic()
-		{
-		}
+		{}
 
 		public CostDynamic(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
-		{
-#if !DEBUG
-			_ordersSchema = "OrdersOld";
-#endif
-		}
+		{}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
@@ -103,7 +96,7 @@ namespace Inforoom.ReportSystem.ByOffers
 select oh.RegionCode
 from {0}.OrdersHead oh
 where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
-group by oh.RegionCode", _ordersSchema);
+group by oh.RegionCode", OrdersSchema);
 				command.Parameters.AddWithValue("begin", date);
 				command.Parameters.AddWithValue("end", date.AddDays(1));
 				var regionTable = new DataTable();
@@ -119,7 +112,7 @@ from {0}.OrdersHead oh
 join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
 and oh.RegionCode in ({1})
-group by pd.FirmCode", _ordersSchema, regions.Implode());
+group by pd.FirmCode", OrdersSchema, regions.Implode());
 				command.Parameters.Clear();
 				command.Parameters.AddWithValue("begin", date);
 				command.Parameters.AddWithValue("end", date.AddDays(1));
@@ -137,6 +130,8 @@ group by pd.FirmCode", _ordersSchema, regions.Implode());
 
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", date.ToShortDateString()));
 			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => Region.Find(r).Name).Implode()));
+			FillFilterDescriptions();
+			settings.Filters.AddRange(filterDescriptions);
 
 			var quantities = GetQuantities();
 
@@ -227,7 +222,7 @@ join Catalogs.Products p on p.Id = ol.ProductId
 join Catalogs.Catalog c on c.Id = p.CatalogId
 join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = ol.CodeFirmCr
 where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
-group by a.Id", _ordersSchema);
+group by a.Id", OrdersSchema);
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("begin", begin);
 			command.Parameters.AddWithValue("end", end);
@@ -286,9 +281,24 @@ group by a.Id", _ordersSchema);
 select sum(ol.Cost * ol.Quantity) as total
 from {1}.OrdersHead oh
 join {1}.OrdersList ol on oh.RowId = ol.OrderId
+  join catalogs.products p on p.Id = ol.ProductId
+  join catalogs.catalog c on c.Id = p.CatalogId
+  join catalogs.catalognames cn on cn.id = c.NameId
+  join catalogs.catalogforms cf on cf.Id = c.FormId
+  left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
+  left join future.Clients cl on cl.Id = oh.ClientCode
+  join farm.regions rg on rg.RegionCode = oh.RegionCode
+  join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
+  join future.suppliers prov on prov.Id = pd.FirmCode
+  join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
+  join future.addresses adr on oh.AddressId = adr.Id
+  join billing.LegalEntities le on adr.LegalEntityId = le.Id
+  join billing.payers on payers.PayerId = le.PayerId
 where writetime >= ?begin and writetime < ?end
 and oh.RegionCode in ({0})
-", regions.Implode(), _ordersSchema);
+", regions.Implode(), OrdersSchema);
+
+			command.CommandText = ApplyUserFilters(command.CommandText);
 
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("begin", date.Date);
@@ -307,12 +317,26 @@ and oh.RegionCode in ({0})
 			command.CommandText = String.Format(@"
 select sum(ol.Cost * ol.Quantity) as total, pd.FirmCode as SupplierId
 from {2}.OrdersHead oh
-join {2}.OrdersList ol on oh.RowId = ol.OrderId
-join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+  join {2}.OrdersList ol on oh.RowId = ol.OrderId
+  join catalogs.products p on p.Id = ol.ProductId
+  join catalogs.catalog c on c.Id = p.CatalogId
+  join catalogs.catalognames cn on cn.id = c.NameId
+  join catalogs.catalogforms cf on cf.Id = c.FormId
+  left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
+  left join future.Clients cl on cl.Id = oh.ClientCode
+  join farm.regions rg on rg.RegionCode = oh.RegionCode
+  join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
+  join future.suppliers prov on prov.Id = pd.FirmCode
+  join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
+  join future.addresses adr on oh.AddressId = adr.Id
+  join billing.LegalEntities le on adr.LegalEntityId = le.Id
+  join billing.payers on payers.PayerId = le.PayerId
 where writetime >= ?begin and writetime < ?end
 and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
-group by pd.FirmCode
-", suppliers.Implode(), regions.Implode(), _ordersSchema);
+", suppliers.Implode(), regions.Implode(), OrdersSchema);
+
+			command.CommandText = ApplyUserFilters(command.CommandText);
+			command.CommandText += "\r\ngroup by pd.FirmCode";
 
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("begin", date.Date);
@@ -481,6 +505,8 @@ and a.Date = ?date
 			someDate = (DateTime) getReportParam("someDate");
 			regions = ((List<ulong>) getReportParam("regions")).ToArray();
 			suppliers = ((List<ulong>) getReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
+
+			LoadFilters();
 		}
 
 		protected override ReportSettings.BaseReportSettings GetSettings()
