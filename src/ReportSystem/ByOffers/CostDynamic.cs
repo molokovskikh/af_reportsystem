@@ -142,7 +142,8 @@ group by pd.FirmCode", _ordersSchema, regions.Implode());
 
 			command.CommandText = String.Format(@"select Id, Name
 from Future.Suppliers
-where id in ({0})", suppliers.Implode());
+where id in ({0})
+order by Name", suppliers.Implode());
 			var supplierTable = new DataTable();
 			args.DataAdapter.Fill(supplierTable);
 
