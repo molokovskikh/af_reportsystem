@@ -161,6 +161,10 @@ and c0.Junk = 0
 					if (!rating.ContainsKey(offer.Id.RegionId))
 						continue;
 
+					//если цена слишком большая значит это какая то лажа и ее нужно игнорировать
+					if (CostThreshold > 0 && offer.Cost > CostThreshold)
+						continue;
+
 					var regionRating = rating[offer.Id.RegionId];
 					costs[offer.AssortmentId] = cost + offer.Cost*regionRating;
 #if DEBUG
@@ -179,6 +183,7 @@ and c0.Junk = 0
 
 		public uint DebugAssortmentId;
 		public uint DebugSupplierId;
+		public decimal CostThreshold;
 
 		public int Save(DateTime date, Hashtable hash)
 		{

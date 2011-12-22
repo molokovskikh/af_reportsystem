@@ -21,7 +21,9 @@ namespace Report.Data.Builder
 			Date = DateTime.Today.AddDays(-1);
 			var ratings = RatingCalculator.CaclucatedAndSave(Date.AddMonths(-1).FirstDayOfMonth());
 
-			var costCalculator = new CostCalculator();
+			var costCalculator = new CostCalculator {
+				CostThreshold = Config.CostThreshold
+			};
 			var offers = costCalculator.Offers(ratings, Config.ThreadCount);
 			var averageCosts = costCalculator.Calculate(offers);
 			log.DebugFormat("Начинаю сохранять средние цены");

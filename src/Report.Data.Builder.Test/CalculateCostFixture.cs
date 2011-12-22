@@ -81,5 +81,36 @@ namespace Report.Data.Builder.Test
 			Assert.That(costs.Count, Is.EqualTo(1));
 			Assert.That(costs[1u], Is.EqualTo(840m));
 		}
+
+		[Test]
+		public void Ignore_cost_greater_than_threshold()
+		{
+			calculator.CostThreshold = 90000;
+			var offerId = new OfferId(1, 1);
+			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+					new List<ClientRating> {
+						new ClientRating(2, 1, 0.5m),
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 100000)
+					}
+				),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+					new List<ClientRating> {
+						new ClientRating(3, 1, 0.7m)
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 800)
+					}
+				)
+			};
+
+			var averageCosts = calculator.Calculate(list);
+			Assert.That(averageCosts.Count, Is.EqualTo(1));
+			var costs = (Hashtable)averageCosts[offerId];
+			Assert.That(costs.Count, Is.EqualTo(1));
+			Assert.That(costs[1u], Is.EqualTo(560m));
+		}
 	}
 }
