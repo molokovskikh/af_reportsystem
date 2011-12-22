@@ -58,11 +58,16 @@ namespace ReportSystem.Test
 		[Test]
 		public void Format()
 		{
+			var settings = new CostDynamicSettings(1, "отчет") {
+				Regions = new ulong[] {1}
+			};
+			settings.Date = DateTime.Today;
+
 			var report = new CostDynamic();
 			var file = "CostDynamic.xls";
 			var writer = new CostDynamicWriter();
 
-			var results = report.CreateResultTable();
+			var results = report.CreateResultTable(settings.Dates);
 			var row = results.NewRow();
 			row["Name"] = "Протек";
 			row["CostDiff"] = 1.45;
@@ -70,10 +75,6 @@ namespace ReportSystem.Test
 			var data = new DataSet();
 			data.Tables.Add(results);
 
-			var settings = new CostDynamicSettings(1, "отчет") {
-				Regions = new ulong[] {1}
-			};
-			settings.Date = DateTime.Today;
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", settings.Date.ToShortDateString()));
 			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => Region.Find(r).Name).Implode()));
 

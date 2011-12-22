@@ -33,10 +33,9 @@ namespace Inforoom.ReportSystem.Writers
 				sheetRow.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
 
 				((Range)sheet.Cells[row + 1, 2]).Value2 = settings.Date.ToShortDateString();
-				ExcelHelper.Merge(sheet, row, 2, 2, settings.DateGroupLabel());
-				ExcelHelper.Merge(sheet, row, 4, 2, settings.PrevMonthLabel());
-				ExcelHelper.Merge(sheet, row, 6, 2, settings.PrevWeekLabel());
-				ExcelHelper.Merge(sheet, row, 8, 2, settings.PrevDayLabel());
+				for(var i = 0; i < settings.Dates.Count; i++)
+					ExcelHelper.Merge(sheet, row, (i + 1)*2, 2, settings.Dates[i].Label);
+
 				row++;
 				MakeHeder(row, sheet, 45);
 

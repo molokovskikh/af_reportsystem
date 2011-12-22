@@ -13,6 +13,7 @@ using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.ByOffers
 {
+
 	public class CostDynamicSettings : ReportSettings.BaseReportSettings
 	{
 		private DateTime _date;
@@ -35,6 +36,31 @@ namespace Inforoom.ReportSystem.ByOffers
 				PrevMonth = _date.FirstDayOfMonth();
 				if (PrevMonth == Date)
 					PrevMonth = PrevMonth.AddMonths(-1);
+
+				SameDayOnPastWeek = _date.AddDays(-7);
+
+				Dates = new List<ColumnGroupDescription> {
+
+					new ColumnGroupDescription(SomeDate,
+						"SomeDate",
+						String.Format("Относительно {0:d MMMM yyyy}", SomeDate)),
+
+					new ColumnGroupDescription(PrevMonth,
+						"PrevMonth",
+						String.Format("Относительно 1-го числа ({0})", PrevMonth.ToShortDateString())),
+
+					new ColumnGroupDescription(SameDayOnPastWeek,
+						"SameDayOnPastWeek",
+						String.Format("Относительно того же дня недели прошедшей недели ({0})", SameDayOnPastWeek.ToShortDateString())),
+
+					new ColumnGroupDescription(PrevWeek,
+						"PrevWeek",
+						String.Format("Относительно предыдущего понедельника ({0})", PrevWeek.ToShortDateString())),
+
+					new ColumnGroupDescription(PrevDay,
+						"PrevDay",
+						String.Format("Относительно предыдущего дня ({0})", PrevDay.ToShortDateString())),
+				};
 			}
 		}
 
@@ -42,31 +68,39 @@ namespace Inforoom.ReportSystem.ByOffers
 		public DateTime PrevMonth;
 		public DateTime PrevWeek;
 		public DateTime PrevDay;
+		public DateTime SameDayOnPastWeek;
 
 		public List<string> Filters = new List<string>();
+		public List<ColumnGroupDescription> Dates;
 
 		public CostDynamicSettings(ulong reportCode, string reportCaption)
 			: base(reportCode, reportCaption)
 		{}
+	}
 
-		public string DateGroupLabel()
+	public class ColumnGroupDescription
+	{
+		public DateTime Date;
+		public string Name;
+		public string Label;
+
+		public ColumnGroupDescription(DateTime date, string name, string label)
 		{
-			return String.Format("Относительно {0:d MMMM yyyy}", SomeDate);
+			Date = date;
+			Name = name;
+			Label = label;
 		}
+	}
 
-		public string PrevMonthLabel()
-		{
-			return String.Format("Относительно 1-го числа ({0})", PrevMonth.ToShortDateString());
-		}
+	public class OrdersOnDate
+	{
+		public DataTable SupplierMarketShares;
+		public decimal MarketTotal;
 
-		public string PrevWeekLabel()
+		public OrdersOnDate(DataTable supplierMarketShares, decimal marketTotal)
 		{
-			return String.Format("Относительно предыдущего понедельника ({0})", PrevWeek.ToShortDateString());
-		}
-
-		public string PrevDayLabel()
-		{
-			return String.Format("Относительно предыдущего дня ({0})", PrevDay.ToShortDateString());
+			SupplierMarketShares = supplierMarketShares;
+			MarketTotal = marketTotal;
 		}
 	}
 
@@ -124,8 +158,8 @@ group by pd.FirmCode", OrdersSchema, regions.Implode());
 			settings = new CostDynamicSettings(_reportCode, _reportCaption) {
 				Regions = regions,
 				Suppliers = suppliers,
+				SomeDate = someDate,
 				Date = date,
-				SomeDate = someDate
 			};
 
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", date.ToShortDateString()));
@@ -137,13 +171,11 @@ group by pd.FirmCode", OrdersSchema, regions.Implode());
 
 			command.CommandText = String.Format(@"select Id, Name
 from Future.Suppliers
-where id in ({0})
-order by Name", suppliers.Implode());
+where id in ({0})", suppliers.Implode());
 			var supplierTable = new DataTable();
 			args.DataAdapter.Fill(supplierTable);
 
-			var results = CreateResultTable();
-			_dsReport.Tables.Add(results);
+			var results = CreateResultTable(settings.Dates);
 
 			foreach (DataRow supplier in supplierTable.Rows)
 			{
@@ -153,27 +185,17 @@ order by Name", suppliers.Implode());
 				results.Rows.Add(row);
 			}
 
-			var dateMap = new Dictionary<string, DateTime> {
-				{"CostDiff", settings.SomeDate},
-				{"PrevMonthCostDiff", settings.PrevMonth},
-				{"PrevWeekCostDiff", settings.PrevWeek},
-				{"PrevDayCostDiff", settings.PrevDay}
-			};
-
 			var baseOrderTotals = GetMarketShare(suppliers, regions, date);
 			var marketTotalOnCurrentDate = GetMarketValue(regions, date);
 
-			var someDayOrderTotals = GetMarketShare(suppliers, regions, settings.SomeDate);
-			var marketTotalOnSomeDate = GetMarketValue(regions, settings.SomeDate);
+			var marketSharesOnDate = new Dictionary<string, OrdersOnDate>();
 
-			var prevDayOrderTotals = GetMarketShare(suppliers, regions, settings.PrevDay);
-			var marketTotalOnPrevDate = GetMarketValue(regions, settings.PrevDay);
-
-			var prevWeekOrderTotals = GetMarketShare(suppliers, regions, settings.PrevWeek);
-			var marketTotalOnPrevWeek = GetMarketValue(regions, settings.PrevWeek);
-
-			var prevMonthOrder = GetMarketShare(suppliers, regions, settings.PrevMonth);
-			var marketTotalOnPrevMonth = GetMarketValue(regions, settings.PrevMonth);
+			foreach (var dateColumn in settings.Dates)
+			{
+				var supplierMarketShares = GetMarketShare(suppliers, regions, dateColumn.Date);
+				var marketTotal = GetMarketValue(regions, dateColumn.Date);
+				marketSharesOnDate.Add(dateColumn.Name, new OrdersOnDate(supplierMarketShares, marketTotal));
+			}
 
 			foreach (var supplier in suppliers)
 			{
@@ -183,19 +205,26 @@ order by Name", suppliers.Implode());
 
 				var marketShare = SaveInPercentOf(baseTotal, marketTotalOnCurrentDate);
 				row.SetField("MarketShare", marketShare);
-				row.SetField("MarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnSomeDate, someDayOrderTotals, supplier));
-				row.SetField("PrevDayMarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnPrevDate, prevDayOrderTotals, supplier));
-				row.SetField("PrevWeekMarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnPrevWeek, prevWeekOrderTotals, supplier));
-				row.SetField("PrevMonthMarketShareDiff", marketShare - CalculateShareDiff(marketTotalOnPrevMonth, prevMonthOrder, supplier));
 
-				foreach (var dateToColumn in dateMap)
+				foreach (var dateToColumn in settings.Dates)
 				{
-					var currentDate = dateToColumn.Value;
+					var column = dateToColumn.Name + "MarketShareDiff";
+					var currentDate = dateToColumn.Date;
+
+					var supplierMarketShares = marketSharesOnDate[dateToColumn.Name].SupplierMarketShares;
+					var marketTotal = marketSharesOnDate[dateToColumn.Name].MarketTotal;
+					row.SetField(column, marketShare - CalculateShareDiff(marketTotal, supplierMarketShares, supplier));
+
 					var baseCostIndex = regions.Sum(r => CalculateCostIndex(date, currentDate, supplier, r, quantities));
 					var currentCostIndex = regions.Sum(r => CalculateCostIndex(currentDate, date, supplier, r, quantities));
-					row.SetField(dateToColumn.Key, SaveInPercentOf(baseCostIndex, currentCostIndex) - 1);
+					var columnName = dateToColumn.Name + "CostIndex";
+					row.SetField(columnName, SaveInPercentOf(baseCostIndex, currentCostIndex) - 1);
 				}
 			}
+
+			results.DefaultView.Sort = "MarketShare ASC";
+			results = results.DefaultView.ToTable();
+			_dsReport.Tables.Add(results);
 
 			var resultRow = results.NewRow();
 			resultRow["Name"] = "Суммарно по мониторируемым компаниям:";
@@ -345,75 +374,6 @@ and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
 			args.DataAdapter.Fill(table);
 			return table;
 		}
-		//оптимизированный способ выборки попробуем пока без него
-/*		public struct CostIndexKey
-		{
-			public DateTime Date;
-			public ulong RegionId;
-			public uint SupplierId;
-
-			public CostIndexKey(DateTime date, ulong regionId, uint supplierId)
-			{
-				Date = date;
-				RegionId = regionId;
-				SupplierId = supplierId;
-			}
-		}
-
-		public struct AssortmentKey
-		{
-			public uint SupplierId;
-			public ulong RegionId;
-
-			public AssortmentKey(uint supplierId, ulong regionId)
-			{
-				SupplierId = supplierId;
-				RegionId = regionId;
-			}
-		}
-
-		public Hashtable c(DateTime[] dates, Hashtable assortments)
-		{
-			Hashtable quantities = null;
-			Hashtable results = null;
-			var command = args.DataAdapter.SelectCommand;
-			command.CommandText = String.Format(@"
-select Date, RegionId, SupplierId, AssortmentId, Cost
-from Reports.AverageCosts
-where SupplierId = ({1})
-and RegionId in ({0})
-and Date in ({2})
-", suppliers.Implode(), regions.Implode(), dates.Implode(d => "'" + d.ToString("yyyy-MM-dd") + "'"));
-
-			using(var reader = command.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					var assortmentId = reader.GetUInt32("AssortmentId");
-					var cost = reader.GetDecimal("Cost");
-					var quantity = (decimal)quantities[assortmentId];
-
-					var regionId = reader.GetUInt64("RegionId");
-					var supplierId = reader.GetUInt32("SupplierId");
-					var key = new CostIndexKey(reader.GetDateTime("Date"),
-						regionId,
-						supplierId);
-
-					var availableAssortment = (HashSet<uint>)assortments[new AssortmentKey(supplierId, regionId)];
-					if (!availableAssortment.Contains(assortmentId))
-						continue;
-
-					decimal result = 0;
-					var resultValue = results[key];
-					if (resultValue != null)
-						result = (decimal)resultValue;
-
-					result += cost*quantity;
-
-					results[key] = result;
-				}
-			}
-		}*/
 
 		public decimal CalculateCostIndex(DateTime date, DateTime toDate, uint supplierId, ulong regionId, Hashtable quantities)
 		{
@@ -445,7 +405,7 @@ and a.Date = ?date
 			return result;
 		}
 
-		public DataTable CreateResultTable()
+		public DataTable CreateResultTable(List<ColumnGroupDescription> dates)
 		{
 			var results = new DataTable("Results");
 			var column = results.Columns.Add("Id", typeof (uint));
@@ -458,37 +418,16 @@ and a.Date = ?date
 			column.Caption = "Текущая доля рынка";
 			column.ExtendedProperties.Add("Width", 13);
 
-			column = results.Columns.Add("MarketShareDiff", typeof (decimal));
-			column.Caption = "Прирост доли";
-			column.ExtendedProperties.Add("Width", 13);
+			foreach(var date in dates)
+			{
+				column = results.Columns.Add(date.Name + "MarketShareDiff", typeof (decimal));
+				column.Caption = "Прирост доли";
+				column.ExtendedProperties.Add("Width", 13);
 
-			column = results.Columns.Add("CostDiff", typeof (decimal));
-			column.Caption = "Изменение индекса цен ΔP";
-			column.ExtendedProperties.Add("Width", 13);
-
-			column = results.Columns.Add("PrevMonthMarketShareDiff", typeof (decimal));
-			column.Caption = "Прирост доли";
-			column.ExtendedProperties.Add("Width", 13);
-
-			column = results.Columns.Add("PrevMonthCostDiff", typeof (decimal));
-			column.Caption = "Изменение индекса цен ΔP";
-			column.ExtendedProperties.Add("Width", 13);
-
-			column = results.Columns.Add("PrevWeekMarketShareDiff", typeof (decimal));
-			column.Caption = "Прирост доли";
-			column.ExtendedProperties.Add("Width", 13);
-
-			column = results.Columns.Add("PrevWeekCostDiff", typeof (decimal));
-			column.Caption = "Изменение индекса цен ΔP";
-			column.ExtendedProperties.Add("Width", 13);
-
-			column = results.Columns.Add("PrevDayMarketShareDiff", typeof (decimal));
-			column.Caption = "Прирост доли";
-			column.ExtendedProperties.Add("Width", 13);
-
-			column = results.Columns.Add("PrevDayCostDiff", typeof (decimal));
-			column.Caption = "Изменение индекса цен ΔP";
-			column.ExtendedProperties.Add("Width", 13);
+				column = results.Columns.Add(date.Name + "CostIndex", typeof (decimal));
+				column.Caption = "Изменение индекса цен ΔP";
+				column.ExtendedProperties.Add("Width", 13);
+			}
 
 			return results;
 		}
