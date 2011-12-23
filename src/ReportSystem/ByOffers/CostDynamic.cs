@@ -222,7 +222,7 @@ where id in ({0})", suppliers.Implode());
 				}
 			}
 
-			results.DefaultView.Sort = "MarketShare ASC";
+			results.DefaultView.Sort = "MarketShare DESC";
 			results = results.DefaultView.ToTable();
 			_dsReport.Tables.Add(results);
 
