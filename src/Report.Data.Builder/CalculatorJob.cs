@@ -18,7 +18,7 @@ namespace Report.Data.Builder
 
 		public void Work()
 		{
-			Date = DateTime.Today.AddDays(-1);
+			Date = DateTime.Today;
 			var ratings = RatingCalculator.CaclucatedAndSave(Date.AddMonths(-1).FirstDayOfMonth());
 
 			var costCalculator = new CostCalculator {
