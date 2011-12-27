@@ -56,6 +56,14 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void Sunday_date()
+		{
+			var settings = new CostDynamicSettings(1, "");
+			settings.Date = new DateTime(2011, 12, 25);
+			Assert.That(settings.PrevWeek, Is.EqualTo(new DateTime(2011, 12, 19)));
+		}
+
+		[Test]
 		public void Format()
 		{
 			var settings = new CostDynamicSettings(1, "отчет") {

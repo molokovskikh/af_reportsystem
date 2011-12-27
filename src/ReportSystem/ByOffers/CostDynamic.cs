@@ -28,7 +28,11 @@ namespace Inforoom.ReportSystem.ByOffers
 			{
 				_date = value;
 				PrevDay = _date.AddDays(-1);
-				PrevWeek = _date.AddDays(-(_date.DayOfWeek - DayOfWeek.Monday));
+				var dayOfWeek = (int)_date.DayOfWeek;
+				//у американцев неделя начинается с воскресенья
+				if (dayOfWeek == 0)
+					dayOfWeek = 7;
+				PrevWeek = _date.AddDays(-(dayOfWeek - (int)DayOfWeek.Monday));
 
 				if (PrevWeek == Date)
 					PrevWeek = PrevWeek.AddDays(-7);
@@ -226,13 +230,24 @@ where id in ({0})", suppliers.Implode());
 			results = results.DefaultView.ToTable();
 			_dsReport.Tables.Add(results);
 
+			var orderColums = results.Columns.Cast<DataColumn>().Where(c => c.ColumnName.Contains("MarketShare"));
+			BuildAggregateRow(results, "Суммарно по мониторируемым компаниям:",
+				Enumerable.Sum, orderColums);
+			var costIndexColumns = results.Columns.Cast<DataColumn>().Where(c => c.ColumnName.Contains("CostIndex"));
+			BuildAggregateRow(results, "Среднее по мониторируемым компаниям:",
+				Enumerable.Average,costIndexColumns);
+		}
+
+		private static void BuildAggregateRow(DataTable results, string name, Func<IEnumerable<decimal>, decimal> aggregate, IEnumerable<DataColumn> columns)
+		{
 			var resultRow = results.NewRow();
-			resultRow["Name"] = "Суммарно по мониторируемым компаниям:";
-			foreach (var column in results.Columns.Cast<DataColumn>().Where(c => c.DataType == typeof(decimal)))
+			resultRow["Name"] = name;
+			foreach (var column in columns.Where(c => c.DataType == typeof (decimal)))
 			{
-				resultRow[column] = results.AsEnumerable()
+				var values = results.AsEnumerable()
 					.Where(r => r[column] != DBNull.Value)
-					.Sum(r => Convert.ToDecimal(r[column]));
+					.Select(r => Convert.ToDecimal(r[column]));
+				resultRow[column] = aggregate(values);
 			}
 			results.Rows.Add(resultRow);
 		}
