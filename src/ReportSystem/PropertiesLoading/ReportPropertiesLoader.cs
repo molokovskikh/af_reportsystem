@@ -13,7 +13,6 @@ namespace Inforoom.ReportSystem
 	{
 		private ulong _reportCode;
 
-
 		private void SaveSettingsToFileAndThrowException(DataSet result)
 		{
 			int i = 1;
@@ -23,20 +22,16 @@ namespace Inforoom.ReportSystem
 			throw new ReportException("Сервисная ошибка. Для тестовой остановки."); 
 		}
 
-		public DataSet LoadProperties(MySqlConnection conn, ulong ReportCode)
+		public DataSet LoadProperties(MySqlConnection conn, ulong reportCode)
 		{
-			_reportCode = ReportCode;
-			var result = MethodTemplate.ExecuteMethod<ExecuteArgs, DataSet>(new ExecuteArgs(), GetReportProperties, null, conn);
-#if DEBUG
-			// Раскомитить если нужно получить xml файлы для тестов
-			//SaveSettingsToFileAndThrowException(result); 
-#endif 
+			_reportCode = reportCode;
+			var result = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReportProperties, null, conn);
 			return result;
 		}
 
 		private DataSet GetReportProperties(ExecuteArgs e)
 		{
-			DataSet ds = new DataSet();
+			var ds = new DataSet();
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select

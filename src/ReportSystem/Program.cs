@@ -14,7 +14,7 @@ using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem
 {
-	class Program
+	public class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
 		public static GeneralReport generalReport { get; private set; }
@@ -28,7 +28,7 @@ namespace Inforoom.ReportSystem
 		}
 
 		[STAThread]
-		static void Main(string[] args)
+		public static void Main(string[] args)
 		{
 			int generalReportId = 0;
 			try
@@ -103,9 +103,9 @@ and cr.generalreportcode = " + generalReportId;
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
 										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString());
 									generalReport = gr;
-									_log.DebugFormat("Запуск отчета {0}", gr._generalReportID);
+									_log.DebugFormat("Запуск отчета {0}", gr.GeneralReportID);
 									gr.ProcessReports();
-									_log.DebugFormat("Отчет {0} выполнился успешно", gr._generalReportID);
+									_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
 								}
 								catch (Exception ex)
 								{
@@ -140,7 +140,7 @@ and cr.generalreportcode = " + generalReportId;
 		}
 
 		//Аргументы для выбора отчетов из базы
-		internal class ReportsExecuteArgs : ExecuteArgs
+		public class ReportsExecuteArgs : ExecuteArgs
 		{
 			internal string SQL;
 

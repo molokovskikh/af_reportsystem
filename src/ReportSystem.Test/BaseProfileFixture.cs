@@ -47,34 +47,39 @@ namespace ReportSystem.Test
 			ProfileHelper.End();
 		}
 
-		public void Property(string name, object value)
+		public void Property(string name, object value, string type = null)
 		{
 			var row = properties.Tables[0].NewRow();
 			row["ID"] = i;
 			row["PropertyName"] = name;
 			row["PropertyValue"] = value;
 			if (value is int)
-				row["PropertyType"] = "INT";
-            else if (value is bool)
-                row["PropertyType"] = "BOOL";
-            else if (value is DateTime)
-            {
-                row["PropertyType"] = "DATETIME";
-                row["PropertyValue"] = ((DateTime)value).ToString("yyyy-MM-dd");
-            }
-            else if (value is IEnumerable)
-            {
-                row["PropertyValue"] = null;
-                row["PropertyType"] = "LIST";
-                var table = properties.Tables["ReportPropertyValues"];
-                foreach (var item in (IEnumerable)value)
-                {
-                    var valueRow = table.NewRow();
-                    valueRow["ReportPropertyID"] = i;
-                    valueRow["Value"] = item;
-                    table.Rows.Add(valueRow);
-                }
-            }
+				type = "INT";
+			else if (value is bool)
+				type = "BOOL";
+			else if (value is DateTime)
+			{
+				type = "DATETIME";
+				row["PropertyValue"] = ((DateTime)value).ToString("yyyy-MM-dd");
+			}
+			if (value is string)
+			{
+				type = "STRING";
+			}
+			else if (value is IEnumerable)
+			{
+				row["PropertyValue"] = null;
+				type = "LIST";
+				var table = properties.Tables["ReportPropertyValues"];
+				foreach (var item in (IEnumerable)value)
+				{
+					var valueRow = table.NewRow();
+					valueRow["ReportPropertyID"] = i;
+					valueRow["Value"] = item;
+					table.Rows.Add(valueRow);
+				}
+			}
+			row["PropertyType"] = type;
 			i++;
 			properties.Tables[0].Rows.Add(row);
 		}

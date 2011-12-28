@@ -7,6 +7,7 @@ using Common.Tools;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
+using Inforoom.ReportSystem.Properties;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
 using log4net;
@@ -72,6 +73,7 @@ namespace Inforoom.ReportSystem
 		protected MySqlConnection _conn;
 
 		protected Dictionary<string, object> _reportParams;
+		private Dictionary<string, uint> _reportParamsIds = new Dictionary<string, uint>();
 
 		protected ExecuteArgs args;
 
@@ -83,12 +85,18 @@ namespace Inforoom.ReportSystem
 
 		public ulong ReportCode { get; protected set; }
 		public ulong ReportCaption { get; protected set; }
+		
+		public virtual bool DbfSupported { get; set; }
+
+		public Dictionary<string, string> AdditionalFiles { get; private set; }
 
 		protected BaseReport() // конструктор для возможности тестирования
-		{}
+		{
+			AdditionalFiles = new Dictionary<string, string>();
+		}
 
-		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, 
-			ReportFormats format, DataSet dsProperties)
+		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+			: this()
 		{
 			Logger = LogManager.GetLogger(GetType());
 			_reportParams = new Dictionary<string, object>();
@@ -99,17 +107,18 @@ namespace Inforoom.ReportSystem
 			_conn = Conn;
 
 			_parentIsTemporary = Temporary;
-            
+
 			dtReportProperties = dsProperties.Tables["ReportProperties"];
 			dtReportPropertyValues = dsProperties.Tables["ReportPropertyValues"];
 
 			foreach (DataRow drProperty in dtReportProperties.Rows)
 			{
-				string currentPropertyName = drProperty[BaseReportColumns.colPropertyName].ToString();
+				var currentPropertyName = drProperty[BaseReportColumns.colPropertyName].ToString();
 
 				if (!_reportParams.ContainsKey(currentPropertyName))
 				{
-					switch (drProperty[BaseReportColumns.colPropertyType].ToString())					
+					_reportParamsIds.Add(currentPropertyName, Convert.ToUInt32(drProperty[BaseReportColumns.colPropertyID]));
+					switch (drProperty[BaseReportColumns.colPropertyType].ToString())
 					{ 
 						case "BOOL":
 							try
@@ -118,16 +127,15 @@ namespace Inforoom.ReportSystem
 							}
 							catch (Exception ex)
 							{
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}", 
-									drProperty[BaseReportColumns.colPropertyType].ToString(),
-									drProperty[BaseReportColumns.colPropertyValue].ToString(),
-									ex.Message), ex);
+								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.", 
+									drProperty[BaseReportColumns.colPropertyType],
+									drProperty[BaseReportColumns.colPropertyValue]), ex);
 							}
 							break;
 
 						case "LIST":
-							List<ulong> listValues = new List<ulong>();
-							DataRow[] drValues = dtReportPropertyValues.Select(BaseReportColumns.colReportPropertyID + "=" + drProperty[BaseReportColumns.colPropertyID].ToString());
+							var listValues = new List<ulong>();
+							var drValues = dtReportPropertyValues.Select(BaseReportColumns.colReportPropertyID + "=" + drProperty[BaseReportColumns.colPropertyID].ToString());
 							foreach (DataRow drValue in drValues)
 							{
 								try
@@ -136,17 +144,16 @@ namespace Inforoom.ReportSystem
 								}
 								catch (Exception ex)
 								{
-									throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
-										drProperty[BaseReportColumns.colPropertyType].ToString(),
-										drValue[BaseReportColumns.colReportPropertyValue].ToString(),
-										ex.Message), ex);
+									throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
+										drProperty[BaseReportColumns.colPropertyType],
+										drValue[BaseReportColumns.colReportPropertyValue]), ex);
 								}
 							}
 							_reportParams.Add(currentPropertyName, listValues);
 							break;
 
 						case "STRING":
-							_reportParams.Add(currentPropertyName, Convert.ToBoolean(drProperty[BaseReportColumns.colPropertyValue].ToString()));
+							_reportParams.Add(currentPropertyName, drProperty[BaseReportColumns.colPropertyValue].ToString());
 							break;
 
 						case "DATETIME":
@@ -159,10 +166,9 @@ namespace Inforoom.ReportSystem
 							}
 							catch (Exception ex)
 							{
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
-									drProperty[BaseReportColumns.colPropertyType].ToString(),
-									drProperty[BaseReportColumns.colPropertyValue].ToString(),
-									ex.Message), ex);
+								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
+									drProperty[BaseReportColumns.colPropertyType],
+									drProperty[BaseReportColumns.colPropertyValue]), ex);
 							}
 							break;
 
@@ -176,10 +182,9 @@ namespace Inforoom.ReportSystem
 							}
 							catch (Exception ex)
 							{
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'. Ошибка : {2}",
-									drProperty[BaseReportColumns.colPropertyType].ToString(),
-									drProperty[BaseReportColumns.colPropertyValue].ToString(),
-									ex.Message), ex);
+								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
+									drProperty[BaseReportColumns.colPropertyType],
+									drProperty[BaseReportColumns.colPropertyValue]), ex);
 							}
 							break;
 
@@ -243,8 +248,6 @@ namespace Inforoom.ReportSystem
 		protected virtual void FormatExcel(string fileName)
 		{}
 
-		public virtual bool DbfSupported { get; set; }
-
 		protected virtual void DataTableToDbf(DataTable dtExport, string fileName)
 		{
 			using(var writer = new StreamWriter(fileName, false, Encoding.GetEncoding(866)))
@@ -256,7 +259,7 @@ namespace Inforoom.ReportSystem
 			return _dsReport.Tables["Results"];
 		}
 
-		internal object getReportParam(string ParamName)
+		public object getReportParam(string ParamName)
 		{
 			if (_reportParams.ContainsKey(ParamName))
 				return _reportParams[ParamName];
@@ -264,7 +267,7 @@ namespace Inforoom.ReportSystem
 				throw new ReportException(String.Format("Параметр '{0}' не найден.", ParamName));
 		}
 
-		internal bool reportParamExists(string ParamName)
+		public bool reportParamExists(string ParamName)
 		{
 			return _reportParams.ContainsKey(ParamName);
 		}
@@ -365,6 +368,20 @@ order by 1", filterStr);
 		{
 			_dtStop = DateTime.Now;
 			ReportResultLog.Log(generalReportCode, _reportCode, _dtStart, _dtStop, errDesc);
+		}
+
+		protected void LoadAdditionFiles()
+		{
+			var name = "DescriptionFile";
+			if (reportParamExists(name))
+			{
+				var file = (string)getReportParam(name);
+				if (!String.IsNullOrEmpty(file))
+				{
+					var sourceFile = Path.Combine(Settings.Default.SavedFilesPath, _reportParamsIds[name].ToString());
+					AdditionalFiles.Add(file, sourceFile);
+				}
+			}
 		}
 	}
 }

@@ -9,6 +9,6 @@ namespace Inforoom.ReportSystem
 {
 	public interface IReportPropertiesLoader
 	{
-		DataSet LoadProperties(MySqlConnection conn, ulong ReportCode);
+		DataSet LoadProperties(MySqlConnection conn, ulong reportCode);
 	}
 }

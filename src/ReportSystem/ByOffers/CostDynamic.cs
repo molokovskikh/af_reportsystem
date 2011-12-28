@@ -460,6 +460,7 @@ and a.Date = ?date
 			regions = ((List<ulong>) getReportParam("regions")).ToArray();
 			suppliers = ((List<ulong>) getReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
 
+			LoadAdditionFiles();
 			LoadFilters();
 		}
 

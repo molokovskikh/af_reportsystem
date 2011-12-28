@@ -17,5 +17,8 @@
     <Setting Name="ErrorReportMail" Type="System.String" Scope="Application">
       <Value Profile="(Default)">kvasovtest@analit.net</Value>
     </Setting>
+    <Setting Name="SavedFilesPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

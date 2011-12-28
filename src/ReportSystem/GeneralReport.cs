@@ -34,10 +34,8 @@ namespace Inforoom.ReportSystem
 	/// </summary>
 	public class GeneralReport
 	{
-		public ulong _generalReportID;
+		public ulong GeneralReportID;
 		public int _firmCode;
-
-
 
 		private uint? _contactGroupId;
 		private string _eMailSubject;
@@ -65,7 +63,7 @@ namespace Inforoom.ReportSystem
 		//таблица контактов, по которым надо отправить отчет
 		DataTable _dtContacts;
 
-		protected List<BaseReport> _reports;
+		public List<BaseReport> Reports = new List<BaseReport>();
 
 		// Проверка спика отчетов
 		private void CheckReports()
@@ -81,21 +79,20 @@ namespace Inforoom.ReportSystem
 					{
 						throw new ReportException(
 							String.Format("В отчете {0} содержатся листы с одинаковым названием {1}.",
-								_generalReportID, drGReport1[BaseReportColumns.colReportCaption]));
+								GeneralReportID, drGReport1[BaseReportColumns.colReportCaption]));
 					}
 		}
 
-		protected GeneralReport() // конструктор для возможности тестирования
+		public GeneralReport() // конструктор для возможности тестирования
 		{}
 
-		public GeneralReport(ulong GeneralReportID, int FirmCode, uint? ContactGroupId, 
+		public GeneralReport(ulong id, int FirmCode, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
 			string ReportArchName, bool Temporary, ReportFormats format,
 			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo, string payer)
 		{
 			Logger = LogManager.GetLogger(GetType());
-			_reports = new List<BaseReport>();
-			_generalReportID = GeneralReportID;
+			GeneralReportID = id;
 			_firmCode = FirmCode;
 			_conn = Conn;
 			_contactGroupId = ContactGroupId;
@@ -106,7 +103,7 @@ namespace Inforoom.ReportSystem
 			_payer = payer;
 			Format = format;
 
-			bool addContacts = false;
+			var addContacts = false;
 			ulong contactsCode = 0;
 
 			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
@@ -148,7 +145,7 @@ and c.Type = ?ContactType";
 				args.DataAdapter.SelectCommand.CommandText = @"
 select Mail FROM reports.Mailing_Addresses M
 where GeneralReport = ?GeneralReport;";
-				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReport", _generalReportID);
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReport", this.GeneralReportID);
 				var res = new DataTable();
 				args.DataAdapter.Fill(res);
 				return res;
@@ -171,7 +168,7 @@ where GeneralReport = ?GeneralReport;";
 						bs._Interval = Interval;
 						bs._dtFrom = dtFrom;
 						bs._dtTo = dtTo;
-						_reports.Add(bs);
+						Reports.Add(bs);
 
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
 						if (String.IsNullOrEmpty(_eMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
@@ -191,52 +188,17 @@ where GeneralReport = ?GeneralReport;";
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
 
 			if (addContacts && Format == ReportFormats.Excel)
-				_reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, Format, propertiesLoader.LoadProperties(_conn, contactsCode)));
+				Reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, Format, propertiesLoader.LoadProperties(_conn, contactsCode)));
 		}
 
 		//Производится построение отчетов
 		public void ProcessReports()
 		{
-			_directoryName = Path.GetTempPath() + "Rep" + _generalReportID.ToString();
-			if (Directory.Exists(_directoryName))
-				Directory.Delete(_directoryName, true);
-			Directory.CreateDirectory(_directoryName);
+			var resFileName = BuildResultFile();
 
-			_mainFileName = _directoryName + "\\" + ((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + _generalReportID.ToString() + ".xls") : _reportFileName);
-
-			bool emptyReport = true;
-			while (_reports.Count > 0)
-			{
-				BaseReport bs = _reports.First();
-				try
-				{
-					_reports.Remove(bs);
-					bs.ReadReportParams();
-					bs.ProcessReport();
-					bs.ReportToFile(_mainFileName);					
-					bs.ToLog(_generalReportID); // логируем успешное выполнение отчета					
-					emptyReport = false;
-				}
-				catch(Exception ex)
-				{
-					bs.ToLog(_generalReportID, ex.ToString()); // логируем ошибку при выполнении отчета
-					if(ex is ReportException)
-					{		
-						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), _payer, _generalReportID, bs.ReportCode);
-						continue; // выполняем следующий отчет
-					}
-					throw; // передаем наверх
-				}
-			}
-
-			if(emptyReport) throw new ReportException("Отчет пуст.");
-
-			string ResFileName = ArchFile();
-			
 
 #if (TESTING)
-			MailWithAttach(ResFileName, Settings.Default.ErrorReportMail);
+			MailWithAttach(resFileName, Settings.Default.ErrorReportMail);
 #else
 			if ((_dtContacts != null) && (_dtContacts.Rows.Count > 0))
 				foreach (DataRow drContact in _dtContacts.Rows)
@@ -254,6 +216,54 @@ where GeneralReport = ?GeneralReport;";
 
 			if (Directory.Exists(_directoryName))
 				Directory.Delete(_directoryName, true);
+		}
+
+		public string BuildResultFile()
+		{
+			_directoryName = Path.GetTempPath() + "Rep" + GeneralReportID.ToString();
+			if (Directory.Exists(_directoryName))
+				Directory.Delete(_directoryName, true);
+			Directory.CreateDirectory(_directoryName);
+
+			_mainFileName = _directoryName + "\\" +
+				((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + GeneralReportID.ToString() + ".xls") : _reportFileName);
+
+			bool emptyReport = true;
+			while (Reports.Count > 0)
+			{
+				var bs = Reports.First();
+				try
+				{
+					Reports.Remove(bs);
+					bs.ReadReportParams();
+					bs.ProcessReport();
+					bs.ReportToFile(_mainFileName);
+					bs.ToLog(GeneralReportID); // логируем успешное выполнение отчета
+					emptyReport = false;
+					foreach (var file in bs.AdditionalFiles.Keys)
+					{
+						var source = bs.AdditionalFiles[file];
+						if (File.Exists(source))
+							File.Copy(source, Path.Combine(_directoryName, file), true);
+					}
+				}
+				catch (Exception ex)
+				{
+					bs.ToLog(GeneralReportID, ex.ToString()); // логируем ошибку при выполнении отчета
+					if (ex is ReportException)
+					{
+						// уведомление об ошибке при формировании одного из подотчетов
+						Mailer.MailReportErr(ex.ToString(), _payer, GeneralReportID, bs.ReportCode);
+						continue; // выполняем следующий отчет
+					}
+					throw; // передаем наверх
+				}
+			}
+
+			if (emptyReport) throw new ReportException("Отчет пуст.");
+
+			var resFileName = ArchFile();
+			return resFileName;
 		}
 
 		private void MailWithAttach(string archFileName, string EMailAddress)
@@ -308,7 +318,7 @@ where GeneralReport = ?GeneralReport;";
 			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs 
 (LogTime, GeneralReportCode, SMTPID, MessageID, EMail) 
 values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", _generalReportID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", GeneralReportID);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SMTPID", e.SmtpID);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?MessageID", e.MessageID);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?EMail", e.EMail);
@@ -340,8 +350,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			}
 			catch(Exception ex)
 			{
-				Logger.ErrorFormat("Message: {0}, Stack: {1}", ex.Message, ex.StackTrace);
-				Logger.Error("Exception:", ex);                
+				Logger.Error("Ошибка при копировании архива с отчетом", ex);
 			}
 			return archive;
 		}
@@ -359,7 +368,7 @@ where
 	r.{0} = ?{0}
 and rt.ReportTypeCode = r.ReportTypeCode", 
 				 GeneralReportColumns.GeneralReportCode);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + GeneralReportColumns.GeneralReportCode, _generalReportID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + GeneralReportColumns.GeneralReportCode, GeneralReportID);
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;

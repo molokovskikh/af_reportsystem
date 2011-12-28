@@ -53,17 +53,17 @@ namespace ReportSystem.Test
 		{
 			public FakeGeneralReport()
 			{
-				_reports = new List<BaseReport>();
+				Reports = new List<BaseReport>();
 			}
 			public void Add(FakeReport report)
 			{
-				_reports.Add(report);
+				Reports.Add(report);
 			}
 			public void AddRange(FakeReport[] reports)
 			{
 				foreach (var fakeReport in reports)
 				{
-					_reports.Add(fakeReport);
+					Reports.Add(fakeReport);
 				}
 			}
 		}

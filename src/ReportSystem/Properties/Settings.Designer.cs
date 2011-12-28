@@ -67,5 +67,14 @@ namespace Inforoom.ReportSystem.Properties {
                 return ((string)(this["ErrorReportMail"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SavedFilesPath {
+            get {
+                return ((string)(this["SavedFilesPath"]));
+            }
+        }
     }
 }

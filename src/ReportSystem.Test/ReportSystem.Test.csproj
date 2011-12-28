@@ -47,6 +47,7 @@
       <HintPath>..\..\lib\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="ExcelLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL" />
     <Reference Include="MySql.Data, Version=5.1.6.1, Culture=neutral, PublicKeyToken=56e353737e921561, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MySql.Data.dll</HintPath>
@@ -83,6 +84,7 @@
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
     <Compile Include="FastReports\FastReports.cs" />
     <Compile Include="FixtureSetup.cs" />
+    <Compile Include="GeneralReportFixture.cs" />
     <Compile Include="Helpers\DataRowAdapter.cs" />
     <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="LeakOffersReportFixture.cs" />
