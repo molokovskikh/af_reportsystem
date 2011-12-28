@@ -247,7 +247,8 @@ where id in ({0})", suppliers.Implode());
 				var values = results.AsEnumerable()
 					.Where(r => r[column] != DBNull.Value)
 					.Select(r => Convert.ToDecimal(r[column]));
-				resultRow[column] = aggregate(values);
+				if (values.Count() > 0)
+					resultRow[column] = aggregate(values);
 			}
 			results.Rows.Add(resultRow);
 		}
