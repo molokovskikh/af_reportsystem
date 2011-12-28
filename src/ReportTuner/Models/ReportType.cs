@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using Castle.ActiveRecord;
+using Castle.ActiveRecord.Framework;
 using Common.Tools;
-using Common.Web.Ui.Models;
 
 namespace ReportTuner.Models
 {
 	[ActiveRecord("reporttypes", Schema = "reports")]
-	public class ReportType : ActiveRecordBase<ReportType>
+	public class ReportType : ActiveRecordLinqBase<ReportType>
 	{
 		public ReportType()
 		{

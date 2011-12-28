@@ -9,6 +9,7 @@ using Castle.ActiveRecord.Framework.Config;
 using Castle.MonoRail.Framework;
 using Castle.MonoRail.Framework.Container;
 using Castle.MonoRail.Framework.Services;
+using Common.Web.Ui.Helpers;
 using log4net;
 using log4net.Config;
 using ReportTuner.Models;
@@ -17,9 +18,16 @@ using ReportTuner.Helpers;
 
 namespace ReportTuner
 {
+	public class Config
+	{
+		public string SavedFilesPath { get; set; }
+	}
+
 	public class Global : HttpApplication, IMonoRailContainerEvents
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof(Global));
+
+		public static Config Config = new Config();
 
 		void Application_Start(object sender, EventArgs e)
 		{			
@@ -29,6 +37,14 @@ namespace ReportTuner
 					Assembly.Load("Common.Web.Ui")
 				},
 				ActiveRecordSectionHandler.Instance);
+
+			ConfigReader.LoadSettings(Config);
+
+			if (!Path.IsPathRooted(Config.SavedFilesPath))
+				Config.SavedFilesPath =
+					Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.SavedFilesPath));
+
+			CreateDirectoryTree(Config.SavedFilesPath);
 
 			if (!Path.IsPathRooted(ScheduleHelper.ScheduleAppPath))
 				ScheduleHelper.ScheduleAppPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ScheduleHelper.ScheduleAppPath));
@@ -61,7 +77,18 @@ namespace ReportTuner
 			}
 			else
 				throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
+		}
 
+		private static void CreateDirectoryTree(string dir)
+		{
+			if (String.IsNullOrEmpty(dir))
+				return;
+
+			var parentDir = Path.GetDirectoryName(dir);
+			CreateDirectoryTree(parentDir);
+
+			if (!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
 		}
 
 		void Session_Start(object sender, EventArgs e)

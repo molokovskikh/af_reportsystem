@@ -16,3 +16,4 @@ _resharper.*
 *.cache
 *.user
 *.log
+src/ReportTuner/Data

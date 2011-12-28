@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
@@ -34,5 +35,10 @@ namespace ReportTuner.Models
 
 		[HasMany(typeof(ReportPropertyValue), "ReportPropertyId", "report_property_values", Schema = "reports")]
 		public virtual IList<ReportPropertyValue> Values { get; set; }
+
+		public string Filename
+		{
+			get { return Path.Combine(Global.Config.SavedFilesPath, Id.ToString()); }
+		}
 	}
 }
