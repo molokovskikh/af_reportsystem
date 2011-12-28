@@ -196,14 +196,13 @@ where GeneralReport = ?GeneralReport;";
 		{
 			var resFileName = BuildResultFile();
 
-
-#if (TESTING)
-			MailWithAttach(resFileName, Settings.Default.ErrorReportMail);
-#else
-			if ((_dtContacts != null) && (_dtContacts.Rows.Count > 0))
-				foreach (DataRow drContact in _dtContacts.Rows)
-					MailWithAttach(ResFileName, drContact[0].ToString());
+			var mails = _dtContacts.AsEnumerable().Select(r => r[0].ToString()).ToArray();
+#if TESTING
+			mails = new[] {Settings.Default.ErrorReportMail};
 #endif
+			foreach (var mail in mails)
+				MailWithAttach(resFileName, mail);
+
 			//Написать удаление записей из таблицы !!
 			MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
 																{
