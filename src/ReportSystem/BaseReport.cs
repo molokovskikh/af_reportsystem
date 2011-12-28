@@ -151,11 +151,10 @@ namespace Inforoom.ReportSystem
 							}
 							_reportParams.Add(currentPropertyName, listValues);
 							break;
-
+						case "FILE":
 						case "STRING":
 							_reportParams.Add(currentPropertyName, drProperty[BaseReportColumns.colPropertyValue].ToString());
 							break;
-
 						case "DATETIME":
 							try
 							{
