@@ -451,7 +451,7 @@ AND rp.reportCode=?rp
 		}
 		else if (type == "INT")
 		{
-			if (row[PStoredProc.ColumnName].ToString() == String.Empty)
+			if (String.IsNullOrEmpty(reportProperty.PropertyType.SelectStoredProcedure))
 			{
 				cell.FindControl("tbValue").Visible = true;
 			}
