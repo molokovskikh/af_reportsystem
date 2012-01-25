@@ -103,7 +103,6 @@ namespace Inforoom.ReportSystem
 			_payer = payer;
 			Format = format;
 
-			var addContacts = false;
 			ulong contactsCode = 0;
 
 			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
@@ -159,7 +158,7 @@ where GeneralReport = ?GeneralReport;";
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled]))
 					{
 						//Создаем отчеты и добавляем их в список отчетов
-						BaseReport bs = (BaseReport)Activator.CreateInstance(
+						var bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], 
 								drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, 
@@ -173,22 +172,11 @@ where GeneralReport = ?GeneralReport;";
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
 						if (String.IsNullOrEmpty(_eMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
 							_eMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
-
-						//Если в отчетах содержится или комбинированый или специальный отчет, то добавляем в отчеты Контакты
-						if (!addContacts)
-						{
-							addContacts = (bs.GetType() == typeof(CombReport)) || (bs.GetType() == typeof(SpecReport));
-							if (addContacts)
-								contactsCode = (ulong)drGReport[BaseReportColumns.colReportCode];
-						}
 					}
 				}
 			}
 			else
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
-
-			if (addContacts && Format == ReportFormats.Excel)
-				Reports.Add(new ContactsReport(contactsCode, "Контакты", _conn, Temporary, Format, propertiesLoader.LoadProperties(_conn, contactsCode)));
 		}
 
 		//Производится построение отчетов

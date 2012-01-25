@@ -9,7 +9,8 @@ using System.IO;
 
 namespace Inforoom.ReportSystem
 {
-	//Отчет для вывода контактов. Это вспомогательный отчет, явно нигде не вызывается
+	//РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СѓРґР°Р»РёСЃС‚СЊ 01.04.2012
+	//РћС‚С‡РµС‚ РґР»СЏ РІС‹РІРѕРґР° РєРѕРЅС‚Р°РєС‚РѕРІ. Р­С‚Рѕ РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РѕС‚С‡РµС‚, СЏРІРЅРѕ РЅРёРіРґРµ РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ
 	public class ContactsReport : ProviderReport
 	{
 		public ContactsReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
@@ -79,15 +80,15 @@ order by PositionCount DESC";
 
 		private void ContactsToExcel(System.Data.DataTable tbContacts, Worksheet wsContacts)
 		{
-			wsContacts.Name = "Контакты";
+			wsContacts.Name = "РљРѕРЅС‚Р°РєС‚С‹";
 			//wsContacts.Move(null, )
-			//wsContacts.Application.ActiveWorkbook.Worksheets["Контакты"].Move(After = wsContacts.Application.ActiveWorkbook.Worksheets(2));
+			//wsContacts.Application.ActiveWorkbook.Worksheets["РљРѕРЅС‚Р°РєС‚С‹"].Move(After = wsContacts.Application.ActiveWorkbook.Worksheets(2));
 			wsContacts.Rows.Font.Size = 8;
 			wsContacts.Rows.Font.Name = "Arial Narrow";
-			wsContacts.Cells[1, 1] = "Поставщик";
+			wsContacts.Cells[1, 1] = "РџРѕСЃС‚Р°РІС‰РёРє";
 			((Range)wsContacts.Cells[1, 1]).Font.Bold = true;
 			((Range)wsContacts.Cells[1, 1]).ColumnWidth = 10;
-			wsContacts.Cells[1, 2] = "Контактная информация";
+			wsContacts.Cells[1, 2] = "РљРѕРЅС‚Р°РєС‚РЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ";
 			((Range)wsContacts.Cells[1, 2]).Font.Bold = true;
 			((Range)wsContacts.Cells[1, 2]).ColumnWidth = 20;
 			wsContacts.get_Range(wsContacts.Cells[1, 1], wsContacts.Cells[2, 2]).Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightBlue);
@@ -108,7 +109,7 @@ order by PositionCount DESC";
 				}
 				wsContacts.Cells[StartPosition, 1] = TmpFirmName;
 				wsContacts.Cells[StartPosition + 1, 1] = SrcRow["Region"].ToString();
-				wsContacts.Cells[StartPosition + 2, 1] = "Скидка = " + SrcRow["PublicUpCost"].ToString();
+				wsContacts.Cells[StartPosition + 2, 1] = "РЎРєРёРґРєР° = " + SrcRow["PublicUpCost"].ToString();
 				SplitCount = 0;
 				if (!(SrcRow["ContactInfo"] is DBNull))
 				{
@@ -142,7 +143,7 @@ order by PositionCount DESC";
 
 		private void SetBorderStyle(Range Selection)
 		{
-			//TODO:Здесь могут быть проблемы
+			//TODO:Р—РґРµСЃСЊ РјРѕРіСѓС‚ Р±С‹С‚СЊ РїСЂРѕР±Р»РµРјС‹
 			Selection.Borders[XlBordersIndex.xlDiagonalDown].LineStyle = XlLineStyle.xlLineStyleNone;
 			Selection.Borders[XlBordersIndex.xlDiagonalUp].LineStyle = XlLineStyle.xlLineStyleNone;
 			Selection.Borders[XlBordersIndex.xlEdgeLeft].LineStyle = XlLineStyle.xlContinuous;
