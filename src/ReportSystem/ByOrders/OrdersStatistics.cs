@@ -60,7 +60,8 @@ namespace Inforoom.ReportSystem.ByOrders
 			dtNewRes.Columns.Add("PayerId", typeof(int));
 			dtNewRes.Columns.Add("SupplierName", typeof(string));
 			dtNewRes.Columns.Add("Region", typeof(string));
-			dtNewRes.Columns.Add("OrdersSum", typeof(decimal));
+			var column = dtNewRes.Columns.Add("OrdersSum", typeof(decimal));
+			column.ExtendedProperties.Add("AsDecimal", "");
 			dtNewRes.Columns["PayerId"].Caption = "Код плательщика поставщика";
 			dtNewRes.Columns["SupplierName"].Caption = "Поставщик";
 			dtNewRes.Columns["Region"].Caption = "Регион";

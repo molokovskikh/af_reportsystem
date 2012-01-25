@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
+using Common.MySql;
 using Common.Tools;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
@@ -49,8 +50,6 @@ namespace Inforoom.ReportSystem
 		public const int MaxStringSize = 250;
 		
 		public const int MaxListName = 26;
-
-		public const string MySQLDateFormat = "yyyy-MM-dd";
 
 		protected DataSet _dsReport;
 
@@ -161,7 +160,7 @@ namespace Inforoom.ReportSystem
 								if (drProperty[BaseReportColumns.colPropertyValue].ToString().Equals("NOW", StringComparison.OrdinalIgnoreCase))
 									_reportParams.Add(currentPropertyName, DateTime.Now);
 								else
-									_reportParams.Add(currentPropertyName, DateTime.ParseExact(drProperty[BaseReportColumns.colPropertyValue].ToString(), MySQLDateFormat, null));
+									_reportParams.Add(currentPropertyName, DateTime.ParseExact(drProperty[BaseReportColumns.colPropertyValue].ToString(), MySqlConsts.MySQLDateFormat, null));
 							}
 							catch (Exception ex)
 							{

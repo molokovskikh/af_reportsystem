@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Data;
 using System.IO;
+using Common.MySql;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.FastReports;
 using Inforoom.ReportSystem.Helpers;
@@ -60,7 +61,7 @@ namespace ReportSystem.Test
 			else if (value is DateTime)
 			{
 				type = "DATETIME";
-				row["PropertyValue"] = ((DateTime)value).ToString("yyyy-MM-dd");
+				row["PropertyValue"] = ((DateTime)value).ToString(MySqlConsts.MySQLDateFormat);
 			}
 			if (value is string)
 			{

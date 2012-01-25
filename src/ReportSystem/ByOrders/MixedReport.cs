@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Data;
+using Common.MySql;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
@@ -132,8 +133,8 @@ and ol.Junk = 0
 #and ol.Await = 0
 and pd.PriceCode = oh.PriceCode
 and pd.FirmCode = " + sourceFirmCode.ToString() +
-				" and oh.WriteTime > '" + dtFrom.ToString(MySQLDateFormat) + "' " +
-				" and oh.WriteTime < '" + dtTo.ToString(MySQLDateFormat) + "' " +
+				" and oh.WriteTime > '" + dtFrom.ToString(MySqlConsts.MySQLDateFormat) + "' " +
+				" and oh.WriteTime < '" + dtTo.ToString(MySqlConsts.MySQLDateFormat) + "' " +
 @")
 union
 (

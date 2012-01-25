@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Common.MySql;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Microsoft.Office.Interop.Excel;
@@ -222,8 +223,8 @@ namespace Inforoom.ReportSystem
 			FillFilterDescriptions();
 			selectCommand = ApplyUserFilters(selectCommand);
 
-			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySQLDateFormat)));
-			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySQLDateFormat)));
+			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySqlConsts.MySQLDateFormat)));
+			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySqlConsts.MySQLDateFormat)));
 
 			return selectCommand;
 		}

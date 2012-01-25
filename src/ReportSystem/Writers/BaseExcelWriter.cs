@@ -50,20 +50,23 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 				for (int i = 0; i < dtExport.Columns.Count; i++)
 				{
 					CreateSQL += "[F" + (i + 1).ToString() + "] ";
-					dtExport.Columns[i].ColumnName = "F" + (i + 1).ToString();
-					if (dtExport.Columns[i].DataType == typeof(int))
+					var column = dtExport.Columns[i];
+					column.ColumnName = "F" + (i + 1).ToString();
+					if (column.DataType == typeof(int))
 						CreateSQL += " int";
-					else
-						if (dtExport.Columns[i].DataType == typeof(decimal))
-							CreateSQL += " currency";
+					else if (column.DataType == typeof(decimal))
+					{
+						if (column.ExtendedProperties.Contains("AsDecimal"))
+							CreateSQL += " decimal";
 						else
-							if (dtExport.Columns[i].DataType == typeof(double))
-								CreateSQL += " real";
-							else
-								if ((dtExport.Columns[i].DataType == typeof(string)) && (dtExport.Columns[i].MaxLength > -1) && (dtExport.Columns[i].MaxLength <= MaxStringSize))
-									CreateSQL += String.Format(" char({0})", MaxStringSize);
-								else
-									CreateSQL += " memo";
+							CreateSQL += " currency";
+					}
+					else if (column.DataType == typeof(double))
+						CreateSQL += " real";
+					else if ((column.DataType == typeof(string)) && (column.MaxLength > -1) && (column.MaxLength <= MaxStringSize))
+						CreateSQL += String.Format(" char({0})", MaxStringSize);
+					else
+						CreateSQL += " memo";
 					if (i == dtExport.Columns.Count - 1)
 						CreateSQL += ");";
 					else

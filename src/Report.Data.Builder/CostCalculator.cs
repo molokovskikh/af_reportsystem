@@ -205,7 +205,7 @@ and c0.Junk = 0
 							sql.Append(", ");
 
 						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4})",
-							date.ToString("yyyy-MM-dd"),
+							date.ToString(MySqlConsts.MySQLDateFormat),
 							key.SupplierId,
 							key.RegionId,
 							assortmentId,

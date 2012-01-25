@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Inforoom.ReportSystem;
+﻿using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
 using NUnit.Framework;
 
@@ -14,8 +10,10 @@ namespace ReportSystem.Test
 		[Test]
 		public void CheckReport()
 		{
-			var props = TestHelper.LoadProperties(ReportsTypes.OrdersStatistics);
-			var report = new OrdersStatistics(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			Property("ReportInterval", 7);
+			Property("ByPreviousMonth", false);
+
+			var report = new OrdersStatistics(0, "Automate Created Report", Conn, false, ReportFormats.Excel, properties);
 			TestHelper.ProcessReport(report, ReportsTypes.OrdersStatistics);
 		}
 	}
