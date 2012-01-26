@@ -32,8 +32,11 @@ namespace ReportSystem.Test
 		[Test]
 		public void Builder_report_for_all()
 		{
-			Property("date", new DateTime(2011, 11, 26));
-			Property("someDate", new DateTime(2011, 11, 25));
+			var date = DateTime.Today.AddDays(-7);
+			var someDate = date.AddDays(-7);
+			Property("date", date);
+			Property("someDate", someDate);
+
 			Property("suppliers", new List<ulong>());
 			Property("regions", new List<ulong>());
 			report = new CostDynamic(1, "CostDynamic.xls", Conn, false, ReportFormats.Excel, properties);
@@ -78,7 +81,7 @@ namespace ReportSystem.Test
 			var results = report.CreateResultTable(settings.Dates);
 			var row = results.NewRow();
 			row["Name"] = "Протек";
-			row["CostDiff"] = 1.45;
+			row["SomeDateCostIndex"] = 1.45;
 			results.Rows.Add(row);
 			var data = new DataSet();
 			data.Tables.Add(results);
@@ -95,8 +98,10 @@ namespace ReportSystem.Test
 		[Test]
 		public void Read_description_file()
 		{
-			Property("date", DateTime.Now);
-			Property("someDate", DateTime.Now);
+			var date = DateTime.Today.AddDays(-7);
+			var someDate = date.AddDays(-7);
+			Property("date", date);
+			Property("someDate", someDate);
 			Property("DescriptionFile", "test.doc", "FILE");
 			Property("suppliers", new List<ulong> {5, 7, 14});
 			Property("regions", new List<ulong> {1});
