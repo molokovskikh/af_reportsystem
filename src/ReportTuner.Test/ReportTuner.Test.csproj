@@ -95,6 +95,7 @@
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Helpers\WatinFixture.cs" />
     <Compile Include="Intagration\ReportTest.cs" />
+    <Compile Include="Models\ReportFixture.cs" />
     <Compile Include="ReportsBatch.cs" />
     <Compile Include="TaskSchedulerFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -363,7 +363,7 @@ group by c.pricecode";
 
 		protected void GetSourceCodes(ExecuteArgs e)
 		{
-			int EnabledPrice = Convert.ToInt32(
+			var EnabledPrice = Convert.ToInt32(
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						"select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",

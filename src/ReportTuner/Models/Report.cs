@@ -4,6 +4,8 @@ using System.Web;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Common.Web.Ui.Models;
+using Microsoft.Win32.TaskScheduler;
+using ReportTuner.Helpers;
 
 namespace ReportTuner.Models
 {
@@ -24,5 +26,20 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual bool Enabled { get; set; }
+
+		public static Task CreateTemporaryTaskForRunFromInterface(TaskService service, TaskFolder folder, Task source, string action)
+		{
+			var task = ScheduleHelper.GetTask(service, folder, Convert.ToUInt64(1), "tempTask1", "temp");
+			var sourceDefinition = source.Definition;
+			sourceDefinition.Triggers.Clear();
+			ScheduleHelper.UpdateTaskDefinition(service, folder, Convert.ToUInt64(1), sourceDefinition, "temp");
+			ScheduleHelper.SetTaskEnableStatus(1, true, "temp");
+			var definition = task.Definition;
+			var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath, action, ScheduleHelper.ScheduleWorkDir);
+			definition.Actions.RemoveAt(0);
+			definition.Actions.Add(newAction);
+			ScheduleHelper.UpdateTaskDefinition(service, folder, Convert.ToUInt64(1), definition, "temp");
+			return task;
+		}
 	}
 }

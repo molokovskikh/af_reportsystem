@@ -2,27 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
-using System.Collections;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using Common.Tools;
-using ExecuteTemplate;
-using MySql.Data;
 using MySql.Data.MySqlClient;
-using System.DirectoryServices;
 using Microsoft.Win32.TaskScheduler;
 using System.Threading;
 using ReportTuner.Models;
 using ReportTuner.Helpers;
-using Action = Microsoft.Win32.TaskScheduler.Action;
 
 
 public partial class Reports_schedule : Page
@@ -67,26 +57,17 @@ public partial class Reports_schedule : Page
 		if (Request["r"] == null)
 			Response.Redirect("GeneralReports.aspx");
 
-		_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["r"]));        
+		_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
 
 		taskService = ScheduleHelper.GetService();
 		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
 		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
 		
-		temp1Task = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(1), "tempTask1", "temp");
-		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(1), currentTaskDefinition, "temp");
-		ScheduleHelper.SetTaskEnableStatus(1, true, "temp");
-		var taskDefinition = temp1Task.Definition;
-		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath, "/gr:" + _generalReport.Id + string.Format(" /manual:true"), ScheduleHelper.ScheduleWorkDir);
-		taskDefinition.Actions.RemoveAt(0);
-		taskDefinition.Actions.Add(newAction);
-		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(1), taskDefinition, "temp");
-		
+		temp1Task = Report.CreateTemporaryTaskForRunFromInterface(taskService, reportsFolder, currentTask, "/gr:" + _generalReport.Id + string.Format(" /manual:true"));
+
 		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
-
-		string args = ((ExecAction) temp1Task.Definition.Actions.FirstOrDefault()).Arguments;
 
 		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
@@ -153,7 +134,7 @@ public partial class Reports_schedule : Page
 		}
 		
 
-		var _otherTriggers = new List<Trigger>();
+		var otherTriggers = new List<Trigger>();
 		if (!Page.IsPostBack)
 		{
 			var selfMail = GetSelfEmails();
@@ -233,7 +214,7 @@ order by LogTime desc
 					DS.Tables[dtSchedule.TableName].Rows.Add(dr);
 				}
 				else
-					_otherTriggers.Add(tl[i]);
+					otherTriggers.Add(tl[i]);
 			}
 
 			DS.Tables[dtSchedule.TableName].AcceptChanges();
@@ -241,7 +222,7 @@ order by LogTime desc
 			dgvSchedule.DataMember = dtSchedule.TableName;
 			dgvSchedule.DataBind();
 
-			gvOtherTriggers.DataSource = _otherTriggers;
+			gvOtherTriggers.DataSource = otherTriggers;
 			gvOtherTriggers.DataBind();
 
 			Session[DSSchedule] = DS;
@@ -349,7 +330,7 @@ order by LogTime desc
 	{
 		for (int i = currentTaskDefinition.Triggers.Count - 1; i >= 0; i--)
 			if (currentTaskDefinition.Triggers[i] is WeeklyTrigger)
-				currentTaskDefinition.Triggers.RemoveAt(i);		
+				currentTaskDefinition.Triggers.RemoveAt(i);
 
 		foreach(DataRow dr in DS.Tables[dtSchedule.TableName].Rows)
 		{
@@ -365,7 +346,7 @@ order by LogTime desc
 			AddDay(dr, DaysOfTheWeek.Saturday);
 			AddDay(dr, DaysOfTheWeek.Sunday);
 
-			WeeklyTrigger trigger = (WeeklyTrigger)currentTaskDefinition.Triggers.AddNew(TaskTriggerType.Weekly);			
+			var trigger = (WeeklyTrigger)currentTaskDefinition.Triggers.AddNew(TaskTriggerType.Weekly);
 			trigger.DaysOfWeek = triggerDays;
 			trigger.WeeksInterval = 1;
 			trigger.StartBoundary = DateTime.Now.Date.AddHours(h).AddMinutes(m);
@@ -538,20 +519,19 @@ order by LogTime desc
 
 	protected void btnExecute_Click(object sender, EventArgs e)
 	{
-		bool _runed = false;
-		Task task = null;
-		if (this.IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running))
+		var runed = false;
+		if (IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running))
 		{
 			temp1Task.Run();
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
 			btnExecute.Text = StatusNotRunning;
-			_runed = true;
+			runed = true;
 		}
 
 		CloseTaskService();
 		Thread.Sleep(500);
-		if (_runed)
+		if (runed)
 			Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
 	}
 
