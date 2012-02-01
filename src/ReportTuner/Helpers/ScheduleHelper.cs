@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
@@ -33,7 +34,7 @@ namespace ReportTuner.Helpers
 			{
 				return taskService.GetFolder(ReportsFolderName);
 			}
-			catch (System.IO.FileNotFoundException ex)
+			catch (FileNotFoundException ex)
 			{
 				throw new ReportTunerException(String.Format("На сервере {0} не существует папка '{1}' в планировщике задач",
 					ScheduleServer, ReportsFolderName), ex);
@@ -46,7 +47,7 @@ namespace ReportTuner.Helpers
 			{
 				reportsFolder.DeleteTask(prefix + generalReportId);
 			}
-			catch (System.IO.FileNotFoundException)
+			catch (FileNotFoundException)
 			{
 				//"Гасим" это исключение при попытке удалить задание, которого не существует
 			}
@@ -160,6 +161,16 @@ namespace ReportTuner.Helpers
 			TaskDefinition definition = task.Definition;
 			definition.Settings.Enabled = isEnable;
 			UpdateTaskDefinition(service, folder, reportId, definition, prefix);
+		}
+
+		public static void CreateFolderIfNeeded(TaskService taskService)
+		{
+			var root = taskService.RootFolder;
+			var folder = root.SubFolders
+				.FirstOrDefault(
+					f => String.Equals(f.Name, ReportsFolderName, StringComparison.CurrentCultureIgnoreCase));
+			if (folder == null)
+				root.CreateFolder(ReportsFolderName, null);
 		}
 	}
 }

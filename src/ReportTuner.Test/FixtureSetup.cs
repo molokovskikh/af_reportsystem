@@ -5,8 +5,10 @@ using System.Reflection;
 using System.IO;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using Common.MySql;
 using NUnit.Framework;
 using CassiniDev;
+using ReportTuner.Helpers;
 using Settings = WatiN.Core.Settings;
 
 namespace ReportTuner.Test
@@ -16,10 +18,13 @@ namespace ReportTuner.Test
 	{
 		private Server _webServer;
 
+		public static string ConnectionString;
+
 		[SetUp]
 		public void SetupFixture()
 		{			
-			var connectionStringName = ConfigurationManager.ConnectionStrings.Cast<ConnectionStringSettings>().Skip(1).First().Name;
+			var connectionStringName = ConnectionHelper.GetConnectionName();
+			ConnectionString = ConnectionHelper.GetConnectionString();
 			if (!ActiveRecordStarter.IsInitialized)
 			{
 				var config = new InPlaceConfigurationSource();
@@ -34,15 +39,20 @@ namespace ReportTuner.Test
 						{NHibernate.Cfg.Environment.FormatSql, "true"},
 						{NHibernate.Cfg.Environment.UseSqlComments, "true"}
 					});
-				ActiveRecordStarter.Initialize(new[] { Assembly.Load("Test.Support"), Assembly.Load("ReportTuner"), Assembly.Load("Common.Web.Ui") }, config);			 
+				ActiveRecordStarter.Initialize(new[] { Assembly.Load("Test.Support"), Assembly.Load("ReportTuner"), Assembly.Load("Common.Web.Ui") }, config);
 			}
 
 			var port = int.Parse(ConfigurationManager.AppSettings["webPort"]);
-			var webDir = ConfigurationManager.AppSettings["webDirectory"];	
+			var webDir = ConfigurationManager.AppSettings["webDirectory"];
 			_webServer = new Server(port, "/", Path.GetFullPath(webDir));
 			_webServer.Start();
 			Settings.Instance.AutoMoveMousePointerToTopLeft = false;
-			Settings.Instance.MakeNewIeInstanceVisible = false;			
+			Settings.Instance.MakeNewIeInstanceVisible = false;
+
+			using(var taskService = ScheduleHelper.GetService())
+			{
+				ScheduleHelper.CreateFolderIfNeeded(taskService);
+			}
 		}
 
 		[TearDown]

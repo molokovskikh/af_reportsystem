@@ -13,7 +13,6 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem
 {
-
 	public class SpecShortReportData
 	{
 		public string Code { get; set; }
@@ -96,7 +95,7 @@ namespace Inforoom.ReportSystem
 		{
 			var suppliers = new List<string>();
 
-            e.DataAdapter.SelectCommand.CommandText = @"
+			e.DataAdapter.SelectCommand.CommandText = @"
 select 
 	concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from 
@@ -129,9 +128,9 @@ order by supps.Name";
 				if (_priceCode == 0)
 					throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
 				
-                DataRow drPrice = MySqlHelper.ExecuteDataRow(
-                    ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
-                    @"
+				DataRow drPrice = MySqlHelper.ExecuteDataRow(
+					_conn.ConnectionString,
+					@"
 select 
   concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
   pricesdata.PriceCode, 
@@ -141,7 +140,7 @@ from
   future.suppliers, 
   farm.regions 
 where 
-    pricesdata.PriceCode = ?PriceCode
+	pricesdata.PriceCode = ?PriceCode
 and suppliers.Id = pricesdata.FirmCode
 and regions.RegionCode = suppliers.HomeRegion
 limit 1", new MySqlParameter("?PriceCode", _priceCode));
@@ -164,7 +163,7 @@ from
   usersettings.priceitems pim,
   farm.formrules fr 
 where 
-    pc.PriceCode = ?SourcePC
+	pc.PriceCode = ?SourcePC
 and pc.BaseCost = 1
 and pim.Id = pc.PriceItemId
 and fr.Id = pim.FormRuleId
@@ -187,7 +186,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 		private void GetResultTable()
 		{
-			DataTable dtNewRes = new DataTable();
+			var dtNewRes = new DataTable();
 			dtNewRes.TableName = "Results";
 
 			dtNewRes.Columns.Add("Code", typeof(string));
@@ -250,19 +249,16 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		protected void GetOffersByClient(int clientId)
 		{
 			ProfileHelper.Next("GetOffers for client: " + clientId);
-			Client client = Client.TryFind((uint)clientId);
+			var client = Client.TryFind((uint)clientId);
 			if(client == null) return;
 			if(client.Status == false) return;
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
 
 			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();
-			IEnumerable<IGrouping<uint, Offer>> assortmentGroups = null;
 			if(_reportType > 2 && _codesWithoutProducer) {
-				assortmentGroups = offers.Where(o => o.AssortmentCoreId.HasValue).GroupBy(o => o.ProductId); // весь ассортимент группируем по productid (требование 6937)	
-				if(assortmentGroups != null) {
-					foreach (var agroup in assortmentGroups) {
-						assortmentMap[agroup.Key] = agroup;
-					}
+				var assortmentGroups = offers.Where(o => o.AssortmentCoreId.HasValue).GroupBy(o => o.ProductId);
+				foreach (var agroup in assortmentGroups) {
+					assortmentMap[agroup.Key] = agroup;
 				}
 			}
 			ProfileHelper.WriteLine("Offers count: " + offers.Count);
@@ -336,6 +332,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			return item;
 		}
 
+		protected override void FormatLeaderAndPrices(MSExcel._Worksheet ws)
+		{}
+
 		public override void ReadReportParams()
 		{
 			if (_reportParams.ContainsKey("SupplierNoise"))
@@ -376,13 +375,6 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					drRes["LeaderName"] = String.Empty;
 			_dsReport.Tables.Remove("Results");
 			_dsReport.Tables.Add(dtNewRes);
-		}
-
-		protected override void FormatLeaderAndPrices(MSExcel._Worksheet ws)
-		{
-			//Выравниваем все колонки по ширине
-			//ws.Columns.AutoFit();
-			//((MSExcel.Range)ws.Columns[1, _dsReport.Tables["Results"].Columns.Count]).AutoFit();
 		}
 
 		public override bool DbfSupported

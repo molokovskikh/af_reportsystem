@@ -23,7 +23,7 @@ namespace ReportTuner.Test.Intagration
 		[SetUp]
 		public void Setup()
 		{
-			MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+			MyCn = new MySqlConnection(FixtureSetup.ConnectionString);
 			MyCmd = new MySqlCommand();
 			MyDA = new MySqlDataAdapter();
 		}

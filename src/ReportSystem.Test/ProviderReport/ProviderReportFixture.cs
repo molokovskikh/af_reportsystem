@@ -15,8 +15,7 @@ using NUnit.Framework;
 
 namespace ReportSystem.Test.ProviderReport
 {
-
-	public class SpecReportOldLoad : Inforoom.ReportSystem.SpecShortReport
+	public class SpecReportOldLoad : SpecShortReport
 	{
 		public SpecReportOldLoad(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -25,11 +24,6 @@ namespace ReportSystem.Test.ProviderReport
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			/*e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
-			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
-			IsNewClient = reader.Read();
-			reader.Close();*/
-
 			GetOffers();
 			var dataSet = MySqlHelper.ExecuteDataset(
 				e.DataAdapter.SelectCommand.Connection,
@@ -47,13 +41,13 @@ from
 			Console.WriteLine("{0} Offers count: {1}", DateTime.Now, dataSet.Tables[0].Rows.Count);
 
 			var res = (from r in dataSet.Tables[0].AsEnumerable()
-			        group r by r["CatalogId"]);
+					group r by r["CatalogId"]);
 			Console.WriteLine("{0} group by {1}", DateTime.Now, res.Count());
 
 		}
 	}
 
-	public class SpecReportNewLoad : Inforoom.ReportSystem.SpecShortReport
+	public class SpecReportNewLoad : SpecShortReport
 	{
 		public SpecReportNewLoad(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
@@ -95,8 +89,6 @@ from
 	{
 		public List<SpecShortReportData> ReportData { get { return _reportData; } }
 
-		//public SpecShortReportFake(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-//			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
 		public SpecShortReportFake()
 		{
 			_reportData = new List<SpecShortReportData>();
@@ -262,8 +254,7 @@ from
 		[Test(Description = "Проверяем работу метода с новыми клиентами")]
 		public void CheckClientNamesWithNewClients()
 		{
-			var dsClients = GetClients(
-				@"
+			var dsClients = GetClients(@"
 select 
 	c.Id,
 	c.Name 
@@ -272,31 +263,7 @@ from
 	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1
 where
   cd.FirmCode is null
-limit 1"
-				,
-				1);
-
-			CheckClientsName(dsClients.Tables[0]);
-		}
-
-		[Test(Description = "Проверяем работу метода со старыми клиентами")]
-        [Ignore("Все клиенты перенесены в future.clients")]
-		public void CheckClientNamesWithOldClients()
-		{
-			var dsClients = GetClients(
-				@"
-select 
-	cd.FirmCode as Id,
-	cd.ShortName as Name
-from 
-	usersettings.ClientsData cd
-	left join future.Clients c on cd.FirmCode = c.Id
-where
-	cd.FirmType = 1
-and c.Id is null
-limit 1"
-				,
-				1);
+limit 1", 1);
 
 			CheckClientsName(dsClients.Tables[0]);
 		}
@@ -304,8 +271,7 @@ limit 1"
 		[Test(Description = "Проверяем работу метода с новыми клиентами, для которых существуют старые клиенты с другим именем")]
 		public void CheckClientNamesWithNewAndOldClients()
 		{
-			var dsClients = GetClients(
-				@"
+			var dsClients = GetClients(@"
 select 
 	c.Id,
 	c.Name 
@@ -314,55 +280,9 @@ from
 	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1 and cd.ShortName <> c.Name
 where
   cd.FirmCode is not null
-limit 1"
-				,
-				1);
+limit 1", 1);
 
 			CheckClientsName(dsClients.Tables[0]);
 		}
-
-		[Test(Description = "Проверяем работу метода с различными типами клиентов")]
-        [Ignore("Все клиенты перенесены в future.clients")]
-		public void CheckClientNamesWithDifferentClients()
-		{
-			var dsClients = GetClients(
-				@"
-select
-*
-from
-(
-select 
-	c.Id,
-	c.Name 
-from 
-	future.Clients c
-	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1 and cd.ShortName <> c.Name
-where
-  cd.FirmCode is not null
-limit 1
-) cl1
-union
-select
-*
-from
-(
-select 
-	cd.FirmCode as Id,
-	cd.ShortName as Name
-from 
-	usersettings.ClientsData cd
-	left join future.Clients c on cd.FirmCode = c.Id
-where
-	cd.FirmType = 1
-and c.Id is null
-limit 1
-) cl2
-"
-				,
-				2);
-
-			CheckClientsName(dsClients.Tables[0]);
-		}
-
 	}
 }

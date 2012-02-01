@@ -106,6 +106,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">
+      <Project>{8A680813-C83B-497A-85E6-E8F07B7D7650}</Project>
+      <Name>Common.MySql</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ReportTuner\ReportTuner.csproj">
       <Project>{4D9B03C7-734B-410F-9C4A-FF9A44591036}</Project>
       <Name>ReportTuner</Name>

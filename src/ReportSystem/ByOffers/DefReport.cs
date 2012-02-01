@@ -76,8 +76,8 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 
 			string CustomerFirmName;
 
-            DataRow drPrice = MySqlHelper.ExecuteDataRow(
-                            ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+            var drPrice = MySqlHelper.ExecuteDataRow(
+                            _conn.ConnectionString,
                             @"
 select 
   concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 

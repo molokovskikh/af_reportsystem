@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		[SetUp]
 		public void Start()
 		{
-			Conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+			Conn = new MySqlConnection(ConfigurationManager.ConnectionStrings[FixtureSetup.ConnectionStringName].ConnectionString);
 			Conn.Open();
 
 			i = 1;
@@ -42,7 +42,6 @@ namespace ReportSystem.Test
 		[TearDown]
 		public void Stop()
 		{
-			Conn.Close();
 			Conn.Dispose();
 
 			ProfileHelper.End();
@@ -99,6 +98,40 @@ namespace ReportSystem.Test
 			report.ProcessReport();
 			report.ReportToFile(Path.GetFullPath(file));
 			ProfileHelper.Stop();
+		}
+
+		public void AddProperty(DataSet properties, string name, object value)
+		{
+			var row = properties.Tables[0].NewRow();
+			row["ID"] = i;
+			row["PropertyName"] = name;
+			row["PropertyValue"] = value;
+			if (value is int)
+				row["PropertyType"] = "INT";
+			else if (value is bool)
+				row["PropertyType"] = "BOOL";
+			else if (value is IEnumerable)
+			{
+				row["PropertyValue"] = null;
+				row["PropertyType"] = "LIST";
+				var table = properties.Tables["ReportPropertyValues"];
+				if (table == null)
+				{
+					var values = properties.Tables.Add("ReportPropertyValues");
+					values.Columns.Add("ReportPropertyID");
+					values.Columns.Add("Value");
+					table = values;
+				}
+				foreach (var item in (IEnumerable)value)
+				{
+					var valueRow = table.NewRow();
+					valueRow["ReportPropertyID"] = i;
+					valueRow["Value"] = item;
+					table.Rows.Add(valueRow);
+				}
+			}
+			i++;
+			properties.Tables[0].Rows.Add(row);
 		}
 	}
 }

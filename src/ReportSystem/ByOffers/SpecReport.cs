@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Microsoft.Office.Interop.Excel;
@@ -21,6 +23,10 @@ namespace Inforoom.ReportSystem
 	//Специальный отчет прайс-листов
 	public class SpecReport : ProviderReport
 	{
+		//1 - без учета производителя и с колчеством
+		//2 - без учета производителя и колчеством
+		//3 - с учетом производителя и без колчеством
+		//4 - с учетом производителя и с колчеством
 		protected int _reportType;
 		protected bool _showPercents;
 		protected bool _reportIsFull;
@@ -42,9 +48,13 @@ namespace Inforoom.ReportSystem
 
 		protected bool WithoutAssortmentPrice;
 
-		protected bool _showCodeCr = false;
+		protected bool _showCodeCr;
 
-		protected bool _codesWithoutProducer = false;
+		protected bool _codesWithoutProducer;
+		//количество столбцпв до начала блоков прайс листов
+		private int firstColumnCount;
+		//количество столбцов в блоке прайс листа
+		private int priceBlockSize;
 
 		protected SpecReport()// конструктор для возможности тестирования
 		{}
@@ -99,7 +109,7 @@ where Id = ?ClientCode",
 			}
 
 			DataRow drPrice = MySqlHelper.ExecuteDataRow(
-				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+				_conn.ConnectionString,
 				@"
 select 
   concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
@@ -180,64 +190,82 @@ group by c.pricecode";
 
 		protected virtual void Calculate()
 		{
-			//Кол-во первых фиксированных колонок
-			int FirstColumnCount;
-
 			//todo: посмотреть почему здесь используется таблицы AllCoreT и Prices
-			DataTable dtCore = _dsReport.Tables["AllCoreT"];
-			DataTable dtPrices = _dsReport.Tables["Prices"];
+			var dtCore = _dsReport.Tables["AllCoreT"];
+			var dtPrices = _dsReport.Tables["Prices"];
 
-			DataTable dtRes = new DataTable("Results");
+			var dtRes = new DataTable("Results");
 			_dsReport.Tables.Add(dtRes);
-			dtRes.Columns.Add("Code");
-			dtRes.Columns["Code"].Caption = "Код";
-			dtRes.Columns.Add("CodeWithoutProducer");
-			dtRes.Columns["CodeWithoutProducer"].Caption = "Код без изгот.";
-			dtRes.Columns.Add("CodeCr");
-			dtRes.Columns["CodeCr"].Caption = "Код производителя";
-			dtRes.Columns.Add("FullName");
-			dtRes.Columns["FullName"].Caption = "Наименование";
-			dtRes.Columns.Add("FirmCr");
-			dtRes.Columns["FirmCr"].Caption = "Производитель";
-			dtRes.Columns.Add("CustomerCost", typeof(decimal));
-			dtRes.Columns["CustomerCost"].Caption = CustomerFirmName;
-			dtRes.Columns.Add("CustomerQuantity");
-			dtRes.Columns["CustomerQuantity"].Caption = "Количество";
-			dtRes.Columns.Add("MinCost", typeof(decimal));
-			dtRes.Columns["MinCost"].Caption = "Мин. цена";
-			dtRes.Columns.Add("LeaderName");
-			dtRes.Columns["LeaderName"].Caption = "Лидер";
+
+			var column = dtRes.Columns.Add("Code");
+			column.Caption = "Код";
+
+			column = dtRes.Columns.Add("FullName");
+			column.ExtendedProperties.Add("Width", 20);
+			column.Caption = "Наименование";
+
+			column = dtRes.Columns.Add("FirmCr");
+			column.Caption = "Производитель";
+			column.ExtendedProperties.Add("Width", 10);
+
+			column = dtRes.Columns.Add("CustomerCost", typeof(decimal));
+			column.Caption = CustomerFirmName;
+			column.ExtendedProperties.Add("Width", 6);
+
+			column = dtRes.Columns.Add("CustomerQuantity");
+			column.Caption = "Количество";
+			column.ExtendedProperties.Add("Width", 4);
+
+			column = dtRes.Columns.Add("MinCost", typeof(decimal));
+			column.Caption = "Мин. цена";
+			column.ExtendedProperties.Add("Width", 6);
+			column.ExtendedProperties.Add("Color", Color.LightSeaGreen);
+
+			column = dtRes.Columns.Add("LeaderName");
+			column.Caption = "Лидер";
+			column.ExtendedProperties.Add("Width", 9);
+			column.ExtendedProperties.Add("Color", Color.LightSkyBlue);
+
 			dtRes.Columns.Add("Differ", typeof(decimal));
 			dtRes.Columns["Differ"].Caption = "Разница";
-			dtRes.Columns.Add("DifferPercents", typeof(double));
-			dtRes.Columns["DifferPercents"].Caption = "% разницы";
-			dtRes.Columns.Add("AvgCost", typeof(decimal));
-			dtRes.Columns["AvgCost"].Caption = "Средняя цена";
-			dtRes.Columns.Add("MaxCost", typeof(decimal));
-			dtRes.Columns["MaxCost"].Caption = "Макс. цена";
-			FirstColumnCount = dtRes.Columns.Count;
 
-			int PriceIndex = 0;
+			column = dtRes.Columns.Add("DifferPercents", typeof(decimal));
+			column.Caption = "% разницы";
+			column.ExtendedProperties.Add("AsDecimal", "");
+
+			column = dtRes.Columns.Add("AvgCost", typeof(decimal));
+			column.Caption = "Средняя цена";
+			column.ExtendedProperties.Add("Width", 6);
+
+			column = dtRes.Columns.Add("MaxCost", typeof(decimal));
+			column.Caption = "Макс. цена";
+			column.ExtendedProperties.Add("Width", 6);
+
+			firstColumnCount = dtRes.Columns.Count;
+
+			var priceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
-				dtRes.Columns.Add("Cost" + PriceIndex.ToString(), typeof(decimal));
-				dtRes.Columns["Cost" + PriceIndex.ToString()].Caption = "Цена";
-				if (!_showPercents)
-				{
-					dtRes.Columns.Add("Quantity" + PriceIndex.ToString());
-					dtRes.Columns["Quantity" + PriceIndex.ToString()].Caption = "Кол-во";
-				}
-				else
-				{
-					dtRes.Columns.Add("Percents" + PriceIndex.ToString(), typeof(double));
-					dtRes.Columns["Percents" + PriceIndex.ToString()].Caption = "% разницы";
-				}
-				PriceIndex++;
-			}
+				column = dtRes.Columns.Add("Cost" + priceIndex.ToString(), typeof(decimal));
+				column.Caption = "Цена";
+				column.ExtendedProperties.Add("Width", 6);
 
-			DataRow newrow;
-			DataRow[] drsMin;
-			newrow = dtRes.NewRow();
+				if (ShowQuantity)
+				{
+					column = dtRes.Columns.Add("Quantity" + priceIndex.ToString());
+					column.Caption = "Кол-во";
+					column.ExtendedProperties.Add("Width", 4);
+				}
+				if (_showPercents)
+				{
+					column = dtRes.Columns.Add("Percents" + priceIndex.ToString(), typeof(decimal));
+					column.Caption = "% разницы";
+					column.ExtendedProperties.Add("AsDecimal", "");
+				}
+				priceIndex++;
+			}
+			priceBlockSize = (dtRes.Columns.Count - firstColumnCount) / priceIndex;
+			var newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
 			newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
@@ -252,11 +280,12 @@ group by c.pricecode";
 				newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
 
 				//Если есть ID, то мы можем заполнить поле Code и, возможно, остальные поля   предложение SourcePC существует
+				DataRow[] drsMin;
 				if (!(drCatalog["ID"] is DBNull))
 				{
 					newrow["Code"] = drCatalog["Code"];
 					//Производим поиск предложения по данной позиции по интересующему прайс-листу
-					drsMin = dtCore.Select("ID = " + drCatalog["ID"].ToString());
+					drsMin = dtCore.Select("ID = " + drCatalog["ID"]);
 					//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
 					//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
 					if ((drsMin.Length > 0) && !(drsMin[0]["Cost"] is DBNull))
@@ -274,29 +303,31 @@ group by c.pricecode";
 					//Устанавливаем разность между ценой SourcePC и минимальной ценой
 					if (!(newrow["CustomerCost"] is DBNull))
 					{
-						newrow["Differ"] = (decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"];
-						newrow["DifferPercents"] = Convert.ToDouble((((decimal)newrow["CustomerCost"] - (decimal)newrow["MinCost"]) * 100) / (decimal)newrow["CustomerCost"]);
+						var minCost = (decimal) newrow["MinCost"];
+						var customerCost = (decimal)newrow["CustomerCost"];
+						newrow["Differ"] = customerCost - minCost;
+						newrow["DifferPercents"] = Math.Round((customerCost - minCost) / customerCost * 100, 0);
 					}
 
 					//Выбираем позиции с минимальной ценой, отличные от SourcePC
 					drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}", 
 						drCatalog["CatalogCode"], 
 						GetProducerFilter(drCatalog),
-						((decimal) drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat)));
+						((decimal) drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat)));
 
 					if (drsMin.Length > 0)
 					{
-						var LeaderNames = new List<string>();
-						foreach (DataRow drmin in drsMin)
+						var leaderNames = new List<string>();
+						foreach (var drmin in drsMin)
 						{
-							DataRow[] drs = dtPrices.Select(
+							var drs = dtPrices.Select(
 								"PriceCode=" + drmin["PriceCode"] +
 								" and RegionCode = " + drmin["RegionCode"]);
 							if (drs.Length > 0)
-								if (!LeaderNames.Contains(drs[0]["FirmName"].ToString()))
-									LeaderNames.Add(drs[0]["FirmName"].ToString());
+								if (!leaderNames.Contains(drs[0]["FirmName"].ToString()))
+									leaderNames.Add(drs[0]["FirmName"].ToString());
 						}
-						newrow["LeaderName"] = String.Join("; ", LeaderNames.ToArray());
+						newrow["LeaderName"] = String.Join("; ", leaderNames.ToArray());
 					}
 				}
 				else
@@ -306,43 +337,44 @@ group by c.pricecode";
 						"CatalogCode = " + drCatalog["CatalogCode"] +
 						" and PriceCode <> " + SourcePC +
 						GetProducerFilter(drCatalog) +
-						" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat),
+						" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat),
 						"Cost asc");
 
 					if (drsMin.Length > 0)
 					{
-						newrow["Differ"] = (decimal)newrow["CustomerCost"] - Convert.ToDecimal(drsMin[0]["Cost"]);
-						newrow["DifferPercents"] = Convert.ToDouble((((decimal)newrow["CustomerCost"] - Convert.ToDecimal(drsMin[0]["Cost"])) * 100) / (decimal)newrow["CustomerCost"]);
+						var customerCost = Convert.ToDecimal(newrow["CustomerCost"]);
+						var cost = Convert.ToDecimal(drsMin[0]["Cost"]);
+						newrow["Differ"] = customerCost - cost;
+						newrow["DifferPercents"] = Math.Round((customerCost - cost) / customerCost * 100, 0);
 					}
 				}
 
 				//Выбираем позиции и сортируем по возрастанию цен для того, чтобы по каждому прайс-листы выбрать минимальную цену по одному и тому же CatalogCode
-				drsMin = dtCore.Select(
-					"CatalogCode = " + drCatalog["CatalogCode"] + GetProducerFilter(drCatalog),
-					"Cost asc");
-
-				foreach (DataRow dtPos in drsMin)
+				drsMin = dtCore.Select("CatalogCode = " + drCatalog["CatalogCode"] + GetProducerFilter(drCatalog), "Cost asc");
+				foreach (var dtPos in drsMin)
 				{
-					DataRow[] dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"].ToString() + " and RegionCode = " + dtPos["RegionCode"].ToString());
+					var dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"] + " and RegionCode = " + dtPos["RegionCode"]);
 					//Проверка на случай получения прайса SourcePC, т.к. этот прайс не будет в dtPrices
 					if (dr.Length > 0)
 					{
-						PriceIndex = dtPrices.Rows.IndexOf(dr[0]);
+						priceIndex = dtPrices.Rows.IndexOf(dr[0]);
 
 						//Если мы еще не установили значение у поставщика, то делаем это
 						//раньше вставляли последнее значение, которое было максимальным
-						if (newrow[FirstColumnCount + PriceIndex * 2] is DBNull)
+						if (newrow["Cost" + priceIndex] is DBNull)
 						{
-							newrow[FirstColumnCount + PriceIndex * 2] = dtPos["Cost"];
-							if ((_reportType == 2) || (_reportType == 4))
+							newrow["Cost" + priceIndex] = dtPos["Cost"];
+
+							var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
+							if (quantityColumn != null)
+								newrow[quantityColumn] = dtPos["Quantity"];
+
+							var percentColumn = dtRes.Columns["Percents" + priceIndex];
+							if (percentColumn != null)
 							{
-								if (!_showPercents)
-									newrow[FirstColumnCount + PriceIndex * 2 + 1] = dtPos["Quantity"];
-								else
-								{
-									double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
-									newrow[FirstColumnCount + PriceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
-								}
+								var mincost = Convert.ToDouble(newrow["MinCost"]);
+								var pricecost = Convert.ToDouble(dtPos["Cost"]);
+								newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
 					}
@@ -350,6 +382,11 @@ group by c.pricecode";
 
 				dtRes.Rows.Add(newrow);
 			}
+		}
+
+		private bool ShowQuantity
+		{
+			get { return (_reportType == 2) || (_reportType == 4); }
 		}
 
 		private string GetProducerFilter(DataRow drCatalog)
@@ -611,20 +648,24 @@ order by FullName, FirmCr";
 
 #if DEBUG
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-		   var cnt = _dsReport.Tables["Catalog"].Rows.Count;
+			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
 #endif
 
 		}
 
-		protected override void FormatExcel(string FileName)
+		protected override void FormatExcel(string fileName)
 		{
-			UseExcel.Workbook(FileName, wb => {
+			UseExcel.Workbook(fileName, wb => {
 				var ws = (_Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
 
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 				ws.Activate();
 
 				var result = _dsReport.Tables["Results"];
+				//очищаем заголовки
+				for(var i = 0; i < result.Columns.Count; i++)
+					ws.Cells[1, i + 1] = "";
+
 				var tableBeginRowIndex = 3;
 				var rowCount = result.Rows.Count;
 				var columnCount = result.Columns.Count;
@@ -638,56 +679,13 @@ order by FullName, FirmCr";
 
 				var lastRowIndex = rowCount + tableBeginRowIndex;
 
-				for (var i = 0; i < result.Columns.Count; i++)
-					ws.Cells[tableBeginRowIndex, i + 1] = result.Columns[i].Caption;
-
-				//Код
-				if (!WithoutAssortmentPrice)
-					((Range)ws.Columns[1, Type.Missing]).AutoFit();
-				else
-					((Range)ws.Cells[tableBeginRowIndex, 1]).ColumnWidth = 0;
-
-				if(_codesWithoutProducer && _reportType > 2)
-					((Range)ws.Columns[2, Type.Missing]).AutoFit();
-				else
-					((Range)ws.Cells[tableBeginRowIndex, 2]).ColumnWidth = 0;
-
-				if(_showCodeCr)
-					((Range)ws.Columns[3, Type.Missing]).AutoFit();
-				else
-					((Range)ws.Cells[tableBeginRowIndex, 3]).ColumnWidth = 0;
-
-
-				//Наименование
-				((Range)ws.Cells[tableBeginRowIndex, 4]).ColumnWidth = 20;
-				//Производитель
-				((Range)ws.Cells[tableBeginRowIndex, 5]).ColumnWidth = 10;
-				//Цена прайс-листа
-				if (WithoutAssortmentPrice)
-					((Range)ws.Cells[tableBeginRowIndex, 6]).ColumnWidth = 0;
-				//Количество
-				if (!WithoutAssortmentPrice && (_reportType == 2 || _reportType == 4))
-					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 4;
-				else
-					((Range)ws.Cells[tableBeginRowIndex, 7]).ColumnWidth = 0;
-				//min
-				((Range)ws.Cells[tableBeginRowIndex, 8]).ColumnWidth = 6;
-				//Лидер
-				if (!WithoutAssortmentPrice)
-					((Range)ws.Cells[tableBeginRowIndex, 9]).ColumnWidth = 9;
-				else
-					((Range)ws.Cells[tableBeginRowIndex, 9]).ColumnWidth = 0;
+				ExcelHelper.FormatHeader(ws, tableBeginRowIndex, result);
 
 				//Форматирование заголовков прайс-листов
 				FormatLeaderAndPrices(ws);
 
 				//рисуем границы на всю таблицу
 				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[lastRowIndex, columnCount]].Borders.Weight = XlBorderWeight.xlThin;
-				//Устанавливаем цвет колонки "min"
-				ws.Range["F" + tableBeginRowIndex, "F" + lastRowIndex].Interior.Color = ColorTranslator.ToOle(Color.LightSeaGreen);
-				//Устанавливаем цвет колонки "Лидер"
-				ws.Range["G" + tableBeginRowIndex, "G" + lastRowIndex].Interior.Color = ColorTranslator.ToOle(Color.LightSkyBlue);
-
 				//Устанавливаем шрифт листа
 				ws.Rows.Font.Size = 8;
 				ws.Rows.Font.Name = "Arial Narrow";
@@ -722,46 +720,16 @@ order by FullName, FirmCr";
 
 		protected virtual void FormatLeaderAndPrices(_Worksheet ws)
 		{
-			int ColumnPrefix = 14;
-			//Разница
-			((Range)ws.Cells[3, 10]).ColumnWidth = 6;
-			ws.Cells[3, 9] = "Разница";
-			//% разницы
-			((Range)ws.Cells[3, 11]).ColumnWidth = 4;
-			ws.Cells[3, 10] = "% разницы";
-			//средняя
-			((Range)ws.Cells[3, 12]).ColumnWidth = 6;
-			ws.Cells[3, 11] = "Средняя цена";
-			//max
-			((Range)ws.Cells[3, 13]).ColumnWidth = 6;
-			ws.Cells[3, 12] = "Макс. цена";
-
-			int PriceIndex = 0;
+			var columnPrefix = firstColumnCount + 1;
+			var priceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
 			{
+				var columnIndex = columnPrefix + priceIndex*priceBlockSize;
 				//Устанавливаем название фирмы
-				ws.Cells[1, ColumnPrefix + PriceIndex * 2] = drPrice["FirmName"].ToString();
-				((Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2]).ColumnWidth = 6;
-
+				ws.Cells[1, columnIndex] = drPrice["FirmName"].ToString();
 				//Устанавливаем дату фирмы
-				ws.Cells[2, ColumnPrefix + PriceIndex * 2] = drPrice["PriceDate"].ToString();
-				//((MSExcel.Range)ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
-
-				ws.Cells[3, ColumnPrefix + PriceIndex * 2] = "Цена";
-				if (!_showPercents)
-					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Кол-во";
-				else
-					ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1] = "Разница в %";
-
-				if ((_reportType == 2) || (_reportType == 4))
-					((Range)ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 4;
-				else
-					((Range)ws.Cells[3, ColumnPrefix + PriceIndex * 2 + 1]).ColumnWidth = 0;
-
-				((Range)ws.Cells[1, ColumnPrefix + PriceIndex * 2 + 1]).Clear();
-				((Range)ws.Cells[2, ColumnPrefix + PriceIndex * 2 + 1]).Clear();
-
-				PriceIndex++;
+				ws.Cells[2, columnIndex] = drPrice["PriceDate"].ToString();
+				priceIndex++;
 			}
 		}
 	}

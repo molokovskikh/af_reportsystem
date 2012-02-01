@@ -9,7 +9,7 @@ namespace Report.Data.Builder.Test
 		[SetUp]
 		public void Setup()
 		{
-			With.DefaultConnectionStringName = "local";
+			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
 		}
 	}
 }

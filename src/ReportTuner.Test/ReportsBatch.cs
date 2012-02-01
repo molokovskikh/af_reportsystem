@@ -5,11 +5,8 @@ using System.Text;
 using Castle.ActiveRecord;
 using NUnit.Framework;
 using MySql.Data.MySqlClient;
-using System.Configuration;
-using System.Reflection;
 using System.Data;
 using ReportTuner.Models;
-
 
 namespace ReportTuner.Test
 {
@@ -21,7 +18,7 @@ namespace ReportTuner.Test
 		internal void CopyReportProperties(ulong sourceReportId, ulong destinationReportId)
 		{
 			DataSet dsReportProperties = MySqlHelper.ExecuteDataset(
-				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+				FixtureSetup.ConnectionString,
 				@"
 SELECT 
 rp.*,
@@ -97,7 +94,7 @@ order by rp.PropertyID;
 				}
 			}
 
-			MySqlConnection connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+			MySqlConnection connection = new MySqlConnection(FixtureSetup.ConnectionString);
 			connection.Open();
 			try
 			{
@@ -118,7 +115,7 @@ order by rp.PropertyID;
 			ulong sourceReportId = 585;
 			var newReportList = new List<ulong>();
 
-			using (var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			using (var conn = new MySqlConnection(FixtureSetup.ConnectionString))
 			{
 				conn.Open();
 
@@ -153,12 +150,12 @@ order by rp.PropertyID;
 			ulong sourceGeneralReportId = 238;
 			var newReportList = new List<ulong>();
 
-			using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			using (var connection = new MySqlConnection(FixtureSetup.ConnectionString))
 			{
 				connection.Open();
 
 				var templateReport = MySqlHelper.ExecuteDataRow(
-					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+					FixtureSetup.ConnectionString,
 					@"
 select
   reports.ReportCode,
@@ -271,12 +268,12 @@ order by billingcode;
 			ulong sourceGeneralReportId = 240;
 			var newReportList = new List<ulong>();
 
-			using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			using (var connection = new MySqlConnection(FixtureSetup.ConnectionString))
 			{
 				connection.Open();
 
 				var templateReport = MySqlHelper.ExecuteDataRow(
-					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+					FixtureSetup.ConnectionString,
 					@"
 select
   reports.ReportCode,
@@ -380,12 +377,12 @@ group by firmclientcode
 		{
 			var newReportList = new List<ulong>();
 
-			using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
+			using (var connection = new MySqlConnection(FixtureSetup.ConnectionString))
 			{
 				connection.Open();
 
 				var templateReportDS = MySqlHelper.ExecuteDataset(
-					ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+					FixtureSetup.ConnectionString,
 					@"
 select
   reports.ReportCode
@@ -517,7 +514,7 @@ select last_insert_id() as ReportCode;", connection);
         [Test, Ignore("Для добавления новых параметров")]
         public void AddNewOptions()
         {
-            string conn = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            string conn = FixtureSetup.ConnectionString;
 
             ulong reportTypeCode = 1;
 

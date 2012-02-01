@@ -137,14 +137,14 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{}
 
-		protected override void FormatExcel(string FileName)
+		protected override void FormatExcel(string fileName)
 		{
 			ProfileHelper.Next("FormatExcel");
 			Application exApp = new ApplicationClass();
 			try
 			{
 				exApp.DisplayAlerts = false;
-				var wb = exApp.Workbooks.Open(FileName, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
+				var wb = exApp.Workbooks.Open(fileName, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
 					Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
 					Type.Missing);
 				_Worksheet ws;
@@ -190,7 +190,7 @@ namespace Inforoom.ReportSystem
 					}
 					finally
 					{
-						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+						wb.SaveAs(fileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
 					}
 				}
 				finally

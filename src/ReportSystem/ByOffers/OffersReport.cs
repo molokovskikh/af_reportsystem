@@ -74,7 +74,7 @@ where Id = ?ClientCode",
             }
 		    
             DataRow drPrice = MySqlHelper.ExecuteDataRow(
-                ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+                _conn.ConnectionString,
                 @"
 select 
   concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
@@ -425,9 +425,9 @@ order by FullName, FirmCr";
 			}
 		}
 
-		protected override void FormatExcel(string file)
+		protected override void FormatExcel(string fileName)
 		{
-			UseExcel.Workbook(file, b => {
+			UseExcel.Workbook(fileName, b => {
 				var ws = (_Worksheet)b.Worksheets["rep" + _reportCode.ToString()];
 				var caption = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 				ws.Name = caption;

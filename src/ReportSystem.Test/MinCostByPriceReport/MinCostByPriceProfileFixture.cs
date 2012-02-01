@@ -1,8 +1,5 @@
-﻿using System;
-using System.Configuration;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Inforoom.ReportSystem;
-using MySql.Data.MySqlClient;
 
 namespace ReportSystem.Test
 {

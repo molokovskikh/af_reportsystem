@@ -55,11 +55,7 @@ namespace ReportTuner
 
 #if DEBUG
 			var taskService = ScheduleHelper.GetService();
-			var root = taskService.RootFolder;
-			var folder = root.SubFolders
-				.FirstOrDefault(f => String.Equals(f.Name, ScheduleHelper.ReportsFolderName, StringComparison.CurrentCultureIgnoreCase));
-			if (folder == null)
-				root.CreateFolder(ScheduleHelper.ReportsFolderName, null);
+			ScheduleHelper.CreateFolderIfNeeded(taskService);
 #endif
 
 			//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
