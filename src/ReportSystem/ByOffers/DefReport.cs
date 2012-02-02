@@ -74,30 +74,7 @@ and gr.GeneralReportCode = r.GeneralReportCode";
 			if (_priceCode == 0)
 				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");
 
-			string CustomerFirmName;
-
-            var drPrice = MySqlHelper.ExecuteDataRow(
-                            _conn.ConnectionString,
-                            @"
-select 
-  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
-  pricesdata.PriceCode, 
-  suppliers.HomeRegion
-from 
-  usersettings.pricesdata, 
-  future.suppliers,
-  farm.regions 
-where 
-    pricesdata.PriceCode = ?PriceCode
-and suppliers.Id = pricesdata.FirmCode
-and regions.RegionCode = suppliers.HomeRegion
-limit 1", new MySqlParameter("?PriceCode", _priceCode));
-			if (drPrice != null)
-			{
-				CustomerFirmName = drPrice["FirmName"].ToString();
-			}
-			else
-				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
+			var CustomerFirmName = GetSupplierName(_priceCode);
 
 			//Проверка актуальности прайс-листа
 			int ActualPrice = Convert.ToInt32(

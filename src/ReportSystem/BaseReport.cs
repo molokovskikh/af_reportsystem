@@ -94,18 +94,18 @@ namespace Inforoom.ReportSystem
 			AdditionalFiles = new Dictionary<string, string>();
 		}
 
-		public BaseReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
+		public BaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
 			: this()
 		{
 			Logger = LogManager.GetLogger(GetType());
 			_reportParams = new Dictionary<string, object>();
-			_reportCode = ReportCode;
-			_reportCaption = ReportCaption;
+			_reportCode = reportCode;
+			_reportCaption = reportCaption;
 			Format = format;
 			_dsReport = new DataSet();
-			_conn = Conn;
+			_conn = connection;
 
-			_parentIsTemporary = Temporary;
+			_parentIsTemporary = temporary;
 
 			dtReportProperties = dsProperties.Tables["ReportProperties"];
 			dtReportPropertyValues = dsProperties.Tables["ReportPropertyValues"];

@@ -108,28 +108,8 @@ where Id = ?ClientCode",
 											  new MySqlParameter("?ClientCode", _clientCode)));
 			}
 
-			DataRow drPrice = MySqlHelper.ExecuteDataRow(
-				_conn.ConnectionString,
-				@"
-select 
-  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
-  pricesdata.PriceCode, 
-  suppliers.HomeRegion as RegionCode 
-from 
-  usersettings.pricesdata, 
-  future.suppliers, 
-  farm.regions 
-where 
-	pricesdata.PriceCode = ?PriceCode
-and suppliers.Id = pricesdata.FirmCode
-and regions.RegionCode = suppliers.HomeRegion
-limit 1", new MySqlParameter("?PriceCode", _priceCode));
-
-			if (drPrice == null)
-				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
-
-			SourcePC = Convert.ToInt32(drPrice["PriceCode"]);
-			CustomerFirmName = drPrice["FirmName"].ToString();
+			SourcePC = _priceCode;
+			CustomerFirmName = GetSupplierName(_priceCode);
 
 			//Проверка актуальности прайс-листа
 			int ActualPrice = Convert.ToInt32(

@@ -49,52 +49,32 @@ namespace Inforoom.ReportSystem
 			if (_priceCode == 0)
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
 
-            if (_byBaseCosts)
-            {
-                // Отчет готовится по базовым ценам
-                //Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
-                _sourceRegionCode = Convert.ToInt64(
-                    MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-                                              @"select s.HomeRegion
-    from usersettings.PricesData pd
-    inner join future.suppliers s on pd.FirmCode = s.Id
-    and pd.PriceCode = ?PriceCode;",
-                                              new MySqlParameter("?PriceCode", _priceCode)));
-            }
-            else
-            { // отчет готовится по клиенту
-                //Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
-                _sourceRegionCode = Convert.ToInt64(
+			if (_byBaseCosts)
+			{
+				// Отчет готовится по базовым ценам
+				//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
+				_sourceRegionCode = Convert.ToInt64(
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+											  @"select s.HomeRegion
+	from usersettings.PricesData pd
+	inner join future.suppliers s on pd.FirmCode = s.Id
+	and pd.PriceCode = ?PriceCode;",
+											  new MySqlParameter("?PriceCode", _priceCode)));
+			}
+			else
+			{ // отчет готовится по клиенту
+				//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
+				_sourceRegionCode = Convert.ToInt64(
 
-                MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-                        @"select RegionCode
+				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+						@"select RegionCode
 	from future.Clients
 where Id = ?ClientCode",
-                        new MySqlParameter("?ClientCode", _clientCode)));
-            }
-		    
-            DataRow drPrice = MySqlHelper.ExecuteDataRow(
-                _conn.ConnectionString,
-                @"
-select 
-  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
-  pricesdata.PriceCode, 
-  suppliers.HomeRegion as RegionCode
-from 
-  usersettings.pricesdata, 
-  future.suppliers,
-  farm.regions 
-where 
-    pricesdata.PriceCode = ?PriceCode
-and suppliers.Id = pricesdata.FirmCode
-and regions.RegionCode = suppliers.HomeRegion
-limit 1", new MySqlParameter("?PriceCode", _priceCode));
+						new MySqlParameter("?ClientCode", _clientCode)));
+			}
 
-			if (drPrice == null)
-				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", _priceCode));
-
-			_sourcePriceCode = Convert.ToInt32(drPrice["PriceCode"]);
-			_customerFirmName = drPrice["FirmName"].ToString();
+			_sourcePriceCode = _priceCode;
+			_customerFirmName = GetSupplierName(_priceCode);
 
 			//Проверка актуальности прайс-листа
 			var actualPrice = Convert.ToInt32(
@@ -108,7 +88,7 @@ from
   usersettings.priceitems pim,
   farm.formrules fr 
 where 
-    pc.PriceCode = ?SourcePC
+	pc.PriceCode = ?SourcePC
 and pc.BaseCost = 1
 and pim.Id = pc.PriceItemId
 and fr.Id = pim.FormRuleId
@@ -139,22 +119,22 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					new MySqlParameter("?SourcePC", _sourcePriceCode),
 					new MySqlParameter("?SourceRegionCode", _sourceRegionCode)));
 
-            if(enabledPrice == 0 && _byBaseCosts)
-            {
-                enabledPrice = Convert.ToInt32(
-                    MySqlHelper.ExecuteScalar(
-                        e.DataAdapter.SelectCommand.Connection,
-                        "select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
-                        new MySqlParameter("?SourcePC", _sourcePriceCode)));
-                if (enabledPrice != 0)
-                {
-                    _sourceRegionCode = Convert.ToInt32(
-                    MySqlHelper.ExecuteScalar(
-                        e.DataAdapter.SelectCommand.Connection,
-                        "select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
-                        new MySqlParameter("?SourcePC", _sourcePriceCode)));
-                }
-            }
+			if(enabledPrice == 0 && _byBaseCosts)
+			{
+				enabledPrice = Convert.ToInt32(
+					MySqlHelper.ExecuteScalar(
+						e.DataAdapter.SelectCommand.Connection,
+						"select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
+						new MySqlParameter("?SourcePC", _sourcePriceCode)));
+				if (enabledPrice != 0)
+				{
+					_sourceRegionCode = Convert.ToInt32(
+					MySqlHelper.ExecuteScalar(
+						e.DataAdapter.SelectCommand.Connection,
+						"select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
+						new MySqlParameter("?SourcePC", _sourcePriceCode)));
+				}
+			}
 
 			//Добавляем к таблице Core поле CatalogCode и заполняем его
 			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
@@ -210,7 +190,7 @@ FROM
   )
   left join farm.corecosts cc on cc.Core_Id = FarmCore.id and cc.PC_CostCode = FarmCore.PriceCode
 WHERE 
-    FarmCore.PriceCode = ?SourcePC 
+	FarmCore.PriceCode = ?SourcePC 
 and products.id = FarmCore.ProductId;";
 			}
 			else
@@ -236,13 +216,13 @@ FROM
   farm.core0 FarmCore,
   catalogs.products
 WHERE 
-    Core.PriceCode = ?SourcePC 
+	Core.PriceCode = ?SourcePC 
 and FarmCore.id = Core.Id
 and products.id = Core.ProductId
 and Core.RegionCode = ?SourceRegionCode;";
 			}
 
-  			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _sourcePriceCode);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", _sourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -343,7 +323,7 @@ where
 
 				sql += @"
   and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
-      or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
+	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
 			if (!_reportIsFull)

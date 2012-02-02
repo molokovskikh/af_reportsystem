@@ -578,5 +578,33 @@ and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || 
 
 			return result;
 		}
+
+		protected string GetSupplierName(int priceId)
+		{
+			string customerFirmName;
+			var drPrice = MySqlHelper.ExecuteDataset(
+				_conn,
+				@"
+select 
+  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
+  pricesdata.PriceCode, 
+  suppliers.HomeRegion
+from 
+  usersettings.pricesdata, 
+  future.suppliers,
+  farm.regions 
+where 
+    pricesdata.PriceCode = ?PriceCode
+and suppliers.Id = pricesdata.FirmCode
+and regions.RegionCode = suppliers.HomeRegion
+limit 1", new MySqlParameter("?PriceCode", priceId))
+				.Tables[0].AsEnumerable().FirstOrDefault();
+			if (drPrice != null) {
+				customerFirmName = drPrice["FirmName"].ToString();
+			}
+			else
+				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", priceId));
+			return customerFirmName;
+		}
 	}
 }
