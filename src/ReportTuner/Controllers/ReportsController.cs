@@ -30,6 +30,8 @@ namespace ReportTuner.Controllers
 					Logger.Error("Ошибка при удалении отчета", e);
 				}
 			}
+
+			RenderText("");
 		}
 	}
 }
