@@ -49,6 +49,9 @@
     <Reference Include="Castle.Core">
       <HintPath>..\..\lib\Castle.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Castle.MonoRail.Framework, Version=2.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\..\lib\Castle.MonoRail.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\log4net.dll</HintPath>
@@ -94,7 +97,8 @@
     <Compile Include="FixtureSetup.cs" />
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Helpers\WatinFixture.cs" />
-    <Compile Include="Intagration\ReportTest.cs" />
+    <Compile Include="Integration\ReportControllerFixture.cs" />
+    <Compile Include="Integration\ReportTest.cs" />
     <Compile Include="Models\ReportFixture.cs" />
     <Compile Include="ReportsBatch.cs" />
     <Compile Include="TaskSchedulerFixture.cs" />
@@ -109,6 +113,10 @@
     <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">
       <Project>{8A680813-C83B-497A-85E6-E8F07B7D7650}</Project>
       <Name>Common.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common.Web.Ui\Common.Web.Ui\Common.Web.Ui.csproj">
+      <Project>{95E2C313-46FA-4B4B-9EFF-3228662908F4}</Project>
+      <Name>Common.Web.Ui</Name>
     </ProjectReference>
     <ProjectReference Include="..\ReportTuner\ReportTuner.csproj">
       <Project>{4D9B03C7-734B-410F-9C4A-FF9A44591036}</Project>

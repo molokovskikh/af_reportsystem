@@ -861,7 +861,7 @@ WHERE ID = ?OPID", MyCn, trans);
 			else if (prop.PropertyType.PropertyName == "BusinessRivals"
 				|| prop.PropertyType.PropertyName == "suppliers")
 			{
-				var report = Report.Find(prop.ReportCode);
+				var report = prop.Report;
 				if (report.ReportType.ReportTypeFilePrefix != "PharmacyMixed")
 					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
 						Request["r"],
@@ -1111,23 +1111,20 @@ WHERE ID = ?OPID", MyCn, trans);
 	private void FillUserDDL(long clientID, DropDownList ddl)
 	{
 		if (clientID < 0) clientID = 0;
-		IList<FutureUser> users = FutureUser
-			.Queryable.Where(u => u.Client.Id == clientID).ToList();
-		IList<IUser> ulist = users.Cast<IUser>().OrderBy(u => u.ShortNameAndId).ToList();
+		var users = FutureUser.Queryable.Where(u => u.Client.Id == clientID).ToList();
+		var ulist = users.Cast<IUser>().OrderBy(u => u.ShortNameAndId).ToList();
 		ddl.DataSource = ulist;
 		ddl.DataTextField = "ShortNameAndId";
 		ddl.DataValueField = "Id";
 		ddl.DataBind();
-		uint report_code = Convert.ToUInt32(Request["rp"]);
-		ReportProperty property = ReportProperty
-								  .Queryable
-								  .Where(p => p.ReportCode == report_code && 
-											  p.PropertyType.PropertyName == "UserCode").FirstOrDefault();
+		var reportCode = Convert.ToUInt64(Request["rp"]);
+		var property = ReportProperty.Queryable.FirstOrDefault(p =>
+			p.Report.Id == reportCode && p.PropertyType.PropertyName == "UserCode");
 		if (property == null ) return;
 		if (String.IsNullOrEmpty(property.Value)) return;
 
-		IUser user = ulist.Where(u => u.Id == Convert.ToUInt32(property.Value)).FirstOrDefault();
-		int index = ulist.IndexOf(user);
+		var user = ulist.FirstOrDefault(u => u.Id == Convert.ToUInt32(property.Value));
+		var index = ulist.IndexOf(user);
 		ddl.SelectedIndex = index;
 	}
 
@@ -1234,7 +1231,7 @@ public class PropertiesHelper
 	public PropertiesHelper(ulong reportCode, DataTable nonOptionalParams, DataTable optionalParams)
 	{
 		report = Report.TryFind(Convert.ToUInt64(reportCode));
-		reportProperties = ReportProperty.Queryable.Where(p => p.ReportCode == report.Id).ToList();
+		reportProperties = report.Properties;
 		dtNonOptionalParams = nonOptionalParams;
 		dtOptionalParams = optionalParams;
 	}
@@ -1243,14 +1240,12 @@ public class PropertiesHelper
 	{
 		if(pricePropNames.Contains(priceProp.PropertyType.PropertyName)) {
 			// получаем свойство 'Список значений "Прайс"'
-			var prices = reportProperties.Where(p => pricePropNames.Contains(p.PropertyType.PropertyName)).FirstOrDefault();
-
-			
+			var prices = reportProperties.FirstOrDefault(p => pricePropNames.Contains(p.PropertyType.PropertyName));
 
 			decimal regionMask = 0;
 			string pricesStr = String.Empty;
 			// получаем свойство 'Список значений "Региона"'
-			var regEqual = reportProperties.Where(p => regionPropNames.Contains(p.PropertyType.PropertyName)).FirstOrDefault();
+			var regEqual = reportProperties.FirstOrDefault(p => regionPropNames.Contains(p.PropertyType.PropertyName));
 			if(regEqual != null) {
 				regionMask = regEqual.Values.Select(v => {
 					UInt64 regionCode;

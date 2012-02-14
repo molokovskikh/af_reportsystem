@@ -27,6 +27,9 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual bool Enabled { get; set; }
 
+		[HasMany]
+		public virtual IList<ReportProperty> Properties { get; set; }
+
 		public static Task CreateTemporaryTaskForRunFromInterface(TaskService service, TaskFolder folder, Task source, string action)
 		{
 			var task = ScheduleHelper.GetTask(service, folder, Convert.ToUInt64(1), "tempTask1", "temp");

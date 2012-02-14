@@ -13,6 +13,5 @@ namespace ReportTuner.Models
 
 		[BelongsTo("GeneralReport")]
 		public virtual GeneralReport GeneralReport { get; set; }
-
 	}
 }

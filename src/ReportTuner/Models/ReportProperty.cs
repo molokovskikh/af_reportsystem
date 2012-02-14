@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
+using log4net;
 
 namespace ReportTuner.Models
 {
@@ -16,7 +17,7 @@ namespace ReportTuner.Models
 
 		public ReportProperty(Report report, ReportTypeProperty property)
 		{
-			ReportCode = report.Id;
+			Report = report;
 			PropertyType = property;
 			Value = property.DefaultValue;
 		}
@@ -24,8 +25,8 @@ namespace ReportTuner.Models
 		[PrimaryKey("ID")]
 		public virtual ulong Id { get; set; }
 
-		[Property]
-		public virtual ulong ReportCode { get; set; }
+		[BelongsTo("ReportCode")]
+		public virtual Report Report { get; set; }
 
 		[BelongsTo("PropertyID")]
 		public virtual ReportTypeProperty PropertyType { get; set; }
@@ -39,6 +40,21 @@ namespace ReportTuner.Models
 		public string Filename
 		{
 			get { return Path.Combine(Global.Config.SavedFilesPath, Id.ToString()); }
+		}
+
+		public void CleanupFiles()
+		{
+			if (PropertyType.PropertyType != "FILE")
+				return;
+
+			try {
+				if (File.Exists(Filename))
+					File.Delete(Filename);
+			}
+			catch (Exception e) {
+				var log = LogManager.GetLogger(typeof(ReportProperty));
+				log.Error(String.Format("Ошибка при удалении файла {0}", Filename), e);
+			}
 		}
 	}
 }

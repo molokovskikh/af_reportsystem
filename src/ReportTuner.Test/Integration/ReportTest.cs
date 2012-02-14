@@ -6,12 +6,10 @@ using Test.Support;
 using ReportTuner.Models;
 using System;
 using System.Data;
-using System.Configuration;
 using MySql.Data.MySqlClient;
 using Test.Support.Suppliers;
 
-
-namespace ReportTuner.Test.Intagration
+namespace ReportTuner.Test.Integration
 {
 	[TestFixture]
 	class ReportTest
@@ -30,7 +28,7 @@ namespace ReportTuner.Test.Intagration
 
 		DataTable FillClients(string proc, string filter, string id)
 		{
-			DataTable dtProcResult = new DataTable();
+			var dtProcResult = new DataTable();
 			string db = String.Empty;
 			try
 			{
@@ -65,33 +63,30 @@ namespace ReportTuner.Test.Intagration
 		[Test]
 		public void TestRecipientsList()
 		{
-			TestPayer payer;
 			TestClient client1;
 			TestClient client2;
 			ulong reportId;
 
-			var dt = DateTime.Now.ToString();
-
 			using (new SessionScope())
 			{
-				payer = new TestPayer() {};
+				var payer = new TestPayer();
 				payer.SaveAndFlush();
 			
 				var contactGroupOwner = new TestContactGroupOwner();
 				contactGroupOwner.SaveAndFlush();
 
-			    client1 = TestClient.Create();
-			    client2 = TestClient.Create();
+				client1 = TestClient.Create();
+				client2 = TestClient.Create();
 
-                client1.Payers.Add(payer);
-                client2.Payers.Add(payer);
+				client1.Payers.Add(payer);
+				client2.Payers.Add(payer);
 
 				var session = ActiveRecordMediator.GetSessionFactoryHolder().CreateSession(typeof(ActiveRecordBase));
 				try
 				{
-                    session.CreateSQLQuery(@"INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid1, :payerid);
-                                             INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid2, :payerid);")
-                        .SetParameter("clientid1", client1.Id).SetParameter("clientid2", client2.Id).SetParameter("payerid", payer.Id).ExecuteUpdate();
+					session.CreateSQLQuery(@"INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid1, :payerid);
+											 INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid2, :payerid);")
+						.SetParameter("clientid1", client1.Id).SetParameter("clientid2", client2.Id).SetParameter("payerid", payer.Id).ExecuteUpdate();
 				}
 				finally
 				{
@@ -108,7 +103,7 @@ namespace ReportTuner.Test.Intagration
 			{
 				var report = GeneralReport.Find(Convert.ToUInt64(reportId));				
 				Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));				
-                Assert.That(report.Payer.FutureClients[0].ShortName, Is.EqualTo(client1.Name));
+				Assert.That(report.Payer.FutureClients[0].ShortName, Is.EqualTo(client1.Name));
 				Assert.That(report.Payer.FutureClients[1].ShortName, Is.EqualTo(client2.Name));
 			}
 		}
@@ -116,54 +111,50 @@ namespace ReportTuner.Test.Intagration
 		[Test]
 		public void TestClientsListInCombineReport()
 		{
-			TestPayer payer;			
-		    TestSupplier supplier;
+			TestSupplier supplier;
 			TestClient client;
-			ulong reportId;
 			var dt = DateTime.Now.ToString();
 
 			using (new SessionScope())
 			{
-				payer = new TestPayer() {};
+				var payer = new TestPayer();
 				payer.SaveAndFlush();
 
 				var contactGroupOwner = new TestContactGroupOwner();
 				contactGroupOwner.SaveAndFlush();
 
-				supplier = new TestSupplier()
-				           	{
-				           		Segment = Segment.Wholesale,
-				           		Disabled = false,
-				           		Type = ServiceType.Drugstore,
-				           		Name = "тестовый поставщик" + dt,
-				           		FullName = "тестовый поставщик" + dt,
-				           		Payer = payer,
-				           		ContactGroupOwner = contactGroupOwner
-				           	};
+				supplier = new TestSupplier {
+					Segment = Segment.Wholesale,
+					Disabled = false,
+					Type = ServiceType.Drugstore,
+					Name = "тестовый поставщик" + dt,
+					FullName = "тестовый поставщик" + dt,
+					Payer = payer,
+					ContactGroupOwner = contactGroupOwner
+				};
 				supplier.SaveAndFlush();
 
-				client = new TestClient()
-				         	{
-				         		Segment = Segment.Wholesale,
-				         		Status = ClientStatus.On,
-				         		Type = ServiceType.Drugstore,
-				         		Name = "тестовый клиент" + dt,
-				         		FullName = "тестовый клиент" + dt,
-				         		RegionCode = 1UL,
-				         		MaskRegion = 1UL,
-				         		ContactGroupOwner = contactGroupOwner,
-				         		Users = new List<TestUser>()
-				         	};
+				client = new TestClient {
+					Segment = Segment.Wholesale,
+					Status = ClientStatus.On,
+					Type = ServiceType.Drugstore,
+					Name = "тестовый клиент" + dt,
+					FullName = "тестовый клиент" + dt,
+					RegionCode = 1UL,
+					MaskRegion = 1UL,
+					ContactGroupOwner = contactGroupOwner,
+					Users = new List<TestUser>()
+				};
 				client.SaveAndFlush();
 			}
 
-			DataTable result1 = FillClients("GetClientCodeWithNewUsers", "", client.Id.ToString());
-			DataTable result2 = FillClients("GetClientCodeWithNewUsers", "", supplier.Id.ToString());
+			var result1 = FillClients("GetClientCodeWithNewUsers", "", client.Id.ToString());
+			var result2 = FillClients("GetClientCodeWithNewUsers", "", supplier.Id.ToString());
 
-			DataRow row = result1.Rows[0];
+			var row = result1.Rows[0];
 
-			uint id = Convert.ToUInt32(row[0]);						
-			string name = Convert.ToString(row[1]);
+			var id = Convert.ToUInt32(row[0]);						
+			var name = Convert.ToString(row[1]);
 
 			Assert.That(result1.Rows.Count, Is.EqualTo(1));
 			Assert.That(result2.Rows.Count, Is.EqualTo(0));
@@ -183,50 +174,47 @@ namespace ReportTuner.Test.Intagration
 		public void GetMailAddressesTest()
 		{
 			var mails = FakeReports_GeneralReports.GetMailAddresses("a.tyutin@analit.net, _test@mail.ru, 123_@qwe.ertert.net, .incorrect@mail.ru");
-			Assert.That(mails.Count, Is.EqualTo(3));			
+			Assert.That(mails.Count, Is.EqualTo(3));
 		}
 
 		[Test]
-		public void test_region_mask_for_PharmacyMixedReport()
+		public void Region_mask_for_PharmacyMixedReport()
 		{
-			Report report;		
 			using (new SessionScope())
 			{				
 				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("PharmacyMixedReport") && r.Enabled).ToList();
-				report = reports.Select(r =>
-					      	{
-					      		var properties = ReportProperty.Queryable.Where(p => p.ReportCode == r.Id).ToList();
-								var prop = properties.Where(p => p.PropertyType.PropertyName == "RegionEqual").FirstOrDefault();
-								if (prop != null) return r;
-					      		return null;
-					      	}).Where(r => r != null).FirstOrDefault();
-				var reportProperties = ReportProperty.Queryable.Where(p => p.ReportCode == report.Id).ToList();
-				var clientProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "SourceFirmCode").FirstOrDefault();
-				var regionProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "RegionEqual").FirstOrDefault();
+				var report = reports.Select(r => {
+					var properties = ReportProperty.Queryable.Where(p => p.Report == r).ToList();
+					var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
+					if (prop != null) return r;
+					return null;
+				}).FirstOrDefault(r => r != null);
+				var reportProperties = report.Properties;
+				var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "SourceFirmCode");
+				var regionProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
 				var clientid = Convert.ToUInt32(clientProperty.Value);
 				var client = FutureClient.TryFind(clientid);
 				if(client == null)
 				{
-					TestClient tc = TestClient.Create();
+					var tc = TestClient.Create();
 					clientProperty.Value = tc.Id.ToString();
 					clientProperty.Save();
 					client = FutureClient.TryFind(tc.Id);
 				}
 				var clientMask = client.MaskRegion;
-				var regMask = regionProperty.Values.Where(v =>
-				                                          	{
-				                                          		var reg = Convert.ToUInt32(v.Value);
-																if ((reg & clientMask) > 0) return false;
-																return true;				                                          		
-				                                          	}).Sum(v => Convert.ToUInt32(v.Value));
+				var regMask = regionProperty.Values.Where(v => {
+					var reg = Convert.ToUInt32(v.Value);
+					if ((reg & clientMask) > 0) return false;
+					return true;
+				}).Sum(v => Convert.ToUInt32(v.Value));
 				var mask = clientMask + regMask;
 
 				var dtNonOptionalParams = new DataTable();
 				dtNonOptionalParams.Columns.AddRange(new[]
 				{
-				    new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
-				    new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
-				    new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
+					new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
+					new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
+					new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
 				});
 				DataRow dr = dtNonOptionalParams.NewRow();
 				dr["PID"] = clientProperty.Id;
@@ -246,22 +234,18 @@ namespace ReportTuner.Test.Intagration
 		[Test]
 		public void test_userId_SpecReport()
 		{
-			Report report;
 			using (new SessionScope())
 			{
-				var reports =
-					Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("SpecReport") && r.Enabled).ToList();
-				report = reports.Select(r =>
-				                        	{
-				                        		var properties = ReportProperty.Queryable.Where(p => p.ReportCode == r.Id).ToList();
-				                        		var prop =
-													properties.Where(p => p.PropertyType.PropertyName == "FirmCodeEqual").FirstOrDefault();
-				                        		if (prop != null) return r;
-				                        		return null;
-				                        	}).Where(r => r != null).FirstOrDefault();
-				var reportProperties = ReportProperty.Queryable.Where(p => p.ReportCode == report.Id).ToList();
-				var clientProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "ClientCode").FirstOrDefault();
-				var firmCodeProperty = reportProperties.Where(p => p.PropertyType.PropertyName == "FirmCodeEqual").FirstOrDefault();
+				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("SpecReport") && r.Enabled).ToList();
+				var report = reports.Select(r => {
+					var properties = r.Properties;
+					var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
+					if (prop != null) return r;
+					return null;
+				}).FirstOrDefault(r => r != null);
+				var reportProperties = report.Properties;
+				var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
+				var firmCodeProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
 				var clientid = Convert.ToUInt32(clientProperty.Value);
 				var client = FutureClient.TryFind(clientid);
 				var user = client.Users.FirstOrDefault();
@@ -269,9 +253,9 @@ namespace ReportTuner.Test.Intagration
 				var dtNonOptionalParams = new DataTable();
 				dtNonOptionalParams.Columns.AddRange(new[]
 				{
-				    new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
-				    new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
-				    new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
+					new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
+					new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
+					new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
 				});
 				DataRow dr = dtNonOptionalParams.NewRow();
 				dr["PID"] = clientProperty.Id;
@@ -282,9 +266,9 @@ namespace ReportTuner.Test.Intagration
 				var dtOptionalParams = new DataTable();
 				dtOptionalParams.Columns.AddRange(new[]
 				{
-				    new DataColumn() {ColumnName = "OPID", DataType = typeof (long)},
-				    new DataColumn() {ColumnName = "OPPropertyName", DataType = typeof (string)},
-				    new DataColumn() {ColumnName = "OPPropertyValue", DataType = typeof (string)}
+					new DataColumn() {ColumnName = "OPID", DataType = typeof (long)},
+					new DataColumn() {ColumnName = "OPPropertyName", DataType = typeof (string)},
+					new DataColumn() {ColumnName = "OPPropertyValue", DataType = typeof (string)}
 				});
 				dr = dtOptionalParams.NewRow();
 				dr["OPID"] = firmCodeProperty.Id;

@@ -537,17 +537,16 @@ select last_insert_id() as GRLastInsertID;
 		// А также включаем/выключаем задание при изменении галки "Включен"
 		if ((_deletedReports.Count > 0) || (_updatedReports.Count > 0))
 		{
-			using (TaskService taskService = ScheduleHelper.GetService())
-			using (TaskFolder reportsFolder = ScheduleHelper.GetReportsFolder(taskService))
+			using (var helper = new ScheduleHelper())
 			{
-				foreach (ulong _updatedReportId in _updatedReports)
+				foreach (var id in _updatedReports)
 				{
-					GeneralReport _report = GeneralReport.Find(_updatedReportId);
-					ScheduleHelper.GetTask(taskService, reportsFolder, _updatedReportId, _report.Comment, "GR");
-					ScheduleHelper.SetTaskEnableStatus(_updatedReportId, _report.Allow, "GR"); // включаем/выключаем отчет
+					var report = GeneralReport.Find(id);
+					helper.GetTask(id, report.Comment);
+					ScheduleHelper.SetTaskEnableStatus(id, report.Allow, "GR"); // включаем/выключаем отчет
 				}
-				foreach (ulong _deletedReportId in _deletedReports)
-					ScheduleHelper.DeleteTask(reportsFolder, _deletedReportId, "GR");
+				foreach (var id in _deletedReports)
+					helper.DeleteReportTask(id);
 			}
 		}
 

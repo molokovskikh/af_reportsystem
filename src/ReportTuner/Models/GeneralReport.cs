@@ -1,15 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
 using Common.Web.Ui.Models;
+using Microsoft.Win32.TaskScheduler;
+using ReportTuner.Helpers;
 
 namespace ReportTuner.Models
 {
 	[ActiveRecord("general_reports", Schema = "reports")]
 	public class GeneralReport : ActiveRecordBase<GeneralReport>
 	{
+		public GeneralReport()
+		{
+			Reports = new List<Report>();
+			Format = "Excel";
+		}
+
 		[PrimaryKey("GeneralReportCode")]
 		public virtual ulong Id { get; set; }
 
@@ -25,7 +34,7 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual string EMailSubject { get; set; }
 
-		[BelongsTo(Column = "ContactGroupId")]
+		[BelongsTo(Column = "ContactGroupId", Cascade = CascadeEnum.Delete)]
 		public virtual ContactGroup ContactGroup { get; set; }
 
 		[Property]
@@ -46,12 +55,19 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual string Format { get; set; }
 
+		[HasMany]
+		public virtual IList<Report> Reports {get; set; }
+
 		public bool IsOrderReport()
 		{
-			return Report.Queryable
-				.Where(r => r.GeneralReport == this)
-				.ToList()
-				.Any(r => r.ReportType.IsOrderReport);
+			return Reports.Any(r => r.ReportType.IsOrderReport);
+		}
+
+		public void RemoveTask()
+		{
+			using (var helper = new ScheduleHelper()) {
+				helper.DeleteReportTask(Id);
+			}
 		}
 	}
 }

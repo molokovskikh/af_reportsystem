@@ -11,7 +11,7 @@ using Action = Microsoft.Win32.TaskScheduler.Action;
 
 namespace ReportTuner.Helpers
 {
-	public static class ScheduleHelper
+	public class ScheduleHelper : IDisposable
 	{
 		public static string ScheduleServer = ConfigurationManager.AppSettings["ScheduleServer"];
 		public static string ScheduleDomainName = ConfigurationManager.AppSettings["ScheduleDomainName"];
@@ -21,7 +21,15 @@ namespace ReportTuner.Helpers
 		public static string ScheduleWorkDir = ConfigurationManager.AppSettings["ScheduleWorkDir"];
 		public static string ScheduleAppPath = ConfigurationManager.AppSettings["ScheduleAppPath"];
 		public static string ReportsFolderName = ConfigurationManager.AppSettings["ReportsFolderName"];
-		
+
+		private TaskService service;
+		private TaskFolder folder;
+
+		public ScheduleHelper()
+		{
+			service = GetService();
+			folder = GetReportsFolder(service);
+		}
 
 		public static TaskService GetService()
 		{
@@ -122,6 +130,11 @@ namespace ReportTuner.Helpers
 				task => task.Name.IndexOf("temp", StringComparison.OrdinalIgnoreCase) != -1);
 		}
 
+		public Task GetTask(ulong id, string comment, string prefix = "GR")
+		{
+			return GetTask(service, folder, id, comment, prefix);
+		}
+
 		/// <summary>
 		/// производим поиск задачи и обновление Description, если задача не существует, то она будет создана
 		/// </summary>
@@ -171,6 +184,19 @@ namespace ReportTuner.Helpers
 					f => String.Equals(f.Name, ReportsFolderName, StringComparison.CurrentCultureIgnoreCase));
 			if (folder == null)
 				root.CreateFolder(ReportsFolderName, null);
+		}
+
+		public void Dispose()
+		{
+			if (service != null)
+				service.Dispose();
+			if (folder != null)
+				folder.Dispose();
+		}
+
+		public void DeleteReportTask(ulong id)
+		{
+			DeleteTask(folder, id, "GR");
 		}
 	}
 }

@@ -73,7 +73,7 @@ namespace ReportTuner.Models
 			var reports = Report.Queryable.Where(r => r.ReportType == this).ToList();
 			foreach (var report in reports)
 			{
-				var propertyValues = ReportProperty.Queryable.Where(p => p.ReportCode == report.Id);
+				var propertyValues = report.Properties;
 				Properties
 					.Where(p => !p.Optional && !propertyValues.Any(pv => pv.PropertyType == p))
 					.Select(p => new ReportProperty(report, p))

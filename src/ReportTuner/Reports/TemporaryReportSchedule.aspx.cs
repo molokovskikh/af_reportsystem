@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using ReportTuner.Models;
 using System.Configuration;
 using Common.Web.Ui.Models;
@@ -15,7 +11,7 @@ using ReportTuner.Helpers;
 
 namespace ReportTuner.Reports
 {
-	public partial class TemporaryReportSchedule : System.Web.UI.Page
+	public partial class TemporaryReportSchedule : Page
 	{
 		private GeneralReport _generalReport;
 		private Task _currentTask;
@@ -33,12 +29,12 @@ namespace ReportTuner.Reports
 				Response.Redirect("base.aspx");
 			else
 			{
-				uint _ContactOwnerId;
-				if (uint.TryParse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"], out _ContactOwnerId))
+				uint contactOwnerId;
+				if (uint.TryParse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"], out contactOwnerId))
 				{
 					try
 					{
-						_reportsContactGroupOwner = ContactGroupOwner.Find(_ContactOwnerId);
+						_reportsContactGroupOwner = ContactGroupOwner.Find(contactOwnerId);
 					}
 					catch (NotFoundException exp)
 					{
@@ -62,15 +58,13 @@ namespace ReportTuner.Reports
 				if ((_generalReport.ContactGroup == null) && btnRun.Enabled)
 					btnRun.Enabled = false;
 
-				if (!this.IsPostBack)
+				if (!IsPostBack)
 				{
 					ClearSearch();
 					if (_generalReport.ContactGroup != null)
 						lContactGroupName.Text = _generalReport.ContactGroup.Name;
 				}
-
 			}
-
 		}
 
 		/// <summary>
@@ -89,8 +83,6 @@ namespace ReportTuner.Reports
 				_taskService = null;
 			}
 		}
-
-
 
 		protected void ClearSearch()
 		{
@@ -129,31 +121,31 @@ namespace ReportTuner.Reports
 
 		protected void btnRun_Click(object sender, EventArgs e)
 		{
-			bool _runed = false;
-			if (this.IsValid && (_currentTask.State != TaskState.Running) && (_generalReport.ContactGroup != null))
+			var runed = false;
+			if (IsValid && (_currentTask.State != TaskState.Running) && (_generalReport.ContactGroup != null))
 			{
 				_currentTask.Run();
 				Thread.Sleep(500);
 				btnRun.Enabled = false;
 				btnRun.Text = StatusNotRunning;
-				_runed = true;
+				runed = true;
 			}
 
 			CloseTaskService();
 			Thread.Sleep(500);
-			if (_runed)
+			if (runed)
 				Response.Redirect("TemporaryReportSchedule.aspx?TemporaryId=" + Request["TemporaryId"]);
 		}
 
 		protected void btnFind_Click(object sender, EventArgs e)
 		{
-			ContactGroup[] _findedContactGroups = ActiveRecordBase<ContactGroup>.FindAll(
+			var findedContactGroups = ActiveRecordBase<ContactGroup>.FindAll(
 				Order.Asc("Name"),
 				Expression.Eq("ContactGroupOwner", _reportsContactGroupOwner),
 				Expression.Eq("Type", ContactGroupType.Reports),
 				Expression.Like("Name", "%" + tbContactFind.Text + "%"));
 
-			ContactGroups.DataSource = _findedContactGroups;
+			ContactGroups.DataSource = findedContactGroups;
 			ContactGroups.DataTextField = "Name";
 			ContactGroups.DataValueField = "Id";
 			ContactGroups.DataBind();
@@ -161,7 +153,7 @@ namespace ReportTuner.Reports
 			tbContactFind.Visible = false;
 			btnFind.Visible = false;
 			ContactGroups.Visible = true;
-			if (_findedContactGroups.Length > 0)
+			if (findedContactGroups.Length > 0)
 				btnSaveContactGropup.Visible = true;
 			btnCancelContactGroup.Visible = true;
 
@@ -177,14 +169,14 @@ namespace ReportTuner.Reports
 
 		protected void btnSaveContactGropup_Click(object sender, EventArgs e)
 		{
-			uint _newGroupId;
+			uint newGroupId;
 			//попытка преобразовать выбранное значение в Id группы, если это получилось сделать, то установливаем новое значение
-			if (uint.TryParse(ContactGroups.SelectedValue, out _newGroupId))
+			if (uint.TryParse(ContactGroups.SelectedValue, out newGroupId))
 			{
-				ContactGroup _newGroup = ContactGroup.Find(_newGroupId);
+				var newGroup = ContactGroup.Find(newGroupId);
 				using (new TransactionScope())
 				{
-					_generalReport.ContactGroup = _newGroup;
+					_generalReport.ContactGroup = newGroup;
 					_generalReport.Save();
 				}
 
@@ -201,11 +193,11 @@ namespace ReportTuner.Reports
 		protected void btnBack_Click(object sender, EventArgs e)
 		{
 			CloseTaskService();
-			Report _temporaryReport = Report.FindFirst(
+			var temporaryReport = Report.FindFirst(
 				Expression.Eq("GeneralReport", _generalReport)
 			);
 
-			Response.Redirect(String.Format("ReportProperties.aspx?TemporaryId={0}&rp={1}", _generalReport.Id, _temporaryReport.Id));
+			Response.Redirect(String.Format("ReportProperties.aspx?TemporaryId={0}&rp={1}", _generalReport.Id, temporaryReport.Id));
 		}
 	}
 }

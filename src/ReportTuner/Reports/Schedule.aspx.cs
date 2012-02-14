@@ -47,7 +47,7 @@ public partial class Reports_schedule : Page
 	private const string StatusRunning = "Выполнить задание";
 	private const string StatusNotRunning = "Выполняется...";
 
-	protected void Page_Init(object sender, System.EventArgs e)
+	protected void Page_Init(object sender, EventArgs e)
 	{
 		InitializeComponent();
 	}
@@ -177,7 +177,7 @@ and reportslogs.LogTime > ?LastLogTime
 order by LogTime desc
 ";
 					MyCmd.Parameters.AddWithValue("?LastLogTime", ((DateTime)lastLogTimes[0][0]).AddDays(-1).Date);
-					DataTable _logs = new DataTable();
+					var _logs = new DataTable();
 					MyDA.Fill(_logs);
 					gvLogs.DataSource = _logs;
 				}

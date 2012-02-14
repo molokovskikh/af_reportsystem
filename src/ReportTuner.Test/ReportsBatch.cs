@@ -27,7 +27,7 @@ FROM
   reports.report_properties rp,
   reports.report_type_properties rtp
 where
-    rp.ReportCode = ?SourceReportId
+	rp.ReportCode = ?SourceReportId
 and rtp.Id = rp.PropertyId
 order by rp.PropertyID;
 SELECT
@@ -36,7 +36,7 @@ FROM
   reports.report_properties rp,
   reports.report_property_values rpv
 where
-    rp.ReportCode = ?SourceReportId
+	rp.ReportCode = ?SourceReportId
 and rpv.ReportPropertyId = rp.Id;
 SELECT 
 rp.*,
@@ -45,7 +45,7 @@ FROM
   reports.report_properties rp,
   reports.report_type_properties rtp
 where
-    rp.ReportCode = ?DestinationReportId
+	rp.ReportCode = ?DestinationReportId
 and rtp.Id = rp.PropertyId
 order by rp.PropertyID;
 ",
@@ -122,11 +122,11 @@ order by rp.PropertyID;
 				var command = new MySqlCommand(
 					@"insert into reports.reports 
 						 (GeneralReportCode, ReportCaption, ReportTypeCode, Enabled)
-                      select 
-                         GeneralReportCode, ?ReportCaption, ReportTypeCode, Enabled
-                        from reports.reports
-                       where ReportCode = ?reportCode;
-                     select last_insert_id() as ReportCode;", conn);
+					  select 
+						 GeneralReportCode, ?ReportCaption, ReportTypeCode, Enabled
+						from reports.reports
+					   where ReportCode = ?reportCode;
+					 select last_insert_id() as ReportCode;", conn);
 				command.Parameters.AddWithValue("?reportCode", sourceReportId);
 				command.Parameters.Add("?ReportCaption", MySqlDbType.String);
 
@@ -165,7 +165,7 @@ from
   reports.reports,
   reports.ReportTypes
 where
-    General_Reports.GeneralReportCode = ?GeneralReportCode
+	General_Reports.GeneralReportCode = ?GeneralReportCode
 and General_Reports.GeneralReportCode = reports.GeneralReportCode
 and ReportTypes.ReportTypeCode = reports.ReportTypeCode
 and ReportTypes.ReportClassName = ?ReportClassName
@@ -203,7 +203,7 @@ select
 from
   reports.report_type_properties
 where
-    report_type_properties.ReportTypeCode = ?ReportTypeCode
+	report_type_properties.ReportTypeCode = ?ReportTypeCode
 and report_type_properties.PropertyName = ?PropertyName;
 "
 					,
@@ -283,7 +283,7 @@ from
   reports.reports,
   reports.ReportTypes
 where
-    General_Reports.GeneralReportCode = ?GeneralReportCode
+	General_Reports.GeneralReportCode = ?GeneralReportCode
 and General_Reports.GeneralReportCode = reports.GeneralReportCode
 and ReportTypes.ReportTypeCode = reports.ReportTypeCode
 and ReportTypes.ReportClassName = ?ReportClassName
@@ -327,7 +327,7 @@ update
 set
   report_properties.PropertyValue = ?PropertyValue
 where
-    report_type_properties.ReportTypeCode = ?ReportTypeCode
+	report_type_properties.ReportTypeCode = ?ReportTypeCode
 and report_type_properties.PropertyName = ?PropertyName
 and report_properties.PropertyId = report_type_properties.Id
 and report_properties.ReportCode = ?ReportCode;
@@ -390,7 +390,7 @@ from
   reports.General_Reports,
   reports.reports
 where
-    General_Reports.GeneralReportCode = ?GeneralReportCode
+	General_Reports.GeneralReportCode = ?GeneralReportCode
 and General_Reports.GeneralReportCode = reports.GeneralReportCode
 "
 					,
@@ -511,44 +511,40 @@ select last_insert_id() as ReportCode;", connection);
 			CopyReportProperties(1603, 1633);
 		}
 
-        [Test, Ignore("Для добавления новых параметров")]
-        public void AddNewOptions()
-        {
-            string conn = FixtureSetup.ConnectionString;
+		[Test, Ignore("Для добавления новых параметров")]
+		public void AddNewOptions()
+		{
+			ulong reportTypeCode = 1;
 
-            ulong reportTypeCode = 1;
+			using (new SessionScope())
+			{
+				var reports = Report.Queryable.Where(r => r.ReportType.Id == reportTypeCode).ToList();
 
-            using (new SessionScope())
-            {
-                var reports = Report.Queryable.Where(r => r.ReportType.Id == reportTypeCode).ToList();
+				var prop_types = ReportTypeProperty.Queryable
+												   .Where(pt => pt.ReportType.Id == reportTypeCode)
+												   .Where(pt => pt.PropertyName == "ByBaseCosts" ||
+																pt.PropertyName == "PriceCodeEqual" ||
+																pt.PropertyName == "RegionEqual").ToList();
 
-                var prop_types = ReportTypeProperty.Queryable
-                                                   .Where(pt => pt.ReportType.Id == reportTypeCode)
-                                                   .Where(pt => pt.PropertyName == "ByBaseCosts" ||
-                                                                pt.PropertyName == "PriceCodeEqual" ||
-                                                                pt.PropertyName == "RegionEqual").ToList();
+				foreach (var report in reports)
+				{
+					foreach (var prop_type in prop_types)
+					{
+						var prop = ReportProperty.Queryable.Where(p => p.Report == report
+							&& p.PropertyType.Id == prop_type.Id)
+							.ToList();
+						if (prop.Count != 0)
+							continue;
+						var property = new ReportProperty {
+							Report = report,
+							PropertyType = prop_type,
+							Value = prop_type.DefaultValue
+						};
 
-                foreach (var report in reports)
-                {
-
-
-                    foreach (var prop_type in prop_types)
-                    {
-                        var prop =
-                            ReportProperty.Queryable.Where(
-                                p => p.ReportCode == report.Id && p.PropertyType.Id == prop_type.Id).ToList();
-                        if (prop.Count != 0) continue;
-                        ReportProperty property = new ReportProperty()
-                        {
-                            ReportCode = report.Id,
-                            PropertyType = prop_type,
-                            Value = prop_type.DefaultValue
-                        };
-
-                        property.Save();
-                    }
-                }
-            }
-        }
+						property.Save();
+					}
+				}
+			}
+		}
 	}
 }

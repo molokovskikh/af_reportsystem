@@ -9,17 +9,9 @@ using Common.Web.Ui.Models;
 
 namespace ReportTuner.Models
 {
-	public interface IClient
-	{
-		uint Id { get; set; }
-		string ShortName { get; set; }
-		string ShortNameAndId{ get; }
-		string FullName { get; set; }
-		int FirmType { get; }
-	}
 
 	[ActiveRecord("Clients", Schema = "Future")]
-	public class FutureClient : ActiveRecordBase<FutureClient>, IClient
+	public class FutureClient : ActiveRecordBase<FutureClient>
 	{
 		[PrimaryKey]
 		public virtual uint Id { get; set; }
@@ -50,7 +42,7 @@ namespace ReportTuner.Models
 		public int FirmType
 		{
 			get { return 1; }
-		}		
+		}
 	}
 
 	public interface IUser
