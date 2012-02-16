@@ -441,13 +441,23 @@ AND rp.reportCode=?rp
 		{
 			var ddlValues = ((DropDownList) cell.FindControl("ddlValue"));
 			ddlValues.Visible = true;
-			FillDDL(reportProperty.PropertyType.Enum.Id);
-			ddlValues.DataSource = dtEnumValues;
-			ddlValues.DataTextField = "evName";
-			ddlValues.DataValueField = "evValue";
-			if (!String.IsNullOrEmpty(value))
-				ddlValues.SelectedValue = value;
-			ddlValues.DataBind();
+			if (reportProperty.PropertyType.DisplayName == "Пользователь") {
+				var clientProperty = reportProperty.Report.Properties.FirstOrDefault(p => p.PropertyType.DisplayName == "Клиент");
+				if (clientProperty == null)
+					return;
+				if (String.IsNullOrEmpty(clientProperty.Value))
+					return;
+				FillUserDDL(Convert.ToInt64(clientProperty.Value), ddlValues);
+			}
+			else {
+				FillDDL(reportProperty.PropertyType.Enum.Id);
+				ddlValues.DataSource = dtEnumValues;
+				ddlValues.DataTextField = "evName";
+				ddlValues.DataValueField = "evValue";
+				if (!String.IsNullOrEmpty(value))
+					ddlValues.SelectedValue = value;
+				ddlValues.DataBind();
+			}
 		}
 		else if (type == "INT")
 		{
