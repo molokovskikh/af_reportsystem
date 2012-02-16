@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
+using Castle.ActiveRecord;
 using NUnit.Framework;
+using ReportTuner.Models;
 using WatiN.Core;
 using ReportTuner.Test.Helpers;
 using System.Diagnostics;
@@ -41,6 +44,28 @@ namespace ReportTuner.Test.Functional
 				browser.Refresh();
 				Thread.Sleep(15000);
 				Assert.That(browser.Text, Is.StringContaining("Операция выполнена"));
+			}
+		}
+
+		[Test]
+		public void Visit_every_report_type_configuration_page()
+		{
+			using(new SessionScope())
+			{
+				var types = ReportType.FindAll();
+				Assert.That(types.Length, Is.GreaterThan(0), "данные для тестов не загружены, выполни bake PrepareLocal profile=reports");
+				foreach (var type in types) {
+					var report = Report.Queryable.FirstOrDefault(r => r.ReportType == type);
+					CheckReport(report);
+				}
+			}
+		}
+
+		private static void CheckReport(Report report)
+		{
+			var url = String.Format("http://localhost:53759/Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
+			using (var browser = new IE(url)) {
+				Assert.That(browser.Text, Is.StringContaining("Настройка параметров отчета"));
 			}
 		}
 	}
