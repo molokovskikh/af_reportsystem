@@ -61,7 +61,6 @@ from " +
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
   left join Future.Users u on u.Id = oh.UserId
     left join Future.Clients fc on fc.Id = u.ClientId
-#  left join UserSettings.ClientsData cd on cd.FirmCode = oh.ClientCode
    left join Future.Clients cl on cl.Id = oh.ClientCode
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)

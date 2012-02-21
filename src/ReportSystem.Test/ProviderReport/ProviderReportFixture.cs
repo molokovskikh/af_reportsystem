@@ -219,8 +219,15 @@ from
 			report.ProcessReport();
 		}
 
-		private DataSet GetClients(string sql, int rowCount)
+		private DataSet GetClients(int rowCount)
 		{
+			var sql = @"
+select 
+	c.Id,
+	c.Name 
+from 
+	future.Clients c
+limit 1";
 			var dsClients = MySqlHelper.ExecuteDataset(
 				Conn,
 				sql);
@@ -254,33 +261,7 @@ from
 		[Test(Description = "Проверяем работу метода с новыми клиентами")]
 		public void CheckClientNamesWithNewClients()
 		{
-			var dsClients = GetClients(@"
-select 
-	c.Id,
-	c.Name 
-from 
-	future.Clients c
-	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1
-where
-  cd.FirmCode is null
-limit 1", 1);
-
-			CheckClientsName(dsClients.Tables[0]);
-		}
-
-		[Test(Description = "Проверяем работу метода с новыми клиентами, для которых существуют старые клиенты с другим именем")]
-		public void CheckClientNamesWithNewAndOldClients()
-		{
-			var dsClients = GetClients(@"
-select 
-	c.Id,
-	c.Name 
-from 
-	future.Clients c
-	left join usersettings.ClientsData cd on cd.FirmCode = c.Id and cd.FirmType = 1 and cd.ShortName <> c.Name
-where
-  cd.FirmCode is not null
-limit 1", 1);
+			var dsClients = GetClients(1);
 
 			CheckClientsName(dsClients.Tables[0]);
 		}

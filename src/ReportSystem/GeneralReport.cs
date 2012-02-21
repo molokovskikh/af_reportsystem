@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem
 	public class GeneralReport
 	{
 		public ulong GeneralReportID;
-		public int _firmCode;
+		public uint SupplierId;
 
 		private uint? _contactGroupId;
 		private string _eMailSubject;
@@ -86,14 +86,14 @@ namespace Inforoom.ReportSystem
 		public GeneralReport() // конструктор для возможности тестирования
 		{}
 
-		public GeneralReport(ulong id, int FirmCode, uint? ContactGroupId, 
+		public GeneralReport(ulong id, uint supplierId, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
 			string ReportArchName, bool Temporary, ReportFormats format,
 			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo, string payer)
 		{
 			Logger = LogManager.GetLogger(GetType());
 			GeneralReportID = id;
-			_firmCode = FirmCode;
+			SupplierId = supplierId;
 			_conn = Conn;
 			_contactGroupId = ContactGroupId;
 			_eMailSubject = EMailSubject;
@@ -318,7 +318,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			var ResDirPath = Settings.Default.FTPOptBoxPath;
 			var resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
 
-			ResDirPath += _firmCode.ToString("000") + "\\Reports\\";
+			ResDirPath += SupplierId.ToString("000") + "\\Reports\\";
 
 			if (!(Directory.Exists(ResDirPath)))
 				Directory.CreateDirectory(ResDirPath);

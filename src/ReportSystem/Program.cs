@@ -93,7 +93,7 @@ and cr.generalreportcode = " + generalReportId;
 									//Создаем каждый отчет отдельно и пытаемся его сформировать
 									var gr = new GeneralReport(
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode],
-										Convert.ToInt32(drReport[GeneralReportColumns.FirmCode]),
+										Convert.ToUInt32(drReport[GeneralReportColumns.FirmCode]),
 										(Convert.IsDBNull(drReport[GeneralReportColumns.ContactGroupId])) ? null : (uint?)Convert.ToUInt32(drReport[GeneralReportColumns.ContactGroupId]),
 										drReport[GeneralReportColumns.EMailSubject].ToString(),
 										mc,

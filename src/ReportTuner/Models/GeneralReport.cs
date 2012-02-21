@@ -25,6 +25,10 @@ namespace ReportTuner.Models
 		[BelongsTo("PayerID")]
 		public virtual Payer Payer { get; set; }
 
+
+		/// <summary>
+		/// идентификатор поставщика в папку которого на нашем ftp кладется отчет
+		/// </summary>
 		[Property]
 		public virtual uint FirmCode { get; set; }
 		

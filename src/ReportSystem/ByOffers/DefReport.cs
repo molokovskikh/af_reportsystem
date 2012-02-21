@@ -36,8 +36,8 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			int tmpReportType = (int)getReportParam("ReportType");
-			Array v = Enum.GetValues(typeof(DefReportType));
+			var tmpReportType = (int)getReportParam("ReportType");
+			var v = Enum.GetValues(typeof(DefReportType));
 			if (((int)v.GetValue(0) <= tmpReportType) && (tmpReportType <= (int)v.GetValue(v.Length - 1)))
 				_reportType = (DefReportType)tmpReportType;
 			else
@@ -52,25 +52,6 @@ namespace Inforoom.ReportSystem
 			base.GenerateReport(e);
 
 			ProfileHelper.Next("PreGetOffers");
-			//Если код клиента равен 0, то он не установлен в параметрах, поэтому берем код клиента, для которого делается отчет
-			if (_clientCode == 0)
-			{
-				e.DataAdapter.SelectCommand.CommandText = @"
-select 
-  gr.FirmCode 
-from 
-  reports.reports r,
-  reports.general_reports gr
-where
-    r.ReportCode = ?ReportCode
-and gr.GeneralReportCode = r.GeneralReportCode";
-				e.DataAdapter.SelectCommand.Parameters.Clear();
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", _reportCode);
-				int ClientCode = Convert.ToInt32(e.DataAdapter.SelectCommand.ExecuteScalar());
-				//Устанавливаем код клиента, как код фирмы, относительно которой генерируется отчет
-				_clientCode = ClientCode;
-			}
-
 			if (_priceCode == 0)
 				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");
 
@@ -88,7 +69,7 @@ from
   usersettings.priceitems pim,
   farm.formrules fr 
 where 
-    pc.PriceCode = ?SourcePC
+	pc.PriceCode = ?SourcePC
 and pc.BaseCost = 1
 and pim.Id = pc.PriceItemId
 and fr.Id = pim.FormRuleId
@@ -112,10 +93,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			{
 				string ClientShortName = Convert.ToString(
 					
-                    MySqlHelper.ExecuteScalar(
-                        e.DataAdapter.SelectCommand.Connection,
-                        @"select Name from future.Clients where Id = ?FirmCode",
-                        new MySqlParameter("?FirmCode", _clientCode)));
+					MySqlHelper.ExecuteScalar(
+						e.DataAdapter.SelectCommand.Connection,
+						@"select Name from future.Clients where Id = ?FirmCode",
+						new MySqlParameter("?FirmCode", _clientCode)));
 				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
 			}
 			
@@ -141,7 +122,7 @@ from
   Catalogs.Products,
   Catalogs.Catalog 
 where 
-    apt.PriceCode <> ?SourcePC 
+	apt.PriceCode <> ?SourcePC 
 and apt.PriceCode=c.PriceCode
 and Products.Id = c.ProductId
 and Catalog.Id = products.CatalogId;
@@ -187,7 +168,7 @@ from
   Core c, 
   Catalogs.Products
 where 
-    apt.PriceCode <> ?SourcePC 
+	apt.PriceCode <> ?SourcePC 
 and apt.PriceCode=c.PriceCode
 and Products.Id = c.ProductId;
 
@@ -236,7 +217,7 @@ from
   farm.Core0 FarmCore, 
   Catalogs.Products
 where 
-    apt.PriceCode <> ?SourcePC 
+	apt.PriceCode <> ?SourcePC 
 and apt.PriceCode=c.PriceCode
 and Products.Id = c.ProductId
 and FarmCore.Id = c.Id;
@@ -258,7 +239,7 @@ from
   )
   left join SummaryByPrices st on st.CatalogId = Products.CatalogId and st.CodeFirmCr = FarmCore.CodeFirmCr
 where 
-    c.PriceCode=?SourcePC 
+	c.PriceCode=?SourcePC 
 and st.CatalogId is NULL;
 
 select distinct OtherByPrice.Code, CatalogNames.Name, CatalogForms.Form, Producers.Name as FirmCr
@@ -287,7 +268,7 @@ from
   ActivePrices apt, 
   Core c
 where 
-    apt.PriceCode <> ?SourcePC 
+	apt.PriceCode <> ?SourcePC 
 and apt.PriceCode=c.PriceCode;
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -302,7 +283,7 @@ from
   inner join farm.Core0 FarmCore on FarmCore.Id = c.Id
   left join SummaryByPrices st on st.ProductId = c.ProductId
 where 
-    c.PriceCode=?SourcePC 
+	c.PriceCode=?SourcePC 
 and st.ProductId is NULL;
 
 select 
@@ -338,7 +319,7 @@ from
   Core c,
   farm.Core0 FarmCore
 where 
-    apt.PriceCode <> ?SourcePC 
+	apt.PriceCode <> ?SourcePC 
 and apt.PriceCode=c.PriceCode
 and FarmCore.Id = c.Id;
 
@@ -358,7 +339,7 @@ from
   )
   left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = FarmCore.CodeFirmCr
 where
-    c.PriceCode=?SourcePC 
+	c.PriceCode=?SourcePC 
 and st.ProductId is NULL;
 
 select 

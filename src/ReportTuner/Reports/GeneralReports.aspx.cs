@@ -25,7 +25,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 		Code = 0,
 		Payer = 1,
 		Delivery = 5,
-        Reports = 6,
+		Reports = 6,
 		Schedule = 7
 	}
 
@@ -33,42 +33,42 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
-    private MySqlDataAdapter MyDA = new MySqlDataAdapter();
-    private DataSet DS;
-    private DataTable dtGeneralReports;
-    private DataColumn GeneralReportCode;
+	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
+	private DataSet DS;
+	private DataTable dtGeneralReports;
+	private DataColumn GeneralReportCode;
 	private DataColumn FirmCode;
 	private DataColumn Comment;
-    private DataColumn Allow;
-    private DataTable dtPayers;
-    private DataColumn PayerShortName;
-    private DataColumn PPayerID;
-    private DataColumn GRPayerShortName;
+	private DataColumn Allow;
+	private DataTable dtPayers;
+	private DataColumn PayerShortName;
+	private DataColumn PPayerID;
+	private DataColumn GRPayerShortName;
 	private DataColumn GRPayerID;
 	private DataColumn dataColumn1;
 
 	private const string DSReports = "Inforoom.Reports.GeneralReports.DSReports";
 
-    protected void Page_Init(object sender, System.EventArgs e)
-    {
-        InitializeComponent();
-    }
+	protected void Page_Init(object sender, System.EventArgs e)
+	{
+		InitializeComponent();
+	}
 
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (!Page.IsPostBack)
-        {
-            PostData();
-        }
-        else
-        {
-            DS = ((DataSet)Session[DSReports]);
+	protected void Page_Load(object sender, EventArgs e)
+	{
+		if (!Page.IsPostBack)
+		{
+			PostData();
+		}
+		else
+		{
+			DS = ((DataSet)Session[DSReports]);
 			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Redirect(this);
-        }
+		}
 
-        btnApply.Visible = dgvReports.Rows.Count > 0;
-    	
+		btnApply.Visible = dgvReports.Rows.Count > 0;
+		
 		if(Session["redirected"] != null && Convert.ToBoolean(Session["redirected"]))
 		{
 			lblMessage.Text = "Вследствие закрытия сессии, Вы были переведены на главную страницу. Повторите запрос.";
@@ -78,42 +78,42 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 		{
 			lblMessage.Text = "";
 		}
-    }
+	}
 
-    private void PostData()
-    {
-        if (MyCn.State != ConnectionState.Open)
-            MyCn.Open();
-        MyCmd.Connection = MyCn;
-        MyDA.SelectCommand = MyCmd;
-        MyCmd.Parameters.Clear();
-        DS.Tables[dtGeneralReports.TableName].Clear();
-        MyCmd.CommandText = @"
+	private void PostData()
+	{
+		if (MyCn.State != ConnectionState.Open)
+			MyCn.Open();
+		MyCmd.Connection = MyCn;
+		MyDA.SelectCommand = MyCmd;
+		MyCmd.Parameters.Clear();
+		DS.Tables[dtGeneralReports.TableName].Clear();
+		MyCmd.CommandText = @"
 SELECT
-    gr.GeneralReportCode,
-    gr.PayerID,
-    p.ShortName as PayerShortName,
-    gr.FirmCode,
-    gr.Allow,
-    gr.Comment,
-    gr.EMailSubject,
-    gr.ReportFileName,
-    gr.ReportArchName,
-    EXISTS(select 1 from future.Clients where Id = gr.FirmCode) IsNewClient
+	gr.GeneralReportCode,
+	gr.PayerID,
+	p.ShortName as PayerShortName,
+	gr.FirmCode,
+	gr.Allow,
+	gr.Comment,
+	gr.EMailSubject,
+	gr.ReportFileName,
+	gr.ReportArchName,
+	EXISTS(select 1 from future.Clients where Id = gr.FirmCode) IsNewClient
 FROM
-    reports.general_reports gr,
-    billing.payers p
+	reports.general_reports gr,
+	billing.payers p
 WHERE
-    p.PayerId = gr.PayerId
+	p.PayerId = gr.PayerId
 and gr.GeneralReportCode <> ?TemplateReportId
 and gr.Temporary = 0
 Order by gr.GeneralReportCode
 ";
 		MyCmd.Parameters.AddWithValue("?TemplateReportId", ConfigurationManager.AppSettings["TemplateReportId"]);
-        MyDA.Fill(DS, dtGeneralReports.TableName);
-        MyCn.Close();
+		MyDA.Fill(DS, dtGeneralReports.TableName);
+		MyCn.Close();
 
-        Session.Add(DSReports, DS);
+		Session.Add(DSReports, DS);
 
 		if (String.IsNullOrEmpty(SortField))
 		{
@@ -123,12 +123,12 @@ Order by gr.GeneralReportCode
 		ClearFilter();
 
 		DS.Tables[dtGeneralReports.TableName].DefaultView.Sort = SortField + " " + getSortDirection(); 
-        dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
-        dgvReports.DataBind();
-    }
+		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
+		dgvReports.DataBind();
+	}
 
-    private void InitializeComponent()
-    {
+	private void InitializeComponent()
+	{
 		this.DS = new System.Data.DataSet();
 		this.dtGeneralReports = new System.Data.DataTable();
 		this.GeneralReportCode = new System.Data.DataColumn();
@@ -149,19 +149,19 @@ Order by gr.GeneralReportCode
 		// 
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
-            this.dtGeneralReports,
-            this.dtPayers});
+			this.dtGeneralReports,
+			this.dtPayers});
 		// 
 		// dtGeneralReports
 		// 
 		this.dtGeneralReports.Columns.AddRange(new System.Data.DataColumn[] {
-            this.GeneralReportCode,
-            this.FirmCode,
-            this.Comment,
-            this.Allow,
-            this.GRPayerShortName,
-            this.GRPayerID,
-            this.dataColumn1});
+			this.GeneralReportCode,
+			this.FirmCode,
+			this.Comment,
+			this.Allow,
+			this.GRPayerShortName,
+			this.GRPayerID,
+			this.dataColumn1});
 		this.dtGeneralReports.TableName = "dtGeneralReports";
 		// 
 		// GeneralReportCode
@@ -195,8 +195,8 @@ Order by gr.GeneralReportCode
 		// dtPayers
 		// 
 		this.dtPayers.Columns.AddRange(new System.Data.DataColumn[] {
-            this.PayerShortName,
-            this.PPayerID});
+			this.PayerShortName,
+			this.PPayerID});
 		this.dtPayers.TableName = "dtPayers";
 		// 
 		// PayerShortName
@@ -215,12 +215,12 @@ Order by gr.GeneralReportCode
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).EndInit();
 
-    }
+	}
 
-    protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-        if (e.CommandName == "Add")
-        {
+	protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
+	{
+		if (e.CommandName == "Add")
+		{
 			//Если нет добавленных записей, то позволяем добавить запись
 			if (DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added) == null)
 			{
@@ -261,44 +261,44 @@ Order by gr.GeneralReportCode
 
 			FillDDL(((Label)cell.FindControl("lblFirmName")).Text);
 		}
-    }
+	}
 
-    protected void dgvReports_RowDeleting(object sender, GridViewDeleteEventArgs e)
-    {
-        CopyChangesToTable();
-        DS.Tables[dtGeneralReports.TableName].DefaultView[e.RowIndex].Delete();
-        dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
-        dgvReports.DataBind();
-    }
+	protected void dgvReports_RowDeleting(object sender, GridViewDeleteEventArgs e)
+	{
+		CopyChangesToTable();
+		DS.Tables[dtGeneralReports.TableName].DefaultView[e.RowIndex].Delete();
+		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
+		dgvReports.DataBind();
+	}
 
-    private void FillDDL(string Name)
-    {
-        if (MyCn.State != ConnectionState.Open)
-            MyCn.Open();
-        MyCmd.Connection = MyCn;
-        MyDA.SelectCommand = MyCmd;
-        MyCmd.Parameters.Clear();
-        MyCmd.Parameters.AddWithValue("Name", "%" + Name + "%");
-        DS.Tables[dtPayers.TableName].Clear();
-        MyCmd.CommandText = @"
+	private void FillDDL(string Name)
+	{
+		if (MyCn.State != ConnectionState.Open)
+			MyCn.Open();
+		MyCmd.Connection = MyCn;
+		MyDA.SelectCommand = MyCmd;
+		MyCmd.Parameters.Clear();
+		MyCmd.Parameters.AddWithValue("Name", "%" + Name + "%");
+		DS.Tables[dtPayers.TableName].Clear();
+		MyCmd.CommandText = @"
 SELECT
-    p.PayerID,
-    convert(concat(p.PayerID, ' - ', p.ShortName) using cp1251) as PayerShortName
+	p.PayerID,
+	convert(concat(p.PayerID, ' - ', p.ShortName) using cp1251) as PayerShortName
 FROM
-     billing.payers p
+	 billing.payers p
  WHERE
   p.ShortName like ?Name
 Order by p.ShortName
 ";
-        MyDA.Fill(DS, DS.Tables[dtPayers.TableName].TableName);
-        MyCn.Close();
-        Session.Add(DSReports, DS);
-    }
+		MyDA.Fill(DS, DS.Tables[dtPayers.TableName].TableName);
+		MyCn.Close();
+		Session.Add(DSReports, DS);
+	}
 
-    private void CopyChangesToTable()
-    {		
-    	foreach (GridViewRow dr in dgvReports.Rows)
-        {
+	private void CopyChangesToTable()
+	{		
+		foreach (GridViewRow dr in dgvReports.Rows)
+		{
 			DataRow changedRow = null;
 
 
@@ -333,24 +333,24 @@ Order by p.ShortName
 				if (names.Visible && !String.IsNullOrEmpty(names.SelectedValue))
 					changedRow[GRPayerID.ColumnName] = Convert.ToInt64(names.SelectedValue);
 			}
-        }
-    }
+		}
+	}
 
-    protected void btnSearch_Click(object sender, EventArgs e)
-    {
-        FillDDL(((TextBox)(((Button)sender).Parent).FindControl("tbSearch")).Text);
-        DropDownList ddlNames = (DropDownList)(((Button)sender).Parent).FindControl("ddlNames");
-        ddlNames.DataSource = DS.Tables[dtPayers.TableName];
-        ddlNames.DataTextField = "PayerShortName";
-        ddlNames.DataValueField = "PayerID";
-        ddlNames.DataBind();
+	protected void btnSearch_Click(object sender, EventArgs e)
+	{
+		FillDDL(((TextBox)(((Button)sender).Parent).FindControl("tbSearch")).Text);
+		DropDownList ddlNames = (DropDownList)(((Button)sender).Parent).FindControl("ddlNames");
+		ddlNames.DataSource = DS.Tables[dtPayers.TableName];
+		ddlNames.DataTextField = "PayerShortName";
+		ddlNames.DataValueField = "PayerID";
+		ddlNames.DataBind();
 		ddlNames.Focus();
-    }
+	}
 
-    protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
+	protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
+	{
+		if (e.Row.RowType == DataControlRowType.DataRow)
+		{
 			//"Рассылки"
 			e.Row.Cells[(int)GeneralReportFields.Delivery].ToolTip = "Рассылки";
 			//"Отчеты"
@@ -359,26 +359,26 @@ Order by p.ShortName
 			e.Row.Cells[(int)GeneralReportFields.Schedule].ToolTip = "Расписание";
 
 			if (((Label)e.Row.FindControl("lblFirmName")).Text != "")
-            {
-                ((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
+			{
+				((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
 				((Button)e.Row.FindControl("btApplyCopy")).Visible = false;
-                ((Button)e.Row.FindControl("btnSearch")).Visible = false;
-                ((DropDownList)e.Row.FindControl("ddlNames")).Visible = false;
-                ((Label)e.Row.FindControl("lblFirmName")).Visible = true;
+				((Button)e.Row.FindControl("btnSearch")).Visible = false;
+				((DropDownList)e.Row.FindControl("ddlNames")).Visible = false;
+				((Label)e.Row.FindControl("lblFirmName")).Visible = true;
 				((LinkButton)e.Row.FindControl("linkEdit")).Visible = true;
 				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = true;
-            }
-            else
-            {
-                ((TextBox)e.Row.FindControl("tbSearch")).Visible = true;
+			}
+			else
+			{
+				((TextBox)e.Row.FindControl("tbSearch")).Visible = true;
 				((TextBox)e.Row.FindControl("tbSearch")).Focus();
-                ((Button)e.Row.FindControl("btnSearch")).Visible = true;
+				((Button)e.Row.FindControl("btnSearch")).Visible = true;
 				((Button)e.Row.FindControl("btApplyCopy")).Visible = true;
 				((LinkButton)e.Row.FindControl("linkEdit")).Visible = false;
 
 
-                DropDownList ddlReports = (DropDownList)e.Row.FindControl("ddlNames");
-                ddlReports.Visible = true;
+				DropDownList ddlReports = (DropDownList)e.Row.FindControl("ddlNames");
+				ddlReports.Visible = true;
 				//Делаем недоступными столбцы
 				//"Рассылки"
 				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = false;
@@ -387,70 +387,65 @@ Order by p.ShortName
 				//"Расписание"
 				e.Row.Cells[(int)GeneralReportFields.Schedule].Enabled = false;
 				((Label)e.Row.FindControl("lblFirmName")).Visible = false;
-            }
-        }
-    }
+			}
+		}
+	}
 
-    protected void btnApply_Click(object sender, EventArgs e)
-    {
-        CopyChangesToTable();
+	protected void btnApply_Click(object sender, EventArgs e)
+	{
+		CopyChangesToTable();
 
-		List<ulong> _deletedReports = new List<ulong>();
-		List<ulong> _updatedReports = new List<ulong>();
-    	DataTable dtInserted;
+		var _deletedReports = new List<ulong>();
+		var _updatedReports = new List<ulong>();
+		DataTable dtInserted;
 
-        MySqlTransaction trans;
-        MyCn.Open();
-        trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-        try
-        {
-            MySqlCommand UpdCmd = new MySqlCommand(@"
+		MyCn.Open();
+		var trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
+		try
+		{
+			var UpdCmd = new MySqlCommand(@"
 UPDATE 
-    reports.general_reports 
+	reports.general_reports 
 SET 
-    Allow = ?Allow,
-    Comment = ?Comment,
+	Allow = ?Allow,
+	Comment = ?Comment,
 	FirmCode = if(PayerID = ?payerID, FirmCode,
-            (select min(Id)
-               from
-               (select FirmCode Id
-                 from usersettings.clientsdata cd
-                where cd.BillingCode = ?payerID
-               union
-                select Id
-                 from future.Clients cl
-                where cl.PayerId = ?payerID) tbl)),
+			(select min(Id)
+			   from
+			   (select s.Id
+				from Future.Suppliers s
+				where s.Payer = ?payerID) tbl)),
 	PayerID = ?payerID
 WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
 
-            UpdCmd.Parameters.Clear();
-            UpdCmd.Parameters.Add(new MySqlParameter("Allow", MySqlDbType.Byte));
-            UpdCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
-            UpdCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
+			UpdCmd.Parameters.Clear();
+			UpdCmd.Parameters.Add(new MySqlParameter("Allow", MySqlDbType.Byte));
+			UpdCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
+			UpdCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
+			UpdCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
 			UpdCmd.Parameters.Add(new MySqlParameter("Comment", MySqlDbType.VarString));
 			UpdCmd.Parameters["Comment"].Direction = ParameterDirection.Input;
 			UpdCmd.Parameters["Comment"].SourceColumn = Comment.ColumnName;
 			UpdCmd.Parameters["Comment"].SourceVersion = DataRowVersion.Current;
-            UpdCmd.Parameters.Add(new MySqlParameter("GeneralReportCode", MySqlDbType.Int64));
-            UpdCmd.Parameters["GeneralReportCode"].Direction = ParameterDirection.Input;
-            UpdCmd.Parameters["GeneralReportCode"].SourceColumn = GeneralReportCode.ColumnName;
-            UpdCmd.Parameters["GeneralReportCode"].SourceVersion = DataRowVersion.Current;
+			UpdCmd.Parameters.Add(new MySqlParameter("GeneralReportCode", MySqlDbType.Int64));
+			UpdCmd.Parameters["GeneralReportCode"].Direction = ParameterDirection.Input;
+			UpdCmd.Parameters["GeneralReportCode"].SourceColumn = GeneralReportCode.ColumnName;
+			UpdCmd.Parameters["GeneralReportCode"].SourceVersion = DataRowVersion.Current;
 			UpdCmd.Parameters.Add("?payerID", MySqlDbType.Int64).SourceColumn = GRPayerID.ColumnName;
 
-            MySqlCommand DelCmd = new MySqlCommand(@"
+			MySqlCommand DelCmd = new MySqlCommand(@"
 DELETE from reports.general_reports 
 WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 
-            DelCmd.Parameters.Clear();
-            DelCmd.Parameters.Add(new MySqlParameter("GRDelCode", MySqlDbType.Int64));
-            DelCmd.Parameters["GRDelCode"].Direction = ParameterDirection.Input;
-            DelCmd.Parameters["GRDelCode"].SourceColumn = GeneralReportCode.ColumnName;
-            DelCmd.Parameters["GRDelCode"].SourceVersion = DataRowVersion.Original;
+			DelCmd.Parameters.Clear();
+			DelCmd.Parameters.Add(new MySqlParameter("GRDelCode", MySqlDbType.Int64));
+			DelCmd.Parameters["GRDelCode"].Direction = ParameterDirection.Input;
+			DelCmd.Parameters["GRDelCode"].SourceColumn = GeneralReportCode.ColumnName;
+			DelCmd.Parameters["GRDelCode"].SourceVersion = DataRowVersion.Original;
 
-            MySqlCommand InsCmd = new MySqlCommand(@"
+			MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO 
-    reports.general_reports 
+	reports.general_reports 
 (PayerId, Allow, Comment, FirmCode)
 select 
   ?PayerId,
@@ -458,41 +453,39 @@ select
   ?Comment,
   min(Id)
 from
-(select FirmCode Id
- from usersettings.clientsdata cd
-where cd.BillingCode = ?PayerId
-union
-select Id
- from future.Clients cl
-where cl.PayerId = ?PayerId) tbl;
+(
+select s.Id
+from Future.Suppliers s
+where s.Payer = ?payerID
+) tbl;
 select last_insert_id() as GRLastInsertID;
 ", MyCn, trans);
 
-            InsCmd.Parameters.Clear();
-            InsCmd.Parameters.Add(new MySqlParameter("Allow", MySqlDbType.Byte));
-            InsCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
-            InsCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
-            InsCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
+			InsCmd.Parameters.Clear();
+			InsCmd.Parameters.Add(new MySqlParameter("Allow", MySqlDbType.Byte));
+			InsCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
+			InsCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
+			InsCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
 			InsCmd.Parameters.Add(new MySqlParameter("PayerId", MySqlDbType.Int64));
 			InsCmd.Parameters["PayerId"].Direction = ParameterDirection.Input;
 			InsCmd.Parameters["PayerId"].SourceColumn = GRPayerID.ColumnName;
 			InsCmd.Parameters["PayerId"].SourceVersion = DataRowVersion.Current;
-            InsCmd.Parameters.Add(new MySqlParameter("Comment", MySqlDbType.VarString));
+			InsCmd.Parameters.Add(new MySqlParameter("Comment", MySqlDbType.VarString));
 			InsCmd.Parameters["Comment"].Direction = ParameterDirection.Input;
 			InsCmd.Parameters["Comment"].SourceColumn = Comment.ColumnName;
 			InsCmd.Parameters["Comment"].SourceVersion = DataRowVersion.Current;
 
-            MyDA.UpdateCommand = UpdCmd;
-            MyDA.DeleteCommand = DelCmd;
-            MyDA.InsertCommand = InsCmd;
+			MyDA.UpdateCommand = UpdCmd;
+			MyDA.DeleteCommand = DelCmd;
+			MyDA.InsertCommand = InsCmd;
 
-            string strHost = HttpContext.Current.Request.UserHostAddress;
-            string strUser = HttpContext.Current.User.Identity.Name;
-            if (strUser.StartsWith("ANALIT\\"))
-            {
-                strUser = strUser.Substring(7);
-            }
-            MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
+			string strHost = HttpContext.Current.Request.UserHostAddress;
+			string strUser = HttpContext.Current.User.Identity.Name;
+			if (strUser.StartsWith("ANALIT\\"))
+			{
+				strUser = strUser.Substring(7);
+			}
+			MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
 
 			DataTable dtDeleted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Deleted);
 			if (dtDeleted != null)
@@ -521,17 +514,17 @@ select last_insert_id() as GRLastInsertID;
 				MyDA.Update(dtUpdated);
 			}
 
-            trans.Commit();
-        }
-        catch 
-        {
-            trans.Rollback();
-            throw;
-        }
-        finally
-        {
-            MyCn.Close();
-        }
+			trans.Commit();
+		}
+		catch 
+		{
+			trans.Rollback();
+			throw;
+		}
+		finally
+		{
+			MyCn.Close();
+		}
 
 		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
 		// А также включаем/выключаем задание при изменении галки "Включен"
@@ -553,16 +546,16 @@ select last_insert_id() as GRLastInsertID;
 		PostData();
 
 		if (dgvReports.Rows.Count > 0)
-            btnApply.Visible = true;
-        else
-            btnApply.Visible = false;
+			btnApply.Visible = true;
+		else
+			btnApply.Visible = false;
 
 		if (dtInserted != null)
 		{
 			if (!Request.Url.OriginalString.Contains("#"))
 				Response.Redirect(Request.Url.OriginalString + "#addedPage");
 		}
-    }
+	}
 
 	public string SortField
 	{
@@ -704,15 +697,15 @@ select last_insert_id() as GRLastInsertID;
 		var lines = inStr.Split(',').ToList();
 		var emails = new List<string>();
 		lines.Each(l =>
-		           	{
-		           		try
-		           		{
-		           			emailValidator.Validate(l.Trim());
-		           			emails.Add(l.Trim());
-		           		}
-		           		catch (ArgumentException)
-		           		{}
-		           	});
+					{
+						try
+						{
+							emailValidator.Validate(l.Trim());
+							emails.Add(l.Trim());
+						}
+						catch (ArgumentException)
+						{}
+					});
 		return emails;
 	}
 
@@ -755,8 +748,8 @@ and ({0});
 		{ // если в фильтре указаны e-mail адреса, ищем отчеты, для которых они указаны в списке рассылок 
 			var codes = GetReportCodesByEmails(emails);
 			filter.Add(codes.Count > 0
-			           	? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
-			           	: "(GeneralReportCode is null)");
+						? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
+						: "(GeneralReportCode is null)");
 		}
 		else
 		{

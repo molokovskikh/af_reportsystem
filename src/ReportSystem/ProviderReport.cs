@@ -18,13 +18,13 @@ namespace Inforoom.ReportSystem
 	{
 		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
 		protected int _clientCode;
-		protected int? _SupplierNoise = null;		
-		protected int? _userCode = null;
-	    protected bool _byBaseCosts = false; // строить отчет по базовым ценам
-        //Список прайсов, для которых нужно вычислять по базовым ценам
-        protected List<ulong> _prices;
-        //Список регионов, для которых нужно вычислять по базовым ценам
-        protected List<ulong> _regions;
+		protected int? _SupplierNoise;
+		protected int? _userCode;
+		protected bool _byBaseCosts; // строить отчет по базовым ценам
+		//Список прайсов, для которых нужно вычислять по базовым ценам
+		protected List<ulong> _prices;
+		//Список регионов, для которых нужно вычислять по базовым ценам
+		protected List<ulong> _regions;
 
 		protected ProviderReport() // конструктор для возможности тестирования
 		{}
@@ -43,21 +43,21 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("SupplierNoise"))
 				_SupplierNoise = (int)getReportParam("SupplierNoise");
 
-            // если отчет строится по базовым ценам, определяем список прайсов и регионов
-            _byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
+			// если отчет строится по базовым ценам, определяем список прайсов и регионов
+			_byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
 			if (reportParamExists("Retail"))
 				_isRetail = (bool)getReportParam("Retail");
-            if (_byBaseCosts)
-            {
-                _prices = (List<ulong>) getReportParam("PriceCodeEqual");
-                _regions = (List<ulong>) getReportParam("RegionEqual");
-            }
+			if (_byBaseCosts)
+			{
+				_prices = (List<ulong>) getReportParam("PriceCodeEqual");
+				_regions = (List<ulong>) getReportParam("RegionEqual");
+			}
 
-            if (_reportParams.ContainsKey("UserCode"))
-            {
-                if (!String.IsNullOrEmpty(getReportParam("UserCode").ToString()))
-                    _userCode = (int)getReportParam("UserCode");
-            }
+			if (_reportParams.ContainsKey("UserCode"))
+			{
+				if (!String.IsNullOrEmpty(getReportParam("UserCode").ToString()))
+					_userCode = (int)getReportParam("UserCode");
+			}
 		}
 
 		public virtual List<ulong> GetClientWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
@@ -238,14 +238,14 @@ namespace Inforoom.ReportSystem
 			//Добавляем в таблицу ActivePrices поле FirmName и заполняем его также, как раньше для отчетов
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 
-		    e.DataAdapter.SelectCommand.CommandText = @"
+			e.DataAdapter.SelectCommand.CommandText = @"
 alter table ActivePrices add column FirmName varchar(100);
 update 
   ActivePrices, future.suppliers, farm.regions 
 set 
   FirmName = concat(suppliers.Name, '(', ActivePrices.PriceName, ') - ', regions.Region)
 where 
-    activeprices.FirmCode = suppliers.Id 
+	activeprices.FirmCode = suppliers.Id 
 and regions.RegionCode = activeprices.RegionCode";
 
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -326,7 +326,7 @@ and regions.RegionCode = activeprices.RegionCode";
 											reader["Name"], _clientCode));
 				}
 				command.CommandText = "select Id from future.Users where ClientId = " + _clientCode +
-				                                             " limit 1";
+															 " limit 1";
 				return Convert.ToUInt32(command.ExecuteScalar());
 			}
 			else
@@ -358,46 +358,46 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
 		}
-        
-        /// <summary>
-        /// Создает временную таблицу и заполняет ее данными из списков _prices и _regions (если отчет строится по базовым ценам)
-        /// Данная таблица затем будет использоваться для ограничения выборки в хранимой процедуре GetPricesWithBaseCosts()
-        /// </summary>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        private void GetRegionsPrices(ExecuteArgs e)
-        {
-            e.DataAdapter.SelectCommand.CommandText = @"
+		
+		/// <summary>
+		/// Создает временную таблицу и заполняет ее данными из списков _prices и _regions (если отчет строится по базовым ценам)
+		/// Данная таблица затем будет использоваться для ограничения выборки в хранимой процедуре GetPricesWithBaseCosts()
+		/// </summary>
+		/// <param name="e"></param>
+		/// <returns></returns>
+		private void GetRegionsPrices(ExecuteArgs e)
+		{
+			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS usersettings.TmpPricesRegions;
 CREATE temporary table usersettings.TmpPricesRegions(
   PriceCode int(32) unsigned,   
   RegionCode bigint unsigned
   ) engine=MEMORY;";
-            e.DataAdapter.SelectCommand.ExecuteNonQuery();
-            e.DataAdapter.SelectCommand.Parameters.Clear();
-            foreach (var price in _prices)
-            {                
-                foreach (var region in _regions)
-                {
-                    e.DataAdapter.SelectCommand.CommandText = @"
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			foreach (var price in _prices)
+			{                
+				foreach (var region in _regions)
+				{
+					e.DataAdapter.SelectCommand.CommandText = @"
 INSERT INTO usersettings.TmpPricesRegions(PriceCode, RegionCode) VALUES(?pricecode, ?regioncode);";
-                    e.DataAdapter.SelectCommand.Parameters.AddWithValue("?pricecode", price);
-                    e.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
-                    e.DataAdapter.SelectCommand.ExecuteNonQuery();
-                    e.DataAdapter.SelectCommand.Parameters.Clear();
-                }
-            }
-        }
+					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?pricecode", price);
+					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					e.DataAdapter.SelectCommand.Parameters.Clear();
+				}
+			}
+		}
 
 		public static string GetSuppliers(ExecuteArgs e)
 		{
 			var suppliers = new List<string>();
 			
-            e.DataAdapter.SelectCommand.CommandText = @"
+			e.DataAdapter.SelectCommand.CommandText = @"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from Core cor
 	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-    join future.suppliers supps on supps.Id = pd.FirmCode
+	join future.suppliers supps on supps.Id = pd.FirmCode
 group by supps.Id
 order by supps.Name";
 			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
@@ -419,10 +419,10 @@ order by supps.Name";
 
 			var suppliers = new List<string>();
 			
-            e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from usersettings.PricesData pd
-    join future.suppliers supps on supps.Id = pd.FirmCode
+	join future.suppliers supps on supps.Id = pd.FirmCode
 where pd.PriceCode in ({0})
 group by supps.Id
 order by supps.Name", supplierIds.Implode());
@@ -449,13 +449,13 @@ where pricesdata.PriceCode = ?PriceCode
 ",
 					new MySqlParameter("?PriceCode", sourcePriceCode)));
 			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
-            var SourceRegionCode = Convert.ToUInt64(
-                MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
-                    @"
+			var SourceRegionCode = Convert.ToUInt64(
+				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+					@"
 select RegionCode
 	from future.Clients
 where Id = ?ClientCode",
-                    new MySqlParameter("?ClientCode", _clientCode)));
+					new MySqlParameter("?ClientCode", _clientCode)));
 
 			var enabledCost = MySqlHelper.ExecuteScalar(
 				args.DataAdapter.SelectCommand.Connection,
@@ -594,7 +594,7 @@ from
   future.suppliers,
   farm.regions 
 where 
-    pricesdata.PriceCode = ?PriceCode
+	pricesdata.PriceCode = ?PriceCode
 and suppliers.Id = pricesdata.FirmCode
 and regions.RegionCode = suppliers.HomeRegion
 limit 1", new MySqlParameter("?PriceCode", priceId))
