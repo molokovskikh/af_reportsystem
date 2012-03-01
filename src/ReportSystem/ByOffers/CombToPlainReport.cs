@@ -38,7 +38,7 @@ namespace Inforoom.ReportSystem
 			//Выбираем 
 			GetOffers(_SupplierNoise);
 
-            e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select
   -- наименование
   replace( replace( replace(catalognames.name, '\t', ''), '\r', ''), '\n', '') as name,
@@ -65,7 +65,11 @@ select
   -- дата прайс-листа
   date_add(ActivePrices.PriceDate, interval time_to_sec(date_sub(now(), interval unix_timestamp() second)) second) as DateCurPrice, 
   -- цена препарата
-  Core.Cost,
+  (case Core.Cost
+    when 1000000 then 0
+    when 999999.99 then 0
+    else Core.Cost
+  end) as Cost,
   -- кол-во препарата
   FarmCore.Quantity,
   -- краткое название прайс-листа
@@ -100,7 +104,7 @@ from
   future.suppliers supps,  
   usersettings.pricesdata pd
 where
-    FarmCore.Id = Core.Id 
+	FarmCore.Id = Core.Id 
 and s.synonymcode = FarmCore.synonymcode
 and sfc.SynonymFirmCrCode = FarmCore.SynonymFirmCrCode
 and ActivePrices.PriceCode = Core.PriceCode
@@ -115,11 +119,11 @@ and catalog.id = products.catalogid
 and catalognames.id = catalog.nameid
 and catalogforms.id = catalog.formid
 ",
-                        _filename,
-                        (char)9
-                        );
+						_filename,
+						(char)9
+						);
 #if DEBUG
-            Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 #endif
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}

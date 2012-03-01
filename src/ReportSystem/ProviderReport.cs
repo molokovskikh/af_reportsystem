@@ -329,10 +329,7 @@ and regions.RegionCode = activeprices.RegionCode";
 															 " limit 1";
 				return Convert.ToUInt32(command.ExecuteScalar());
 			}
-			else
-			{
-				return Convert.ToUInt32(_userCode.Value);
-			}
+			return Convert.ToUInt32(_userCode.Value);
 		}
 
 		//Получили список предложений для интересующего клиента
@@ -355,7 +352,7 @@ and regions.RegionCode = activeprices.RegionCode";
 
 			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
 			selectCommand.CommandText = "future.GetOffersReports";
-			selectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
 		}
 		
