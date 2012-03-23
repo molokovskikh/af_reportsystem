@@ -10,14 +10,14 @@ import file from Migration.bake
 import file from Tools.bake
 
 Global(
-	project : "ReportSystem",
-	projectBoot : "ReportSystemBoot",
+	Project : "ReportSystem",
+	ProjectBoot : "ReportSystemBoot",
 	humanReadableName : "Генератор отчетов"
 )
 
 buildTo = Path.GetFullPath("build/ReportSystem/")
-projectFile = ".\\src\\${Globals.project}\\${Globals.project}.csproj"
-projectBootFile = ".\\src\\${Globals.projectBoot}\\${Globals.projectBoot}.csproj"
+projectFile = ".\\src\\${Globals.Project}\\${Globals.Project}.csproj"
+projectBootFile = ".\\src\\${Globals.ProjectBoot}\\${Globals.ProjectBoot}.csproj"
 host = "fms.adc.analit.net"
 deployTo = "\\\\${host}\\Reports"
 releaseTo = "\\\\${host}\\Reports\\ReleasePath"
