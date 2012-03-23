@@ -17,6 +17,20 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem
 {
+	public class ColumnGroupHeader
+	{
+		public ColumnGroupHeader(string title, string beginColumn, string endColumn)
+		{
+			Title = title;
+			BeginColumn = beginColumn;
+			EndColumn = endColumn;
+		}
+
+		public string Title;
+		public string BeginColumn;
+		public string EndColumn;
+	}
+
 	public class OrdersReport : BaseReport
 	{
 		protected const string reportIntervalProperty = "ReportInterval";
@@ -37,8 +51,11 @@ namespace Inforoom.ReportSystem
 		protected bool SupportProductNameOptimization;
 		protected bool includeProductName;
 		protected bool isProductName = true;
-		protected bool firmCrPosition = false; // есть ли параметр "Позиция производителя"
+		protected bool firmCrPosition; // есть ли параметр "Позиция производителя"
 		protected string OrdersSchema = "Orders";
+
+		protected List<ColumnGroupHeader> GroupHeaders
+			= new List<ColumnGroupHeader>();
 
 		public OrdersReport()
 		{}
@@ -157,21 +174,28 @@ namespace Inforoom.ReportSystem
 						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
 						var res = _dsReport.Tables["Results"];
+						var tableBegin = 1 + filterDescriptions.Count;
+						var groupedHeadersLine = tableBegin;
+						if (GroupHeaders.Count > 0)
+							tableBegin++;
+
 						for (var i = 0; i < res.Columns.Count; i++)
 						{
+							var dataColumn = res.Columns[i];
+
 							ws.Cells[1, i + 1] = "";
-							ws.Cells[1 + filterDescriptions.Count, i + 1] = res.Columns[i].Caption;
-							if (res.Columns[i].ExtendedProperties.ContainsKey("Width"))
-								((Range) ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?) res.Columns[i].ExtendedProperties["Width"]).Value;
+							ws.Cells[tableBegin, i + 1] = dataColumn.Caption;
+							if (dataColumn.ExtendedProperties.ContainsKey("Width"))
+								((Range) ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?) dataColumn.ExtendedProperties["Width"]).Value;
 							else
 								((Range) ws.Columns[i + 1, Type.Missing]).AutoFit();
 
-							if (res.Columns[i].ExtendedProperties.ContainsKey("Color"))
-								ws.Range[ws.Cells[1 + filterDescriptions.Count, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]].Interior.Color = ColorTranslator.ToOle((Color) res.Columns[i].ExtendedProperties["Color"]);
+							if (dataColumn.ExtendedProperties.ContainsKey("Color"))
+								ws.Range[ws.Cells[tableBegin, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]].Interior.Color = ColorTranslator.ToOle((Color) dataColumn.ExtendedProperties["Color"]);
 						}
 
 						//рисуем границы на всю таблицу
-						ws.Range[ws.Cells[1 + filterDescriptions.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Borders.
+						ws.Range[ws.Cells[tableBegin, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Borders.
 							Weight = XlBorderWeight.xlThin;
 
 						//Устанавливаем шрифт листа
@@ -180,11 +204,24 @@ namespace Inforoom.ReportSystem
 						ws.Activate();
 
 						//Устанавливаем АвтоФильтр на все колонки
-						ws.Range[ws.Cells[1 + filterDescriptions.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Select();
+						ws.Range[ws.Cells[tableBegin, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Select();
 						((Range) exApp.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 						for (var i = 0; i < filterDescriptions.Count; i++)
 							ws.Cells[1 + i, 1] = filterDescriptions[i];
+
+						foreach (var groupHeader in GroupHeaders) {
+							var begin = ColumnIndex(res, groupHeader.BeginColumn);
+							var end = ColumnIndex(res, groupHeader.EndColumn);
+							if (begin == 0 || end == 0)
+								continue;
+							var range = ws.Range[ws.Cells[groupedHeadersLine, begin], ws.Cells[groupedHeadersLine, end]];
+							range.Select();
+							range.Merge(null);
+							range.Value2 = groupHeader.Title;
+							range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+							range.Borders.Weight = XlBorderWeight.xlThin;
+						}
 
 						PostProcessing(exApp, ws);
 					}
@@ -208,6 +245,12 @@ namespace Inforoom.ReportSystem
 				exApp = null;
 			}
 			ProfileHelper.End();
+		}
+
+		private static int ColumnIndex(DataTable res, string name)
+		{
+			return res.Columns.Cast<DataColumn>()
+				.IndexOf(c => String.Equals(c.ExtendedProperties["OriginalName"] as String, name, StringComparison.InvariantCultureIgnoreCase)) + 1;
 		}
 
 		/// <summary>
@@ -301,7 +344,10 @@ create temporary table MixedData ENGINE=MEMORY
 			}
 
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			for (int i = 0; i < filterDescriptions.Count; i++)
+			for (var i = 0; i < filterDescriptions.Count; i++)
+				res.Rows.InsertAt(res.NewRow(), 0);
+
+			if (GroupHeaders.Count > 0)
 				res.Rows.InsertAt(res.NewRow(), 0);
 
 			res = res.DefaultView.ToTable();
@@ -316,9 +362,9 @@ create temporary table MixedData ENGINE=MEMORY
 			destination.BeginLoadData();
 			foreach (DataRow dr in source.Rows)
 			{
-				DataRow newrow = destination.NewRow();
+				var newrow = destination.NewRow();
 
-				foreach (FilterField rf in selectedField)
+				foreach (var rf in selectedField)
 					if (rf.visible)
 						newrow[rf.outputField] = dr[rf.outputField];
 

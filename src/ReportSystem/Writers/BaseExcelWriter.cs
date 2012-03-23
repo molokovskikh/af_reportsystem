@@ -51,6 +51,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 				{
 					CreateSQL += "[F" + (i + 1).ToString() + "] ";
 					var column = dtExport.Columns[i];
+					column.ExtendedProperties.Add("OriginalName", column.ColumnName);
 					column.ColumnName = "F" + (i + 1).ToString();
 					if (column.DataType == typeof(int))
 						CreateSQL += " int";

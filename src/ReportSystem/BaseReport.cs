@@ -217,7 +217,7 @@ namespace Inforoom.ReportSystem
 
 		public virtual void ReportToFile(string fileName)
 		{
-			IWriter writer = GetWriter(Format);
+			var writer = GetWriter(Format);
 			if(writer != null)
 			{  // Новый механизм, выносим часть для выгрузки в файл в отдельный класс
 				var settings = GetSettings();
@@ -344,7 +344,7 @@ namespace Inforoom.ReportSystem
 			filterStr[filterStr.Length - 1] = ')';
 
 			var valuesList = new List<string>();
-            args.DataAdapter.SelectCommand.CommandText = String.Format(
+			args.DataAdapter.SelectCommand.CommandText = String.Format(
 @"
 select 
 	c.Name

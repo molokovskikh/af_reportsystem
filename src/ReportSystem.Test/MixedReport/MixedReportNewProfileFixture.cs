@@ -25,5 +25,24 @@ namespace ReportSystem.Test
 			var report = new MixedReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedNewDifficult);
 		}
+
+		[Test]
+		public void Build_report_with_several_concurrent_groups()
+		{
+			Property("ShowCode", true);
+			Property("ShowCodeCr", true);
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 7);
+			Property("ProductNamePosition", 0);
+			//протек
+			Property("SourceFirmCode", 5);
+			//роста
+			Property("BusinessRivals", new List<long> { 216 });
+			//сиа
+			Property("BusinessRivals2", new List<long> { 14 });
+			//аптека холдинг
+			Property("BusinessRivals3", new List<long> { 39 });
+			BuildReport(reportType: typeof(MixedReport));
+		}
 	}
 }

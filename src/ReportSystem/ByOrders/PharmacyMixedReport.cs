@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using System.Drawing;
@@ -27,7 +28,7 @@ namespace Inforoom.ReportSystem
 		{
 			ProfileHelper.Next("GenerateReport");
 			filterDescriptions.Add(String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong>{(ulong)sourceFirmCode})));
-			filterDescriptions.Add(String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(businessRivals)));
+			filterDescriptions.Add(String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0])));
 
 			ProfileHelper.Next("GenerateReport2");
 
@@ -60,7 +61,7 @@ Min(ol.cost) as AllMinCost,
 Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
-Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, businessRivalsList));
+Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurrentGroups[0].Implode()));
 			selectCommand +=
 @"from " +
 #if DEBUG

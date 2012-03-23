@@ -5,7 +5,7 @@ using Inforoom.ReportSystem;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class MinCostByPriceNewProfileFixture : BaseProfileFixture
+	public class	MinCostByPriceNewProfileFixture : BaseProfileFixture
 	{
 		[Test]
 		public void MinCostByPriceNew()

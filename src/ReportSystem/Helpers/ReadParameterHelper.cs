@@ -33,7 +33,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
 		{			
-            var command = @"select supps.Name as ShortName from future.suppliers supps where supps.Id in " + ProviderReport.ConcatWhereIn(suppliers);
+			var command = @"select supps.Name as ShortName from future.suppliers supps where supps.Id in " + ProviderReport.ConcatWhereIn(suppliers);
 			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
 
@@ -51,7 +51,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static List<String> GetPriceName(List<ulong> _priceCode, ExecuteArgs e)
 		{			
-            var command = @"SELECT supps.Name as ShortName FROM usersettings.PricesData P 
+			var command = @"SELECT supps.Name as ShortName FROM usersettings.PricesData P 
 							join future.suppliers supps on supps.Id = p.FirmCode
 							where p.PriceCode = " + _priceCode[0];
 			return GetNames(r => r["ShortName"].ToString(), command, e);
@@ -71,12 +71,12 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static List<String> GetPriceNames(List<ulong> _prices, ExecuteArgs e)
 		{			
-            var command = @"select pd.PriceCode as PriceCode,
+			var command = @"select pd.PriceCode as PriceCode,
 	convert(concat(supps.Name, ' (', pd.PriceName, ') - ', rg.Region) using cp1251) as PriceName
   from
-    usersettings.pricesdata pd
-    inner join future.suppliers supps on supps.Id = pd.FirmCode
-    inner join farm.regions rg on rg.RegionCode = supps.HomeRegion
+	usersettings.pricesdata pd
+	inner join future.suppliers supps on supps.Id = pd.FirmCode
+	inner join farm.regions rg on rg.RegionCode = supps.HomeRegion
 	where pd.PriceCode in " + ProviderReport.ConcatWhereIn(_prices);
 			return GetNames(r => r["PriceName"].ToString(), command, e);
 		}
