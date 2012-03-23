@@ -51,6 +51,9 @@
         </tr>
     </table>
     </div>
+	<div>
+		<asp:HyperLink runat="server" ID="SheduleLink">Расписание</asp:HyperLink>
+	</div>
     <div align="center">
         <strong style="font-size:small;">Настройка отчетов</strong>
         <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReports_RowCommand" OnRowDataBound="dgvReports_RowDataBound" OnRowDeleting="dgvReports_RowDeleting">
