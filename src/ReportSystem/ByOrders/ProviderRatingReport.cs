@@ -100,6 +100,8 @@ where 1=1", OrdersSchema));
 			var res = BuildResultTable(selectTable);
 			var dc = res.Columns.Add("SummPercent", typeof (Double));
 			dc.Caption = "Доля рынка в %";
+			var sc = res.Columns.Add("SupplierSumm", typeof(decimal));
+			sc.Caption = "Сумма по поставщику, руб";
 
 			DataRow newrow;
 			res.BeginLoadData();
@@ -112,6 +114,8 @@ where 1=1", OrdersSchema));
 				newrow["FirmShortName"] = dr["FirmShortName"];
 
 				newrow["SummPercent"] = Decimal.Round(((decimal)dr["Summ"] * 100) / allSumm, 2);
+
+				newrow["SupplierSumm"] = Decimal.Round((decimal)dr["Summ"], 0);
 
 				res.Rows.Add(newrow);
 
@@ -126,6 +130,12 @@ where 1=1", OrdersSchema));
 				newrow["SummPercent"] = Decimal.Round((otherSumm * 100) / allSumm, 2);
 				res.Rows.Add(newrow);
 			}
+
+			newrow = res.NewRow();
+			newrow["FirmShortName"] = "Итоговая сумма";
+			newrow["SupplierSumm"] = Decimal.Round(allSumm, 0);
+			res.Rows.Add(newrow);
+
 			res.EndLoadData();
 			ProfileHelper.End();
 		}
@@ -136,7 +146,7 @@ where 1=1", OrdersSchema));
 			var res = _dsReport.Tables["Results"];
 
 			//Выбираем диапазон, по которому будет строить диаграму
-			(ws.Range[ws.Cells[2 + filterDescriptions.Count, 1], ws.Cells[res.Rows.Count + 1, 2]]).Select();
+			(ws.Range[ws.Cells[2 + filterDescriptions.Count, 1], ws.Cells[res.Rows.Count , 2]]).Select();
 			Shape s;
 			s = ws.Shapes.AddChart(XlChartType.xlPie, 20, 40, 450, 230);
 
@@ -164,6 +174,9 @@ where 1=1", OrdersSchema));
 
 			//Отображаем диаграмму
 			s.Fill.Visible = MsoTriState.msoTrue;
+
+			ws.Range[ws.Cells[2 + filterDescriptions.Count, 3], ws.Cells[res.Rows.Count , 3]].NumberFormat = @"_($* #,##0_);_($* (#,##0);_($* ""-""_);_(@_)";
+
 			ProfileHelper.End();
 		}
 	}

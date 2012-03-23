@@ -38,7 +38,7 @@ namespace ReportSystem.Test
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SuppliersRatingNewWithClientCodeNonEqual);
 			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
-			TestHelper.ProcessReport(report, ReportsTypes.SuppliersRatingNewDifficult);
+			TestHelper.ProcessReport(report, ReportsTypes.SuppliersRatingNewWithClientCodeNonEqual);
 		}
 	}
 }
