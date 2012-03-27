@@ -56,5 +56,19 @@ namespace ReportTuner.Models
 				log.Error(String.Format("Ошибка при удалении файла {0}", Filename), e);
 			}
 		}
+
+		public bool IsSupplierEditor()
+		{
+			return PropertyType.PropertyName.ToLower().StartsWith("BusinessRivals".ToLower())
+				|| String.Equals(PropertyType.PropertyName, "IgnoredSuppliers", StringComparison.InvariantCultureIgnoreCase)
+				|| String.Equals(PropertyType.PropertyName, "FirmCodeEqual", StringComparison.InvariantCultureIgnoreCase)
+				|| String.Equals(PropertyType.PropertyName, "suppliers", StringComparison.InvariantCultureIgnoreCase);
+		}
+
+		public bool IsClientEditor()
+		{
+			return (Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed" && IsSupplierEditor())
+				|| String.Equals(PropertyType.PropertyName, "ClientCodeEqual", StringComparison.InvariantCultureIgnoreCase);
+		}
 	}
 }

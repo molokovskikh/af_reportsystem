@@ -15,7 +15,7 @@ using Castle.ActiveRecord;
 using ReportTuner.Helpers;
 using System.Collections.Generic;
 
-public partial class Reports_Reports : System.Web.UI.Page
+public partial class Reports_Reports : Page
 {
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
@@ -48,7 +48,7 @@ public partial class Reports_Reports : System.Web.UI.Page
 			if (Request["r"].Equals(ConfigurationManager.AppSettings["TemplateReportId"], StringComparison.OrdinalIgnoreCase))
 				Response.Redirect("TemplateReports.aspx");
 			else
-				((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"].ToString();
+				((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"];
 
 		SheduleLink.NavigateUrl = "Schedule.aspx?r=" + Request["r"];
 
@@ -80,7 +80,6 @@ public partial class Reports_Reports : System.Web.UI.Page
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataTextField = "ShortNameAndId";
 		Recipients.DataValueField = "Id";
-//!!!		//Recipients.SelectedValue = report.Client.Id.ToString();
 		Recipients.DataBind();
 
 		MyCmd.Connection = MyCn;
@@ -379,8 +378,8 @@ SET
 			MyDA.DeleteCommand = DelCmd;
 			MyDA.InsertCommand = InsCmd;
 
-			string strHost = HttpContext.Current.Request.UserHostAddress;
-			string strUser = HttpContext.Current.User.Identity.Name;
+			var strHost = HttpContext.Current.Request.UserHostAddress;
+			var strUser = HttpContext.Current.User.Identity.Name;
 			if (strUser.StartsWith("ANALIT\\"))
 			{
 				strUser = strUser.Substring(7);
@@ -403,15 +402,11 @@ SET
 
 		using (new TransactionScope())
 		{
-			GeneralReport report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
+			var report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
 			report.EMailSubject = tbEMailSubject.Text;
 			report.ReportFileName = tbReportFileName.Text;
 			report.ReportArchName = tbReportArchName.Text;
 			report.Format = ReportFormatDD.Text;
-//			uint newRecipientId = Convert.ToUInt32(Recipients.SelectedValue);
-//!!!			/*if (newRecipientId != report.Client.Id)
-				/*report.FirmCode = newRecipientId;*/
-
 			report.Save();
 		}
 

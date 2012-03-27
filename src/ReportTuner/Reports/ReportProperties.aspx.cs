@@ -840,8 +840,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	protected void dgvNonOptional_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
-		if (e.CommandName == "Find")
-		{
+		if (e.CommandName == "Find") {
 			CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
 			CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
 
@@ -856,47 +855,44 @@ WHERE ID = ?OPID", MyCn, trans);
 			ShowSearchedParam(ddlValues, tbFind, btnFind);
 		}
 		else if (e.CommandName == "ShowValues")
-		{
-			CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
-			CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
+			ShowValues(e);
+	}
 
-			string url = String.Empty;
-			var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));
+	private void ShowValues(GridViewCommandEventArgs e)
+	{
+		CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
+		CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
 
-			if (!String.IsNullOrEmpty(Request["TemporaryId"]))
-				url = String.Format("ReportPropertyValues.aspx?TemporaryId={0}&rp={1}&rpv={2}",
-					Request["TemporaryId"], 
-					Request["rp"], 
-					e.CommandArgument);
-			else if (prop.PropertyType.PropertyName == "BusinessRivals"
-				|| prop.PropertyType.PropertyName == "suppliers")
-			{
-				var report = prop.Report;
-				if (report.ReportType.ReportTypeFilePrefix != "PharmacyMixed")
-					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
-						Request["r"],
-						Request["rp"],
-						e.CommandArgument);
-				else
-					url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
-						Request["r"],
-						Request["rp"],
-						e.CommandArgument);
-			}
-			else {
-				propertiesHelper = (PropertiesHelper)Session[PropHelper];
-				var result = propertiesHelper.GetRelativeValue(prop);
+		var url = String.Empty;
+		var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));
+		propertiesHelper = (PropertiesHelper)Session[PropHelper];
+		var result = propertiesHelper.GetRelativeValue(prop);
 
-				url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
-									Request["r"],
-									Request["rp"],
-									e.CommandArgument);
+		if (!String.IsNullOrEmpty(Request["TemporaryId"]))
+			url = String.Format("ReportPropertyValues.aspx?TemporaryId={0}&rp={1}&rpv={2}",
+				Request["TemporaryId"],
+				Request["rp"],
+				e.CommandArgument);
+		else if (prop.IsSupplierEditor())
+			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
+				Request["r"],
+				Request["rp"],
+				e.CommandArgument);
+		else if (prop.IsClientEditor())
+			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
+				Request["r"],
+				Request["rp"],
+				e.CommandArgument);
+		else
+			url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
+				Request["r"],
+				Request["rp"],
+				e.CommandArgument);
 
-				if (!String.IsNullOrEmpty(result))
-					url = String.Format("{0}&{1}", url, result);
-			}
-			Response.Redirect(url);
-		}
+		if (!String.IsNullOrEmpty(result))
+			url = String.Format("{0}&{1}", url, result);
+
+		Response.Redirect(url);
 	}
 
 	protected void ddlValue_SelectedIndexChanged(object sender, EventArgs e)
@@ -1048,56 +1044,7 @@ WHERE ID = ?OPID", MyCn, trans);
 			ShowSearchedParam(ddlValues, tbFind, btnFind);
 		}
 		else if (e.CommandName == "ShowValues")
-		{
-			CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
-			CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
-
-			string url = String.Empty;
-			if (!String.IsNullOrEmpty(Request["TemporaryId"]))
-				url = String.Format("ReportPropertyValues.aspx?TemporaryId={0}&rp={1}&rpv={2}",
-					Request["TemporaryId"],
-					Request["rp"],
-					e.CommandArgument);
-			else
-			{
-				var prop = ReportProperty.Find(Convert.ToUInt64(e.CommandArgument));
-				propertiesHelper = (PropertiesHelper)Session[PropHelper];
-				var result = propertiesHelper.GetRelativeValue(prop);
-
-				switch (prop.PropertyType.PropertyName)
-				{
-					case "ClientCodeEqual":
-						url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
-											Request["r"],
-											Request["rp"],
-											e.CommandArgument);
-						break;
-					case "suppliers":
-					case "IgnoredSuppliers":
-					case "FirmCodeEqual":
-						url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
-											Request["r"],
-											Request["rp"],
-											e.CommandArgument);
-						if (!String.IsNullOrEmpty(result))
-							url = String.Format("{0}&{1}", url, result);
-						break;
-					default:
-						{							
-							
-							url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
-													Request["r"],
-													Request["rp"],
-													e.CommandArgument);
-							if (!String.IsNullOrEmpty(result))
-								url = String.Format("{0}&{1}", url, result);
-						}
-						break;
-				}
-			}
-
-			Response.Redirect(url);
-		}
+			ShowValues(e);
 		else if (e.CommandName == "Add")
 		{
 			var addedExist = DS.Tables[dtOptionalParams.TableName].Rows.Cast<DataRow>().Any(dr => dr.RowState == DataRowState.Added);
@@ -1333,10 +1280,8 @@ public class PropertiesHelper
 			}
 			else
 			{
-				// получаем свойство "Клиент"			
-				DataRow drClient =
-					dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => clientPropNames.Contains(r["PPropertyName"].ToString())).
-						FirstOrDefault();
+				// получаем свойство "Клиент"
+				var drClient = dtNonOptionalParams.Rows.Cast<DataRow>().FirstOrDefault(r => clientPropNames.Contains(r["PPropertyName"].ToString()));
 				if (drClient != null)
 				{
 					using (new SessionScope())
