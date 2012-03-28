@@ -2,6 +2,7 @@
 using System.Linq;
 using Castle.ActiveRecord;
 using NUnit.Framework;
+using ReportTuner.Helpers;
 using Test.Support;
 using ReportTuner.Models;
 using System;
