@@ -874,12 +874,12 @@ WHERE ID = ?OPID", MyCn, trans);
 				Request["rp"],
 				e.CommandArgument);
 		else if (prop.IsSupplierEditor())
-			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
+			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
 				Request["r"],
 				Request["rp"],
 				e.CommandArgument);
 		else if (prop.IsClientEditor())
-			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=0",
+			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
 				Request["r"],
 				Request["rp"],
 				e.CommandArgument);
