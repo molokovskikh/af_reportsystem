@@ -124,7 +124,6 @@ namespace ReportTuner.Test.Integration
 				contactGroupOwner.SaveAndFlush();
 
 				supplier = new TestSupplier {
-					Segment = Segment.Wholesale,
 					Disabled = false,
 					Type = ServiceType.Drugstore,
 					Name = "тестовый поставщик" + dt,
@@ -135,7 +134,6 @@ namespace ReportTuner.Test.Integration
 				supplier.SaveAndFlush();
 
 				client = new TestClient {
-					Segment = Segment.Wholesale,
 					Status = ClientStatus.On,
 					Type = ServiceType.Drugstore,
 					Name = "тестовый клиент" + dt,
