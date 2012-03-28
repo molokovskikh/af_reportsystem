@@ -34,7 +34,6 @@ namespace Inforoom.ReportSystem
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
 select oh.writetime,
-#	if(u.id is null, cd.ShortName, fc.Name) as ClientName,
     if(u.id is null, cl.Name, fc.Name) as ClientName,
 	u.Name as UserName,
     ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
@@ -49,12 +48,12 @@ from " +
   @"ordersold.ordershead oh
   join ordersold.orderslist ol on ol.orderid = oh.rowid " +
 #endif
- @"join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
-  left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
-  join logs.CostOptimizationLogs col on 
-        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and 
-		(col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode) and
-        col.SupplierId = pd.FirmCode
+ @"
+	join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+	join logs.CostOptimizationLogs col on 
+		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and 
+		(col.ClientId = ?clientId or ?clientId = 0) and
+		col.SupplierId = pd.FirmCode
   join farm.Synonym s on s.SynonymCode = ol.SynonymCode
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
