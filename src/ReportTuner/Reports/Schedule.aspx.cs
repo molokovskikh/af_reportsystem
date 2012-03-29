@@ -72,66 +72,68 @@ public partial class Reports_schedule : Page
 		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 
-		switch (tempTask.State)
+		ErrorMassage.Text = string.Empty;
+
+		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running)
 		{
-			case TaskState.Running:
-				if (tempTask.Definition.RegistrationInfo.Description == userName)
-				{
-					ErrorMassage.Text = "Успешно запущен разовый отчет, ожидайте окончания выполнения операции";
-					ErrorMassage.BackColor = Color.LightGreen;
-				}
-				else
-				{
-					ErrorMassage.Text = String.Format("Уже запущен разовый отчет, выполнение данного очета отложено (запустил: {0})", tempTask.Definition.RegistrationInfo.Description);
-					ErrorMassage.BackColor = Color.Red;
-				}
-				btn_Mailing.Enabled = false;
-				RadioSelf.Enabled = false;
-				RadioMails.Enabled = false;
-				break;
-			case TaskState.Queued:
-				if (tempTask.Definition.RegistrationInfo.Description == userName)
-				{
-					ErrorMassage.Text = "Запускается разовый отчет, ожидайте окончания выполнения операции";
-					ErrorMassage.BackColor = Color.LightGreen;
-				}
-				else
-				{
-					ErrorMassage.Text = string.Format("Запускается разовый отчет (запустил: {0}), выполнение данного очета отложено)", tempTask.Definition.RegistrationInfo.Description);
-					ErrorMassage.BackColor = Color.Red;
-				}
-				btn_Mailing.Enabled = false;
-				RadioSelf.Enabled = false;
-				RadioMails.Enabled = false;
-				break;
-			case TaskState.Ready:
-				if (tempTask.Definition.RegistrationInfo.Description == userName)
-				{
-					// отчет выполнен				
-					if (Session["StartTaskTime"] != null)
-					{
-						Session.Remove("StartTaskTime");
-						ErrorMassage.Text = "Операция выполнена";
-						ErrorMassage.BackColor = Color.LightGreen;
-					}
-					else
-						ErrorMassage.Text = "";
-				}
-				break;
-			case TaskState.Disabled:
+			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
+			if (tempTask.Definition.RegistrationInfo.Description == userName)
+			{
+				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
+				ErrorMassage.BackColor = Color.LightGreen;
+			}
+			else
+			{
+				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено (запустил: {0})", tempTask.Definition.RegistrationInfo.Description, prefix);
+				ErrorMassage.BackColor = Color.Red;
+			}
+			btn_Mailing.Enabled = false;
+			RadioSelf.Enabled = false;
+			RadioMails.Enabled = false;
+		}
+		if (tempTask.State == TaskState.Queued || temp1Task.State == TaskState.Queued)
+		{
+			var prefix = tempTask.State == TaskState.Running ? "Запускается разовый отчет" : "Отчет запускается";
+			if (tempTask.Definition.RegistrationInfo.Description == userName)
+			{
+				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
+				ErrorMassage.BackColor = Color.LightGreen;
+			}
+			else
+			{
+				ErrorMassage.Text = string.Format("{1} (запустил: {0}), выполнение данного очета отложено)", tempTask.Definition.RegistrationInfo.Description, prefix);
+				ErrorMassage.BackColor = Color.Red;
+			}
+			btn_Mailing.Enabled = false;
+			RadioSelf.Enabled = false;
+			RadioMails.Enabled = false;
+		}
+		if ((tempTask.State == TaskState.Ready && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
+		(temp1Task.State == TaskState.Ready && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName)
+			{
+				// отчет выполнен				
 				if (Session["StartTaskTime"] != null)
 				{
 					Session.Remove("StartTaskTime");
-					ErrorMassage.Text = "Операция отменена";
-					ErrorMassage.BackColor = Color.Red;
+					ErrorMassage.Text = "Операция выполнена";
+					ErrorMassage.BackColor = Color.LightGreen;
 				}
 				else
 					ErrorMassage.Text = "";
-				break;
-			default:
-				ErrorMassage.Text = string.Empty;
-				break;
+			}
 		}
+		if ((tempTask.State == TaskState.Disabled && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
+		(temp1Task.State == TaskState.Disabled && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
+			if (Session["StartTaskTime"] != null)
+			{
+				Session.Remove("StartTaskTime");
+				ErrorMassage.Text = "Операция отменена";
+				ErrorMassage.BackColor = Color.Red;
+			}
+			else
+				ErrorMassage.Text = "";
+			}
 		
 
 		var otherTriggers = new List<Trigger>();
