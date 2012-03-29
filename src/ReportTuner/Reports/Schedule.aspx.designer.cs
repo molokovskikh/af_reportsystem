@@ -99,7 +99,7 @@ public partial class Reports_schedule {
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Calendar dtFrom;
+    protected global::System.Web.UI.WebControls.HiddenField dtFrom;
     
     /// <summary>
     /// Label4 control.
@@ -117,7 +117,7 @@ public partial class Reports_schedule {
     /// Auto-generated field.
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
-    protected global::System.Web.UI.WebControls.Calendar dtTo;
+    protected global::System.Web.UI.WebControls.HiddenField dtTo;
     
     /// <summary>
     /// RadioSelf control.

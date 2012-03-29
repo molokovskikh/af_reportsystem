@@ -7,10 +7,13 @@
     <title>Настройка отчетов</title>
     <script type="text/javascript" src="../JavaScript/prototype.js"></script>
     <script type="text/javascript" src="../JavaScript/Main.js"></script>
-    <script type="text/javascript" src="../JavaScript/jquery-1.4.1.min.js"></script>
+    <script type="text/javascript" src="../JavaScript/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../JavaScript/jquery-ui-1.8.16.min.js"></script>
+    <script type="text/javascript" src="../JavaScript/jquery.ui.datepicker-ru.js"></script>
     <script type="text/javascript" src="../JavaScript/jquery.validate.js"></script>
 
     <link href="../CSS/Main.css" rel="Stylesheet" />
+    <link href="../CSS/jquery-ui-1.8.13.custom.css" rel="Stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">

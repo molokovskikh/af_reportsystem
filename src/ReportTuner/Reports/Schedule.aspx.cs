@@ -145,8 +145,8 @@ public partial class Reports_schedule : Page
 				RadioSelf.Text = "Выполнить и отослать на: " + selfMail[0][0];
 			}
 
-			dtFrom.SelectedDates.Add(DateTime.Now.AddDays(-7));
-			dtTo.SelectedDates.Add(DateTime.Now);
+			dtFrom.Value = DateTime.Now.AddDays(-7).ToShortDateString();
+			dtTo.Value = DateTime.Now.ToShortDateString();
 			mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
 			
 			try
@@ -566,7 +566,7 @@ order by LogTime desc
 
 		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath,
 			"/gr:" + _generalReport.Id +
-			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1} /manual:true", dtFrom.SelectedDate.ToShortDateString(), dtTo.SelectedDate.ToShortDateString()),
+			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1} /manual:true", DateTime.Parse(dtFrom.Value).ToShortDateString(), DateTime.Parse(dtTo.Value).ToShortDateString()),
 			ScheduleHelper.ScheduleWorkDir);
 		
 		var taskDefinition = thisTask.Definition;
