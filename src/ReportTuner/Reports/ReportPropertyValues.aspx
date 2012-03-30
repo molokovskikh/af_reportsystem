@@ -14,20 +14,24 @@
             <asp:ListItem>100</asp:ListItem>
         </asp:DropDownList>
         <asp:CheckBox ID="chbShowEnabled" runat="server" AutoPostBack="True" Text="Только включенные" OnCheckedChanged="chbShowEnabled_CheckedChanged" /><br />
-        <asp:GridView ID="dgvListValues" runat="server" AutoGenerateColumns="False" AllowPaging="True" OnPageIndexChanging="dgvListValues_PageIndexChanging" OnDataBound="dgvListValues_DataBound">
+		<div style="width: 600px;" align="right">
+        <asp:GridView ID="dgvListValues" runat="server" AutoGenerateColumns="False" 
+				AllowPaging="True" OnPageIndexChanging="dgvListValues_PageIndexChanging" 
+				OnDataBound="dgvListValues_DataBound" ViewStateMode="Enabled">
             <Columns>
-                <asp:TemplateField HeaderText="Включено">
+                <asp:TemplateField HeaderText="Включено" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right">
                     <HeaderTemplate>
-                        <asp:CheckBox ID="cbSet" runat="server" Text="Все включено" AutoPostBack="True" OnCheckedChanged="cbSet_CheckedChanged"/>
+                        <asp:CheckBox ID="cbSet" runat="server" Text="Все включено" AutoPostBack="True" OnCheckedChanged="cbSet_CheckedChanged" TextAlign="Left" />
                     </HeaderTemplate>
                     <ItemTemplate>
-                        <asp:CheckBox ID="chbEnabled" runat="server" Checked='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Enabled"))%>' />
+                        <asp:CheckBox ID="chbEnabled" runat="server" Checked='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Enabled"))%>'/>
                         <input type="hidden" runat="server" id="RowID" value='<%#DataBinder.Eval(Container, "DataItem.ID")%>' />
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:BoundField HeaderText="Значение" DataField="DisplayValue" />
+                <asp:BoundField HeaderText="Значение" DataField="DisplayValue" ItemStyle-HorizontalAlign="Left" />
             </Columns>
-        </asp:GridView>    
+        </asp:GridView> 
+		</div>   
         <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" 
 				style="height: 26px" />&nbsp;
     </div>
