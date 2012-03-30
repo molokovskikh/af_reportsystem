@@ -57,7 +57,7 @@ namespace Inforoom.ReportSystem
 					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
 											  @"select s.HomeRegion
 	from usersettings.PricesData pd
-	inner join future.suppliers s on pd.FirmCode = s.Id
+	inner join Customers.suppliers s on pd.FirmCode = s.Id
 	and pd.PriceCode = ?PriceCode;",
 											  new MySqlParameter("?PriceCode", _priceCode)));
 			}
@@ -68,7 +68,7 @@ namespace Inforoom.ReportSystem
 
 				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
 						@"select RegionCode
-	from future.Clients
+	from Customers.Clients
 where Id = ?ClientCode",
 						new MySqlParameter("?ClientCode", _clientCode)));
 			}

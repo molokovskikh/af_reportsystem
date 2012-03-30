@@ -176,11 +176,11 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			filterDescriptions.Add(String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
+			filterDescriptions.Add(String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				var ids = concurrentGroups[i];
 				filterDescriptions.Add(String.Format("Список поставщиков-конкурентов №{1}: {0}",
-					GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + ids.Implode() + ") order by supps.Name"),
+					GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + ids.Implode() + ") order by supps.Name"),
 					i+1));
 			}
 
@@ -258,12 +258,12 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurre
 	selectCommand +=
 @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
-  left join future.Clients cl on cl.Id = oh.ClientCode
+  left join Customers.Clients cl on cl.Id = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
-  join future.suppliers prov on prov.Id = pd.FirmCode
+  join Customers.suppliers prov on prov.Id = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
-  join future.addresses adr on oh.AddressId = adr.Id
+  join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId" +
 	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + 

@@ -64,11 +64,11 @@ left join farm.BuyingMatrix BM on RC.BuyingMatrixPriceId = BM.PriceId and BM.Pro
 
 and if(OL.CodeFirmCr is null, BM.ProducerId is null, BM.ProducerId is null || BM.ProducerId = ol.CodeFirmCr)
 
-join future.Clients CL on CL.ID = O.ClientCode
-join future.Users U on U.ID = O.UserID
+join Customers.Clients CL on CL.ID = O.ClientCode
+join Customers.Users U on U.ID = O.UserID
 join catalogs.Catalog Cat on Cat.Id = P.CatalogID
 join usersettings.PricesData PD on O.PriceCode = PD.PriceCode
-join future.Suppliers supps on PD.FirmCode = supps.Id
+join Customers.Suppliers supps on PD.FirmCode = supps.Id
 left join catalogs.Producers Prod on Prod.Id = Ol.CodeFirmCr
 
 where O.ClientCode = ?ClientCode
@@ -103,7 +103,7 @@ order by O.WriteTime");
 			result.Rows.Add("Заказ вне разрешенного ассортимента");
 			result.Rows[0][2] = "Сформирован :" + DateTime.Now.ToString();
 			var headParameterCommand = _conn.CreateCommand();
-			var shPCommand = "select CL.Name from future.Clients CL where CL.ID = " + _clientId.ToString();
+			var shPCommand = "select CL.Name from Customers.Clients CL where CL.ID = " + _clientId.ToString();
 			headParameterCommand.CommandText = shPCommand;
 			var headParameterReader = headParameterCommand.ExecuteReader();
 			result.Rows.Add("Клиент");

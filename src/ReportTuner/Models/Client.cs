@@ -10,7 +10,7 @@ using Common.Web.Ui.Models;
 namespace ReportTuner.Models
 {
 
-	[ActiveRecord("Clients", Schema = "Future")]
+	[ActiveRecord("Clients", Schema = "Customers")]
 	public class FutureClient : ActiveRecordBase<FutureClient>
 	{
 		[PrimaryKey]
@@ -51,7 +51,7 @@ namespace ReportTuner.Models
 		string ShortNameAndId { get; }
 	}
 
-	[ActiveRecord("Users", Schema = "Future")]	
+	[ActiveRecord("Users", Schema = "Customers")]	
 	public class FutureUser : ActiveRecordLinqBase<FutureUser>, IUser
 	{
 		[PrimaryKey]

@@ -112,9 +112,9 @@ sum(ol.Cost * ol.Quantity) as TotalSum,
 sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
 from Orders.OrdersHead oh 
 	join Orders.OrdersList ol on ol.OrderId = oh.RowId
-	join Future.Clients c on c.Id = oh.ClientCode
-		join Future.Users u on u.ClientId = c.Id and oh.UserId = u.Id
-	join Future.Addresses a on a.Id = oh.AddressId
+	join Customers.Clients c on c.Id = oh.ClientCode
+		join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
+	join Customers.Addresses a on a.Id = oh.AddressId
 		join Billing.LegalEntities le on le.Id = a.LegalEntityId
 	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 where oh.WriteTime > ?begin

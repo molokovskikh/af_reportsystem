@@ -101,7 +101,7 @@ select
 from 
 	usersettings.ActivePrices p
 	join usersettings.PricesData pd on pd.PriceCode = p.PriceCode
-	join future.suppliers supps on supps.Id = pd.FirmCode
+	join Customers.suppliers supps on supps.Id = pd.FirmCode
 group by supps.Id
 order by supps.Name";
 			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())

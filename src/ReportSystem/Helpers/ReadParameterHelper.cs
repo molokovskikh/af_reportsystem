@@ -33,13 +33,13 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
 		{			
-			var command = @"select supps.Name as ShortName from future.suppliers supps where supps.Id in " + ProviderReport.ConcatWhereIn(suppliers);
+			var command = @"select supps.Name as ShortName from Customers.suppliers supps where supps.Id in " + ProviderReport.ConcatWhereIn(suppliers);
 			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
 
 		public static List<String> GetClientNames(List<ulong> _clients, ExecuteArgs e)
 		{
-			var command = @"select cl.FullName from future.Clients cl where cl.Id in " + ProviderReport.ConcatWhereIn(_clients);
+			var command = @"select cl.FullName from Customers.Clients cl where cl.Id in " + ProviderReport.ConcatWhereIn(_clients);
 			return GetNames(r => r["FullName"].ToString(), command, e);
 		}
 
@@ -52,7 +52,7 @@ namespace Inforoom.ReportSystem.Helpers
 		public static List<String> GetPriceName(List<ulong> _priceCode, ExecuteArgs e)
 		{			
 			var command = @"SELECT supps.Name as ShortName FROM usersettings.PricesData P 
-							join future.suppliers supps on supps.Id = p.FirmCode
+							join Customers.suppliers supps on supps.Id = p.FirmCode
 							where p.PriceCode = " + _priceCode[0];
 			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
@@ -75,7 +75,7 @@ namespace Inforoom.ReportSystem.Helpers
 	convert(concat(supps.Name, ' (', pd.PriceName, ') - ', rg.Region) using cp1251) as PriceName
   from
 	usersettings.pricesdata pd
-	inner join future.suppliers supps on supps.Id = pd.FirmCode
+	inner join Customers.suppliers supps on supps.Id = pd.FirmCode
 	inner join farm.regions rg on rg.RegionCode = supps.HomeRegion
 	where pd.PriceCode in " + ProviderReport.ConcatWhereIn(_prices);
 			return GetNames(r => r["PriceName"].ToString(), command, e);

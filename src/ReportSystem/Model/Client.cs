@@ -7,7 +7,7 @@ using Castle.ActiveRecord.Framework;
 
 namespace Inforoom.ReportSystem.Model
 {
-	[ActiveRecord("Clients", Schema = "Future")]
+	[ActiveRecord("Clients", Schema = "Customers")]
 	public class Client : ActiveRecordLinqBase<Client>
 	{
 		[PrimaryKey]

@@ -349,7 +349,7 @@ namespace Inforoom.ReportSystem
 select 
 	c.Name
 from 
-	future.Clients c
+	Customers.Clients c
 where 
 	c.Id in {0}
 order by 1", filterStr);

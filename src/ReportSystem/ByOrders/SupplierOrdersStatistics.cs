@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from future.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
+			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
 			if (!String.IsNullOrEmpty(regionsString))
 				filterDescriptions.Add(String.Format("Список регионов : {0}", GetValuesFromSQL("select r.Region from farm.regions r where r.RegionCode in (" + regionsString + ") order by r.Region;")));
 			ProfileHelper.Next("GenerateReport");
@@ -78,11 +78,11 @@ from
     inner join {1}.orderslist ol on oh.rowid = ol.orderid
     inner join usersettings.pricesdata pd on oh.pricecode = pd.pricecode    
     inner join farm.regions r on oh.regioncode = r.regioncode
-    inner join future.users u on oh.userid = u.id
-    inner join future.clients cl on oh.clientcode = cl.id
+    inner join Customers.users u on oh.userid = u.id
+    inner join Customers.clients cl on oh.clientcode = cl.id
 	inner join usersettings.retclientsset rcs on cl.id = rcs.clientcode
-    inner join future.addresses a on oh.addressid = a.id
-    inner join future.intersection fi on fi.clientid = cl.id
+    inner join Customers.addresses a on oh.addressid = a.id
+    inner join Customers.intersection fi on fi.clientid = cl.id
         and fi.regionid = oh.regioncode
         and fi.priceid = pd.pricecode
         and fi.legalentityid = a.legalentityid

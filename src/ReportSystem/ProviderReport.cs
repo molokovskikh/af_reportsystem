@@ -115,7 +115,7 @@ namespace Inforoom.ReportSystem
 			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty) || (clientIdWhere != string.Empty))
 				where = regionalWhere + payerWhere + clientWhere + clientIdWhere;
 			e.DataAdapter.SelectCommand.CommandText = 
-			string.Format(@"SELECT distinct fc.Id FROM future.Clients fc
+			string.Format(@"SELECT distinct fc.Id FROM Customers.Clients fc
 							join billing.PayerClients pc on fc.Id = pc.ClientId
 							join usersettings.RetClientsSet RCS on fc.id = RCS.ClientCode
 							WHERE RCS.ServiceClient = 0 and RCS.InvisibleOnFirm = 0 and fc.Status = 1 {0}", where);
@@ -241,7 +241,7 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.CommandText = @"
 alter table ActivePrices add column FirmName varchar(100);
 update 
-  ActivePrices, future.suppliers, farm.regions 
+  ActivePrices, Customers.suppliers, farm.regions 
 set 
   FirmName = concat(suppliers.Name, '(', ActivePrices.PriceName, ') - ', regions.Region)
 where 
@@ -266,7 +266,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			// Получаем для него все прайсы
 			if(_byBaseCosts)
 			{
-				selectCommand.CommandText = "future.GetPricesWithBaseCosts";
+				selectCommand.CommandText = "Customers.GetPricesWithBaseCosts";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.ExecuteNonQuery();
 			}
@@ -274,7 +274,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			{
 				// Получаем пользователя
 					userId = GetUserId();
-				selectCommand.CommandText = "future.GetPrices";
+				selectCommand.CommandText = "Customers.GetPrices";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.Parameters.Clear();
 				selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
@@ -290,7 +290,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			}
 
 			// Получаем для пользователя активные (которыми теперь являются все) прайсы
-			selectCommand.CommandText = "future.GetActivePrices";
+			selectCommand.CommandText = "Customers.GetActivePrices";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
@@ -300,7 +300,7 @@ and regions.RegionCode = activeprices.RegionCode";
 		private void GetRetailActivePrices()
 		{
 			var selectCommand = args.DataAdapter.SelectCommand;
-			selectCommand.CommandText = "Future.GetActivePrices";
+			selectCommand.CommandText = "Customers.GetActivePrices";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", 2958);
@@ -314,7 +314,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			{
 				var command = args.DataAdapter.SelectCommand;
 				//Проверка существования и отключения клиента
-				command.CommandText = "select * from future.Clients cl where cl.Id = " + _clientCode;
+				command.CommandText = "select * from Customers.Clients cl where cl.Id = " + _clientCode;
 				command.CommandType = CommandType.Text;
 				using (var reader = command.ExecuteReader())
 				{
@@ -325,7 +325,7 @@ and regions.RegionCode = activeprices.RegionCode";
 							String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).",
 											reader["Name"], _clientCode));
 				}
-				command.CommandText = "select Id from future.Users where ClientId = " + _clientCode +
+				command.CommandText = "select Id from Customers.Users where ClientId = " + _clientCode +
 															 " limit 1";
 				return Convert.ToUInt32(command.ExecuteScalar());
 			}
@@ -351,7 +351,7 @@ and regions.RegionCode = activeprices.RegionCode";
 				selectCommand.Parameters.AddWithValue("?UserIdParam", GetUserId());
 
 			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noiseFirmCode);
-			selectCommand.CommandText = "future.GetOffersReports";
+			selectCommand.CommandText = "Customers.GetOffersReports";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
 		}
@@ -394,7 +394,7 @@ INSERT INTO usersettings.TmpPricesRegions(PriceCode, RegionCode) VALUES(?priceco
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from Core cor
 	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
-	join future.suppliers supps on supps.Id = pd.FirmCode
+	join Customers.suppliers supps on supps.Id = pd.FirmCode
 group by supps.Id
 order by supps.Name";
 			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
@@ -419,7 +419,7 @@ order by supps.Name";
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from usersettings.PricesData pd
-	join future.suppliers supps on supps.Id = pd.FirmCode
+	join Customers.suppliers supps on supps.Id = pd.FirmCode
 where pd.PriceCode in ({0})
 group by supps.Id
 order by supps.Name", supplierIds.Implode());
@@ -450,7 +450,7 @@ where pricesdata.PriceCode = ?PriceCode
 				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
 					@"
 select RegionCode
-	from future.Clients
+	from Customers.Clients
 where Id = ?ClientCode",
 					new MySqlParameter("?ClientCode", _clientCode)));
 
@@ -588,7 +588,7 @@ select
   suppliers.HomeRegion
 from 
   usersettings.pricesdata, 
-  future.suppliers,
+  Customers.suppliers,
   farm.regions 
 where 
 	pricesdata.PriceCode = ?PriceCode

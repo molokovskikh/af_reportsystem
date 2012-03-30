@@ -99,7 +99,7 @@ SELECT
 	gr.EMailSubject,
 	gr.ReportFileName,
 	gr.ReportArchName,
-	EXISTS(select 1 from future.Clients where Id = gr.FirmCode) IsNewClient
+	EXISTS(select 1 from Customers.Clients where Id = gr.FirmCode) IsNewClient
 FROM
 	reports.general_reports gr,
 	billing.payers p
@@ -413,7 +413,7 @@ SET
 			(select min(Id)
 			   from
 			   (select s.Id
-				from Future.Suppliers s
+				from Customers.Suppliers s
 				where s.Payer = ?payerID) tbl)),
 	PayerID = ?payerID
 WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
@@ -455,7 +455,7 @@ select
 from
 (
 select s.Id
-from Future.Suppliers s
+from Customers.Suppliers s
 where s.Payer = ?payerID
 ) tbl;
 select last_insert_id() as GRLastInsertID;

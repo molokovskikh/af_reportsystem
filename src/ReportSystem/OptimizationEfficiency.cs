@@ -58,9 +58,9 @@ from " +
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
-  left join Future.Users u on u.Id = oh.UserId
-    left join Future.Clients fc on fc.Id = u.ClientId
-   left join Future.Clients cl on cl.Id = oh.ClientCode
+  left join Customers.Users u on u.Id = oh.UserId
+    left join Customers.Clients fc on fc.Id = u.ClientId
+   left join Customers.Clients cl on cl.Id = oh.ClientCode
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
 group by ol.RowId
@@ -151,7 +151,7 @@ where diff < 0";
 			{
                 command.CommandText =
                 @"select concat(cl.Name, ' (', reg.Region, ')'), 1
-    from future.Clients cl
+    from Customers.Clients cl
          join farm.Regions reg on reg.RegionCode = cl.RegionCode
    where Id = ?clientId";
 				e.DataAdapter.Fill(_dsReport, "Client");

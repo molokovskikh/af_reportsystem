@@ -38,7 +38,7 @@ update
   ExtendedCore ec
   inner join farm.Core0 on Core0.id = ec.Id
   inner join usersettings.PricesData pd on pd.PriceCode = Core0.PriceCode
-  join future.suppliers supps on supps.Id = pd.FirmCode
+  join Customers.suppliers supps on supps.Id = pd.FirmCode
   left join catalogs.Producers on Producers.ID = Core0.CodeFirmCr
 set
   ec.ProducerId = Core0.CodeFirmCr,
@@ -121,7 +121,7 @@ update
   ExtendedCore ec
   inner join farm.Core0 on Core0.id = ec.Id
   inner join usersettings.PricesData pd on pd.PriceCode = Core0.PriceCode
-  join future.suppliers supps on supps.Id = pd.FirmCode
+  join Customers.suppliers supps on supps.Id = pd.FirmCode
   left join catalogs.Producers on Producers.ID = Core0.CodeFirmCr
   left join farm.SynonymFirmCr on SynonymFirmCr.PriceCode = @OffersSynonymCode and SynonymFirmCr.CodeFirmCr = Core0.CodeFirmCr
 set
@@ -290,7 +290,7 @@ select
   count(c.id) as OffersCount
 from
   usersettings.PricesData pd
-  inner join future.suppliers supps on supps.Id = pd.FirmCode
+  inner join Customers.suppliers supps on supps.Id = pd.FirmCode
   left join farm.Core0 c on c.PriceCode = pd.PriceCode
 where
   pd.PriceCode = " + _priceCode;

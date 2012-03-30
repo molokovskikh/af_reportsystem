@@ -101,7 +101,7 @@ from
   farm.synonym s,
   farm.synonymfirmcr sfc,
   usersettings.regionaldata rd,
-  future.suppliers supps,  
+  Customers.suppliers supps,  
   usersettings.pricesdata pd
 where
 	FarmCore.Id = Core.Id 

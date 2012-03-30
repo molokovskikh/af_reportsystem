@@ -3,7 +3,7 @@ using Castle.ActiveRecord.Framework;
 
 namespace Inforoom.ReportSystem.Model
 {	
-    [ActiveRecord("Suppliers", Schema = "Future", Mutable = false)]
+    [ActiveRecord("Suppliers", Schema = "Customers", Mutable = false)]
 	public class Supplier : ActiveRecordLinqBase<Supplier>
 	{
         [PrimaryKey]

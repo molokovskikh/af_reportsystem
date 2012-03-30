@@ -62,12 +62,12 @@ from {0}.OrdersHead oh
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
-  left join future.Clients cl on cl.Id = oh.ClientCode
+  left join Customers.Clients cl on cl.Id = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
-  join future.suppliers prov on prov.Id = pd.FirmCode
+  join Customers.suppliers prov on prov.Id = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
-  join future.addresses adr on oh.AddressId = adr.Id
+  join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
 where 1=1", OrdersSchema));

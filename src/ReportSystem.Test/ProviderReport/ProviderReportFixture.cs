@@ -56,7 +56,7 @@ from
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			/*e.DataAdapter.SelectCommand.CommandText = "select * from future.Clients where Id = " + _clientCode;
+			/*e.DataAdapter.SelectCommand.CommandText = "select * from Customers.Clients where Id = " + _clientCode;
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			IsNewClient = reader.Read();
 			reader.Close();*/
@@ -226,7 +226,7 @@ select
 	c.Id,
 	c.Name 
 from 
-	future.Clients c
+	Customers.Clients c
 limit 1";
 			var dsClients = MySqlHelper.ExecuteDataset(
 				Conn,

@@ -44,7 +44,7 @@ namespace Inforoom.ReportSystem
 				string clientName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
-						@"select FullName from future.Clients where Id = ?ClientCode",
+						@"select FullName from Customers.Clients where Id = ?ClientCode",
 						new MySqlParameter("?ClientCode", _clientCode)));
 				
 				var prices = new List<uint>(); // прайсы, для которых будем брать синонимы
@@ -72,7 +72,7 @@ FROM
 	usersettings.Core
 	inner join farm.core0 c0 on Core.id = c0.id
 	inner join usersettings.ActivePrices AP on AP.PriceCode = Core.PriceCode
-	inner join future.Suppliers supps on AP.FirmCode = supps.Id
+	inner join Customers.Suppliers supps on AP.FirmCode = supps.Id
 	inner join farm.Regions r on Core.RegionCode = r.RegionCode
 	left join farm.Synonym OrigSyn on c0.SynonymCode = OrigSyn.SynonymCode
 	left join farm.SynonymFirmCr OrigSynCr on c0.SynonymFirmCrCode = OrigSynCr.SynonymFirmCrCode

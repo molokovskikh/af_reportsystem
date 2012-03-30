@@ -95,7 +95,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
-						@"select Name from future.Clients where Id = ?FirmCode",
+						@"select Name from Customers.Clients where Id = ?FirmCode",
 						new MySqlParameter("?FirmCode", _clientCode)));
 				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
 			}

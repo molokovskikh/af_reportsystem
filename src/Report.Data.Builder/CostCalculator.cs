@@ -81,7 +81,7 @@ namespace Report.Data.Builder
 		{
 			var sql = @"
 select c.Id
-from Future.Clients c
+from Customers.Clients c
 join Usersettings.RetClientsSet rcs on rcs.ClientCode = c.Id
 where rcs.InvisibleOnFirm = 0
 ";
@@ -92,11 +92,11 @@ where rcs.InvisibleOnFirm = 0
 		{
 			var sql = String.Format(@"
 set @UserId = (select Id
-from Future.Users
+from Customers.Users
 where ClientId = ?client
 limit 1);
 
-call Future.GetPrices(@UserId);
+call Customers.GetPrices(@UserId);
 
 select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost
 from Usersettings.Prices p

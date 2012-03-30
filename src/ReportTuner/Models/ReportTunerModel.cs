@@ -19,7 +19,7 @@ select
 	   supps.Id,
 	   supps.Name ShortName,
 	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from future.Suppliers supps
+  from Customers.Suppliers supps
 	   left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
  where ?firmType = 0
    and supps.Disabled = 0
@@ -34,7 +34,7 @@ select
 	   cl.Id,
 	   cl.Name ShortName,
 	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from future.Clients cl
+  from Customers.Clients cl
 	   left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
  where ?firmType = 1
    and cl.Status = 1
@@ -51,7 +51,7 @@ group by Id
 	supps.Name ShortName,
 	GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
 from usersettings.ActivePrices AP
-	inner join future.suppliers supps on AP.FirmCode = supps.Id
+	inner join Customers.suppliers supps on AP.FirmCode = supps.Id
 	left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
 where
 	?firmType = 0
@@ -69,10 +69,10 @@ select
 	   supps.Id,
 	   supps.Name ShortName,
 	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from future.Suppliers supps
+  from Customers.Suppliers supps
 	   left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
  where supps.Id in {0}
-	 and not exists(select 1 from future.Clients where id = supps.Id)
+	 and not exists(select 1 from Customers.Clients where id = supps.Id)
 group by Id
 
 union
@@ -81,7 +81,7 @@ select
 	   cl.Id,
 	   cl.Name ShortName,
 	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
-  from future.Clients cl
+  from Customers.Clients cl
 	   left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
  where cl.Id in {0}
 group by Id
@@ -127,7 +127,7 @@ group by Id
 				var da = new MySqlDataAdapter(new MySqlCommand());
 				var selectCommand = da.SelectCommand;
 				selectCommand.Connection = conn;
-				selectCommand.CommandText = "future.GetActivePrices";
+				selectCommand.CommandText = "Customers.GetActivePrices";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.Parameters.Clear();
 				selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
