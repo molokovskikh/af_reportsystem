@@ -59,6 +59,11 @@ namespace ReportTuner.Models
 
 		public bool IsSupplierEditor()
 		{
+			return (Report.ReportType.ReportTypeFilePrefix != "PharmacyMixed" && IsClientOrSupplierEdit());
+		}
+
+		private bool IsClientOrSupplierEdit()
+		{
 			return PropertyType.PropertyName.ToLower().StartsWith("BusinessRivals".ToLower())
 				|| String.Equals(PropertyType.PropertyName, "IgnoredSuppliers", StringComparison.InvariantCultureIgnoreCase)
 				|| String.Equals(PropertyType.PropertyName, "FirmCodeEqual", StringComparison.InvariantCultureIgnoreCase)
@@ -67,7 +72,7 @@ namespace ReportTuner.Models
 
 		public bool IsClientEditor()
 		{
-			return (Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed" && IsSupplierEditor())
+			return (Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed" && IsClientOrSupplierEdit())
 				|| String.Equals(PropertyType.PropertyName, "ClientCodeEqual", StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
