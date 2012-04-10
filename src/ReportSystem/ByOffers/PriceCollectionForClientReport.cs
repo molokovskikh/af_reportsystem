@@ -13,7 +13,7 @@ namespace Inforoom.ReportSystem
 {   
 	public class PriceCollectionForClientReport : ProviderReport
 	{
-		protected List<ulong> _Clients; // список клиентов       
+		protected List<ulong> _Clients; // список клиентов
 		protected int _supplierId; // поставщик
 
 		private List<ReportData> _reportData;
@@ -38,8 +38,8 @@ namespace Inforoom.ReportSystem
 			foreach (var client in _Clients)
 			{
 				_clientCode = Convert.ToInt32(client);
-				ProfileHelper.Next("GetOffers for client: " + _clientCode);         
-				GetOffers(/*_SupplierNoise*/); // получили предложения для клиента
+				ProfileHelper.Next("GetOffers for client: " + _clientCode);
+				GetOffers(); // получили предложения для клиента
 				
 				string clientName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
@@ -65,15 +65,16 @@ SELECT
 	r.Region RegionName,
 	Core.Cost,
 	'{0}' ClientName,
-	c0.RequestRatio,
-	c0.OrderCost,
-	c0.MinOrderCount
+	ifnull(cc.RequestRatio, c0.RequestRatio) as RequestRatio,
+	ifnull(cc.MinOrderSum, c0.OrderCost) as OrderCost,
+	ifnull(cc.MinOrderCount, c0.MinOrderCount) as MinOrderCount
 FROM 
 	usersettings.Core
-	inner join farm.core0 c0 on Core.id = c0.id
-	inner join usersettings.ActivePrices AP on AP.PriceCode = Core.PriceCode
-	inner join Customers.Suppliers supps on AP.FirmCode = supps.Id
-	inner join farm.Regions r on Core.RegionCode = r.RegionCode
+	join farm.core0 c0 on Core.id = c0.id
+	join usersettings.ActivePrices AP on AP.PriceCode = Core.PriceCode
+		join Farm.CoreCosts cc on cc.Core_Id = c0.Id and cc.PC_CostCode = ap.CostCode
+	join Customers.Suppliers supps on AP.FirmCode = supps.Id
+	join farm.Regions r on Core.RegionCode = r.RegionCode
 	left join farm.Synonym OrigSyn on c0.SynonymCode = OrigSyn.SynonymCode
 	left join farm.SynonymFirmCr OrigSynCr on c0.SynonymFirmCrCode = OrigSynCr.SynonymFirmCrCode
 	left join farm.Synonym S on Core.productid = s.productId and s.PriceCode in ({1})
