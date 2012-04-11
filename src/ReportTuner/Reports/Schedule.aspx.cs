@@ -74,6 +74,8 @@ public partial class Reports_schedule : Page
 
 		ErrorMassage.Text = string.Empty;
 
+		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
+
 		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running)
 		{
 			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
@@ -84,7 +86,7 @@ public partial class Reports_schedule : Page
 			}
 			else
 			{
-				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено (запустил: {0})", tempTask.Definition.RegistrationInfo.Description, prefix);
+				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено {0}", description, prefix);
 				ErrorMassage.BackColor = Color.Red;
 			}
 			btn_Mailing.Enabled = false;
@@ -101,7 +103,7 @@ public partial class Reports_schedule : Page
 			}
 			else
 			{
-				ErrorMassage.Text = string.Format("{1} (запустил: {0}), выполнение данного очета отложено)", tempTask.Definition.RegistrationInfo.Description, prefix);
+				ErrorMassage.Text = string.Format("{1} {0}, выполнение данного очета отложено)", description, prefix);
 				ErrorMassage.BackColor = Color.Red;
 			}
 			btn_Mailing.Enabled = false;
