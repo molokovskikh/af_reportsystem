@@ -25,6 +25,7 @@ namespace Inforoom.ReportSystem
 		public const string ShortName = "ShortName";
 		public const string ReportFileName = "ReportFileName";
 		public const string ReportArchName = "ReportArchName";
+		public const string NoArchive = "NoArchive";
 		public const string Temporary = "Temporary";
 		public const string Format = "Format";
 	}
@@ -42,6 +43,8 @@ namespace Inforoom.ReportSystem
 
 		private string _reportFileName;
 		private string _reportArchName;
+
+		private bool _noArchive;
 
 		//отчет является разовым?
 		private bool _temporary;
@@ -89,7 +92,7 @@ namespace Inforoom.ReportSystem
 		public GeneralReport(ulong id, uint supplierId, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
 			string ReportArchName, bool Temporary, ReportFormats format,
-			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo, string payer)
+			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo, string payer, bool noArchive)
 		{
 			Logger = LogManager.GetLogger(GetType());
 			GeneralReportID = id;
@@ -101,6 +104,7 @@ namespace Inforoom.ReportSystem
 			_reportArchName = ReportArchName;
 			_temporary = Temporary;
 			_payer = payer;
+			_noArchive = noArchive;
 			Format = format;
 
 			ulong contactsCode = 0;
@@ -248,6 +252,9 @@ where GeneralReport = ?GeneralReport;";
 			}
 
 			if (emptyReport) throw new ReportException("Отчет пуст.");
+
+			if (_noArchive)
+				return _mainFileName;
 
 			var resFileName = ArchFile();
 			return resFileName;

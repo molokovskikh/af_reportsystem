@@ -73,6 +73,7 @@ public partial class Reports_Reports : Page
 		tbEMailSubject.Text = report.EMailSubject;
 		tbReportFileName.Text = report.ReportFileName;
 		tbReportArchName.Text = report.ReportArchName;
+		NoArchive.Checked = report.NoArchive;
 
 		ReportFormatDD.SelectedValue = report.Format;
 
@@ -406,6 +407,7 @@ SET
 			report.EMailSubject = tbEMailSubject.Text;
 			report.ReportFileName = tbReportFileName.Text;
 			report.ReportArchName = tbReportArchName.Text;
+			report.NoArchive = NoArchive.Checked;
 			report.Format = ReportFormatDD.Text;
 			report.Save();
 		}

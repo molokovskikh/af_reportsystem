@@ -101,7 +101,8 @@ and cr.generalreportcode = " + generalReportId;
 										drReport[GeneralReportColumns.ReportArchName].ToString(),
 										Convert.ToBoolean(drReport[GeneralReportColumns.Temporary]),
 										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
-										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString());
+										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString(),
+										Convert.ToBoolean(drReport[GeneralReportColumns.NoArchive]));
 									generalReport = gr;
 									_log.DebugFormat("Запуск отчета {0}", gr.GeneralReportID);
 									gr.ProcessReports();

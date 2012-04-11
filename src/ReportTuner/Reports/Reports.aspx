@@ -49,6 +49,14 @@
             </asp:DropDownList>
           </td>
         </tr>
+		<tr bgcolor="#eef8ff">
+			<td align="right">
+		  		<asp:Label ID="noArchiveText" runat="server" Text="Не архивировать:" SkinID="paramLabelSkin"></asp:Label>
+		  </td>
+		  <td>
+		  	<asp:CheckBox runat="server" ID="NoArchive"/>
+		  </td>
+		</tr>
     </table>
     </div>
 	<div>

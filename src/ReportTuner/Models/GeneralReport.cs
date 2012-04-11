@@ -57,6 +57,9 @@ namespace ReportTuner.Models
 		public virtual string ReportArchName { get; set; }
 
 		[Property]
+		public virtual bool NoArchive { get; set; }
+
+		[Property]
 		public virtual string Format { get; set; }
 
 		[HasMany]
