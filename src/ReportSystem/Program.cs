@@ -143,7 +143,7 @@ and cr.generalreportcode = " + generalReportId;
 		//Аргументы для выбора отчетов из базы
 		public class ReportsExecuteArgs : ExecuteArgs
 		{
-			internal string SQL;
+			public string SQL;
 
 			public ReportsExecuteArgs(string sql)
 			{

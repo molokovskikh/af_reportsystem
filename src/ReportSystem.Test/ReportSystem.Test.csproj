@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArchFileFixture.cs" />
     <Compile Include="BaseProfileFixture.cs" />
     <Compile Include="CombineReport\CombineNewProfilleFixture.cs" />
     <Compile Include="CombineReport\CombineProfileFixture.cs" />

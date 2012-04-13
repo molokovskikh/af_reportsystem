@@ -89,6 +89,11 @@ namespace Inforoom.ReportSystem
 		public GeneralReport() // конструктор для возможности тестирования
 		{}
 
+		public GeneralReport(bool noArchive) // конструктор для возможности тестирования
+		{
+			_noArchive = noArchive;
+		}
+
 		public GeneralReport(ulong id, uint supplierId, uint? ContactGroupId, 
 			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
 			string ReportArchName, bool Temporary, ReportFormats format,
