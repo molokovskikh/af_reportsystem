@@ -260,7 +260,7 @@ where GeneralReport = ?GeneralReport;";
 
 			if (_noArchive)
 			{
-				PrepareFtpDirectory(Path.GetFileName(_mainFileName));
+				PrepareFtpDirectory();
 				CopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
 				return _mainFileName;
 			}
