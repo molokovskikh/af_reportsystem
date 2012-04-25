@@ -259,7 +259,11 @@ where GeneralReport = ?GeneralReport;";
 			if (emptyReport) throw new ReportException("Отчет пуст.");
 
 			if (_noArchive)
+			{
+				PrepareFtpDirectory(Path.GetFileName(_mainFileName));
+				CopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
 				return _mainFileName;
+			}
 
 			var resFileName = ArchFile();
 			return resFileName;
@@ -325,32 +329,49 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			return 0;
 		}
 
+		private string GetResDirPath()
+		{
+			return Settings.Default.FTPOptBoxPath + SupplierId.ToString("000") + "\\Reports\\";
+		}
+
+		private void PrepareFtpDirectory()
+		{
+			var resDirPath = GetResDirPath();
+
+			if (!(Directory.Exists(resDirPath)))
+				Directory.CreateDirectory(resDirPath);
+
+			foreach (string file in Directory.GetFiles(resDirPath))
+				File.Delete(file);
+		}
+
+		private void CopyFileToFtp(string fromfile, string toFile)
+		{
+			try
+			{
+				var resDirPath = GetResDirPath();
+				File.Copy(fromfile, resDirPath + toFile);
+			}
+			catch(Exception ex)
+			{
+				Logger.Error("Ошибка при копировании архива с отчетом", ex);
+			}
+		}
+
 		private string ArchFile()
 		{
-			var ResDirPath = Settings.Default.FTPOptBoxPath;
 			var resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
 
-			ResDirPath += SupplierId.ToString("000") + "\\Reports\\";
-
-			if (!(Directory.Exists(ResDirPath)))
-				Directory.CreateDirectory(ResDirPath);
-
-			if (File.Exists(ResDirPath + resArchFileName))
-				File.Delete(ResDirPath + resArchFileName);
+			PrepareFtpDirectory();
 
 			var zip = new FastZip();
 			var tempArchive = Path.GetTempFileName();
 			zip.CreateZip(tempArchive, _directoryName, false, null, null);
 			var archive = Path.Combine(_directoryName, resArchFileName);
 			File.Move(tempArchive, archive);
-			try
-			{
-				File.Copy(archive, ResDirPath + resArchFileName);
-			}
-			catch(Exception ex)
-			{
-				Logger.Error("Ошибка при копировании архива с отчетом", ex);
-			}
+
+			CopyFileToFtp(archive, resArchFileName);
+
 			return archive;
 		}
 
