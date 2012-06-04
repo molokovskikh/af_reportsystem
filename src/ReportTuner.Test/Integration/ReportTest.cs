@@ -161,18 +161,10 @@ namespace ReportTuner.Test.Integration
 			Assert.That(name,Is.EqualTo(client.Name));
 		}
 
-		public class FakeReports_GeneralReports : Reports_GeneralReports
-		{
-			public static IList<string> GetMailAddresses(string inStr)
-			{
-				return Reports_GeneralReports.GetMailAddresses(inStr);
-			}
-		}
-
 		[Test]
 		public void GetMailAddressesTest()
 		{
-			var mails = FakeReports_GeneralReports.GetMailAddresses("a.tyutin@analit.net, _test@mail.ru, 123_@qwe.ertert.net, .incorrect@mail.ru");
+			var mails = new Reports_GeneralReports().GetMailAddresses("a.tyutin@analit.net, _test@mail.ru, 123_@qwe.ertert.net, .incorrect@mail.ru");
 			Assert.That(mails.Count, Is.EqualTo(3));
 		}
 

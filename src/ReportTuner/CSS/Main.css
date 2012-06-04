@@ -85,3 +85,8 @@
 	BORDER-RIGHT: 1px solid; 
 	PADDING-TOP: 2px
 }
+
+.findInEmailChecbox {
+	margin-left: -250px;
+	display: block;
+}

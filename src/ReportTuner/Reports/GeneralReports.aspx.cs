@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -689,24 +690,13 @@ select last_insert_id() as GRLastInsertID;
 		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Empty;
 	}
 
-	protected static IList<string> GetMailAddresses(string inStr)
+	public IList<string> GetMailAddresses(string inStr)
 	{
 		// валидатор e-mail адресов
-		var emailValidator = 
-			new RegexStringValidator(@"^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,})$");
 		var lines = inStr.Split(',').ToList();
-		var emails = new List<string>();
-		lines.Each(l =>
-					{
-						try
-						{
-							emailValidator.Validate(l.Trim());
-							emails.Add(l.Trim());
-						}
-						catch (ArgumentException)
-						{}
-					});
-		return emails;
+		if (!findInEmailChecbox.Checked)
+			lines = lines.Where(l => Regex.IsMatch(l, @"^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,})$")).ToList();
+		return lines;
 	}
 
 	protected IList<uint> GetReportCodesByEmails(IList<string> emails)
@@ -744,8 +734,8 @@ and ({0});
 	{
 		List<string> filter = new List<string>();
 		IList<string> emails = GetMailAddresses(tbFilter.Text);
-		if (emails.Count > 0)
-		{ // если в фильтре указаны e-mail адреса, ищем отчеты, для которых они указаны в списке рассылок 
+		if (emails.Count > 0 || findInEmailChecbox.Checked)
+		{ // если в фильтре указаны e-mail адреса, ищем отчеты, для которых они указаны в списке рассылок
 			var codes = GetReportCodesByEmails(emails);
 			filter.Add(codes.Count > 0
 						? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
