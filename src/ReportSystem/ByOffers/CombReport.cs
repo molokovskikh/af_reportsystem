@@ -61,6 +61,7 @@ namespace Inforoom.ReportSystem
 
 			ProfileHelper.Next("Get Offers");
 			GetOffers(_SupplierNoise);
+			GroupActivePrices(e);
 			ProfileHelper.Next("Processing1");
 			e.DataAdapter.SelectCommand.CommandText = "select " ;
 
@@ -381,6 +382,55 @@ order by 2, 5";
 
 				priceIndex++;
 			}
+		}
+
+		private void GroupActivePrices(ExecuteArgs e)
+		{
+			e.DataAdapter.SelectCommand.CommandText = @"
+DROP TEMPORARY TABLE IF EXISTS Usersettings.TempActivePrices;
+create temporary table
+Usersettings.TempActivePrices
+(
+ FirmCode int Unsigned,
+ PriceCode int Unsigned,
+ CostCode int Unsigned,
+ PriceSynonymCode int Unsigned,
+ RegionCode BigInt Unsigned,
+ Fresh bool,
+ DelayOfPayment decimal(5,3),
+ Upcost decimal(7,5),
+ MaxSynonymCode Int Unsigned,
+ MaxSynonymFirmCrCode Int Unsigned,
+ CostType bool,
+ PriceDate DateTime,
+ ShowPriceName bool,
+ PriceName VarChar(50),
+ PositionCount int Unsigned,
+ MinReq mediumint Unsigned,
+ FirmCategory tinyint unsigned,
+ MainFirm bool,
+ VitallyImportantDelay decimal(5,3),
+ OtherDelay decimal(5,3),
+ unique (PriceCode, RegionCode, CostCode),
+ index  (CostCode, PriceCode),
+ index  (PriceSynonymCode),
+ index  (MaxSynonymCode),
+ index  (PriceCode),
+ index  (MaxSynonymFirmCrCode)
+ )engine=MEMORY
+ ;
+
+alter table TempActivePrices add column FirmName varchar(100);
+
+insert into Usersettings.TempActivePrices
+select * from ActivePrices
+group by priceCode;
+
+delete from Usersettings.ActivePrices;
+
+insert into Usersettings.ActivePrices
+select * from TempActivePrices;";
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 	}
 }
