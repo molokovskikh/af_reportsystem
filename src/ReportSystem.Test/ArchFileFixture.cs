@@ -34,7 +34,6 @@ namespace ReportSystem.Test
 		public void ReadParam()
 		{
 			var sqlCommand = @"
-delete from Customers.Suppliers;
 insert into Customers.Suppliers (Name) values ('123');
 INSERT INTO
 	reports.general_reports
