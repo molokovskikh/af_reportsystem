@@ -8,8 +8,7 @@
         <asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin" 
             ontextchanged="btnFilter_Click" ToolTip="e-mail адреса можно задавать через запятую"/>
         <asp:Button ID="btnFilter" runat="server" Text="Фильтровать" 
-            onclick="btnFilter_Click" /> <br/>
-			<asp:CheckBox ID="findInEmailChecbox" runat="server" Text="Искать в Email" CssClass="findInEmailChecbox"/>
+            onclick="btnFilter_Click" />
 			<br/><br/>
         <br/>
         <asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False"  CssClass="DocumentDataTable HighLightCurrentRow"

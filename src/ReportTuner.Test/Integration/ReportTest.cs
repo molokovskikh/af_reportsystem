@@ -162,13 +162,6 @@ namespace ReportTuner.Test.Integration
 		}
 
 		[Test]
-		public void GetMailAddressesTest()
-		{
-			var mails = new Reports_GeneralReports().GetMailAddresses("a.tyutin@analit.net, _test@mail.ru, 123_@qwe.ertert.net, .incorrect@mail.ru");
-			Assert.That(mails.Count, Is.EqualTo(3));
-		}
-
-		[Test]
 		public void Region_mask_for_PharmacyMixedReport()
 		{
 			using (new SessionScope())

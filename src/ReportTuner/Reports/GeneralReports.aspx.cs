@@ -690,15 +690,6 @@ select last_insert_id() as GRLastInsertID;
 		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Empty;
 	}
 
-	public IList<string> GetMailAddresses(string inStr)
-	{
-		// валидатор e-mail адресов
-		var lines = inStr.Split(',').ToList();
-		if (!findInEmailChecbox.Checked)
-			lines = lines.Where(l => Regex.IsMatch(l, @"^[_A-Za-z0-9-]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,})$")).ToList();
-		return lines;
-	}
-
 	protected IList<uint> GetReportCodesByEmails(IList<string> emails)
 	{
 		var codes = new List<uint>();
@@ -733,29 +724,26 @@ and ({0});
 	private void SetFilter()
 	{
 		List<string> filter = new List<string>();
-		IList<string> emails = GetMailAddresses(tbFilter.Text);
-		if (emails.Count > 0 || findInEmailChecbox.Checked)
-		{ // если в фильтре указаны e-mail адреса, ищем отчеты, для которых они указаны в списке рассылок
+		IList<string> emails = tbFilter.Text.Split(',').ToList();
+
+		int testInt;
+		if (int.TryParse(tbFilter.Text, out testInt))
+		{
+			filter.Add(String.Format("(GeneralReportCode = {0})", testInt));
+			filter.Add(String.Format("(PayerID = {0})", testInt));
+		}
+		else {
 			var codes = GetReportCodesByEmails(emails);
 			filter.Add(codes.Count > 0
-						? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
-						: "(GeneralReportCode is null)");
+					? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
+					: "(GeneralReportCode is null)");
 		}
-		else
-		{
-			int testInt;
-			if (int.TryParse(tbFilter.Text, out testInt))
-			{
-				filter.Add(String.Format("(GeneralReportCode = {0})", testInt));
-				filter.Add(String.Format("(PayerID = {0})", testInt));
-			}
 
-			filter.Add(String.Format("(PayerShortName like '%{0}%')", tbFilter.Text));
-			filter.Add(String.Format("(Comment like '%{0}%')", tbFilter.Text));
-			filter.Add(String.Format("(EMailSubject like '%{0}%')", tbFilter.Text));
-			filter.Add(String.Format("(ReportFileName like '%{0}%')", tbFilter.Text));
-			filter.Add(String.Format("(ReportArchName like '%{0}%')", tbFilter.Text));
-		}
+		filter.Add(String.Format("(PayerShortName like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(Comment like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(EMailSubject like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(ReportFileName like '%{0}%')", tbFilter.Text));
+		filter.Add(String.Format("(ReportArchName like '%{0}%')", tbFilter.Text));
 		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Join(" or ", filter.ToArray());
 	}
 
