@@ -89,6 +89,7 @@ public partial class Reports_ReportPropertyValues : Page
 			MyDA.SelectCommand = MyCmd;
 			MyCmd.Parameters.Clear();
 			MyCmd.Parameters.AddWithValue("rpv", Request["rpv"]);
+			MyCmd.Parameters.AddWithValue("rp", Request["rp"]);
 			MyCmd.Parameters.AddWithValue("r", (!String.IsNullOrEmpty(Request["r"])) ? Request["r"] : Request["TemporaryId"]);
 			MyCmd.CommandText = @"
 select
@@ -109,6 +110,7 @@ and rtp.ReportTypeCode = r.ReportTypeCode
 and r.generalreportcode=gr.generalreportcode
 and gr.generalreportcode=?r
 and rp.ID=?rpv
+and r.ReportCode=?rp
 and rt.ReportTypeCode = r.ReportTypeCode
 ";
 			MyDA.Fill(DS, dtList.TableName);
