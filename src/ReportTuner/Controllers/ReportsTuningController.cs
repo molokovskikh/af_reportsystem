@@ -1,12 +1,150 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Castle.MonoRail.Framework;
-using ReportTuner.Models;
+using Common.Web.Ui.Controllers;
+using Common.Web.Ui.Helpers;
+using Common.Web.Ui.NHibernateExtentions;
+using NHibernate;
+using NHibernate.Linq;
+using NHibernate.SqlCommand;
 using ReportTuner.Helpers;
+using ReportTuner.Models;
+using NHibernate.Criterion;
+using Test.Support.log4net;
+using ControllerHelper = ReportTuner.Helpers.ControllerHelper;
+using ViewHelper = ReportTuner.Helpers.ViewHelper;
 
 namespace ReportTuner.Controllers
 {
-	[Layout("MainLayout"), Helper(typeof(ViewHelper))]
-	public class ReportsTuningController : SmartDispatcherController
+	public class AddressesFilter : Sortable, IPaginable
+	{
+		public UInt64 GeneralReport { get; set; }
+		public UInt64 Report { get; set; }
+		public UInt64 ReportPropertyValue { get; set; }
+
+		public ISession DbSession;
+		public IList<Address> ThisAddress;  
+
+		public int _lastRowsCount;
+
+		public int RowsCount
+		{
+			get { return _lastRowsCount; }
+		}
+
+		public int PageSize { get { return 20; } }
+
+		public int CurrentPage { get; set; }
+
+		public AddressesFilter()
+		{
+			SortKeyMap = new Dictionary<string, string>{
+				{"Code", "Id"},
+				{"Value", "Value"},
+				{"Client", "c.ShortName"},
+				{"Region", "r.Id"}
+			};
+
+			SortBy = "Value";
+			SortDirection = "desc";
+		}
+
+		public IList<Address> Find()
+		{
+			var addresses = DbSession.QueryOver<Address>();
+
+			var _report = DbSession.Get<Report>(Report);
+			var reportProperties = _report.ReportType.Properties;
+
+			var clientCodeEqual = reportProperties.First(rp => rp.PropertyName == "ClientCodeEqual");
+			var clientCodeNonEqual = reportProperties.First(rp => rp.PropertyName == "ClientCodeNonEqual");
+			var payerEqual = reportProperties.First(rp => rp.PropertyName == "PayerEqual");
+			var payerNonEqual = reportProperties.First(rp => rp.PropertyName == "PayerNonEqual");
+			var regionEqual = reportProperties.First(rp => rp.PropertyName == "RegionEqual");
+			var regionNonEqual = reportProperties.First(rp => rp.PropertyName == "RegionNonEqual");
+
+			var clientCodeProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == clientCodeEqual);
+			if (clientCodeProperty != null && clientCodeProperty.Values.Count > 0) {
+				var clientIds = clientCodeProperty.Values.Select(v => Convert.ToUInt32(v.Value)).ToList();
+				addresses.Where(a => a.Client.Id.IsIn(clientIds));
+			}
+
+			var payerCodeProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == payerEqual);
+			if (payerCodeProperty != null && payerCodeProperty.Values.Count > 0)
+			{
+				var payerIds = payerCodeProperty.Values.Select(v => Convert.ToUInt32(v.Value)).ToList();
+				addresses.Where(a => a.Payer.Id.IsIn(payerIds));
+			}
+
+			var clientCodeNonProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == clientCodeNonEqual);
+			if (clientCodeNonProperty != null && clientCodeNonProperty.Values.Count > 0) {
+				var clientIds = clientCodeNonProperty.Values.Select(v => Convert.ToUInt32(v.Value)).ToList();
+				addresses.Where(a => !a.Client.Id.IsIn(clientIds));
+			}
+
+			var payerNonEqualProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == payerNonEqual);
+			if (payerNonEqualProperty != null && payerNonEqualProperty.Values.Count > 0) {
+				var payerIds = payerNonEqualProperty.Values.Select(v => Convert.ToUInt32(v.Value)).ToList();
+				addresses.Where(a => !a.Payer.Id.IsIn(payerIds));
+			}
+
+			var criteria = addresses.RootCriteria
+			.CreateCriteria("Client", "c", JoinType.InnerJoin)
+			.CreateAlias("c.HomeRegion", "r", JoinType.InnerJoin);
+
+			var regionEqualProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == regionEqual);
+			if (regionEqualProperty != null && regionEqualProperty.Values.Count > 0) {
+				var regions = regionEqualProperty.Values.Select(v => Convert.ToUInt64(v.Value)).ToList();
+				if (regions.Count > 0)
+				{ 
+					AbstractCriterion projection = Restrictions.Gt(Projections2.BitOr("r.Id", regions[0]), 0);
+					for (int i = 1; i < regions.Count; i++) {
+						projection |= Restrictions.Gt(Projections2.BitOr("r.Id", regions[i]), 0);
+					}
+					criteria.Add(projection);
+				}
+			}
+
+			var regionNonEqualProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == regionNonEqual);
+			if (regionNonEqualProperty != null && regionNonEqualProperty.Values.Count > 0) {
+				var regions = regionNonEqualProperty.Values.Select(v => Convert.ToUInt64(v.Value)).ToList();
+				if (regions.Count > 0)
+				{ 
+					AbstractCriterion projection = Restrictions.Gt(Projections2.BitOr("r.Id", regions[0]), 0);
+					for (int i = 1; i < regions.Count; i++) {
+						projection |= Restrictions.Eq(Projections2.BitOr("r.Id", regions[i]), 0);
+					}
+					criteria.Add(projection);
+				}
+			}
+#if DEBUG
+			QueryCatcher.Catch();
+#endif
+			ApplySort(addresses.RootCriteria);
+
+			if (CurrentPage > 0)
+				addresses.RootCriteria.SetFirstResult(CurrentPage * PageSize);
+
+			addresses.RootCriteria.SetMaxResults(PageSize);
+
+			var addressList = addresses.List().ToList();
+
+			_lastRowsCount = addresses.RowCount();
+
+			var thisAddrIds = DbSession.Get<ReportProperty>(ReportPropertyValue).Values.Select(v => Convert.ToUInt64(v.Value)).ToArray();
+			ThisAddress = DbSession.QueryOver<Address>().Where(a => a.Id.IsIn(thisAddrIds)).List();
+			addressList = addressList.Except(ThisAddress).ToList();
+
+			return addressList;
+		}
+	}
+
+	[Layout("MainLayout"),
+	Helper(typeof(ViewHelper)),
+	Helper(typeof(PaginatorHelper)),
+	Helper(typeof(ReportAppHelper), "app")]
+	public class ReportsTuningController : BaseController
 	{
 		public void SelectClients(ulong? report, int? sortOrder, int? startPage, int? pageSize, int? rowsCount,
 			int? currentPage, ulong? region, string addBtn, string delBtn, ulong? rpv, 
@@ -58,6 +196,38 @@ namespace ReportTuner.Controllers
 
 			PropertyBag["rowsCount"] = rowsCount.Value;
 			
+		}
+
+		public void SelectAddresses([DataBind("filter")]AddressesFilter filter)
+		{
+			filter.DbSession = DbSession;
+			PropertyBag["addresses"] = filter.Find();
+			PropertyBag["thisAddresses"] = filter.ThisAddress;
+			PropertyBag["filter"] = filter;
+		}
+
+		[AccessibleThrough(Verb.Get)]
+		public void ChangeAddressSet(UInt64 r, UInt64 report, UInt64 rpv, string addBtn, string delBtn)
+		{
+			if (delBtn != null)
+			{
+				foreach (string key in Request.Params.AllKeys)
+					if (key.StartsWith("chd"))
+						ReportTunerModel.DeleteClient(rpv, Convert.ToUInt64(Request.Params[key]));
+
+				RedirectToReferrer();
+				return;
+			}
+
+			if (addBtn != null)
+			{
+				foreach (string key in Request.Params.AllKeys)
+					if (key.StartsWith("cha"))
+						ReportTunerModel.AddClient(rpv, Convert.ToUInt64(Request.Params[key]));
+
+				RedirectToReferrer();
+				return;
+			}
 		}
 	}
 }

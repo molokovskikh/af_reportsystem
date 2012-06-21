@@ -174,11 +174,13 @@
     <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Controllers\ReportsTuningController.cs" />
+    <Compile Include="Helpers\ReportAppHelper.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\PropertiesHelper.cs" />
     <Compile Include="Helpers\ReportHelper.cs" />
     <Compile Include="Helpers\ScheduleHelper.cs" />
     <Compile Include="Helpers\ViewHelper.cs" />
+    <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\ExceptionHandling.cs" />
     <Compile Include="Models\GeneralReport.cs" />
@@ -370,6 +372,7 @@
     <Content Include="App_Themes\MainWithHighLight\Main.skin" />
     <Content Include="JavaScript\jquery-1.4.1.min.js" />
     <None Include="Views\Layouts\MainLayout.brail" />
+    <None Include="Views\ReportsTuning\SelectAddresses.brail" />
     <None Include="Views\ReportsTuning\SelectClients.brail" />
     <None Include="Views\SubViews\BreadCrumbs.brail" />
     <None Include="Views\SubViews\PaginatorSubView.brail" />
@@ -390,6 +393,10 @@
     <ProjectReference Include="..\ExecuteTemplate\ExecuteTemplate\ExecuteTemplate.csproj">
       <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
       <Name>ExecuteTemplate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Test.Support\Test.Support\Test.Support.csproj">
+      <Project>{A215E837-1208-49E3-AF93-A9612223122C}</Project>
+      <Name>Test.Support</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -9,7 +9,7 @@
     background-color: #B5B5B5;
 }
 
-.DocumentHeader
+.DocumentDataTable thead tr th
 {
 	padding: 5px;
 	background-color: #d8f1ff;
@@ -23,7 +23,12 @@
 {
 	background-color: #EBEBEB;
 	border: solid 1px #DADADA;
-	width: 80%
+	width: 80%;
+}
+
+.DocumentDataTable td {
+	padding: 2px;
+	padding-left: 8px;
 }
 
 .DocumentDataTable .EvenRow

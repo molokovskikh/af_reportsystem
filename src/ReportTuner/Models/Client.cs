@@ -11,7 +11,7 @@ namespace ReportTuner.Models
 {
 
 	[ActiveRecord("Clients", Schema = "Customers")]
-	public class FutureClient : ActiveRecordBase<FutureClient>
+	public class Client : ActiveRecordBase<Client>
 	{
 		[PrimaryKey]
 		public virtual uint Id { get; set; }
@@ -25,6 +25,9 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual long MaskRegion { get; set; }
 
+		[BelongsTo("RegionCode")]
+		public Region HomeRegion { get; set; }
+
 		[BelongsTo("ContactGroupOwnerId")]
 		public virtual ContactGroupOwner ContactGroupOwner { get; set; }
 
@@ -33,6 +36,9 @@ namespace ReportTuner.Models
 
 		[HasMany(ColumnKey = "ClientId", Inverse = true, Lazy = true, Cascade = ManyRelationCascadeEnum.All)]
 		public virtual IList<FutureUser> Users { get; set; }
+		
+		[HasMany(ColumnKey = "ClientId", Lazy = true, Inverse = true, OrderBy = "Address", Cascade = ManyRelationCascadeEnum.All)]
+		public virtual IList<Address> Addresses { get; set; }
 
 		public string ShortNameAndId
 		{
@@ -64,7 +70,7 @@ namespace ReportTuner.Models
 		public virtual string Name { get; set; }
 
 		[BelongsTo("ClientId", NotNull = true, Lazy = FetchWhen.OnInvoke)]
-		public virtual FutureClient Client { get; set; }
+		public virtual Client Client { get; set; }
 
 		public string ShortNameAndId
 		{

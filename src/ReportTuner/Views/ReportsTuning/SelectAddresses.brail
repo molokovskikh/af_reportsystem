@@ -1,0 +1,78 @@
+﻿<form method=get action="ChangeAddressSet.rails">
+${FormHelper.HiddenField('report')}
+${FormHelper.HiddenField('rpv')}
+${FormHelper.HiddenField('r')}
+<table style="width:100%;">
+<tr>
+	<td  style="width:45%;" valign="top">
+	<table id="NotSelectedTable" name="NotSelectedTable" class="HighLightCurrentRow DocumentDataTable" style="width:100%;">
+	<thead>
+		<tr>
+			<th colspan=5>Список адресов</th>
+		</tr>
+		<tr>
+			<th></th>
+			<th>${app.Sortable("Код", "Code")}</th>
+			<th>${app.Sortable("Наименование", "Value")}</th>
+			<th>${app.Sortable("Клиент", "Client")}</th>
+			<th>${app.Sortable("Регион", "Region")}</th>
+		</tr>
+	</thead>
+	<%if addresses.Count > 0: %>
+		<%for i, item in enumerate(addresses):%>
+			<tr class="${ViewHelper.GetRowStyle(i)}">
+				<td>
+					<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" class="nsCheckBox"/>
+				</td>
+				<td>${item.Id}</td>
+				<td>${item.Value}</td>
+				<td>${item.Client.ShortName}</td>
+				<td>${item.Client.HomeRegion.Name}</td>
+			</tr>
+		<%end%>
+		<tr>
+			<td colspan=4>${PaginatorHelper.ShowPaginator()}</td>
+		</tr>
+		<%else: %>
+		<tr>
+			<td  class="EmptyData">Адреса не найдены</td>
+		</tr>
+		<%end %>
+	</table>
+</div>
+</td>
+<td style="text-align:center; width:10%;">
+	<div style="padding-bottom:6px;">
+		<input type="submit" id="addBtn" name="addBtn" value="--&gt;" title="Добавить"/>
+	</div>
+	<div style="padding-top:6px;">
+		<input type="submit" id="delBtn" name="delBtn" value="&lt;--" title="Удалить"/>
+	</div>
+</td>
+<td style="width:45%;" valign="top">
+	<table style="width:100%" class="HighLightCurrentRow DocumentDataTable">
+	<thead>
+		<tr>
+			<th colspan=3>Выбранные адреса</th>
+		</tr>
+	</thead>
+	<%if thisAddresses.Count > 0: %>
+		<%for i, item in enumerate(thisAddresses):%>
+			<tr class="${ViewHelper.GetRowStyle(i)}">
+				<td>
+					<input type="checkbox" name="chd${item.Id}" id="chd${item.Id}" value="${item.Id}" class="nsCheckBox"/>
+				</td>
+				<td>${item.Id}</td>
+				<td>${item.Value}</td>
+			</tr>
+		<%end%>
+		<%else: %>
+		<tr>
+			<td  class="EmptyData">Адреса не найдены</td>
+		</tr>
+		<%end %>
+	</table>
+</td>
+</tr>
+</table>
+</form>

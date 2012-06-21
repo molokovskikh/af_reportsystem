@@ -75,5 +75,14 @@ namespace ReportTuner.Models
 			return (Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed" && IsClientOrSupplierEdit())
 				|| String.Equals(PropertyType.PropertyName, "ClientCodeEqual", StringComparison.InvariantCultureIgnoreCase);
 		}
+
+		public bool IsAddressesEditor()
+		{
+			return (Report.ReportType.ReportTypeFilePrefix == "Raiting" || 
+				Report.ReportType.ReportTypeFilePrefix == "Mixed" ||
+				Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed") && 
+				(String.Equals(PropertyType.PropertyName, "AddressesList", StringComparison.InvariantCultureIgnoreCase) ||
+				String.Equals(PropertyType.PropertyName, "AddressesNonList", StringComparison.InvariantCultureIgnoreCase));
+		}
 	}
 }

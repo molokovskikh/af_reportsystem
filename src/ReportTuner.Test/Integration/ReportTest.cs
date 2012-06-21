@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Castle.ActiveRecord;
+using Castle.MonoRail.TestSupport;
 using NUnit.Framework;
+using ReportTuner.Controllers;
 using ReportTuner.Helpers;
 using Test.Support;
 using ReportTuner.Models;
@@ -9,11 +11,12 @@ using System;
 using System.Data;
 using MySql.Data.MySqlClient;
 using Test.Support.Suppliers;
+using Test.Support.log4net;
 
 namespace ReportTuner.Test.Integration
 {
 	[TestFixture]
-	class ReportTest
+	class ReportTest : BaseControllerTest
 	{
 		private MySqlConnection MyCn;
 		private MySqlCommand MyCmd;
@@ -177,13 +180,13 @@ namespace ReportTuner.Test.Integration
 				var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "SourceFirmCode");
 				var regionProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
 				var clientid = Convert.ToUInt32(clientProperty.Value);
-				var client = FutureClient.TryFind(clientid);
+				var client = Client.TryFind(clientid);
 				if(client == null)
 				{
 					var tc = TestClient.Create();
 					clientProperty.Value = tc.Id.ToString();
 					clientProperty.Save();
-					client = FutureClient.TryFind(tc.Id);
+					client = Client.TryFind(tc.Id);
 				}
 				var clientMask = client.MaskRegion;
 				var regMask = regionProperty.Values.Where(v => {
@@ -231,7 +234,7 @@ namespace ReportTuner.Test.Integration
 				var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
 				var firmCodeProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
 				var clientid = Convert.ToUInt32(clientProperty.Value);
-				var client = FutureClient.TryFind(clientid);
+				var client = Client.TryFind(clientid);
 				var user = client.Users.FirstOrDefault();
 
 				var dtNonOptionalParams = new DataTable();
@@ -266,6 +269,24 @@ namespace ReportTuner.Test.Integration
 				Assert.That(res, Is.Not.Null);
 				Assert.That(res.Length, Is.GreaterThan(0));
 				Assert.That(res, Is.EqualTo(String.Format("userId={0}", user.Id)));
+			}
+		}
+
+		[Test]
+		public void AddressTest()
+		{
+			var controller = new ReportsTuningController();
+			PrepareController(controller);
+			using (new SessionScope()) { 
+				var sessionHolder = ActiveRecordMediator.GetSessionFactoryHolder();
+				controller.DbSession = sessionHolder.CreateSession(typeof(ActiveRecordBase));
+				var filter = new AddressesFilter {
+					Report = 110u,
+					GeneralReport = 1u,
+					ReportPropertyValue = 35404u
+				};
+				controller.SelectAddresses(filter);
+				sessionHolder.ReleaseSession(controller.DbSession);
 			}
 		}
 	}

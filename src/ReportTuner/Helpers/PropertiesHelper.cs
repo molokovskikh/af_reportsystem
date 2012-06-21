@@ -69,7 +69,7 @@ namespace ReportTuner.Helpers
 						if (!(dr["PPropertyValue"] is DBNull))
 						{
 							uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента				
-							FutureClient client = FutureClient.TryFind(clientId);
+							Client client = Client.TryFind(clientId);
 							if (client != null)
 							{
 								long clientMaskRegion = client.MaskRegion;
@@ -119,7 +119,7 @@ namespace ReportTuner.Helpers
 							if (!(drClient["PPropertyValue"] is DBNull))
 							{
 								uint clientId = Convert.ToUInt32(drClient["PPropertyValue"]); // код клиента				
-								FutureClient client = FutureClient.TryFind(clientId);
+								Client client = Client.TryFind(clientId);
 								if(client != null)
 								{
 									var user = client.Users.FirstOrDefault();

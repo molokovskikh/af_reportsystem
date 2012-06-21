@@ -13,12 +13,12 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual string ShortName { get; set; }
 		
-		[HasAndBelongsToMany(typeof(FutureClient), Schema = "Billing", Table = "PayerClients", 
+		[HasAndBelongsToMany(typeof(Client), Schema = "Billing", Table = "PayerClients", 
 													ColumnKey = "PayerID", ColumnRef = "ClientID")]
-		public virtual IList<FutureClient> FutureClients { get; set; }
+		public virtual IList<Client> FutureClients { get; set; }
 
 
-		public List<FutureClient> AllClients
+		public List<Client> AllClients
 		{
 			get 
 			{

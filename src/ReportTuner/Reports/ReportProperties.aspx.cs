@@ -883,6 +883,11 @@ WHERE ID = ?OPID", MyCn, trans);
 				Request["r"],
 				Request["rp"],
 				e.CommandArgument);
+		else if (prop.IsAddressesEditor())
+			url = String.Format("../ReportsTuning/SelectAddresses.rails?filter.GeneralReport={0}&filter.Report={1}&filter.ReportPropertyValue={2}",
+			Request["r"],
+			Request["rp"],
+			e.CommandArgument);
 		else
 			url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
 				Request["r"],

@@ -25,9 +25,11 @@ ${FormHelper.HiddenField('r')}
 ${FormHelper.HiddenField('firmType')}
 ${FormHelper.HiddenField('userId')}
 <table style="width:100%;">
+<thead>
 	<tr> <!-- Заголовок -->
-		<td class="DocumentHeader">Редактирование значений списка <%if firmType == 0: %> поставщиков <%else:%> клиентов<%end%></td>
+		<th>Редактирование значений списка <%if firmType == 0: %> поставщиков <%else:%> клиентов<%end%></th>
 	</tr>
+</thead>
 	
 	<tr>
 		<td align="center" style="padding-top: 12px;"> <!-- Фильтр -->
@@ -68,17 +70,22 @@ ${FormHelper.HiddenField('userId')}
 		<td style="padding-top: 12px;">
 			<table style="width:100%;">
 				<tr>
-					<td class="DocumentHeader">Список  <%if firmType == 0: %> поставщиков<%else:%> клиентов<%end%></td>
+					<td class="DocumentHeader"></td>
 					
 					<td></td>
 					
-					<td class="DocumentHeader">Выбранные  <%if firmType == 0: %> поставщики<%else:%> клиенты<%end%></td>
+					<td class="DocumentHeader"></td>
 				</tr>
 				
 				<tr>
 				
 				<td style="width:45%; border: solid 1px #dadada; vertical-align:top;"> <!-- Левая колонка поставщиков -->
 					<table id="NotSelectedTable" name="NotSelectedTable" style="width:100%" class="HighLightCurrentRow DocumentDataTable">
+						<thead>
+							<tr>
+								<th colspan=4>Список  <%if firmType == 0: %> поставщиков<%else:%> клиентов<%end%></th>
+							</tr>
+						</thead>
 						<%if FilteredClients.Count > 0: %>
 						<tr class="NoHighLightRow">
 							<%OutputSubView('SelectClientsSortHeadersSubView', {"headers":['nsAll', 'Код', 'Наименование', 'Регионы'], "sortOrder":sortOrder})%>
@@ -134,6 +141,11 @@ ${FormHelper.HiddenField('userId')}
 				
 				<td style="width:45%; vertical-align: top; border: solid 1px #dadada;"> <!-- Правая колонка поставщиков -->
 					<table id="SelectedTable" name="SelectedTable" style="width:100%;" class="HighLightCurrentRow DocumentDataTable">
+						<thead>
+							<tr>
+								<th colspan=4>Выбранные  <%if firmType == 0: %> поставщики<%else:%> клиенты<%end%></th>
+							</tr>
+						</thead>
 						<%if AddedClients.Count > 0: %>
 						<tr class="NoHighLightRow" style="font-weight:bold;">
 							<td><input id="sAll" name="sAll" type="checkbox" /></td>

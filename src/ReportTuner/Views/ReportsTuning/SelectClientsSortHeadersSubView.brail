@@ -1,13 +1,13 @@
 ﻿${FormHelper.HiddenField('sortOrder')}
 <% for i, item in enumerate(headers): %>
    <% if IsDefined("rowsCount"):
-        command = ", 'rowsCount', " + rowsCount
-      else: 
-        command = ""
-      end%>
-    <%if i == 0 : %>
+		command = ", 'rowsCount', " + rowsCount
+	  else: 
+		command = ""
+	  end%>
+	<%if i == 0 : %>
 		<th><input type="checkbox" id="${item}" name="${item}" /></th>
-    <%else: %>
+	<%else: %>
 		<%if (i+1)!=sortOrder: %>
 			<%if -(i+1)!=sortOrder: %>
 				<th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${i+1}${command});" class="SortHeader">${item}</a></th>
