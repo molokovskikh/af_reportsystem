@@ -1,12 +1,12 @@
 ﻿Body
 {
-    font-family: Verdana;
-    font-size: 9pt;
+	font-family: Verdana;
+	font-size: 9pt;
 }
 
 .SelectedRow
 {
-    background-color: #B5B5B5;
+	background-color: #B5B5B5;
 }
 
 .DocumentDataTable thead tr th
@@ -33,17 +33,17 @@
 
 .DocumentDataTable .EvenRow
 {
-    background-color: #F6F6F6;
+	background-color: #F6F6F6;
 }
 
 .DocumentDataTable .OddRow
 {
-    background-color: #EEF8FF;
+	background-color: #EEF8FF;
 }
 
 .DocumentDataTable .SelectedRow
 {
-    background-color: #B5B5B5;
+	background-color: #B5B5B5;
 }
 
 .DocumentDataTable .EmptyData
@@ -54,26 +54,26 @@
 
 .Paginator
 {
-    padding-bottom: 1px; 
-    padding-left: 0px; 
-    padding-right: 0px; 
-    float: right;
-    padding-top: 1px;        
+	padding-bottom: 1px; 
+	padding-left: 0px; 
+	padding-right: 0px; 
+	float: right;
+	padding-top: 1px;        
 }
 .Paginator A
 {
-    border-bottom: 1px solid; 
-    border-left: 1px solid; 
-    padding-bottom: 2px; 
-    padding-left: 5px; 
-    padding-right: 5px; 
-    display: block; 
-    float: left; 
-    border-top: 1px solid; 
-    margin-right: 5px; 
-    border-right: 1px solid; 
-    padding-top: 2px;
-    text-decoration: none;    
+	border-bottom: 1px solid; 
+	border-left: 1px solid; 
+	padding-bottom: 2px; 
+	padding-left: 5px; 
+	padding-right: 5px; 
+	display: block; 
+	float: left; 
+	border-top: 1px solid; 
+	margin-right: 5px; 
+	border-right: 1px solid; 
+	padding-top: 2px;
+	text-decoration: none;    
 }
 
 .Paginator SPAN 
@@ -94,4 +94,16 @@
 .findInEmailChecbox {
 	margin-left: -250px;
 	display: block;
+}
+
+div.find {
+	position:relative;
+	left:50%;
+	margin-left:-100px;
+	margin-top: 50px;
+	margin-bottom: 50px;
+	padding: 20px;
+	width:350px;
+	background:#D8F1FF;
+	border:solid 1px #DADADA;
 }

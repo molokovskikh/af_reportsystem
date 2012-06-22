@@ -22,6 +22,7 @@ namespace ReportTuner.Controllers
 		public UInt64 GeneralReport { get; set; }
 		public UInt64 Report { get; set; }
 		public UInt64 ReportPropertyValue { get; set; }
+		public string addressText { get; set; }
 
 		public ISession DbSession;
 		public IList<Address> ThisAddress;  
@@ -33,7 +34,7 @@ namespace ReportTuner.Controllers
 			get { return _lastRowsCount; }
 		}
 
-		public int PageSize { get { return 20; } }
+		public int PageSize { get { return 25; } }
 
 		public int CurrentPage { get; set; }
 
@@ -121,6 +122,9 @@ namespace ReportTuner.Controllers
 #if DEBUG
 			QueryCatcher.Catch();
 #endif
+			if (!string.IsNullOrEmpty(addressText))
+				addresses.And(Restrictions.On<Address>(l => l.Value).IsLike(addressText, MatchMode.Anywhere));
+
 			ApplySort(addresses.RootCriteria);
 
 			if (CurrentPage > 0)

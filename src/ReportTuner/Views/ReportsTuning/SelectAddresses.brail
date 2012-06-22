@@ -1,7 +1,18 @@
-﻿<form method=get action="ChangeAddressSet.rails">
-${FormHelper.HiddenField('report')}
-${FormHelper.HiddenField('rpv')}
-${FormHelper.HiddenField('r')}
+﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+filter.GeneralReport), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+filter.GeneralReport+"&rp="+filter.Report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка", "Title":"Редактирование значений списка"} %>
+<form method=get>
+${FormHelper.HiddenField("filter.Report")}
+${FormHelper.HiddenField("filter.ReportPropertyValue")}
+${FormHelper.HiddenField("filter.GeneralReport")}
+	<div class="find">
+		Введите строку для поиска:
+		<input type=text name="filter.addressText" style="width:300px;" value="${filter.addressText}"/>
+		<button type=submit>Найти</button>
+	</div>
+</form>
+<form method=get action="ChangeAddressSet.rails">
+${FormHelper.HiddenField('report', filter.Report)}
+${FormHelper.HiddenField('rpv', filter.ReportPropertyValue)}
+${FormHelper.HiddenField('r', filter.GeneralReport)}
 <table style="width:100%;">
 <tr>
 	<td  style="width:45%;" valign="top">
@@ -53,7 +64,14 @@ ${FormHelper.HiddenField('r')}
 	<table style="width:100%" class="HighLightCurrentRow DocumentDataTable">
 	<thead>
 		<tr>
-			<th colspan=3>Выбранные адреса</th>
+			<th colspan=5>Выбранные адреса</th>
+		</tr>
+		<tr>
+			<th></th>
+			<th>Код</th>
+			<th>Наименование</th>
+			<th>Клиент</th>
+			<th>Регион</th>
 		</tr>
 	</thead>
 	<%if thisAddresses.Count > 0: %>
@@ -64,6 +82,8 @@ ${FormHelper.HiddenField('r')}
 				</td>
 				<td>${item.Id}</td>
 				<td>${item.Value}</td>
+				<td>${item.Client.ShortName}</td>
+				<td>${item.Client.HomeRegion.Name}</td>
 			</tr>
 		<%end%>
 		<%else: %>

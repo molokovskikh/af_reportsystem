@@ -78,7 +78,7 @@ namespace ReportTuner.Models
 
 		public bool IsAddressesEditor()
 		{
-			return (Report.ReportType.ReportTypeFilePrefix == "Raiting" || 
+			return (Report.ReportType.ReportTypeFilePrefix == "Rating" || 
 				Report.ReportType.ReportTypeFilePrefix == "Mixed" ||
 				Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed") && 
 				(String.Equals(PropertyType.PropertyName, "AddressesList", StringComparison.InvariantCultureIgnoreCase) ||

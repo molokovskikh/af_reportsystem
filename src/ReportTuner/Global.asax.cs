@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -7,8 +8,13 @@ using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Castle.MonoRail.Framework;
+using Castle.MonoRail.Framework.Configuration;
 using Castle.MonoRail.Framework.Container;
+using Castle.MonoRail.Framework.Internal;
+using Castle.MonoRail.Framework.Routing;
 using Castle.MonoRail.Framework.Services;
+using Castle.MonoRail.Framework.Views.Aspx;
+using Castle.MonoRail.Views.Brail;
 using Common.Web.Ui.Helpers;
 using log4net;
 using log4net.Config;
@@ -23,22 +29,29 @@ namespace ReportTuner
 		public string SavedFilesPath { get; set; }
 	}
 
-	public class Global : HttpApplication, IMonoRailContainerEvents
+	public class Global : WebApplication, IMonoRailConfigurationEvents
 	{
-		private static readonly ILog _log = LogManager.GetLogger(typeof(Global));
-
 		public static Config Config = new Config();
 
+		public Global() : base(Assembly.Load("ReportTuner"))
+		{
+			Logger.ErrorSubject = "[Internet] Ошибка в Интерфейсе настройки отчетов";
+			Logger.SmtpHost = "box.analit.net";
+			LibAssemblies.Add(Assembly.Load("Common.Web.Ui"));
+		}
+
 		void Application_Start(object sender, EventArgs e)
-		{			
-			XmlConfigurator.Configure();
+		{
+			ConfigReader.LoadSettings(Config);
 			ActiveRecordStarter.Initialize(new[] {
 					Assembly.Load("ReportTuner"),
 					Assembly.Load("Common.Web.Ui")
 				},
 				ActiveRecordSectionHandler.Instance);
 
-			ConfigReader.LoadSettings(Config);
+			Initialize();
+
+			RoutingModuleEx.Engine.Add(new RedirectRoute("/", @"Reports/GeneralReports.aspx"));
 
 			if (!Path.IsPathRooted(Config.SavedFilesPath))
 				Config.SavedFilesPath =
@@ -96,65 +109,9 @@ namespace ReportTuner
 			Session["UserName"] = UserName;
 		}
 
-		void Application_BeginRequest(object sender, EventArgs e)
-		{
-		}
-
-		void Application_AuthenticateRequest(object sender, EventArgs e)
-		{
-		}
-
-		void Application_Error(object sender, EventArgs e)
-		{
-			var exception = Server.GetLastError();
-
-			var builder = new StringBuilder();
-			builder.AppendLine("----UrlReferer-------");
-			builder.AppendLine(Request.UrlReferrer != null ? Request.UrlReferrer.ToString() : String.Empty);
-			builder.AppendLine("----Url-------");
-			builder.AppendLine(Request.Url.ToString());
-			builder.AppendLine("--------------");
-			builder.AppendLine("----Params----");
-			foreach (string name in Request.QueryString)
-				builder.AppendLine(String.Format("{0}: {1}", name, Request.QueryString[name]));
-			builder.AppendLine("--------------");
-
-			builder.AppendLine("----Error-----");
-			do
-			{
-				builder.AppendLine("Message:");
-				builder.AppendLine(exception.Message);
-				builder.AppendLine("Stack Trace:");
-				builder.AppendLine(exception.StackTrace);
-				builder.AppendLine("--------------");
-				exception = exception.InnerException;
-			} while (exception != null);
-			builder.AppendLine("--------------");
-
-			builder.AppendLine("----Session---");
-			try
-			{
-				foreach (string key in Session.Keys)
-				{
-					if (Session[key] == null)
-						builder.AppendLine(String.Format("{0} - null", key));
-					else
-						builder.AppendLine(String.Format("{0} - {1}", key, Session[key]));
-				}
-			}
-			catch (Exception ex)
-			{ }
-			builder.AppendLine("--------------");
-			_log.Error(builder.ToString());
-		}
 
 		void Session_End(object sender, EventArgs e)
 		{
-			//Code that runs when a session ends. 
-			//Note: The Session_End event is raised only when the sessionstate mode
-			//is set to InProc in the Web.config file. If session mode is set to StateServer 
-			//or SQLServer, the event is not raised.
-
 			//Проходим по всем объектам в сессии и если объект поддерживает интефейс IDisposable, то вызываем Dispose()
 			for (int i = 0; i < Session.Count; i++)
 				if (Session[i] is IDisposable)
@@ -165,14 +122,22 @@ namespace ReportTuner
 			GC.Collect();
 		}
 
-		public void Created(IMonoRailContainer container)
-		{}
-
-		public void Initialized(IMonoRailContainer container)
+		public new void Configure(IMonoRailConfiguration configuration)
 		{
-			var defaultViewComponentFactory = ((DefaultViewComponentFactory)container.GetService<IViewComponentFactory>());
-			defaultViewComponentFactory.Inspect(Assembly.Load("ReportTuner"));
-			defaultViewComponentFactory.Inspect(Assembly.Load("Common.Web.Ui"));
+			configuration.ControllersConfig.AddAssembly("ReportTuner");
+			configuration.ControllersConfig.AddAssembly("Common.Web.Ui");
+			configuration.ViewComponentsConfig.Assemblies = new[] {
+				"ReportTuner",
+				"Common.Web.Ui"
+			};
+			configuration.ViewEngineConfig.ViewPathRoot = "Views";
+			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(BooViewEngine), false));
+			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(WebFormsViewEngine), false));
+			configuration.ViewEngineConfig.AssemblySources.Add(new AssemblySourceInfo("Common.Web.Ui", "Common.Web.Ui.Views"));
+			configuration.ViewEngineConfig.VirtualPathRoot = configuration.ViewEngineConfig.ViewPathRoot;
+			configuration.ViewEngineConfig.ViewPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configuration.ViewEngineConfig.ViewPathRoot);
+
+			base.Configure(configuration);
 		}
 	}
 }
