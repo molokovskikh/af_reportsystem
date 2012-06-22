@@ -2,6 +2,7 @@
 using System.Linq;
 using Castle.ActiveRecord;
 using Castle.MonoRail.TestSupport;
+using NHibernate.Linq;
 using NUnit.Framework;
 using ReportTuner.Controllers;
 using ReportTuner.Helpers;
@@ -279,13 +280,31 @@ namespace ReportTuner.Test.Integration
 			PrepareController(controller);
 			using (new SessionScope()) { 
 				var sessionHolder = ActiveRecordMediator.GetSessionFactoryHolder();
-				controller.DbSession = sessionHolder.CreateSession(typeof(ActiveRecordBase));
+				var DbSession = sessionHolder.CreateSession(typeof(ActiveRecordBase));;
+				controller.DbSession = DbSession;
+				var reportType = DbSession.Query<ReportType>().First(rt => rt.ReportTypeFilePrefix == "Mixed");
+				var report = DbSession.Query<Report>().First(r => r.ReportType == reportType);
+				var propertyType = DbSession.Query<ReportTypeProperty>().First(rpt => rpt.ReportType == reportType && rpt.PropertyName == "AddressesList");
+				var reportProperty = new ReportProperty {
+					Value = "1",
+					Report = report,
+					PropertyType = propertyType
+				};
+				reportProperty.Save();
+				var value = new ReportPropertyValue {
+					ReportPropertyId = reportProperty.Id,
+					Value = "0"
+				};
+				value.Save();
+				reportProperty.Values = new List<ReportPropertyValue> {value};
+				reportProperty.Save();
 				var filter = new AddressesFilter {
-					Report = 110u,
+					Report = report.Id,
 					GeneralReport = 1u,
-					ReportPropertyValue = 35404u
+					ReportPropertyValue = reportProperty.Id
 				};
 				controller.SelectAddresses(filter);
+				Assert.IsNotNull(controller.PropertyBag["addresses"]);
 				sessionHolder.ReleaseSession(controller.DbSession);
 			}
 		}

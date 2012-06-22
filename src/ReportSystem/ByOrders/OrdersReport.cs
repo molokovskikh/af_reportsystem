@@ -39,6 +39,9 @@ namespace Inforoom.ReportSystem
 		protected List<FilterField> registredField;
 		protected List<FilterField> selectedField;
 
+		protected List<ulong> AddressesList = new List<ulong>();
+		protected List<ulong> AddressesNonList = new List<ulong>();
+
 		protected DateTime dtFrom;
 		protected DateTime dtTo;
 
@@ -123,6 +126,11 @@ namespace Inforoom.ReportSystem
 				dtTo = dtTo.Date;
 			}
 			filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
+
+			if (_reportParams.ContainsKey("AddressesList"))
+				AddressesList = (List<ulong>)getReportParam("AddressesList");
+			if (_reportParams.ContainsKey("AddressesNonList"))
+				AddressesList = (List<ulong>)getReportParam("AddressesNonList");
 
 			LoadFilters();
 			CheckAfterLoadFields();
@@ -268,6 +276,14 @@ namespace Inforoom.ReportSystem
 
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySqlConsts.MySQLDateFormat)));
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySqlConsts.MySQLDateFormat)));
+
+			if (AddressesList.Count > 0) {
+				selectCommand = string.Concat(selectCommand, string.Format("and (oh.AddressId in ({0}))", AddressesList.Implode()));
+			}
+
+			if (AddressesNonList.Count > 0) {
+				selectCommand = string.Concat(selectCommand, string.Format("and (oh.AddressId not in ({0}))", AddressesNonList.Implode()));
+			}
 
 			return selectCommand;
 		}
