@@ -1,11 +1,14 @@
 ﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+filter.GeneralReport), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+filter.GeneralReport+"&rp="+filter.Report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка", "Title":"Редактирование значений списка"} %>
+<div class="headDiv">
+	<h3>Редактирование значений списка адресов</h3>
+</div>
 <form method=get>
 ${FormHelper.HiddenField("filter.Report")}
 ${FormHelper.HiddenField("filter.ReportPropertyValue")}
 ${FormHelper.HiddenField("filter.GeneralReport")}
 	<div class="find">
-		Введите строку для поиска:
-		<input type=text name="filter.addressText" style="width:300px;" value="${filter.addressText}"/>
+		<b>Строка поиска:</b>
+		<input style="display:inline; width:200px;" type=text name="filter.addressText" style="width:300px;" value="${filter.addressText}"/> <br />
 		<button type=submit>Найти</button>
 	</div>
 </form>
@@ -42,11 +45,11 @@ ${FormHelper.HiddenField('r', filter.GeneralReport)}
 			</tr>
 		<%end%>
 		<tr>
-			<td colspan=4>${PaginatorHelper.ShowPaginator()}</td>
+			<td colspan=5>${PaginatorHelper.ShowPaginator()}</td>
 		</tr>
 		<%else: %>
 		<tr>
-			<td  class="EmptyData">Адреса не найдены</td>
+			<td colspan=5 class="EmptyData">Адреса не найдены</td>
 		</tr>
 		<%end %>
 	</table>
