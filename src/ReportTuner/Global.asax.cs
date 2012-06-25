@@ -35,7 +35,7 @@ namespace ReportTuner
 
 		public Global() : base(Assembly.Load("ReportTuner"))
 		{
-			Logger.ErrorSubject = "[Internet] Ошибка в Интерфейсе настройки отчетов";
+			Logger.ErrorSubject = "[ReportTuner] Ошибка в Интерфейсе настройки отчетов";
 			Logger.SmtpHost = "box.analit.net";
 			LibAssemblies.Add(Assembly.Load("Common.Web.Ui"));
 		}
@@ -52,6 +52,13 @@ namespace ReportTuner
 			Initialize();
 
 			RoutingModuleEx.Engine.Add(new RedirectRoute("/", @"Reports/GeneralReports.aspx"));
+
+			RoutingModuleEx.Engine.Add(
+				new BugRoute(
+					new PatternRoute("/<controller>/[action]")
+						.DefaultForAction().Is("index")
+					)
+				);
 
 			if (!Path.IsPathRooted(Config.SavedFilesPath))
 				Config.SavedFilesPath =
