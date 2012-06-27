@@ -81,8 +81,8 @@ namespace ReportTuner.Models
 			return (Report.ReportType.ReportTypeFilePrefix == "Rating" || 
 				Report.ReportType.ReportTypeFilePrefix == "Mixed" ||
 				Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed") && 
-				(String.Equals(PropertyType.PropertyName, "AddressesList", StringComparison.InvariantCultureIgnoreCase) ||
-				String.Equals(PropertyType.PropertyName, "AddressesNonList", StringComparison.InvariantCultureIgnoreCase));
+				(String.Equals(PropertyType.PropertyName, "AddressesEqual", StringComparison.InvariantCultureIgnoreCase) ||
+				String.Equals(PropertyType.PropertyName, "AddressesNonEqual", StringComparison.InvariantCultureIgnoreCase));
 		}
 	}
 }

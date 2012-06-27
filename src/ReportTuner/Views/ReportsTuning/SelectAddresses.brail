@@ -1,4 +1,10 @@
 ﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+filter.GeneralReport), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+filter.GeneralReport+"&rp="+filter.Report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка", "Title":"Редактирование значений списка"} %>
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		jQuery('#nsAll').click(MarkNotselected);
+		jQuery('#sAll').click(MarkSelected);
+	});
+</script>
 <div class="headDiv">
 	<h3>Редактирование значений списка адресов</h3>
 </div>
@@ -25,7 +31,7 @@ ${FormHelper.HiddenField('r', filter.GeneralReport)}
 			<th colspan=5>Список адресов</th>
 		</tr>
 		<tr>
-			<th></th>
+			<th><input type="checkbox" id="sAll"/></th>
 			<th>${app.Sortable("Код", "Code")}</th>
 			<th>${app.Sortable("Наименование", "Value")}</th>
 			<th>${app.Sortable("Клиент", "Client")}</th>
@@ -36,7 +42,7 @@ ${FormHelper.HiddenField('r', filter.GeneralReport)}
 		<%for i, item in enumerate(addresses):%>
 			<tr class="${ViewHelper.GetRowStyle(i)}">
 				<td>
-					<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" class="nsCheckBox"/>
+					<input type="checkbox" name="cha${item.Id}" id="chb${item.Id}" value="${item.Id}" class="sCheckBox"/>
 				</td>
 				<td>${item.Id}</td>
 				<td>${item.Value}</td>
@@ -70,7 +76,7 @@ ${FormHelper.HiddenField('r', filter.GeneralReport)}
 			<th colspan=5>Выбранные адреса</th>
 		</tr>
 		<tr>
-			<th></th>
+			<th><input type="checkbox" id="nsAll"/></th>
 			<th>Код</th>
 			<th>Наименование</th>
 			<th>Клиент</th>

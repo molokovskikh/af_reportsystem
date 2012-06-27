@@ -62,8 +62,8 @@ from " +
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
   join Customers.suppliers prov on prov.Id = pd.FirmCode
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
-  join Customers.addresses adr on oh.AddressId = adr.Id
-  join billing.LegalEntities le on adr.LegalEntityId = le.Id
+  join Customers.addresses ad on oh.AddressId = ad.Id
+  join billing.LegalEntities le on ad.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
 where 1=1");
 

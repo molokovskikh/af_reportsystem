@@ -1,22 +1,9 @@
 ﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+r), ("Настройка параметров отчета", "../Reports/ReportProperties.aspx?r="+r+"&rp="+report), ("Редактирование значений списка","")], "pageTitle":"Редактирование значений списка", "Title":"Редактирование значений списка"} %>
 <script type="text/javascript">
-	var nsChecked = false;
-	var sChecked = false;
-	
 	jQuery(document).ready(function() {
 		jQuery('#nsAll').click(MarkNotselected);
 		jQuery('#sAll').click(MarkSelected);
 	});
-
-	function MarkNotselected() {
-		nsChecked = !nsChecked;
-		jQuery('.nsCheckBox').attr('checked', nsChecked);
-	}
-
-	function MarkSelected() {
-		sChecked = !sChecked;
-		jQuery('.sCheckBox').attr('checked', sChecked);
-	}
 </script>
 <form method="get" action="">
 ${FormHelper.HiddenField('report')}

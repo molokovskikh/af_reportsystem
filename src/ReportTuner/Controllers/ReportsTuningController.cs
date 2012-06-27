@@ -47,8 +47,8 @@ namespace ReportTuner.Controllers
 				{"Region", "r.Id"}
 			};
 
-			SortBy = "Value";
-			SortDirection = "desc";
+			SortBy = "Client";
+			SortDirection = "asc";
 		}
 
 		public IList<Address> Find()
@@ -119,6 +119,12 @@ namespace ReportTuner.Controllers
 					criteria.Add(projection);
 				}
 			}
+
+			var thisAddrIds = DbSession.Get<ReportProperty>(ReportPropertyValue).Values.Select(v => Convert.ToUInt64(v.Value)).ToArray();
+
+			addresses.Where(a => !a.Id.IsIn(thisAddrIds));
+			addresses.Where(a => a.Enabled);
+
 #if DEBUG
 			QueryCatcher.Catch();
 #endif
@@ -127,20 +133,20 @@ namespace ReportTuner.Controllers
 
 			ApplySort(addresses.RootCriteria);
 
+			addresses.RootCriteria.AddOrder(Order.Asc("Value"));
+
 			if (CurrentPage > 0)
 				addresses.RootCriteria.SetFirstResult(CurrentPage * PageSize);
 
 			addresses.RootCriteria.SetMaxResults(PageSize);
 
-			var addressList = addresses.List().ToList();
+			var addressList = addresses.List();
 
 			_lastRowsCount = addresses.RowCount();
 
-			var thisAddrIds = DbSession.Get<ReportProperty>(ReportPropertyValue).Values.Select(v => Convert.ToUInt64(v.Value)).ToArray();
 			ThisAddress = DbSession.QueryOver<Address>().Where(a => a.Id.IsIn(thisAddrIds)).List();
-			addressList = addressList.Except(ThisAddress).ToList();
 
-			return addressList;
+			return addressList.ToList();
 		}
 	}
 

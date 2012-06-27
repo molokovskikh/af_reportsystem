@@ -280,11 +280,11 @@ namespace ReportTuner.Test.Integration
 			PrepareController(controller);
 			using (new SessionScope()) { 
 				var sessionHolder = ActiveRecordMediator.GetSessionFactoryHolder();
-				var DbSession = sessionHolder.CreateSession(typeof(ActiveRecordBase));;
+				var DbSession = sessionHolder.CreateSession(typeof(ActiveRecordBase));
 				controller.DbSession = DbSession;
 				var reportType = DbSession.Query<ReportType>().First(rt => rt.ReportTypeFilePrefix == "Mixed");
 				var report = DbSession.Query<Report>().First(r => r.ReportType == reportType);
-				var propertyType = DbSession.Query<ReportTypeProperty>().First(rpt => rpt.ReportType == reportType && rpt.PropertyName == "AddressesList");
+				var propertyType = DbSession.Query<ReportTypeProperty>().First(rpt => rpt.ReportType == reportType && rpt.PropertyName == "AddressesEqual");
 				var reportProperty = new ReportProperty {
 					Value = "1",
 					Report = report,

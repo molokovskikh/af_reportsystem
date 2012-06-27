@@ -98,6 +98,7 @@ namespace Inforoom.ReportSystem
 			registredField.Add(new FilterField("pd.PriceCode", "concat(prov.Name , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, Customers.suppliers prov, farm.regions provrg", "and prov.Id = pd.FirmCode and prov.HomeRegion = provrg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета", 10));
 			registredField.Add(new FilterField("cl.Id", "cl.Name as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "Customers.clients cl", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
 			registredField.Add(new FilterField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", null, 6, "В отчет включены следующие плательщики", "Следующие плательщики исключены из отчета"));
+			registredField.Add(new FilterField("ad.Id", "concat(ad.Address, ' (', cl.Name, ') ') as AddressName", "AddressName", "Addresses", "Адрес доставки", "customers.addresses ad, Customers.Clients cl", "and ad.ClientId = cl.Id", 7, "В отчет включены следующие адреса доставки", "Следующие адреса доставки исключены из отчета"));
 		}
 
 		public override void ReadReportParams()
@@ -127,10 +128,10 @@ namespace Inforoom.ReportSystem
 			}
 			filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 
-			if (_reportParams.ContainsKey("AddressesList"))
-				AddressesList = (List<ulong>)getReportParam("AddressesList");
-			if (_reportParams.ContainsKey("AddressesNonList"))
-				AddressesList = (List<ulong>)getReportParam("AddressesNonList");
+			if (_reportParams.ContainsKey("AddressesEqual"))
+				AddressesList = (List<ulong>)getReportParam("AddressesEqual");
+			if (_reportParams.ContainsKey("AddressesNonEqual"))
+				AddressesList = (List<ulong>)getReportParam("AddressesNonEqual");
 
 			LoadFilters();
 			CheckAfterLoadFields();
@@ -276,14 +277,6 @@ namespace Inforoom.ReportSystem
 
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySqlConsts.MySQLDateFormat)));
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySqlConsts.MySQLDateFormat)));
-
-			if (AddressesList.Count > 0) {
-				selectCommand = string.Concat(selectCommand, string.Format("and (oh.AddressId in ({0}))", AddressesList.Implode()));
-			}
-
-			if (AddressesNonList.Count > 0) {
-				selectCommand = string.Concat(selectCommand, string.Format("and (oh.AddressId not in ({0}))", AddressesNonList.Implode()));
-			}
 
 			return selectCommand;
 		}

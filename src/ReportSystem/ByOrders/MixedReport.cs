@@ -259,6 +259,7 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurre
 @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join Customers.Clients cl on cl.Id = oh.ClientCode
+  join customers.addresses ad on ad.Id = oh.AddressId
   join farm.regions rg on rg.RegionCode = oh.RegionCode
   join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
   join Customers.suppliers prov on prov.Id = pd.FirmCode
