@@ -249,7 +249,7 @@ where GeneralReport = ?GeneralReport;";
 					if (ex is ReportException)
 					{
 						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), _payer, GeneralReportID, bs.ReportCode);
+						Mailer.MailReportErr(ex.ToString(), _payer, GeneralReportID, bs.ReportCode, bs.ReportCaption);
 						continue; // выполняем следующий отчет
 					}
 					throw; // передаем наверх

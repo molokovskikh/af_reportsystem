@@ -83,7 +83,7 @@ namespace Inforoom.ReportSystem
 		protected DateTime _dtStop; // время завершения работы отчета
 
 		public ulong ReportCode { get {return _reportCode; }}
-		public ulong ReportCaption { get; protected set; }
+		public string ReportCaption { get {return _reportCaption; } }
 		
 		public virtual bool DbfSupported { get; set; }
 
