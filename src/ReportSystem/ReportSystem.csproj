@@ -206,7 +206,6 @@
     <Compile Include="ByOffers\CombReport.cs" />
     <Compile Include="ByOffers\CombToPlainReport.cs" />
     <Compile Include="ByOrders\SupplierMarketShareByUser.cs" />
-    <Compile Include="ContactsReport.cs" />
     <Compile Include="DataLoaders\IDataLoader.cs" />
     <Compile Include="ByOffers\DefReport.cs" />
     <Compile Include="ByOffers\PharmacyOffersReport.cs" />
