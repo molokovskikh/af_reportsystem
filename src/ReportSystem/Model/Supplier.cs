@@ -2,14 +2,14 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 
 namespace Inforoom.ReportSystem.Model
-{	
-    [ActiveRecord("Suppliers", Schema = "Customers", Mutable = false)]
+{
+	[ActiveRecord("Suppliers", Schema = "Customers", Mutable = false)]
 	public class Supplier : ActiveRecordLinqBase<Supplier>
 	{
-        [PrimaryKey]
+		[PrimaryKey]
 		public uint Id { get; set; }
 		
-        [Property]
+		[Property]
 		public string Name { get; set; }
 	}
 }

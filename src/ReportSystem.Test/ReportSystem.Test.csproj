@@ -79,7 +79,6 @@
     <Compile Include="BaseProfileFixture.cs" />
     <Compile Include="CombineReport\CombineNewProfilleFixture.cs" />
     <Compile Include="CombineReport\CombineProfileFixture.cs" />
-    <Compile Include="Contacts\ContactsProfileFixture.cs" />
     <Compile Include="CostDynamicFixture.cs" />
     <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />

@@ -47,5 +47,14 @@ namespace ReportSystem.Test
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
 			Assert.That(files[0], Is.EqualTo("description.xls"));
 		}
+
+		[Test]
+		public void Do_not_copy_to_ftp_if_supplier_unknown()
+		{
+			var report = new GeneralReport();
+			report.GeneralReportID = 1;
+			report.Reports.Add(new FakeReport());
+			report.CopyFileToFtp("", "");
+		}
 	}
 }

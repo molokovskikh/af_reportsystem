@@ -30,7 +30,7 @@ namespace ReportTuner.Models
 		/// идентификатор поставщика в папку которого на нашем ftp кладется отчет
 		/// </summary>
 		[Property]
-		public virtual uint FirmCode { get; set; }
+		public virtual uint? FirmCode { get; set; }
 		
 		[Property]
 		public virtual bool Allow { get; set; }

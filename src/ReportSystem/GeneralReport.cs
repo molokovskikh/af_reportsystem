@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 	public class GeneralReport
 	{
 		public ulong GeneralReportID;
-		public uint SupplierId;
+		public uint? SupplierId;
 
 		private uint? _contactGroupId;
 		private string _eMailSubject;
@@ -94,29 +94,36 @@ namespace Inforoom.ReportSystem
 			_noArchive = noArchive;
 		}
 
-		public GeneralReport(ulong id, uint supplierId, uint? ContactGroupId, 
-			string EMailSubject, MySqlConnection Conn, string ReportFileName, 
-			string ReportArchName, bool Temporary, ReportFormats format,
-			IReportPropertiesLoader propertiesLoader, bool Interval, DateTime dtFrom, DateTime dtTo, string payer, bool noArchive)
+		public GeneralReport(ulong id, uint? supplierId, uint? contactGroupId,
+			string emailSubject,
+			MySqlConnection connection,
+			string reportFileName,
+			string reportArchName,
+			bool temporary,
+			ReportFormats format,
+			IReportPropertiesLoader propertiesLoader,
+			bool interval,
+			DateTime dtFrom,
+			DateTime dtTo,
+			string payer,
+			bool noArchive)
 		{
 			Logger = LogManager.GetLogger(GetType());
 			GeneralReportID = id;
 			SupplierId = supplierId;
-			_conn = Conn;
-			_contactGroupId = ContactGroupId;
-			_eMailSubject = EMailSubject;
-			_reportFileName = ReportFileName;
-			_reportArchName = ReportArchName;
-			_temporary = Temporary;
+			_conn = connection;
+			_contactGroupId = contactGroupId;
+			_eMailSubject = emailSubject;
+			_reportFileName = reportFileName;
+			_reportArchName = reportArchName;
+			_temporary = temporary;
 			_payer = payer;
 			_noArchive = noArchive;
 			Format = format;
 
-			ulong contactsCode = 0;
-
 			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
 
-			if (!Interval)
+			if (!interval)
 				_dtContacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
 				{
 					args.DataAdapter.SelectCommand.CommandText = @"
@@ -171,9 +178,9 @@ where GeneralReport = ?GeneralReport;";
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], 
 								drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, 
-								Temporary, Format,
+								temporary, Format,
 								propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])});
-						bs._Interval = Interval;
+						bs._Interval = interval;
 						bs._dtFrom = dtFrom;
 						bs._dtTo = dtTo;
 						Reports.Add(bs);
@@ -260,8 +267,7 @@ where GeneralReport = ?GeneralReport;";
 
 			if (_noArchive)
 			{
-				PrepareFtpDirectory();
-				CopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
+				SafeCopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
 				return _mainFileName;
 			}
 
@@ -331,26 +337,31 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 
 		private string GetResDirPath()
 		{
-			return Settings.Default.FTPOptBoxPath + SupplierId.ToString("000") + "\\Reports\\";
+			if (SupplierId == null)
+				return null;
+			return Settings.Default.FTPOptBoxPath + SupplierId.Value.ToString("000") + "\\Reports\\";
 		}
 
-		private void PrepareFtpDirectory()
+		private string PrepareFtpDirectory()
 		{
 			var resDirPath = GetResDirPath();
 
-			if (!(Directory.Exists(resDirPath)))
-				Directory.CreateDirectory(resDirPath);
+			if (!String.IsNullOrEmpty(resDirPath)) {
+				if (!(Directory.Exists(resDirPath)))
+					Directory.CreateDirectory(resDirPath);
 
-			foreach (string file in Directory.GetFiles(resDirPath))
-				File.Delete(file);
+				foreach (string file in Directory.GetFiles(resDirPath))
+					File.Delete(file);
+			}
+
+			return resDirPath;
 		}
 
-		private void CopyFileToFtp(string fromfile, string toFile)
+		private void SafeCopyFileToFtp(string fromfile, string toFile)
 		{
 			try
 			{
-				var resDirPath = GetResDirPath();
-				File.Copy(fromfile, resDirPath + toFile);
+				CopyFileToFtp(fromfile, toFile);
 			}
 			catch(Exception ex)
 			{
@@ -358,11 +369,16 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			}
 		}
 
+		public void CopyFileToFtp(string fromfile, string toFile)
+		{
+			var resDirPath = PrepareFtpDirectory();
+			if (!String.IsNullOrEmpty(resDirPath))
+				File.Copy(fromfile, Path.Combine(resDirPath, toFile));
+		}
+
 		private string ArchFile()
 		{
 			var resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
-
-			PrepareFtpDirectory();
 
 			var zip = new FastZip();
 			var tempArchive = Path.GetTempFileName();
@@ -370,7 +386,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			var archive = Path.Combine(_directoryName, resArchFileName);
 			File.Move(tempArchive, archive);
 
-			CopyFileToFtp(archive, resArchFileName);
+			SafeCopyFileToFtp(archive, resArchFileName);
 
 			return archive;
 		}
