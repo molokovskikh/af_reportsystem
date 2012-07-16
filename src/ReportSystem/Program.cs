@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
 using ExecuteTemplate;
 using Inforoom.Common;
@@ -93,8 +94,8 @@ and cr.generalreportcode = " + generalReportId;
 									//Создаем каждый отчет отдельно и пытаемся его сформировать
 									var gr = new GeneralReport(
 										(ulong)drReport[GeneralReportColumns.GeneralReportCode],
-										Convert.ToUInt32(drReport[GeneralReportColumns.FirmCode]),
-										(Convert.IsDBNull(drReport[GeneralReportColumns.ContactGroupId])) ? null : (uint?)Convert.ToUInt32(drReport[GeneralReportColumns.ContactGroupId]),
+										ReadNullableUint32(drReport, GeneralReportColumns.FirmCode),
+										ReadNullableUint32(drReport, GeneralReportColumns.ContactGroupId),
 										drReport[GeneralReportColumns.EMailSubject].ToString(),
 										mc,
 										drReport[GeneralReportColumns.ReportFileName].ToString(),
@@ -104,6 +105,9 @@ and cr.generalreportcode = " + generalReportId;
 										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString(),
 										Convert.ToBoolean(drReport[GeneralReportColumns.NoArchive]));
 									generalReport = gr;
+									_log.Debug(Environment.GetCommandLineArgs().Implode());
+									_log.DebugFormat("dtTo = {0}", dtTo);
+									_log.DebugFormat("dtFrom = {0}", dtFrom);
 									_log.DebugFormat("Запуск отчета {0}", gr.GeneralReportID);
 									gr.ProcessReports();
 									_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
@@ -138,6 +142,11 @@ and cr.generalreportcode = " + generalReportId;
 				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
 				Mailer.MailGlobalErr(ex.ToString());
 			}
+		}
+
+		private static uint? ReadNullableUint32(DataRow drReport, string name)
+		{
+			return (Convert.IsDBNull(drReport[name])) ? null : (uint?)Convert.ToUInt32(drReport[name]);
 		}
 
 		//Аргументы для выбора отчетов из базы

@@ -11,7 +11,7 @@ namespace ReportSystem.Test
 	[TestFixture, Ignore("Что бы подебажить отчет")]
 	public class Troubleshoot
 	{
-		string connectionString = "server=testsql.analit.net;user=system;password=newpass; default command timeout=0;database=usersettings";
+		string connectionString = "Database=usersettings;Data Source=localhost;User Id=root;Password=;pooling=false; default command timeout=0;Allow user variables=true;convert zero datetime=yes;";
 
 		[SetUp]
 		public void Setup()
@@ -49,7 +49,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Troubleshoot_general_report()
 		{
-			uint id = 178;
+			uint id = 2850;
 			var dataAdapter = new MySqlDataAdapter("",connectionString);
 			dataAdapter.SelectCommand.CommandText = @"
 select

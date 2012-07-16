@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Common.MySql;
+using Common.Tools;
 using Common.Tools.Threading;
 using MySql.Data.MySqlClient;
 using log4net;
@@ -25,13 +26,21 @@ namespace Report.Data.Builder
 		}
 	}
 
-	public class AvgCost
+	public class OfferAggregates
 	{
-		public OfferId Id;
-
-		public uint AssortmentId;
-		public DateTime Date;
 		public decimal Cost;
+		public uint Quantity;
+		public uint Count;
+
+		public uint AvgQuantity
+		{
+			get
+			{
+				if (Count == 0)
+					return 0;
+				return Quantity/Count;
+			}
+		}
 	}
 
 	public class ClientRating
@@ -64,12 +73,14 @@ namespace Report.Data.Builder
 
 		public uint AssortmentId;
 		public decimal Cost;
+		public uint Quantity;
 
-		public Offer(OfferId id, uint assortmentId, decimal cost)
+		public Offer(OfferId id, uint assortmentId, decimal cost, uint quantity = 0)
 		{
 			Id = id;
 			AssortmentId = assortmentId;
 			Cost = cost;
+			Quantity = quantity;
 		}
 	}
 
@@ -98,7 +109,7 @@ limit 1);
 
 call Customers.GetPrices(@UserId);
 
-select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost
+select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c0.Id and cc.PC_CostCode = p.CostCode
@@ -112,7 +123,11 @@ and c0.Junk = 0
 			watch.Start();
 
 			var data = Db.Read(sql,
-				r => new Offer(new OfferId(r.GetUInt32("FirmCode"), r.GetUInt64("RegionCode")), r.GetUInt32("Id"), r.GetDecimal("Cost")),
+				r => new Offer(new OfferId(r.GetUInt32("FirmCode"),
+					r.GetUInt64("RegionCode")),
+					r.GetUInt32("Id"),
+					r.GetDecimal("Cost"),
+					SafeConvert.ToUInt32(r["Quantity"].ToString())),
 				new {client})
 				.ToArray();
 
@@ -153,10 +168,11 @@ and c0.Junk = 0
 						result[offer.Id] = costs;
 					}
 
-					decimal cost = 0;
-					var value = costs[offer.AssortmentId];
-					if (value != null)
-						cost = (decimal) value;
+					var aggregates = (OfferAggregates)costs[offer.AssortmentId];
+					if (aggregates == null) {
+						aggregates = new OfferAggregates();
+						costs[offer.AssortmentId] = aggregates;
+					}
 
 					if (!rating.ContainsKey(offer.Id.RegionId))
 						continue;
@@ -166,7 +182,9 @@ and c0.Junk = 0
 						continue;
 
 					var regionRating = rating[offer.Id.RegionId];
-					costs[offer.AssortmentId] = cost + offer.Cost*regionRating;
+					aggregates.Cost = aggregates.Cost + offer.Cost*regionRating;
+					aggregates.Quantity += offer.Quantity;
+					aggregates.Count++;
 #if DEBUG
 					if (offer.AssortmentId == DebugAssortmentId && offer.Id.SupplierId == DebugSupplierId)
 						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offer.AssortmentId], client, regionRating, offer.Cost);
@@ -187,7 +205,7 @@ and c0.Junk = 0
 
 		public int Save(DateTime date, Hashtable hash)
 		{
-			var header = "insert into Reports.AverageCosts(Date, SupplierId, RegionId, AssortmentId, Cost) values ";
+			var header = "insert into Reports.AverageCosts(Date, SupplierId, RegionId, AssortmentId, Cost, Quantity) values ";
 			var page = 100;
 			var totalCount = 0;
 			With.Transaction(t => {
@@ -204,12 +222,14 @@ and c0.Junk = 0
 						if (sql.Length > header.Length)
 							sql.Append(", ");
 
-						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4})",
+						var aggregates = (OfferAggregates) costs[assortmentId];
+						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4}, {5})",
 							date.ToString(MySqlConsts.MySQLDateFormat),
 							key.SupplierId,
 							key.RegionId,
 							assortmentId,
-							((decimal)costs[assortmentId]).ToString(CultureInfo.InvariantCulture));
+							aggregates.Cost.ToString(CultureInfo.InvariantCulture),
+							aggregates.AvgQuantity);
 
 						index++;
 						if (index >= page)

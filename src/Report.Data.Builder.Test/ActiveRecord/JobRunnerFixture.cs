@@ -3,6 +3,7 @@ using System.Linq;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Common.Web.Ui.Models.Jobs;
+using NHibernate.Linq;
 using NUnit.Framework;
 using Rhino.Mocks;
 using Test.Support;
@@ -25,9 +26,12 @@ namespace Report.Data.Builder.Test.ActiveRecord
 			name = job.GetType().Name;
 			runner.Jobs.Add(job);
 
-			var logs = ActiveRecordLinqBase<JobLog>.Queryable.Where(l => l.Name == name);
+			var savedJob = session.Query<Job>().FirstOrDefault(j => j.Name == name);
+			if (savedJob != null)
+				session.Delete(savedJob);
+			var logs = session.Query<JobLog>().Where(l => l.Name == name);
 			foreach (var log in logs)
-				ActiveRecordMediator.Delete(log);
+				session.Delete(log);
 		}
 
 		[Test]
@@ -45,12 +49,15 @@ namespace Report.Data.Builder.Test.ActiveRecord
 		[Test]
 		public void Run_new_job()
 		{
+			Close();
+
 			runner.DefaultInterval = TimeSpan.Zero;
 			runner.Run();
 
+			Reopen();
 			var activeRecordJob = GetJob();
 			Assert.That(activeRecordJob, Is.Not.Null);
-			Assert.That(activeRecordJob.LastRun, Is.EqualTo(DateTime.Now).Within(1).Seconds);
+			Assert.That(activeRecordJob.LastRun, Is.EqualTo(DateTime.Now).Within(2).Seconds);
 			Assert.That(activeRecordJob.NextRun, Is.EqualTo(DateTime.Today));
 			Assert.That(activeRecordJob.RunInterval, Is.EqualTo(TimeSpan.Zero));
 			job.AssertWasCalled(j => j.Work());
@@ -64,10 +71,8 @@ namespace Report.Data.Builder.Test.ActiveRecord
 		{
 			var activeRecordJob = new Job(name, runner.DefaultInterval);
 			activeRecordJob.NextRun = DateTime.Now.AddHours(-1);
-			ActiveRecordMediator.Save(activeRecordJob);
-			scope.Flush();
-			scope.Dispose();
-			scope = new SessionScope();
+			Save(activeRecordJob);
+			Reopen();
 
 			runner.Run();
 
