@@ -84,7 +84,7 @@ namespace ReportTuner.Models
 				|| Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed")
 				&&  (PropertyType.PropertyName.Match("AddressesEqual")
 					|| PropertyType.PropertyName.Match("AddressesNonEqual")
-					|| PropertyType.PropertyType.Match("AddressRivals"));
+					|| PropertyType.PropertyName.Match("AddressRivals"));
 		}
 	}
 }
