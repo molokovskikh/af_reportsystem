@@ -253,7 +253,7 @@ where diff < 0";
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new OptimizationEfficiencySettings(_reportCode, _reportCaption, _beginDate, _endDate, 
+			return new OptimizationEfficiencySettings(ReportCode, ReportCaption, _beginDate, _endDate, 
 				_clientId, _optimizedCount);
 		}
 	}

@@ -311,13 +311,13 @@ from Usersettings.ActivePrices Prices
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new PricesOfCompetitorsWriter(_reportParams, ex, _reportCaption);
+				return new PricesOfCompetitorsWriter(_reportParams, ex, ReportCaption);
 			return null;
 		}
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new BaseReportSettings(_reportCode, _reportCaption);
+			return new BaseReportSettings(ReportCode, ReportCaption);
 		}
 	}
 }

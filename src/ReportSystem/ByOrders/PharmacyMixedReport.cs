@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Linq;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
@@ -16,7 +17,9 @@ namespace Inforoom.ReportSystem
 	{
 		public PharmacyMixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties) 
 			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
-		{}
+		{
+			AddressRivals = new List<ulong>();
+		}
 
 		private ulong GetClientRegionMask(ExecuteArgs e)
 		{
@@ -24,16 +27,39 @@ namespace Inforoom.ReportSystem
 			return Convert.ToUInt64(e.DataAdapter.SelectCommand.ExecuteScalar());
 		}
 
+		public List<ulong> AddressRivals { get; set; }
+
+		public override void ReadReportParams()
+		{
+			base.ReadReportParams();
+
+			if (reportParamExists("AddressRivals"))
+				AddressRivals = (List<ulong>) getReportParam("AddressRivals");
+		}
+
+		public string ReadAddress(List<ulong> ids)
+		{
+			var field = registredField.First(f => f.reportPropertyPreffix.Match("Addresses"));
+			return ReadNames(field, ids);
+		}
+
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
 			filterDescriptions.Add(String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong>{(ulong)sourceFirmCode})));
 			filterDescriptions.Add(String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0])));
+			if (AddressRivals.Count > 0)
+				filterDescriptions.Add(String.Format("Список адресов доставки-конкурентов : {0}", ReadAddress(AddressRivals)));
 
 			ProfileHelper.Next("GenerateReport2");
 
 			var regionMask = GetClientRegionMask(e);
 			var selectCommand = BuildSelect();
+
+			var rivalFilter = String.Format("oh.ClientCode in ({0})", concurrentGroups[0].Implode());
+
+			if (AddressRivals.Count > 0)
+				rivalFilter += String.Format(" and oh.AddressId in ({0})", AddressRivals.Implode());
 
 			if (firmCrPosition)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
@@ -47,13 +73,13 @@ Avg(if(oh.ClientCode = {0}, ol.cost, NULL)) as SourceFirmCodeAvgCost,
 Max(if(oh.ClientCode = {0}, ol.cost, NULL)) as SourceFirmCodeMaxCost,
 Count(distinct if(oh.ClientCode = {0}, oh.RowId, NULL)) as SourceFirmDistinctOrderId,
 
-sum(if(oh.ClientCode in ({1}), ol.cost*ol.quantity, NULL)) as RivalsSum,
-sum(if(oh.ClientCode in ({1}), ol.quantity, NULL)) RivalsRows,
-Min(if(oh.ClientCode in ({1}), ol.cost, NULL)) as RivalsMinCost,
-Avg(if(oh.ClientCode in ({1}), ol.cost, NULL)) as RivalsAvgCost,
-Max(if(oh.ClientCode in ({1}), ol.cost, NULL)) as RivalsMaxCost,
-Count(distinct if(oh.ClientCode in ({1}), oh.RowId, NULL)) as RivalsDistinctOrderId,
-Count(distinct if(oh.ClientCode in ({1}), oh.AddressId, NULL)) as RivalsDistinctAddressId,
+sum(if({1}, ol.cost*ol.quantity, NULL)) as RivalsSum,
+sum(if({1}, ol.quantity, NULL)) RivalsRows,
+Min(if({1}, ol.cost, NULL)) as RivalsMinCost,
+Avg(if({1}, ol.cost, NULL)) as RivalsAvgCost,
+Max(if({1}, ol.cost, NULL)) as RivalsMaxCost,
+Count(distinct if({1}, oh.RowId, NULL)) as RivalsDistinctOrderId,
+Count(distinct if({1}, oh.AddressId, NULL)) as RivalsDistinctAddressId,
 
 sum(ol.cost*ol.quantity) as AllSum,
 sum(ol.quantity) AllRows,
@@ -61,7 +87,7 @@ Min(ol.cost) as AllMinCost,
 Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
-Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurrentGroups[0].Implode()));
+Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, rivalFilter));
 			selectCommand +=
 @"from " +
 #if DEBUG
@@ -265,7 +291,7 @@ and (oh.RegionCode & " + regionMask + @") > 0";
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new PharmacyMixedSettings(_reportCode, _reportCaption, filterDescriptions, selectedField);
+			return new PharmacyMixedSettings(ReportCode, ReportCaption, filterDescriptions, selectedField);
 		}
 	}
 }

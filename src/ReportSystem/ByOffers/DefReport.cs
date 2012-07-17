@@ -384,11 +384,11 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 				MSExcel._Worksheet ws;
 				try
 				{
-					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
+					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
 
 					try
 					{
-						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+						ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 
 						//Форматируем заголовок отчета
 						ws.Cells[1, 1] = "Код";

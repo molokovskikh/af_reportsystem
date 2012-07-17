@@ -47,16 +47,13 @@ namespace Inforoom.ReportSystem
 	public abstract class BaseReport
 	{
 		//Максимальное значение строки в колонках, необходимо для вывода в Excel, все, что будет больше будет помечаться как memо
+		private Dictionary<string, uint> _reportParamsIds = new Dictionary<string, uint>();
+
 		public const int MaxStringSize = 250;
 		
 		public const int MaxListName = 26;
 
 		protected DataSet _dsReport;
-
-		protected ulong _reportCode;
-		protected string _reportCaption;
-		//родительский отчет является разовым?
-		protected bool _parentIsTemporary;
 
 		//Таблица с загруженными свойствами отчета
 		protected DataTable dtReportProperties;
@@ -65,14 +62,9 @@ namespace Inforoom.ReportSystem
 		//Формат файла отчета
 		protected ReportFormats Format;
 
-		public bool _Interval;
-		public DateTime _dtFrom;
-		public DateTime _dtTo;
-
 		protected MySqlConnection _conn;
 
 		protected Dictionary<string, object> _reportParams;
-		private Dictionary<string, uint> _reportParamsIds = new Dictionary<string, uint>();
 
 		protected ExecuteArgs args;
 
@@ -82,8 +74,12 @@ namespace Inforoom.ReportSystem
 		protected DateTime _dtStart; // время запуска отчета
 		protected DateTime _dtStop; // время завершения работы отчета
 
-		public ulong ReportCode { get {return _reportCode; }}
-		public string ReportCaption { get {return _reportCaption; } }
+		public bool Interval;
+		public DateTime From;
+		public DateTime To;
+
+		public ulong ReportCode { get; private set; }
+		public string ReportCaption { get; private set; }
 		
 		public virtual bool DbfSupported { get; set; }
 
@@ -99,13 +95,11 @@ namespace Inforoom.ReportSystem
 		{
 			Logger = LogManager.GetLogger(GetType());
 			_reportParams = new Dictionary<string, object>();
-			_reportCode = reportCode;
-			_reportCaption = reportCaption;
+			ReportCode = reportCode;
+			ReportCaption = reportCaption;
 			Format = format;
 			_dsReport = new DataSet();
 			_conn = connection;
-
-			_parentIsTemporary = temporary;
 
 			dtReportProperties = dsProperties.Tables["ReportProperties"];
 			dtReportPropertyValues = dsProperties.Tables["ReportPropertyValues"];
@@ -227,7 +221,7 @@ namespace Inforoom.ReportSystem
 
 			if(Format == ReportFormats.DBF && DbfSupported)
 			{// Формируем DBF
-				fileName =  Path.Combine(Path.GetDirectoryName(fileName), _reportCaption + ".dbf");
+				fileName =  Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
 				DataTableToDbf(GetReportTable(), fileName);
 			}
 			else
@@ -240,7 +234,7 @@ namespace Inforoom.ReportSystem
 		protected virtual void DataTableToExcel(DataTable dtExport, string exlFileName)
 		{
 			ProfileHelper.Next("DataTableToExcel");
-			new BaseExcelWriter().DataTableToExcel(dtExport, exlFileName, _reportCode);
+			new BaseExcelWriter().DataTableToExcel(dtExport, exlFileName, ReportCode);
 		}
 
 		protected virtual void FormatExcel(string fileName)
@@ -365,7 +359,7 @@ order by 1", filterStr);
 		public void ToLog(ulong generalReportCode, string errDesc = null)
 		{
 			_dtStop = DateTime.Now;
-			ReportResultLog.Log(generalReportCode, _reportCode, _dtStart, _dtStop, errDesc);
+			ReportResultLog.Log(generalReportCode, ReportCode, _dtStart, _dtStop, errDesc);
 		}
 
 		protected void LoadAdditionFiles()

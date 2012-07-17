@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Collections.Generic;
+using NUnit.Framework;
 using Inforoom.ReportSystem;
 
 namespace ReportSystem.Test
@@ -49,6 +51,23 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(type);
 			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
+		}
+
+		[Test]
+		public void Filter_concurent_by_address()
+		{
+			Property("ByPreviousMonth", false);
+			Property("SourceFirmCode", 3110);
+			Property("BusinessRivals", new List<ulong> {465, 10415});
+			Property("AddressRivals", new List<ulong> {465, 11279});
+			Property("ClientCodeEqual", new List<ulong> {3110, 465, 11279});
+			Property("ProductNamePosition", 0);
+			var file = "Filter_concurent_by_address.xls";
+			report = new PharmacyMixedReport(1, file, Conn, false, ReportFormats.Excel, properties);
+			report.From = DateTime.Today.AddDays(-10);
+			report.To = DateTime.Today;
+			report.Interval = true;
+			BuildReport(file);
 		}
 	}
 }

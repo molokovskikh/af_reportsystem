@@ -101,7 +101,7 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new BaseReportSettings(_reportCode, _reportCaption);
+			return new BaseReportSettings(ReportCode, ReportCaption);
 		}
 
 		public override void GenerateReport(ExecuteArgs e)

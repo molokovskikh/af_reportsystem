@@ -39,9 +39,6 @@ namespace Inforoom.ReportSystem
 		protected List<FilterField> registredField;
 		protected List<FilterField> selectedField;
 
-		protected List<ulong> AddressesList = new List<ulong>();
-		protected List<ulong> AddressesNonList = new List<ulong>();
-
 		protected DateTime dtFrom;
 		protected DateTime dtTo;
 
@@ -104,14 +101,13 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if (_Interval)
+			if (Interval)
 			{
-				dtFrom = _dtFrom;
-				dtTo = _dtTo;
+				dtFrom = From;
+				dtTo = To;
 				dtTo = dtTo.Date.AddDays(1);
 			}
-			else 
-			if (ByPreviousMonth)
+			else if (ByPreviousMonth)
 			{
 				dtTo = DateTime.Now;
 				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца
@@ -127,11 +123,6 @@ namespace Inforoom.ReportSystem
 				dtTo = dtTo.Date;
 			}
 			filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
-
-			if (_reportParams.ContainsKey("AddressesEqual"))
-				AddressesList = (List<ulong>)getReportParam("AddressesEqual");
-			if (_reportParams.ContainsKey("AddressesNonEqual"))
-				AddressesList = (List<ulong>)getReportParam("AddressesNonEqual");
 
 			LoadFilters();
 			CheckAfterLoadFields();
@@ -176,11 +167,11 @@ namespace Inforoom.ReportSystem
 				_Worksheet ws;
 				try
 				{
-					ws = (_Worksheet) wb.Worksheets["rep" + _reportCode];
+					ws = (_Worksheet) wb.Worksheets["rep" + ReportCode];
 
 					try
 					{
-						ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+						ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 
 						var res = _dsReport.Tables["Results"];
 						var tableBegin = 1 + filterDescriptions.Count;
@@ -298,10 +289,15 @@ namespace Inforoom.ReportSystem
 			foreach (var field in selectedField)
 			{
 				if (field.nonEqualValues != null && field.nonEqualValues.Count > 0)
-					filterDescriptions.Add(String.Format("{0}: {1}", field.nonEqualValuesCaption, GetValuesFromSQL(field.GetNonEqualValuesSQL())));
+					filterDescriptions.Add(String.Format("{0}: {1}", field.nonEqualValuesCaption, ReadNames(field, field.nonEqualValues)));
 				if (field.equalValues != null && field.equalValues.Count > 0)
-					filterDescriptions.Add(String.Format("{0}: {1}", field.equalValuesCaption, GetValuesFromSQL(field.GetEqualValuesSQL())));
+					filterDescriptions.Add(String.Format("{0}: {1}", field.equalValuesCaption, GetValuesFromSQL(field.GetNamesSql(field.equalValues))));
 			}
+		}
+
+		protected string ReadNames(FilterField field, List<ulong> ids)
+		{
+			return GetValuesFromSQL(field.GetNamesSql(ids));
 		}
 
 		protected string BuildSelect()

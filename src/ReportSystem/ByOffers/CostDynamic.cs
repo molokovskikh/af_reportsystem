@@ -159,7 +159,7 @@ group by pd.FirmCode", OrdersSchema, regions.Implode());
 				suppliers = supplierIdTable.AsEnumerable().Select(r => Convert.ToUInt32(r["FirmCode"])).ToArray();
 			}
 
-			settings = new CostDynamicSettings(_reportCode, _reportCaption) {
+			settings = new CostDynamicSettings(ReportCode, ReportCaption) {
 				Regions = regions,
 				Suppliers = suppliers,
 				SomeDate = someDate,
@@ -454,8 +454,8 @@ and a.Date = ?date
 			if (reportParamExists("date"))
 				date = (DateTime) getReportParam("date");
 
-			if (_dtFrom != DateTime.MinValue)
-				date = _dtFrom;
+			if (From != DateTime.MinValue)
+				date = From;
 
 			someDate = (DateTime) getReportParam("someDate");
 			regions = ((List<ulong>) getReportParam("regions")).ToArray();

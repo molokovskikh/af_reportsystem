@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -302,8 +302,8 @@ order by 2, 5";
 
 			UseExcel.Workbook(fileName, b => {
 				var exApp = b.Application;
-				var ws = (_Worksheet)b.Worksheets["rep" + _reportCode.ToString()];
-				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+				var ws = (_Worksheet)b.Worksheets["rep" + ReportCode.ToString()];
+				ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 
 				var table = _dsReport.Tables["Results"];
 				ExcelHelper.FormatHeader(ws, i + 2, table);

@@ -109,16 +109,10 @@ namespace Inforoom.ReportSystem.Filters
 			return String.Format("({0} in {1})", primaryField, GetAllValues(equalValues));
 		}
 
-		public string GetEqualValuesSQL()
+		public string GetNamesSql(List<ulong> ids)
 		{
 			return String.Format("select {0} from {1} where ({2} in {3}) {4} order by {5}",
-				viewField, tableList, primaryField, GetAllValues(equalValues), whereList, outputField);
-		}
-
-		public string GetNonEqualValuesSQL()
-		{
-			return String.Format("select {0} from {1} where ({2} in {3}) {4} order by {5}",
-				viewField, tableList, primaryField, GetAllValues(nonEqualValues), whereList, outputField);
+				viewField, tableList, primaryField, GetAllValues(ids), whereList, outputField);
 		}
 
 		public string GetNonEqualValues()

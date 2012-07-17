@@ -164,7 +164,7 @@ group by c.pricecode";
 			{
 				Logger.DebugFormat("Отчет {1}, Прайс листы {0} обновились для них не будет предложений",
 					data.Rows.Cast<DataRow>().Select(r => Convert.ToUInt32(r["PriceCode"])).Implode(),
-					_reportCode);
+					ReportCode);
 			}
 		}
 
@@ -636,9 +636,9 @@ order by FullName, FirmCr";
 		protected override void FormatExcel(string fileName)
 		{
 			UseExcel.Workbook(fileName, wb => {
-				var ws = (_Worksheet)wb.Worksheets["rep" + _reportCode.ToString()];
+				var ws = (_Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
 
-				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+				ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 				ws.Activate();
 
 				var result = _dsReport.Tables["Results"];

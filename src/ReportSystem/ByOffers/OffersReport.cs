@@ -408,8 +408,8 @@ order by FullName, FirmCr";
 		protected override void FormatExcel(string fileName)
 		{
 			UseExcel.Workbook(fileName, b => {
-				var ws = (_Worksheet)b.Worksheets["rep" + _reportCode.ToString()];
-				var caption = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
+				var ws = (_Worksheet)b.Worksheets["rep" + ReportCode.ToString()];
+				var caption = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 				ws.Name = caption;
 				var res = _dsReport.Tables["Results"];
 				var columnCount = _dsReport.Tables["Results"].Columns.Count;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
+using Common.Tools;
 using log4net;
 
 namespace ReportTuner.Models
@@ -78,11 +79,12 @@ namespace ReportTuner.Models
 
 		public bool IsAddressesEditor()
 		{
-			return (Report.ReportType.ReportTypeFilePrefix == "Rating" || 
-				Report.ReportType.ReportTypeFilePrefix == "Mixed" ||
-				Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed") && 
-				(String.Equals(PropertyType.PropertyName, "AddressesEqual", StringComparison.InvariantCultureIgnoreCase) ||
-				String.Equals(PropertyType.PropertyName, "AddressesNonEqual", StringComparison.InvariantCultureIgnoreCase));
+			return (Report.ReportType.ReportTypeFilePrefix == "Rating"
+				|| Report.ReportType.ReportTypeFilePrefix == "Mixed"
+				|| Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed")
+				&&  (PropertyType.PropertyName.Match("AddressesEqual")
+					|| PropertyType.PropertyName.Match("AddressesNonEqual")
+					|| PropertyType.PropertyType.Match("AddressRivals"));
 		}
 	}
 }

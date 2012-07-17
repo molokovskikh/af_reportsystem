@@ -23,10 +23,10 @@ namespace Inforoom.ReportSystem.ByOrders
 		public override void ReadReportParams()
 		{			
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if(_Interval)
+			if(Interval)
 			{
-				dtFrom = _dtFrom;
-				dtTo = _dtTo;
+				dtFrom = From;
+				dtTo = To;
 				dtTo = dtTo.Date.AddDays(1);
 			}
 			else

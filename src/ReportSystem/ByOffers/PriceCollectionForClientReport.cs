@@ -153,7 +153,7 @@ group by Core.Id;",
 
 		protected override void DataTableToExcel(DataTable dtExport, string fileName)
 		{
-			fileName = Path.Combine(Path.GetDirectoryName(fileName), _reportCaption + ".dbf"); // отчет сохраняется только в dbf
+			fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf"); // отчет сохраняется только в dbf
 			DataTableToDbf(dtExport, fileName);
 		}
 

@@ -180,9 +180,9 @@ where GeneralReport = ?GeneralReport;";
 								drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, 
 								temporary, Format,
 								propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])});
-						bs._Interval = interval;
-						bs._dtFrom = dtFrom;
-						bs._dtTo = dtTo;
+						bs.Interval = interval;
+						bs.From = dtFrom;
+						bs.To = dtTo;
 						Reports.Add(bs);
 
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
