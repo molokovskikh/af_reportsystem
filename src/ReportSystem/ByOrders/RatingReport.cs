@@ -16,11 +16,11 @@ namespace Inforoom.ReportSystem
 	{
 		public int JunkState { get; set; }
 		public bool BuildChart { get; set; }
+		public bool DoNotShowAbsoluteValues { get; set; }
 
 		public RatingReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, conn, format, dsProperties)
-		{
-		}
+		{}
 
 		public override void ReadReportParams()
 		{
@@ -40,27 +40,19 @@ namespace Inforoom.ReportSystem
 			var selectCommand = BuildSelect();
 			if (firmCrPosition)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
-											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
+											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'РќРµР»РµРєР°СЂСЃС‚РІРµРЅРЅС‹Р№ Р°СЃСЃРѕСЂС‚РёРјРµРЅС‚')");
 
-			selectCommand = String.Concat(selectCommand, @"
+			selectCommand = String.Concat(selectCommand, String.Format(@"
 Sum(ol.cost*ol.Quantity) as Cost, 
 Sum(ol.Quantity) as PosOrder, 
 Min(ol.Cost) as MinCost,
 Avg(ol.Cost) as AvgCost,
 Max(ol.Cost) as MaxCost,
 Count(distinct oh.RowId) as DistinctOrderId,
-Count(distinct oh.AddressId) as DistinctAddressId ");
-			selectCommand = String.Concat(
-				selectCommand, @"
-from " + 
-#if DEBUG
-  @"orders.OrdersHead oh 
-  join orders.OrdersList ol on ol.OrderID = oh.RowID " +
-#else
-  @"ordersold.OrdersHead oh 
-  join ordersold.OrdersList ol on ol.OrderID = oh.RowID " +
-#endif
- @"join catalogs.products p on p.Id = ol.ProductId
+Count(distinct oh.AddressId) as DistinctAddressId
+from {0}.OrdersHead oh
+  join {0}.OrdersList ol on ol.OrderID = oh.RowID
+  join catalogs.products p on p.Id = ol.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId
@@ -73,7 +65,7 @@ from " +
   join Customers.addresses ad on oh.AddressId = ad.Id
   join billing.LegalEntities le on ad.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
-where 1=1");
+where 1=1", OrdersSchema));
 
 			selectCommand = ApplyFilters(selectCommand);
 
@@ -82,7 +74,7 @@ where 1=1");
 			else if (2 == JunkState)
 				selectCommand = String.Concat(selectCommand, Environment.NewLine + "and (ol.Junk = 1)");
 
-			//Применяем группировку и сортировку
+			//РџСЂРёРјРµРЅСЏРµРј РіСЂСѓРїРїРёСЂРѕРІРєСѓ Рё СЃРѕСЂС‚РёСЂРѕРІРєСѓ
 			selectCommand = ApplyGroupAndSort(selectCommand, "Cost desc");
 			if (firmCrPosition)
 			{
@@ -104,24 +96,31 @@ where 1=1");
 
 			var result = BuildResultTable(selectTable);
 
-			var dc = result.Columns.Add("Cost", typeof (Decimal));
-			dc.Caption = "Сумма";
+			DataColumn dc;
+			dc = result.Columns.Add("Cost", typeof (Decimal));
+			dc.Caption = "РЎСѓРјРјР°";
+
 			dc = result.Columns.Add("CostPercent", typeof (Double));
-			dc.Caption = "Доля рынка в %";
+			dc.Caption = "Р”РѕР»СЏ СЂС‹РЅРєР° РІ %";
+
 			dc = result.Columns.Add("PosOrder", typeof (Int32));
-			dc.Caption = "Заказ";
+			dc.Caption = "Р—Р°РєР°Р·";
+
 			dc = result.Columns.Add("PosOrderPercent", typeof (Double));
-			dc.Caption = "Доля от общего заказа в %";
-			dc = result.Columns.Add("MinCost", typeof (Decimal));
-			dc.Caption = "Минимальная цена";
-			dc = result.Columns.Add("AvgCost", typeof (Decimal));
-			dc.Caption = "Средняя цена";
-			dc = result.Columns.Add("MaxCost", typeof (Decimal));
-			dc.Caption = "Максимальная цена";
-			dc = result.Columns.Add("DistinctOrderId", typeof (Int32));
-			dc.Caption = "Кол-во заявок по препарату";			
-			dc = result.Columns.Add("DistinctAddressId", typeof(Int32));
-			dc.Caption = "Кол-во адресов доставки, заказавших препарат";
+			dc.Caption = "Р”РѕР»СЏ РѕС‚ РѕР±С‰РµРіРѕ Р·Р°РєР°Р·Р° РІ %";
+
+			if (!DoNotShowAbsoluteValues) {
+				dc = result.Columns.Add("MinCost", typeof (Decimal));
+				dc.Caption = "РњРёРЅРёРјР°Р»СЊРЅР°СЏ С†РµРЅР°";
+				dc = result.Columns.Add("AvgCost", typeof (Decimal));
+				dc.Caption = "РЎСЂРµРґРЅСЏСЏ С†РµРЅР°";
+				dc = result.Columns.Add("MaxCost", typeof (Decimal));
+				dc.Caption = "РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ С†РµРЅР°";
+				dc = result.Columns.Add("DistinctOrderId", typeof (Int32));
+				dc.Caption = "РљРѕР»-РІРѕ Р·Р°СЏРІРѕРє РїРѕ РїСЂРµРїР°СЂР°С‚Сѓ";
+				dc = result.Columns.Add("DistinctAddressId", typeof(Int32));
+				dc.Caption = "РљРѕР»-РІРѕ Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё, Р·Р°РєР°Р·Р°РІС€РёС… РїСЂРµРїР°СЂР°С‚";
+			}
 
 			CopyData(selectTable, result);
 
@@ -143,12 +142,19 @@ where 1=1");
 				dr["PosOrderPercent"] = Decimal.Round((Convert.ToDecimal(dr["PosOrder"]) * 100) / Convert.ToDecimal(posOrder), 2);
 			}
 
+			//СЌС‚Рё РєРѕР»РѕРЅРєРё РЅСѓР¶РЅС‹ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ СЂРµР·СѓР»СЊС‚Р°С‚Р°
+			//РЅРѕ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РѕРЅРё РЅРµ РґРѕР»Р¶РЅС‹ РїРѕ СЌС‚РѕРјСѓ СѓРґР°Р»СЏРµРј
+			if (DoNotShowAbsoluteValues) {
+				result.Columns.Remove("Cost");
+				result.Columns.Remove("PosOrder");
+			}
+
 			ProfileHelper.Next("PostProcessing");
 		}
 
 		protected override void PostProcessing(Application exApp, _Worksheet ws)
 		{
-			//Замораживаем некоторые колонки и столбцы
+			//Р—Р°РјРѕСЂР°Р¶РёРІР°РµРј РЅРµРєРѕС‚РѕСЂС‹Рµ РєРѕР»РѕРЅРєРё Рё СЃС‚РѕР»Р±С†С‹
 			ws.Range["A" + (2 + filterDescriptions.Count), System.Reflection.Missing.Value].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 

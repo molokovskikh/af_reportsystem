@@ -50,5 +50,18 @@ namespace ReportSystem.Test
 			report = new RatingReport(1, file, Conn, ReportFormats.Excel, properties);
 			BuildOrderReport(file);
 		}
+
+		[Test]
+		public void Show_only_relative_values()
+		{
+			Property("ByPreviousMonth", false);
+			Property("ClientCodeEqual", new List<ulong> {3110, 465, 11279});
+			Property("ProductNamePosition", 0);
+			Property("BuildChart", true);
+			Property("DoNotShowAbsoluteValues", true);
+			var file = "Show_only_relative_values.xls";
+			report = new RatingReport(1, file, Conn, ReportFormats.Excel, properties);
+			BuildOrderReport(file);
+		}
 	}
 }
