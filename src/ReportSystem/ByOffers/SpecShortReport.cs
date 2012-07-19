@@ -72,8 +72,8 @@ namespace Inforoom.ReportSystem
 		protected SpecShortReport()// конструктор для возможности тестирования
 		{}
 
-		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 			_reportData = new List<SpecShortReportData>();

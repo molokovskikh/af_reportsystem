@@ -1,8 +1,6 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
-using MySql.Data.MySqlClient;
 
 namespace ReportSystem.Test
 {
@@ -13,7 +11,7 @@ namespace ReportSystem.Test
 		public void Rating()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.Rating);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.Rating);
 		}
 
@@ -21,7 +19,7 @@ namespace ReportSystem.Test
 		public void RatingJunkOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingJunkOnly);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingJunkOnly);
 		}
 
@@ -29,7 +27,7 @@ namespace ReportSystem.Test
 		public void RatingNotJunkOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingNotJunkOnly);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingNotJunkOnly);
 		}
 
@@ -37,8 +35,20 @@ namespace ReportSystem.Test
 		public void RatingFull()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingFull);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingFull);
+		}
+
+		[Test]
+		public void Build_chart()
+		{
+			Property("ByPreviousMonth", false);
+			Property("ClientCodeEqual", new List<ulong> {3110, 465, 11279});
+			Property("ProductNamePosition", 0);
+			Property("BuildChart", true);
+			var file = "Build_chart.xls";
+			report = new RatingReport(1, file, Conn, ReportFormats.Excel, properties);
+			BuildOrderReport(file);
 		}
 	}
 }

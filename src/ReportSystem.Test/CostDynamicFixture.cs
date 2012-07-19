@@ -25,7 +25,7 @@ namespace ReportSystem.Test
 			Property("someDate", someDate);
 			Property("suppliers", new List<ulong> {5, 7, 14});
 			Property("regions", new List<ulong> {1});
-			report = new CostDynamic(1, "CostDynamic.xls", Conn, false, ReportFormats.Excel, properties);
+			report = new CostDynamic(1, "CostDynamic.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("CostDynamic.xls");
 		}
 
@@ -39,7 +39,7 @@ namespace ReportSystem.Test
 
 			Property("suppliers", new List<ulong>());
 			Property("regions", new List<ulong>());
-			report = new CostDynamic(1, "CostDynamic.xls", Conn, false, ReportFormats.Excel, properties);
+			report = new CostDynamic(1, "CostDynamic.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("CostDynamic.xls");
 		}
 
@@ -105,7 +105,7 @@ namespace ReportSystem.Test
 			Property("DescriptionFile", "test.doc", "FILE");
 			Property("suppliers", new List<ulong> {5, 7, 14});
 			Property("regions", new List<ulong> {1});
-			report = new CostDynamic(1, "CostDynamic.xls", Conn, false, ReportFormats.Excel, properties);
+			report = new CostDynamic(1, "CostDynamic.xls", Conn, ReportFormats.Excel, properties);
 			report.ReadReportParams();
 			Assert.That(report.AdditionalFiles.Count, Is.EqualTo(1));
 			Assert.That(report.AdditionalFiles["test.doc"], Is.EqualTo("3"));

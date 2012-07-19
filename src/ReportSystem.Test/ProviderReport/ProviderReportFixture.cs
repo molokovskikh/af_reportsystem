@@ -17,8 +17,8 @@ namespace ReportSystem.Test.ProviderReport
 {
 	public class SpecReportOldLoad : SpecShortReport
 	{
-		public SpecReportOldLoad(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		public SpecReportOldLoad(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{ 
 		}
 
@@ -49,29 +49,17 @@ from
 
 	public class SpecReportNewLoad : SpecShortReport
 	{
-		public SpecReportNewLoad(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
-		{
-		}
+		public SpecReportNewLoad(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, format, dsProperties)
+		{}
 
 		public override void GenerateReport(ExecuteArgs e)
-		{
-			/*e.DataAdapter.SelectCommand.CommandText = "select * from Customers.Clients where Id = " + _clientCode;
-			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
-			IsNewClient = reader.Read();
-			reader.Close();*/
-
-			//var offers = GetOffers(4);
-			//Assert.That(offers.Count, Is.GreaterThan(0));
-			//Console.WriteLine("{0} Offers count: {1}", DateTime.Now, offers.Count);
-			//var group = offers.GroupBy(item => item.CatalogId);
-			//Console.WriteLine("{0} group by {1}", DateTime.Now, group.Count());
-		}
+		{}
 	}
 
 	public class TestClientNamesBaseReport : Inforoom.ReportSystem.ProviderReport
 	{
-		public TestClientNamesBaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) : base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		public TestClientNamesBaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) : base(reportCode, reportCaption, connection, format, dsProperties)
 		{
 		}
 
@@ -204,7 +192,7 @@ from
 		private void CheckNewLoad()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new SpecReportNewLoad(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReportNewLoad(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 
 			report.ReadReportParams();
 			report.ProcessReport();
@@ -213,7 +201,7 @@ from
 		private void CheckOldLoad()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new SpecReportOldLoad(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReportOldLoad(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 
 			report.ReadReportParams();
 			report.ProcessReport();
@@ -249,7 +237,7 @@ limit 1";
 			var list = query.OrderBy(c => c.Name);
 
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new TestClientNamesBaseReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new TestClientNamesBaseReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 
 			report.ProcessReport();
 

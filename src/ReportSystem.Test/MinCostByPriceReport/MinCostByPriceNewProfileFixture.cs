@@ -11,7 +11,7 @@ namespace ReportSystem.Test
 		public void MinCostByPriceNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNew);
 		}
 
@@ -19,7 +19,7 @@ namespace ReportSystem.Test
 		public void MinCostByPriceNewWithClients()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClients);
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClients);
 
 			var workbook = Workbook.Load(TestHelper.GetFileName(ReportsTypes.MinCostByPriceNewWithClients));
@@ -34,7 +34,7 @@ namespace ReportSystem.Test
 		public void MinCostByPriceNewWithOneClient()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithOneClient);
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithOneClient);
 
 			var workbook = Workbook.Load(TestHelper.GetFileName(ReportsTypes.MinCostByPriceNewWithOneClient));
@@ -49,7 +49,7 @@ namespace ReportSystem.Test
 		public void MinCostByPriceNewWithClientsWithoutAssortmentPrice()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
 		}
 
@@ -57,7 +57,7 @@ namespace ReportSystem.Test
 		public void MinCostByPriceNewWithoutClients()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithoutClients);
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			Assert.That(
 				() => TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithoutClients),
 				Throws.InstanceOf<ReportException>()
@@ -76,7 +76,7 @@ namespace ReportSystem.Test
 				values.Columns.Add("Value");
 			}
 
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			Assert.That(
 				() => TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClientsZero),
 				Throws.InstanceOf<ReportException>()
@@ -88,7 +88,7 @@ namespace ReportSystem.Test
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
 			AddProperty(props, "IgnoredSuppliers", new [] {5, 7});
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNew);
 		}
 
@@ -96,7 +96,7 @@ namespace ReportSystem.Test
 		public void MinCostByPriceNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewDifficult);
-			var report = new SpecShortReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewDifficult);
 		}
 	}

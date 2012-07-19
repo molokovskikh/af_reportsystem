@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void Offers_report_to_excel()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.OffersReport);
-			var report = new OffersReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new OffersReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OffersReport);
 		}
 
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		public void Offers_report_to_dbf()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.OffersReport);
-			var report = new OffersReport(0, "Automate Created Report", Conn, false, ReportFormats.DBF, props);
+			var report = new OffersReport(0, "Automate Created Report", Conn, ReportFormats.DBF, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OffersReport);
 		}
 	}

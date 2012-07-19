@@ -11,7 +11,7 @@ namespace ReportSystem.Test
 		public void SupplierOrdersStatisticsType1Check()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SupplierOrdersStatisticsType1);
-			var report = new SupplierOrdersStatistics(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SupplierOrdersStatistics(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SupplierOrdersStatisticsType1);
 		}
 
@@ -19,7 +19,7 @@ namespace ReportSystem.Test
 		public void SupplierOrdersStatisticsType2Check()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SupplierOrdersStatisticsType2);
-			var report = new SupplierOrdersStatistics(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SupplierOrdersStatistics(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SupplierOrdersStatisticsType2);
 		}
 	}

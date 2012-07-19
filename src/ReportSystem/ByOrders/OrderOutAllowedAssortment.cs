@@ -16,8 +16,8 @@ namespace Inforoom.ReportSystem.ByOrders
 		private uint _clientId;
 		private Period _period;
 
-		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
-			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) 
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{}
 
 		public override void ReadReportParams()
@@ -50,15 +50,9 @@ Ol.Cost, Ol.Quantity,
 BM.Code as MatrixCode,
 supps.Name AS Supplier,
 (Ol.Cost*Ol.Quantity) as Summ 
-FROM " +
-#if DEBUG
-@"orders.OrdersHead O
-join orders.OrdersList OL on OL.OrderId = O.RowId " +
-#else
-@"ordersold.OrdersHead O
-join ordersold.OrdersList OL on OL.OrderId = O.RowId " +
-#endif
- @" join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode
+FROM {0}.OrdersHead O
+	join {0}.OrdersList OL on OL.OrderId = O.RowId
+		join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode
 join catalogs.Products P on OL.ProductID = P.Id
 left join farm.BuyingMatrix BM on RC.BuyingMatrixPriceId = BM.PriceId and BM.ProductID = P.Id
 
@@ -76,7 +70,7 @@ and BM.ID is null and
 O.WriteTime > ?begin
 and O.WriteTime < ?end
 
-order by O.WriteTime");
+order by O.WriteTime", OrdersSchema);
 
 // Если написать and BM.ID is NOT null and то будут выводится совпадающие позиции
 // сейчас выводятся несовпадающие

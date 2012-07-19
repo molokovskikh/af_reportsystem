@@ -39,8 +39,8 @@ namespace Inforoom.ReportSystem
 		protected string _clientsNames = "";
 		protected string _suppliersNames = "";
 
-		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			reportCaptionPreffix = "Комбинированный отчет";
 			DbfSupported = true;

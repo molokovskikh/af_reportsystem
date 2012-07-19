@@ -10,7 +10,7 @@ namespace ReportSystem.Test
 		public void DbfMinCostByPriceNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new SpecShortReport(0, "MinCostByPriceNewDbf", Conn, false, ReportFormats.DBF, props);
+			var report = new SpecShortReport(0, "MinCostByPriceNewDbf", Conn, ReportFormats.DBF, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNew);
 		}
 
@@ -18,7 +18,7 @@ namespace ReportSystem.Test
 		public void DbfMinCostByPriceNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewDifficult);
-			var report = new SpecShortReport(0, "MinCostByPriceNewDifficultDbf", Conn, false, ReportFormats.DBF, props);
+			var report = new SpecShortReport(0, "MinCostByPriceNewDifficultDbf", Conn, ReportFormats.DBF, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewDifficult);
 		}
 
@@ -26,7 +26,7 @@ namespace ReportSystem.Test
 		public void DbfMinCostByPriceNewWithClients()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClients);
-			var report = new SpecShortReport(0, "MinCostByPriceNewWithClientsDbf", Conn, false, ReportFormats.DBF, props);
+			var report = new SpecShortReport(0, "MinCostByPriceNewWithClientsDbf", Conn, ReportFormats.DBF, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClients);
 		}
 
@@ -34,7 +34,7 @@ namespace ReportSystem.Test
 		public void DbfMinCostByPriceNewWithClientsWithoutAssortmentPrice()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
-			var report = new SpecShortReport(0, "MinCostByPriceNewWithClientsWithoutAssortmentPriceDbf", Conn, false, ReportFormats.DBF, props);
+			var report = new SpecShortReport(0, "MinCostByPriceNewWithClientsWithoutAssortmentPriceDbf", Conn, ReportFormats.DBF, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
 		}
 	}

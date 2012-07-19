@@ -13,7 +13,7 @@ namespace ReportSystem.Test
 		{
 			var type = ReportsTypes.PharmacyMixedName;
 			var props = TestHelper.LoadProperties(type);
-			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		{
 			var type = ReportsTypes.PharmacyMixedFullName;
 			var props = TestHelper.LoadProperties(type);
-			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 
@@ -31,7 +31,7 @@ namespace ReportSystem.Test
 		{
 			var type = ReportsTypes.PharmacyMixedNameProducer;
 			var props = TestHelper.LoadProperties(type);
-			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 
@@ -40,7 +40,7 @@ namespace ReportSystem.Test
 		{
 			var type = ReportsTypes.PharmacyMixedNameProducerSupplierList;
 			var props = TestHelper.LoadProperties(type);
-			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 
@@ -49,7 +49,7 @@ namespace ReportSystem.Test
 		{
 			var type = ReportsTypes.PharmacyMixedNameOld;
 			var props = TestHelper.LoadProperties(type);
-			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new PharmacyMixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, type);
 		}
 
@@ -63,11 +63,8 @@ namespace ReportSystem.Test
 			Property("ClientCodeEqual", new List<ulong> {3110, 465, 11279});
 			Property("ProductNamePosition", 0);
 			var file = "Filter_concurent_by_address.xls";
-			report = new PharmacyMixedReport(1, file, Conn, false, ReportFormats.Excel, properties);
-			report.From = DateTime.Today.AddDays(-10);
-			report.To = DateTime.Today;
-			report.Interval = true;
-			BuildReport(file);
+			report = new PharmacyMixedReport(1, file, Conn, ReportFormats.Excel, properties);
+			BuildOrderReport(file);
 		}
 	}
 }

@@ -10,7 +10,7 @@ namespace ReportSystem.Test
 		public void OptimizationEfficiencyTest()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.OptimizationEfficiency);
-			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiency);
 		}
 
@@ -18,7 +18,7 @@ namespace ReportSystem.Test
 		public void OptimizationEfficiencyAllClientsTest()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.OptimizationEfficiencyAllClients);
-			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiencyAllClients);
 		}
 
@@ -26,7 +26,7 @@ namespace ReportSystem.Test
 		public void OptimizationEfficiencyNorman()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.OptimizationEfficiencyWithSupplier);
-			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiencyWithSupplier);
 		}
 	}

@@ -21,8 +21,8 @@ namespace Inforoom.ReportSystem
 
 		private int providerCount;
 
-		public ProviderRatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public ProviderRatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 		}
 

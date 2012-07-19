@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void RatingNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingNew);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingNew);
 		}
 
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		public void RatingNewWithPayerList()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingWithPayersList);
-			var report = new RatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingWithPayersList);
 		}
 	}

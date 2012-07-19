@@ -2,27 +2,35 @@ using System;
 using System.Diagnostics;
 using System.Data;
 using Inforoom.ReportSystem.Helpers;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using ExecuteTemplate;
+using DataTable = System.Data.DataTable;
+using XlChartType = Microsoft.Office.Interop.Excel.XlChartType;
 
 namespace Inforoom.ReportSystem
 {
 	public class RatingReport : OrdersReport
 	{
-		private const string junkProperty = "JunkState";
+		public int JunkState { get; set; }
+		public bool BuildChart { get; set; }
 
-		private int JunkState;
-
-		public RatingReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public RatingReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, conn, format, dsProperties)
 		{
 		}
 
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			JunkState = (int)getReportParam(junkProperty);
+
+			foreach (var property in GetType().GetProperties()) {
+				if (reportParamExists(property.Name)) {
+					property.SetValue(this, getReportParam(property.Name), null);
+				}
+			}
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -138,12 +146,25 @@ where 1=1");
 			ProfileHelper.Next("PostProcessing");
 		}
 
-		protected override void PostProcessing(MSExcel.Application exApp, MSExcel._Worksheet ws)
+		protected override void PostProcessing(Application exApp, _Worksheet ws)
 		{
 			//Замораживаем некоторые колонки и столбцы
 			ws.Range["A" + (2 + filterDescriptions.Count), System.Reflection.Missing.Value].Select();
 			exApp.ActiveWindow.FreezePanes = true;
-		}
 
+			if (BuildChart) {
+				var result = _dsReport.Tables["Results"];
+
+				var firstDataRowIndex = 1 + EmptyRowCount;
+				var lastDataRowIndex = 1 + result.Rows.Count;
+				ws.Range[ws.Cells[firstDataRowIndex, 1], ws.Cells[lastDataRowIndex, 2]].Select();
+
+				var range = ((Range) ws.Cells[firstDataRowIndex, result.Columns.Count + 1]);
+				var top = Convert.ToSingle(range.Top);
+				var left = Convert.ToSingle(range.Left);
+
+				var shape = ws.Shapes.AddChart(XlChartType.xlPie, left, top, 600, 450);
+			}
+		}
 	}
 }

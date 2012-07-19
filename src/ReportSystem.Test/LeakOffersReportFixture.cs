@@ -10,7 +10,7 @@ namespace ReportSystem.Test
 		public void Make_report()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.LeakOffers);
-			var report = new LeakOffersReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new LeakOffersReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.LeakOffers);
 		}
 	}

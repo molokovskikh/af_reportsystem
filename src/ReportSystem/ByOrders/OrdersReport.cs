@@ -60,8 +60,8 @@ namespace Inforoom.ReportSystem
 		public OrdersReport()
 		{}
 
-		public OrdersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public OrdersReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, conn, format, dsProperties)
 		{
 #if !DEBUG
 			OrdersSchema = "OrdersOld";
@@ -349,16 +349,19 @@ create temporary table MixedData ENGINE=MEMORY
 			}
 
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			for (var i = 0; i < filterDescriptions.Count; i++)
-				res.Rows.InsertAt(res.NewRow(), 0);
-
-			if (GroupHeaders.Count > 0)
+			var emptyRowCount = EmptyRowCount;
+			for (var i = 0; i < emptyRowCount; i++)
 				res.Rows.InsertAt(res.NewRow(), 0);
 
 			res = res.DefaultView.ToTable();
 			res.TableName = "Results";
 			_dsReport.Tables.Add(res);
 			return res;
+		}
+
+		protected int EmptyRowCount
+		{
+			get { return GroupHeaders.Count + filterDescriptions.Count; }
 		}
 
 		protected void CopyData(DataTable source, DataTable destination)

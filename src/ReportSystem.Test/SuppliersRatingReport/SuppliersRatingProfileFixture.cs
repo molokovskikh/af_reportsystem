@@ -13,7 +13,7 @@ namespace ReportSystem.Test
 		public void SuppliersRating()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SuppliersRating);
-			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SuppliersRating);
 		}
 
@@ -21,7 +21,7 @@ namespace ReportSystem.Test
 		public void SuppliersRatingNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SuppliersRatingNew);
-			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SuppliersRatingNew);
 		}
 
@@ -29,7 +29,7 @@ namespace ReportSystem.Test
 		public void SuppliersRatingNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SuppliersRatingNewDifficult);
-			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SuppliersRatingNewDifficult);
 		}
 
@@ -37,7 +37,7 @@ namespace ReportSystem.Test
 		public void SuppliersRatingNewWithClientCodeNonEqual()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SuppliersRatingNewWithClientCodeNonEqual);
-			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new ProviderRatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SuppliersRatingNewWithClientCodeNonEqual);
 		}
 	}

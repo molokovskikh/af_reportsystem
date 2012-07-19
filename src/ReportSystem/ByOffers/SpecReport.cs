@@ -59,8 +59,8 @@ namespace Inforoom.ReportSystem
 		protected SpecReport()// конструктор для возможности тестирования
 		{}
 
-		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			reportCaptionPreffix = "Специальный отчет";
 		}

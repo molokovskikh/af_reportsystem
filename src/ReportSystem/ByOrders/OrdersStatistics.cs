@@ -16,8 +16,8 @@ namespace Inforoom.ReportSystem.ByOrders
 	{
 		protected const string reportIntervalProperty = "ReportInterval";
 
-		public OrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public OrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{}
 
 		public override void ReadReportParams()

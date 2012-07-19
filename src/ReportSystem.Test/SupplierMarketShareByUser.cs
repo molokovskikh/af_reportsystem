@@ -24,7 +24,7 @@ namespace ReportSystem.Test
 		public void Build_report()
 		{
 			Property("Type", 0);
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, false, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport();
 		}
 
@@ -32,7 +32,7 @@ namespace ReportSystem.Test
 		public void Build_report_by_address()
 		{
 			Property("Type", 1);
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, false, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("SupplierMarketShareByUserByAddress.xls");
 		}
 
@@ -40,7 +40,7 @@ namespace ReportSystem.Test
 		public void Build_report_by_client()
 		{
 			Property("Type", 2);
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, false, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("SupplierMarketShareByUserByClient.xls");
 		}
 
@@ -48,7 +48,7 @@ namespace ReportSystem.Test
 		public void Build_report_by_legal_entity()
 		{
 			Property("Type", 3);
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, false, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("SupplierMarketShareByUserByLegalEntity.xls");
 		}
 	}

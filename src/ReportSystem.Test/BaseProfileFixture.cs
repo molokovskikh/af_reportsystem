@@ -87,7 +87,7 @@ namespace ReportSystem.Test
 		protected void BuildReport(string file = null, Type reportType = null)
 		{
 			if (reportType != null && report == null)
-				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, false, ReportFormats.Excel, properties);
+				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
 
 			if (file == null)
 				file = "test.xls";
@@ -132,6 +132,14 @@ namespace ReportSystem.Test
 			}
 			i++;
 			properties.Tables[0].Rows.Add(row);
+		}
+
+		protected void BuildOrderReport(string file)
+		{
+			report.From = DateTime.Today.AddDays(-10);
+			report.To = DateTime.Today;
+			report.Interval = true;
+			BuildReport(file);
 		}
 	}
 }

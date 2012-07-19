@@ -16,8 +16,8 @@ namespace Inforoom.ReportSystem.ByOrders
 		protected List<ulong> regions; // Список регионов
 		protected string regionsString; // Список регионов в виде строки
 
-		public SupplierOrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public SupplierOrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{}
 
 		public override void ReadReportParams()
@@ -39,11 +39,6 @@ namespace Inforoom.ReportSystem.ByOrders
 			if (!String.IsNullOrEmpty(regionsString))
 				filterDescriptions.Add(String.Format("Список регионов : {0}", GetValuesFromSQL("select r.Region from farm.regions r where r.RegionCode in (" + regionsString + ") order by r.Region;")));
 			ProfileHelper.Next("GenerateReport");
-
-			string db = "ordersold";
-#if DEBUG
-			db = "orders";
-#endif
 			string selectedColumns;
 			string groupbyColumns;
 			string orderbyColumns;
@@ -88,7 +83,7 @@ from
         and fi.legalentityid = a.legalentityid
 where
 	pd.firmcode = {2}
-	and oh.writetime between '{3}' and '{4}' ", selectedColumns, db, sourceFirmCode, dtFrom.ToString("yyyy-MM-dd HH:mm:ss"), dtTo.ToString("yyyy-MM-dd HH:mm:ss"));
+	and oh.writetime between '{3}' and '{4}' ", selectedColumns, OrdersSchema, sourceFirmCode, dtFrom.ToString("yyyy-MM-dd HH:mm:ss"), dtTo.ToString("yyyy-MM-dd HH:mm:ss"));
 
 			if(!String.IsNullOrEmpty(regionsString))
 				selectCommand += String.Format("and oh.regioncode in ({0}) ", regionsString);

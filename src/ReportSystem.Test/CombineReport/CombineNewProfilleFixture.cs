@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void CombineWithOutSuppliersList()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineNew);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineNew);
 		}
 
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		public void CombineWithOutSuppliersListDbf()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineNew);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.DBF, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, ReportFormats.DBF, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineNew);
 		}
 
@@ -30,7 +30,7 @@ namespace ReportSystem.Test
 		public void CombineWithSuppliersList()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineNewWithSuppliers);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineNewWithSuppliers);
 		}
 
@@ -38,7 +38,7 @@ namespace ReportSystem.Test
 		public void CombineNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineNewDifficult);
-			var report = new CombReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new CombReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineNewDifficult);
 		}
 	}

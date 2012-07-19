@@ -21,8 +21,8 @@ namespace Inforoom.ReportSystem
 		private bool _byPreviousMonth;
 		private int _optimizedCount;	
 
-		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{ 
 		}
 
@@ -34,11 +34,11 @@ namespace Inforoom.ReportSystem
 @"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
 select oh.writetime,
-    if(u.id is null, cl.Name, fc.Name) as ClientName,
+	if(u.id is null, cl.Name, fc.Name) as ClientName,
 	u.Name as UserName,
-    ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
+	ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
-    CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect,
+	CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect,
 	CASE WHEN col.ResultCost < col.SelfCost THEN col.ResultCost*ol.Quantity ELSE null END IncreaseSales
 from " +
 #if DEBUG
@@ -59,7 +59,7 @@ from " +
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
   left join Customers.Users u on u.Id = oh.UserId
-    left join Customers.Clients fc on fc.Id = u.ClientId
+	left join Customers.Clients fc on fc.Id = u.ClientId
    left join Customers.Clients cl on cl.Id = oh.ClientCode
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
@@ -67,7 +67,7 @@ group by ol.RowId
 order by oh.writetime, ol.RowId;";
 
 #if DEBUG
-            Debug.WriteLine(command.CommandText);
+			Debug.WriteLine(command.CommandText);
 #endif
 
 			_endDate = DateTime.Today;
@@ -93,7 +93,7 @@ from orders.ordershead oh
   join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
   left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
   join logs.CostOptimizationLogs col on 
-        oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ResultCost < col.SelfCost and 
+		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ResultCost < col.SelfCost and 
 		(col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode) and col.ProducerId = ol.CodeFirmCr
   join farm.Synonym s on s.SynonymCode = ol.SynonymCode
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
@@ -149,10 +149,10 @@ where diff < 0";
 
 			if(_clientId != 0)
 			{
-                command.CommandText =
-                @"select concat(cl.Name, ' (', reg.Region, ')'), 1
-    from Customers.Clients cl
-         join farm.Regions reg on reg.RegionCode = cl.RegionCode
+				command.CommandText =
+				@"select concat(cl.Name, ' (', reg.Region, ')'), 1
+	from Customers.Clients cl
+		 join farm.Regions reg on reg.RegionCode = cl.RegionCode
    where Id = ?clientId";
 				e.DataAdapter.Fill(_dsReport, "Client");
 			}

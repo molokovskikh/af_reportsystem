@@ -29,8 +29,8 @@ namespace Inforoom.ReportSystem
 		protected ProviderReport() // конструктор для возможности тестирования
 		{}
 
-		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{ 
 		}
 

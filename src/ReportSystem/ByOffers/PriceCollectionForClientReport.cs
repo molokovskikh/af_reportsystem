@@ -18,8 +18,8 @@ namespace Inforoom.ReportSystem
 
 		private List<ReportData> _reportData;
 
-		public PriceCollectionForClientReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public PriceCollectionForClientReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			_reportData = new List<ReportData>();
 		}

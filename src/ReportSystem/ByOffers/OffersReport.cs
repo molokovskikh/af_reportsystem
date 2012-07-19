@@ -25,8 +25,8 @@ namespace Inforoom.ReportSystem
 		private int _sourcePriceCode;
 		private string _customerFirmName;
 
-		public OffersReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		public OffersReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{
 		}
 

@@ -10,7 +10,7 @@ namespace ReportSystem.Test
 		public void SpecialNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialNew);
-			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialNew);
 		}
 
@@ -18,7 +18,7 @@ namespace ReportSystem.Test
 		public void SpecialNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialNewDifficult);
-			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialNewDifficult);
 		}
 
@@ -26,7 +26,7 @@ namespace ReportSystem.Test
 		public void SpecialByBaseCosts()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialByBaseCosts);
-			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCosts);
 		}
 

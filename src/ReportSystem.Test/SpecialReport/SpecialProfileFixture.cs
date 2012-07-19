@@ -13,7 +13,7 @@ namespace ReportSystem.Test
 		public void Special()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.Special);
-			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.Special);
 		}
 
@@ -21,7 +21,7 @@ namespace ReportSystem.Test
 		public void SpecialCount()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialCount);
-			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialCount);
 		}
 
@@ -29,7 +29,7 @@ namespace ReportSystem.Test
 		public void SpecialCountProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialCountProducer);
-			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialCountProducer);
 		}
 
@@ -37,7 +37,7 @@ namespace ReportSystem.Test
 		public void SpecialProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialProducer);
-			var report = new SpecReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialProducer);
 		}
 	}

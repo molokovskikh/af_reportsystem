@@ -79,8 +79,8 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		private Grouping _grouping;		
 
-		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties) 
-			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) 
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{}
 
 		public override void ReadReportParams()

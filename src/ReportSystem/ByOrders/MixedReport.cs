@@ -38,8 +38,8 @@ namespace Inforoom.ReportSystem
 		//Поле производитель
 		protected FilterField firmCrField;
 
-		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			SupportProductNameOptimization = true;
 		}

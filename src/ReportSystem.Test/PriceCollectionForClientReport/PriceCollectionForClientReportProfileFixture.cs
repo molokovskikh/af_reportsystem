@@ -10,7 +10,7 @@ namespace ReportSystem.Test.PriceCollectionForClientReport
         public void CheckReport()
         {
             var props = TestHelper.LoadProperties(ReportsTypes.PriceCollectionForClientReport);
-            var report = new Inforoom.ReportSystem.PriceCollectionForClientReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, props);
+            var report = new Inforoom.ReportSystem.PriceCollectionForClientReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
             TestHelper.ProcessReport(report, ReportsTypes.PriceCollectionForClientReport);
         }
     }

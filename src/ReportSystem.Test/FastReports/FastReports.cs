@@ -11,7 +11,7 @@ namespace ReportSystem.Test.FastReports
 	{
 		private void CreateReport()
 		{
-			report = new PharmacyOffersReport(0, "Automate Created Report", Conn, false, ReportFormats.Excel, properties);
+			report = new PharmacyOffersReport(0, "Automate Created Report", Conn, ReportFormats.Excel, properties);
 		}
 
 		[Test]

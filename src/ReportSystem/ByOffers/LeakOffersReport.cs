@@ -12,8 +12,8 @@ namespace Inforoom.ReportSystem
 {
 	public class LeakOffersReport : ProviderReport
 	{
-		public LeakOffersReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, temporary, format, dsProperties)
+		public LeakOffersReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{
 		}
 

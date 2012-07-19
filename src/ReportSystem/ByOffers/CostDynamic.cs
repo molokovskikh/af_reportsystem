@@ -121,8 +121,8 @@ namespace Inforoom.ReportSystem.ByOffers
 		public CostDynamic()
 		{}
 
-		public CostDynamic(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public CostDynamic(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{}
 
 		public override void GenerateReport(ExecuteArgs e)

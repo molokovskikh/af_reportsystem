@@ -199,8 +199,8 @@ into @OffersSynonymCode;
 		private bool _reportIsFull;
 		private int? _priceCode;
 
-		public PharmacyOffersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties) 
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public PharmacyOffersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties) 
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			
 		}

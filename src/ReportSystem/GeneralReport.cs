@@ -46,9 +46,6 @@ namespace Inforoom.ReportSystem
 
 		private bool _noArchive;
 
-		//отчет является разовым?
-		private bool _temporary;
-
 		private MySqlConnection _conn;
 
 		private string _directoryName;
@@ -99,7 +96,6 @@ namespace Inforoom.ReportSystem
 			MySqlConnection connection,
 			string reportFileName,
 			string reportArchName,
-			bool temporary,
 			ReportFormats format,
 			IReportPropertiesLoader propertiesLoader,
 			bool interval,
@@ -116,7 +112,6 @@ namespace Inforoom.ReportSystem
 			_eMailSubject = emailSubject;
 			_reportFileName = reportFileName;
 			_reportArchName = reportArchName;
-			_temporary = temporary;
 			_payer = payer;
 			_noArchive = noArchive;
 			Format = format;
@@ -178,7 +173,7 @@ where GeneralReport = ?GeneralReport;";
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] { (ulong)drGReport[BaseReportColumns.colReportCode], 
 								drGReport[BaseReportColumns.colReportCaption].ToString(), _conn, 
-								temporary, Format,
+								Format,
 								propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])});
 						bs.Interval = interval;
 						bs.From = dtFrom;

@@ -90,7 +90,7 @@ namespace Inforoom.ReportSystem
 			AdditionalFiles = new Dictionary<string, string>();
 		}
 
-		public BaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, bool temporary, ReportFormats format, DataSet dsProperties)
+		public BaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: this()
 		{
 			Logger = LogManager.GetLogger(GetType());

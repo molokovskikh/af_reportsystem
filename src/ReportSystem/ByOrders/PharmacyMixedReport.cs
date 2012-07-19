@@ -15,8 +15,8 @@ namespace Inforoom.ReportSystem
 {
 	public class PharmacyMixedReport : MixedReport
 	{
-		public PharmacyMixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, bool Temporary, ReportFormats format, DataSet dsProperties) 
-			: base(ReportCode, ReportCaption, Conn, Temporary, format, dsProperties)
+		public PharmacyMixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties) 
+			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			AddressRivals = new List<ulong>();
 		}
