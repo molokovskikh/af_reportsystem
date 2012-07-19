@@ -5,7 +5,7 @@ insert into Reports.report_type_properties(ReportTypeCode,
 	Optional,
 	DefaultValue)
 values (
-	(select ReportTypeCode from Reports.ReportTypes where ReportTypeFilePrefix = 'RatingReport'),
+	(select ReportTypeCode from Reports.ReportTypes where ReportTypeFilePrefix = 'Rating'),
 	'BuildChart',
 	'Сформировать диаграмму',
 	'BOOL',

@@ -5,7 +5,7 @@ insert into Reports.report_type_properties(ReportTypeCode,
 	Optional,
 	DefaultValue)
 values (
-	(select ReportTypeCode from Reports.ReportTypes where ReportTypeFilePrefix = 'RatingReport'),
+	(select ReportTypeCode from Reports.ReportTypes where ReportTypeFilePrefix = 'Rating'),
 	'DoNotShowAbsoluteValues',
 	'Скрывать все колонки кроме \'Доля рынка в %\' и \'Доля от общего заказа в %\'',
 	'BOOL',
