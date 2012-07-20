@@ -28,6 +28,7 @@ public partial class Reports_schedule : Page
 
 	private DataSet DS;
 	private DataTable dtSchedule;
+	private DataTable dtScheduleMonth;
 	private DataColumn SWeek;
 	private DataColumn SMonday;
 	private DataColumn STuesday;
@@ -42,6 +43,10 @@ public partial class Reports_schedule : Page
 	DaysOfTheWeek triggerDays = 0;
 	private DataColumn SStartHour;
 	private DataColumn SStartMinute;
+
+	private DataColumn MSStartHour;
+	private DataColumn MSStartMinute;
+
 	private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
 
 	private const string StatusRunning = "Выполнить задание";
@@ -218,13 +223,37 @@ order by LogTime desc
 					DS.Tables[dtSchedule.TableName].Rows.Add(dr);
 				}
 				else
-					otherTriggers.Add(tl[i]);
+					if (tl[i] is MonthlyTrigger) {
+						var dr = DS.Tables[dtScheduleMonth.TableName].NewRow();
+						var trigger = ((MonthlyTrigger)tl[i]);
+						dr[MSStartHour.ColumnName] = trigger.StartBoundary.Hour;
+						dr[MSStartMinute.ColumnName] = trigger.StartBoundary.Minute;
+						var months = trigger.MonthsOfYear;
+						MonthsOfTheYear month;
+						for (int j = 0; j < 12; j++) {
+							MonthsOfTheYear.TryParse((1 << j).ToString(), true, out month);
+							if (months.HasFlag(month))
+								dr["m" + (j + 1)] = 1;
+						}
+						foreach (int em in trigger.DaysOfMonth) {
+							dr["d" + em] = 1;
+						}
+						DS.Tables[dtScheduleMonth.TableName].Rows.Add(dr);
+					}
+					else
+						otherTriggers.Add(tl[i]);
 			}
 
 			DS.Tables[dtSchedule.TableName].AcceptChanges();
 			dgvSchedule.DataSource = DS;
 			dgvSchedule.DataMember = dtSchedule.TableName;
 			dgvSchedule.DataBind();
+
+			dgvScheduleMonth.DataSource = DS;
+			dgvScheduleMonth.DataMember = dtScheduleMonth.TableName;
+			dgvScheduleMonth.DataBind();
+
+			SelectingTiggerType_SelectedIndexChanged(null,null);
 
 			gvOtherTriggers.DataSource = otherTriggers;
 			gvOtherTriggers.DataBind();
@@ -284,6 +313,7 @@ order by LogTime desc
 		if (this.IsValid)
 		{
 			CopyChangesToTable();
+			CopyMonthTriggerValuesInToTable();
 
 			SaveTriggers();
 
@@ -332,9 +362,14 @@ order by LogTime desc
 
 	private void SaveTriggers()
 	{
-		for (int i = currentTaskDefinition.Triggers.Count - 1; i >= 0; i--)
-			if (currentTaskDefinition.Triggers[i] is WeeklyTrigger)
+		for (int i = currentTaskDefinition.Triggers.Count - 1; i >= 0; i--) {
+			if (currentTaskDefinition.Triggers[i] is WeeklyTrigger) {
 				currentTaskDefinition.Triggers.RemoveAt(i);
+				continue;
+			}
+			if (currentTaskDefinition.Triggers[i] is MonthlyTrigger)
+				currentTaskDefinition.Triggers.RemoveAt(i);
+		}
 
 		foreach(DataRow dr in DS.Tables[dtSchedule.TableName].Rows)
 		{
@@ -355,6 +390,32 @@ order by LogTime desc
 			trigger.WeeksInterval = 1;
 			trigger.StartBoundary = DateTime.Now.Date.AddHours(h).AddMinutes(m);
 		}
+
+		foreach (DataRow dr in DS.Tables[dtScheduleMonth.TableName].Rows) {
+			var trigger = (MonthlyTrigger)currentTaskDefinition.Triggers.AddNew(TaskTriggerType.Monthly);
+			short h = Convert.ToInt16(dr[MSStartHour.ColumnName]);
+			short m = Convert.ToInt16(dr[MSStartMinute.ColumnName]);
+
+			MonthsOfTheYear month;
+			MonthsOfTheYear allmonth = 0;
+			for (int i = 1; i <= 12; i++) {
+				if ((byte)dr["m" + i] > 0) {
+					MonthsOfTheYear.TryParse((1 << (i - 1)).ToString(), true, out month);
+					allmonth |= month;
+				}
+			}
+			var dayInt = new List<int>();
+			for (int i = 1; i <= 31; i++) {
+				if ((byte)dr["d" + i] > 0) {
+					dayInt.Add(i);
+					//monthInt |= i;
+				}
+			}
+			trigger.DaysOfMonth = dayInt.ToArray();
+			
+			trigger.MonthsOfYear = allmonth;
+			trigger.StartBoundary = DateTime.Now.Date.AddHours(h).AddMinutes(m);
+		}
 	}
 
 	private void AddDay(DataRow dr, DaysOfTheWeek weekDay)
@@ -373,6 +434,7 @@ order by LogTime desc
 	{
 		this.DS = new System.Data.DataSet();
 		this.dtSchedule = new System.Data.DataTable();
+		this.dtScheduleMonth = new DataTable();
 		this.SWeek = new System.Data.DataColumn();
 		this.SMonday = new System.Data.DataColumn();
 		this.STuesday = new System.Data.DataColumn();
@@ -383,6 +445,8 @@ order by LogTime desc
 		this.SSunday = new System.Data.DataColumn();
 		this.SStartHour = new System.Data.DataColumn();
 		this.SStartMinute = new System.Data.DataColumn();
+		this.MSStartHour = new System.Data.DataColumn();
+		this.MSStartMinute = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).BeginInit();
 		// 
@@ -390,7 +454,7 @@ order by LogTime desc
 		// 
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
-			this.dtSchedule});
+			this.dtSchedule, dtScheduleMonth});
 		// 
 		// dtSchedule
 		// 
@@ -405,7 +469,21 @@ order by LogTime desc
 			this.SSunday,
 			this.SStartHour,
 			this.SStartMinute});
+
+		var columnsForAdd = new List<DataColumn>();
+		for (var i = 1; i <= 12; i++) {
+			columnsForAdd.Add(new DataColumn("m" + i, typeof(byte)) {DefaultValue = ((byte)0)});
+		}
+		for (var i = 1; i <= 31; i++) {
+			columnsForAdd.Add(new DataColumn("d" + i, typeof(byte)) {DefaultValue = ((byte)0)});
+		}
+
+		dtScheduleMonth.Columns.AddRange(new [] {MSStartHour, MSStartMinute});
+
+		dtScheduleMonth.Columns.AddRange(columnsForAdd.ToArray());
+
 		this.dtSchedule.TableName = "dtSchedule";
+		this.dtScheduleMonth.TableName = "dtScheduleMonth";
 		// 
 		// SWeek
 		// 
@@ -465,6 +543,14 @@ order by LogTime desc
 		this.SStartMinute.ColumnName = "SStartMinute";
 		this.SStartMinute.DataType = typeof(short);
 		this.SStartMinute.DefaultValue = ((short)(0));
+	
+		this.MSStartHour.ColumnName = "MSStartHour";
+		this.MSStartHour.DataType = typeof(short);
+		this.MSStartHour.DefaultValue = ((short)(0));
+	
+		this.MSStartMinute.ColumnName = "MSStartMinute";
+		this.MSStartMinute.DataType = typeof(short);
+		this.MSStartMinute.DefaultValue = ((short)(0));
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).EndInit();
 
@@ -493,12 +579,24 @@ order by LogTime desc
 
 	protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
+		RowDataBoundAll(e, SStartHour.ColumnName, SStartMinute.ColumnName);
+	}
+
+	protected void dgvSchedule_RowDataBoundMonth(object sender, GridViewRowEventArgs e)
+	{
+		RowDataBoundAll(e, MSStartHour.ColumnName, MSStartMinute.ColumnName);
+	}
+
+	protected void RowDataBoundAll(GridViewRowEventArgs e, string startHourColumnName, string startMinuteColumnName)
+	{
 		if (e.Row.RowType == DataControlRowType.DataRow)
 		{
 			TextBox tb = ((TextBox)e.Row.Cells[0].FindControl("tbStart"));
-			tb.Text = ((DataRowView)e.Row.DataItem)[SStartHour.ColumnName].ToString() + ":" + ((DataRowView)e.Row.DataItem)[SStartMinute.ColumnName].ToString().PadLeft(2,'0');
+			tb.Text = ((DataRowView)e.Row.DataItem)[startHourColumnName].ToString() + ":" + ((DataRowView)e.Row.DataItem)[startMinuteColumnName].ToString().PadLeft(2,'0');
 		}
 	}
+
+
 
 	protected bool Send_in_Emails()
 	{
@@ -666,5 +764,60 @@ and c.Type = ?ContactType");
 		if (RadioMails.Checked)
 			Send_in_Emails();
 		RunSelfTaskAndUpdateAction();
+	}
+
+	protected void SelectingTiggerType_SelectedIndexChanged(object sender, EventArgs e)
+	{
+		if (selectingTiggerType.Items[0].Selected){
+			dgvSchedule.Visible = true;
+			dgvScheduleMonth.Visible = false;
+		}
+		if (selectingTiggerType.Items[1].Selected){
+			dgvSchedule.Visible = false;
+			dgvScheduleMonth.Visible = true;
+		}
+	}
+
+	public void CopyMonthTriggerValuesInToTable()
+	{
+		DS.Tables[dtScheduleMonth.TableName].Rows.Clear();
+		foreach (GridViewRow drv in dgvScheduleMonth.Rows)
+		{
+			DataRow dataRow = DS.Tables[dtScheduleMonth.TableName].NewRow();
+
+			string h = ((TextBox)drv.FindControl("tbStart")).Text;
+			string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
+			if (m.StartsWith("0"))
+				m = m.Substring(1, 1);
+
+			dataRow[MSStartHour.ColumnName] = Convert.ToInt16(h.Substring(0, h.IndexOf(':')));
+			dataRow[MSStartMinute.ColumnName] = Convert.ToInt16(m);
+
+			for (int i = 1; i <= 12; i++) { 
+				dataRow["m" + i] = Convert.ToByte(((CheckBox)drv.FindControl("m" + i)).Checked);
+			}
+			for (int i = 1; i <= 31; i++) { 
+				dataRow["d" + i] = Convert.ToByte(((CheckBox)drv.FindControl("d" + i)).Checked);
+			}
+			DS.Tables[dtScheduleMonth.TableName].Rows.Add(dataRow);
+		}
+	}
+
+	protected void dgvScheduleMonth_RowCommand(object sender, GridViewCommandEventArgs e)
+	{
+		if (e.CommandName == "Add") { 
+
+			CopyMonthTriggerValuesInToTable();
+
+			var dr = DS.Tables[dtScheduleMonth.TableName].NewRow();
+
+			DS.Tables[dtScheduleMonth.TableName].Rows.Add(dr);
+
+			DS.Tables[dtScheduleMonth.TableName].AcceptChanges();
+
+			dgvScheduleMonth.DataSource = DS;
+			dgvScheduleMonth.DataMember = dtScheduleMonth.TableName;
+			dgvScheduleMonth.DataBind();
+		}
 	}
 }
