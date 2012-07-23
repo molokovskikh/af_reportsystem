@@ -38,10 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CassiniDev4-lib, Version=4.0.1.7, Culture=neutral, PublicKeyToken=f7f6e0b4240c7c27, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\CassiniDev4-lib.dll</HintPath>
-    </Reference>
+    <Reference Include="CassiniDev-lib, Version=3.5.1.6, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="Castle.ActiveRecord, Version=3.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Castle.ActiveRecord.dll</HintPath>
@@ -122,6 +119,10 @@
     <ProjectReference Include="..\ReportTuner\ReportTuner.csproj">
       <Project>{4D9B03C7-734B-410F-9C4A-FF9A44591036}</Project>
       <Name>ReportTuner</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Test.Support\Test.Support.Web\Test.Support.Web.csproj">
+      <Project>{12258B1D-35E8-45BA-9C1E-5F7B8ACD7D37}</Project>
+      <Name>Test.Support.Web</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test.Support\Test.Support\Test.Support.csproj">
       <Project>{A215E837-1208-49E3-AF93-A9612223122C}</Project>

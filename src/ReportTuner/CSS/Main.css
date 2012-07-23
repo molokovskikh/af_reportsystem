@@ -110,3 +110,14 @@ div.headDiv {
 	width:400px;
 	margin: 0 auto;
 }
+
+div#sheduleType {
+	margin: 30px;
+	border:solid 2px #DADADA;
+	width: 300px;
+	padding: 5px;
+}
+
+div#sheduleType span {
+	font-weight: bold;
+}
