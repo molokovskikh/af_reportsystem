@@ -2,6 +2,8 @@ using System;
 using System.Data;
 using System.Configuration;
 using System.Collections;
+using System.IO;
+using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -15,13 +17,14 @@ using Castle.ActiveRecord;
 using ReportTuner.Helpers;
 using System.Collections.Generic;
 
-public partial class Reports_Reports : Page
+public partial class Reports_Reports : BasePage
 {
 	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 	private DataSet DS;
 	private DataTable dtReports;
+
 	private DataColumn RReportCode;
 	private DataColumn RReportTypeCode;
 	private DataColumn RReportCaption;
@@ -109,6 +112,10 @@ Order by r.ReportCode
 		dgvReports.DataSource = DS;
 		dgvReports.DataMember = DS.Tables[dtReports.TableName].TableName;
 		dgvReports.DataBind();
+
+		fileGridView.DataSource = report.Files;
+		fileGridView.DataBind();
+
 		Session[DSReports] = DS;
 	}
 
@@ -208,6 +215,19 @@ order by ReportTypeName
 		((System.ComponentModel.ISupportInitialize)(this.dtReports)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtTypes)).EndInit();
 
+	}
+
+	protected void filesDataGridView_RowCommand(object sender, GridViewCommandEventArgs e)
+	{
+		if (e.CommandName == "Add")
+		{
+			var report = DbSession.Get<GeneralReport>(Convert.ToUInt64(Request["r"]));
+			var newReport = new FileSendWithReport();
+			DbSession.Save(newReport);
+			report.Files.Add(newReport);
+			fileGridView.DataSource = report.Files;
+			fileGridView.DataBind();
+		}
 	}
 
 	protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -412,6 +432,17 @@ SET
 			report.Save();
 		}
 
+		foreach (GridViewRow dr in fileGridView.Rows) {
+			var idField = ((HiddenField)dr.FindControl("Id")).Value;
+			var property = DbSession.Get<FileSendWithReport>(Convert.ToUInt32(idField));
+			var file = ((FileUpload)dr.FindControl("UploadFile"));
+			if (file.HasFile) {
+				property.FileName = file.FileName;
+				File.WriteAllBytes(property.FileNameForSave, file.FileBytes);
+				DbSession.Save(property);
+			}
+		}
+
 		PostData();
 	}
 
@@ -421,6 +452,18 @@ SET
 		DS.Tables[dtReports.TableName].DefaultView[e.RowIndex].Delete();
 		dgvReports.DataSource = DS;
 		dgvReports.DataBind();
+	}
+
+	protected void filesDataGridView_RowDeleting(object sender, GridViewDeleteEventArgs e)
+	{
+		var gridId = ((HiddenField)fileGridView.Rows[e.RowIndex].FindControl("Id")).Value;
+		var delObj = DbSession.Get<FileSendWithReport>(Convert.ToUInt32(gridId));
+		var reportId = Request["r"];
+		var report = DbSession.Get<GeneralReport>(Convert.ToUInt64(reportId));
+		report.Files.Remove(delObj);
+		fileGridView.DataSource = report.Files;
+		fileGridView.DataBind();
+		File.Delete(delObj.FileNameForSave);
 	}
 
 	// Имена всех листов в отчете

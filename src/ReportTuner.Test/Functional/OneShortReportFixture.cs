@@ -54,6 +54,24 @@ namespace ReportTuner.Test.Functional
 		}
 
 		[Test]
+		public void Add_help_file_for_general_report()
+		{
+			var report = session.Get<GeneralReport>((ulong)1);
+			report.Files.Clear();
+			session.Save(report);
+			session.Flush();
+			browser = Open("Reports/Reports.aspx?r=1");
+			Click("Добавить файл");
+			session.Refresh(report);
+			Assert.That(report.Files.Count, Is.EqualTo(1));
+			AssertText("Выбор файла");
+			browser.Button(Find.ByClass("deleteFileButton")).Click();
+			Assert.That(browser.Text, !Is.StringContaining("Выбор файла"));
+			session.Refresh(report);
+			Assert.That(report.Files.Count, Is.EqualTo(0));
+		}
+
+		[Test]
 		public void Visit_every_report_type_configuration_page()
 		{
 			var types = ReportType.FindAll();

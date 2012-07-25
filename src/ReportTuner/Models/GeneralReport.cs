@@ -65,6 +65,9 @@ namespace ReportTuner.Models
 		[HasMany]
 		public virtual IList<Report> Reports {get; set; }
 
+		[HasMany(Cascade = ManyRelationCascadeEnum.All)]
+		public virtual IList<FileSendWithReport> Files { get; set; }
+
 		public bool IsOrderReport()
 		{
 			return Reports.Any(r => r.ReportType.IsOrderReport);

@@ -57,6 +57,8 @@ namespace Inforoom.ReportSystem
 
 		private ILog Logger;
 
+		private IDictionary<string, string> _filesForReport;
+
 		//таблица отчетов, которая существует в общем отчете
 		DataTable _dtReports;
 
@@ -117,6 +119,8 @@ namespace Inforoom.ReportSystem
 			Format = format;
 
 			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
+
+			_filesForReport =  MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, _conn);
 
 			if (!interval)
 				_dtContacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
@@ -258,6 +262,12 @@ where GeneralReport = ?GeneralReport;";
 				}
 			}
 
+			foreach (var file in _filesForReport.Keys) {
+				var source = _filesForReport[file];
+				if (File.Exists(source))
+					File.Copy(source, Path.Combine(_directoryName, file), true);
+			}
+
 			if (emptyReport) throw new ReportException("Отчет пуст.");
 
 			if (_noArchive)
@@ -289,18 +299,28 @@ where GeneralReport = ?GeneralReport;";
 			textEntity.ContentTransferEncoding = ContentTransferEncoding_enum.QuotedPrintable;
 			textEntity.DataText = String.Empty; 
 
-			var attachmentEntity = mainEntry.ChildEntities.Add(); 
-			attachmentEntity.ContentType = MediaType_enum.Application_octet_stream; 
-			attachmentEntity.ContentDisposition = ContentDisposition_enum.Attachment; 
-			attachmentEntity.ContentTransferEncoding = ContentTransferEncoding_enum.Base64; 
-			attachmentEntity.ContentDisposition_FileName = Path.GetFileName(archFileName); 
-			attachmentEntity.DataFromFile(archFileName);
+			var attachmentEntity = mainEntry.ChildEntities.Add();
+			AttachFile(attachmentEntity, archFileName);
+			if (_noArchive)
+				foreach (var file in _filesForReport.Keys) {
+					var entity = mainEntry.ChildEntities.Add();
+					AttachFile(entity, Path.Combine(_directoryName, file));
+				}
 
 			int? SMTPID = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 
 #if (!TESTING)
 			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, EMailAddress), ProcessLog, 0, _conn, true, false, null);
 #endif
+		}
+
+		private void AttachFile(MimeEntity entity, string file)
+		{
+			entity.ContentType = MediaType_enum.Application_octet_stream; 
+			entity.ContentDisposition = ContentDisposition_enum.Attachment; 
+			entity.ContentTransferEncoding = ContentTransferEncoding_enum.Base64; 
+			entity.ContentDisposition_FileName = Path.GetFileName(file); 
+			entity.DataFromFile(file);
 		}
 
 		class ProcessLogArgs : ExecuteArgs
@@ -403,6 +423,24 @@ and rt.ReportTypeCode = r.ReportTypeCode",
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;
+		}
+
+		private IDictionary<string, string> GetFilesForReports(ExecuteArgs e)
+		{
+			var result = new Dictionary<string, string>();
+			e.DataAdapter.SelectCommand.CommandText = @"
+SELECT * FROM reports.filessendwithreport f
+where f.Report = ?ReportCode
+and f.FileName is not null";
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", GeneralReportID);
+			var res = new DataTable();
+			e.DataAdapter.Fill(res);
+			foreach (DataRow row in res.Rows) {
+				var file = Path.Combine(Settings.Default.SavedFilesPath, row["Id"].ToString());
+				var fileName = row["FileName"].ToString();
+				result.Add(fileName, file);
+			}
+			return result;
 		}
 
 		private Type GetReportTypeByName(string ReportTypeClassName)

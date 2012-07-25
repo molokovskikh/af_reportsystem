@@ -175,6 +175,9 @@
     <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Controllers\ReportsTuningController.cs" />
+    <Compile Include="Helpers\BasePage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Helpers\ReportAppHelper.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\PropertiesHelper.cs" />
@@ -184,6 +187,7 @@
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\ExceptionHandling.cs" />
+    <Compile Include="Models\FileSendWithReport.cs" />
     <Compile Include="Models\GeneralReport.cs" />
     <Compile Include="Models\MailingAddresses.cs" />
     <Compile Include="Models\Payer.cs" />
