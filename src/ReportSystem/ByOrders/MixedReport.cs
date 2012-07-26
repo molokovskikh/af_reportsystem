@@ -340,7 +340,7 @@ ol.Junk = 0
 			}
 
 			GroupHeaders.Add(new ColumnGroupHeader(
-					String.Format("Выбранный поставщик {0}", _supplierName),
+					String.Format("Выбранный поставщик: {0}", _supplierName),
 					"SourceFirmCodeSum",
 					"SourceSuppliersSoldPosition"));
 
