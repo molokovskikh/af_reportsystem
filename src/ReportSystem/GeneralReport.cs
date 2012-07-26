@@ -86,10 +86,13 @@ namespace Inforoom.ReportSystem
 		}
 
 		public GeneralReport() // конструктор для возможности тестирования
-		{}
+		{
+			FilesForReport = new Dictionary<string, string>();
+		}
 
 		public GeneralReport(bool noArchive) // конструктор для возможности тестирования
 		{
+			FilesForReport = new Dictionary<string, string>();
 			_noArchive = noArchive;
 		}
 

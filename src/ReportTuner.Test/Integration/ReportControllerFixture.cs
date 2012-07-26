@@ -1,4 +1,5 @@
 ﻿using Castle.ActiveRecord;
+using Castle.MonoRail.TestSupport;
 using Common.Web.Ui.Models;
 using NUnit.Framework;
 using ReportTuner.Controllers;
@@ -8,7 +9,7 @@ using Test.Support.log4net;
 namespace ReportTuner.Test.Integration
 {
 	[TestFixture]
-	public class ReportControllerFixture
+	public class ReportControllerFixture : BaseControllerTest
 	{
 		[Test]
 		public void Delete_report()
@@ -28,6 +29,7 @@ namespace ReportTuner.Test.Integration
 				groupId = report.ContactGroup.Id;
 
 				var controller = new ReportsController();
+				PrepareController(controller);
 				controller.Delete(new[] {report.Id});
 			}
 

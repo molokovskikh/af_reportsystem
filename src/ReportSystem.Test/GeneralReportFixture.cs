@@ -53,6 +53,8 @@ namespace ReportSystem.Test
 		[Test]
 		public void Archive_additional_general_report_files()
 		{
+			if (File.Exists("description.xls"))
+				File.Delete("description.xls");
 			session.CreateSQLQuery("insert into reports.filessendwithreport (FileName, Report) value (\"123.txt\", 1)").ExecuteUpdate();
 			var id = session.CreateSQLQuery("select LAST_INSERT_ID();").UniqueResult();
 			File.WriteAllBytes(id.ToString(), new byte[0]);
