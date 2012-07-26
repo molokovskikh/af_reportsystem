@@ -245,12 +245,6 @@ where GeneralReport = ?GeneralReport;";
 					bs.ReportToFile(_mainFileName);
 					bs.ToLog(GeneralReportID); // логируем успешное выполнение отчета
 					emptyReport = false;
-					foreach (var file in bs.AdditionalFiles.Keys)
-					{
-						var source = bs.AdditionalFiles[file];
-						if (File.Exists(source))
-							File.Copy(source, Path.Combine(_directoryName, file), true);
-					}
 				}
 				catch (Exception ex)
 				{

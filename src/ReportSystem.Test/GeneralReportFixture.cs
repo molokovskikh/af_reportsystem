@@ -16,7 +16,6 @@ namespace ReportSystem.Test
 		public FakeReport()
 		{
 			_dsReport = new DataSet();
-			AdditionalFiles.Add("description.xls", "description.xls");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)

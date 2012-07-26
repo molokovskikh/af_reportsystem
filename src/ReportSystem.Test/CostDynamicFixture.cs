@@ -95,7 +95,7 @@ namespace ReportSystem.Test
 			writer.WriteReportToFile(data, file, settings);
 		}
 
-		[Test]
+		[Test, Ignore("Функционал удален")]
 		public void Read_description_file()
 		{
 			var date = DateTime.Today.AddDays(-7);
@@ -107,8 +107,8 @@ namespace ReportSystem.Test
 			Property("regions", new List<ulong> {1});
 			report = new CostDynamic(1, "CostDynamic.xls", Conn, ReportFormats.Excel, properties);
 			report.ReadReportParams();
-			Assert.That(report.AdditionalFiles.Count, Is.EqualTo(1));
-			Assert.That(report.AdditionalFiles["test.doc"], Is.EqualTo("3"));
+			//Assert.That(report.AdditionalFiles.Count, Is.EqualTo(1));
+			//Assert.That(report.AdditionalFiles["test.doc"], Is.EqualTo("3"));
 		}
 	}
 }

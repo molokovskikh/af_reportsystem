@@ -83,12 +83,8 @@ namespace Inforoom.ReportSystem
 		
 		public virtual bool DbfSupported { get; set; }
 
-		public Dictionary<string, string> AdditionalFiles { get; private set; }
-
 		protected BaseReport() // конструктор для возможности тестирования
-		{
-			AdditionalFiles = new Dictionary<string, string>();
-		}
+		{}
 
 		public BaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: this()
@@ -360,20 +356,6 @@ order by 1", filterStr);
 		{
 			_dtStop = DateTime.Now;
 			ReportResultLog.Log(generalReportCode, ReportCode, _dtStart, _dtStop, errDesc);
-		}
-
-		protected void LoadAdditionFiles()
-		{
-			var name = "DescriptionFile";
-			if (reportParamExists(name))
-			{
-				var file = (string)getReportParam(name);
-				if (!String.IsNullOrEmpty(file))
-				{
-					var sourceFile = Path.Combine(Settings.Default.SavedFilesPath, _reportParamsIds[name].ToString());
-					AdditionalFiles.Add(file, sourceFile);
-				}
-			}
 		}
 	}
 }
