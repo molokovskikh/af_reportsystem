@@ -25,14 +25,13 @@ namespace MigrationTasks
 		{
 			//Мигрируем настройки отчетов с offdc на fms
 			var connectionString = "Database=usersettings;Data Source=sql2.analit.net;Port=3306;User Id=ReportsSystem;Password=samepass;pooling=false;default command timeout=0; Allow user variables=true;convert zero datetime=yes;";
-			ActiveRecordInitialize.Init("DB", typeof(Report).Assembly, typeof(ContactGroup).Assembly);
-			MoveAdditionFiles();
+			ActiveRecordInitialize.Init("release", typeof(Report).Assembly, typeof(ContactGroup).Assembly);
 		}
 
 		private static void MoveAdditionFiles()
 		{
-			//var dirPath = @"\\acdcserv\WebApps\Data\Reports";
-			var dirPath = string.Empty;
+			var dirPath = @"\\acdcserv\WebApps\Data\Reports";
+			//var dirPath = string.Empty;
 			var files = ArHelper.WithSession(s => s.CreateSQLQuery(@"SELECT r.Id as PropId, f.Id FileId FROM reports.report_properties r
 join reports.reports rp on  rp.ReportCode = r.ReportCode
 join reports.filessendwithreport f on f.Report = rp.GeneralReportCode
@@ -40,7 +39,7 @@ where PropertyId = 438;").ToList<FileProp>());
 			foreach (var fileProp in files) {
 				var from = Path.Combine(dirPath, fileProp.PropId.ToString());
 				var to = Path.Combine(dirPath, fileProp.FileId.ToString());
-				File.Move(from, to);
+				File.Copy(from, to);
 			}
 		}
 
