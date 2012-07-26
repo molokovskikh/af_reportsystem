@@ -63,7 +63,7 @@
 				<Columns>
 					<asp:TemplateField HeaderText="—сылка">
 						<ItemTemplate>
-							<asp:HyperLink runat="server" ID="FileName" Text='<%#DataBinder.Eval(Container, "DataItem.FileNameForSave")%>'
+							<asp:HyperLink runat="server" ID="FileName" Text='<%#DataBinder.Eval(Container, "DataItem.FileName")%>'
 						 NavigateUrl='<%#DataBinder.Eval(Container, "DataItem.NavigateUrl")%>'></asp:HyperLink>
 						</ItemTemplate>
 					</asp:TemplateField>

@@ -57,7 +57,7 @@ namespace Inforoom.ReportSystem
 
 		private ILog Logger;
 
-		private IDictionary<string, string> _filesForReport;
+		public IDictionary<string, string> FilesForReport;
 
 		//таблица отчетов, которая существует в общем отчете
 		DataTable _dtReports;
@@ -120,7 +120,7 @@ namespace Inforoom.ReportSystem
 
 			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
 
-			_filesForReport =  MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, _conn);
+			FilesForReport =  MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, _conn);
 
 			if (!interval)
 				_dtContacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args)
@@ -262,8 +262,8 @@ where GeneralReport = ?GeneralReport;";
 				}
 			}
 
-			foreach (var file in _filesForReport.Keys) {
-				var source = _filesForReport[file];
+			foreach (var file in FilesForReport.Keys) {
+				var source = FilesForReport[file];
 				if (File.Exists(source))
 					File.Copy(source, Path.Combine(_directoryName, file), true);
 			}
@@ -302,7 +302,7 @@ where GeneralReport = ?GeneralReport;";
 			var attachmentEntity = mainEntry.ChildEntities.Add();
 			AttachFile(attachmentEntity, archFileName);
 			if (_noArchive)
-				foreach (var file in _filesForReport.Keys) {
+				foreach (var file in FilesForReport.Keys) {
 					var entity = mainEntry.ChildEntities.Add();
 					AttachFile(entity, Path.Combine(_directoryName, file));
 				}
