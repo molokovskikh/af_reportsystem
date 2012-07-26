@@ -37,6 +37,8 @@ namespace Inforoom.ReportSystem
 		protected FilterField nameField;
 		//Поле производитель
 		protected FilterField firmCrField;
+		
+		private string _supplierName;
 
 		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
@@ -176,7 +178,8 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			filterDescriptions.Add(String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
+			_supplierName = String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode));
+			filterDescriptions.Add(_supplierName);
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				var ids = concurrentGroups[i];
 				filterDescriptions.Add(String.Format("Список поставщиков-конкурентов №{1}: {0}",
@@ -336,6 +339,11 @@ ol.Junk = 0
 				dc.SetOrdinal(1);
 			}
 
+			GroupHeaders.Add(new ColumnGroupHeader(
+					String.Format("Выбранный поставщик {0}", _supplierName),
+					"SourceFirmCodeSum",
+					"SourceSuppliersSoldPosition"));
+
 			var groupColor = Color.FromArgb(197, 217, 241);
 			dc = res.Columns.Add("SourceFirmCodeSum", typeof (Decimal));
 			dc.Caption = "Сумма по поставщику";
@@ -421,6 +429,10 @@ ol.Junk = 0
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?)4);
 			}
+			GroupHeaders.Add(new ColumnGroupHeader(
+					"Общие данные по рынку",
+					"AllSum",
+					"AllSuppliersSoldPosition"));
 
 			var lastGroupColor = Color.FromArgb(253, 233, 217);
 			dc = res.Columns.Add("AllSum", typeof (Decimal));
