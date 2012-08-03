@@ -361,7 +361,7 @@ create temporary table MixedData ENGINE=MEMORY
 
 		protected int EmptyRowCount
 		{
-			get { return GroupHeaders.Count + filterDescriptions.Count; }
+			get { return GroupHeaders.Count + (filterDescriptions.Count > 0 ? 1 : 0); }
 		}
 
 		protected void CopyData(DataTable source, DataTable destination)
