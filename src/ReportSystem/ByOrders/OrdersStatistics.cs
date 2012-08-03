@@ -42,8 +42,8 @@ namespace Inforoom.ReportSystem.ByOrders
 				dtTo = DateTime.Now.Date;
 				dtFrom = dtTo.AddDays(-_reportInterval).Date;
 			}
-			filterDescriptions = new List<string>();
-			filterDescriptions.Add(String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
+			FilterDescriptions = new List<string>();
+			FilterDescriptions.Add(String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -68,7 +68,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			dtNewRes.Columns["OrdersSum"].Caption = "Сумма заказов";
 			e.DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			foreach (string t in filterDescriptions)
+			foreach (string t in FilterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);
 
 			var res = dtNewRes.DefaultView.ToTable();
@@ -78,7 +78,7 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		protected override void PostProcessing(Application exApp, _Worksheet ws)
 		{
-			ws.Range[ws.Cells[1 + filterDescriptions.Count, 1], ws.Cells[1 + filterDescriptions.Count, 1]].Select();	
+			ws.Range[ws.Cells[1 + FilterDescriptions.Count, 1], ws.Cells[1 + FilterDescriptions.Count, 1]].Select();
 		}
 	}
 }

@@ -179,10 +179,10 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		{
 			ProfileHelper.Next("GenerateReport");
 			_supplierName = String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode));
-			filterDescriptions.Add(_supplierName);
+			FilterDescriptions.Add(_supplierName);
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				var ids = concurrentGroups[i];
-				filterDescriptions.Add(String.Format("Список поставщиков-конкурентов №{1}: {0}",
+				FilterDescriptions.Add(String.Format("Список поставщиков-конкурентов №{1}: {0}",
 					GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + ids.Implode() + ") order by supps.Name"),
 					i+1));
 			}
@@ -482,7 +482,7 @@ ol.Junk = 0
 				freezeCount++;
 
 			//Замораживаем некоторые колонки и столбцы
-			ws.Range[ws.Cells[2 + filterDescriptions.Count, freezeCount + 1], ws.Cells[2 + filterDescriptions.Count, freezeCount + 1]].Select();
+			ws.Range[ws.Cells[2 + FilterDescriptions.Count, freezeCount + 1], ws.Cells[2 + FilterDescriptions.Count, freezeCount + 1]].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 		}
 	}

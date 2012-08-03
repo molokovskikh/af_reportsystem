@@ -46,10 +46,10 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			filterDescriptions.Add(String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong>{(ulong)sourceFirmCode})));
-			filterDescriptions.Add(String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0])));
+			FilterDescriptions.Add(String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong>{(ulong)sourceFirmCode})));
+			FilterDescriptions.Add(String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0])));
 			if (AddressRivals.Count > 0)
-				filterDescriptions.Add(String.Format("Список адресов доставки-конкурентов : {0}", ReadAddress(AddressRivals)));
+				FilterDescriptions.Add(String.Format("Список адресов доставки-конкурентов : {0}", ReadAddress(AddressRivals)));
 
 			ProfileHelper.Next("GenerateReport2");
 
@@ -291,7 +291,7 @@ and (oh.RegionCode & " + regionMask + @") > 0";
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new PharmacyMixedSettings(ReportCode, ReportCaption, filterDescriptions, selectedField);
+			return new PharmacyMixedSettings(ReportCode, ReportCaption, FilterDescriptions, selectedField);
 		}
 	}
 }

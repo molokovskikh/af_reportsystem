@@ -45,16 +45,16 @@ namespace Inforoom.ReportSystem
 		protected bool ByPreviousMonth;
 		protected int _reportInterval;
 
-		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
-		protected List<string> filterDescriptions = new List<string>();
-
 		protected bool SupportProductNameOptimization;
 		protected bool includeProductName;
 		protected bool isProductName = true;
 		protected bool firmCrPosition; // есть ли параметр "Позиция производителя"
 		protected string OrdersSchema = "Orders";
 
-		protected List<ColumnGroupHeader> GroupHeaders
+		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
+		public List<string> FilterDescriptions = new List<string>();
+
+		public List<ColumnGroupHeader> GroupHeaders
 			= new List<ColumnGroupHeader>();
 
 		public OrdersReport()
@@ -122,7 +122,7 @@ namespace Inforoom.ReportSystem
 				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
 				dtTo = dtTo.Date;
 			}
-			filterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
+			FilterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 
 			LoadFilters();
 			CheckAfterLoadFields();
@@ -174,7 +174,7 @@ namespace Inforoom.ReportSystem
 						ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 
 						var res = _dsReport.Tables["Results"];
-						var tableBegin = 1 + filterDescriptions.Count;
+						var tableBegin = 1 + FilterDescriptions.Count;
 						var groupedHeadersLine = tableBegin;
 						if (GroupHeaders.Count > 0)
 							tableBegin++;
@@ -207,8 +207,8 @@ namespace Inforoom.ReportSystem
 						ws.Range[ws.Cells[tableBegin, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Select();
 						((Range) exApp.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
-						for (var i = 0; i < filterDescriptions.Count; i++)
-							ws.Cells[1 + i, 1] = filterDescriptions[i];
+						for (var i = 0; i < FilterDescriptions.Count; i++)
+							ws.Cells[1 + i, 1] = FilterDescriptions[i];
 
 						foreach (var groupHeader in GroupHeaders) {
 							var begin = ColumnIndex(res, groupHeader.BeginColumn);
@@ -289,9 +289,9 @@ namespace Inforoom.ReportSystem
 			foreach (var field in selectedField)
 			{
 				if (field.nonEqualValues != null && field.nonEqualValues.Count > 0)
-					filterDescriptions.Add(String.Format("{0}: {1}", field.nonEqualValuesCaption, ReadNames(field, field.nonEqualValues)));
+					FilterDescriptions.Add(String.Format("{0}: {1}", field.nonEqualValuesCaption, ReadNames(field, field.nonEqualValues)));
 				if (field.equalValues != null && field.equalValues.Count > 0)
-					filterDescriptions.Add(String.Format("{0}: {1}", field.equalValuesCaption, GetValuesFromSQL(field.GetNamesSql(field.equalValues))));
+					FilterDescriptions.Add(String.Format("{0}: {1}", field.equalValuesCaption, GetValuesFromSQL(field.GetNamesSql(field.equalValues))));
 			}
 		}
 
@@ -359,9 +359,9 @@ create temporary table MixedData ENGINE=MEMORY
 			return res;
 		}
 
-		protected int EmptyRowCount
+		public int EmptyRowCount
 		{
-			get { return GroupHeaders.Count + (filterDescriptions.Count > 0 ? 1 : 0); }
+			get { return FilterDescriptions.Count + (GroupHeaders.Count > 0 ? 1 : 0); }
 		}
 
 		protected void CopyData(DataTable source, DataTable destination)

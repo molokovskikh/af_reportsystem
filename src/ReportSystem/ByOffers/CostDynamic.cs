@@ -169,7 +169,7 @@ group by pd.FirmCode", OrdersSchema, regions.Implode());
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", date.ToShortDateString()));
 			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => Region.Find(r).Name).Implode()));
 			FillFilterDescriptions();
-			settings.Filters.AddRange(filterDescriptions);
+			settings.Filters.AddRange(FilterDescriptions);
 
 			var quantities = GetQuantities();
 
