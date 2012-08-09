@@ -34,7 +34,7 @@ namespace Inforoom.ReportSystem.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("mail.adc.analit.net")]
+        [global::System.Configuration.DefaultSettingValueAttribute("box.analit.net")]
         public string SMTPHost {
             get {
                 return ((string)(this["SMTPHost"]));

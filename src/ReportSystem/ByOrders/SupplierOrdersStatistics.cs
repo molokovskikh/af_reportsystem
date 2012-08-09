@@ -35,9 +35,9 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			filterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
+			FilterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
 			if (!String.IsNullOrEmpty(regionsString))
-				filterDescriptions.Add(String.Format("Список регионов : {0}", GetValuesFromSQL("select r.Region from farm.regions r where r.RegionCode in (" + regionsString + ") order by r.Region;")));
+				FilterDescriptions.Add(String.Format("Список регионов : {0}", GetValuesFromSQL("select r.Region from farm.regions r where r.RegionCode in (" + regionsString + ") order by r.Region;")));
 			ProfileHelper.Next("GenerateReport");
 			string selectedColumns;
 			string groupbyColumns;
@@ -123,7 +123,7 @@ where
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			foreach (var t in filterDescriptions)
+			foreach (var t in FilterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);
 
 			var res = dtNewRes.DefaultView.ToTable();

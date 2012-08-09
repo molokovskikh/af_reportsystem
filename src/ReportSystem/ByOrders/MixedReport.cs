@@ -22,20 +22,20 @@ namespace Inforoom.ReportSystem
 		protected const string showCodeProperty = "ShowCode";
 		protected const string showCodeCrProperty = "ShowCodeCr";
 
-		//Поставщик, по которому будет производиться отчет
+		//РџРѕСЃС‚Р°РІС‰РёРє, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРѕРґРёС‚СЊСЃСЏ РѕС‚С‡РµС‚
 		protected int sourceFirmCode;
 
-		//Список постащиков-конкурентов в виде строки
+		//РЎРїРёСЃРѕРє РїРѕСЃС‚Р°С‰РёРєРѕРІ-РєРѕРЅРєСѓСЂРµРЅС‚РѕРІ РІ РІРёРґРµ СЃС‚СЂРѕРєРё
 		protected List<List<ulong>> concurrentGroups = new List<List<ulong>>();
 
-		//Отображать поле Code из прайс-листа поставщика?
+		//РћС‚РѕР±СЂР°Р¶Р°С‚СЊ РїРѕР»Рµ Code РёР· РїСЂР°Р№СЃ-Р»РёСЃС‚Р° РїРѕСЃС‚Р°РІС‰РёРєР°?
 		protected bool showCode;
-		//Отображать поле CodeCr из прайс-листа поставщика?
+		//РћС‚РѕР±СЂР°Р¶Р°С‚СЊ РїРѕР»Рµ CodeCr РёР· РїСЂР°Р№СЃ-Р»РёСЃС‚Р° РїРѕСЃС‚Р°РІС‰РёРєР°?
 		protected bool showCodeCr;
 
-		//Одно из полей "Наименование продукта", "Полное наименование", "Наименование"
+		//РћРґРЅРѕ РёР· РїРѕР»РµР№ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂРѕРґСѓРєС‚Р°", "РџРѕР»РЅРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ", "РќР°РёРјРµРЅРѕРІР°РЅРёРµ"
 		protected FilterField nameField;
-		//Поле производитель
+		//РџРѕР»Рµ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ
 		protected FilterField firmCrField;
 		
 		private string _supplierName;
@@ -49,12 +49,12 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			showCode = reportParamExists(showCodeProperty) && (bool) getReportParam(showCodeProperty); // показывать код поставщика
-			showCodeCr = reportParamExists(showCodeCrProperty) && (bool) getReportParam(showCodeCrProperty); // показывать код изготовителя
+			showCode = reportParamExists(showCodeProperty) && (bool) getReportParam(showCodeProperty); // РїРѕРєР°Р·С‹РІР°С‚СЊ РєРѕРґ РїРѕСЃС‚Р°РІС‰РёРєР°
+			showCodeCr = reportParamExists(showCodeCrProperty) && (bool) getReportParam(showCodeCrProperty); // РїРѕРєР°Р·С‹РІР°С‚СЊ РєРѕРґ РёР·РіРѕС‚РѕРІРёС‚РµР»СЏ
 
-			sourceFirmCode = (int)getReportParam(sourceFirmCodeProperty); // поставщик
+			sourceFirmCode = (int)getReportParam(sourceFirmCodeProperty); // РїРѕСЃС‚Р°РІС‰РёРє
 			if (sourceFirmCode == 0)
-				throw new ReportException("Не установлен параметр \"Поставщик\".");
+				throw new ReportException("РќРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїР°СЂР°РјРµС‚СЂ \"РџРѕСЃС‚Р°РІС‰РёРє\".");
 
 			foreach (var reportParam in _reportParams) {
 				if (reportParam.Key.StartsWith(businessRivalsProperty)) {
@@ -66,14 +66,14 @@ namespace Inforoom.ReportSystem
 			}
 
 			if (concurrentGroups.Count == 0)
-				throw new ReportException("Не установлен параметр \"Список конкурентов\".");
+				throw new ReportException("РќРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїР°СЂР°РјРµС‚СЂ \"РЎРїРёСЃРѕРє РєРѕРЅРєСѓСЂРµРЅС‚РѕРІ\".");
 
-			//Пытаемся найти список ограничений по постащику
+			//РџС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё СЃРїРёСЃРѕРє РѕРіСЂР°РЅРёС‡РµРЅРёР№ РїРѕ РїРѕСЃС‚Р°С‰РёРєСѓ
 			var firmCodeField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCode");
 			if (firmCodeField != null && firmCodeField.equalValues != null)
 			{
-				//Если в списке выбранных значений нет интересующего поставщика, то добавляем его туда
-				//Для каждого поставщика из списка конкурентов проверяем: есть ли он в списке выбранных значений, если нет, то добавляем его
+				//Р•СЃР»Рё РІ СЃРїРёСЃРєРµ РІС‹Р±СЂР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РЅРµС‚ РёРЅС‚РµСЂРµСЃСѓСЋС‰РµРіРѕ РїРѕСЃС‚Р°РІС‰РёРєР°, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РµРіРѕ С‚СѓРґР°
+				//Р”Р»СЏ РєР°Р¶РґРѕРіРѕ РїРѕСЃС‚Р°РІС‰РёРєР° РёР· СЃРїРёСЃРєР° РєРѕРЅРєСѓСЂРµРЅС‚РѕРІ РїСЂРѕРІРµСЂСЏРµРј: РµСЃС‚СЊ Р»Рё РѕРЅ РІ СЃРїРёСЃРєРµ РІС‹Р±СЂР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№, РµСЃР»Рё РЅРµС‚, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РµРіРѕ
 				firmCodeField.equalValues = firmCodeField.equalValues
 					.Concat(concurrentGroups.SelectMany(l => l))
 					.Concat(new[] {Convert.ToUInt64(sourceFirmCode)})
@@ -87,16 +87,16 @@ namespace Inforoom.ReportSystem
 			ProfileHelper.Next("BaseCheckAfterLoad");
 			base.CheckAfterLoadFields();
 			ProfileHelper.Next("CheckAfterLoad");
-			//Выбирем поле "Производитель", если в настройке отчета есть соответствующий параметр
+			//Р’С‹Р±РёСЂРµРј РїРѕР»Рµ "РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ", РµСЃР»Рё РІ РЅР°СЃС‚СЂРѕР№РєРµ РѕС‚С‡РµС‚Р° РµСЃС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РїР°СЂР°РјРµС‚СЂ
 			firmCrField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCr");
 
-			//Проверяем, что выбран один из параметров для отображения: Наименование, Полное Наименование, Продукт
+			//РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РІС‹Р±СЂР°РЅ РѕРґРёРЅ РёР· РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ: РќР°РёРјРµРЅРѕРІР°РЅРёРµ, РџРѕР»РЅРѕРµ РќР°РёРјРµРЅРѕРІР°РЅРёРµ, РџСЂРѕРґСѓРєС‚
 			var nameFields = selectedField.FindAll(
 				value => (value.reportPropertyPreffix == "ProductName") || value.reportPropertyPreffix == "FullName" || value.reportPropertyPreffix == "ShortName");
 			if (nameFields.Count == 0)
-				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" не выбрано ни одно поле.");
+				throw new ReportException("РР· РїРѕР»РµР№ \"РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂРѕРґСѓРєС‚Р°\", \"РџРѕР»РЅРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ\", \"РќР°РёРјРµРЅРѕРІР°РЅРёРµ\" РЅРµ РІС‹Р±СЂР°РЅРѕ РЅРё РѕРґРЅРѕ РїРѕР»Рµ.");
 			if (nameFields.Count > 1)
-				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" должно быть выбрано только одно поле.");
+				throw new ReportException("РР· РїРѕР»РµР№ \"РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂРѕРґСѓРєС‚Р°\", \"РџРѕР»РЅРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ\", \"РќР°РёРјРµРЅРѕРІР°РЅРёРµ\" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РІС‹Р±СЂР°РЅРѕ С‚РѕР»СЊРєРѕ РѕРґРЅРѕ РїРѕР»Рµ.");
 			nameField = nameFields[0];
 		}
 
@@ -178,11 +178,11 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			_supplierName = String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode));
-			filterDescriptions.Add(_supplierName);
+			_supplierName = String.Format("Р’С‹Р±СЂР°РЅРЅС‹Р№ РїРѕСЃС‚Р°РІС‰РёРє: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode));
+			FilterDescriptions.Add(_supplierName);
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				var ids = concurrentGroups[i];
-				filterDescriptions.Add(String.Format("Список поставщиков-конкурентов №{1}: {0}",
+				FilterDescriptions.Add(String.Format("РЎРїРёСЃРѕРє РїРѕСЃС‚Р°РІС‰РёРєРѕРІ-РєРѕРЅРєСѓСЂРµРЅС‚РѕРІ в„–{1}: {0}",
 					GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + ids.Implode() + ") order by supps.Name"),
 					i+1));
 			}
@@ -196,7 +196,7 @@ group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrFiel
 
 			if (firmCrPosition)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
-											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
+											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'РќРµР»РµРєР°СЂСЃС‚РІРµРЅРЅС‹Р№ Р°СЃСЃРѕСЂС‚РёРјРµРЅС‚')");
 
 			if (showCode)
 				selectCommand += " ProviderCodes.Code, ";
@@ -322,149 +322,152 @@ ol.Junk = 0
 			e.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");
+
+			GroupHeaders.Add(new ColumnGroupHeader(
+					String.Format("Р’С‹Р±СЂР°РЅРЅС‹Р№ РїРѕСЃС‚Р°РІС‰РёРє: {0}", _supplierName),
+					"SourceFirmCodeSum",
+					"SourceSuppliersSoldPosition"));
+			for (var i = 0; i < concurrentGroups.Count; i++) {
+				GroupHeaders.Add(new ColumnGroupHeader(
+					String.Format("РЎРїРёСЃРѕРє РїРѕСЃС‚Р°РІС‰РёРєРѕРІ-РєРѕРЅРєСѓСЂРµРЅС‚РѕРІ в„–{0}", i + 1),
+					"RivalsSum" + i,
+					"RivalsSuppliersSoldPosition" + i));
+			}
+			GroupHeaders.Add(new ColumnGroupHeader(
+					"РћР±С‰РёРµ РґР°РЅРЅС‹Рµ РїРѕ СЂС‹РЅРєСѓ",
+					"AllSum",
+					"AllSuppliersSoldPosition"));
+
 			var res = BuildResultTable(selectTable);
 
 			DataColumn dc;
 			if (showCode)
 			{
 				dc = res.Columns.Add("Code", typeof (String));
-				dc.Caption = "Код";
+				dc.Caption = "РљРѕРґ";
 				dc.SetOrdinal(0);
 			}
 
 			if (showCodeCr)
 			{
 				dc = res.Columns.Add("CodeCr", typeof (String));
-				dc.Caption = "Код изготовителя";
+				dc.Caption = "РљРѕРґ РёР·РіРѕС‚РѕРІРёС‚РµР»СЏ";
 				dc.SetOrdinal(1);
 			}
 
-			GroupHeaders.Add(new ColumnGroupHeader(
-					String.Format("Выбранный поставщик: {0}", _supplierName),
-					"SourceFirmCodeSum",
-					"SourceSuppliersSoldPosition"));
-
 			var groupColor = Color.FromArgb(197, 217, 241);
 			dc = res.Columns.Add("SourceFirmCodeSum", typeof (Decimal));
-			dc.Caption = "Сумма по поставщику";
+			dc.Caption = "РЎСѓРјРјР° РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("SourceFirmCodeRows", typeof (Int32));
-			dc.Caption = "Кол-во по постащику";
+			dc.Caption = "РљРѕР»-РІРѕ РїРѕ РїРѕСЃС‚Р°С‰РёРєСѓ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("SourceFirmCodeMinCost", typeof (Decimal));
-			dc.Caption = "Минимальная цена по поставщику";
+			dc.Caption = "РњРёРЅРёРјР°Р»СЊРЅР°СЏ С†РµРЅР° РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("SourceFirmCodeAvgCost", typeof (Decimal));
-			dc.Caption = "Средняя цена по поставщику";
+			dc.Caption = "РЎСЂРµРґРЅСЏСЏ С†РµРЅР° РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("SourceFirmCodeMaxCost", typeof (Decimal));
-			dc.Caption = "Максимальная цена по поставщику";
+			dc.Caption = "РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ С†РµРЅР° РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("SourceFirmDistinctOrderId", typeof (Int32));
-			dc.Caption = "Кол-во заявок по препарату по поставщику";
+			dc.Caption = "РљРѕР»-РІРѕ Р·Р°СЏРІРѕРє РїРѕ РїСЂРµРїР°СЂР°С‚Сѓ РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 4);			
 			dc = res.Columns.Add("SourceFirmDistinctAddressId", typeof (Int32));
-			dc.Caption = "Кол-во адресов доставки, заказавших препарат, по постащику";
+			dc.Caption = "РљРѕР»-РІРѕ Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё, Р·Р°РєР°Р·Р°РІС€РёС… РїСЂРµРїР°СЂР°С‚, РїРѕ РїРѕСЃС‚Р°С‰РёРєСѓ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("SourceSuppliersSoldPosition", typeof(Int32));
-			dc.Caption = "Кол-во поставщиков";
+			dc.Caption = "РљРѕР»-РІРѕ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?)4);
 
 			for (var i = 0; i < concurrentGroups.Count; i++) {
-
-				GroupHeaders.Add(new ColumnGroupHeader(
-					String.Format("Список поставщиков-конкурентов №{0}", i + 1),
-					"RivalsSum" + i,
-					"RivalsSuppliersSoldPosition" + i));
 
 				var color = Color.FromArgb(234, 241, 221);
 				var hue = (color.GetHue() + i*40) % 360;
 				color = ColorHelper.FromAhsb(255, hue, color.GetSaturation(), color.GetBrightness());
 
 				dc = res.Columns.Add("RivalsSum" + i, typeof (Decimal));
-				dc.Caption = "Сумма по конкурентам";
+				dc.Caption = "РЎСѓРјРјР° РїРѕ РєРѕРЅРєСѓСЂРµРЅС‚Р°Рј";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?) 8);
 
 				dc = res.Columns.Add("RivalsRows" + i, typeof (Int32));
-				dc.Caption = "Кол-во по конкурентам";
+				dc.Caption = "РљРѕР»-РІРѕ РїРѕ РєРѕРЅРєСѓСЂРµРЅС‚Р°Рј";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?) 4);
 
 				dc = res.Columns.Add("RivalsMinCost" + i, typeof (Decimal));
-				dc.Caption = "Минимальная цена по конкурентам";
+				dc.Caption = "РњРёРЅРёРјР°Р»СЊРЅР°СЏ С†РµРЅР° РїРѕ РєРѕРЅРєСѓСЂРµРЅС‚Р°Рј";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?) 8);
 
 				dc = res.Columns.Add("RivalsAvgCost" + i, typeof (Decimal));
-				dc.Caption = "Средняя цена по конкурентам";
+				dc.Caption = "РЎСЂРµРґРЅСЏСЏ С†РµРЅР° РїРѕ РєРѕРЅРєСѓСЂРµРЅС‚Р°Рј";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?) 8);
 
 				dc = res.Columns.Add("RivalsMaxCost" + i, typeof (Decimal));
-				dc.Caption = "Максимальная цена по конкурентам";
+				dc.Caption = "РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ С†РµРЅР° РїРѕ РєРѕРЅРєСѓСЂРµРЅС‚Р°Рј";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?) 8);
 
 				dc = res.Columns.Add("RivalsDistinctOrderId" + i, typeof (Int32));
-				dc.Caption = "Кол-во заявок по препарату по конкурентам";
+				dc.Caption = "РљРѕР»-РІРѕ Р·Р°СЏРІРѕРє РїРѕ РїСЂРµРїР°СЂР°С‚Сѓ РїРѕ РєРѕРЅРєСѓСЂРµРЅС‚Р°Рј";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?) 4);
 
 				dc = res.Columns.Add("RivalsDistinctAddressId" + i, typeof(Int32));
-				dc.Caption = "Кол-во адресов доставки, заказавших препарат, по конкурентам";
+				dc.Caption = "РљРѕР»-РІРѕ Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё, Р·Р°РєР°Р·Р°РІС€РёС… РїСЂРµРїР°СЂР°С‚, РїРѕ РєРѕРЅРєСѓСЂРµРЅС‚Р°Рј";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?) 4);
 
 				dc = res.Columns.Add("RivalsSuppliersSoldPosition" + i, typeof(Int32));
-				dc.Caption = "Кол-во поставщиков";
+				dc.Caption = "РљРѕР»-РІРѕ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ";
 				dc.ExtendedProperties.Add("Color", color);
 				dc.ExtendedProperties.Add("Width", (int?)4);
 			}
-			GroupHeaders.Add(new ColumnGroupHeader(
-					"Общие данные по рынку",
-					"AllSum",
-					"AllSuppliersSoldPosition"));
+
 
 			var lastGroupColor = Color.FromArgb(253, 233, 217);
 			dc = res.Columns.Add("AllSum", typeof (Decimal));
-			dc.Caption = "Сумма по всем";
+			dc.Caption = "РЎСѓРјРјР° РїРѕ РІСЃРµРј";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("AllRows", typeof (Int32));
-			dc.Caption = "Кол-во по всем";
+			dc.Caption = "РљРѕР»-РІРѕ РїРѕ РІСЃРµРј";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("AllMinCost", typeof (Decimal));
-			dc.Caption = "Минимальная цена по всем";
+			dc.Caption = "РњРёРЅРёРјР°Р»СЊРЅР°СЏ С†РµРЅР° РїРѕ РІСЃРµРј";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("AllAvgCost", typeof (Decimal));
-			dc.Caption = "Средняя цена по всем";
+			dc.Caption = "РЎСЂРµРґРЅСЏСЏ С†РµРЅР° РїРѕ РІСЃРµРј";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("AllMaxCost", typeof (Decimal));
-			dc.Caption = "Максимальная цена по всем";
+			dc.Caption = "РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ С†РµРЅР° РїРѕ РІСЃРµРј";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 8);
 			dc = res.Columns.Add("AllDistinctOrderId", typeof (Int32));
-			dc.Caption = "Кол-во заявок по препарату по всем";
+			dc.Caption = "РљРѕР»-РІРѕ Р·Р°СЏРІРѕРє РїРѕ РїСЂРµРїР°СЂР°С‚Сѓ РїРѕ РІСЃРµРј";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("AllDistinctAddressId", typeof(Int32));
-			dc.Caption = "Кол-во адресов доставки, заказавших препарат, по всем";
+			dc.Caption = "РљРѕР»-РІРѕ Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё, Р·Р°РєР°Р·Р°РІС€РёС… РїСЂРµРїР°СЂР°С‚, РїРѕ РІСЃРµРј";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?) 4);
 			dc = res.Columns.Add("AllSuppliersSoldPosition", typeof(Int32));
-			dc.Caption = "Кол-во поставщиков";
+			dc.Caption = "РљРѕР»-РІРѕ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ";
 			dc.ExtendedProperties.Add("Color", lastGroupColor);
 			dc.ExtendedProperties.Add("Width", (int?)4);
 			CopyData(selectTable, res);
@@ -478,8 +481,8 @@ ol.Junk = 0
 			if (showCodeCr)
 				freezeCount++;
 
-			//Замораживаем некоторые колонки и столбцы
-			ws.Range[ws.Cells[2 + filterDescriptions.Count, freezeCount + 1], ws.Cells[2 + filterDescriptions.Count, freezeCount + 1]].Select();
+			//Р—Р°РјРѕСЂР°Р¶РёРІР°РµРј РЅРµРєРѕС‚РѕСЂС‹Рµ РєРѕР»РѕРЅРєРё Рё СЃС‚РѕР»Р±С†С‹
+			ws.Range[ws.Cells[2 + FilterDescriptions.Count, freezeCount + 1], ws.Cells[2 + FilterDescriptions.Count, freezeCount + 1]].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 		}
 	}

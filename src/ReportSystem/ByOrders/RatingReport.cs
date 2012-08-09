@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Data;
 using Inforoom.ReportSystem.Helpers;
@@ -155,7 +155,7 @@ where 1=1", OrdersSchema));
 		protected override void PostProcessing(Application exApp, _Worksheet ws)
 		{
 			//Замораживаем некоторые колонки и столбцы
-			ws.Range["A" + (2 + filterDescriptions.Count), System.Reflection.Missing.Value].Select();
+			ws.Range["A" + (2 + FilterDescriptions.Count), System.Reflection.Missing.Value].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 
 			if (BuildChart) {
