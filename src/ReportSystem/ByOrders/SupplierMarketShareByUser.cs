@@ -34,20 +34,27 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public string Group;
 		public Column[] Columns;
+		public string Join;
 	}
 
 	public class Column
 	{
-		public Column(string name, string caption, string sql)
+		public Column(string name, string caption, string sql) :this(name, caption, sql, true)
+		{
+		}
+
+		public Column(string name, string caption, string sql, bool order)
 		{
 			Name = name;
 			Caption = caption;
 			Sql = sql;
+			Order = order;
 		}
 
 		public string Name;
 		public string Caption;
 		public string Sql;
+		public bool Order;
 	}
 
 	public class SupplierMarketShareByUser : OrdersReport
@@ -59,25 +66,29 @@ namespace Inforoom.ReportSystem.ByOrders
 		private Grouping[] groupings = new [] {
 			new Grouping("oh.UserId",
  				new [] {
- 					new Column("ClientName", "Клиент", "c.Name"), 
-					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))"), 
-				}),
-			new Grouping("oh.AddressId", 
-				new [] {
+					new Column("Empty", string.Empty, "''", false),
 					new Column("ClientName", "Клиент", "c.Name"),
-					new Column("AddressName", "Адрес", "a.Address"),
+					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))")
 				}),
+			new Grouping("oh.AddressId",
+				new [] {
+					new Column("SupplierDeliveryId", "Код доставки", "TI.SupplierDeliveryId", false),
+					new Column("ClientName", "Клиент", "c.Name"),
+					new Column("AddressName", "Адрес", "a.Address")
+				}) {Join = "left join reports.TempIntersection TI on oh.AddressId = TI.AddressId"},
 			new Grouping("oh.ClientCode", 
 				new [] {
+					new Column("Empty", string.Empty, "''", false),
 					new Column("ClientName", "Клиент", "c.Name"), 
 				}),
 			new Grouping("a.LegalEntityId",
 				new [] {
-					new Column("OrgName", "Юридическое лицо", "le.Name"), 
-				})
+					new Column("SupplierClientId", "Код клиента", "TI.SupplierClientId", false),
+					new Column("OrgName", "Юридическое лицо", "le.Name")
+				}){Join = "left join reports.TempIntersection TI on TI.LegalEntityId = a.LegalEntityId"}
 		};
 
-		private Grouping _grouping;		
+		private Grouping _grouping;
 
 		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) 
 			: base(reportCode, reportCaption, connection, format, dsProperties)
@@ -107,6 +118,30 @@ namespace Inforoom.ReportSystem.ByOrders
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;
+
+CREATE TEMPORARY TABLE reports.TempIntersection (
+AddressId INT unsigned,
+SupplierDeliveryId INT unsigned,
+SupplierClientId INT unsigned,
+LegalEntityId INT unsigned) engine=MEMORY;
+
+INSERT
+INTO reports.TempIntersection
+select oh.AddressId as AddressId, ai.SupplierDeliveryId as SupplierDeliveryId, i.SupplierClientId as SupplierClientId, a.LegalEntityId
+from
+usersettings.PricesData pd
+join Orders.OrdersHead oh on oh.PriceCode = pd.PriceCode
+join Customers.Addresses a on a.Id = oh.AddressId
+left join Customers.Intersection i on i.LegalEntityId = a.LegalEntityId and i.PriceId = oh.PriceCode and i.ClientId = oh.ClientCode and i.RegionId in ({0})
+left join Customers.AddressIntersection ai on ai.IntersectionId = i.id and ai.AddressId = oh.AddressId
+where oh.WriteTime > ?begin
+and oh.WriteTime < ?end
+and oh.RegionCode in ({0})
+and pd.FirmCode = ?SupplierId
+group by ai.id;
+
+
 select {2},
 sum(ol.Cost * ol.Quantity) as TotalSum,
 sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
@@ -117,13 +152,15 @@ from Orders.OrdersHead oh
 	join Customers.Addresses a on a.Id = oh.AddressId
 		join Billing.LegalEntities le on le.Id = a.LegalEntityId
 	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+	{4}
 where oh.WriteTime > ?begin
 and oh.WriteTime < ?end
 and oh.RegionCode in ({0})
 group by {1}
 order by {3}",  _regions.Implode(), _grouping.Group,
 				_grouping.Columns.Implode(c => String.Format("{0} as {1}", c.Sql, c.Name)),
-				_grouping.Columns.Implode(c => c.Name));
+				_grouping.Columns.Where(c => c.Order).Implode(c => c.Name),
+				_grouping.Join);
 
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
