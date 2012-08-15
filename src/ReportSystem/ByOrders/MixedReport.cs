@@ -103,6 +103,9 @@ namespace Inforoom.ReportSystem
 		void FillProviderCodes(ExecuteArgs e)
 		{
 			ProfileHelper.Next("FillCodes");
+			var groupExpression = nameField.primaryField + ((firmCrField != null) ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", firmCrField.primaryField) : String.Empty);
+			var selectExpression = nameField.primaryField + ((firmCrField != null) ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", firmCrField.primaryField) : ", null ");
+
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS ProviderCodes;
 create temporary table ProviderCodes (" +
@@ -115,32 +118,26 @@ create temporary table ProviderCodes (" +
 insert into ProviderCodes "
 				+
 				"select " +
-					((showCode) ? "CoreCodes.Code, " : String.Empty) +
+					((showCode) ? "group_concat(CoreCodes.Code), " : String.Empty) +
 					((showCodeCr) ? "CoreCodes.CodeCr, " : String.Empty) +
-					nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : ", null ") +
+					selectExpression +
 				@" from ((
 (
 select
 distinct " +
 					((showCode) ? "ol.Code, " : String.Empty) +
 					((showCodeCr) ? "ol.CodeCr, " : String.Empty) +
-@"ol.ProductId, 
+String.Format(@"
+  ol.ProductId,
   ol.CodeFirmCr
-from " +
-#if DEBUG
-  @"orders.OrdersHead oh,
-  orders.OrdersList ol," +
-#else
-  @"ordersold.OrdersHead oh,
-  ordersold.OrdersList ol," +
-#endif
- @" usersettings.pricesdata pd
+from {0}.OrdersHead oh,
+  {0}.OrdersList ol,
+  usersettings.pricesdata pd
 where
 	ol.OrderID = oh.RowID
-and ol.Junk = 0
-#and ol.Await = 0
-and pd.PriceCode = oh.PriceCode
-and pd.FirmCode = " + sourceFirmCode.ToString() +
+	and ol.Junk = 0
+	and pd.PriceCode = oh.PriceCode
+	and pd.FirmCode = ", OrdersSchema) + sourceFirmCode.ToString() +
 				" and oh.WriteTime > '" + dtFrom.ToString(MySqlConsts.MySQLDateFormat) + "' " +
 				" and oh.WriteTime < '" + dtTo.ToString(MySqlConsts.MySQLDateFormat) + "' " +
 @")
@@ -150,24 +147,21 @@ select
 distinct " +
 					((showCode) ? "core.Code, " : String.Empty) +
 					((showCodeCr) ? "core.CodeCr, " : String.Empty) +
-@"core.ProductId,
-core.CodeFirmCr
+@"
+  core.ProductId,
+  core.CodeFirmCr
 from
   usersettings.Pricesdata pd,
   farm.Core0 core
 where
-	pd.FirmCode = " + sourceFirmCode.ToString()
-+ @" and core.PriceCode = pd.PriceCode
-)) CoreCodes,
-  catalogs.products p,
-  catalogs.catalog c,
-  catalogs.catalognames cn)
+	pd.FirmCode = " + sourceFirmCode.ToString() + @"
+	and core.PriceCode = pd.PriceCode
+)) CoreCodes)
+  join catalogs.products p on p.Id = CoreCodes.ProductId
+  join catalogs.catalog c on c.Id = p.CatalogId
+  join catalogs.catalognames cn on cn.id = c.NameId
   left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
-where
-	p.Id = CoreCodes.ProductId
-and c.Id = p.CatalogId
-and cn.id = c.NameId
-group by " + nameField.primaryField + ((firmCrField != null) ? ", " + firmCrField.primaryField : String.Empty);
+group by " + groupExpression;
 
 #if DEBUG
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
@@ -248,18 +242,16 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurre
 #endif 
 
 	if(!includeProductName || !isProductName || firmCrPosition)
-		selectCommand +=
-@"
+		selectCommand += @"
   join catalogs.products p on p.Id = ol.ProductId";
+
 	if(!includeProductName || firmCrPosition)
-		selectCommand +=
-@"
+		selectCommand += @"
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId";
 
-	selectCommand +=
-@"
+	selectCommand += @"
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join Customers.Clients cl on cl.Id = oh.ClientCode
   join customers.addresses ad on ad.Id = oh.AddressId
@@ -271,11 +263,11 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurre
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId" +
 	((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField + 
-	((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = ifnull({0}, 0)", firmCrField.primaryField): String.Empty)) : String.Empty) +
+	((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", firmCrField.primaryField): String.Empty)) : String.Empty) +
 @"
 where 
 ol.Junk = 0
-#and ol.Await = 0";
+";
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
