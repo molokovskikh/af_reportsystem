@@ -50,10 +50,6 @@ WHERE
 cr.generalreportcode = @LastReportPropertyId;";
 			DataTable dtGeneralReports;
 			var connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
-			Console.WriteLine(Assembly.GetAssembly(typeof(MySqlConnection)).FullName);
-			Console.WriteLine(Assembly.GetAssembly(typeof(MySqlConnection)).Evidence);
-			Console.WriteLine(Assembly.GetAssembly(typeof(MySqlConnection)).CodeBase);
-			Console.WriteLine(connection.ConnectionString);
 			connection.Open();
 			try
 			{

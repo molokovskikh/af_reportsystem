@@ -1,0 +1,10 @@
+\lib\MonoRail.Debugger.Toolbar\src\MonoRail.Debugger.Toolbar\Toolbar.brail
+\src\Common.Web.Ui\Common.Web.Ui\Views\Components\ContactEditor\default.brail
+\src\Common.Web.Ui\Common.Web.Ui\Views\Contact\EditContactGroup.brail
+\src\Common.Web.Ui\Common.Web.Ui\Views\Contact\EditPersonSubView.brail
+\src\Common.Web.Ui\Common.Web.Ui\Views\Documents\ShowDocumentDetails.brail
+\src\Common.Web.Ui\Common.Web.Ui\Views\Editor\Menu.brail
+\src\Common.Web.Ui\Common.Web.Ui\Views\Layouts\TinyMCE.brail
+\src\ReportTuner\Views\ReportsTuning\SelectAddresses.brail
+\src\ReportTuner\Views\ReportsTuning\SelectClients.brail
+\src\ReportTuner\Views\SubViews\BreadCrumbs.brail

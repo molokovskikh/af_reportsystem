@@ -110,7 +110,6 @@ namespace ReportTuner.Test
 									}
 									else
 									{
-										Console.WriteLine("task name : {0}", task.Name);
 										anotherTriggerCount++;
 										string triggers = "   triggers : ";
 										foreach (Trigger trigger in task.Definition.Triggers)
@@ -140,7 +139,6 @@ namespace ReportTuner.Test
 													throw new Exception("Этого не должно было быть");
 
 										}
-										Console.WriteLine(triggers);
 									}
 
 								// Register the task in the root folder
@@ -148,14 +146,8 @@ namespace ReportTuner.Test
 								newTask.Enabled = false;
 
 							}
-							else
-							{
-								//Console.WriteLine("not exists : {0}", task.Name);
-							}
 						}
 					}
-
-					Console.WriteLine("statistic allCount = {0}, emptyTriggerCount = {1}, standartTriggerCount = {2}, anotherTriggerCount = {3}, existsCount = {4}", allCount, emptyTriggerCount, standartTriggerCount, anotherTriggerCount, existsCount);
 				}
 			}
 		}
@@ -210,7 +202,6 @@ namespace ReportTuner.Test
 				}
 				catch (Exception exception)
 				{
-					Console.WriteLine(exception);
 					Assert.Fail("Метод GetFolder вернул неожидаемое исключение {0}", exception);
 				}
 

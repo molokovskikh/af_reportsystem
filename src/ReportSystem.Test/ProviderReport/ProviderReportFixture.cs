@@ -153,59 +153,6 @@ from
 			Assert.That(report.ReportData[8].CodeWithoutProducer, Is.EqualTo("11"));
 		}
 
-		[Test, Ignore("Это временный тест для проверки скорости выборки предложений")]
-		public void CheckSpeedLoad()
-		{
-			// Create new stopwatch
-			Stopwatch stopwatch = new Stopwatch();
-
-			// Begin timing
-			stopwatch.Start();
-			try
-			{
-				CheckOldLoad();
-			}
-			finally
-			{
-				// Stop timing
-				stopwatch.Stop();
-				// Write result
-				Console.WriteLine("Old Load time elapsed: {0}", stopwatch.Elapsed);
-			}
-
-			// Begin timing
-			stopwatch.Reset();
-			stopwatch.Start();
-			try
-			{
-				CheckNewLoad();
-			}
-			finally
-			{
-				// Stop timing
-				stopwatch.Stop();
-				// Write result
-				Console.WriteLine("New Load time elapsed: {0}", stopwatch.Elapsed);
-			}
-		}
-
-		private void CheckNewLoad()
-		{
-			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new SpecReportNewLoad(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
-
-			report.ReadReportParams();
-			report.ProcessReport();
-		}
-
-		private void CheckOldLoad()
-		{
-			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new SpecReportOldLoad(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
-
-			report.ReadReportParams();
-			report.ProcessReport();
-		}
 
 		private DataSet GetClients(int rowCount)
 		{

@@ -1,0 +1,11 @@
+\lib\MonoRail.Debugger.Toolbar\src\Test\Global.asax.cs
+\src\Common.Tools\Common.Tools\ObjectExtentions.cs
+\src\Common.Tools\Common.Tools.Test\DbfFixture.cs
+\src\Common.Tools\Common.Tools.Test\ReleatableCommandFixture.cs
+\src\MigrationTasks\Program.cs
+\src\Report.Data.Builder\CostCalculator.cs
+\src\ReportSystem\ByOffers\PricesOfCompetitorsReport.cs
+\src\ReportSystem.Test\Troubleshoot.cs
+\src\ReportTuner.Test\ReportsBatch.cs
+\src\Test.Support\Test.Support\log4net\EventFilter.cs
+\src\Test.Support\Test.Support.Web\WatinSetup.cs
