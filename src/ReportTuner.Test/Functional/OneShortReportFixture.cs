@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Castle.ActiveRecord;
 using NUnit.Framework;
 using ReportTuner.Models;
 using WatiN.Core;
-using ReportTuner.Test.Helpers;
 using System.Diagnostics;
-using WatiN.Core.Native.Windows;
 using Test.Support.Web;
 
 namespace ReportTuner.Test.Functional
