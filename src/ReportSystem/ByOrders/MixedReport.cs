@@ -474,6 +474,7 @@ ol.Junk = 0
 				freezeCount++;
 
 			//Замораживаем некоторые колонки и столбцы
+			exApp.ActiveWindow.ScrollIntoView(0, 0, 200, 200, true);
 			ws.Range[ws.Cells[2 + FilterDescriptions.Count, freezeCount + 1], ws.Cells[2 + FilterDescriptions.Count, freezeCount + 1]].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 		}
