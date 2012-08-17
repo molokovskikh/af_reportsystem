@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -46,6 +48,8 @@ public partial class Reports_schedule : Page
 
 	private DataColumn MSStartHour;
 	private DataColumn MSStartMinute;
+
+	private string ftpDirectory;
 
 	private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
 
@@ -268,6 +272,12 @@ order by LogTime desc
 			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
 		}
+
+		ftpDirectory = Path.Combine(ConfigurationManager.AppSettings["FTPOptBoxPath"], _generalReport.FirmCode.Value.ToString("000"), "Reports");
+#if DEBUG
+		ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", _generalReport.FirmCode.Value.ToString("000"), "Reports");
+#endif
+		send_created_report.Visible = Directory.Exists(ftpDirectory);
 	}
 
 	private List<object[]> ObjectFromQuery(MySqlParameter[] parameters, string commandText)
@@ -819,5 +829,44 @@ and c.Type = ?ContactType");
 			dgvScheduleMonth.DataMember = dtScheduleMonth.TableName;
 			dgvScheduleMonth.DataBind();
 		}
+	}
+
+	protected void btnExecute_sendReady(object sender, EventArgs e)
+	{
+		if (_generalReport.FirmCode == null)
+			return;
+
+		var message = new MailMessage();
+		message.From = new MailAddress("report@analit.net", "АК Инфорум");
+		message.Subject = _generalReport.EMailSubject;
+		if (RadioSelf.Checked)
+			foreach (var selfEmail in GetSelfEmails()) {
+				message.To.Add(new MailAddress(selfEmail[0].ToString()));
+			}
+		if (RadioMails.Checked) {
+			var adresses = mail_Text.Text.Split(',').Select(a => a.Trim(new[] { ' ', '\n', '\r' })).Where(a => !string.IsNullOrEmpty(a));
+			foreach (var adress in adresses) {
+				message.To.Add(new MailAddress(adress));
+			}
+		}
+		if (message.To.Count <= 0) {
+			ErrorMassage.Text = "Укажите получателя отчета !";
+			ErrorMassage.BackColor = Color.Red;
+			return;
+		}
+		if (Directory.Exists(ftpDirectory))
+			foreach (var file in Directory.GetFiles(ftpDirectory)) {
+				message.Attachments.Add(new Attachment(file));
+			}
+		if (message.Attachments.Count <= 0) {
+			ErrorMassage.Text = "Файл отчета не найден";
+			ErrorMassage.BackColor = Color.Red;
+			return;
+		}
+		var client = new SmtpClient(ConfigurationManager.AppSettings["SMTPHost"]);
+		message.BodyEncoding = System.Text.Encoding.UTF8;
+		client.Send(message);
+		ErrorMassage.Text = "Файл отчета успешно отправлен";
+		ErrorMassage.BackColor = Color.LightGreen;
 	}
 }

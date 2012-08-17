@@ -51,6 +51,23 @@ namespace ReportTuner.Test.Functional
 		}
 
 		[Test]
+		public void Send_ready_report()
+		{
+			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
+				browser.Button(Find.ByValue("Выполнить")).Click();
+				Thread.Sleep(2000);
+				browser.Refresh();
+				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
+				browser.TextField("mail_Text").Clear();
+				browser.Button(Find.ByValue("Выслать готовый")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
+				browser.TextField("mail_Text").AppendText("r.kvasov@analit.net");
+				browser.Button(Find.ByValue("Выслать готовый")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
+			}
+		}
+
+		[Test]
 		public void Add_help_file_for_general_report()
 		{
 			var report = session.Get<GeneralReport>((ulong)1);

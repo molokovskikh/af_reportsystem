@@ -86,16 +86,16 @@
    ValidationGroup="mail_Text_Group"></asp:RequiredFieldValidator>
 
 
-						<asp:TextBox ID="mail_Text" runat="server" style="background-color: white;
+						<asp:TextBox ClientIDMode="Static" ID="mail_Text" runat="server" style="background-color: white;
 							 border-color:black; border-width:1px; color: black;"
 						 TextMode=MultiLine Columns="50" Rows="6" runat=server></asp:TextBox>
 
 	<asp:Label ID="Label7" runat="server" Width=419px Text="Например: (adr1@dom.com, adr2@dom.com, ... )"></asp:Label>
-						 <br />
-						 <br />
-						 <br />
-											 <asp:Button ID="btn_Mailing" runat="server" Text="Выполнить" 
-						ValidationGroup="vgPassword" OnClick="btnExecute_mailing" Width="240px" />
+						<br />
+						<br />
+						<br />
+						<asp:Button ID="btn_Mailing" runat="server" Text="Выполнить" ValidationGroup="vgPassword" OnClick="btnExecute_mailing" Width="200px" />
+						<asp:Button ID="send_created_report" runat="server" Text="Выслать готовый" ValidationGroup="vgPassword" OnClick="btnExecute_sendReady" Width="200px" />
 						
 				</td>
 				<td style="width: 268435488px"> 
