@@ -54,9 +54,9 @@ Task @Clean:
 
 # Отложенное обновление. Файлы обновляются, как только все отчеты отработают.
 # Не обновляются: ReportSystemBoot, log4net и ProcessPrivileges (т.к. используются в ReportSystemBoot).
-Task @deploy, [@Backup, @Production, @Build, @Migrate, @SendDeployNotification]:
+Task @deploy, [@CheckScmChanges, @Backup, @Production, @Build, @Migrate, @SendDeployNotification]:
 	Cp(FileSet("*.*", BaseDirectory : buildTo), releaseTo, true)
 
 # Обновление сразу, всех файлов. Нужно дождаться окончания работы всех процессов
-Task @forceDeploy, [@Backup, @Production, @Build, @Migrate, @SendDeployNotification]:
+Task @forceDeploy, [@CheckScmChanges, @Backup, @Production, @Build, @Migrate, @SendDeployNotification]:
 	Cp(FileSet("*.*", BaseDirectory : buildTo), deployTo, true)
