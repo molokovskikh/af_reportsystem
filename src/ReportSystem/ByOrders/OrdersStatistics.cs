@@ -18,26 +18,23 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public OrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
-		{}
+		{
+		}
 
 		public override void ReadReportParams()
-		{			
+		{
 			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if(Interval)
-			{
+			if (Interval) {
 				dtFrom = From;
 				dtTo = To;
 				dtTo = dtTo.Date.AddDays(1);
 			}
-			else
-			if(ByPreviousMonth)
-			{				
+			else if (ByPreviousMonth) {
 				dtTo = DateTime.Now;
 				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца
 				dtFrom = dtTo.AddMonths(-1).Date;
 			}
-			else
-			{
+			else {
 				_reportInterval = (int)getReportParam(reportIntervalProperty);
 				dtTo = DateTime.Now.Date;
 				dtFrom = dtTo.AddDays(-_reportInterval).Date;
@@ -48,7 +45,7 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			ProfileHelper.Next(String.Format("CalculateOrders: dtFrom={0}, dtTo={1}", dtFrom.ToString(), dtTo.ToString())); 
+			ProfileHelper.Next(String.Format("CalculateOrders: dtFrom={0}, dtTo={1}", dtFrom.ToString(), dtTo.ToString()));
 			var selectCommand = e.DataAdapter.SelectCommand;
 			selectCommand.CommandText = "orders.CalculateOrders"; // в ХП в фильтре по регионам указаны платные регионы
 			selectCommand.CommandType = CommandType.StoredProcedure;

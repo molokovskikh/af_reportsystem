@@ -10,14 +10,14 @@
             <Columns>
                 <asp:TemplateField HeaderText="Тип отчета">
                     <ItemTemplate>
-                        <asp:Label ID="lblReports" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportTypeName")%>'></asp:Label><asp:DropDownList
+                        <asp:Label ID="lblReports" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RReportTypeName") %>'></asp:Label><asp:DropDownList
                             ID="ddlReports" runat="server" Visible="False">
                         </asp:DropDownList>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:TemplateField HeaderText="Имя шаблона">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbCaption" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportCaption")%>'></asp:TextBox><asp:RequiredFieldValidator
+                        <asp:TextBox ID="tbCaption" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RReportCaption") %>'></asp:TextBox><asp:RequiredFieldValidator
                             ID="rfvCaption" runat="server" ControlToValidate="tbCaption" ErrorMessage='Поле "Имя листа" должно быть заполнено'
                             ValidationGroup="vgReps">*</asp:RequiredFieldValidator>
                     </ItemTemplate>

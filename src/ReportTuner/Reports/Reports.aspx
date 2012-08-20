@@ -63,13 +63,13 @@
 				<Columns>
 					<asp:TemplateField HeaderText="Ссылка">
 						<ItemTemplate>
-							<asp:HyperLink runat="server" ID="FileName" Text='<%#DataBinder.Eval(Container, "DataItem.FileName")%>'
-						 NavigateUrl='<%#DataBinder.Eval(Container, "DataItem.NavigateUrl")%>'></asp:HyperLink>
+							<asp:HyperLink runat="server" ID="FileName" Text='<%# DataBinder.Eval(Container, "DataItem.FileName") %>'
+						 NavigateUrl='<%# DataBinder.Eval(Container, "DataItem.NavigateUrl") %>'></asp:HyperLink>
 						</ItemTemplate>
 					</asp:TemplateField>
 					<asp:TemplateField HeaderText="Выбор файла">
 					<ItemTemplate>
-						<asp:HiddenField runat="server" ID="Id" Value='<%#DataBinder.Eval(Container, "DataItem.Id")%>'/>
+						<asp:HiddenField runat="server" ID="Id" Value='<%# DataBinder.Eval(Container, "DataItem.Id") %>'/>
 						<asp:FileUpload runat="server" ID="UploadFile"/>
 					</ItemTemplate>
 					</asp:TemplateField>
@@ -99,13 +99,13 @@
 			<Columns>
 				<asp:TemplateField HeaderText="Тип отчета">
 					<ItemTemplate>
-						<asp:Label ID="lblReports" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportTypeName")%>'></asp:Label><asp:DropDownList ID="ddlReports" runat="server" Visible="False">
+						<asp:Label ID="lblReports" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RReportTypeName") %>'></asp:Label><asp:DropDownList ID="ddlReports" runat="server" Visible="False">
 						</asp:DropDownList>
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Имя листа">
 					<ItemTemplate>
-						<asp:TextBox ID="tbCaption" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.RReportCaption")%>'></asp:TextBox>
+						<asp:TextBox ID="tbCaption" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RReportCaption") %>'></asp:TextBox>
 						<asp:RequiredFieldValidator ID="rfvCaption" runat="server" ControlToValidate="tbCaption" 
 							ErrorMessage='Поле "Имя листа" должно быть заполнено' ValidationGroup="vgReps">*</asp:RequiredFieldValidator>
 						<asp:CustomValidator ControlToValidate="tbCaption" 
@@ -115,7 +115,7 @@
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Включен">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbEnable" runat="server" Checked=<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.REnabled"))%> />
+						<asp:CheckBox ID="chbEnable" runat="server" Checked=<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.REnabled")) %> />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:HyperLinkField HeaderText="Параметры" Text="..." DataNavigateUrlFields="RReportCode" DataNavigateUrlFormatString="ReportProperties.aspx?rp={0}" />
@@ -125,7 +125,7 @@
 				</HeaderTemplate>
 				<ItemTemplate>
 					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
-					<asp:Button ID="btnCopy" runat="server" Text="Копировать" CommandName="Copy" Visible=<%#(DataBinder.Eval(Container, "DataItem.RReportCode") != DBNull.Value)%>/>
+					<asp:Button ID="btnCopy" runat="server" Text="Копировать" CommandName="Copy" Visible=<%# (DataBinder.Eval(Container, "DataItem.RReportCode") != DBNull.Value) %>/>
 				</ItemTemplate>
 				</asp:TemplateField>
 			</Columns>

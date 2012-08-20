@@ -9,35 +9,35 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void Workbook(string file, Action<Workbook> action)
 		{
 			Application exApp = new ApplicationClass();
-			try
-			{
+			try {
 				exApp.DisplayAlerts = false;
 				file = Path.GetFullPath(file);
 				var workbook = exApp.Workbooks.Open(file);
 				_Worksheet worksheet;
-				try
-				{
-					try
-					{
+				try {
+					try {
 						action(workbook);
 					}
-					finally
-					{
+					finally {
 						workbook.SaveAs(file, FileFormat: 56);
 					}
 				}
-				finally
-				{
+				finally {
 					worksheet = null;
 					workbook = null;
-					try { exApp.Workbooks.Close(); }
-					catch { }
+					try {
+						exApp.Workbooks.Close();
+					}
+					catch {
+					}
 				}
 			}
-			finally
-			{
-				try { exApp.Quit(); }
-				catch { }
+			finally {
+				try {
+					exApp.Quit();
+				}
+				catch {
+				}
 				exApp = null;
 			}
 		}

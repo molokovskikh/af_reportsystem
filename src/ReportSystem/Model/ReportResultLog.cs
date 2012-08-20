@@ -27,8 +27,7 @@ namespace Inforoom.ReportSystem.Model
 
 		public static ReportResultLog Log(ulong generalReportCode, ulong reportCode, DateTime startTime, DateTime stopTime, string errorMessage)
 		{
-			using (var scope = new TransactionScope(OnDispose.Rollback))
-			{
+			using (var scope = new TransactionScope(OnDispose.Rollback)) {
 				var log = new ReportResultLog {
 					GeneralReportCode = generalReportCode,
 					ReportCode = reportCode,

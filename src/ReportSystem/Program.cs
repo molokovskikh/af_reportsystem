@@ -20,7 +20,7 @@ namespace Inforoom.ReportSystem
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
 		public static GeneralReport generalReport { get; private set; }
 		//Выбираем отчеты из базы
-		static DataTable GetGeneralReports(ReportsExecuteArgs e)
+		private static DataTable GetGeneralReports(ReportsExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = e.SQL;
 			var res = new DataTable();
@@ -32,8 +32,7 @@ namespace Inforoom.ReportSystem
 		public static void Main(string[] args)
 		{
 			int generalReportId = 0;
-			try
-			{
+			try {
 				XmlConfigurator.Configure();
 				ActiveRecordInitialize.Init("DB", typeof(Supplier).Assembly);
 
@@ -43,24 +42,20 @@ namespace Inforoom.ReportSystem
 				var dtTo = new DateTime();
 				var manual = false;
 				generalReportId = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
-				if(!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/manual:"))) {
+				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/manual:"))) {
 					manual = Convert.ToBoolean(CommandLineUtils.GetStr(@"/manual:"));
 				}
-				
-				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:")))
-				{
+
+				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:"))) {
 					interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:"));
 					dtFrom = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtFrom:"));
 					dtTo = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtTo:"));
 				}
 
-				if (generalReportId != -1)
-				{
+				if (generalReportId != -1) {
 					var mc = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 					mc.Open();
-					try
-					{
-
+					try {
 						//Формируем запрос
 						var sqlSelectReports = @"SELECT  
   cr.*,   
@@ -74,12 +69,9 @@ and cr.generalreportcode = " + generalReportId;
 						//Выбирает отчеты согласно фильтру
 						var dtGeneralReports = MethodTemplate.ExecuteMethod(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc);
 
-						if ((dtGeneralReports != null) && (dtGeneralReports.Rows.Count > 0))
-						{
-							foreach (DataRow drReport in dtGeneralReports.Rows)
-							{
-								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]) && !manual)
-								{
+						if ((dtGeneralReports != null) && (dtGeneralReports.Rows.Count > 0)) {
+							foreach (DataRow drReport in dtGeneralReports.Rows) {
+								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]) && !manual) {
 									Mailer.MailGeneralReportErr(
 										"Невозможно выполнить отчет, т.к. отчет выключен.",
 										(string)drReport[GeneralReportColumns.ShortName],
@@ -87,8 +79,7 @@ and cr.generalreportcode = " + generalReportId;
 									continue;
 								}
 
-								try
-								{
+								try {
 									var propertiesLoader = new ReportPropertiesLoader();
 
 									//Создаем каждый отчет отдельно и пытаемся его сформировать
@@ -108,8 +99,7 @@ and cr.generalreportcode = " + generalReportId;
 									gr.ProcessReports();
 									_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
 								}
-								catch (Exception ex)
-								{
+								catch (Exception ex) {
 									var message = String.Format("Ошибка при запуске отчета {0}",
 										drReport[GeneralReportColumns.ShortName]);
 									_log.Error(message, ex);
@@ -123,18 +113,15 @@ and cr.generalreportcode = " + generalReportId;
 						}
 						else
 							Mailer.MailGlobalErr(String.Format("Отчет с кодом {0} не существует.", generalReportId));
-
 					}
-					finally
-					{
+					finally {
 						mc.Close();
 					}
 				}
 				else
 					Mailer.MailGlobalErr("Не указан код отчета для запуска в параметре gr.");
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
 				Mailer.MailGlobalErr(ex.ToString());
 			}

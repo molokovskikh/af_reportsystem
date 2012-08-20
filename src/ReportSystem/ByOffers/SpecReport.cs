@@ -56,8 +56,9 @@ namespace Inforoom.ReportSystem
 		//количество столбцов в блоке прайс листа
 		private int priceBlockSize;
 
-		protected SpecReport()// конструктор для возможности тестирования
-		{}
+		protected SpecReport() // конструктор для возможности тестирования
+		{
+		}
 
 		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
@@ -72,7 +73,7 @@ namespace Inforoom.ReportSystem
 			_showPercents = (bool)getReportParam("ShowPercents");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
 			_reportSortedByPrice = (bool)getReportParam("ReportSortedByPrice");
-			if(!_byBaseCosts && !_isRetail)
+			if (!_byBaseCosts && !_isRetail)
 				_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
@@ -86,26 +87,26 @@ namespace Inforoom.ReportSystem
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
-			if (_byBaseCosts)
-			{   // Отчет готовится по базовым ценам
+			if (_byBaseCosts) {
+				// Отчет готовится по базовым ценам
 				//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
 				SourceRegionCode = Convert.ToUInt64(
 					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-											  @"select s.HomeRegion
+						@"select s.HomeRegion
 	from usersettings.PricesData pd
 	inner join Customers.suppliers s on pd.FirmCode = s.Id
 	and pd.PriceCode = ?PriceCode;",
-											  new MySqlParameter("?PriceCode", _priceCode)));
+						new MySqlParameter("?PriceCode", _priceCode)));
 			}
-			else
-			{   // отчет готовится по клиенту
+			else {
+				// отчет готовится по клиенту
 				//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет			
 				SourceRegionCode = Convert.ToUInt64(
 					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-											  @"select RegionCode
+						@"select RegionCode
 	from Customers.Clients
 where Id = ?ClientCode",
-											  new MySqlParameter("?ClientCode", _clientCode)));
+						new MySqlParameter("?ClientCode", _clientCode)));
 			}
 
 			SourcePC = _priceCode;
@@ -160,8 +161,7 @@ where c0.Id is null
 group by c.pricecode";
 			var data = new DataTable();
 			args.DataAdapter.Fill(data);
-			if (data.Rows.Count > 0)
-			{
+			if (data.Rows.Count > 0) {
 				Logger.DebugFormat("Отчет {1}, Прайс листы {0} обновились для них не будет предложений",
 					data.Rows.Cast<DataRow>().Select(r => Convert.ToUInt32(r["PriceCode"])).Implode(),
 					ReportCode);
@@ -224,20 +224,17 @@ group by c.pricecode";
 			firstColumnCount = dtRes.Columns.Count;
 
 			var priceIndex = 0;
-			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
-			{
+			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows) {
 				column = dtRes.Columns.Add("Cost" + priceIndex.ToString(), typeof(decimal));
 				column.Caption = "Цена";
 				column.ExtendedProperties.Add("Width", 6);
 
-				if (ShowQuantity)
-				{
+				if (ShowQuantity) {
 					column = dtRes.Columns.Add("Quantity" + priceIndex.ToString());
 					column.Caption = "Кол-во";
 					column.ExtendedProperties.Add("Width", 4);
 				}
-				if (_showPercents)
-				{
+				if (_showPercents) {
 					column = dtRes.Columns.Add("Percents" + priceIndex.ToString(), typeof(decimal));
 					column.Caption = "% разницы";
 					column.ExtendedProperties.Add("AsDecimal", "");
@@ -250,8 +247,7 @@ group by c.pricecode";
 			newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
 
-			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows)
-			{
+			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows) {
 				newrow = dtRes.NewRow();
 				newrow["FullName"] = drCatalog["FullName"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
@@ -261,15 +257,13 @@ group by c.pricecode";
 
 				//Если есть ID, то мы можем заполнить поле Code и, возможно, остальные поля   предложение SourcePC существует
 				DataRow[] drsMin;
-				if (!(drCatalog["ID"] is DBNull))
-				{
+				if (!(drCatalog["ID"] is DBNull)) {
 					newrow["Code"] = drCatalog["Code"];
 					//Производим поиск предложения по данной позиции по интересующему прайс-листу
 					drsMin = dtCore.Select("ID = " + drCatalog["ID"]);
 					//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
 					//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
-					if ((drsMin.Length > 0) && !(drsMin[0]["Cost"] is DBNull))
-					{
+					if ((drsMin.Length > 0) && !(drsMin[0]["Cost"] is DBNull)) {
 						newrow["CustomerCost"] = Convert.ToDecimal(drsMin[0]["Cost"]);
 						newrow["CustomerQuantity"] = drsMin[0]["Quantity"];
 						if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
@@ -278,31 +272,27 @@ group by c.pricecode";
 				}
 
 				//Если имя лидера неустановлено, то выставляем имя лидера
-				if (newrow["LeaderName"] is DBNull)
-				{
+				if (newrow["LeaderName"] is DBNull) {
 					//Устанавливаем разность между ценой SourcePC и минимальной ценой
-					if (!(newrow["CustomerCost"] is DBNull))
-					{
-						var minCost = (decimal) newrow["MinCost"];
+					if (!(newrow["CustomerCost"] is DBNull)) {
+						var minCost = (decimal)newrow["MinCost"];
 						var customerCost = (decimal)newrow["CustomerCost"];
 						newrow["Differ"] = customerCost - minCost;
 						newrow["DifferPercents"] = Math.Round((customerCost - minCost) / customerCost * 100, 0);
 					}
 
 					//Выбираем позиции с минимальной ценой, отличные от SourcePC
-					drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}", 
-						drCatalog["CatalogCode"], 
+					drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}",
+						drCatalog["CatalogCode"],
 						GetProducerFilter(drCatalog),
-						((decimal) drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat)));
+						((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat)));
 
-					if (drsMin.Length > 0)
-					{
+					if (drsMin.Length > 0) {
 						var leaderNames = new List<string>();
-						foreach (var drmin in drsMin)
-						{
+						foreach (var drmin in drsMin) {
 							var drs = dtPrices.Select(
 								"PriceCode=" + drmin["PriceCode"] +
-								" and RegionCode = " + drmin["RegionCode"]);
+									" and RegionCode = " + drmin["RegionCode"]);
 							if (drs.Length > 0)
 								if (!leaderNames.Contains(drs[0]["FirmName"].ToString()))
 									leaderNames.Add(drs[0]["FirmName"].ToString());
@@ -310,18 +300,16 @@ group by c.pricecode";
 						newrow["LeaderName"] = String.Join("; ", leaderNames.ToArray());
 					}
 				}
-				else
-				{
+				else {
 					//Ищем первую цену, которая будет больше минимальной цены
 					drsMin = dtCore.Select(
 						"CatalogCode = " + drCatalog["CatalogCode"] +
-						" and PriceCode <> " + SourcePC +
-						GetProducerFilter(drCatalog) +
-						" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat),
+							" and PriceCode <> " + SourcePC +
+							GetProducerFilter(drCatalog) +
+							" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat),
 						"Cost asc");
 
-					if (drsMin.Length > 0)
-					{
+					if (drsMin.Length > 0) {
 						var customerCost = Convert.ToDecimal(newrow["CustomerCost"]);
 						var cost = Convert.ToDecimal(drsMin[0]["Cost"]);
 						newrow["Differ"] = customerCost - cost;
@@ -331,18 +319,15 @@ group by c.pricecode";
 
 				//Выбираем позиции и сортируем по возрастанию цен для того, чтобы по каждому прайс-листы выбрать минимальную цену по одному и тому же CatalogCode
 				drsMin = dtCore.Select("CatalogCode = " + drCatalog["CatalogCode"] + GetProducerFilter(drCatalog), "Cost asc");
-				foreach (var dtPos in drsMin)
-				{
+				foreach (var dtPos in drsMin) {
 					var dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"] + " and RegionCode = " + dtPos["RegionCode"]);
 					//Проверка на случай получения прайса SourcePC, т.к. этот прайс не будет в dtPrices
-					if (dr.Length > 0)
-					{
+					if (dr.Length > 0) {
 						priceIndex = dtPrices.Rows.IndexOf(dr[0]);
 
 						//Если мы еще не установили значение у поставщика, то делаем это
 						//раньше вставляли последнее значение, которое было максимальным
-						if (newrow["Cost" + priceIndex] is DBNull)
-						{
+						if (newrow["Cost" + priceIndex] is DBNull) {
 							newrow["Cost" + priceIndex] = dtPos["Cost"];
 
 							var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
@@ -350,8 +335,7 @@ group by c.pricecode";
 								newrow[quantityColumn] = dtPos["Quantity"];
 
 							var percentColumn = dtRes.Columns["Percents" + priceIndex];
-							if (percentColumn != null)
-							{
+							if (percentColumn != null) {
 								var mincost = Convert.ToDouble(newrow["MinCost"]);
 								var pricecost = Convert.ToDouble(dtPos["Cost"]);
 								newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
@@ -381,28 +365,26 @@ group by c.pricecode";
 		protected void GetSourceCodes(ExecuteArgs e)
 		{
 			var EnabledPrice = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(
-						e.DataAdapter.SelectCommand.Connection,
-						"select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
-						new MySqlParameter("?SourcePC", SourcePC),
-						new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
-			if(EnabledPrice == 0 && _byBaseCosts)
-			{
+				MySqlHelper.ExecuteScalar(
+					e.DataAdapter.SelectCommand.Connection,
+					"select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
+					new MySqlParameter("?SourcePC", SourcePC),
+					new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
+			if (EnabledPrice == 0 && _byBaseCosts) {
 				EnabledPrice = Convert.ToInt32(
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						"select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
 						new MySqlParameter("?SourcePC", SourcePC)));
-				if(EnabledPrice != 0)
-				{
+				if (EnabledPrice != 0) {
 					SourceRegionCode = Convert.ToUInt64(
-					MySqlHelper.ExecuteScalar(
-						e.DataAdapter.SelectCommand.Connection,
-						"select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
-						new MySqlParameter("?SourcePC", SourcePC)));
+						MySqlHelper.ExecuteScalar(
+							e.DataAdapter.SelectCommand.Connection,
+							"select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
+							new MySqlParameter("?SourcePC", SourcePC)));
 				}
 			}
-			
+
 			//Добавляем к таблице Core поле CatalogCode и заполняем его
 			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
@@ -432,8 +414,7 @@ CREATE temporary table TmpSourceCodes(
   key SynonymCode(SynonymCode)
 ) engine = MEMORY PACK_KEYS = 0;";
 
-			if (EnabledPrice == 0)
-			{
+			if (EnabledPrice == 0) {
 				//Если прайс-лист не включен клиентом или прайс-лист ассортиментный, то добавляем его в таблицу источников TmpSourceCodes, но с ценами NULL
 				e.DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes 
@@ -461,8 +442,7 @@ WHERE
 	FarmCore.PriceCode = ?SourcePC 
 and products.id = FarmCore.ProductId;";
 			}
-			else
-			{
+			else {
 				e.DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes 
 Select 
@@ -471,11 +451,11 @@ Select
   Core.RegionCode,
   FarmCore.Code,
   Core.Cost,";
-			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
-			else
-				e.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
-			e.DataAdapter.SelectCommand.CommandText += @"
+				if (_calculateByCatalog)
+					e.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
+				else
+					e.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
+				e.DataAdapter.SelectCommand.CommandText += @"
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
@@ -499,7 +479,7 @@ and Core.RegionCode = ?SourceRegionCode;";
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 #endif
 
-e.DataAdapter.SelectCommand.CommandText = @"
+			e.DataAdapter.SelectCommand.CommandText = @"
 select 
   Core.Id,
   Core.CatalogCode,
@@ -515,7 +495,7 @@ where
   FarmCore.Id = core.id";
 
 #if DEBUG
-	Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 #endif
 
 			//todo: изменить заполнение в другую таблицу
@@ -571,8 +551,7 @@ from
   farm.core0 FarmCore,";
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
-			if (_reportIsFull)
-			{
+			if (_reportIsFull) {
 				if (_reportType <= 2)
 					SqlCommandText += @"
   Core AllPrices 
@@ -594,20 +573,19 @@ from
 				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode 
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
 where 
   products.id = AllPrices.ProductId 
   and FarmCore.Id = AllPrices.Id";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
 and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
-			if (!_reportIsFull)
-			{
+			if (!_reportIsFull) {
 				if (_reportType <= 2)
 					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
@@ -630,7 +608,6 @@ order by FullName, FirmCr";
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
 #endif
-
 		}
 
 		protected override void FormatExcel(string fileName)
@@ -643,7 +620,7 @@ order by FullName, FirmCr";
 
 				var result = _dsReport.Tables["Results"];
 				//очищаем заголовки
-				for(var i = 0; i < result.Columns.Count; i++)
+				for (var i = 0; i < result.Columns.Count; i++)
 					ws.Cells[1, i + 1] = "";
 
 				var tableBeginRowIndex = 3;
@@ -681,20 +658,16 @@ order by FullName, FirmCr";
 				//Объединяем несколько ячеек, чтобы в них написать текст
 				ws.Range["A1:K2", Missing.Value].Select();
 				((Range)wb.Application.Selection).Merge(null);
-				if (!WithoutAssortmentPrice)
-				{
+				if (!WithoutAssortmentPrice) {
 					if (_reportType < 3)
 						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 					else
 						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 				}
+				else if (_reportType < 3)
+					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
 				else
-				{
-					if (_reportType < 3)
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
-					else
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
-				}
+					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
 			});
 		}
 
@@ -702,9 +675,8 @@ order by FullName, FirmCr";
 		{
 			var columnPrefix = firstColumnCount + 1;
 			var priceIndex = 0;
-			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
-			{
-				var columnIndex = columnPrefix + priceIndex*priceBlockSize;
+			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows) {
+				var columnIndex = columnPrefix + priceIndex * priceBlockSize;
 				//Устанавливаем название фирмы
 				ws.Cells[1, columnIndex] = drPrice["FirmName"].ToString();
 				//Устанавливаем дату фирмы

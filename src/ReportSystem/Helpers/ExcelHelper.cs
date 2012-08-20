@@ -45,13 +45,12 @@ namespace Inforoom.ReportSystem.Helpers
 			HorizontalAlignment = HorizontalAlignment.Center,
 		};
 
-		public static CellStyle PlainStyle = new CellStyle
-		{
+		public static CellStyle PlainStyle = new CellStyle {
 			Font = FontSmall,
 		};
 
 		public static CellFormat DateCellFormat = new CellFormat(CellFormatType.DateTime, "dd.mm.yyyy HH:MM:SS");
-		
+
 
 		public static void WriteCell(Worksheet ws, int row, int col, object value, CellStyle style)
 		{
@@ -62,8 +61,7 @@ namespace Inforoom.ReportSystem.Helpers
 				temp = value;
 
 			if (temp != null && temp != DBNull.Value)
-				if (temp is DateTime)
-				{
+				if (temp is DateTime) {
 					ws.Cells[row, col] = new Cell(temp);
 					ws.Cells[row, col].Format = DateCellFormat;
 				}
@@ -80,21 +78,17 @@ namespace Inforoom.ReportSystem.Helpers
 		{
 			int curCol = col;
 
-			if (writeHeaders)
-			{
-				foreach (DataColumn column in table.Columns)
-				{
+			if (writeHeaders) {
+				foreach (DataColumn column in table.Columns) {
 					WriteCell(ws, row, curCol, column.Caption, TableHeader);
 					curCol++;
 				}
 				row++;
 			}
 
-			foreach (DataRow curRow in table.Rows)
-			{
+			foreach (DataRow curRow in table.Rows) {
 				curCol = col;
-				foreach (DataColumn column in table.Columns)
-				{
+				foreach (DataColumn column in table.Columns) {
 					WriteCell(ws, row, curCol, curRow[column], TableCell);
 					curCol++;
 				}
@@ -110,15 +104,14 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static int PutHeader(_Worksheet ws, int beginRow, int columnCount, string message)
 		{
-			((Range) ws.Cells[beginRow + 1, 1]).Select();
-			var row = ((Range) ws.Application.Selection).EntireRow;
+			((Range)ws.Cells[beginRow + 1, 1]).Select();
+			var row = ((Range)ws.Application.Selection).EntireRow;
 			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
 			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
 			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
 
 			beginRow += 3;
-			var range = ws.Range[
-				ws.Cells[beginRow - 3, 1], 
+			var range = ws.Range[ws.Cells[beginRow - 3, 1],
 				ws.Cells[beginRow - 1, columnCount]];
 			range.Select();
 			((Range)ws.Application.Selection).Merge();
@@ -132,8 +125,8 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void Header(_Worksheet ws, int beginRow, int columnCount, string message)
 		{
-			((Range) ws.Cells[beginRow + 1, 1]).Select();
-			var row = ((Range) ws.Application.Selection).EntireRow;
+			((Range)ws.Cells[beginRow + 1, 1]).Select();
+			var row = ((Range)ws.Application.Selection).EntireRow;
 			row.Insert(XlInsertShiftDirection.xlShiftDown, Type.Missing);
 
 			Merge(ws, beginRow, 0, columnCount, message);
@@ -141,8 +134,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void Merge(_Worksheet ws, int beginRow, int beginColumn, int columnCount, string message)
 		{
-			var range = ws.Range[
-				ws.Cells[beginRow + 1, beginColumn + 1],
+			var range = ws.Range[ws.Cells[beginRow + 1, beginColumn + 1],
 				ws.Cells[beginRow + 1, beginColumn + columnCount]];
 			range.Merge();
 			range.FormulaR1C1 = message;
@@ -158,8 +150,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void FormatHeader(_Worksheet sheet, int row, DataTable table)
 		{
-			for (var i = 0; i < table.Columns.Count; i++)
-			{
+			for (var i = 0; i < table.Columns.Count; i++) {
 				sheet.Cells[row, i + 1] = "";
 				sheet.Cells[row, i + 1] = table.Columns[i].Caption;
 				if (table.Columns[i].ExtendedProperties.ContainsKey("Width"))

@@ -20,10 +20,8 @@ namespace Inforoom.ReportSystem.Helpers
 			var result = new List<string>();
 			var selectCommand = e.DataAdapter.SelectCommand;
 			selectCommand.CommandText = command;
-			using (var reader = selectCommand.ExecuteReader())
-			{
-				while (reader.Read())
-				{
+			using (var reader = selectCommand.ExecuteReader()) {
+				while (reader.Read()) {
 					result.Add(action(reader));
 				}
 				reader.Close();
@@ -32,7 +30,7 @@ namespace Inforoom.ReportSystem.Helpers
 		}
 
 		public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
-		{			
+		{
 			var command = @"select supps.Name as ShortName from Customers.suppliers supps where supps.Id in " + ProviderReport.ConcatWhereIn(suppliers);
 			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
@@ -50,7 +48,7 @@ namespace Inforoom.ReportSystem.Helpers
 		}
 
 		public static List<String> GetPriceName(List<ulong> _priceCode, ExecuteArgs e)
-		{			
+		{
 			var command = @"SELECT supps.Name as ShortName FROM usersettings.PricesData P 
 							join Customers.suppliers supps on supps.Id = p.FirmCode
 							where p.PriceCode = " + _priceCode[0];
@@ -70,7 +68,7 @@ namespace Inforoom.ReportSystem.Helpers
 		}
 
 		public static List<String> GetPriceNames(List<ulong> _prices, ExecuteArgs e)
-		{			
+		{
 			var command = @"select pd.PriceCode as PriceCode,
 	convert(concat(supps.Name, ' (', pd.PriceName, ') - ', rg.Region) using cp1251) as PriceName
   from

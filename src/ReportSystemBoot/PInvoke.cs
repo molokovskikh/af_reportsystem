@@ -12,7 +12,8 @@ namespace Inforoom.WindowsService
 	{
 		public GenericHandle()
 			: base(true)
-		{ }
+		{
+		}
 
 		protected override bool ReleaseHandle()
 		{
@@ -24,7 +25,8 @@ namespace Inforoom.WindowsService
 	{
 		public WindowStationHandle()
 			: base(true)
-		{ }
+		{
+		}
 
 		protected override bool ReleaseHandle()
 		{
@@ -36,7 +38,8 @@ namespace Inforoom.WindowsService
 	{
 		public DesktopHandle()
 			: base(true)
-		{ }
+		{
+		}
 
 		protected override bool ReleaseHandle()
 		{
@@ -138,7 +141,7 @@ namespace Inforoom.WindowsService
 	}
 
 	[Flags]
-	enum CreationFlags
+	internal enum CreationFlags
 	{
 		CREATE_BREAKAWAY_FROM_JOB = 0x01000000,
 		CREATE_DEFAULT_ERROR_MODE = 0x04000000,
@@ -228,11 +231,11 @@ namespace Inforoom.WindowsService
 
 		[DllImport("advapi32", SetLastError = true)]
 		public static extern bool LogonUser(string username,
-											string domain,
-											string password,
-											int dwLogonType,
-											int dwLogonProvider,
-											ref GenericHandle phToken);
+			string domain,
+			string password,
+			int dwLogonType,
+			int dwLogonProvider,
+			ref GenericHandle phToken);
 
 		[DllImport("advapi32", SetLastError = true)]
 		public static extern bool ImpersonateLoggedOnUser(GenericHandle hToken);
@@ -247,8 +250,7 @@ namespace Inforoom.WindowsService
 		public static extern WindowStationHandle OpenWindowStation(
 			string lpszWinSta,
 			bool fInherit,
-			ACCESS_MASK dwDesiredAccess
-		);
+			ACCESS_MASK dwDesiredAccess);
 
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool CloseWindowStation(IntPtr hWinsta);
@@ -310,8 +312,8 @@ namespace Inforoom.WindowsService
 
 
 		[DllImport("user32", SetLastError = true)]
-		static extern bool GetUserObjectInformation(IntPtr hObj, int nIndex,
-		   [Out] byte[] pvInfo, uint nLength, out uint lpnLengthNeeded);
+		private static extern bool GetUserObjectInformation(IntPtr hObj, int nIndex,
+			[Out] byte[] pvInfo, uint nLength, out uint lpnLengthNeeded);
 
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool GetUserObjectSecurity(SafeHandle hObj, ref int siRequested, IntPtr securityDescriptor, int length, out int lengthNeeded);
@@ -336,9 +338,9 @@ namespace Inforoom.WindowsService
 
 		[DllImport("advapi32", SetLastError = true)]
 		public static extern bool GetAclInformation(IntPtr acl,
-													ref ACL_SIZE_INFORMATION aclInformation,
-													int aclInformationLength,
-													ACL_INFORMATION_CLASS aclInformationClass);
+			ref ACL_SIZE_INFORMATION aclInformation,
+			int aclInformationLength,
+			ACL_INFORMATION_CLASS aclInformationClass);
 
 		[DllImport("advapi32", SetLastError = true)]
 		public static extern bool InitializeAcl(IntPtr acl, int aclLength, int aclRevision);

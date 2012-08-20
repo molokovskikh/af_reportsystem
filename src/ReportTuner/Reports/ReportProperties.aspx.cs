@@ -34,7 +34,7 @@ public partial class Reports_ReportProperties : Page
 	private DataColumn PPropertyName;
 	public DataTable dtEnumValues;
 	private DataColumn PStoredProc;
-	DataTable dtProcResult;
+	private DataTable dtProcResult;
 	private DataTable dtClient;
 	private DataColumn CReportCaption;
 	private DataTable dtOptionalParams;
@@ -59,7 +59,7 @@ public partial class Reports_ReportProperties : Page
 	{
 		InitializeComponent();
 	}
-	
+
 	protected void Page_Load(object sender, EventArgs e)
 	{
 		if (String.IsNullOrEmpty(Request["r"]) && String.IsNullOrEmpty(Request["TemporaryId"]))
@@ -74,8 +74,7 @@ public partial class Reports_ReportProperties : Page
 		btnBack.Visible = !String.IsNullOrEmpty(Request["TemporaryId"]);
 		btnNext.Visible = btnBack.Visible;
 
-		if (!(Page.IsPostBack))
-		{
+		if (!(Page.IsPostBack)) {
 			MyCn.Open();
 			MyCmd.Connection = MyCn;
 			MyDA.SelectCommand = MyCmd;
@@ -102,12 +101,10 @@ and rts.ReportTypeCode = rt.ReportTypeCode
 			propertiesHelper = new PropertiesHelper(Convert.ToUInt32(Request["rp"]), dtNonOptionalParams, dtOptionalParams);
 			Session[PropHelper] = propertiesHelper;
 		}
-		else
-		{
+		else {
 			DS = ((DataSet)Session[DSParams]);
-			propertiesHelper = (PropertiesHelper) Session[PropHelper];
-			if (DS == null || propertiesHelper == null) // вероятно, сессия завершилась и все ее данные утеряны
-			{
+			propertiesHelper = (PropertiesHelper)Session[PropHelper];
+			if (DS == null || propertiesHelper == null) { // вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
 			}
 		}
@@ -238,7 +235,7 @@ AND rp.reportCode=?rp
 		dgvOptional.DataBind();
 		Session[DSParams] = DS;
 	}
-
+	#region Component Designer generated code
 	private void InitializeComponent()
 	{
 		this.DS = new System.Data.DataSet();
@@ -275,7 +272,8 @@ AND rp.reportCode=?rp
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtNonOptionalParams,
 			this.dtClient,
-			this.dtOptionalParams});
+			this.dtOptionalParams
+		});
 		// 
 		// dtNonOptionalParams
 		// 
@@ -330,7 +328,8 @@ AND rp.reportCode=?rp
 		// 
 		this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
 			this.CReportCaption,
-			this.CReportType});
+			this.CReportType
+		});
 		this.dtClient.TableName = "dtClient";
 		// 
 		// CReportCaption
@@ -394,14 +393,13 @@ AND rp.reportCode=?rp
 		// OPReportTypeCode
 		//
 		this.OPReportTypeCode.ColumnName = "OPReportTypeCode";
-		this.OPReportTypeCode.DataType = typeof (long);
+		this.OPReportTypeCode.DataType = typeof(long);
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).EndInit();
-
 	}
-
+	#endregion
 	protected void dgvNonOptional_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
 		ShowEditor(e.Row);
@@ -412,7 +410,7 @@ AND rp.reportCode=?rp
 		if (rowView.RowType != DataControlRowType.DataRow)
 			return;
 
-		var row = (DataRowView) rowView.DataItem;
+		var row = (DataRowView)rowView.DataItem;
 		var reportProperty = GetReportProperty(row);
 		var id = reportProperty.Id;
 		var type = reportProperty.PropertyType.PropertyType;
@@ -420,26 +418,23 @@ AND rp.reportCode=?rp
 
 		var cell = rowView.Cells[1];
 		cell.Controls.Cast<Control>().OfType<WebControl>().Each(c => c.Visible = false);
-		((Button) cell.FindControl("btnFind")).CommandArgument = rowView.RowIndex.ToString();
-		((Button) cell.FindControl("btnListValue")).CommandArgument = id.ToString();
+		((Button)cell.FindControl("btnFind")).CommandArgument = rowView.RowIndex.ToString();
+		((Button)cell.FindControl("btnListValue")).CommandArgument = id.ToString();
 
-		if (type == "DATETIME")
-		{
+		if (type == "DATETIME") {
 			cell.FindControl("tbDate").Visible = true;
 			if (String.Equals(value, "NOW", StringComparison.OrdinalIgnoreCase))
-				((TextBox) cell.FindControl("tbDate")).Text = DateTime.Now.ToString("yyyy-MM-dd");
+				((TextBox)cell.FindControl("tbDate")).Text = DateTime.Now.ToString("yyyy-MM-dd");
 			else
-				((TextBox) cell.FindControl("tbDate")).Text = value;
+				((TextBox)cell.FindControl("tbDate")).Text = value;
 		}
-		else if (type == "BOOL")
-		{
+		else if (type == "BOOL") {
 			cell.FindControl("chbValue").Visible = true;
-			
-			((CheckBox) cell.FindControl("chbValue")).Checked = Convert.ToBoolean(Convert.ToInt32(value));
+
+			((CheckBox)cell.FindControl("chbValue")).Checked = Convert.ToBoolean(Convert.ToInt32(value));
 		}
-		else if (type == "ENUM")
-		{
-			var ddlValues = ((DropDownList) cell.FindControl("ddlValue"));
+		else if (type == "ENUM") {
+			var ddlValues = ((DropDownList)cell.FindControl("ddlValue"));
 			ddlValues.Visible = true;
 			if (reportProperty.PropertyType.DisplayName == "Пользователь") {
 				var clientProperty = reportProperty.Report.Properties.FirstOrDefault(p => p.PropertyType.DisplayName == "Клиент");
@@ -459,51 +454,40 @@ AND rp.reportCode=?rp
 				ddlValues.DataBind();
 			}
 		}
-		else if (type == "INT")
-		{
-			if (String.IsNullOrEmpty(reportProperty.PropertyType.SelectStoredProcedure))
-			{
+		else if (type == "INT") {
+			if (String.IsNullOrEmpty(reportProperty.PropertyType.SelectStoredProcedure)) {
 				cell.FindControl("tbValue").Visible = true;
 			}
-			else
-			{
-				if (!String.IsNullOrEmpty(value))
-				{
-					cell.FindControl("ddlValue").Visible = true;
+			else if (!String.IsNullOrEmpty(value)) {
+				cell.FindControl("ddlValue").Visible = true;
 
-					FillDDL(
-						reportProperty.PropertyType.SelectStoredProcedure,
-						"",
-						value);
-					ShowSearchedParam(
-						((DropDownList) cell.FindControl("ddlValue")),
-						((TextBox) cell.FindControl("tbSearch")),
-						((Button) cell.FindControl("btnFind")));
-				}
-				else
-				{
-					cell.FindControl("tbSearch").Visible = true;
-					cell.FindControl("btnFind").Visible = true;
-				}
+				FillDDL(
+					reportProperty.PropertyType.SelectStoredProcedure,
+					"",
+					value);
+				ShowSearchedParam(
+					((DropDownList)cell.FindControl("ddlValue")),
+					((TextBox)cell.FindControl("tbSearch")),
+					((Button)cell.FindControl("btnFind")));
+			}
+			else {
+				cell.FindControl("tbSearch").Visible = true;
+				cell.FindControl("btnFind").Visible = true;
 			}
 		}
-		else if (type == "LIST")
-		{
+		else if (type == "LIST") {
 			cell.FindControl("btnListValue").Visible = true;
 		}
-		else if (type == "FILE")
-		{
+		else if (type == "FILE") {
 			cell.FindControl("UploadFile").Visible = true;
-			if (!String.IsNullOrEmpty(reportProperty.Value))
-			{
+			if (!String.IsNullOrEmpty(reportProperty.Value)) {
 				var link = (HyperLink)cell.FindControl("UploadFileUrl");
 				link.Visible = true;
 				link.NavigateUrl = String.Format("~/Properties/File.rails?id={0}", reportProperty.Id);
 				link.Text = reportProperty.Value;
 			}
 		}
-		else
-		{
+		else {
 			cell.FindControl("tbValue").Visible = true;
 		}
 	}
@@ -579,8 +563,7 @@ WHERE ID = ?PID", MyCn, trans);
 
 		string strHost = HttpContext.Current.Request.UserHostAddress;
 		string strUser = HttpContext.Current.User.Identity.Name;
-		if (strUser.StartsWith("ANALIT\\"))
-		{
+		if (strUser.StartsWith("ANALIT\\")) {
 			strUser = strUser.Substring(7);
 		}
 		MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
@@ -648,14 +631,12 @@ WHERE ID = ?OPID", MyCn, trans);
 
 		string strHost = HttpContext.Current.Request.UserHostAddress;
 		string strUser = HttpContext.Current.User.Identity.Name;
-		if (strUser.StartsWith("ANALIT\\"))
-		{
+		if (strUser.StartsWith("ANALIT\\")) {
 			strUser = strUser.Substring(7);
 		}
 		MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
 
 		MyDA.Update(DS, DS.Tables[dtOptionalParams.TableName].TableName);
-
 	}
 
 	protected void btnApply_Click(object sender, EventArgs e)
@@ -665,14 +646,12 @@ WHERE ID = ?OPID", MyCn, trans);
 
 		MyCn.Open();
 
-		var drows = DS.Tables[dtOptionalParams.TableName].Rows.Cast<DataRow>().Where( dr => (dr.RowState == DataRowState.Added) && (dr[OPrtpID.ColumnName] is DBNull)).ToArray();
+		var drows = DS.Tables[dtOptionalParams.TableName].Rows.Cast<DataRow>().Where(dr => (dr.RowState == DataRowState.Added) && (dr[OPrtpID.ColumnName] is DBNull)).ToArray();
 		for (var i = 0; i < drows.Count(); i++)
 			DS.Tables[dtOptionalParams.TableName].Rows.Remove(drows[i]);
 
-		foreach (DataRow dr in DS.Tables[dtOptionalParams.TableName].Rows)
-		{
-			if (dr.RowState == DataRowState.Added)
-			{
+		foreach (DataRow dr in DS.Tables[dtOptionalParams.TableName].Rows) {
+			if (dr.RowState == DataRowState.Added) {
 				dr[OPPropertyValue.ColumnName] = MySqlHelper.ExecuteScalar(MyCn, "SELECT DefaultValue FROM reports.report_type_properties WHERE ID=" + dr[OPrtpID.ColumnName]);
 			}
 		}
@@ -680,8 +659,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 		MyCn.Open();
 		var trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-		try
-		{
+		try {
 			var requiredParameters = DS.Tables[dtNonOptionalParams.TableName];
 			var optionalParameters = DS.Tables[dtOptionalParams.TableName];
 
@@ -704,13 +682,11 @@ WHERE ID = ?OPID", MyCn, trans);
 			trans.Commit();
 			PostData();
 		}
-		catch
-		{
+		catch {
 			trans.Rollback();
 			throw;
 		}
-		finally
-		{
+		finally {
 			MyCn.Close();
 		}
 		if (dgvNonOptional.Rows.Count > 0)
@@ -721,8 +697,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	public void CleanDeletedFiles(IEnumerable<string> files)
 	{
-		foreach (var file in files)
-		{
+		foreach (var file in files) {
 			var name = Path.Combine(Global.Config.SavedFilesPath, file);
 			if (File.Exists(name))
 				File.Delete(name);
@@ -731,12 +706,10 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	public void SaveUploadedFiles(GridView options, DataTable table)
 	{
-		foreach (var row in options.Rows.Cast<GridViewRow>())
-		{
+		foreach (var row in options.Rows.Cast<GridViewRow>()) {
 			var allControls = row.Controls.Cast<Control>().Flat(c => c.Controls.Cast<Control>());
 			var uploads = allControls.Where(f => f.Visible).OfType<FileUpload>().Where(u => u.HasFile);
-			foreach (var fileUpload in uploads)
-			{
+			foreach (var fileUpload in uploads) {
 				var dataRow = table.DefaultView[row.RowIndex];
 				var property = GetReportProperty(dataRow);
 				File.WriteAllBytes(property.Filename, fileUpload.FileBytes);
@@ -746,58 +719,47 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	private void CopyChangesToTable(GridView dgv, DataTable dt, string column)
 	{
-		foreach (GridViewRow dr in dgv.Rows)
-		{
+		foreach (GridViewRow dr in dgv.Rows) {
 			var row = DS.Tables[dt.TableName].DefaultView[dr.RowIndex];
 			var value = row[column];
-			if (dr.FindControl("ddlValue").Visible)
-			{
-				if (dr.FindControl("ddlValue") != null)
-				{
-					if (((DropDownList) dr.FindControl("ddlValue")).SelectedValue != null)
+			if (dr.FindControl("ddlValue").Visible) {
+				if (dr.FindControl("ddlValue") != null) {
+					if (((DropDownList)dr.FindControl("ddlValue")).SelectedValue != null)
 						if (value.ToString() !=
-							((DropDownList) dr.FindControl("ddlValue")).SelectedValue)
+							((DropDownList)dr.FindControl("ddlValue")).SelectedValue)
 							row[column] =
-								((DropDownList) dr.FindControl("ddlValue")).SelectedValue;
+								((DropDownList)dr.FindControl("ddlValue")).SelectedValue;
 				}
 			}
-			else if ((dr.FindControl("chbValue")).Visible)
-			{
+			else if ((dr.FindControl("chbValue")).Visible) {
 				if (value.ToString() !=
-					((CheckBox) dr.FindControl("chbValue")).Checked.ToString())
+					((CheckBox)dr.FindControl("chbValue")).Checked.ToString())
 					row[column] =
-						Convert.ToInt32(((CheckBox) dr.FindControl("chbValue")).Checked).ToString();
+						Convert.ToInt32(((CheckBox)dr.FindControl("chbValue")).Checked).ToString();
 			}
-			else if ((dr.FindControl("tbDate")).Visible)
-			{
-				if (value.ToString() != ((TextBox) dr.FindControl("tbDate")).Text)
-					row[column] = ((TextBox) dr.FindControl("tbDate")).Text;
+			else if ((dr.FindControl("tbDate")).Visible) {
+				if (value.ToString() != ((TextBox)dr.FindControl("tbDate")).Text)
+					row[column] = ((TextBox)dr.FindControl("tbDate")).Text;
 			}
-			else if ((dr.FindControl("tbValue")).Visible)
-			{
+			else if ((dr.FindControl("tbValue")).Visible) {
 				if (value.ToString() !=
-					((TextBox) dr.FindControl("tbValue")).Text)
-					row[column] = ((TextBox) dr.FindControl("tbValue")).Text;
+					((TextBox)dr.FindControl("tbValue")).Text)
+					row[column] = ((TextBox)dr.FindControl("tbValue")).Text;
 			}
-			else
-			{
+			else {
 				var allControls = dr.Controls.Cast<Control>().Flat(c => c.Controls.Cast<Control>());
 				var file = allControls.OfType<FileUpload>().Where(u => u.Visible).Where(f => f.HasFile).FirstOrDefault();
 				if (file != null)
 					row[column] = Path.GetFileName(file.FileName);
 			}
 
-			if (dgv == dgvOptional)
-			{
-				if ((dr.FindControl("ddlName")).Visible)
-				{
-					if (((DropDownList) dr.FindControl("ddlName")).SelectedValue != null)
-					{
+			if (dgv == dgvOptional) {
+				if ((dr.FindControl("ddlName")).Visible) {
+					if (((DropDownList)dr.FindControl("ddlName")).SelectedValue != null) {
 						if (row[OPrtpID.ColumnName].ToString() !=
-							((DropDownList) dr.FindControl("ddlName")).SelectedValue)
-						{
+							((DropDownList)dr.FindControl("ddlName")).SelectedValue) {
 							row[OPrtpID.ColumnName] =
-								((DropDownList) dr.FindControl("ddlName")).SelectedValue;
+								((DropDownList)dr.FindControl("ddlName")).SelectedValue;
 						}
 					}
 				}
@@ -808,8 +770,7 @@ WHERE ID = ?OPID", MyCn, trans);
 	private void FillDDL(string proc, string filter, string id)
 	{
 		string db = String.Empty;
-		try
-		{
+		try {
 			if (MyCn.State != ConnectionState.Open)
 				MyCn.Open();
 			dtProcResult = new DataTable();
@@ -820,7 +781,7 @@ WHERE ID = ?OPID", MyCn, trans);
 			MyCmd.Parameters.Clear();
 			MyCmd.Parameters.AddWithValue("inFilter", filter);
 			MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
-			if(id == String.Empty)
+			if (id == String.Empty)
 				MyCmd.Parameters.AddWithValue("inID", DBNull.Value);
 			else
 				MyCmd.Parameters.AddWithValue("inID", Convert.ToInt64(id));
@@ -829,8 +790,7 @@ WHERE ID = ?OPID", MyCn, trans);
 			MyCmd.CommandType = CommandType.StoredProcedure;
 			MyDA.Fill(dtProcResult);
 		}
-		finally
-		{
+		finally {
 			if (db != String.Empty)
 				MyCn.ChangeDatabase(db);
 			MyCmd.CommandType = CommandType.Text;
@@ -850,7 +810,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 			FillDDL(
 				DS.Tables[dtNonOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(),
-				tbFind.Text, 
+				tbFind.Text,
 				String.Empty);
 			ShowSearchedParam(ddlValues, tbFind, btnFind);
 		}
@@ -885,9 +845,9 @@ WHERE ID = ?OPID", MyCn, trans);
 				e.CommandArgument);
 		else if (prop.IsAddressesEditor())
 			url = String.Format("../ReportsTuning/SelectAddresses.rails?filter.GeneralReport={0}&filter.Report={1}&filter.ReportPropertyValue={2}",
-			Request["r"],
-			Request["rp"],
-			e.CommandArgument);
+				Request["r"],
+				Request["rp"],
+				e.CommandArgument);
 		else
 			url = String.Format("ReportPropertyValues.aspx?r={0}&rp={1}&rpv={2}",
 				Request["r"],
@@ -902,26 +862,20 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	protected void ddlValue_SelectedIndexChanged(object sender, EventArgs e)
 	{
-		if(((DropDownList)sender).SelectedValue == "-1")
-		{
+		if (((DropDownList)sender).SelectedValue == "-1") {
 			((DropDownList)sender).Visible = false;
 			((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Visible = true;
 			((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Text = string.Empty;
 			((Button)((DropDownList)sender).Parent.FindControl("btnFind")).Visible = true;
 		}
-		foreach (GridViewRow dr in dgvNonOptional.Rows)
-		{
-			if (dr.Cells[0].Text == "Клиент")
-			{
+		foreach (GridViewRow dr in dgvNonOptional.Rows) {
+			if (dr.Cells[0].Text == "Клиент") {
 				DropDownList ddl = (DropDownList)dr.Cells[1].FindControl("ddlValue");
-				if (ddl.UniqueID == ((DropDownList)sender).UniqueID)
-				{
-					foreach (GridViewRow dro in dgvOptional.Rows)
-					{
-						if (((Label)dro.Cells[0].FindControl("lblName")).Text == "Пользователь")
-						{
+				if (ddl.UniqueID == ((DropDownList)sender).UniqueID) {
+					foreach (GridViewRow dro in dgvOptional.Rows) {
+						if (((Label)dro.Cells[0].FindControl("lblName")).Text == "Пользователь") {
 							DropDownList ddlo = (DropDownList)dro.Cells[1].FindControl("ddlValue");
-							FillUserDDL(Convert.ToInt64(ddl.SelectedValue), ddlo);		
+							FillUserDDL(Convert.ToInt64(ddl.SelectedValue), ddlo);
 						}
 					}
 				}
@@ -931,7 +885,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	protected void ExtraRefresh()
 	{
-		object obj = FindCheckBoxByKey("По базовым ценам"); 
+		object obj = FindCheckBoxByKey("По базовым ценам");
 		if (obj != null) chbValue_CheckedChanged(obj, null);
 		obj = FindCheckBoxByKey("За предыдущий месяц");
 		if (obj != null) chbValue_CheckedChanged(obj, null);
@@ -939,10 +893,8 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	protected object FindCheckBoxByKey(string key)
 	{
-		foreach (GridViewRow dr in dgvNonOptional.Rows)
-		{
-			if (dr.Cells[0].Text == key)
-			{
+		foreach (GridViewRow dr in dgvNonOptional.Rows) {
+			if (dr.Cells[0].Text == key) {
 				return dr.Cells[1].FindControl("chbValue");
 			}
 		}
@@ -965,8 +917,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)
 	{
-		foreach (GridViewRow dr in dgvNonOptional.Rows)
-		{
+		foreach (GridViewRow dr in dgvNonOptional.Rows) {
 			if (dr.Cells.Count < 1)
 				continue;
 
@@ -978,8 +929,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	private void SetRowEnablity(GridViewRowCollection rows, string label, bool enable)
 	{
-		foreach (GridViewRow dr in dgvNonOptional.Rows)
-		{
+		foreach (GridViewRow dr in dgvNonOptional.Rows) {
 			if (dr.Cells.Count < 1)
 				continue;
 
@@ -992,11 +942,9 @@ WHERE ID = ?OPID", MyCn, trans);
 	private bool GetValueByLabel(GridViewRowCollection rows, string label)
 	{
 		bool value = false;
-		foreach (GridViewRow dr in dgvNonOptional.Rows)
-		{
-			if (dr.Cells.Count > 1 && dr.Cells[0].Text == label)
-			{
-				var chk = (CheckBox) dr.Cells[1].FindControl("chbValue");
+		foreach (GridViewRow dr in dgvNonOptional.Rows) {
+			if (dr.Cells.Count > 1 && dr.Cells[0].Text == label) {
+				var chk = (CheckBox)dr.Cells[1].FindControl("chbValue");
 				value = chk.Checked;
 				break;
 			}
@@ -1006,8 +954,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn)
 	{
-		if (dtProcResult.Rows.Count > 0)
-		{
+		if (dtProcResult.Rows.Count > 0) {
 			ddl.Visible = true;
 			tb.Visible = false;
 			btn.Visible = false;
@@ -1021,40 +968,35 @@ WHERE ID = ?OPID", MyCn, trans);
 			ddl.Items.Insert(0, li);
 			ddl.SelectedIndex = 1;
 		}
-		else
-		{
+		else {
 			ddl.Visible = false;
 			tb.Visible = true;
 			tb.Text = String.Empty;
 			btn.Visible = true;
 		}
-
 	}
 
 	protected void dgvOptional_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
-		if (e.CommandName == "Find")
-		{
+		if (e.CommandName == "Find") {
 			CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
 			CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
 
 			var ddlValues = ((DropDownList)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("ddlValue"));
 			var tbFind = ((TextBox)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
 			var btnFind = ((Button)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
-		
-				FillDDL(
-					DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(),
-					tbFind.Text,
-					String.Empty);
+
+			FillDDL(
+				DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(),
+				tbFind.Text,
+				String.Empty);
 			ShowSearchedParam(ddlValues, tbFind, btnFind);
 		}
 		else if (e.CommandName == "ShowValues")
 			ShowValues(e);
-		else if (e.CommandName == "Add")
-		{
+		else if (e.CommandName == "Add") {
 			var addedExist = DS.Tables[dtOptionalParams.TableName].Rows.Cast<DataRow>().Any(dr => dr.RowState == DataRowState.Added);
-			if (!addedExist)
-			{
+			if (!addedExist) {
 				CopyChangesToTable(dgvNonOptional, dtNonOptionalParams, PPropertyValue.ColumnName);
 				CopyChangesToTable(dgvOptional, dtOptionalParams, OPPropertyValue.ColumnName);
 
@@ -1082,7 +1024,7 @@ WHERE ID = ?OPID", MyCn, trans);
 		var reportCode = Convert.ToUInt64(Request["rp"]);
 		var property = ReportProperty.Queryable.FirstOrDefault(p =>
 			p.Report.Id == reportCode && p.PropertyType.PropertyName == "UserCode");
-		if (property == null ) return;
+		if (property == null) return;
 		if (String.IsNullOrEmpty(property.Value)) return;
 
 		var user = ulist.FirstOrDefault(u => u.Id == Convert.ToUInt32(property.Value));
@@ -1119,8 +1061,7 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 
 		MyCn.Close();
 
-		foreach (DataRow dr in dtDDLOptionalParams.Rows)
-		{
+		foreach (DataRow dr in dtDDLOptionalParams.Rows) {
 			DataRow[] dtr = DS.Tables[dtOptionalParams.TableName].Select(OPrtpID.ColumnName + "=" + dr["opID"].ToString());
 			if (dtr.Length > 0)
 				dr["opRemove"] = 1;
@@ -1129,10 +1070,8 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 		}
 
 		DataRow[] dtrRemove = dtDDLOptionalParams.Select("opRemove = 1");
-		for(int i=0; i<dtrRemove.Length; i++)
-		{
-			if (dtDDLOptionalParams.Select("opID=" + dtrRemove[i]["opID"]).Length > 0)
-			{
+		for (int i = 0; i < dtrRemove.Length; i++) {
+			if (dtDDLOptionalParams.Select("opID=" + dtrRemove[i]["opID"]).Length > 0) {
 				if (dtrRemove[i]["opRemove"].ToString() == "1")
 					dtDDLOptionalParams.Rows.Remove(dtrRemove[i]);
 			}
@@ -1145,9 +1084,8 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 		if (e.Row.RowType != DataControlRowType.DataRow)
 			return;
 
-		if (((Label)e.Row.Cells[0].FindControl("lblName")).Text == String.Empty)
-		{
-			var ddlName = ((DropDownList) e.Row.Cells[0].FindControl("ddlName"));
+		if (((Label)e.Row.Cells[0].FindControl("lblName")).Text == String.Empty) {
+			var ddlName = ((DropDownList)e.Row.Cells[0].FindControl("ddlName"));
 			ddlName.Visible = true;
 			(e.Row.Cells[0].FindControl("lblName")).Visible = false;
 			FillDDLOptimal();
@@ -1156,8 +1094,7 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 			ddlName.DataValueField = "opID";
 			ddlName.DataBind();
 		}
-		else
-		{
+		else {
 			ShowEditor(e.Row);
 		}
 	}

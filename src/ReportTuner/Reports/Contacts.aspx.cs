@@ -16,13 +16,13 @@ namespace ReportTuner
 	public partial class Contacts : System.Web.UI.Page
 	{
 		//Текущий редактируемый отчет
-		GeneralReport _currentReport;
+		private GeneralReport _currentReport;
 		//Владелец всех контактных групп для отчета, прописан в Web.Config
-		ContactGroupOwner _reportsContactGroupOwner;
+		private ContactGroupOwner _reportsContactGroupOwner;
 		//Текущая редактируемая контактная группа
-		ContactGroup _currentContactGroup;
+		private ContactGroup _currentContactGroup;
 		//все отчеты, которые используют ту же контактную группу
-		GeneralReport[] _relatedReportsByContactGroup;
+		private GeneralReport[] _relatedReportsByContactGroup;
 
 		//Имя переменной в сессии, говорящей о том, кто вызвал отображение контролов 
 		//для изменения имени группы: кнопка "Изменить наименование" или кнопка "Создать группу"
@@ -31,17 +31,13 @@ namespace ReportTuner
 		protected void Page_Load(object sender, EventArgs e)
 		{
 			ulong _generalReportCode;
-			if (ulong.TryParse(Request["GeneralReport"], out _generalReportCode))
-			{
+			if (ulong.TryParse(Request["GeneralReport"], out _generalReportCode)) {
 				uint _ContactOwnerId;
-				if (uint.TryParse(System.Configuration.ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"], out _ContactOwnerId))
-				{
-					try
-					{
+				if (uint.TryParse(System.Configuration.ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"], out _ContactOwnerId)) {
+					try {
 						_reportsContactGroupOwner = ContactGroupOwner.Find(_ContactOwnerId);
 					}
-					catch (NotFoundException exp)
-					{
+					catch (NotFoundException exp) {
 						throw new ReportTunerException("В файле Web.Config параметр ReportsContactGroupOwnerId указывает на несуществующую запись.", exp);
 					}
 				}
@@ -55,12 +51,10 @@ namespace ReportTuner
 
 				BindRelatedReports();
 
-				if (!this.IsPostBack)
-				{
+				if (!this.IsPostBack) {
 					lReportName.Text = _currentReport.EMailSubject;
 
-					if (_currentContactGroup != null)
-					{
+					if (_currentContactGroup != null) {
 						hlEditGroup.Text = _currentContactGroup.Name;
 						hlEditGroup.NavigateUrl = "~/Contact/EditContactGroup.rails?contactGroupId=" + _currentContactGroup.Id;
 						BindEmailList();
@@ -107,9 +101,9 @@ where
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType
 order by 1",
-						  new MySqlParameter("?ContactGroupId", _currentContactGroup.Id),
-						  new MySqlParameter("?ContactGroupType", 6),
-						  new MySqlParameter("?ContactType", MySqlDbType.Byte) { Value = 0 });
+				new MySqlParameter("?ContactGroupId", _currentContactGroup.Id),
+				new MySqlParameter("?ContactGroupType", 6),
+				new MySqlParameter("?ContactType", MySqlDbType.Byte) { Value = 0 });
 
 			gvEmails.DataSource = dsContacts.Tables[0];
 			gvEmails.Width = Unit.Pixel(250);
@@ -188,26 +182,20 @@ order by 1",
 			if (String.IsNullOrEmpty(_senderName))
 				Response.Redirect("Contacts.aspx?GeneralReport=" + _currentReport.Id);
 
-			if (_senderName.Equals("Change", StringComparison.OrdinalIgnoreCase) || _senderName.Equals("Create", StringComparison.OrdinalIgnoreCase))
-			{
-				if (_senderName.Equals("Change", StringComparison.OrdinalIgnoreCase) && (_currentContactGroup != null))
-				{
+			if (_senderName.Equals("Change", StringComparison.OrdinalIgnoreCase) || _senderName.Equals("Create", StringComparison.OrdinalIgnoreCase)) {
+				if (_senderName.Equals("Change", StringComparison.OrdinalIgnoreCase) && (_currentContactGroup != null)) {
 					_currentContactGroup.Name = tbContactGroupName.Text;
-					using (new TransactionScope())
-					{
+					using (new TransactionScope()) {
 						_currentContactGroup.Save();
 					}
 					hlEditGroup.Text = tbContactGroupName.Text;
 				}
-				else
-				{
-					_currentContactGroup = new ContactGroup
-					{
+				else {
+					_currentContactGroup = new ContactGroup {
 						Name = tbContactGroupName.Text,
 						Type = ContactGroupType.Reports
 					};
-					using (new TransactionScope())
-					{
+					using (new TransactionScope()) {
 						_currentContactGroup.ContactGroupOwner = _reportsContactGroupOwner;
 						_currentReport.ContactGroup = _currentContactGroup;
 						_currentContactGroup.Save();
@@ -228,7 +216,6 @@ order by 1",
 			}
 			else
 				Response.Redirect("Contacts.aspx?GeneralReport=" + _currentReport.Id);
-
 		}
 
 		protected void btnFind_Click(object sender, EventArgs e)
@@ -236,9 +223,9 @@ order by 1",
 			ClearChangeName();
 
 			ContactGroup[] _findedContactGroups = ActiveRecordBase<ContactGroup>.FindAll(
-				Order.Asc("Name"), 
-				Expression.Eq("ContactGroupOwner", _reportsContactGroupOwner), 
-				Expression.Eq("Type", ContactGroupType.Reports), 
+				Order.Asc("Name"),
+				Expression.Eq("ContactGroupOwner", _reportsContactGroupOwner),
+				Expression.Eq("Type", ContactGroupType.Reports),
 				Expression.Like("Name", "%" + tbContactFind.Text + "%"));
 
 			ContactGroups.DataSource = _findedContactGroups;
@@ -263,11 +250,9 @@ order by 1",
 		{
 			uint _newGroupId;
 			//попытка преобразовать выбранное значение в Id группы, если это получилось сделать, то установливаем новое значение
-			if (uint.TryParse(ContactGroups.SelectedValue, out _newGroupId))
-			{
+			if (uint.TryParse(ContactGroups.SelectedValue, out _newGroupId)) {
 				ContactGroup _newGroup = ContactGroup.Find(_newGroupId);
-				using (new TransactionScope())
-				{
+				using (new TransactionScope()) {
 					_currentReport.ContactGroup = _newGroup;
 					_currentReport.Save();
 				}
@@ -286,6 +271,5 @@ order by 1",
 			ClearSearch();
 			Response.Redirect("Contacts.aspx?GeneralReport=" + _currentReport.Id);
 		}
-
 	}
 }

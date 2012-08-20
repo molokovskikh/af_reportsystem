@@ -8,7 +8,7 @@ namespace Inforoom.ReportSystem.Model
 	{
 		[PrimaryKey]
 		public uint Id { get; set; }
-		
+
 		[Property]
 		public string Name { get; set; }
 	}

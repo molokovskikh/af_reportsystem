@@ -46,7 +46,7 @@ namespace ReportTuner.Models
 		{
 			get
 			{
-				return new [] {
+				return new[] {
 					"MixedReport",
 					"OrderOutAllowedAssortment",
 					"PharmacyMixedReport",
@@ -71,8 +71,7 @@ namespace ReportTuner.Models
 		public void FixExistReports()
 		{
 			var reports = Report.Queryable.Where(r => r.ReportType == this).ToList();
-			foreach (var report in reports)
-			{
+			foreach (var report in reports) {
 				var propertyValues = report.Properties;
 				Properties
 					.Where(p => !p.Optional && !propertyValues.Any(pv => pv.PropertyType == p))

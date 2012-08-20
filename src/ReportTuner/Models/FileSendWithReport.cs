@@ -26,10 +26,7 @@ namespace ReportTuner.Models
 
 		public string NavigateUrl
 		{
-			get
-			{
-				return String.Format("~/Properties/FileGeneral.rails?id={0}", Id);
-			}
+			get { return String.Format("~/Properties/FileGeneral.rails?id={0}", Id); }
 		}
 	}
 }

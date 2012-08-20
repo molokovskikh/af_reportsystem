@@ -11,13 +11,12 @@ using System.Web.UI.HtmlControls;
 
 public partial class Reports_error : System.Web.UI.Page
 {
-    protected void Page_Load(object sender, EventArgs e)
-    {
+	protected void Page_Load(object sender, EventArgs e)
+	{
+	}
 
-    }
-
-    protected void BackButton_Click(object sender, EventArgs e)
-    {
-        Response.Redirect(Request["aspxerrorpath"]);
-    }
+	protected void BackButton_Click(object sender, EventArgs e)
+	{
+		Response.Redirect(Request["aspxerrorpath"]);
+	}
 }

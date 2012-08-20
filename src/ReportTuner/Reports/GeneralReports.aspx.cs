@@ -57,26 +57,22 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
-		if (!Page.IsPostBack)
-		{
+		if (!Page.IsPostBack) {
 			PostData();
 		}
-		else
-		{
+		else {
 			DS = ((DataSet)Session[DSReports]);
 			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Redirect(this);
 		}
 
 		btnApply.Visible = dgvReports.Rows.Count > 0;
-		
-		if(Session["redirected"] != null && Convert.ToBoolean(Session["redirected"]))
-		{
+
+		if (Session["redirected"] != null && Convert.ToBoolean(Session["redirected"])) {
 			lblMessage.Text = "Вследствие закрытия сессии, Вы были переведены на главную страницу. Повторите запрос.";
 			Session["redirected"] = null;
 		}
-		else
-		{
+		else {
 			lblMessage.Text = "";
 		}
 	}
@@ -116,18 +112,17 @@ Order by gr.GeneralReportCode
 
 		Session.Add(DSReports, DS);
 
-		if (String.IsNullOrEmpty(SortField))
-		{
+		if (String.IsNullOrEmpty(SortField)) {
 			SortField = "GeneralReportCode";
 		}
 
 		ClearFilter();
 
-		DS.Tables[dtGeneralReports.TableName].DefaultView.Sort = SortField + " " + getSortDirection(); 
+		DS.Tables[dtGeneralReports.TableName].DefaultView.Sort = SortField + " " + getSortDirection();
 		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
 		dgvReports.DataBind();
 	}
-
+	#region Component Designer generated code
 	private void InitializeComponent()
 	{
 		this.DS = new System.Data.DataSet();
@@ -151,7 +146,8 @@ Order by gr.GeneralReportCode
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtGeneralReports,
-			this.dtPayers});
+			this.dtPayers
+		});
 		// 
 		// dtGeneralReports
 		// 
@@ -162,7 +158,8 @@ Order by gr.GeneralReportCode
 			this.Allow,
 			this.GRPayerShortName,
 			this.GRPayerID,
-			this.dataColumn1});
+			this.dataColumn1
+		});
 		this.dtGeneralReports.TableName = "dtGeneralReports";
 		// 
 		// GeneralReportCode
@@ -197,7 +194,8 @@ Order by gr.GeneralReportCode
 		// 
 		this.dtPayers.Columns.AddRange(new System.Data.DataColumn[] {
 			this.PayerShortName,
-			this.PPayerID});
+			this.PPayerID
+		});
 		this.dtPayers.TableName = "dtPayers";
 		// 
 		// PayerShortName
@@ -215,16 +213,13 @@ Order by gr.GeneralReportCode
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).EndInit();
-
 	}
-
+	#endregion
 	protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
-		if (e.CommandName == "Add")
-		{
+		if (e.CommandName == "Add") {
 			//Если нет добавленных записей, то позволяем добавить запись
-			if (DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added) == null)
-			{
+			if (DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added) == null) {
 				CopyChangesToTable();
 
 				ClearFilter();
@@ -239,19 +234,16 @@ Order by gr.GeneralReportCode
 
 				btnApply.Visible = true;
 			}
-			else
-			{
+			else {
 				//Ищем добавленную запись и позиционируемся на нее
 				foreach (GridViewRow row in dgvReports.Rows)
-					if (String.IsNullOrEmpty(row.Cells[(int)GeneralReportFields.Code].Text))
-					{
+					if (String.IsNullOrEmpty(row.Cells[(int)GeneralReportFields.Code].Text)) {
 						dgvReports.SelectedIndex = row.RowIndex;
 						break;
 					}
 			}
 		}
-		else if (e.CommandName == "editPayer")
-		{
+		else if (e.CommandName == "editPayer") {
 			DataControlFieldCell cell = (DataControlFieldCell)((Control)e.CommandSource).Parent;
 			((TextBox)cell.FindControl("tbSearch")).Visible = true;
 			((TextBox)cell.FindControl("tbSearch")).Focus();
@@ -297,33 +289,28 @@ Order by p.ShortName
 	}
 
 	private void CopyChangesToTable()
-	{		
-		foreach (GridViewRow dr in dgvReports.Rows)
-		{
+	{
+		foreach (GridViewRow dr in dgvReports.Rows) {
 			DataRow changedRow = null;
 
 
-			if (Convert.IsDBNull(dgvReports.DataKeys[dr.RowIndex].Value))
-			{
+			if (Convert.IsDBNull(dgvReports.DataKeys[dr.RowIndex].Value)) {
 				//добавленная запись
 				DataRow[] drs = DS.Tables[dtGeneralReports.TableName].Select("GeneralReportCode is null");
-				if (drs.Length == 1)
-				{
+				if (drs.Length == 1) {
 					changedRow = drs[0];
 					/*if (!String.IsNullOrEmpty(((DropDownList)dr.FindControl("ddlNames")).SelectedValue))
 						changedRow[GRPayerID.ColumnName] = Convert.ToInt64(((DropDownList)dr.FindControl("ddlNames")).SelectedValue);*/
 				}
 			}
-			else
-			{
+			else {
 				//измененная запись
 				DataRow[] drs = DS.Tables[dtGeneralReports.TableName].Select("GeneralReportCode = " + dgvReports.DataKeys[dr.RowIndex].Value);
 				if (drs.Length == 1)
 					changedRow = drs[0];
 			}
 
-			if (changedRow != null)
-			{
+			if (changedRow != null) {
 				if (!changedRow[Allow.ColumnName].Equals(Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked)))
 					changedRow[Allow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
 
@@ -350,8 +337,7 @@ Order by p.ShortName
 
 	protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
-		if (e.Row.RowType == DataControlRowType.DataRow)
-		{
+		if (e.Row.RowType == DataControlRowType.DataRow) {
 			//"Рассылки"
 			e.Row.Cells[(int)GeneralReportFields.Delivery].ToolTip = "Рассылки";
 			//"Отчеты"
@@ -359,8 +345,7 @@ Order by p.ShortName
 			//"Расписание"
 			e.Row.Cells[(int)GeneralReportFields.Schedule].ToolTip = "Расписание";
 
-			if (((Label)e.Row.FindControl("lblFirmName")).Text != "")
-			{
+			if (((Label)e.Row.FindControl("lblFirmName")).Text != "") {
 				((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
 				((Button)e.Row.FindControl("btApplyCopy")).Visible = false;
 				((Button)e.Row.FindControl("btnSearch")).Visible = false;
@@ -369,8 +354,7 @@ Order by p.ShortName
 				((LinkButton)e.Row.FindControl("linkEdit")).Visible = true;
 				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = true;
 			}
-			else
-			{
+			else {
 				((TextBox)e.Row.FindControl("tbSearch")).Visible = true;
 				((TextBox)e.Row.FindControl("tbSearch")).Focus();
 				((Button)e.Row.FindControl("btnSearch")).Visible = true;
@@ -402,8 +386,7 @@ Order by p.ShortName
 
 		MyCn.Open();
 		var trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-		try
-		{
+		try {
 			var UpdCmd = new MySqlCommand(@"
 UPDATE 
 	reports.general_reports 
@@ -482,15 +465,13 @@ select last_insert_id() as GRLastInsertID;
 
 			string strHost = HttpContext.Current.Request.UserHostAddress;
 			string strUser = HttpContext.Current.User.Identity.Name;
-			if (strUser.StartsWith("ANALIT\\"))
-			{
+			if (strUser.StartsWith("ANALIT\\")) {
 				strUser = strUser.Substring(7);
 			}
 			MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
 
 			DataTable dtDeleted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Deleted);
-			if (dtDeleted != null)
-			{
+			if (dtDeleted != null) {
 				foreach (DataRow drDeleted in dtDeleted.Rows)
 					_deletedReports.Add(Convert.ToUInt64(drDeleted[GeneralReportCode.ColumnName, DataRowVersion.Original]));
 				MyDA.Update(dtDeleted);
@@ -499,15 +480,13 @@ select last_insert_id() as GRLastInsertID;
 			dtInserted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added);
 			if (dtInserted != null)
 				foreach (DataRow drInsert in dtInserted.Rows)
-					if (!Convert.IsDBNull(drInsert[GRPayerID.ColumnName]) && (drInsert[GRPayerID.ColumnName] is long))
-					{
+					if (!Convert.IsDBNull(drInsert[GRPayerID.ColumnName]) && (drInsert[GRPayerID.ColumnName] is long)) {
 						MyDA.Update(new DataRow[] { drInsert });
 						_updatedReports.Add(Convert.ToUInt64(drInsert["GRLastInsertID"]));
 					}
 
 			DataTable dtUpdated = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Modified);
-			if (dtUpdated != null)
-			{
+			if (dtUpdated != null) {
 				foreach (DataRow drUpdate in dtUpdated.Rows)
 					if (drUpdate["Comment", DataRowVersion.Original] != drUpdate["Comment", DataRowVersion.Current] ||
 						drUpdate["Allow", DataRowVersion.Original] != drUpdate["Allow", DataRowVersion.Current])
@@ -517,24 +496,19 @@ select last_insert_id() as GRLastInsertID;
 
 			trans.Commit();
 		}
-		catch 
-		{
+		catch {
 			trans.Rollback();
 			throw;
 		}
-		finally
-		{
+		finally {
 			MyCn.Close();
 		}
 
 		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
 		// А также включаем/выключаем задание при изменении галки "Включен"
-		if ((_deletedReports.Count > 0) || (_updatedReports.Count > 0))
-		{
-			using (var helper = new ScheduleHelper())
-			{
-				foreach (var id in _updatedReports)
-				{
+		if ((_deletedReports.Count > 0) || (_updatedReports.Count > 0)) {
+			using (var helper = new ScheduleHelper()) {
+				foreach (var id in _updatedReports) {
 					var report = GeneralReport.Find(id);
 					helper.GetTask(id, report.Comment);
 					ScheduleHelper.SetTaskEnableStatus(id, report.Allow, "GR"); // включаем/выключаем отчет
@@ -551,8 +525,7 @@ select last_insert_id() as GRLastInsertID;
 		else
 			btnApply.Visible = false;
 
-		if (dtInserted != null)
-		{
+		if (dtInserted != null) {
 			if (!Request.Url.OriginalString.Contains("#"))
 				Response.Redirect(Request.Url.OriginalString + "#addedPage");
 		}
@@ -563,21 +536,20 @@ select last_insert_id() as GRLastInsertID;
 		get
 		{
 			object o = ViewState["SortField"];
-			if (o == null)
-			{
+			if (o == null) {
 				return String.Empty;
 			}
 			return (string)o;
 		}
 		set
 		{
-		/*
+			/*
 			if (value == SortField)
 			{
 				//if ascending change to descending or vice versa.
 				SortAscending = !SortAscending;
 			}
-		 */ 
+		 */
 			ViewState["SortField"] = value;
 		}
 	}
@@ -588,16 +560,12 @@ select last_insert_id() as GRLastInsertID;
 		get
 		{
 			object o = ViewState["SortAscending"];
-			if (o == null)
-			{
+			if (o == null) {
 				return true;
 			}
 			return (bool)o;
 		}
-		set
-		{
-			ViewState["SortAscending"] = value;
-		}
+		set { ViewState["SortAscending"] = value; }
 	}
 
 	private string getSortDirection()
@@ -609,34 +577,29 @@ select last_insert_id() as GRLastInsertID;
 	{
 		CopyChangesToTable();
 
-		if (e.SortExpression != SortField)
-		{
+		if (e.SortExpression != SortField) {
 			SortField = e.SortExpression;
 			SortAscending = true;
 		}
-		else
-		{
+		else {
 			SortAscending = !SortAscending;
 		}
 
 		DS.Tables[dtGeneralReports.TableName].DefaultView.Sort = SortField + " " + getSortDirection();
 		dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
 		dgvReports.DataBind();
-
 	}
 
 	protected void dgvReports_RowCreated(object sender, GridViewRowEventArgs e)
 	{
 		// Use the RowType property to determine whether the 
 		// row being created is the header row. 
-		if (e.Row.RowType == DataControlRowType.Header)
-		{
+		if (e.Row.RowType == DataControlRowType.Header) {
 			// Call the GetSortColumnIndex helper method to determine
 			// the index of the column being sorted.
 			int sortColumnIndex = GetSortColumnIndex();
 
-			if (sortColumnIndex != -1)
-			{
+			if (sortColumnIndex != -1) {
 				// Call the AddSortImage helper method to add
 				// a sort direction image to the appropriate
 				// column header. 
@@ -644,17 +607,15 @@ select last_insert_id() as GRLastInsertID;
 			}
 		}
 	}
+
 	// This is a helper method used to determine the index of the
 	// column being sorted. If no column is being sorted, -1 is returned.
 	private int GetSortColumnIndex()
 	{
-
 		// Iterate through the Columns collection to determine the index
 		// of the column being sorted.
-		foreach (DataControlField field in dgvReports.Columns)
-		{
-			if (field.SortExpression == SortField)
-			{
+		foreach (DataControlField field in dgvReports.Columns) {
+			if (field.SortExpression == SortField) {
 				return dgvReports.Columns.IndexOf(field);
 			}
 		}
@@ -668,13 +629,11 @@ select last_insert_id() as GRLastInsertID;
 	{
 		// Create the sorting image based on the sort direction.
 		Image sortImage = new Image();
-		if (SortAscending)
-		{
+		if (SortAscending) {
 			sortImage.ImageUrl = "~/Images/Ascending.gif";
 			sortImage.AlternateText = "По возрастанию";
 		}
-		else
-		{
+		else {
 			sortImage.ImageUrl = "~/Images/Descending.gif";
 			sortImage.AlternateText = "По убыванию";
 		}
@@ -695,8 +654,7 @@ select last_insert_id() as GRLastInsertID;
 		var codes = new List<uint>();
 		var condition = new List<string>();
 		emails.Each(m => condition.Add(String.Format("c.ContactText like '%{0}%'", m)));
-		try
-		{
+		try {
 			if (MyCn.State != ConnectionState.Open)
 				MyCn.Open();
 			MyCmd.Connection = MyCn;
@@ -706,16 +664,13 @@ select distinct gr.GeneralReportCode from reports.general_reports gr
 inner join contacts.contacts c on gr.ContactGroupId = c.ContactOwnerId and c.Type = 0
 and ({0});
 ", String.Join(" or ", condition.ToArray()));
-			using (var reader = MyCmd.ExecuteReader())
-			{
-				while (reader.Read())
-				{
+			using (var reader = MyCmd.ExecuteReader()) {
+				while (reader.Read()) {
 					codes.Add(Convert.ToUInt32(reader[0]));
 				}
 			}
 		}
-		finally
-		{
+		finally {
 			MyCn.Close();
 		}
 		return codes;
@@ -727,16 +682,15 @@ and ({0});
 		IList<string> emails = tbFilter.Text.Split(',').ToList();
 
 		int testInt;
-		if (int.TryParse(tbFilter.Text, out testInt))
-		{
+		if (int.TryParse(tbFilter.Text, out testInt)) {
 			filter.Add(String.Format("(GeneralReportCode = {0})", testInt));
 			filter.Add(String.Format("(PayerID = {0})", testInt));
 		}
 		else {
 			var codes = GetReportCodesByEmails(emails);
 			filter.Add(codes.Count > 0
-					? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
-					: "(GeneralReportCode is null)");
+				? String.Format("(GeneralReportCode in ({0}))", codes.Implode(","))
+				: "(GeneralReportCode is null)");
 		}
 
 		filter.Add(String.Format("(PayerShortName like '%{0}%')", tbFilter.Text));

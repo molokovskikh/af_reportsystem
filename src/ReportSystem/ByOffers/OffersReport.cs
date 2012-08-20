@@ -9,7 +9,7 @@ using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using Microsoft.Office.Interop.Excel;
-using DataTable=System.Data.DataTable;
+using DataTable = System.Data.DataTable;
 using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem
@@ -49,24 +49,22 @@ namespace Inforoom.ReportSystem
 			if (_priceCode == 0)
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
 
-			if (_byBaseCosts)
-			{
+			if (_byBaseCosts) {
 				// Отчет готовится по базовым ценам
 				//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
 				_sourceRegionCode = Convert.ToInt64(
 					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-											  @"select s.HomeRegion
+						@"select s.HomeRegion
 	from usersettings.PricesData pd
 	inner join Customers.suppliers s on pd.FirmCode = s.Id
 	and pd.PriceCode = ?PriceCode;",
-											  new MySqlParameter("?PriceCode", _priceCode)));
+						new MySqlParameter("?PriceCode", _priceCode)));
 			}
-			else
-			{ // отчет готовится по клиенту
+			else {
+				// отчет готовится по клиенту
 				//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
 				_sourceRegionCode = Convert.ToInt64(
-
-				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
 						@"select RegionCode
 	from Customers.Clients
 where Id = ?ClientCode",
@@ -119,20 +117,18 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					new MySqlParameter("?SourcePC", _sourcePriceCode),
 					new MySqlParameter("?SourceRegionCode", _sourceRegionCode)));
 
-			if(enabledPrice == 0 && _byBaseCosts)
-			{
+			if (enabledPrice == 0 && _byBaseCosts) {
 				enabledPrice = Convert.ToInt32(
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						"select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
 						new MySqlParameter("?SourcePC", _sourcePriceCode)));
-				if (enabledPrice != 0)
-				{
+				if (enabledPrice != 0) {
 					_sourceRegionCode = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(
-						e.DataAdapter.SelectCommand.Connection,
-						"select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
-						new MySqlParameter("?SourcePC", _sourcePriceCode)));
+						MySqlHelper.ExecuteScalar(
+							e.DataAdapter.SelectCommand.Connection,
+							"select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
+							new MySqlParameter("?SourcePC", _sourcePriceCode)));
 				}
 			}
 
@@ -164,8 +160,7 @@ CREATE temporary table TmpSourceCodes(
   key SynonymFirmCrCode(SynonymFirmCrCode), 
   key SynonymCode(SynonymCode))engine=MEMORY PACK_KEYS = 0;";
 
-			if (enabledPrice == 0)
-			{
+			if (enabledPrice == 0) {
 				//Если прайс-лист не включен клиентом или прайс-лист ассортиментный, то добавляем его в таблицу источников TmpSourceCodes, но с ценами NULL
 				e.DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes 
@@ -193,8 +188,7 @@ WHERE
 	FarmCore.PriceCode = ?SourcePC 
 and products.id = FarmCore.ProductId;";
 			}
-			else
-			{
+			else {
 				e.DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes 
 Select 
@@ -203,11 +197,11 @@ Select
   Core.RegionCode,
   FarmCore.Code,
   Core.Cost,";
-			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
-			else
-				e.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
-			e.DataAdapter.SelectCommand.CommandText += @"
+				if (_calculateByCatalog)
+					e.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
+				else
+					e.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
+				e.DataAdapter.SelectCommand.CommandText += @"
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
@@ -227,7 +221,7 @@ and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", _sourceRegionCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
-e.DataAdapter.SelectCommand.CommandText = @"
+			e.DataAdapter.SelectCommand.CommandText = @"
 select 
   Core.Id,
   Core.CatalogCode,
@@ -291,8 +285,7 @@ from
   farm.core0 FarmCore,";
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
-			if (_reportIsFull)
-			{
+			if (_reportIsFull) {
 				if (_reportType <= 2)
 					sql += @"
   Core AllPrices 
@@ -314,20 +307,19 @@ from
 				sql += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
 
-				sql += @"
+			sql += @"
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode 
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
 where 
   products.id = AllPrices.ProductId 
   and FarmCore.Id = AllPrices.Id";
 
-				sql += @"
+			sql += @"
   and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
-			if (!_reportIsFull)
-			{
+			if (!_reportIsFull) {
 				if (_reportType <= 2)
 					sql += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
@@ -364,8 +356,7 @@ order by FullName, FirmCr";
 			result.Columns.Add(new DataColumn("Producer") {
 				Caption = "Производитель"
 			});
-			for(var i = 1; i <= 15; i++)
-			{
+			for (var i = 1; i <= 15; i++) {
 				result.Columns.Add(new DataColumn("Cost" + i, typeof(decimal)) {
 					Caption = "Цена " + i
 				});
@@ -374,8 +365,7 @@ order by FullName, FirmCr";
 						Caption = "Остаток " + i
 					});
 			}
-			foreach (var group in groupedRows)
-			{
+			foreach (var group in groupedRows) {
 				var resultRow = result.NewRow();
 				var first = group.OrderBy(r => Convert.ToDecimal(r["Cost"])).First();
 				resultRow["AnalitId"] = first["CatalogCode"];
@@ -383,8 +373,7 @@ order by FullName, FirmCr";
 				resultRow["Product"] = first["FullName"];
 				resultRow["Producer"] = first["FirmCr"];
 				var index = 1;
-				foreach (var row in group.OrderBy(r => Convert.ToDecimal(r["Cost"])))
-				{
+				foreach (var row in group.OrderBy(r => Convert.ToDecimal(r["Cost"]))) {
 					if (index > 15)
 						break;
 					resultRow["Cost" + index] = row["Cost"];
@@ -399,10 +388,7 @@ order by FullName, FirmCr";
 
 		public override bool DbfSupported
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		protected override void FormatExcel(string fileName)

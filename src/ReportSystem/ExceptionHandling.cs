@@ -7,8 +7,13 @@ namespace Inforoom.ReportSystem
 {
 	public class ReportException : Exception
 	{
-		public ReportException(string message): base(message){}
-		public ReportException(string message, Exception innerException) : base(message, innerException) { }
+		public ReportException(string message) : base(message)
+		{
+		}
+
+		public ReportException(string message, Exception innerException) : base(message, innerException)
+		{
+		}
 	}
 
 	public class ExceptionHandling

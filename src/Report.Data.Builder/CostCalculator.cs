@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,7 +38,7 @@ namespace Report.Data.Builder
 			{
 				if (Count == 0)
 					return 0;
-				return Quantity/Count;
+				return Quantity / Count;
 			}
 		}
 	}
@@ -86,7 +86,7 @@ namespace Report.Data.Builder
 
 	public class CostCalculator
 	{
-		private ILog log = LogManager.GetLogger(typeof (CostCalculator));
+		private ILog log = LogManager.GetLogger(typeof(CostCalculator));
 
 		public IEnumerable<uint> Clients()
 		{
@@ -128,7 +128,7 @@ and c0.Junk = 0
 					r.GetUInt32("Id"),
 					r.GetDecimal("Cost"),
 					SafeConvert.ToUInt32(r["Quantity"].ToString())),
-				new {client})
+				new { client })
 				.ToArray();
 
 			watch.Stop();
@@ -144,8 +144,7 @@ and c0.Junk = 0
 			var watch = new Stopwatch();
 			watch.Start();
 
-			foreach (var item in data)
-			{
+			foreach (var item in data) {
 				watch.Stop();
 
 				if (item.Item1.Count() == 0)
@@ -159,11 +158,9 @@ and c0.Junk = 0
 					log.DebugFormat("Начал вычисление средних цен для клиента {0}", client);
 				var rating = item.Item1.ToDictionary(r => r.RegionId, r => r.Value);
 
-				foreach (var offer in item.Item2)
-				{
-					var costs = (Hashtable) result[offer.Id];
-					if (costs == null)
-					{
+				foreach (var offer in item.Item2) {
+					var costs = (Hashtable)result[offer.Id];
+					if (costs == null) {
 						costs = new Hashtable();
 						result[offer.Id] = costs;
 					}
@@ -182,7 +179,7 @@ and c0.Junk = 0
 						continue;
 
 					var regionRating = rating[offer.Id.RegionId];
-					aggregates.Cost = aggregates.Cost + offer.Cost*regionRating;
+					aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
 					aggregates.Quantity += offer.Quantity;
 					aggregates.Count++;
 #if DEBUG
@@ -213,16 +210,14 @@ and c0.Junk = 0
 				sql.Append(header);
 				var command = new MySqlCommand("", t.Connection);
 				var index = 0;
-				foreach (OfferId key in hash.Keys)
-				{
-					var costs = ((Hashtable) hash[key]);
-					foreach (uint assortmentId in costs.Keys)
-					{
+				foreach (OfferId key in hash.Keys) {
+					var costs = ((Hashtable)hash[key]);
+					foreach (uint assortmentId in costs.Keys) {
 						totalCount++;
 						if (sql.Length > header.Length)
 							sql.Append(", ");
 
-						var aggregates = (OfferAggregates) costs[assortmentId];
+						var aggregates = (OfferAggregates)costs[assortmentId];
 						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4}, {5})",
 							date.ToString(MySqlConsts.MySQLDateFormat),
 							key.SupplierId,
@@ -232,8 +227,7 @@ and c0.Junk = 0
 							aggregates.AvgQuantity);
 
 						index++;
-						if (index >= page)
-						{
+						if (index >= page) {
 							Apply(header, sql, command);
 							index = 0;
 						}

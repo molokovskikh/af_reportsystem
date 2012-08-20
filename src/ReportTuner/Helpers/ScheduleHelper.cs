@@ -38,12 +38,10 @@ namespace ReportTuner.Helpers
 
 		public static TaskFolder GetReportsFolder(TaskService taskService)
 		{
-			try
-			{
+			try {
 				return taskService.GetFolder(ReportsFolderName);
 			}
-			catch (FileNotFoundException ex)
-			{
+			catch (FileNotFoundException ex) {
 				throw new ReportTunerException(String.Format("На сервере {0} не существует папка '{1}' в планировщике задач",
 					ScheduleServer, ReportsFolderName), ex);
 			}
@@ -51,12 +49,10 @@ namespace ReportTuner.Helpers
 
 		public static void DeleteTask(TaskFolder reportsFolder, ulong generalReportId, string prefix)
 		{
-			try
-			{
+			try {
 				reportsFolder.DeleteTask(prefix + generalReportId);
 			}
-			catch (FileNotFoundException)
-			{
+			catch (FileNotFoundException) {
 				//"Гасим" это исключение при попытке удалить задание, которого не существует
 			}
 		}
@@ -145,20 +141,18 @@ namespace ReportTuner.Helpers
 		/// <returns></returns>
 		public static Task GetTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string comment, string prefix)
 		{
-			try
-			{
-				return FindTask(taskService, reportsFolder, generalReportId,prefix);
+			try {
+				return FindTask(taskService, reportsFolder, generalReportId, prefix);
 
 				//Нашли задачу, производим обновление
 				/*TaskDefinition updateTaskDefinition = updateTask.Definition;
 				updateTaskDefinition.RegistrationInfo.Description = comment;
 
-				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition,prefix);	*/			
+				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition,prefix);	*/
 			}
-			catch(InvalidOperationException)
-			{
+			catch (InvalidOperationException) {
 				//Задачу не нашли, поэтому создаем ее
-				return CreateTask(taskService, reportsFolder, generalReportId, comment,prefix);
+				return CreateTask(taskService, reportsFolder, generalReportId, comment, prefix);
 			}
 		}
 
@@ -181,7 +175,7 @@ namespace ReportTuner.Helpers
 			var root = taskService.RootFolder;
 			var folder = root.SubFolders
 				.FirstOrDefault(
-					f => String.Equals(f.Name, ReportsFolderName, StringComparison.CurrentCultureIgnoreCase));
+				f => String.Equals(f.Name, ReportsFolderName, StringComparison.CurrentCultureIgnoreCase));
 			if (folder == null)
 				root.CreateFolder(ReportsFolderName, null);
 		}

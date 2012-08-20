@@ -8,7 +8,7 @@
                 <asp:BoundField DataField="eID" HeaderText="Код" Visible="False" />
                 <asp:TemplateField HeaderText="Наименование">
                     <ItemTemplate>
-                        <asp:TextBox ID="tbEnumName" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.eName")%>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvEnumName" runat="server" ControlToValidate="tbEnumName"
+                        <asp:TextBox ID="tbEnumName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.eName") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvEnumName" runat="server" ControlToValidate="tbEnumName"
                             ErrorMessage='Поле "Наименование" должно быть заполнено' ValidationGroup="vgTypes">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>

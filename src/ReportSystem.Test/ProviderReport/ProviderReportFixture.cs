@@ -19,7 +19,7 @@ namespace ReportSystem.Test.ProviderReport
 	{
 		public SpecReportOldLoad(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, format, dsProperties)
-		{ 
+		{
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -41,9 +41,8 @@ from
 			Console.WriteLine("{0} Offers count: {1}", DateTime.Now, dataSet.Tables[0].Rows.Count);
 
 			var res = (from r in dataSet.Tables[0].AsEnumerable()
-					group r by r["CatalogId"]);
+				group r by r["CatalogId"]);
 			Console.WriteLine("{0} group by {1}", DateTime.Now, res.Count());
-
 		}
 	}
 
@@ -51,10 +50,12 @@ from
 	{
 		public SpecReportNewLoad(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, format, dsProperties)
-		{}
+		{
+		}
 
 		public override void GenerateReport(ExecuteArgs e)
-		{}
+		{
+		}
 	}
 
 	public class TestClientNamesBaseReport : Inforoom.ReportSystem.ProviderReport
@@ -75,7 +76,10 @@ from
 
 	public class SpecShortReportFake : SpecShortReport
 	{
-		public List<SpecShortReportData> ReportData { get { return _reportData; } }
+		public List<SpecShortReportData> ReportData
+		{
+			get { return _reportData; }
+		}
 
 		public SpecShortReportFake()
 		{
@@ -93,19 +97,19 @@ from
 		public override List<Offer> GetOffers(int clientId, uint sourcePriceCode, uint? noiseSupplierId, bool allAssortment, bool byCatalog, bool withProducers)
 		{
 			var result = new List<Offer>();
-			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 10, AssortmentCoreId = 1, AssortmentCode = "4", AssortmentCodeCr = "1"});
-			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 3, AssortmentCoreId = 1, AssortmentCode = "2", AssortmentCodeCr = "3"});
-			result.Add(new Offer {ProductId = 1, ProducerId = 2, Cost = 1, AssortmentCoreId = 2, AssortmentCode = "5", AssortmentCodeCr = "1"});
-			result.Add(new Offer {ProductId = 2, ProducerId = 2, Cost = 5, AssortmentCoreId = 3, AssortmentCode = "7", AssortmentCodeCr = "4"});
-			result.Add(new Offer {ProductId = 3, ProducerId = 2, Cost = 8, AssortmentCoreId = 4, AssortmentCode = "15", AssortmentCodeCr = "4"});
-			result.Add(new Offer {ProductId = 3, ProducerId = 8, Cost = 5, AssortmentCoreId = 5, AssortmentCode = "11", AssortmentCodeCr = "4"});
+			result.Add(new Offer { ProductId = 1, ProducerId = 1, Cost = 10, AssortmentCoreId = 1, AssortmentCode = "4", AssortmentCodeCr = "1" });
+			result.Add(new Offer { ProductId = 1, ProducerId = 1, Cost = 3, AssortmentCoreId = 1, AssortmentCode = "2", AssortmentCodeCr = "3" });
+			result.Add(new Offer { ProductId = 1, ProducerId = 2, Cost = 1, AssortmentCoreId = 2, AssortmentCode = "5", AssortmentCodeCr = "1" });
+			result.Add(new Offer { ProductId = 2, ProducerId = 2, Cost = 5, AssortmentCoreId = 3, AssortmentCode = "7", AssortmentCodeCr = "4" });
+			result.Add(new Offer { ProductId = 3, ProducerId = 2, Cost = 8, AssortmentCoreId = 4, AssortmentCode = "15", AssortmentCodeCr = "4" });
+			result.Add(new Offer { ProductId = 3, ProducerId = 8, Cost = 5, AssortmentCoreId = 5, AssortmentCode = "11", AssortmentCodeCr = "4" });
 
-			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 5, AssortmentCode = null, AssortmentCodeCr = null});
-			result.Add(new Offer {ProductId = 1, ProducerId = 1, Cost = 2, AssortmentCode = null, AssortmentCodeCr = null});
-			result.Add(new Offer {ProductId = 1, ProducerId = 2, Cost = 5, AssortmentCode = null, AssortmentCodeCr = null});
-			result.Add(new Offer {ProductId = 2, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null});
-			result.Add(new Offer {ProductId = 3, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null});
-			result.Add(new Offer {ProductId = 5, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null});
+			result.Add(new Offer { ProductId = 1, ProducerId = 1, Cost = 5, AssortmentCode = null, AssortmentCodeCr = null });
+			result.Add(new Offer { ProductId = 1, ProducerId = 1, Cost = 2, AssortmentCode = null, AssortmentCodeCr = null });
+			result.Add(new Offer { ProductId = 1, ProducerId = 2, Cost = 5, AssortmentCode = null, AssortmentCodeCr = null });
+			result.Add(new Offer { ProductId = 2, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null });
+			result.Add(new Offer { ProductId = 3, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null });
+			result.Add(new Offer { ProductId = 5, ProducerId = 6, Cost = 0, AssortmentCode = null, AssortmentCodeCr = null });
 
 			return result;
 		}
@@ -123,15 +127,15 @@ from
 		public void GetOffersByClientIfCodesWithoutProducerTest()
 		{
 			if (!ActiveRecordStarter.IsInitialized)
-				ActiveRecordStarter.Initialize( typeof(Client).Assembly, ActiveRecordSectionHandler.Instance);
+				ActiveRecordStarter.Initialize(typeof(Client).Assembly, ActiveRecordSectionHandler.Instance);
 			var report = new SpecShortReportFake();
 			report.ReadReportParams();
-			using(new SessionScope()) {
+			using (new SessionScope()) {
 				var client = Client.Queryable.FirstOrDefault();
-				report.GetOffersByClient((int) client.Id);
+				report.GetOffersByClient((int)client.Id);
 			}
 			Assert.That(report.ReportData.Count, Is.EqualTo(10));
-			
+
 			Assert.That(report.ReportData[0].Code, Is.EqualTo("2"));
 			Assert.That(report.ReportData[0].CodeWithoutProducer, Is.EqualTo("2"));
 			Assert.That(report.ReportData[1].Code, Is.EqualTo("5"));
@@ -175,9 +179,8 @@ limit 1";
 		private void CheckClientsName(DataTable clients)
 		{
 			var query =
-					from client in clients.AsEnumerable()
-					select new
-					{
+				from client in clients.AsEnumerable()
+					select new {
 						Id = Convert.ToUInt64(client["Id"]),
 						Name = client["Name"].ToString()
 					};

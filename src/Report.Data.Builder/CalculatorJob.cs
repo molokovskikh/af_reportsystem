@@ -7,7 +7,7 @@ namespace Report.Data.Builder
 {
 	public class CalculatorJob : IJob
 	{
-		private ILog log = LogManager.GetLogger(typeof (CalculatorJob));
+		private ILog log = LogManager.GetLogger(typeof(CalculatorJob));
 		public Config Config;
 		public DateTime Date;
 

@@ -132,37 +132,37 @@
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Пн">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbMonday" runat="server" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SMonday"))%>' />
+						<asp:CheckBox ID="chbMonday" runat="server" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SMonday")) %>' />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Вт">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbTuesday" runat="server" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.STuesday"))%>' />
+						<asp:CheckBox ID="chbTuesday" runat="server" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.STuesday")) %>' />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Ср">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbWednesday" runat="server" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SWednesday"))%>' />
+						<asp:CheckBox ID="chbWednesday" runat="server" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SWednesday")) %>' />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Чт">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbThursday" runat="server" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SThursday"))%>' />
+						<asp:CheckBox ID="chbThursday" runat="server" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SThursday")) %>' />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Пт">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbFriday" runat="server" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SFriday"))%>' />
+						<asp:CheckBox ID="chbFriday" runat="server" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SFriday")) %>' />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Сб">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbSaturday" runat="server" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SSaturday"))%>' />
+						<asp:CheckBox ID="chbSaturday" runat="server" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SSaturday")) %>' />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Вс">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbSunday" runat="server" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SSunday"))%>' />
+						<asp:CheckBox ID="chbSunday" runat="server" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.SSunday")) %>' />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField>
@@ -192,59 +192,59 @@
 				<asp:TemplateField HeaderText="Месяц">
 					<ItemTemplate>
 						<div id="firstSixMonth">
-						<asp:CheckBox ID="m1" runat="server" Text="Январь" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m1"))%>' />
-						<asp:CheckBox ID="m2" runat="server" Text="Февраль" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m2"))%>' />
-						<asp:CheckBox ID="m3" runat="server" Text="Март" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m3"))%>' />
-						<asp:CheckBox ID="m4" runat="server" Text="Апрель" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m4"))%>' />
-						<asp:CheckBox ID="m5" runat="server" Text="Май" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m5"))%>' /> 
-						<asp:CheckBox ID="m6" runat="server" Text="Июнь" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m6"))%>' />
+						<asp:CheckBox ID="m1" runat="server" Text="Январь" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m1")) %>' />
+						<asp:CheckBox ID="m2" runat="server" Text="Февраль" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m2")) %>' />
+						<asp:CheckBox ID="m3" runat="server" Text="Март" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m3")) %>' />
+						<asp:CheckBox ID="m4" runat="server" Text="Апрель" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m4")) %>' />
+						<asp:CheckBox ID="m5" runat="server" Text="Май" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m5")) %>' /> 
+						<asp:CheckBox ID="m6" runat="server" Text="Июнь" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m6")) %>' />
 						</div>
 						<div id="secondSixMonth">
-						<asp:CheckBox ID="m7" runat="server" Text="Июль" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m7"))%>' /> 
-						<asp:CheckBox ID="m8" runat="server" Text="Август" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m8"))%>' /> 
-						<asp:CheckBox ID="m9" runat="server" Text="Сентябрь" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m9"))%>' /> 
-						<asp:CheckBox ID="m10" runat="server" Text="Октябрь" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m10"))%>' /> 
-						<asp:CheckBox ID="m11" runat="server" Text="Ноябрь" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m11"))%>' /> 
-						<asp:CheckBox ID="m12" runat="server" Text="Декабрь" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m12"))%>' />
+						<asp:CheckBox ID="m7" runat="server" Text="Июль" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m7")) %>' /> 
+						<asp:CheckBox ID="m8" runat="server" Text="Август" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m8")) %>' /> 
+						<asp:CheckBox ID="m9" runat="server" Text="Сентябрь" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m9")) %>' /> 
+						<asp:CheckBox ID="m10" runat="server" Text="Октябрь" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m10")) %>' /> 
+						<asp:CheckBox ID="m11" runat="server" Text="Ноябрь" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m11")) %>' /> 
+						<asp:CheckBox ID="m12" runat="server" Text="Декабрь" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.m12")) %>' />
 						</div>
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Дни">
 					<ItemTemplate>
 						<div id="firstFifteenDays">
-						<asp:CheckBox ID="d1" runat="server" Text="1" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d1"))%>' />
-						<asp:CheckBox ID="d2" runat="server" Text="2" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d2"))%>' />
-						<asp:CheckBox ID="d3" runat="server" Text="3" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d3"))%>' />
-						<asp:CheckBox ID="d4" runat="server" Text="4" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d4"))%>' />
-						<asp:CheckBox ID="d5" runat="server" Text="5" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d5"))%>' />
-						<asp:CheckBox ID="d6" runat="server" Text="6" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d6"))%>' />
-						<asp:CheckBox ID="d7" runat="server" Text="7" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d7"))%>' />
-						<asp:CheckBox ID="d8" runat="server" Text="8" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d8"))%>' />
-						<asp:CheckBox ID="d9" runat="server" Text="9" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d9"))%>' />
-						<asp:CheckBox ID="d10" runat="server" Text="10" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d10"))%>' />
-						<asp:CheckBox ID="d11" runat="server" Text="11" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d11"))%>' />
-						<asp:CheckBox ID="d12" runat="server" Text="12" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d12"))%>' />
-						<asp:CheckBox ID="d13" runat="server" Text="13" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d13"))%>' />
-						<asp:CheckBox ID="d14" runat="server" Text="14" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d14"))%>' />
-						<asp:CheckBox ID="d15" runat="server" Text="15" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d15"))%>' />
+						<asp:CheckBox ID="d1" runat="server" Text="1" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d1")) %>' />
+						<asp:CheckBox ID="d2" runat="server" Text="2" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d2")) %>' />
+						<asp:CheckBox ID="d3" runat="server" Text="3" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d3")) %>' />
+						<asp:CheckBox ID="d4" runat="server" Text="4" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d4")) %>' />
+						<asp:CheckBox ID="d5" runat="server" Text="5" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d5")) %>' />
+						<asp:CheckBox ID="d6" runat="server" Text="6" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d6")) %>' />
+						<asp:CheckBox ID="d7" runat="server" Text="7" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d7")) %>' />
+						<asp:CheckBox ID="d8" runat="server" Text="8" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d8")) %>' />
+						<asp:CheckBox ID="d9" runat="server" Text="9" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d9")) %>' />
+						<asp:CheckBox ID="d10" runat="server" Text="10" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d10")) %>' />
+						<asp:CheckBox ID="d11" runat="server" Text="11" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d11")) %>' />
+						<asp:CheckBox ID="d12" runat="server" Text="12" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d12")) %>' />
+						<asp:CheckBox ID="d13" runat="server" Text="13" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d13")) %>' />
+						<asp:CheckBox ID="d14" runat="server" Text="14" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d14")) %>' />
+						<asp:CheckBox ID="d15" runat="server" Text="15" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d15")) %>' />
 						</div>
 						<div id="secondFifteenDays">
-						<asp:CheckBox ID="d16" runat="server" Text="16" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d16"))%>' />
-						<asp:CheckBox ID="d17" runat="server" Text="17" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d17"))%>' />
-						<asp:CheckBox ID="d18" runat="server" Text="18" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d18"))%>' />
-						<asp:CheckBox ID="d19" runat="server" Text="19" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d19"))%>' />
-						<asp:CheckBox ID="d20" runat="server" Text="20" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d20"))%>' />
-						<asp:CheckBox ID="d21" runat="server" Text="21" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d21"))%>' />
-						<asp:CheckBox ID="d22" runat="server" Text="22" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d22"))%>' />
-						<asp:CheckBox ID="d23" runat="server" Text="23" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d23"))%>' />
-						<asp:CheckBox ID="d24" runat="server" Text="24" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d24"))%>' />
-						<asp:CheckBox ID="d25" runat="server" Text="25" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d25"))%>' />
-						<asp:CheckBox ID="d26" runat="server" Text="26" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d26"))%>' />
-						<asp:CheckBox ID="d27" runat="server" Text="27" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d27"))%>' />
-						<asp:CheckBox ID="d28" runat="server" Text="28" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d28"))%>' />
-						<asp:CheckBox ID="d29" runat="server" Text="29" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d29"))%>' />
-						<asp:CheckBox ID="d30" runat="server" Text="30" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d30"))%>' />
-						<asp:CheckBox ID="d31" runat="server" Text="31" Checked ='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d31"))%>' />
+						<asp:CheckBox ID="d16" runat="server" Text="16" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d16")) %>' />
+						<asp:CheckBox ID="d17" runat="server" Text="17" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d17")) %>' />
+						<asp:CheckBox ID="d18" runat="server" Text="18" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d18")) %>' />
+						<asp:CheckBox ID="d19" runat="server" Text="19" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d19")) %>' />
+						<asp:CheckBox ID="d20" runat="server" Text="20" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d20")) %>' />
+						<asp:CheckBox ID="d21" runat="server" Text="21" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d21")) %>' />
+						<asp:CheckBox ID="d22" runat="server" Text="22" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d22")) %>' />
+						<asp:CheckBox ID="d23" runat="server" Text="23" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d23")) %>' />
+						<asp:CheckBox ID="d24" runat="server" Text="24" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d24")) %>' />
+						<asp:CheckBox ID="d25" runat="server" Text="25" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d25")) %>' />
+						<asp:CheckBox ID="d26" runat="server" Text="26" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d26")) %>' />
+						<asp:CheckBox ID="d27" runat="server" Text="27" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d27")) %>' />
+						<asp:CheckBox ID="d28" runat="server" Text="28" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d28")) %>' />
+						<asp:CheckBox ID="d29" runat="server" Text="29" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d29")) %>' />
+						<asp:CheckBox ID="d30" runat="server" Text="30" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d30")) %>' />
+						<asp:CheckBox ID="d31" runat="server" Text="31" Checked ='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.d31")) %>' />
 						</div>
 					</ItemTemplate>
 				</asp:TemplateField>

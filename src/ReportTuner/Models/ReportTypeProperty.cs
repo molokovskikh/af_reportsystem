@@ -37,7 +37,8 @@ namespace ReportTuner.Models
 	public class EnumValue
 	{
 		public EnumValue()
-		{}
+		{
+		}
 
 		public EnumValue(string name, int value)
 		{
@@ -46,7 +47,7 @@ namespace ReportTuner.Models
 		}
 
 		[PrimaryKey]
-		public uint Id { get; set;}
+		public uint Id { get; set; }
 
 		[BelongsTo("PropertyEnumId")]
 		public PropertyEnum Enum { get; set; }
@@ -62,7 +63,8 @@ namespace ReportTuner.Models
 	public class ReportTypeProperty : ActiveRecordLinqBase<ReportTypeProperty>
 	{
 		public ReportTypeProperty()
-		{}
+		{
+		}
 
 		public ReportTypeProperty(string name, string type, string displayName)
 		{
@@ -70,19 +72,16 @@ namespace ReportTuner.Models
 			DisplayName = displayName;
 			PropertyType = type;
 
-			if (String.Equals(name, "regions", StringComparison.OrdinalIgnoreCase))
-			{
+			if (String.Equals(name, "regions", StringComparison.OrdinalIgnoreCase)) {
 				SelectStoredProcedure = "GetRegion";
 			}
 
-			if (type.ToLowerInvariant() == "enum")
-			{
+			if (type.ToLowerInvariant() == "enum") {
 				Enum = new PropertyEnum();
 				Enum.Name = name;
 			}
 
-			if (String.Equals(type, "bool", StringComparison.InvariantCultureIgnoreCase))
-			{
+			if (String.Equals(type, "bool", StringComparison.InvariantCultureIgnoreCase)) {
 				DefaultValue = "0";
 			}
 		}

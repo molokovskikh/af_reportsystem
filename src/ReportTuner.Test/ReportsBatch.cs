@@ -58,35 +58,28 @@ order by rp.PropertyID;
 
 			StringBuilder sbCommand = new StringBuilder();
 
-			foreach (DataRow drSourceProperty in dtSourceProperties.Rows)
-			{
+			foreach (DataRow drSourceProperty in dtSourceProperties.Rows) {
 				DataRow[] drDestinationProperties = dtDestinationProperties.Select("PropertyId = " + drSourceProperty["PropertyId"]);
-				if (drDestinationProperties.Length == 0)
-				{
+				if (drDestinationProperties.Length == 0) {
 					//Свойство не существует, поэтому просто вставляем новое
 					sbCommand.AppendFormat("insert into reports.report_properties (ReportCode, PropertyId, PropertyValue) values ({0}, {1}, '{2}');\r\n",
 						destinationReportId, drSourceProperty["PropertyId"], drSourceProperty["PropertyValue"]);
-					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase))
-					{
+					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase)) {
 						sbCommand.AppendLine("set @LastReportPropertyId = last_insert_id();");
-						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"]))
-						{
+						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"])) {
 							sbCommand.AppendFormat("insert into reports.report_property_values (ReportPropertyId, Value) values (@LastReportPropertyId, '{0}');\r\n",
 								drSourcePropertiesValue["Value"]);
 						}
 					}
 				}
-				else
-				{
+				else {
 					//Свойство существует, поэтому обновляем запись
 					sbCommand.AppendFormat("update reports.report_properties set PropertyValue = '{0}' where Id = {1};\r\n",
 						drSourceProperty["PropertyValue"], drDestinationProperties[0]["Id"]);
 
-					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase))
-					{
+					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase)) {
 						sbCommand.AppendFormat("delete from reports.report_property_values where ReportPropertyId = {0};\r\n", drDestinationProperties[0]["Id"]);
-						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"]))
-						{
+						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"])) {
 							sbCommand.AppendFormat("insert into reports.report_property_values (ReportPropertyId, Value) values ({0}, '{1}');\r\n",
 								drDestinationProperties[0]["Id"], drSourcePropertiesValue["Value"]);
 						}
@@ -96,27 +89,24 @@ order by rp.PropertyID;
 
 			MySqlConnection connection = new MySqlConnection(FixtureSetup.ConnectionString);
 			connection.Open();
-			try
-			{
+			try {
 				MySqlTransaction transaction = connection.BeginTransaction();
 				MySqlHelper.ExecuteNonQuery(connection, sbCommand.ToString());
 				transaction.Commit();
 			}
-			finally
-			{
+			finally {
 				connection.Close();
 			}
 		}
 
 		[Test(Description = "создает отчеты по подобию определенного отчета с копированием всех свойств, меняя название заголовка отчета как '2', '3' и т.д."),
-		Ignore("это не тест, а метод для выполнения действий с отчетами")]
+		 Ignore("это не тест, а метод для выполнения действий с отчетами")]
 		public void CloneReportsFromSourceReport()
 		{
 			ulong sourceReportId = 585;
 			var newReportList = new List<ulong>();
 
-			using (var conn = new MySqlConnection(FixtureSetup.ConnectionString))
-			{
+			using (var conn = new MySqlConnection(FixtureSetup.ConnectionString)) {
 				conn.Open();
 
 				var command = new MySqlCommand(
@@ -130,8 +120,7 @@ order by rp.PropertyID;
 				command.Parameters.AddWithValue("?reportCode", sourceReportId);
 				command.Parameters.Add("?ReportCaption", MySqlDbType.String);
 
-				for (int i = 5; i <= 55; i++)
-				{
+				for (int i = 5; i <= 55; i++) {
 					command.Parameters["?ReportCaption"].Value = i.ToString();
 					newReportList.Add(Convert.ToUInt64(command.ExecuteScalar()));
 				}
@@ -148,8 +137,7 @@ order by rp.PropertyID;
 		{
 			var newReportList = new List<ulong>();
 
-			using (var connection = new MySqlConnection(FixtureSetup.ConnectionString))
-			{
+			using (var connection = new MySqlConnection(FixtureSetup.ConnectionString)) {
 				connection.Open();
 
 				var templateReportDS = MySqlHelper.ExecuteDataset(
@@ -163,9 +151,8 @@ from
 where
 	General_Reports.GeneralReportCode = ?GeneralReportCode
 and General_Reports.GeneralReportCode = reports.GeneralReportCode
-"
-					,
-					new MySqlParameter("?GeneralReportCode", sourceGeneralReportId));
+",
+				new MySqlParameter("?GeneralReportCode", sourceGeneralReportId));
 
 				var templateReports = templateReportDS.Tables[0];
 
@@ -192,8 +179,7 @@ select last_insert_id() as ReportCode;", connection);
 				insertReportCommand.Parameters.Add("?reportCode", MySqlDbType.UInt64);
 				insertReportCommand.Parameters.AddWithValue("?GeneralReportCode", destinationGeneralReportId);
 
-				foreach (DataRow templateReport in templateReports.Rows)
-				{
+				foreach (DataRow templateReport in templateReports.Rows) {
 					var templateReportId = Convert.ToUInt64(templateReport["ReportCode"]);
 					insertReportCommand.Parameters["?reportCode"].Value = templateReportId;
 					var newReportCode = Convert.ToUInt64(insertReportCommand.ExecuteScalar());
@@ -201,11 +187,10 @@ select last_insert_id() as ReportCode;", connection);
 					CopyReportProperties(templateReportId, newReportCode);
 				}
 			}
-
 		}
 
-		[Test(Description = "создает отчеты у родительского отчета 213 по подобию отчетов для родительского отчета 210 с копированием всех свойств, задача пришла от Павла")
-		, Ignore("это не тест, а метод для выполнения действий с отчетами")
+		[Test(Description = "создает отчеты у родительского отчета 213 по подобию отчетов для родительского отчета 210 с копированием всех свойств, задача пришла от Павла"),
+			Ignore("это не тест, а метод для выполнения действий с отчетами")
 		]
 		public void CloneReportsToDestination()
 		{
@@ -240,8 +225,8 @@ select last_insert_id() as ReportCode;", connection);
 			CopyReports(251, 321);
 		}
 
-		[Test(Description = "создает отчеты у родительского отчета 443 по подобию отчетов для родительского отчета 19 с копированием всех свойств, задача пришла от Борисова")
-		, Ignore("это не тест, а метод для выполнения действий с отчетами")
+		[Test(Description = "создает отчеты у родительского отчета 443 по подобию отчетов для родительского отчета 19 с копированием всех свойств, задача пришла от Борисова"),
+			Ignore("это не тест, а метод для выполнения действий с отчетами")
 		]
 		public void CloneReportsToDestinationBy19()
 		{
@@ -287,20 +272,18 @@ select last_insert_id() as ReportCode;", connection);
 		{
 			ulong reportTypeCode = 1;
 
-			using (new SessionScope())
-			{
+			using (new SessionScope()) {
 				var reports = Report.Queryable.Where(r => r.ReportType.Id == reportTypeCode).ToList();
 
 				var prop_types = ReportTypeProperty.Queryable
-												   .Where(pt => pt.ReportType.Id == reportTypeCode)
-												   .Where(pt => pt.PropertyName == "ByBaseCosts" ||
-																pt.PropertyName == "PriceCodeEqual" ||
-																pt.PropertyName == "RegionEqual").ToList();
+					.Where(pt => pt.ReportType.Id == reportTypeCode)
+					.Where(pt => pt.PropertyName == "ByBaseCosts" ||
+						pt.PropertyName == "PriceCodeEqual" ||
+						pt.PropertyName == "RegionEqual")
+					.ToList();
 
-				foreach (var report in reports)
-				{
-					foreach (var prop_type in prop_types)
-					{
+				foreach (var report in reports) {
+					foreach (var prop_type in prop_types) {
 						var prop = ReportProperty.Queryable.Where(p => p.Report == report
 							&& p.PropertyType.Id == prop_type.Id)
 							.ToList();

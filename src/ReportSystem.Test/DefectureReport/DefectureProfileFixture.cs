@@ -15,7 +15,6 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameAndForm);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNameAndForm);
-
 		}
 
 		[Test]

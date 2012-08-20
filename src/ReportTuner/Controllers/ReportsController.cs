@@ -12,8 +12,7 @@ namespace ReportTuner.Controllers
 		public void Delete(ulong[] ids)
 		{
 			foreach (var id in ids) {
-				try
-				{
+				try {
 					var report = ActiveRecordMediator<GeneralReport>.FindByPrimaryKey(id, false);
 					if (report == null)
 						continue;
@@ -26,7 +25,7 @@ namespace ReportTuner.Controllers
 
 					ActiveRecordMediator.Delete(report);
 				}
-				catch(Exception e) {
+				catch (Exception e) {
 					Logger.Error("Ошибка при удалении отчета", e);
 				}
 			}

@@ -8,8 +8,7 @@ namespace Inforoom.ReportSystem.Helpers
 		public static Color FromAhsb(int alpha, float hue, float saturation, float brightness)
 		{
 			if (0 > alpha
-				|| 255 < alpha)
-			{
+				|| 255 < alpha) {
 				throw new ArgumentOutOfRangeException(
 					"alpha",
 					alpha,
@@ -17,8 +16,7 @@ namespace Inforoom.ReportSystem.Helpers
 			}
 
 			if (0f > hue
-				|| 360f < hue)
-			{
+				|| 360f < hue) {
 				throw new ArgumentOutOfRangeException(
 					"hue",
 					hue,
@@ -26,8 +24,7 @@ namespace Inforoom.ReportSystem.Helpers
 			}
 
 			if (0f > saturation
-				|| 1f < saturation)
-			{
+				|| 1f < saturation) {
 				throw new ArgumentOutOfRangeException(
 					"saturation",
 					saturation,
@@ -35,51 +32,44 @@ namespace Inforoom.ReportSystem.Helpers
 			}
 
 			if (0f > brightness
-				|| 1f < brightness)
-			{
+				|| 1f < brightness) {
 				throw new ArgumentOutOfRangeException(
 					"brightness",
 					brightness,
 					"Value must be within a range of 0 - 1.");
 			}
 
-			if (0 == saturation)
-			{
+			if (0 == saturation) {
 				return Color.FromArgb(
-									alpha,
-									Convert.ToInt32(brightness * 255),
-									Convert.ToInt32(brightness * 255),
-									Convert.ToInt32(brightness * 255));
+					alpha,
+					Convert.ToInt32(brightness * 255),
+					Convert.ToInt32(brightness * 255),
+					Convert.ToInt32(brightness * 255));
 			}
 
 			float fMax, fMid, fMin;
 			int iSextant, iMax, iMid, iMin;
 
-			if (0.5 < brightness)
-			{
+			if (0.5 < brightness) {
 				fMax = brightness - (brightness * saturation) + saturation;
 				fMin = brightness + (brightness * saturation) - saturation;
 			}
-			else
-			{
+			else {
 				fMax = brightness + (brightness * saturation);
 				fMin = brightness - (brightness * saturation);
 			}
 
 			iSextant = (int)Math.Floor(hue / 60f);
-			if (300f <= hue)
-			{
+			if (300f <= hue) {
 				hue -= 360f;
 			}
 
 			hue /= 60f;
 			hue -= 2f * (float)Math.Floor(((iSextant + 1f) % 6f) / 2f);
-			if (0 == iSextant % 2)
-			{
+			if (0 == iSextant % 2) {
 				fMid = (hue * (fMax - fMin)) + fMin;
 			}
-			else
-			{
+			else {
 				fMid = fMin - (hue * (fMax - fMin));
 			}
 
@@ -87,8 +77,7 @@ namespace Inforoom.ReportSystem.Helpers
 			iMid = Convert.ToInt32(fMid * 255);
 			iMin = Convert.ToInt32(fMin * 255);
 
-			switch (iSextant)
-			{
+			switch (iSextant) {
 				case 1:
 					return Color.FromArgb(alpha, iMid, iMax, iMin);
 				case 2:

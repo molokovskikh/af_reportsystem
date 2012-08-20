@@ -28,7 +28,7 @@ namespace ReportSystem.Test
 		Special,
 		SpecialNew,
 		SpecialNewDifficult,
-        SpecialByBaseCosts,
+		SpecialByBaseCosts,
 		RatingNotJunkOnly,
 		RatingJunkOnly,
 		Rating,
@@ -81,7 +81,7 @@ namespace ReportSystem.Test
 		LeakOffers,
 		PricesOfCompetitors,
 		OrderOutAllowedAssortment,
-        PriceCollectionForClientReport,
+		PriceCollectionForClientReport,
 		OrdersStatistics,
 		SupplierOrdersStatisticsType1,
 		SupplierOrdersStatisticsType2
@@ -125,5 +125,5 @@ namespace ReportSystem.Test
 			report.ReportToFile(TestHelper.GetFileName(type));
 			ProfileHelper.Stop();
 		}
-	}	
+	}
 }

@@ -9,7 +9,8 @@ namespace Inforoom.Common
 	/// </summary>
 	public class CommandLineUtils : IComparer
 	{
-		string _key;
+		private string _key;
+
 		public CommandLineUtils(string Key)
 		{
 			_key = Key;
@@ -17,8 +18,7 @@ namespace Inforoom.Common
 
 		public int Compare(object x, object y)
 		{
-			if ((x is string) && (y is string))
-			{
+			if ((x is string) && (y is string)) {
 				string Left = (string)x;
 				string Right = (string)y;
 				return (Left.StartsWith(Right)) ? 0 : Left.CompareTo(Right);
@@ -41,13 +41,11 @@ namespace Inforoom.Common
 			var c = new CommandLineUtils(Prefix);
 			var Val = Array.Find<string>(Environment.GetCommandLineArgs(), c.ValueStartsWith);
 			if (!String.IsNullOrEmpty(Val))
-				try
-				{
+				try {
 					Val = Val.Substring(Prefix.Length);
 					return Val;
 				}
-				catch
-				{
+				catch {
 				}
 			return (-1).ToString();
 		}
@@ -57,17 +55,13 @@ namespace Inforoom.Common
 			var c = new CommandLineUtils(Prefix);
 			var Val = Array.Find<string>(Environment.GetCommandLineArgs(), c.ValueStartsWith);
 			if (!String.IsNullOrEmpty(Val))
-				try
-				{
+				try {
 					Val = Val.Substring(Prefix.Length);
 					return Val;
 				}
-				catch
-				{
+				catch {
 				}
 			return null;
 		}
-
-
 	}
 }

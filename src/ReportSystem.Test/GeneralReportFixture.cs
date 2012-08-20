@@ -19,10 +19,12 @@ namespace ReportSystem.Test
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
-		{}
+		{
+		}
 
 		public override void ReadReportParams()
-		{}
+		{
+		}
 
 		public override void ReportToFile(string fileName)
 		{
@@ -60,7 +62,7 @@ namespace ReportSystem.Test
 			var report = new GeneralReport();
 			report.GeneralReportID = 1;
 			report.Reports.Add(new FakeReport());
-			report.FilesForReport = new Dictionary<string, string>{{"123.txt", id.ToString()}};
+			report.FilesForReport = new Dictionary<string, string> { { "123.txt", id.ToString() } };
 			var result = report.BuildResultFile();
 			var zip = new ZipFile(result);
 			var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();

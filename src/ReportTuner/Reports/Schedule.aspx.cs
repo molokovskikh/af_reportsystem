@@ -23,8 +23,8 @@ public partial class Reports_schedule : Page
 
 	private GeneralReport _generalReport;
 
-	TaskService taskService;
-	TaskFolder reportsFolder;
+	private TaskService taskService;
+	private TaskFolder reportsFolder;
 
 	private DataSet DS;
 	private DataTable dtSchedule;
@@ -37,10 +37,10 @@ public partial class Reports_schedule : Page
 	private DataColumn SFriday;
 	private DataColumn SSaturday;
 	private DataColumn SSunday;
-	Task currentTask;
+	private Task currentTask;
 	private Task temp1Task;
-	TaskDefinition currentTaskDefinition;
-	DaysOfTheWeek triggerDays = 0;
+	private TaskDefinition currentTaskDefinition;
+	private DaysOfTheWeek triggerDays = 0;
 	private DataColumn SStartHour;
 	private DataColumn SStartMinute;
 
@@ -68,7 +68,7 @@ public partial class Reports_schedule : Page
 		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
 		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
-		
+
 		temp1Task = Report.CreateTemporaryTaskForRunFromInterface(taskService, reportsFolder, currentTask, "/gr:" + _generalReport.Id + string.Format(" /manual:true"));
 
 		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
@@ -81,16 +81,13 @@ public partial class Reports_schedule : Page
 
 		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
 
-		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running)
-		{
+		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running) {
 			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
-			if (tempTask.Definition.RegistrationInfo.Description == userName)
-			{
+			if (tempTask.Definition.RegistrationInfo.Description == userName) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
-			else
-			{
+			else {
 				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено {0}", description, prefix);
 				ErrorMassage.BackColor = Color.Red;
 			}
@@ -98,16 +95,13 @@ public partial class Reports_schedule : Page
 			RadioSelf.Enabled = false;
 			RadioMails.Enabled = false;
 		}
-		if (tempTask.State == TaskState.Queued || temp1Task.State == TaskState.Queued)
-		{
+		if (tempTask.State == TaskState.Queued || temp1Task.State == TaskState.Queued) {
 			var prefix = tempTask.State == TaskState.Running ? "Запускается разовый отчет" : "Отчет запускается";
-			if (tempTask.Definition.RegistrationInfo.Description == userName)
-			{
+			if (tempTask.Definition.RegistrationInfo.Description == userName) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
-			else
-			{
+			else {
 				ErrorMassage.Text = string.Format("{1} {0}, выполнение данного очета отложено)", description, prefix);
 				ErrorMassage.BackColor = Color.Red;
 			}
@@ -116,12 +110,10 @@ public partial class Reports_schedule : Page
 			RadioMails.Enabled = false;
 		}
 		if ((tempTask.State == TaskState.Ready && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
-		(temp1Task.State == TaskState.Ready && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
-			if (tempTask.Definition.RegistrationInfo.Description == userName)
-			{
+			(temp1Task.State == TaskState.Ready && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName) {
 				// отчет выполнен				
-				if (Session["StartTaskTime"] != null)
-				{
+				if (Session["StartTaskTime"] != null) {
 					Session.Remove("StartTaskTime");
 					ErrorMassage.Text = "Операция выполнена";
 					ErrorMassage.BackColor = Color.LightGreen;
@@ -131,33 +123,29 @@ public partial class Reports_schedule : Page
 			}
 		}
 		if ((tempTask.State == TaskState.Disabled && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
-		(temp1Task.State == TaskState.Disabled && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
-			if (Session["StartTaskTime"] != null)
-			{
+			(temp1Task.State == TaskState.Disabled && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
+			if (Session["StartTaskTime"] != null) {
 				Session.Remove("StartTaskTime");
 				ErrorMassage.Text = "Операция отменена";
 				ErrorMassage.BackColor = Color.Red;
 			}
 			else
 				ErrorMassage.Text = "";
-			}
-		
+		}
+
 
 		var otherTriggers = new List<Trigger>();
-		if (!Page.IsPostBack)
-		{
+		if (!Page.IsPostBack) {
 			var selfMail = GetSelfEmails();
-			if ((selfMail.Count != 0) && (selfMail[0].Length != 0))
-			{
+			if ((selfMail.Count != 0) && (selfMail[0].Length != 0)) {
 				RadioSelf.Text = "Выполнить и отослать на: " + selfMail[0][0];
 			}
 
 			dtFrom.Value = DateTime.Now.AddDays(-7).ToShortDateString();
 			dtTo.Value = DateTime.Now.ToShortDateString();
 			mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
-			
-			try
-			{
+
+			try {
 				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
 				lblReportComment.Text = _generalReport.Comment;
 				var lastLogTimes = ObjectFromQuery(new[] { new MySqlParameter("?GeneralReportCode", _generalReport.Id) },
@@ -170,10 +158,9 @@ WHERE
   reportslogs.GeneralReportCode = ?GeneralReportCode
 ");
 				if ((lastLogTimes.Count > 0) && (lastLogTimes[0].Length > 0))
-				if (lastLogTimes[0][0] is DateTime)
-				{
-					MyCn.Open();
-					MyCmd.CommandText = @"
+					if (lastLogTimes[0][0] is DateTime) {
+						MyCn.Open();
+						MyCmd.CommandText = @"
 SELECT
   LogTime,
   EMail,
@@ -185,15 +172,14 @@ WHERE
 and reportslogs.LogTime > ?LastLogTime
 order by LogTime desc
 ";
-					MyCmd.Parameters.AddWithValue("?LastLogTime", ((DateTime)lastLogTimes[0][0]).AddDays(-1).Date);
-					var _logs = new DataTable();
-					MyDA.Fill(_logs);
-					gvLogs.DataSource = _logs;
-				}
-				gvLogs.DataBind(); 
+						MyCmd.Parameters.AddWithValue("?LastLogTime", ((DateTime)lastLogTimes[0][0]).AddDays(-1).Date);
+						var _logs = new DataTable();
+						MyDA.Fill(_logs);
+						gvLogs.DataSource = _logs;
+					}
+				gvLogs.DataBind();
 			}
-			finally
-			{
+			finally {
 				MyCn.Close();
 			}
 
@@ -202,10 +188,8 @@ order by LogTime desc
 			lblFolder.Text = ((ExecAction)currentTask.Definition.Actions[0]).WorkingDirectory;
 			var tl = currentTask.Definition.Triggers;
 
-			for (int i = 0; i < tl.Count; i++)
-			{
-				if (tl[i] is WeeklyTrigger)
-				{
+			for (int i = 0; i < tl.Count; i++) {
+				if (tl[i] is WeeklyTrigger) {
 					var dr = DS.Tables[dtSchedule.TableName].NewRow();
 					var trigger = ((WeeklyTrigger)tl[i]);
 					dr[SStartHour.ColumnName] = trigger.StartBoundary.Hour;
@@ -222,26 +206,25 @@ order by LogTime desc
 
 					DS.Tables[dtSchedule.TableName].Rows.Add(dr);
 				}
-				else
-					if (tl[i] is MonthlyTrigger) {
-						var dr = DS.Tables[dtScheduleMonth.TableName].NewRow();
-						var trigger = ((MonthlyTrigger)tl[i]);
-						dr[MSStartHour.ColumnName] = trigger.StartBoundary.Hour;
-						dr[MSStartMinute.ColumnName] = trigger.StartBoundary.Minute;
-						var months = trigger.MonthsOfYear;
-						MonthsOfTheYear month;
-						for (int j = 0; j < 12; j++) {
-							MonthsOfTheYear.TryParse((1 << j).ToString(), true, out month);
-							if (months.HasFlag(month))
-								dr["m" + (j + 1)] = 1;
-						}
-						foreach (int em in trigger.DaysOfMonth) {
-							dr["d" + em] = 1;
-						}
-						DS.Tables[dtScheduleMonth.TableName].Rows.Add(dr);
+				else if (tl[i] is MonthlyTrigger) {
+					var dr = DS.Tables[dtScheduleMonth.TableName].NewRow();
+					var trigger = ((MonthlyTrigger)tl[i]);
+					dr[MSStartHour.ColumnName] = trigger.StartBoundary.Hour;
+					dr[MSStartMinute.ColumnName] = trigger.StartBoundary.Minute;
+					var months = trigger.MonthsOfYear;
+					MonthsOfTheYear month;
+					for (int j = 0; j < 12; j++) {
+						MonthsOfTheYear.TryParse((1 << j).ToString(), true, out month);
+						if (months.HasFlag(month))
+							dr["m" + (j + 1)] = 1;
 					}
-					else
-						otherTriggers.Add(tl[i]);
+					foreach (int em in trigger.DaysOfMonth) {
+						dr["d" + em] = 1;
+					}
+					DS.Tables[dtScheduleMonth.TableName].Rows.Add(dr);
+				}
+				else
+					otherTriggers.Add(tl[i]);
 			}
 
 			DS.Tables[dtSchedule.TableName].AcceptChanges();
@@ -253,7 +236,7 @@ order by LogTime desc
 			dgvScheduleMonth.DataMember = dtScheduleMonth.TableName;
 			dgvScheduleMonth.DataBind();
 
-			SelectingTiggerType_SelectedIndexChanged(null,null);
+			SelectingTiggerType_SelectedIndexChanged(null, null);
 
 			gvOtherTriggers.DataSource = otherTriggers;
 			gvOtherTriggers.DataBind();
@@ -262,8 +245,7 @@ order by LogTime desc
 
 			CloseTaskService();
 		}
-		else
-		{
+		else {
 			DS = ((DataSet)Session[DSSchedule]);
 			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
@@ -275,25 +257,22 @@ order by LogTime desc
 		var result = new List<object[]>();
 		if (MyCn.State == ConnectionState.Closed)
 			MyCn.Open();
-		try
-		{
+		try {
 			MyCmd.Connection = MyCn;
 			MyCmd.CommandText = commandText;
 			MyDA.SelectCommand = MyCmd;
 
 			MyCmd.Parameters.Clear();
 			MyCmd.Parameters.AddRange(parameters);
-			
+
 			var MyReader = MyCmd.ExecuteReader();
-			while (MyReader.Read())
-			{
+			while (MyReader.Read()) {
 				var temp = new object[MyReader.FieldCount];
 				MyReader.GetValues(temp);
 				result.Add(temp);
 			}
 		}
-		finally
-		{
+		finally {
 			MyCn.Close();
 		}
 		return result;
@@ -310,8 +289,7 @@ order by LogTime desc
 
 	protected void btnApply_Click(object sender, EventArgs e)
 	{
-		if (this.IsValid)
-		{
+		if (this.IsValid) {
 			CopyChangesToTable();
 			CopyMonthTriggerValuesInToTable();
 
@@ -326,8 +304,7 @@ order by LogTime desc
 	private void CopyChangesToTable()
 	{
 		DS.Tables[dtSchedule.TableName].Rows.Clear();
-		foreach (GridViewRow drv in dgvSchedule.Rows)
-		{
+		foreach (GridViewRow drv in dgvSchedule.Rows) {
 			DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
 			string h = ((TextBox)drv.FindControl("tbStart")).Text;
 			string m = ((TextBox)drv.FindControl("tbStart")).Text.Substring(h.IndexOf(':') + 1, h.Length - h.IndexOf(':') - 1);
@@ -345,7 +322,7 @@ order by LogTime desc
 			dr[SSunday.ColumnName] = Convert.ToByte(((CheckBox)drv.FindControl("chbSunday")).Checked);
 			DS.Tables[dtSchedule.TableName].Rows.Add(dr);
 		}
-		DS.Tables[dtSchedule.TableName].AcceptChanges(); 
+		DS.Tables[dtSchedule.TableName].AcceptChanges();
 	}
 
 	private void SaveTaskChanges()
@@ -371,8 +348,7 @@ order by LogTime desc
 				currentTaskDefinition.Triggers.RemoveAt(i);
 		}
 
-		foreach(DataRow dr in DS.Tables[dtSchedule.TableName].Rows)
-		{
+		foreach (DataRow dr in DS.Tables[dtSchedule.TableName].Rows) {
 			short h = Convert.ToInt16(dr[SStartHour.ColumnName]);
 			short m = Convert.ToInt16(dr[SStartMinute.ColumnName]);
 
@@ -412,7 +388,7 @@ order by LogTime desc
 				}
 			}
 			trigger.DaysOfMonth = dayInt.ToArray();
-			
+
 			trigger.MonthsOfYear = allmonth;
 			trigger.StartBoundary = DateTime.Now.Date.AddHours(h).AddMinutes(m);
 		}
@@ -421,15 +397,14 @@ order by LogTime desc
 	private void AddDay(DataRow dr, DaysOfTheWeek weekDay)
 	{
 		string column = "S" + weekDay.ToString();
-		if (dr[column].ToString() == "1")
-		{
+		if (dr[column].ToString() == "1") {
 			if (triggerDays == 0)
 				triggerDays = weekDay;
 			else
 				triggerDays = triggerDays | weekDay;
 		}
 	}
-
+	#region Component Designer generated code
 	private void InitializeComponent()
 	{
 		this.DS = new System.Data.DataSet();
@@ -454,7 +429,8 @@ order by LogTime desc
 		// 
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
-			this.dtSchedule, dtScheduleMonth});
+			this.dtSchedule, dtScheduleMonth
+		});
 		// 
 		// dtSchedule
 		// 
@@ -468,17 +444,18 @@ order by LogTime desc
 			this.SSaturday,
 			this.SSunday,
 			this.SStartHour,
-			this.SStartMinute});
+			this.SStartMinute
+		});
 
 		var columnsForAdd = new List<DataColumn>();
 		for (var i = 1; i <= 12; i++) {
-			columnsForAdd.Add(new DataColumn("m" + i, typeof(byte)) {DefaultValue = ((byte)0)});
+			columnsForAdd.Add(new DataColumn("m" + i, typeof(byte)) { DefaultValue = ((byte)0) });
 		}
 		for (var i = 1; i <= 31; i++) {
-			columnsForAdd.Add(new DataColumn("d" + i, typeof(byte)) {DefaultValue = ((byte)0)});
+			columnsForAdd.Add(new DataColumn("d" + i, typeof(byte)) { DefaultValue = ((byte)0) });
 		}
 
-		dtScheduleMonth.Columns.AddRange(new [] {MSStartHour, MSStartMinute});
+		dtScheduleMonth.Columns.AddRange(new[] { MSStartHour, MSStartMinute });
 
 		dtScheduleMonth.Columns.AddRange(columnsForAdd.ToArray());
 
@@ -543,22 +520,21 @@ order by LogTime desc
 		this.SStartMinute.ColumnName = "SStartMinute";
 		this.SStartMinute.DataType = typeof(short);
 		this.SStartMinute.DefaultValue = ((short)(0));
-	
+
 		this.MSStartHour.ColumnName = "MSStartHour";
 		this.MSStartHour.DataType = typeof(short);
 		this.MSStartHour.DefaultValue = ((short)(0));
-	
+
 		this.MSStartMinute.ColumnName = "MSStartMinute";
 		this.MSStartMinute.DataType = typeof(short);
 		this.MSStartMinute.DefaultValue = ((short)(0));
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).EndInit();
-
 	}
+	#endregion
 	protected void dgvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
-		if (e.CommandName == "Add")
-		{
+		if (e.CommandName == "Add") {
 			CopyChangesToTable();
 
 			DataRow dr = DS.Tables[dtSchedule.TableName].NewRow();
@@ -589,28 +565,23 @@ order by LogTime desc
 
 	protected void RowDataBoundAll(GridViewRowEventArgs e, string startHourColumnName, string startMinuteColumnName)
 	{
-		if (e.Row.RowType == DataControlRowType.DataRow)
-		{
+		if (e.Row.RowType == DataControlRowType.DataRow) {
 			TextBox tb = ((TextBox)e.Row.Cells[0].FindControl("tbStart"));
-			tb.Text = ((DataRowView)e.Row.DataItem)[startHourColumnName].ToString() + ":" + ((DataRowView)e.Row.DataItem)[startMinuteColumnName].ToString().PadLeft(2,'0');
+			tb.Text = ((DataRowView)e.Row.DataItem)[startHourColumnName].ToString() + ":" + ((DataRowView)e.Row.DataItem)[startMinuteColumnName].ToString().PadLeft(2, '0');
 		}
 	}
 
 
-
 	protected bool Send_in_Emails()
 	{
-		if (Page.IsValid)
-		{
+		if (Page.IsValid) {
 			var mails = mail_Text.Text.Split(',');
-			for (int i = 0; i < mails.Length; i++)
-			{
-				mails[i] = mails[i].Trim(new [] {' ','\n','\r'});
-				var recordMail = new MailingAddresses
-									{
-										Mail = mails[i],
-										GeneralReport = _generalReport
-									};
+			for (int i = 0; i < mails.Length; i++) {
+				mails[i] = mails[i].Trim(new[] { ' ', '\n', '\r' });
+				var recordMail = new MailingAddresses {
+					Mail = mails[i],
+					GeneralReport = _generalReport
+				};
 				recordMail.SaveAndFlush();
 			}
 
@@ -622,8 +593,7 @@ order by LogTime desc
 	protected void btnExecute_Click(object sender, EventArgs e)
 	{
 		var runed = false;
-		if (IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running))
-		{
+		if (IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running)) {
 			temp1Task.Run();
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
@@ -642,17 +612,15 @@ order by LogTime desc
 	/// </summary>
 	private void CloseTaskService()
 	{
-		if (currentTask != null)
-		{
+		if (currentTask != null) {
 			currentTask.Dispose();
 			currentTask = null;
 		}
-		if(temp1Task != null) {
+		if (temp1Task != null) {
 			temp1Task.Dispose();
 			temp1Task = null;
 		}
-		if (taskService != null)
-		{
+		if (taskService != null) {
 			taskService.Dispose();
 			taskService = null;
 		}
@@ -666,9 +634,9 @@ order by LogTime desc
 
 		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath,
 			"/gr:" + _generalReport.Id +
-			string.Format(" /inter:true /dtFrom:{0} /dtTo:{1} /manual:true", DateTime.Parse(dtFrom.Value).ToShortDateString(), DateTime.Parse(dtTo.Value).ToShortDateString()),
+				string.Format(" /inter:true /dtFrom:{0} /dtTo:{1} /manual:true", DateTime.Parse(dtFrom.Value).ToShortDateString(), DateTime.Parse(dtTo.Value).ToShortDateString()),
 			ScheduleHelper.ScheduleWorkDir);
-		
+
 		var taskDefinition = thisTask.Definition;
 
 		taskDefinition.Actions.RemoveAt(0);
@@ -676,8 +644,7 @@ order by LogTime desc
 		taskDefinition.RegistrationInfo.Description = user;
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(tempNum), taskDefinition, "temp");
 
-		if (thisTask.State != TaskState.Running)
-		{
+		if (thisTask.State != TaskState.Running) {
 			thisTask.Run();
 			Session.Add("StartTaskTime", DateTime.Now);
 			Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
@@ -693,15 +660,13 @@ order by LogTime desc
 	{
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 		return ObjectFromQuery(new[] { new MySqlParameter("?userName", userName) },
-									 @"SELECT Email FROM accessright.regionaladmins r where r.UserName = ?userName");
+			@"SELECT Email FROM accessright.regionaladmins r where r.UserName = ?userName");
 	}
 
 	private void WriteEmailList(List<object[]> emails)
 	{
-		foreach (var email in emails)
-		{
-			var recordMail = new MailingAddresses
-			{
+		foreach (var email in emails) {
+			var recordMail = new MailingAddresses {
 				Mail = email[0].ToString(),
 				GeneralReport = _generalReport
 			};
@@ -712,23 +677,21 @@ order by LogTime desc
 
 	private List<object[]> GetMailingAdresses()
 	{
-		var sqlSelectReports = ObjectFromQuery(new[] {new MySqlParameter("?GeneralReportID", _generalReport.Id)},
-											   @"
+		var sqlSelectReports = ObjectFromQuery(new[] { new MySqlParameter("?GeneralReportID", _generalReport.Id) },
+			@"
 SELECT    ContactGroupId 
 FROM    reports.general_reports cr,
 		billing.payers p
 WHERE   
 	 p.PayerId = cr.PayerId
 and cr.generalreportcode = ?GeneralReportID");
-		if (sqlSelectReports.Count > 0)
-		{
-			var emails = ObjectFromQuery(new[]
-											{
-												new MySqlParameter("?ContactGroupId", sqlSelectReports[0][0]),
-												new MySqlParameter("?ContactGroupType", 6),
-												new MySqlParameter("?ContactType", 0.ToString())
-											},
-										 @"
+		if (sqlSelectReports.Count > 0) {
+			var emails = ObjectFromQuery(new[] {
+				new MySqlParameter("?ContactGroupId", sqlSelectReports[0][0]),
+				new MySqlParameter("?ContactGroupType", 6),
+				new MySqlParameter("?ContactType", 0.ToString())
+			},
+				@"
 select lower(c.contactText)
 from
   contacts.contact_groups cg
@@ -754,7 +717,6 @@ and c.Type = ?ContactType");
 
 	protected void chbAllow_CheckedChanged(object sender, EventArgs e)
 	{
-
 	}
 
 	protected void btnExecute_mailing(object sender, EventArgs e)
@@ -768,11 +730,11 @@ and c.Type = ?ContactType");
 
 	protected void SelectingTiggerType_SelectedIndexChanged(object sender, EventArgs e)
 	{
-		if (selectingTiggerType.Items[0].Selected){
+		if (selectingTiggerType.Items[0].Selected) {
 			dgvSchedule.Visible = true;
 			dgvScheduleMonth.Visible = false;
 		}
-		if (selectingTiggerType.Items[1].Selected){
+		if (selectingTiggerType.Items[1].Selected) {
 			dgvSchedule.Visible = false;
 			dgvScheduleMonth.Visible = true;
 		}
@@ -781,8 +743,7 @@ and c.Type = ?ContactType");
 	public void CopyMonthTriggerValuesInToTable()
 	{
 		DS.Tables[dtScheduleMonth.TableName].Rows.Clear();
-		foreach (GridViewRow drv in dgvScheduleMonth.Rows)
-		{
+		foreach (GridViewRow drv in dgvScheduleMonth.Rows) {
 			DataRow dataRow = DS.Tables[dtScheduleMonth.TableName].NewRow();
 
 			string h = ((TextBox)drv.FindControl("tbStart")).Text;
@@ -793,10 +754,10 @@ and c.Type = ?ContactType");
 			dataRow[MSStartHour.ColumnName] = Convert.ToInt16(h.Substring(0, h.IndexOf(':')));
 			dataRow[MSStartMinute.ColumnName] = Convert.ToInt16(m);
 
-			for (int i = 1; i <= 12; i++) { 
+			for (int i = 1; i <= 12; i++) {
 				dataRow["m" + i] = Convert.ToByte(((CheckBox)drv.FindControl("m" + i)).Checked);
 			}
-			for (int i = 1; i <= 31; i++) { 
+			for (int i = 1; i <= 31; i++) {
 				dataRow["d" + i] = Convert.ToByte(((CheckBox)drv.FindControl("d" + i)).Checked);
 			}
 			DS.Tables[dtScheduleMonth.TableName].Rows.Add(dataRow);
@@ -805,8 +766,7 @@ and c.Type = ?ContactType");
 
 	protected void dgvScheduleMonth_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
-		if (e.CommandName == "Add") { 
-
+		if (e.CommandName == "Add") {
 			CopyMonthTriggerValuesInToTable();
 
 			var dr = DS.Tables[dtScheduleMonth.TableName].NewRow();

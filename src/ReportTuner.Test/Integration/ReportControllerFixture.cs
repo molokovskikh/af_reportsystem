@@ -16,8 +16,7 @@ namespace ReportTuner.Test.Integration
 		{
 			ulong reportId;
 			uint groupId;
-			using(new SessionScope())
-			{
+			using (new SessionScope()) {
 				var report = new GeneralReport();
 				report.ContactGroup = new ContactGroup(ContactGroupType.Reports);
 				report.ContactGroup.ContactGroupOwner = new ContactGroupOwner();
@@ -30,7 +29,7 @@ namespace ReportTuner.Test.Integration
 
 				var controller = new ReportsController();
 				PrepareController(controller);
-				controller.Delete(new[] {report.Id});
+				controller.Delete(new[] { report.Id });
 			}
 
 			using (new SessionScope()) {

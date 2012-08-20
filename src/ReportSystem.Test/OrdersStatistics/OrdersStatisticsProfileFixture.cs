@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	class OrdersStatisticsProfileFixture : BaseProfileFixture
+	internal class OrdersStatisticsProfileFixture : BaseProfileFixture
 	{
 		[Test]
 		public void CheckReport()

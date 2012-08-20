@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Inforoom.ReportSystem.Helpers
 {
-	class Operation
+	internal class Operation
 	{
 		public Operation(string operation)
 		{
@@ -19,6 +19,7 @@ namespace Inforoom.ReportSystem.Helpers
 	{
 		private static Operation currentOperation;
 		private static DateTime firstStartedOn;
+
 		public static bool IsProfiling
 		{
 			get
@@ -30,6 +31,7 @@ namespace Inforoom.ReportSystem.Helpers
 #endif
 			}
 		}
+
 		public static void Start()
 		{
 			currentOperation = null;
@@ -38,8 +40,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void Next(string operation)
 		{
-			if (IsProfiling)
-			{
+			if (IsProfiling) {
 				End();
 				currentOperation = new Operation(operation);
 				Debug.WriteLine("Started " + operation);
@@ -48,8 +49,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void SpendedTime(string operation)
 		{
-			if (IsProfiling)
-			{
+			if (IsProfiling) {
 				TimeSpan duration = DateTime.Now.Subtract(currentOperation.startedOn);
 				Debug.WriteLine(operation + duration.TotalMilliseconds + " milliseconds.");
 				Debug.WriteLine(String.Empty);
@@ -59,8 +59,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void End()
 		{
-			if (IsProfiling && currentOperation != null)
-			{
+			if (IsProfiling && currentOperation != null) {
 				TimeSpan duration = DateTime.Now.Subtract(currentOperation.startedOn);
 				Debug.WriteLine(currentOperation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
 				Debug.WriteLine(String.Empty);
@@ -70,8 +69,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void Stop()
 		{
-			if (IsProfiling)
-			{
+			if (IsProfiling) {
 				End();
 				TimeSpan duration = DateTime.Now.Subtract(firstStartedOn);
 				Debug.WriteLine("End!!! After " + duration.TotalMilliseconds + " milliseconds.");

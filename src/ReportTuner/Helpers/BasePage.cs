@@ -20,8 +20,7 @@ namespace ReportTuner.Helpers
 			};
 
 			Unload += (sender, args) => {
-				if (DbSession != null)
-				{
+				if (DbSession != null) {
 					var sessionHolder = ActiveRecordMediator.GetSessionFactoryHolder();
 					sessionHolder.ReleaseSession(DbSession);
 				}

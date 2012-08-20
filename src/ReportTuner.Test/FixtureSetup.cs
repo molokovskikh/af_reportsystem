@@ -22,22 +22,21 @@ namespace ReportTuner.Test
 
 		[SetUp]
 		public void SetupFixture()
-		{			
+		{
 			var connectionStringName = ConnectionHelper.GetConnectionName();
 			ConnectionString = ConnectionHelper.GetConnectionString();
-			if (!ActiveRecordStarter.IsInitialized)
-			{
+			if (!ActiveRecordStarter.IsInitialized) {
 				var config = new InPlaceConfigurationSource();
 				config.Add(typeof(ActiveRecordBase),
 					new Dictionary<string, string> {
-						{NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect"},
-						{NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver"},
-						{NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider"},
-						{NHibernate.Cfg.Environment.ConnectionStringName, connectionStringName},
-						{NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle"},
-						{NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none"},
-						{NHibernate.Cfg.Environment.FormatSql, "true"},
-						{NHibernate.Cfg.Environment.UseSqlComments, "true"}
+						{ NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },
+						{ NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
+						{ NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
+						{ NHibernate.Cfg.Environment.ConnectionStringName, connectionStringName },
+						{ NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle" },
+						{ NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none" },
+						{ NHibernate.Cfg.Environment.FormatSql, "true" },
+						{ NHibernate.Cfg.Environment.UseSqlComments, "true" }
 					});
 				ActiveRecordStarter.Initialize(new[] { Assembly.Load("Test.Support"), Assembly.Load("ReportTuner"), Assembly.Load("Common.Web.Ui") }, config);
 			}
@@ -49,8 +48,7 @@ namespace ReportTuner.Test
 			Settings.Instance.AutoMoveMousePointerToTopLeft = false;
 			Settings.Instance.MakeNewIeInstanceVisible = false;
 
-			using(var taskService = ScheduleHelper.GetService())
-			{
+			using (var taskService = ScheduleHelper.GetService()) {
 				ScheduleHelper.CreateFolderIfNeeded(taskService);
 			}
 		}

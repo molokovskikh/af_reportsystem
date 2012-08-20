@@ -11,7 +11,7 @@ namespace Inforoom.ReportSystem.Writers
 	{
 		public void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
-			var optimizationSettings = (OptimizationEfficiencySettings) settings;
+			var optimizationSettings = (OptimizationEfficiencySettings)settings;
 
 			_reportCode = optimizationSettings.ReportCode;
 			_reportCaption = optimizationSettings.ReportCaption;
@@ -45,33 +45,33 @@ namespace Inforoom.ReportSystem.Writers
 					_beginDate.ToString("dd.MM.yyyy"),
 					_endDate.ToString("dd.MM.yyyy"),
 					(_clientId != 0) ?
-						"для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
-						"для всех клиентов");
+					                 	"для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
+					                 	                                                                        	"для всех клиентов");
 				((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
 				((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 
 
 				ws.Cells[row++, 1] = String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
-								dsReport.Tables["Common"].Rows[0][0],
-								Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
-								_optimizedCount);
+					dsReport.Tables["Common"].Rows[0][0],
+					Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
+					_optimizedCount);
 
 				ws.Cells[row++, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
-						dsReport.Tables["OverPrice"].Rows[0]["Count"],
-						dsReport.Tables["OverPrice"].Rows[0]["Summ"]);
+					dsReport.Tables["OverPrice"].Rows[0]["Count"],
+					dsReport.Tables["OverPrice"].Rows[0]["Summ"]);
 
 				ws.Cells[row++, 1] = String.Format("Суммарный экономический эффект {0} руб.",
-						Convert.ToDouble(dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"));
+					Convert.ToDouble(dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"));
 
 				ws.Cells[row++, 1] = String.Format("Цены занижены у {0} позиции в среднем на {1}%",
-						dsReport.Tables["UnderPrice"].Rows[0]["Count"],
-						dsReport.Tables["UnderPrice"].Rows[0]["Summ"]);
+					dsReport.Tables["UnderPrice"].Rows[0]["Count"],
+					dsReport.Tables["UnderPrice"].Rows[0]["Summ"]);
 
 				double percent = 0;
 				double allCost = Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]);
 				double cost = Convert.ToDouble(dsReport.Tables["Volume"].Rows[0][0]);
-				if(allCost > 0)
-					percent = Math.Round(cost/(allCost - cost) * 100, 2);
+				if (allCost > 0)
+					percent = Math.Round(cost / (allCost - cost) * 100, 2);
 				ws.Cells[row++, 1] = String.Format("Суммарное увеличение продаж {0} руб. ({1}%)",
 					Convert.ToDouble(dsReport.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"),
 					percent);
@@ -79,21 +79,19 @@ namespace Inforoom.ReportSystem.Writers
 
 				int col = 1;
 				//Форматируем заголовок отчета
-				((MSExcel.Range) ws.Cells[row, col]).RowHeight = 25;
+				((MSExcel.Range)ws.Cells[row, col]).RowHeight = 25;
 
 				ws.Cells[row, col] = "Дата";
 				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 
-				if (_clientId == 0)
-				{
+				if (_clientId == 0) {
 					ws.Cells[row, col] = "Аптека";
-					((MSExcel.Range) ws.Cells[row, col++]).ColumnWidth = 18;
+					((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 				}
 
-				if (_clientId == 0 || Convert.ToBoolean(dsReport.Tables["Client"].Rows[0][1]))
-				{
+				if (_clientId == 0 || Convert.ToBoolean(dsReport.Tables["Client"].Rows[0][1])) {
 					ws.Cells[row, col] = "Пользователь";
-					((MSExcel.Range) ws.Cells[row, col++]).ColumnWidth = 18;
+					((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 				}
 
 				ws.Cells[row, col] = "Код товара";
@@ -128,10 +126,9 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Cells[row, col] = "Увеличение продаж (руб.)";
 				((MSExcel.Range)ws.Cells[row, col]).ColumnWidth = 18;
-										
 
-				for(int i = 1; i <= col; i++)
-				{
+
+				for (int i = 1; i <= col; i++) {
 					((MSExcel.Range)ws.Cells[row, i]).WrapText = true;
 					((MSExcel.Range)ws.Cells[row, i]).Font.Bold = true;
 					((MSExcel.Range)ws.Cells[row, i]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
@@ -152,7 +149,7 @@ namespace Inforoom.ReportSystem.Writers
 
 				((MSExcel.Range)ws.Cells[1, 7]).Clear();
 				//рисуем границы на всю таблицу
-				ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count+2, dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
+				ws.get_Range(ws.Cells[row, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count]).Borders.Weight = MSExcel.XlBorderWeight.xlThin;
 
 				ws.Activate();
 

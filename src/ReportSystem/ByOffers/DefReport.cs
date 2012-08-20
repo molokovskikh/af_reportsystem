@@ -89,27 +89,22 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					e.DataAdapter.SelectCommand.Connection,
 					"select PriceCode from ActivePrices where PriceCode = ?PriceCode",
 					new MySqlParameter("?PriceCode", _priceCode)));
-			if (EnabledPrice == 0 && !_byBaseCosts)
-			{
+			if (EnabledPrice == 0 && !_byBaseCosts) {
 				string ClientShortName = Convert.ToString(
-					
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						@"select Name from Customers.Clients where Id = ?FirmCode",
 						new MySqlParameter("?FirmCode", _clientCode)));
 				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
 			}
-			
+
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 
 			string SelectCommandText = String.Empty;
 
-			switch (_reportType)
-			{
-
-				case DefReportType.ByName:
-					{
-						SelectCommandText = @"
+			switch (_reportType) {
+				case DefReportType.ByName: {
+					SelectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices ( 
   NameId int Unsigned, 
@@ -151,12 +146,11 @@ from
   OtherByPrice
   inner join catalogs.CatalogNames on OtherByPrice.NameId = CatalogNames.Id
 order by CatalogNames.Name;";
-						break;
-					}
+					break;
+				}
 
-				case DefReportType.ByNameAndForm:
-					{
-						SelectCommandText = @"
+				case DefReportType.ByNameAndForm: {
+					SelectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices ( 
   CatalogId int Unsigned, 
@@ -197,12 +191,11 @@ from
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
   inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
 order by CatalogNames.Name, CatalogForms.Form;";
-						break;
-					}
+					break;
+				}
 
-				case DefReportType.ByNameAndFormAndFirmCr:
-					{
-						SelectCommandText = @"
+				case DefReportType.ByNameAndFormAndFirmCr: {
+					SelectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices ( 
   CatalogId int Unsigned, 
@@ -252,12 +245,11 @@ from
  )
   left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
-						break;
-					}
+					break;
+				}
 
-				case DefReportType.ByProduct:
-					{
-						SelectCommandText = String.Format(@"
+				case DefReportType.ByProduct: {
+					SelectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices ( 
   ProductId int Unsigned, 
@@ -300,12 +292,11 @@ from
  )
 order by CatalogNames.Name, FullForm;
 ", GetFullFormSubquery("OtherByPrice.ProductId"));
-						break;
-					}
+					break;
+				}
 
-				case DefReportType.ByProductAndFirmCr:
-					{
-						SelectCommandText = String.Format(@"
+				case DefReportType.ByProductAndFirmCr: {
+					SelectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices ( 
   ProductId int Unsigned, 
@@ -358,9 +349,8 @@ from
   left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 order by CatalogNames.Name, FullForm, Producers.Name;
 ", GetFullFormSubquery("OtherByPrice.ProductId"));
-						break;
-					}
-
+					break;
+				}
 			}
 			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
@@ -377,17 +367,14 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 		protected void FormatExcel(string FileName)
 		{
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
-			try
-			{
+			try {
 				exApp.DisplayAlerts = false;
 				MSExcel.Workbook wb = exApp.Workbooks.Open(FileName, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing);
 				MSExcel._Worksheet ws;
-				try
-				{
+				try {
 					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
 
-					try
-					{
+					try {
 						ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 
 						//Форматируем заголовок отчета
@@ -397,36 +384,31 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 						ws.Cells[1, 2] = "Наименование";
 						((MSExcel.Range)ws.Columns[2, Type.Missing]).AutoFit();
 
-						switch (_reportType)
-						{
-							case DefReportType.ByNameAndForm:
-								{
-									ws.Cells[1, 3] = "Форма выпуска";
-									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
-									break;
-								}
-							case DefReportType.ByNameAndFormAndFirmCr:
-								{
-									ws.Cells[1, 3] = "Форма выпуска";
-									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
-									ws.Cells[1, 4] = "Производитель";
-									((MSExcel.Range)ws.Columns[4, Type.Missing]).AutoFit();
-									break;
-								}
-							case DefReportType.ByProduct:
-								{
-									ws.Cells[1, 3] = "Форма выпуска";
-									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
-									break;
-								}
-							case DefReportType.ByProductAndFirmCr:
-								{
-									ws.Cells[1, 3] = "Форма выпуска";
-									((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
-									ws.Cells[1, 4] = "Производитель";
-									((MSExcel.Range)ws.Columns[4, Type.Missing]).AutoFit();
-									break;
-								}
+						switch (_reportType) {
+							case DefReportType.ByNameAndForm: {
+								ws.Cells[1, 3] = "Форма выпуска";
+								((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
+								break;
+							}
+							case DefReportType.ByNameAndFormAndFirmCr: {
+								ws.Cells[1, 3] = "Форма выпуска";
+								((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
+								ws.Cells[1, 4] = "Производитель";
+								((MSExcel.Range)ws.Columns[4, Type.Missing]).AutoFit();
+								break;
+							}
+							case DefReportType.ByProduct: {
+								ws.Cells[1, 3] = "Форма выпуска";
+								((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
+								break;
+							}
+							case DefReportType.ByProductAndFirmCr: {
+								ws.Cells[1, 3] = "Форма выпуска";
+								((MSExcel.Range)ws.Columns[3, Type.Missing]).AutoFit();
+								ws.Cells[1, 4] = "Производитель";
+								((MSExcel.Range)ws.Columns[4, Type.Missing]).AutoFit();
+								break;
+							}
 						}
 
 						//рисуем границы на заголовок таблицы
@@ -441,33 +423,35 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 						ws.Activate();
 
 						//Устанавливаем АвтоФильтр на все колонки
-						((MSExcel.Range)ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count+1, _dsReport.Tables["Results"].Columns.Count])).Select();
+						((MSExcel.Range)ws.get_Range(ws.Cells[1, 1], ws.Cells[_dsReport.Tables["Results"].Rows.Count + 1, _dsReport.Tables["Results"].Columns.Count])).Select();
 						((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 						//Замораживаем некоторые колонки и столбцы
 						((MSExcel.Range)ws.get_Range("A2", System.Reflection.Missing.Value)).Select();
 						exApp.ActiveWindow.FreezePanes = true;
 					}
-					finally
-					{ 
+					finally {
 						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
 					}
 				}
-				finally
-				{
+				finally {
 					ws = null;
 					wb = null;
-					try { exApp.Workbooks.Close(); }
-					catch { }
+					try {
+						exApp.Workbooks.Close();
+					}
+					catch {
+					}
 				}
 			}
-			finally
-			{
-				try { exApp.Quit(); }
-				catch { }
+			finally {
+				try {
+					exApp.Quit();
+				}
+				catch {
+				}
 				exApp = null;
 			}
 		}
-
 	}
 }

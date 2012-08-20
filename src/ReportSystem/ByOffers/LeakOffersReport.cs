@@ -44,8 +44,8 @@ join farm.SynonymArchive s on s.SynonymCode = c0.SynonymCode
 join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode";
 			var data = new DataSet();
 			e.DataAdapter.Fill(data, "offers");
-			
-            e.DataAdapter.SelectCommand.CommandText = @"
+
+			e.DataAdapter.SelectCommand.CommandText = @"
 select ap.PriceCode, supps.Name as ShortName, ap.PriceName, ap.PositionCount
 from usersettings.activeprices ap
 join Customers.suppliers supps on supps.Id = ap.FirmCode
@@ -60,15 +60,13 @@ order by ap.PositionCount desc";
 				return Convert.ToInt32(rows.First(r => Convert.ToInt32(r["PriceCode"]) == priceId)["PositionCount"]);
 			});
 
-			foreach (var price in groupByPrice)
-			{
+			foreach (var price in groupByPrice) {
 				var table = new DataTable(price.Key.ToString());
 				data.Tables["Offers"].Columns
 					.Cast<DataColumn>()
 					.Where(c => c.ColumnName != "PriceCode")
 					.Each(c => table.Columns.Add(c.ColumnName, c.DataType));
-				foreach (var offer in price)
-				{
+				foreach (var offer in price) {
 					var row = table.NewRow();
 					foreach (DataColumn column in table.Columns)
 						row[column.ColumnName] = offer[column.ColumnName];

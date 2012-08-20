@@ -1,5 +1,4 @@
-﻿
-using Inforoom.ReportSystem.Writers;
+﻿using Inforoom.ReportSystem.Writers;
 
 namespace Inforoom.ReportSystem.ReportSettings
 {

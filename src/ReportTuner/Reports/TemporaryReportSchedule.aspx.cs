@@ -18,7 +18,7 @@ namespace ReportTuner.Reports
 		private TaskService _taskService;
 
 		//Владелец всех контактных групп для отчета, прописан в Web.Config
-		ContactGroupOwner _reportsContactGroupOwner;
+		private ContactGroupOwner _reportsContactGroupOwner;
 
 		private const string StatusRunning = "Выполнить задание";
 		private const string StatusNotRunning = "Выполняется...";
@@ -27,17 +27,13 @@ namespace ReportTuner.Reports
 		{
 			if (String.IsNullOrEmpty(Request["TemporaryId"]))
 				Response.Redirect("base.aspx");
-			else
-			{
+			else {
 				uint contactOwnerId;
-				if (uint.TryParse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"], out contactOwnerId))
-				{
-					try
-					{
+				if (uint.TryParse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"], out contactOwnerId)) {
+					try {
 						_reportsContactGroupOwner = ContactGroupOwner.Find(contactOwnerId);
 					}
-					catch (NotFoundException exp)
-					{
+					catch (NotFoundException exp) {
 						throw new ReportTunerException("В файле Web.Config параметр ReportsContactGroupOwnerId указывает на несуществующую запись.", exp);
 					}
 				}
@@ -47,8 +43,8 @@ namespace ReportTuner.Reports
 				_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["TemporaryId"]));
 				_taskService = ScheduleHelper.GetService();
 				_currentTask = ScheduleHelper.GetTask(
-					_taskService, 
-					ScheduleHelper.GetReportsFolder(_taskService), 
+					_taskService,
+					ScheduleHelper.GetReportsFolder(_taskService),
 					_generalReport.Id,
 					"Временный отчет, созданный " + _generalReport.TemporaryCreationDate.Value.ToString(), "GR");
 
@@ -58,8 +54,7 @@ namespace ReportTuner.Reports
 				if ((_generalReport.ContactGroup == null) && btnRun.Enabled)
 					btnRun.Enabled = false;
 
-				if (!IsPostBack)
-				{
+				if (!IsPostBack) {
 					ClearSearch();
 					if (_generalReport.ContactGroup != null)
 						lContactGroupName.Text = _generalReport.ContactGroup.Name;
@@ -72,13 +67,11 @@ namespace ReportTuner.Reports
 		/// </summary>
 		private void CloseTaskService()
 		{
-			if (_currentTask != null)
-			{
+			if (_currentTask != null) {
 				_currentTask.Dispose();
 				_currentTask = null;
 			}
-			if (_taskService != null)
-			{
+			if (_taskService != null) {
 				_taskService.Dispose();
 				_taskService = null;
 			}
@@ -95,8 +88,7 @@ namespace ReportTuner.Reports
 
 		protected void btnFinish_Click(object sender, EventArgs e)
 		{
-			if (_currentTask != null)
-			{
+			if (_currentTask != null) {
 				_currentTask.Dispose();
 				_currentTask = null;
 			}
@@ -104,15 +96,13 @@ namespace ReportTuner.Reports
 			ScheduleHelper.DeleteTask(ScheduleHelper.GetReportsFolder(_taskService), _generalReport.Id, "GR");
 
 			//Закончили работу с задачами
-			if (_taskService != null)
-			{
+			if (_taskService != null) {
 				_taskService.Dispose();
 				_taskService = null;
 			}
 
 			//Удаляем отчет
-			using (new TransactionScope())
-			{
+			using (new TransactionScope()) {
 				_generalReport.Delete();
 			}
 
@@ -122,8 +112,7 @@ namespace ReportTuner.Reports
 		protected void btnRun_Click(object sender, EventArgs e)
 		{
 			var runed = false;
-			if (IsValid && (_currentTask.State != TaskState.Running) && (_generalReport.ContactGroup != null))
-			{
+			if (IsValid && (_currentTask.State != TaskState.Running) && (_generalReport.ContactGroup != null)) {
 				_currentTask.Run();
 				Thread.Sleep(500);
 				btnRun.Enabled = false;
@@ -171,11 +160,9 @@ namespace ReportTuner.Reports
 		{
 			uint newGroupId;
 			//попытка преобразовать выбранное значение в Id группы, если это получилось сделать, то установливаем новое значение
-			if (uint.TryParse(ContactGroups.SelectedValue, out newGroupId))
-			{
+			if (uint.TryParse(ContactGroups.SelectedValue, out newGroupId)) {
 				var newGroup = ContactGroup.Find(newGroupId);
-				using (new TransactionScope())
-				{
+				using (new TransactionScope()) {
 					_generalReport.ContactGroup = newGroup;
 					_generalReport.Save();
 				}
@@ -194,8 +181,7 @@ namespace ReportTuner.Reports
 		{
 			CloseTaskService();
 			var temporaryReport = Report.FindFirst(
-				Expression.Eq("GeneralReport", _generalReport)
-			);
+				Expression.Eq("GeneralReport", _generalReport));
 
 			Response.Redirect(String.Format("ReportProperties.aspx?TemporaryId={0}&rp={1}", _generalReport.Id, temporaryReport.Id));
 		}

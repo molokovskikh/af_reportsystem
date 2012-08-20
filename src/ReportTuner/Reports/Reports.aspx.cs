@@ -43,25 +43,21 @@ public partial class Reports_Reports : BasePage
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
-		if ((Request["r"] == null))
-		{
+		if ((Request["r"] == null)) {
 			Response.Redirect("GeneralReports.aspx");
 		}
+		else if (Request["r"].Equals(ConfigurationManager.AppSettings["TemplateReportId"], StringComparison.OrdinalIgnoreCase))
+			Response.Redirect("TemplateReports.aspx");
 		else
-			if (Request["r"].Equals(ConfigurationManager.AppSettings["TemplateReportId"], StringComparison.OrdinalIgnoreCase))
-				Response.Redirect("TemplateReports.aspx");
-			else
-				((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"];
+			((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"];
 
 		SheduleLink.NavigateUrl = "Schedule.aspx?r=" + Request["r"];
 
-		if (!(Page.IsPostBack))
-		{
+		if (!(Page.IsPostBack)) {
 			PostData();
 		}
-		else
-		{
-			DS = ((DataSet) Session[DSReports]);
+		else {
+			DS = ((DataSet)Session[DSReports]);
 			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
 		}
@@ -136,10 +132,10 @@ order by ReportTypeName
 ";
 		MyDA.Fill(DS, DS.Tables[dtTypes.TableName].TableName);
 		MyCn.Close();
-		
+
 		Session.Add(DSReports, DS);
 	}
-
+	#region Component Designer generated code
 	private void InitializeComponent()
 	{
 		this.DS = new System.Data.DataSet();
@@ -161,7 +157,8 @@ order by ReportTypeName
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtReports,
-			this.dtTypes});
+			this.dtTypes
+		});
 		// 
 		// dtReports
 		// 
@@ -170,7 +167,8 @@ order by ReportTypeName
 			this.RReportTypeCode,
 			this.RReportCaption,
 			this.RReportTypeName,
-			this.REnabled});
+			this.REnabled
+		});
 		this.dtReports.TableName = "dtReports";
 		// 
 		// RReportCode
@@ -195,7 +193,8 @@ order by ReportTypeName
 		// 
 		this.dtTypes.Columns.AddRange(new System.Data.DataColumn[] {
 			this.ReportTypeName,
-			this.ReportTypeCode});
+			this.ReportTypeCode
+		});
 		this.dtTypes.TableName = "dtTypes";
 		// 
 		// ReportTypeName
@@ -214,13 +213,11 @@ order by ReportTypeName
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtReports)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtTypes)).EndInit();
-
 	}
-
+	#endregion
 	protected void filesDataGridView_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
-		if (e.CommandName == "Add")
-		{
+		if (e.CommandName == "Add") {
 			var report = DbSession.Get<GeneralReport>(Convert.ToUInt64(Request["r"]));
 			var newReport = new FileSendWithReport();
 			DbSession.Save(newReport);
@@ -232,8 +229,7 @@ order by ReportTypeName
 
 	protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
-		if (e.CommandName == "Add")
-		{
+		if (e.CommandName == "Add") {
 			CopyChangesToTable();
 
 			DataRow dr = DS.Tables[dtReports.TableName].NewRow();
@@ -242,8 +238,7 @@ order by ReportTypeName
 			dgvReports.DataSource = DS;
 			dgvReports.DataBind();
 		}
-		else if (e.CommandName == "Copy")
-		{
+		else if (e.CommandName == "Copy") {
 			CopyChangesToTable();
 
 			int rowIndex = ((GridViewRow)((DataControlFieldCell)((Button)e.CommandSource).Parent).Parent).RowIndex;
@@ -251,8 +246,7 @@ order by ReportTypeName
 
 			UInt64 sourceReportId = Convert.ToUInt64(sourceRow[RReportCode.ColumnName]);
 			UInt64 destReportId = 0;
-			using (var conn = MyCn)
-			{
+			using (var conn = MyCn) {
 				conn.Open();
 				var command = new MySqlCommand(
 					@"insert into reports.reports 
@@ -275,13 +269,10 @@ order by ReportTypeName
 
 	private void CopyChangesToTable()
 	{
-		foreach (GridViewRow dr in dgvReports.Rows)
-		{
-			if (((DropDownList)dr.FindControl("ddlReports")).Visible == true)
-			{
+		foreach (GridViewRow dr in dgvReports.Rows) {
+			if (((DropDownList)dr.FindControl("ddlReports")).Visible == true) {
 				if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportTypeCode.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlReports")).SelectedValue)
 					DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportTypeCode.ColumnName] = ((DropDownList)dr.FindControl("ddlReports")).SelectedValue;
-
 			}
 
 			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportCaption.ColumnName].ToString() != ((TextBox)dr.FindControl("tbCaption")).Text)
@@ -289,22 +280,18 @@ order by ReportTypeName
 
 			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked).ToString())
 				DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked);
-
 		}
 	}
 
 	protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
-		if (e.Row.RowType == DataControlRowType.DataRow)
-		{
-			if (((Label)e.Row.Cells[0].FindControl("lblReports")).Text != "")
-			{
+		if (e.Row.RowType == DataControlRowType.DataRow) {
+			if (((Label)e.Row.Cells[0].FindControl("lblReports")).Text != "") {
 				((DropDownList)e.Row.Cells[0].FindControl("ddlReports")).Visible = false;
 				((Label)e.Row.Cells[0].FindControl("lblReports")).Visible = true;
 				e.Row.Cells[2].Enabled = true;
 			}
-			else
-			{
+			else {
 				DropDownList ddlReports = ((DropDownList)e.Row.Cells[0].FindControl("ddlReports"));
 				ddlReports.Visible = true;
 				e.Row.Cells[2].Enabled = false;
@@ -321,7 +308,7 @@ order by ReportTypeName
 	protected void btnApply_Click(object sender, EventArgs e)
 	{
 		Validate();
-		if(!IsValid)
+		if (!IsValid)
 			return;
 
 		CopyChangesToTable();
@@ -329,8 +316,7 @@ order by ReportTypeName
 		MySqlTransaction trans;
 		MyCn.Open();
 		trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-		try
-		{
+		try {
 			MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
 	reports.reports 
@@ -401,8 +387,7 @@ SET
 
 			var strHost = HttpContext.Current.Request.UserHostAddress;
 			var strUser = HttpContext.Current.User.Identity.Name;
-			if (strUser.StartsWith("ANALIT\\"))
-			{
+			if (strUser.StartsWith("ANALIT\\")) {
 				strUser = strUser.Substring(7);
 			}
 			MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
@@ -411,18 +396,15 @@ SET
 
 			trans.Commit();
 		}
-		catch 
-		{
+		catch {
 			trans.Rollback();
 			throw;
 		}
-		finally
-		{
+		finally {
 			MyCn.Close();
 		}
 
-		using (new TransactionScope())
-		{
+		using (new TransactionScope()) {
 			var report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
 			report.EMailSubject = tbEMailSubject.Text;
 			report.ReportFileName = tbReportFileName.Text;
@@ -474,13 +456,14 @@ SET
 	{
 		foreach (GridViewRow row in dgvReports.Rows)
 			foreach (var control in row.Cells[1].Controls)
-				if(control is TextBox)
+				if (control is TextBox)
 					reportCaptions.Add(((TextBox)control).Text);
 	}
 
 	protected void ServerValidator_ServerValidate(object source, ServerValidateEventArgs args)
-	{ // Проверка на то, чтобы не было двух листов с одинаковыми названиями
-		if(reportCaptions.Count == 0)
+	{
+		// Проверка на то, чтобы не было двух листов с одинаковыми названиями
+		if (reportCaptions.Count == 0)
 			FillCaptions();
 
 		int capCount = 0;

@@ -32,7 +32,7 @@ namespace Inforoom.WindowsService
 				throw new Exception(String.Format(@"Привелегия IncreaseQuota удалена проверь групповую политику, пользователь {0} должен быть добавлен в политику ""Настройка квот памяти для процесса"" "
 					+ "gpedit.msc Конфигурация Windows\\Параметры безопасности\\Локальные политики\\Назначение прав пользователя ",
 					username));
- */ 
+ */
 
 			var user = new GenericHandle();
 			if (!Win32.LogonUser(username, domain, password, Win32.LOGON32_LOGON_INTERACTIVE, Win32.LOGON32_PROVIDER_DEFAULT, ref user))
@@ -41,22 +41,21 @@ namespace Inforoom.WindowsService
 			var originalWindowStation = Win32.GetProcessWindowStation();
 
 			var windowStation = Win32.OpenWindowStation("Winsta0", false,
-														ACCESS_MASK.READ_CONTROL
-														| ACCESS_MASK.WRITE_DAC);
+				ACCESS_MASK.READ_CONTROL
+					| ACCESS_MASK.WRITE_DAC);
 			if (windowStation.IsInvalid)
 				throw new Win32Exception();
 
-			try
-			{
+			try {
 				if (!Win32.SetProcessWindowStation(windowStation))
 					throw new Win32Exception();
 
 
 				var desktop = Win32.OpenDesktop("default", 0, false,
-												ACCESS_MASK.READ_CONTROL
-												| ACCESS_MASK.WRITE_DAC
-												| ACCESS_MASK.DESKTOP_READOBJECTS
-												| ACCESS_MASK.DESKTOP_WRITEOBJECTS);
+					ACCESS_MASK.READ_CONTROL
+						| ACCESS_MASK.WRITE_DAC
+						| ACCESS_MASK.DESKTOP_READOBJECTS
+						| ACCESS_MASK.DESKTOP_WRITEOBJECTS);
 				if (desktop.IsInvalid)
 					throw new Win32Exception();
 
@@ -74,16 +73,15 @@ namespace Inforoom.WindowsService
 				Process.GetProcessById(pid).WaitForExit();
 				ReleaseSecurity(windowStation, desktop, sid);
 			}
-			finally
-			{
+			finally {
 				Win32.RevertToSelf();
 				Win32.SetProcessWindowStation(originalWindowStation);
 			}
 		}
 
 		public static void AssignSecurity4(WindowStationHandle station,
-									DesktopHandle desktop,
-									SecurityIdentifier sid)
+			DesktopHandle desktop,
+			SecurityIdentifier sid)
 		{
 			var stationSecurity = new GenericSecurity(true,
 				ResourceType.WindowObject,
@@ -107,26 +105,24 @@ namespace Inforoom.WindowsService
 		}
 
 		public static void ReleaseSecurity(WindowStationHandle station,
-										   DesktopHandle desktop,
-										   SecurityIdentifier sid)
+			DesktopHandle desktop,
+			SecurityIdentifier sid)
 		{
 			var desktopSecurity = new GenericSecurity(true,
-										  ResourceType.WindowObject,
-										  desktop,
-										  AccessControlSections.Access);
-			foreach (GenericAccessRule rule in desktopSecurity.GetAccessRules(true, false, typeof(SecurityIdentifier)))
-			{
+				ResourceType.WindowObject,
+				desktop,
+				AccessControlSections.Access);
+			foreach (GenericAccessRule rule in desktopSecurity.GetAccessRules(true, false, typeof(SecurityIdentifier))) {
 				if (rule.IdentityReference == sid)
 					desktopSecurity.RemoveAccessRule(rule);
 			}
 			desktopSecurity.Persist(desktop);
 
 			var stationSecurity = new GenericSecurity(true,
-													  ResourceType.WindowObject,
-													  station,
-													  AccessControlSections.Access);
-			foreach (GenericAccessRule rule in stationSecurity.GetAccessRules(true, false, typeof(SecurityIdentifier)))
-			{
+				ResourceType.WindowObject,
+				station,
+				AccessControlSections.Access);
+			foreach (GenericAccessRule rule in stationSecurity.GetAccessRules(true, false, typeof(SecurityIdentifier))) {
 				if (rule.IdentityReference == sid)
 					stationSecurity.RemoveAccessRule(rule);
 			}
@@ -134,8 +130,8 @@ namespace Inforoom.WindowsService
 		}
 
 		private static void AssignSecurity3(WindowStationHandle station,
-									DesktopHandle desktop,
-									GenericHandle user)
+			DesktopHandle desktop,
+			GenericHandle user)
 		{
 			var sid = TokenToSid(user);
 			AssignStationSecurity(station, sid);
@@ -168,29 +164,25 @@ namespace Inforoom.WindowsService
 			if (!Win32.GetSecurityDescriptorDacl(descriptor, out daclPresent, ref acl, out daclExists))
 				throw new Win32Exception();
 
-			var aclSize = new ACL_SIZE_INFORMATION
-			{
+			var aclSize = new ACL_SIZE_INFORMATION {
 				AclBytesInUse = (uint)Marshal.SizeOf(typeof(ACL))
 			};
-			if (acl != IntPtr.Zero)
-			{
+			if (acl != IntPtr.Zero) {
 				if (!Win32.GetAclInformation(acl, ref aclSize, Marshal.SizeOf(aclSize), ACL_INFORMATION_CLASS.AclSizeInformation))
 					throw new Win32Exception();
 			}
 
 			var aclLenth = (int)(aclSize.AclBytesInUse
-								  + 2 * Marshal.SizeOf(typeof(ACCESS_ALLOWED_ACE))
-								  + 2 * Win32.GetLengthSid(sid)
-								  - 2 * Marshal.SizeOf(typeof(int)));
+				+ 2 * Marshal.SizeOf(typeof(ACCESS_ALLOWED_ACE))
+				+ 2 * Win32.GetLengthSid(sid)
+				- 2 * Marshal.SizeOf(typeof(int)));
 			var newAcl = Marshal.AllocHGlobal(aclLenth);
 
 			if (!Win32.InitializeAcl(newAcl, aclLenth, Win32.ACL_REVISION))
 				throw new Win32Exception();
 
-			if (daclPresent)
-			{
-				for (var i = 0; i < aclSize.AceCount; i++)
-				{
+			if (daclPresent) {
+				for (var i = 0; i < aclSize.AceCount; i++) {
 					var ace = IntPtr.Zero;
 					if (!Win32.GetAce(acl, i, out ace))
 						throw new Win32Exception();
@@ -201,8 +193,8 @@ namespace Inforoom.WindowsService
 			}
 
 			var newAceSize = (int)(Marshal.SizeOf(typeof(ACCESS_ALLOWED_ACE))
-							+ Win32.GetLengthSid(sid)
-							- Marshal.SizeOf(typeof(int)));
+				+ Win32.GetLengthSid(sid)
+				- Marshal.SizeOf(typeof(int)));
 			var newAce = Marshal.AllocHGlobal(newAceSize);
 
 			Marshal.WriteByte(newAce, 0, Win32.ACCESS_ALLOWED_ACE_TYPE);
@@ -263,29 +255,25 @@ namespace Inforoom.WindowsService
 			if (!Win32.GetSecurityDescriptorDacl(descriptor, out daclPresent, ref acl, out daclExists))
 				throw new Win32Exception();
 
-			var aclSize = new ACL_SIZE_INFORMATION
-			{
+			var aclSize = new ACL_SIZE_INFORMATION {
 				AclBytesInUse = (uint)Marshal.SizeOf(typeof(ACL))
 			};
-			if (acl != IntPtr.Zero)
-			{
+			if (acl != IntPtr.Zero) {
 				if (!Win32.GetAclInformation(acl, ref aclSize, Marshal.SizeOf(aclSize), ACL_INFORMATION_CLASS.AclSizeInformation))
 					throw new Win32Exception();
 			}
 
 			var aclLenth = (int)(aclSize.AclBytesInUse
-								  + Marshal.SizeOf(typeof(ACCESS_ALLOWED_ACE))
-								  + Win32.GetLengthSid(sid)
-								  - Marshal.SizeOf(typeof(int)));
+				+ Marshal.SizeOf(typeof(ACCESS_ALLOWED_ACE))
+				+ Win32.GetLengthSid(sid)
+				- Marshal.SizeOf(typeof(int)));
 			var newAcl = Marshal.AllocHGlobal(aclLenth);
 
 			if (!Win32.InitializeAcl(newAcl, aclLenth, Win32.ACL_REVISION))
 				throw new Win32Exception();
 
-			if (daclPresent)
-			{
-				for (var i = 0; i < aclSize.AceCount; i++)
-				{
+			if (daclPresent) {
+				for (var i = 0; i < aclSize.AceCount; i++) {
 					var ace = IntPtr.Zero;
 					if (!Win32.GetAce(acl, i, out ace))
 						throw new Win32Exception();
@@ -315,16 +303,16 @@ namespace Inforoom.WindowsService
 			SECURITY_ATTRIBUTES attributes = null;
 			SECURITY_ATTRIBUTES securityAttributes = null;
 			if (!Win32.CreateProcessAsUser(user,
-										   null,
-										   commandLine,
-										   IntPtr.Zero,
-										   IntPtr.Zero,
-										   false,
-										   0,
-										   IntPtr.Zero,
-										   null,
-										   ref startupInfo,
-										   out processInfo))
+				null,
+				commandLine,
+				IntPtr.Zero,
+				IntPtr.Zero,
+				false,
+				0,
+				IntPtr.Zero,
+				null,
+				ref startupInfo,
+				out processInfo))
 				throw new Win32Exception();
 			return processInfo.dwProcessId;
 		}
@@ -333,19 +321,18 @@ namespace Inforoom.WindowsService
 		{
 			int tokenInfLength;
 			Win32.GetTokenInformation(user,
-									  TOKEN_INFORMATION_CLASS.TokenGroups,
-									  IntPtr.Zero,
-									  0,
-									  out tokenInfLength);
+				TOKEN_INFORMATION_CLASS.TokenGroups,
+				IntPtr.Zero,
+				0,
+				out tokenInfLength);
 
 			var tokenInformation = Marshal.AllocHGlobal(tokenInfLength);
-			try
-			{
+			try {
 				if (!Win32.GetTokenInformation(user,
-											   TOKEN_INFORMATION_CLASS.TokenGroups,
-											   tokenInformation,
-											   tokenInfLength,
-											   out tokenInfLength))
+					TOKEN_INFORMATION_CLASS.TokenGroups,
+					tokenInformation,
+					tokenInfLength,
+					out tokenInfLength))
 					throw new Win32Exception();
 
 				var size = Marshal.ReadInt32(tokenInformation);
@@ -353,20 +340,17 @@ namespace Inforoom.WindowsService
 				var structure = typeof(SID_AND_ATTRIBUTES);
 				var ofsize = Marshal.SizeOf(structure);
 				var array = new SID_AND_ATTRIBUTES[size];
-				for (var i = 0; i < size; i++)
-				{
+				for (var i = 0; i < size; i++) {
 					var ptr = new IntPtr((long)tokenInformation + offset);
 					array[i] = (SID_AND_ATTRIBUTES)Marshal.PtrToStructure(ptr, structure);
 					offset += ofsize;
 				}
-				foreach (var attributes in array)
-				{
+				foreach (var attributes in array) {
 					if ((attributes.Attributes & Win32.SE_GROUP_LOGON_ID) > 0)
 						return attributes.Sid;
 				}
 			}
-			finally
-			{
+			finally {
 				Marshal.Release(tokenInformation);
 			}
 			throw new Exception("Не нашел sid сесии");

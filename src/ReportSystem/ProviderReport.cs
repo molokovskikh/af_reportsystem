@@ -27,11 +27,12 @@ namespace Inforoom.ReportSystem
 		protected List<ulong> _regions;
 
 		protected ProviderReport() // конструктор для возможности тестирования
-		{}
+		{
+		}
 
 		public ProviderReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, format, dsProperties)
-		{ 
+		{
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -47,75 +48,63 @@ namespace Inforoom.ReportSystem
 			_byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
 			if (reportParamExists("Retail"))
 				_isRetail = (bool)getReportParam("Retail");
-			if (_byBaseCosts)
-			{
-				_prices = (List<ulong>) getReportParam("PriceCodeEqual");
-				_regions = (List<ulong>) getReportParam("RegionEqual");
+			if (_byBaseCosts) {
+				_prices = (List<ulong>)getReportParam("PriceCodeEqual");
+				_regions = (List<ulong>)getReportParam("RegionEqual");
 			}
 
-			if (_reportParams.ContainsKey("UserCode"))
-			{
+			if (_reportParams.ContainsKey("UserCode")) {
 				if (!String.IsNullOrEmpty(getReportParam("UserCode").ToString()))
 					_userCode = (int)getReportParam("UserCode");
 			}
 		}
 
 		public virtual List<ulong> GetClientWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
-														List<ulong> PayerEqual, List<ulong> PayerNonEqual,
-														List<ulong> Clients, List<ulong> ClientsNON, ulong? checkClientId, ExecuteArgs e)
+			List<ulong> PayerEqual, List<ulong> PayerNonEqual,
+			List<ulong> Clients, List<ulong> ClientsNON, ulong? checkClientId, ExecuteArgs e)
 		{
 			var regionalWhere = "(";
-			if (RegionEqual.Count != 0)
-			{
-				foreach (var region in RegionEqual)
-				{
-					regionalWhere += string.Format(" (fc.MaskRegion & {0}) = {0} OR " , region);
+			if (RegionEqual.Count != 0) {
+				foreach (var region in RegionEqual) {
+					regionalWhere += string.Format(" (fc.MaskRegion & {0}) = {0} OR ", region);
 				}
 			}
-			if (RegionNonEqual.Count != 0)
-			{
-				foreach (var region in RegionNonEqual)
-				{
-					regionalWhere += string.Format(" (fc.MaskRegion & {0}) != {0} OR " , region);
+			if (RegionNonEqual.Count != 0) {
+				foreach (var region in RegionNonEqual) {
+					regionalWhere += string.Format(" (fc.MaskRegion & {0}) != {0} OR ", region);
 				}
 			}
-			if (regionalWhere.Length != 1)
-			{
+			if (regionalWhere.Length != 1) {
 				regionalWhere = regionalWhere.Substring(0, regionalWhere.Length - 3);
 				regionalWhere = " AND " + regionalWhere;
 				regionalWhere += ")";
 			}
-			else
-			{
+			else {
 				regionalWhere = string.Empty;
 			}
 			var payerWhere = string.Empty;
-			if (PayerEqual.Count != 0)
-			{				
+			if (PayerEqual.Count != 0) {
 				payerWhere += " AND pc.PayerId IN " + ConcatWhereIn(PayerEqual);
 			}
-			if (PayerNonEqual.Count !=0)
-			{				
+			if (PayerNonEqual.Count != 0) {
 				payerWhere += " AND pc.PayerId NOT IN " + ConcatWhereIn(PayerNonEqual);
 			}
 			var clientWhere = string.Empty;
-			if (Clients.Count != 0)
-			{
+			if (Clients.Count != 0) {
 				clientWhere += " AND fc.Id IN " + ConcatWhereIn(Clients);
 			}
-			if (ClientsNON.Count != 0)
-			{
+			if (ClientsNON.Count != 0) {
 				clientWhere += " AND fc.Id NOT IN " + ConcatWhereIn(ClientsNON);
 			}
 			var clientIdWhere = string.Empty;
-			if(checkClientId != null) {
+			if (checkClientId != null) {
 				clientIdWhere = String.Format(" AND fc.Id = {0}", checkClientId);
 			}
 			var where = string.Empty;
 			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty) || (clientIdWhere != string.Empty))
 				where = regionalWhere + payerWhere + clientWhere + clientIdWhere;
-			e.DataAdapter.SelectCommand.CommandText = 
-			string.Format(@"SELECT distinct fc.Id FROM Customers.Clients fc
+			e.DataAdapter.SelectCommand.CommandText =
+				string.Format(@"SELECT distinct fc.Id FROM Customers.Clients fc
 							join billing.PayerClients pc on fc.Id = pc.ClientId
 							join usersettings.RetClientsSet RCS on fc.id = RCS.ClientCode
 							WHERE RCS.ServiceClient = 0 and RCS.InvisibleOnFirm = 0 and fc.Status = 1 {0}", where);
@@ -125,23 +114,19 @@ namespace Inforoom.ReportSystem
 #endif
 			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
 			var result = new List<ulong>();
-			while (reader.Read())
-			{
+			while (reader.Read()) {
 				result.Add(Convert.ToUInt64(reader["Id"].ToString()));
 			}
 			reader.Close();
 			return result;
 		}
 
-		public virtual void NoisingCostInDataTable(DataTable data, string costFieldName, string supplierFieldName , int? supplier)
+		public virtual void NoisingCostInDataTable(DataTable data, string costFieldName, string supplierFieldName, int? supplier)
 		{
-			if (supplier != null)
-			{
+			if (supplier != null) {
 				var rand = new Random();
-				foreach (DataRow row in data.Rows)
-				{
-					if (row.Field<uint?>(supplierFieldName) != supplier)
-					{
+				foreach (DataRow row in data.Rows) {
+					if (row.Field<uint?>(supplierFieldName) != supplier) {
 						var randObj = (decimal)rand.NextDouble();
 						row[costFieldName] = (1 + (randObj * (randObj > (decimal)0.5 ? 2 : -2)) / 100) * row.Field<decimal>(costFieldName);
 					}
@@ -158,8 +143,7 @@ namespace Inforoom.ReportSystem
 		public static string ConcatWhereIn(List<ulong> items)
 		{
 			var result = "(";
-			foreach (var item in items)
-			{
+			foreach (var item in items) {
 				result += (item + ", ");
 			}
 			result = result.Substring(0, result.Length - 2);
@@ -177,46 +161,39 @@ namespace Inforoom.ReportSystem
 
 			if (_byBaseCosts)
 				GetRegionsPrices(e); // заполняем временную таблицу для передачи списка ПЛ и регионов в хранимую процедуру
-			
+
 			GetBareActivePrices();
 
 			List<ulong> allowedFirms = null;
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
 				allowedFirms = (List<ulong>)_reportParams["FirmCodeEqual"];
-			if(allowedFirms != null && allowedFirms.Count > 0)
-			{
+			if (allowedFirms != null && allowedFirms.Count > 0) {
 				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode not in ({0})", allowedFirms.Implode());
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			}
 
-			if (_reportParams.ContainsKey("IgnoredSuppliers"))
-			{
+			if (_reportParams.ContainsKey("IgnoredSuppliers")) {
 				var suppliers = (List<ulong>)_reportParams["IgnoredSuppliers"];
-				if (suppliers != null && suppliers.Count > 0)
-				{
+				if (suppliers != null && suppliers.Count > 0) {
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode in ({0})", suppliers.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
-			if (_reportParams.ContainsKey("PriceCodeValues"))
-			{
+			if (_reportParams.ContainsKey("PriceCodeValues")) {
 				var PriceCodeValues = (List<ulong>)_reportParams["PriceCodeValues"];
-				if (PriceCodeValues != null && PriceCodeValues.Count > 0)
-				{
+				if (PriceCodeValues != null && PriceCodeValues.Count > 0) {
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
-			if (_reportParams.ContainsKey("PriceCodeNonValues"))
-			{
+			if (_reportParams.ContainsKey("PriceCodeNonValues")) {
 				var PriceCodeNonValues = (List<ulong>)_reportParams["PriceCodeNonValues"];
-				if (PriceCodeNonValues != null && PriceCodeNonValues.Count > 0)
-				{
+				if (PriceCodeNonValues != null && PriceCodeNonValues.Count > 0) {
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode in ({0})", PriceCodeNonValues.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -224,11 +201,9 @@ namespace Inforoom.ReportSystem
 			}
 
 			// В списке регионов только доступные клиенту регионы
-			if (!_byBaseCosts && _reportParams.ContainsKey("RegionClientEqual"))
-			{
-				var RegionClientEqual = (List<ulong>) _reportParams["RegionClientEqual"];
-				if(RegionClientEqual != null && RegionClientEqual.Count > 0)
-				{
+			if (!_byBaseCosts && _reportParams.ContainsKey("RegionClientEqual")) {
+				var RegionClientEqual = (List<ulong>)_reportParams["RegionClientEqual"];
+				if (RegionClientEqual != null && RegionClientEqual.Count > 0) {
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where RegionCode not in ({0})", RegionClientEqual.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -249,31 +224,27 @@ where
 and regions.RegionCode = activeprices.RegionCode";
 
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
-
 		}
 
 		private void GetBareActivePrices()
 		{
 			var selectCommand = args.DataAdapter.SelectCommand;
 
-			if (_isRetail)
-			{
+			if (_isRetail) {
 				GetRetailActivePrices();
 				return;
 			}
 
 			uint userId = 0;
 			// Получаем для него все прайсы
-			if(_byBaseCosts)
-			{
+			if (_byBaseCosts) {
 				selectCommand.CommandText = "Customers.GetPricesWithBaseCosts";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.ExecuteNonQuery();
 			}
-			else
-			{
+			else {
 				// Получаем пользователя
-					userId = GetUserId();
+				userId = GetUserId();
 				selectCommand.CommandText = "Customers.GetPrices";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.Parameters.Clear();
@@ -283,8 +254,7 @@ and regions.RegionCode = activeprices.RegionCode";
 
 			// Включаем для него все прайсы
 			selectCommand.CommandType = CommandType.Text;
-			if (_userCode == null) // если пользователь не выбран через интерфейс
-			{
+			if (_userCode == null) { // если пользователь не выбран через интерфейс
 				selectCommand.CommandText = "update usersettings.Prices set DisabledByClient = 0";
 				selectCommand.ExecuteNonQuery();
 			}
@@ -310,23 +280,21 @@ and regions.RegionCode = activeprices.RegionCode";
 		private uint GetUserId()
 		{
 			// Если пользователь не передан в качестве параметра - берем первого попавшегося
-			if (_userCode == null)
-			{
+			if (_userCode == null) {
 				var command = args.DataAdapter.SelectCommand;
 				//Проверка существования и отключения клиента
 				command.CommandText = "select * from Customers.Clients cl where cl.Id = " + _clientCode;
 				command.CommandType = CommandType.Text;
-				using (var reader = command.ExecuteReader())
-				{
+				using (var reader = command.ExecuteReader()) {
 					if (!reader.Read())
 						throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
 					if (Convert.ToByte(reader["Status"]) == 0)
 						throw new ReportException(
 							String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).",
-											reader["Name"], _clientCode));
+								reader["Name"], _clientCode));
 				}
 				command.CommandText = "select Id from Customers.Users where ClientId = " + _clientCode +
-															 " limit 1";
+					" limit 1";
 				return Convert.ToUInt32(command.ExecuteScalar());
 			}
 			return Convert.ToUInt32(_userCode.Value);
@@ -355,7 +323,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
 		}
-		
+
 		/// <summary>
 		/// Создает временную таблицу и заполняет ее данными из списков _prices и _regions (если отчет строится по базовым ценам)
 		/// Данная таблица затем будет использоваться для ограничения выборки в хранимой процедуре GetPricesWithBaseCosts()
@@ -372,10 +340,8 @@ CREATE temporary table usersettings.TmpPricesRegions(
   ) engine=MEMORY;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			e.DataAdapter.SelectCommand.Parameters.Clear();
-			foreach (var price in _prices)
-			{                
-				foreach (var region in _regions)
-				{
+			foreach (var price in _prices) {
+				foreach (var region in _regions) {
 					e.DataAdapter.SelectCommand.CommandText = @"
 INSERT INTO usersettings.TmpPricesRegions(PriceCode, RegionCode) VALUES(?pricecode, ?regioncode);";
 					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?pricecode", price);
@@ -389,7 +355,7 @@ INSERT INTO usersettings.TmpPricesRegions(PriceCode, RegionCode) VALUES(?priceco
 		public static string GetSuppliers(ExecuteArgs e)
 		{
 			var suppliers = new List<string>();
-			
+
 			e.DataAdapter.SelectCommand.CommandText = @"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from Core cor
@@ -397,9 +363,8 @@ from Core cor
 	join Customers.suppliers supps on supps.Id = pd.FirmCode
 group by supps.Id
 order by supps.Name";
-			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
-			{
-				while(reader.Read())
+			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+				while (reader.Read())
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
 			return suppliers.Distinct().Implode();
@@ -415,7 +380,7 @@ order by supps.Name";
 				return null;
 
 			var suppliers = new List<string>();
-			
+
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from usersettings.PricesData pd
@@ -423,9 +388,8 @@ from usersettings.PricesData pd
 where pd.PriceCode in ({0})
 group by supps.Id
 order by supps.Name", supplierIds.Implode());
-			using(var reader = e.DataAdapter.SelectCommand.ExecuteReader())
-			{
-				while(reader.Read())
+			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+				while (reader.Read())
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
 			return suppliers.Distinct().Implode();
@@ -461,13 +425,13 @@ where Id = ?ClientCode",
 				new MySqlParameter("?SourceRegionCode", SourceRegionCode));
 			if (enabledCost != null)
 				MySqlHelper.ExecuteNonQuery(
-				args.DataAdapter.SelectCommand.Connection,
-				@"
+					args.DataAdapter.SelectCommand.Connection,
+					@"
 drop temporary table IF EXISTS Usersettings.SourcePrice;
 create temporary table Usersettings.SourcePrice engine=MEMORY
 select * from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode;",
-				new MySqlParameter("?SourcePC", sourcePriceCode),
-				new MySqlParameter("?SourceRegionCode", SourceRegionCode));
+					new MySqlParameter("?SourcePC", sourcePriceCode),
+					new MySqlParameter("?SourceRegionCode", SourceRegionCode));
 
 			var joinText = allAssortment || sourcePriceCode == 0 ? " Left JOIN " : " JOIN ";
 
@@ -526,20 +490,19 @@ from
 	{8}
 WHERE 
   {11}
-"
-					, 
+",
 					producerId,
 					withWithoutPropertiesText,
 					producerName,
 					joinText,
 					firmcr,
 					sourcePriceCode,
-					(enabledCost != null) 
+					(enabledCost != null)
 						? @"
 left join farm.CoreCosts cc0 on cc0.Core_Id = c0.Id and cc0.PC_CostCode = " + enabledCost + @"
 left join Usersettings.SourcePrice c0Prices on c0Prices.CostCode = " + enabledCost
 						: "",
-					(enabledCost != null) 
+					(enabledCost != null)
 						? @"
 if(cc0.Cost is null, 0,
 if(if(round(cc0.Cost * c0Prices.Upcost, 2) < c0.MinBoundCost, c0.MinBoundCost, round(cc0.Cost * c0Prices.Upcost, 2)) > c0.MaxBoundCost,
@@ -550,8 +513,8 @@ if(if(round(cc0.Cost * c0Prices.Upcost, 2) < c0.MinBoundCost, c0.MinBoundCost, r
 					assortmentSupplierId,
 					SourceRegionCode,
 					sourcePriceCode == 0
-					? " c00.Junk = 0 "
-					: @"
+						? " c00.Junk = 0 "
+						: @"
 	({1} (c0.PriceCode <> c00.PriceCode) or (Prices.RegionCode <> {0}) or (c0.Id = c00.Id))
 and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || sourcePriceCode == 0 ? "(c0.PriceCode is null) or" : string.Empty));
 
@@ -563,14 +526,11 @@ and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || 
 			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
 #endif
 
-			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
-			{
-				foreach (var row in reader.Cast<IDataRecord>())
-				{
+			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
+				foreach (var row in reader.Cast<IDataRecord>()) {
 					var offer = new Offer(row, noiseSupplierId, random);
 					result.Add(offer);
 				}
-
 			}
 
 			return result;

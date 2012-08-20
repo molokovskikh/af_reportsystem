@@ -6,24 +6,31 @@ namespace ReportSystem.Test.Helpers
 	public class DataRowAdapter : IDataRecord
 	{
 		#region Members
+
 		private DataRow _Row;
+
 		#endregion
 
 		#region Properties
+
 		public DataRow Row
 		{
 			get { return _Row; }
 		}
+
 		#endregion
 
 		#region Constructors
+
 		public DataRowAdapter(DataRow row)
 		{
 			_Row = row;
 		}
+
 		#endregion
 
 		#region IDataRecord Implementation
+
 		public object this[string name]
 		{
 			get { return _Row[name]; }
@@ -149,6 +156,7 @@ namespace ReportSystem.Test.Helpers
 		{
 			return Convert.IsDBNull(_Row[i]);
 		}
+
 		#endregion
 	}
 }

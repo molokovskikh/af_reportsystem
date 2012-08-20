@@ -63,7 +63,7 @@ namespace Inforoom.ReportSystem
 			GetOffers(_SupplierNoise);
 			GroupActivePrices(e);
 			ProfileHelper.Next("Processing1");
-			e.DataAdapter.SelectCommand.CommandText = "select " ;
+			e.DataAdapter.SelectCommand.CommandText = "select ";
 
 			if (_calculateByCatalog)
 				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
@@ -76,12 +76,10 @@ namespace Inforoom.ReportSystem
   FarmCore.Quantity,
   Core.RegionCode,
   Core.PriceCode, ";
-			if (_reportType > 2)
-			{
+			if (_reportType > 2) {
 				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr";
 			}
-			else
-			{
+			else {
 				e.DataAdapter.SelectCommand.CommandText += "0";
 			}
 			e.DataAdapter.SelectCommand.CommandText += @"
@@ -124,12 +122,10 @@ where p.id = core.productid) as Name, ";
   min(Core.Cost) as MinCost,
   avg(Core.Cost) as AvgCost,
   max(Core.Cost) as MaxCost, ";
-			if (_reportType > 2)
-			{
+			if (_reportType > 2) {
 				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(Producers.Name, 250) as FirmCr, ";
 			}
-			else
-			{
+			else {
 				e.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
 			}
 			e.DataAdapter.SelectCommand.CommandText += @"
@@ -216,24 +212,21 @@ order by 2, 5";
 			var priceIndex = 0;
 
 
-			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
-			{
-				if(Format == ReportFormats.DBF)
+			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows) {
+				if (Format == ReportFormats.DBF)
 					dtRes.Columns.Add(drPrice["PriceCode"].ToString(), typeof(decimal));
 				else
-					dtRes.Columns.Add("Cost" + priceIndex, typeof (decimal));
-				if (!_showPercents)
-				{
-					if(Format == ReportFormats.DBF)
+					dtRes.Columns.Add("Cost" + priceIndex, typeof(decimal));
+				if (!_showPercents) {
+					if (Format == ReportFormats.DBF)
 						dtRes.Columns.Add("Q" + drPrice["PriceCode"]);
 					else
 						dtRes.Columns.Add("Quantity" + priceIndex);
 				}
+				else if (Format == ReportFormats.DBF)
+					dtRes.Columns.Add("P" + drPrice["PriceCode"], typeof(double));
 				else
-					if (Format == ReportFormats.DBF)
-						dtRes.Columns.Add("P" + drPrice["PriceCode"], typeof(double));
-					else
-						dtRes.Columns.Add("Percents" + priceIndex, typeof (double));
+					dtRes.Columns.Add("Percents" + priceIndex, typeof(double));
 				priceIndex++;
 			}
 
@@ -242,8 +235,7 @@ order by 2, 5";
 			DataRow newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
 
-			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows)
-			{
+			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows) {
 				newrow = dtRes.NewRow();
 				newrow["FullName"] = drCatalog["Name"];
 				newrow["Mnn"] = drCatalog["Mnn"] == DBNull.Value ? "-" : drCatalog["Mnn"];
@@ -266,22 +258,18 @@ order by 2, 5";
 
 				//Выбираем позиции и сортируем по возрастанию цен
 				drsMin = dtCore.Select(String.Format("CatalogCode = {0} and {1}", drCatalog["CatalogCode"], producerFilter), "Cost asc");
-				foreach (var dtPos in drsMin)
-				{
+				foreach (var dtPos in drsMin) {
 					var dr = dtPrices.Select("PriceCode=" + dtPos["PriceCode"] + " and RegionCode = " + dtPos["RegionCode"])[0];
 					priceIndex = dtPrices.Rows.IndexOf(dr);
 
 					//Если мы еще не установили значение у поставщика, то делаем это
 					//раньше вставляли последнее значение, которое было максимальным
-					if (newrow[firstColumnCount + priceIndex * 2] is DBNull)
-					{
+					if (newrow[firstColumnCount + priceIndex * 2] is DBNull) {
 						newrow[firstColumnCount + priceIndex * 2] = dtPos["Cost"];
-						if (_reportType == 2 || _reportType == 4)
-						{
+						if (_reportType == 2 || _reportType == 4) {
 							if (!_showPercents)
 								newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
-							else
-							{
+							else {
 								double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
 								newrow[firstColumnCount + priceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
@@ -324,7 +312,7 @@ order by 2, 5";
 				ws.Activate();
 
 				//Устанавливаем АвтоФильтр на все колонки
-				ws.get_Range(ws.Cells[i+2, 1], ws.Cells[rowCount, columnCount]).Select();
+				ws.get_Range(ws.Cells[i + 2, 1], ws.Cells[rowCount, columnCount]).Select();
 				((Range)exApp.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 				//Объединяем несколько ячеек, чтобы в них написать текст
@@ -337,8 +325,7 @@ order by 2, 5";
 					exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now;
 
 				// Выводим список выбранных аптек
-				if (!String.IsNullOrEmpty(_clientsNames))
-				{
+				if (!String.IsNullOrEmpty(_clientsNames)) {
 					ws.get_Range(ws.Cells[2, 1], ws.Cells[2, captionedColumnCount]).Select();
 					((Range)exApp.Selection).Merge(null);
 
@@ -346,11 +333,10 @@ order by 2, 5";
 				}
 
 				// Выводим список участвовавших поставщиков
-				if (!String.IsNullOrEmpty(_suppliersNames))
-				{
+				if (!String.IsNullOrEmpty(_suppliersNames)) {
 					var tmp = (i > 1) ? 3 : 2;
 					ws.get_Range(
-						String.Format("A{0}:K{1}", tmp, tmp+3), Missing.Value).Select();
+						String.Format("A{0}:K{1}", tmp, tmp + 3), Missing.Value).Select();
 					((Range)exApp.Selection).Merge(null);
 
 					exApp.ActiveCell.FormulaR1C1 = "Список поставщиков: " + _suppliersNames;
@@ -364,8 +350,7 @@ order by 2, 5";
 		protected virtual void FormatLeaderAndPrices(_Worksheet ws, int beginColumn)
 		{
 			int priceIndex = 0;
-			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows)
-			{
+			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows) {
 				//Устанавливаем название фирмы
 				ws.Cells[1, beginColumn + priceIndex * 2] = drPrice["FirmName"].ToString();
 				((Range)ws.Cells[1, beginColumn + priceIndex * 2]).ColumnWidth = 8;

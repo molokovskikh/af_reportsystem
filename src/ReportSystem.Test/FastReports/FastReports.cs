@@ -51,7 +51,7 @@ namespace ReportSystem.Test.FastReports
 			Property("IncludeQuantity", 1);
 			Property("IncludeProducer", 1);
 			Property("ClientCode", 2575);
-			Property("IgnoredSuppliers", new [] {5, 7});
+			Property("IgnoredSuppliers", new[] { 5, 7 });
 			CreateReport();
 			BuildReport();
 		}

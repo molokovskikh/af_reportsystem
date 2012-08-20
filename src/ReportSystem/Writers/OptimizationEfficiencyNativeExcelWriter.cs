@@ -11,7 +11,7 @@ namespace Inforoom.ReportSystem.Writers
 	{
 		public void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
-			var optimizationSettins = (OptimizationEfficiencySettings) settings;
+			var optimizationSettins = (OptimizationEfficiencySettings)settings;
 
 			var beginDate = optimizationSettins.BeginDate;
 			var endDate = optimizationSettins.EndDate;
@@ -54,31 +54,35 @@ namespace Inforoom.ReportSystem.Writers
 					(clientId != 0) ?
 						"для клиента " + Convert.ToString(reportData.Tables["Client"].Rows[0][0]) :
 						"для всех клиентов"),
-					ExcelHelper.HeaderStyle);
+				ExcelHelper.HeaderStyle);
 			row++;
 
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
-							reportData.Tables["Common"].Rows[0][0],
-							Convert.ToDouble(reportData.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
-							optimizedCount), ExcelHelper.PlainStyle);
+					reportData.Tables["Common"].Rows[0][0],
+					Convert.ToDouble(reportData.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
+					optimizedCount),
+				ExcelHelper.PlainStyle);
 			row++;
 
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Цены завышены у {0} позиции в среднем на {1}%",
 					reportData.Tables["OverPrice"].Rows[0]["Count"],
-					reportData.Tables["OverPrice"].Rows[0]["Summ"]), ExcelHelper.PlainStyle);
+					reportData.Tables["OverPrice"].Rows[0]["Summ"]),
+				ExcelHelper.PlainStyle);
 			row++;
 
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Суммарный экономический эффект {0} руб.",
-					Convert.ToDouble(reportData.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00")), ExcelHelper.PlainStyle);
+					Convert.ToDouble(reportData.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00")),
+				ExcelHelper.PlainStyle);
 			row++;
 
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Цены занижены у {0} позиции в среднем на {1}%",
 					reportData.Tables["UnderPrice"].Rows[0]["Count"],
-					reportData.Tables["UnderPrice"].Rows[0]["Summ"]), ExcelHelper.PlainStyle);
+					reportData.Tables["UnderPrice"].Rows[0]["Summ"]),
+				ExcelHelper.PlainStyle);
 			row++;
 
 			double percent = Math.Round(Convert.ToDouble(reportData.Tables["Volume"].Rows[0][0]) /
@@ -86,8 +90,10 @@ namespace Inforoom.ReportSystem.Writers
 			ExcelHelper.WriteCell(ws, row, 0,
 				String.Format("Суммарное увеличение продаж {0} руб. ({1}%)",
 					Convert.ToDouble(reportData.Tables["Volume"].Rows[0][0]).ToString("### ### ### ##0.00"),
-					percent), ExcelHelper.PlainStyle);
-			row++; row++;
+					percent),
+				ExcelHelper.PlainStyle);
+			row++;
+			row++;
 
 			ExcelHelper.WriteDataTable(ws, row, 0, dtExport, true);
 			row += dtExport.Rows.Count + 1;

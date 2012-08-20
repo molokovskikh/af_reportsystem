@@ -5,7 +5,7 @@ using Inforoom.ReportSystem;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class	MinCostByPriceNewProfileFixture : BaseProfileFixture
+	public class MinCostByPriceNewProfileFixture : BaseProfileFixture
 	{
 		[Test]
 		public void MinCostByPriceNew()
@@ -69,8 +69,7 @@ namespace ReportSystem.Test
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClientsZero);
 
-			if (!props.Tables.Contains("ReportPropertyValues"))
-			{
+			if (!props.Tables.Contains("ReportPropertyValues")) {
 				var values = props.Tables.Add("ReportPropertyValues");
 				values.Columns.Add("ReportPropertyID");
 				values.Columns.Add("Value");
@@ -87,7 +86,7 @@ namespace ReportSystem.Test
 		public void With_ignored_suppliers()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			AddProperty(props, "IgnoredSuppliers", new [] {5, 7});
+			AddProperty(props, "IgnoredSuppliers", new[] { 5, 7 });
 			var report = new SpecShortReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNew);
 		}

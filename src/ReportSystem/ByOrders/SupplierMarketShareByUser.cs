@@ -39,7 +39,7 @@ namespace Inforoom.ReportSystem.ByOrders
 
 	public class Column
 	{
-		public Column(string name, string caption, string sql) :this(name, caption, sql, true)
+		public Column(string name, string caption, string sql) : this(name, caption, sql, true)
 		{
 		}
 
@@ -63,43 +63,44 @@ namespace Inforoom.ReportSystem.ByOrders
 		private Period _period;
 		private List<ulong> _regions;
 
-		private Grouping[] groupings = new [] {
+		private Grouping[] groupings = new[] {
 			new Grouping("oh.UserId",
- 				new [] {
+				new[] {
 					new Column("Empty", string.Empty, "''", false),
 					new Column("ClientName", "Клиент", "c.Name"),
 					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))")
 				}),
 			new Grouping("oh.AddressId",
-				new [] {
+				new[] {
 					new Column("SupplierDeliveryId", "Код доставки", "TI.SupplierDeliveryId", false),
 					new Column("ClientName", "Клиент", "c.Name"),
 					new Column("AddressName", "Адрес", "a.Address")
-				}) {Join = "left join reports.TempIntersection TI on oh.AddressId = TI.AddressId"},
-			new Grouping("oh.ClientCode", 
-				new [] {
+				}) { Join = "left join reports.TempIntersection TI on oh.AddressId = TI.AddressId" },
+			new Grouping("oh.ClientCode",
+				new[] {
 					new Column("Empty", string.Empty, "''", false),
-					new Column("ClientName", "Клиент", "c.Name"), 
+					new Column("ClientName", "Клиент", "c.Name"),
 				}),
 			new Grouping("a.LegalEntityId",
-				new [] {
+				new[] {
 					new Column("SupplierClientId", "Код клиента", "TI.SupplierClientId", false),
 					new Column("OrgName", "Юридическое лицо", "le.Name")
-				}){Join = "left join reports.TempIntersection TI on TI.LegalEntityId = a.LegalEntityId"}
+				}) { Join = "left join reports.TempIntersection TI on TI.LegalEntityId = a.LegalEntityId" }
 		};
 
 		private Grouping _grouping;
 
-		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) 
+		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, format, dsProperties)
-		{}
+		{
+		}
 
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
 			_supplierId = Convert.ToUInt32(getReportParam("SupplierId"));
 			_period = new Period(dtFrom, dtTo);
-			_regions = (List<ulong>) getReportParam("Regions");
+			_regions = (List<ulong>)getReportParam("Regions");
 			_grouping = groupings[Convert.ToInt32(getReportParam("Type"))];
 		}
 
@@ -157,7 +158,7 @@ where oh.WriteTime > ?begin
 and oh.WriteTime < ?end
 and oh.RegionCode in ({0})
 group by {1}
-order by {3}",  _regions.Implode(), _grouping.Group,
+order by {3}", _regions.Implode(), _grouping.Group,
 				_grouping.Columns.Implode(c => String.Format("{0} as {1}", c.Sql, c.Name)),
 				_grouping.Columns.Where(c => c.Order).Implode(c => c.Name),
 				_grouping.Join);
@@ -172,8 +173,7 @@ order by {3}",  _regions.Implode(), _grouping.Group,
 			e.DataAdapter.Fill(_dsReport, "data");
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");
-			foreach (var column in _grouping.Columns)
-			{
+			foreach (var column in _grouping.Columns) {
 				var dataColumn = result.Columns.Add(column.Name);
 				dataColumn.Caption = column.Caption;
 			}
@@ -189,16 +189,14 @@ order by {3}",  _regions.Implode(), _grouping.Group,
 			result.Rows.Add("");
 
 			result.Columns["Share"].Caption = "Доля рынка, %";
-			foreach (var row in data.Rows.Cast<DataRow>())
-			{
+			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
 				var total = Convert.ToDouble(row["TotalSum"]);
 				if (total == 0)
 					resultRow["Share"] = DBNull.Value;
 				else
-					resultRow["Share"] = Math.Round((Convert.ToDouble(row["SupplierSum"])/total) * 100, 2);
-				foreach (var column in _grouping.Columns)
-				{
+					resultRow["Share"] = Math.Round((Convert.ToDouble(row["SupplierSum"]) / total) * 100, 2);
+				foreach (var column in _grouping.Columns) {
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];
 				}

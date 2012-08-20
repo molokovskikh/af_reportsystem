@@ -34,7 +34,9 @@ namespace Inforoom.ReportSystem.Model
 
 		public string CodeWithoutProducer { get; set; }
 
-		public Offer(){}
+		public Offer()
+		{
+		}
 
 		public Offer(IDataRecord row, uint? noiseSupplierId, Random random)
 		{
@@ -60,8 +62,7 @@ namespace Inforoom.ReportSystem.Model
 			RealCost = Convert.ToSingle(row["Cost"]);
 			Cost = NoiseCost(noiseSupplierId, SupplierId, random, RealCost);
 
-			if (!Convert.IsDBNull(row["AssortmentCoreId"]))
-			{
+			if (!Convert.IsDBNull(row["AssortmentCoreId"])) {
 				AssortmentCoreId = Convert.ToUInt64(row["AssortmentCoreId"]);
 				AssortmentCode = Convert.ToString(row["AssortmentCode"]);
 				AssortmentCodeCr = Convert.ToString(row["AssortmentCodeCr"]);
@@ -70,12 +71,10 @@ namespace Inforoom.ReportSystem.Model
 				AssortmentRegionId = Convert.ToUInt64(row["AssortmentRegionId"]);
 				AssortmentQuantity = Convert.ToString(row["AssortmentQuantity"]);
 
-				if (!Convert.IsDBNull(row["AssortmentCost"]))
-				{
+				if (!Convert.IsDBNull(row["AssortmentCost"])) {
 					AssortmentRealCost = Convert.ToSingle(row["AssortmentCost"]);
 					AssortmentCost = NoiseCost(noiseSupplierId, AssortmentSupplierId.Value, random, AssortmentRealCost.Value);
 				}
-
 			}
 		}
 

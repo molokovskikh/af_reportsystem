@@ -13,8 +13,8 @@ public partial class Reports_ReportPropertyValues : Page
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 
-	string ListProc = String.Empty;
-	Int64 ReportPropertyID;
+	private string ListProc = String.Empty;
+	private Int64 ReportPropertyID;
 	private DataSet DS;
 	private DataTable dtProcResult;
 	private DataColumn PRID;
@@ -28,7 +28,7 @@ public partial class Reports_ReportPropertyValues : Page
 	private DataColumn LName;
 	private DataColumn LReportPropertyID;
 
-	int PP;
+	private int PP;
 	private const string DSValues = "Inforoom.Reports.ReportPropertyValues.DSValues";
 	private DataColumn LReportCaption;
 	private DataColumn LReportType;
@@ -58,25 +58,21 @@ public partial class Reports_ReportPropertyValues : Page
 				Response.Redirect(String.Format("ReportProperties.aspx?r={0}&rp={1}", Request["r"], Request["rp"]));
 			else
 				Response.Redirect(String.Format("ReportProperties.aspx?TemporaryId={0}&rp={1}", Request["TemporaryId"], Request["rp"]));
-		if(!String.IsNullOrEmpty(Request["inID"]))
-		{
+		if (!String.IsNullOrEmpty(Request["inID"])) {
 			long id;
-			if (long.TryParse(Request["inID"], out id)) 
+			if (long.TryParse(Request["inID"], out id))
 				inID = id;
 		}
 
-		if(!String.IsNullOrEmpty(Request["inFilter"])) {
+		if (!String.IsNullOrEmpty(Request["inFilter"])) {
 			inFilter = Request["inFilter"];
 		}
 
-		if (!(Page.IsPostBack))
-		{
-			try
-			{
+		if (!(Page.IsPostBack)) {
+			try {
 				PP = Convert.ToInt32(Request.Cookies[PPCN].Value);
 			}
-			catch
-			{
+			catch {
 				PP = 10;
 			}
 			dgvListValues.PageSize = PP;
@@ -123,8 +119,7 @@ and rt.ReportTypeCode = r.ReportTypeCode
 			MyCn.Close();
 			PostData();
 		}
-		else
-		{
+		else {
 			DS = ((DataSet)Session[DSValues]);
 			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
@@ -165,10 +160,9 @@ WHERE
 
 		MyCn.Close();
 
-		foreach (DataRow drEnabled in DS.Tables[dtEnabledValues.TableName].Rows)
-		{
+		foreach (DataRow drEnabled in DS.Tables[dtEnabledValues.TableName].Rows) {
 			DataRow[] dr = DS.Tables[dtProcResult.TableName].Select("ID = " + drEnabled[EVName.ColumnName].ToString());
-			if(dr.Length > 0)
+			if (dr.Length > 0)
 				dr[0][Enabled.ColumnName] = 1;
 		}
 		DS.Tables[dtProcResult.TableName].AcceptChanges();
@@ -177,17 +171,15 @@ WHERE
 	private bool ShowEnabled(String id)
 	{
 		bool find = false;
-		foreach (DataRow drEnabled in DS.Tables[dtEnabledValues.TableName].Rows)
-		{
-			if (id == drEnabled[EVName.ColumnName].ToString())
-			{
+		foreach (DataRow drEnabled in DS.Tables[dtEnabledValues.TableName].Rows) {
+			if (id == drEnabled[EVName.ColumnName].ToString()) {
 				find = true;
 				break;
 			}
 		}
 		return find;
 	}
-
+	#region Component Designer generated code
 	private void InitializeComponent()
 	{
 		this.DS = new System.Data.DataSet();
@@ -215,14 +207,16 @@ WHERE
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtProcResult,
 			this.dtEnabledValues,
-			this.dtList});
+			this.dtList
+		});
 		// 
 		// dtProcResult
 		// 
 		this.dtProcResult.Columns.AddRange(new System.Data.DataColumn[] {
 			this.PRID,
 			this.DisplayValue,
-			this.Enabled});
+			this.Enabled
+		});
 		this.dtProcResult.TableName = "dtProcResult";
 		// 
 		// PRID
@@ -244,7 +238,8 @@ WHERE
 		// 
 		this.dtEnabledValues.Columns.AddRange(new System.Data.DataColumn[] {
 			this.EVID,
-			this.EVName});
+			this.EVName
+		});
 		this.dtEnabledValues.TableName = "dtEnabledValues";
 		// 
 		// EVID
@@ -263,7 +258,8 @@ WHERE
 			this.LName,
 			this.LReportPropertyID,
 			this.LReportCaption,
-			this.LReportType});
+			this.LReportType
+		});
 		this.dtList.TableName = "dtList";
 		// 
 		// LProc
@@ -290,9 +286,8 @@ WHERE
 		((System.ComponentModel.ISupportInitialize)(this.dtProcResult)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtEnabledValues)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtList)).EndInit();
-
 	}
-
+	#endregion
 	protected void btnSearch_Click(object sender, EventArgs e)
 	{
 		ShowData();
@@ -301,8 +296,7 @@ WHERE
 	private void FillFromProc()
 	{
 		string db = String.Empty;
-		try
-		{
+		try {
 			if (MyCn.State != ConnectionState.Open)
 				MyCn.Open();
 			db = MyCn.Database;
@@ -319,8 +313,7 @@ WHERE
 			MyCmd.CommandType = CommandType.StoredProcedure;
 			MyDA.Fill(DS, dtProcResult.TableName);
 		}
-		finally
-		{
+		finally {
 			if (db != String.Empty)
 				MyCn.ChangeDatabase(db);
 			MyCmd.CommandType = CommandType.Text;
@@ -333,20 +326,17 @@ WHERE
 		CheckBox cb;
 		DataRow[] drProc;
 		HtmlInputHidden ih;
-		foreach (GridViewRow dr in dgvListValues.Rows)
-		{
-			if (dr.Visible == true)
-			{
+		foreach (GridViewRow dr in dgvListValues.Rows) {
+			if (dr.Visible == true) {
 				ih = (HtmlInputHidden)dr.FindControl("RowID");
 				cb = (CheckBox)dr.FindControl("chbEnabled");
 				drProc = DS.Tables[dtProcResult.TableName].Select("ID = " + ih.Value);
-				if (drProc.Length == 1)
-				{
+				if (drProc.Length == 1) {
 					if (Convert.ToBoolean(drProc[0][Enabled.ColumnName]) != cb.Checked)
 						drProc[0][Enabled.ColumnName] = Convert.ToInt32(cb.Checked);
 				}
 			}
-		} 
+		}
 	}
 
 	protected void btnApply_Click(object sender, EventArgs e)
@@ -355,10 +345,8 @@ WHERE
 		string ins = String.Empty;
 		string del = String.Empty;
 
-		foreach (DataRow dr in DS.Tables[dtProcResult.TableName].Rows)
-		{
-			if (dr.RowState == DataRowState.Modified)
-			{
+		foreach (DataRow dr in DS.Tables[dtProcResult.TableName].Rows) {
+			if (dr.RowState == DataRowState.Modified) {
 				if (dr[Enabled.ColumnName, DataRowVersion.Original].ToString() == dr[Enabled.ColumnName, DataRowVersion.Current].ToString())
 					dr.RejectChanges();
 			}
@@ -367,8 +355,7 @@ WHERE
 		MySqlTransaction trans;
 		MyCn.Open();
 		trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-		try
-		{
+		try {
 			MySqlCommand UpdCmd = new MySqlCommand(@"
 insert into reports.report_property_values
 (ReportPropertyID, Value)
@@ -399,8 +386,7 @@ and ?Enabled = 0;", MyCn, trans);
 
 			string strHost = HttpContext.Current.Request.UserHostAddress;
 			string strUser = HttpContext.Current.User.Identity.Name;
-			if (strUser.StartsWith("ANALIT\\"))
-			{
+			if (strUser.StartsWith("ANALIT\\")) {
 				strUser = strUser.Substring(7);
 			}
 			MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
@@ -412,13 +398,11 @@ and ?Enabled = 0;", MyCn, trans);
 			DS.Tables[dtProcResult.TableName].AcceptChanges();
 			PostData();
 		}
-		catch 
-		{
+		catch {
 			trans.Rollback();
 			throw;
 		}
-		finally
-		{
+		finally {
 			MyCn.Close();
 		}
 
@@ -457,12 +441,10 @@ and ?Enabled = 0;", MyCn, trans);
 		else
 			Filter = "DisplayValue like '%" + tbSearch.Text + "%'";
 
-		if (!chbShowEnabled.Checked)
-		{
+		if (!chbShowEnabled.Checked) {
 			Filter += String.Empty;
 		}
-		else
-		{
+		else {
 			if (Filter != String.Empty)
 				Filter += " and ";
 			Filter += "Enabled = 1";
