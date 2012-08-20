@@ -61,7 +61,7 @@ namespace ReportTuner.Test.Functional
 				browser.TextField("mail_Text").Clear();
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
-				browser.TextField("mail_Text").AppendText("r.kvasov@analit.net");
+				browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
 			}
