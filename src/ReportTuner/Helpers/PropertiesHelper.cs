@@ -154,6 +154,8 @@ namespace ReportTuner.Helpers
 				if (!String.IsNullOrEmpty(res)) return res;
 				// В специальном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] {"PriceCodeEqual"}, new[] {"RegionEqual"});
+				// Добавляем фильтрацию по типу прайса
+				res += String.Format("&inTypes={0}", 0);
 				if (!String.IsNullOrEmpty(res)) return res;
 			}
 			if(report.ReportType.ReportClassName.Contains("CombReport"))
