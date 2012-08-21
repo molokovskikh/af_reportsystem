@@ -2,7 +2,7 @@
 
 <asp:Content runat="server" ID="ScheduleValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 
-<script type="text/javascript">
+	<script type="text/javascript">
 	$.noConflict();
 	jQuery(document).ready(function ($) {
 		$('#startDateDiv').datepicker({
@@ -110,15 +110,6 @@
 			ValidationGroup="vgPassword" OnClick="btnExecute_Click" style="height: 26px" /></center>
 
 	<div align="center" id="sheduleSettings">
-		<div id="sheduleType">
-			<span>Тип расписания</span>
-			<asp:RadioButtonList id="selectingTiggerType" runat="server" 
-				onselectedindexchanged="SelectingTiggerType_SelectedIndexChanged"
-				AutoPostBack="true">
-				<asp:ListItem Selected="True">Еженедельно</asp:ListItem>
-				<asp:ListItem>Ежемесячно</asp:ListItem>
-				</asp:RadioButtonList>
-		</div>
 
 		<asp:GridView ID="dgvSchedule" runat="server" AutoGenerateColumns="False" 
 			Caption="Расписание" OnRowCommand="dgvSchedule_RowCommand" 

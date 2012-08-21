@@ -257,8 +257,6 @@ order by LogTime desc
 			dgvScheduleMonth.DataMember = dtScheduleMonth.TableName;
 			dgvScheduleMonth.DataBind();
 
-			SelectingTiggerType_SelectedIndexChanged(null,null);
-
 			gvOtherTriggers.DataSource = otherTriggers;
 			gvOtherTriggers.DataBind();
 
@@ -774,18 +772,6 @@ and c.Type = ?ContactType");
 		if (RadioMails.Checked)
 			Send_in_Emails();
 		RunSelfTaskAndUpdateAction();
-	}
-
-	protected void SelectingTiggerType_SelectedIndexChanged(object sender, EventArgs e)
-	{
-		if (selectingTiggerType.Items[0].Selected){
-			dgvSchedule.Visible = true;
-			dgvScheduleMonth.Visible = false;
-		}
-		if (selectingTiggerType.Items[1].Selected){
-			dgvSchedule.Visible = false;
-			dgvScheduleMonth.Visible = true;
-		}
 	}
 
 	public void CopyMonthTriggerValuesInToTable()
