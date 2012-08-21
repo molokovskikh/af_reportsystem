@@ -2,7 +2,7 @@
 
 <asp:Content runat="server" ID="ScheduleValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 
-<script type="text/javascript">
+	<script type="text/javascript">
 	$.noConflict();
 	jQuery(document).ready(function ($) {
 		$('#startDateDiv').datepicker({
@@ -86,16 +86,16 @@
    ValidationGroup="mail_Text_Group"></asp:RequiredFieldValidator>
 
 
-						<asp:TextBox ID="mail_Text" runat="server" style="background-color: white;
+						<asp:TextBox ClientIDMode="Static" ID="mail_Text" runat="server" style="background-color: white;
 							 border-color:black; border-width:1px; color: black;"
 						 TextMode=MultiLine Columns="50" Rows="6" runat=server></asp:TextBox>
 
 	<asp:Label ID="Label7" runat="server" Width=419px Text="Например: (adr1@dom.com, adr2@dom.com, ... )"></asp:Label>
-						 <br />
-						 <br />
-						 <br />
-											 <asp:Button ID="btn_Mailing" runat="server" Text="Выполнить" 
-						ValidationGroup="vgPassword" OnClick="btnExecute_mailing" Width="240px" />
+						<br />
+						<br />
+						<br />
+						<asp:Button ID="btn_Mailing" runat="server" Text="Выполнить" ValidationGroup="vgPassword" OnClick="btnExecute_mailing" Width="200px" />
+						<asp:Button ID="send_created_report" runat="server" Text="Выслать готовый" ValidationGroup="vgPassword" OnClick="btnExecute_sendReady" Width="200px" />
 						
 				</td>
 				<td style="width: 268435488px"> 
@@ -110,18 +110,9 @@
 			ValidationGroup="vgPassword" OnClick="btnExecute_Click" style="height: 26px" /></center>
 
 	<div align="center" id="sheduleSettings">
-		<div id="sheduleType">
-			<span>Тип расписания</span>
-			<asp:RadioButtonList id="selectingTiggerType" runat="server" 
-				onselectedindexchanged="SelectingTiggerType_SelectedIndexChanged"
-				AutoPostBack="true">
-				<asp:ListItem Selected="True">Еженедельно</asp:ListItem>
-				<asp:ListItem>Ежемесячно</asp:ListItem>
-				</asp:RadioButtonList>
-		</div>
 
 		<asp:GridView ID="dgvSchedule" runat="server" AutoGenerateColumns="False" 
-			Caption="Расписание" OnRowCommand="dgvSchedule_RowCommand" 
+			Caption="Еденедельное расписание" OnRowCommand="dgvSchedule_RowCommand"
 			OnRowDeleting="dgvSchedule_RowDeleting" 
 			OnRowDataBound="dgvSchedule_RowDataBound">
 			<Columns>
@@ -180,7 +171,7 @@
 		</asp:GridView>
 
 		<asp:GridView ID="dgvScheduleMonth" runat="server" 
-			AutoGenerateColumns="False" Caption="Расписание" 
+			AutoGenerateColumns="False" Caption="Ежемесячное расписание"
 			onrowcommand="dgvScheduleMonth_RowCommand"
 			OnRowDataBound="dgvSchedule_RowDataBoundMonth">
 				<Columns>

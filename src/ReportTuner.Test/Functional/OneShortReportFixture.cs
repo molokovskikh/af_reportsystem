@@ -6,6 +6,7 @@ using ReportTuner.Models;
 using WatiN.Core;
 using System.Diagnostics;
 using Test.Support.Web;
+using WatiN.Core.Native.Windows;
 
 namespace ReportTuner.Test.Functional
 {
@@ -41,11 +42,27 @@ namespace ReportTuner.Test.Functional
 		public void Set_shedule_month()
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
-				browser.RadioButton(Find.ByValue("Ежемесячно")).Checked = true;
 				browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Button(Find.ByValue("Применить")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
+			}
+		}
+
+		[Test]
+		public void Send_ready_report()
+		{
+			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
+				browser.Button(Find.ByValue("Выполнить")).Click();
+				Thread.Sleep(5000);
+				browser.Refresh();
+				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
+				browser.TextField("mail_Text").Clear();
+				browser.Button(Find.ByValue("Выслать готовый")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
+				browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
+				browser.Button(Find.ByValue("Выслать готовый")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
 			}
 		}
 

@@ -41,6 +41,8 @@ namespace ReportSystem.Test
 			File.WriteAllBytes("description.xls", new byte[0]);
 
 			var report = new GeneralReport();
+			report.FilesForReport = new Dictionary<string, string>();
+			report.FilesForReport.Add("description.xls", "description.xls");
 			report.GeneralReportID = 1;
 			report.Reports.Add(new FakeReport());
 			var result = report.BuildResultFile();
