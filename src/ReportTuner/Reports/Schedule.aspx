@@ -112,7 +112,7 @@
 	<div align="center" id="sheduleSettings">
 
 		<asp:GridView ID="dgvSchedule" runat="server" AutoGenerateColumns="False" 
-			Caption="Расписание" OnRowCommand="dgvSchedule_RowCommand" 
+			Caption="Еденедельное расписание" OnRowCommand="dgvSchedule_RowCommand"
 			OnRowDeleting="dgvSchedule_RowDeleting" 
 			OnRowDataBound="dgvSchedule_RowDataBound">
 			<Columns>
@@ -171,7 +171,7 @@
 		</asp:GridView>
 
 		<asp:GridView ID="dgvScheduleMonth" runat="server" 
-			AutoGenerateColumns="False" Caption="Расписание" 
+			AutoGenerateColumns="False" Caption="Ежемесячное расписание"
 			onrowcommand="dgvScheduleMonth_RowCommand"
 			OnRowDataBound="dgvSchedule_RowDataBoundMonth">
 				<Columns>
