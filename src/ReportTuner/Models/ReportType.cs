@@ -25,7 +25,7 @@ namespace ReportTuner.Models
 		}
 
 		[PrimaryKey("ReportTypeCode")]
-		public virtual ulong Id { get; set; }
+		public virtual uint Id { get; set; }
 
 		[Property]
 		public virtual string ReportTypeName { get; set; }
@@ -41,6 +41,9 @@ namespace ReportTuner.Models
 
 		[HasMany(Cascade = ManyRelationCascadeEnum.All, Inverse = true)]
 		public IList<ReportTypeProperty> Properties { get; set; }
+
+		[OneToOne(PropertyRef = "ReportType")]
+		public FileForReportType File { get; set; }
 
 		public bool IsOrderReport
 		{

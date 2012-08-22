@@ -52,6 +52,23 @@
 	background-color: #F6F6F6;
 }
 
+.BorderRow tr td {
+	border: 1px solid #AAA;
+}
+ .BorderRow {
+	border-spacing: inherit;
+}
+
+.DocumentDataTable .tdForFileLink {
+	border-right: none;
+	text-align: center;
+}
+
+.DocumentDataTable .tdDeleteLink {
+	border-left: none;
+	text-align: center;
+}
+
 .Paginator
 {
 	padding-bottom: 1px; 
@@ -120,4 +137,8 @@ div#sheduleType {
 
 div#sheduleType span {
 	font-weight: bold;
+}
+
+.deletedElement {
+	color: red;
 }

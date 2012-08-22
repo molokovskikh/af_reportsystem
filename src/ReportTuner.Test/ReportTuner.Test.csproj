@@ -96,6 +96,7 @@
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Integration\ReportControllerFixture.cs" />
     <Compile Include="Integration\ReportTest.cs" />
+    <Compile Include="Integration\ReportTuningControllerFixture.cs" />
     <Compile Include="Models\ReportFixture.cs" />
     <Compile Include="ReportsBatch.cs" />
     <Compile Include="TaskSchedulerFixture.cs" />

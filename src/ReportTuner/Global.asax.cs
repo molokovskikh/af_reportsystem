@@ -27,6 +27,7 @@ namespace ReportTuner
 	public class Config
 	{
 		public string SavedFilesPath { get; set; }
+		public string SavedFileForReportTypesPath { get; set; }
 	}
 
 	public class Global : WebApplication, IMonoRailConfigurationEvents

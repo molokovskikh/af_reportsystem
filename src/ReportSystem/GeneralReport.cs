@@ -432,6 +432,23 @@ and f.FileName is not null";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", GeneralReportID);
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
+			foreach (DataRow row in _dtReports.Rows) {
+				if (Convert.ToBoolean(row[BaseReportColumns.colSendFile])) {
+					var reportCode = row[BaseReportColumns.colReportTypeCode];
+					e.DataAdapter.SelectCommand.CommandText = @"SELECT * FROM reports.fileforreporttypes f
+where ReportType = ?ReportTypeCode;";
+					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportTypeCode", reportCode);
+					var dtFiles = new DataTable();
+					e.DataAdapter.Fill(dtFiles);
+					if (dtFiles.Rows.Count > 0) {
+						var filePath = Path.Combine(Settings.Default.SavedFilesReportTypePath, dtFiles.Rows[0]["Id"].ToString());
+						if (File.Exists(filePath)) {
+							result.Add(dtFiles.Rows[0]["File"].ToString(), filePath);
+						}
+					}
+				}
+			}
+
 			foreach (DataRow row in res.Rows) {
 				var file = Path.Combine(Settings.Default.SavedFilesPath, row["Id"].ToString());
 				var fileName = row["FileName"].ToString();

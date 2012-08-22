@@ -27,6 +27,9 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual bool Enabled { get; set; }
 
+		[Property]
+		public virtual bool SendFile { get; set; }
+
 		[HasMany]
 		public virtual IList<ReportProperty> Properties { get; set; }
 
