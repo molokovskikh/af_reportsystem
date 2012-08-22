@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
@@ -47,8 +48,7 @@ namespace Inforoom.ReportSystem
 			_byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
 			if (reportParamExists("Retail"))
 				_isRetail = (bool)getReportParam("Retail");
-			if (_byBaseCosts)
-			{
+			if (_byBaseCosts) {
 				_prices = (List<ulong>) getReportParam("PriceCodeEqual");
 				_regions = (List<ulong>) getReportParam("RegionEqual");
 			}

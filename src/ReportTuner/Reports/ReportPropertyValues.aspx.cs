@@ -71,7 +71,7 @@ public partial class Reports_ReportPropertyValues : Page
 		}
 
 		if(!String.IsNullOrEmpty(Request["inTypes"])) {
-			inFilter = Request["inTypes"];
+			inTypes = Request["inTypes"];
 		}
 
 		if (!(Page.IsPostBack))
@@ -320,7 +320,7 @@ WHERE
 			MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
 			MyCmd.Parameters.AddWithValue("inID", !inID.HasValue ? null : inID);
 			MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
-			MyCmd.Parameters.AddWithValue("inTypes", String.IsNullOrEmpty(inTypes) ? null : inTypes);
+			MyCmd.Parameters.AddWithValue("inTypes", String.IsNullOrEmpty(inTypes) ? "-1" : inTypes);
 			MyCmd.Parameters["inTypes"].Direction = ParameterDirection.Input;
 			MyCmd.CommandText = ListProc;
 			MyCmd.CommandType = CommandType.StoredProcedure;

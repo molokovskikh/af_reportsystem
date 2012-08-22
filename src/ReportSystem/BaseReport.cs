@@ -89,7 +89,7 @@ namespace Inforoom.ReportSystem
 		public BaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: this()
 		{
-			Logger = LogManager.GetLogger(GetType());
+				Logger = LogManager.GetLogger(GetType());
 			_reportParams = new Dictionary<string, object>();
 			ReportCode = reportCode;
 			ReportCaption = reportCaption;

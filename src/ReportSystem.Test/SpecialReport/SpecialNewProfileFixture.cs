@@ -31,6 +31,14 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void SpecialByBaseCostsPriceCodeNonEqual()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.SpecialByBaseCostsPriceCodeNonEqual);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCostsPriceCodeNonEqual);
+		}
+
+		[Test]
 		public void Get_report_for_retail()
 		{
 			Property("Retail", true);
