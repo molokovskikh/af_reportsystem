@@ -16,21 +16,18 @@ namespace ReportTuner.Reports
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-			if (String.IsNullOrEmpty(Request["TemporaryId"]))
-			{
+			if (String.IsNullOrEmpty(Request["TemporaryId"])) {
 				GeneralReport _generalReport = new GeneralReport() { Allow = true, Temporary = true, TemporaryCreationDate = DateTime.Now, Format = "Excel" };
 				//Выставляем плательщика 921 (Офис123)
 				//todo: Возможно потом это надо удалить
 				_generalReport.Payer = Payer.Find((uint)921);
-				using (new TransactionScope())
-				{
+				using (new TransactionScope()) {
 					_generalReport.Save();
 				}
 				Response.Redirect("TemporaryReport.aspx?TemporaryId=" + _generalReport.Id);
 			}
 
-			if (!this.IsPostBack)
-			{
+			if (!this.IsPostBack) {
 				ReportType[] _reportTypes = ReportType.FindAll(Order.Asc("ReportTypeName"));
 				ddlReportTypes.DataSource = _reportTypes;
 				ddlReportTypes.DataTextField = "ReportTypeName";
@@ -49,8 +46,7 @@ namespace ReportTuner.Reports
 				Order.Asc("ReportCaption"),
 				Expression.Eq("GeneralReport", GeneralReport.Find(Convert.ToUInt64(ConfigurationManager.AppSettings["TemplateReportId"]))),
 				Expression.Eq("ReportType", selectedReportType));
-			if (_templateReports.Length > 0)
-			{
+			if (_templateReports.Length > 0) {
 				ddlTemplates.Visible = true;
 				ddlTemplates.DataSource = _templateReports;
 				ddlTemplates.DataTextField = "ReportCaption";
@@ -60,7 +56,6 @@ namespace ReportTuner.Reports
 			}
 			else
 				ddlTemplates.Visible = false;
-
 		}
 
 		protected void ddlReportTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -73,27 +68,25 @@ namespace ReportTuner.Reports
 
 		protected void btnNext_Click(object sender, EventArgs e)
 		{
-			if (this.IsValid)
-			{
+			if (this.IsValid) {
 				GeneralReport _generalReport = GeneralReport.Find(Convert.ToUInt64(Request["TemporaryId"]));
 				ReportType _reportType = ReportType.Find(Convert.ToUInt64(ddlReportTypes.SelectedValue));
-				Report _newReport = new Report() { 
-					GeneralReport = _generalReport, 
-					ReportType = _reportType, 
-					Enabled = true, 
-					ReportCaption = tbReportName.Text };
+				Report _newReport = new Report() {
+					GeneralReport = _generalReport,
+					ReportType = _reportType,
+					Enabled = true,
+					ReportCaption = tbReportName.Text
+				};
 
 				Report[] _oldReports = Report.FindAll(Expression.Eq("GeneralReport", _generalReport));
 
-				using (new TransactionScope())
-				{
+				using (new TransactionScope()) {
 					foreach (Report _deletedReport in _oldReports)
 						_deletedReport.Delete();
 					_newReport.Save();
 				}
 
-				if (ddlTemplates.Visible && (ddlTemplates.SelectedIndex > 0))
-				{
+				if (ddlTemplates.Visible && (ddlTemplates.SelectedIndex > 0)) {
 					ulong _sourceTemplateReport = Convert.ToUInt64(ddlTemplates.SelectedValue);
 					ReportHelper.CopyReportProperties(_sourceTemplateReport, _newReport.Id);
 				}
@@ -102,6 +95,5 @@ namespace ReportTuner.Reports
 					"ReportProperties.aspx?TemporaryId={0}&rp={1}", Request["TemporaryId"], _newReport.Id));
 			}
 		}
-
 	}
 }

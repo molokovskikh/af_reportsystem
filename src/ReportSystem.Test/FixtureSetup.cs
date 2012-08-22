@@ -15,23 +15,22 @@ namespace ReportSystem.Test
 
 		[SetUp]
 		public void SetupFixture()
-		{			
+		{
 			ConnectionStringName = ConnectionHelper.GetConnectionName();
-			if (!ActiveRecordStarter.IsInitialized)
-			{
+			if (!ActiveRecordStarter.IsInitialized) {
 				var config = new InPlaceConfigurationSource();
 				config.Add(typeof(ActiveRecordBase),
 					new Dictionary<string, string> {
-						{NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect"},
-						{NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver"},
-						{NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider"},
-						{NHibernate.Cfg.Environment.ConnectionStringName, ConnectionStringName},
-						{NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle"},
-						{NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none"},
-						{NHibernate.Cfg.Environment.FormatSql, "true"},
-						{NHibernate.Cfg.Environment.UseSqlComments, "true"}
+						{ NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },
+						{ NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
+						{ NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
+						{ NHibernate.Cfg.Environment.ConnectionStringName, ConnectionStringName },
+						{ NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle" },
+						{ NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none" },
+						{ NHibernate.Cfg.Environment.FormatSql, "true" },
+						{ NHibernate.Cfg.Environment.UseSqlComments, "true" }
 					});
-				ActiveRecordStarter.Initialize(new[] {  typeof(Supplier).Assembly, Assembly.Load("Test.Support")}, config);			 
+				ActiveRecordStarter.Initialize(new[] { typeof(Supplier).Assembly, Assembly.Load("Test.Support") }, config);
 			}
 		}
 	}

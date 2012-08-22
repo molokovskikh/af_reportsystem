@@ -10,7 +10,7 @@ using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem
-{   
+{
 	public class PriceCollectionForClientReport : ProviderReport
 	{
 		protected List<ulong> _Clients; // список клиентов
@@ -35,23 +35,21 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			foreach (var client in _Clients)
-			{
+			foreach (var client in _Clients) {
 				_clientCode = Convert.ToInt32(client);
 				ProfileHelper.Next("GetOffers for client: " + _clientCode);
 				GetOffers(); // получили предложения для клиента
-				
+
 				string clientName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						@"select FullName from Customers.Clients where Id = ?ClientCode",
 						new MySqlParameter("?ClientCode", _clientCode)));
-				
+
 				var prices = new List<uint>(); // прайсы, для которых будем брать синонимы
 				e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select ifnull(pd.ParentSynonym, pd.PriceCode) from usersettings.pricesdata pd where pd.FirmCode = {0};", _supplierId);
-				using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
-				{
+				using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
 					while (reader.Read())
 						prices.Add(Convert.ToUInt32(reader[0]));
 				}
@@ -79,16 +77,14 @@ FROM
 	left join farm.SynonymFirmCr OrigSynCr on c0.SynonymFirmCrCode = OrigSynCr.SynonymFirmCrCode
 	left join farm.Synonym S on Core.productid = s.productId and s.PriceCode in ({1})
 	left join farm.SynonymFirmCr sfcr on c0.CodeFirmCr = sfcr.CodeFirmCr and sfcr.PriceCode in ({1})
-group by Core.Id;", 
-				  clientName,
-				  prices.Distinct().Implode());                
+group by Core.Id;",
+					clientName,
+					prices.Distinct().Implode());
 #if DEBUG
-	Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-#endif               
-				using (var reader = args.DataAdapter.SelectCommand.ExecuteReader())
-				{
-					foreach (var row in reader.Cast<IDataRecord>())
-					{
+				Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+#endif
+				using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
+					foreach (var row in reader.Cast<IDataRecord>()) {
 						var data = new ReportData(row);
 						_reportData.Add(data); // результат
 					}
@@ -105,7 +101,7 @@ group by Core.Id;",
 			DataTable dtNewRes = new DataTable();
 			dtNewRes.TableName = "Results";
 			dtNewRes.Columns.Add("PriceDate", typeof(string));
-			dtNewRes.Columns.Add("ProductName", typeof (string));
+			dtNewRes.Columns.Add("ProductName", typeof(string));
 			dtNewRes.Columns.Add("ProducerName", typeof(string));
 			dtNewRes.Columns.Add("SupplierName", typeof(string));
 			dtNewRes.Columns.Add("RegionName", typeof(string));
@@ -126,8 +122,7 @@ group by Core.Id;",
 			dtNewRes.Columns["OrderCost"].Caption = "Мин. сумма";
 			dtNewRes.Columns["MinOrderCount"].Caption = "Мин. кол-во";
 
-			foreach (var offer in _reportData)
-			{
+			foreach (var offer in _reportData) {
 				var newRow = dtNewRes.NewRow();
 				newRow["PriceDate"] = offer.PriceDate.ToString();
 				newRow["ProductName"] = offer.ProductName;
@@ -136,13 +131,13 @@ group by Core.Id;",
 				newRow["RegionName"] = offer.RegionName;
 				newRow["Cost"] = Convert.ToDecimal(offer.Cost);
 				newRow["ClientName"] = offer.ClientName;
-				if(offer.RequestRatio.HasValue)
+				if (offer.RequestRatio.HasValue)
 					newRow["RequestRatio"] = offer.RequestRatio.Value;
-				if(offer.OrderCost.HasValue)
+				if (offer.OrderCost.HasValue)
 					newRow["OrderCost"] = Convert.ToDecimal(offer.OrderCost.Value);
-				if(offer.MinOrderCount.HasValue)
+				if (offer.MinOrderCount.HasValue)
 					newRow["MinOrderCount"] = offer.MinOrderCount.Value;
-				
+
 				dtNewRes.Rows.Add(newRow);
 			}
 
@@ -159,10 +154,7 @@ group by Core.Id;",
 
 		public override bool DbfSupported
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		protected override void DataTableToDbf(DataTable dtExport, string fileName)

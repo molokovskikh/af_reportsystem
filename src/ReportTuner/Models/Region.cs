@@ -7,30 +7,30 @@ namespace ReportTuner.Models
 	public class Regions : ActiveRecordBase<Regions>
 	{
 		[PrimaryKey("RegionCode")]
-		public virtual ulong RegionCode {get; set;}
+		public virtual ulong RegionCode { get; set; }
 
 		[Property("Region")]
-		public virtual string Name {get; set;}
-	
+		public virtual string Name { get; set; }
+
 		[Property]
-		public virtual string LongAliase {get; set;}
-	
+		public virtual string LongAliase { get; set; }
+
 		[Property]
-		public virtual string ShortAliase {get; set;}
-	
+		public virtual string ShortAliase { get; set; }
+
 		[Property]
-		public virtual ulong DefaultRegionMask {get; set;}
-	
+		public virtual ulong DefaultRegionMask { get; set; }
+
 		[Property]
-		public virtual ulong DefaultShowRegionMask {get; set;}
-	
+		public virtual ulong DefaultShowRegionMask { get; set; }
+
 		[Property]
-		public virtual string Comment {get; set;}
-	
+		public virtual string Comment { get; set; }
+
 		[Property]
-		public virtual DateTime AccessTime {get; set;}
-	
+		public virtual DateTime AccessTime { get; set; }
+
 		[Property]
-		public virtual int MoscowBias {get; set;}
+		public virtual int MoscowBias { get; set; }
 	}
 }

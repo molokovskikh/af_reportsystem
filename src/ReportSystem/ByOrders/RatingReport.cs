@@ -20,7 +20,8 @@ namespace Inforoom.ReportSystem
 
 		public RatingReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, conn, format, dsProperties)
-		{}
+		{
+		}
 
 		public override void ReadReportParams()
 		{
@@ -40,7 +41,7 @@ namespace Inforoom.ReportSystem
 			var selectCommand = BuildSelect();
 			if (firmCrPosition)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
-											 .Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
+					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
 			selectCommand = String.Concat(selectCommand, String.Format(@"
 Sum(ol.cost*ol.Quantity) as Cost, 
@@ -76,13 +77,12 @@ where 1=1", OrdersSchema));
 
 			//Применяем группировку и сортировку
 			selectCommand = ApplyGroupAndSort(selectCommand, "Cost desc");
-			if (firmCrPosition)
-			{
+			if (firmCrPosition) {
 				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
 				var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
 				selectCommand = selectCommand.Replace(groupPart, new_groupPart);
 			}
- 
+
 #if DEBUG
 			Debug.WriteLine(selectCommand);
 #endif
@@ -97,26 +97,26 @@ where 1=1", OrdersSchema));
 			var result = BuildResultTable(selectTable);
 
 			DataColumn dc;
-			dc = result.Columns.Add("Cost", typeof (Decimal));
+			dc = result.Columns.Add("Cost", typeof(Decimal));
 			dc.Caption = "Сумма";
 
-			dc = result.Columns.Add("CostPercent", typeof (Double));
+			dc = result.Columns.Add("CostPercent", typeof(Double));
 			dc.Caption = "Доля рынка в %";
 
-			dc = result.Columns.Add("PosOrder", typeof (Int32));
+			dc = result.Columns.Add("PosOrder", typeof(Int32));
 			dc.Caption = "Заказ";
 
-			dc = result.Columns.Add("PosOrderPercent", typeof (Double));
+			dc = result.Columns.Add("PosOrderPercent", typeof(Double));
 			dc.Caption = "Доля от общего заказа в %";
 
 			if (!DoNotShowAbsoluteValues) {
-				dc = result.Columns.Add("MinCost", typeof (Decimal));
+				dc = result.Columns.Add("MinCost", typeof(Decimal));
 				dc.Caption = "Минимальная цена";
-				dc = result.Columns.Add("AvgCost", typeof (Decimal));
+				dc = result.Columns.Add("AvgCost", typeof(Decimal));
 				dc.Caption = "Средняя цена";
-				dc = result.Columns.Add("MaxCost", typeof (Decimal));
+				dc = result.Columns.Add("MaxCost", typeof(Decimal));
 				dc.Caption = "Максимальная цена";
-				dc = result.Columns.Add("DistinctOrderId", typeof (Int32));
+				dc = result.Columns.Add("DistinctOrderId", typeof(Int32));
 				dc.Caption = "Кол-во заявок по препарату";
 				dc = result.Columns.Add("DistinctAddressId", typeof(Int32));
 				dc.Caption = "Кол-во адресов доставки, заказавших препарат";
@@ -126,16 +126,14 @@ where 1=1", OrdersSchema));
 
 			var cost = 0m;
 			var posOrder = 0;
-			foreach (DataRow dr in selectTable.Rows)
-			{
+			foreach (DataRow dr in selectTable.Rows) {
 				if (dr["Cost"] == DBNull.Value)
 					continue;
 				cost += Convert.ToDecimal(dr["Cost"]);
 				posOrder += Convert.ToInt32(dr["PosOrder"]);
 			}
 
-			foreach (DataRow dr in result.Rows)
-			{
+			foreach (DataRow dr in result.Rows) {
 				if (dr["Cost"] == DBNull.Value)
 					continue;
 				dr["CostPercent"] = Decimal.Round((Convert.ToDecimal(dr["Cost"]) * 100) / cost, 2);
@@ -165,7 +163,7 @@ where 1=1", OrdersSchema));
 				var lastDataRowIndex = 1 + result.Rows.Count;
 				ws.Range[ws.Cells[firstDataRowIndex, 1], ws.Cells[lastDataRowIndex, 2]].Select();
 
-				var range = ((Range) ws.Cells[firstDataRowIndex, result.Columns.Count + 1]);
+				var range = ((Range)ws.Cells[firstDataRowIndex, result.Columns.Count + 1]);
 				var top = Convert.ToSingle(range.Top);
 				var left = Convert.ToSingle(range.Left);
 

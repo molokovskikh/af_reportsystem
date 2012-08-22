@@ -25,7 +25,7 @@ namespace ReportTuner.Controllers
 		public string addressText { get; set; }
 
 		public ISession DbSession;
-		public IList<Address> ThisAddress;  
+		public IList<Address> ThisAddress;
 
 		public int _lastRowsCount;
 
@@ -34,17 +34,20 @@ namespace ReportTuner.Controllers
 			get { return _lastRowsCount; }
 		}
 
-		public int PageSize { get { return 25; } }
+		public int PageSize
+		{
+			get { return 25; }
+		}
 
 		public int CurrentPage { get; set; }
 
 		public AddressesFilter()
 		{
-			SortKeyMap = new Dictionary<string, string>{
-				{"Code", "Id"},
-				{"Value", "Value"},
-				{"Client", "c.ShortName"},
-				{"Region", "r.Id"}
+			SortKeyMap = new Dictionary<string, string> {
+				{ "Code", "Id" },
+				{ "Value", "Value" },
+				{ "Client", "c.ShortName" },
+				{ "Region", "r.Id" }
 			};
 
 			SortBy = "Client";
@@ -72,8 +75,7 @@ namespace ReportTuner.Controllers
 			}
 
 			var payerCodeProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == payerEqual);
-			if (payerCodeProperty != null && payerCodeProperty.Values.Count > 0)
-			{
+			if (payerCodeProperty != null && payerCodeProperty.Values.Count > 0) {
 				var payerIds = payerCodeProperty.Values.Select(v => Convert.ToUInt32(v.Value)).ToList();
 				addresses.Where(a => a.Payer.Id.IsIn(payerIds));
 			}
@@ -91,14 +93,13 @@ namespace ReportTuner.Controllers
 			}
 
 			var criteria = addresses.RootCriteria
-			.CreateCriteria("Client", "c", JoinType.InnerJoin)
-			.CreateAlias("c.HomeRegion", "r", JoinType.InnerJoin);
+				.CreateCriteria("Client", "c", JoinType.InnerJoin)
+				.CreateAlias("c.HomeRegion", "r", JoinType.InnerJoin);
 
 			var regionEqualProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == regionEqual);
 			if (regionEqualProperty != null && regionEqualProperty.Values.Count > 0) {
 				var regions = regionEqualProperty.Values.Select(v => Convert.ToUInt64(v.Value)).ToList();
-				if (regions.Count > 0)
-				{ 
+				if (regions.Count > 0) {
 					AbstractCriterion projection = Restrictions.Gt(Projections2.BitOr("r.Id", regions[0]), 0);
 					for (int i = 1; i < regions.Count; i++) {
 						projection |= Restrictions.Gt(Projections2.BitOr("r.Id", regions[i]), 0);
@@ -110,8 +111,7 @@ namespace ReportTuner.Controllers
 			var regionNonEqualProperty = _report.Properties.FirstOrDefault(rp => rp.PropertyType == regionNonEqual);
 			if (regionNonEqualProperty != null && regionNonEqualProperty.Values.Count > 0) {
 				var regions = regionNonEqualProperty.Values.Select(v => Convert.ToUInt64(v.Value)).ToList();
-				if (regions.Count > 0)
-				{ 
+				if (regions.Count > 0) {
 					AbstractCriterion projection = Restrictions.Gt(Projections2.BitOr("r.Id", regions[0]), 0);
 					for (int i = 1; i < regions.Count; i++) {
 						projection |= Restrictions.Eq(Projections2.BitOr("r.Id", regions[i]), 0);
@@ -151,13 +151,13 @@ namespace ReportTuner.Controllers
 	}
 
 	[Layout("MainLayout"),
-	Helper(typeof(ViewHelper)),
-	Helper(typeof(PaginatorHelper)),
-	Helper(typeof(ReportAppHelper), "app")]
+	 Helper(typeof(ViewHelper)),
+	 Helper(typeof(PaginatorHelper)),
+	 Helper(typeof(ReportAppHelper), "app")]
 	public class ReportsTuningController : BaseController
 	{
 		public void SelectClients(ulong? report, int? sortOrder, int? startPage, int? pageSize, int? rowsCount,
-			int? currentPage, ulong? region, string addBtn, string delBtn, ulong? rpv, 
+			int? currentPage, ulong? region, string addBtn, string delBtn, ulong? rpv,
 			byte firmType, ulong r, string findStr, ulong? userId)
 		{
 			ControllerHelper.InitParameter(ref sortOrder, "sortOrder", 2, PropertyBag);
@@ -168,8 +168,7 @@ namespace ReportTuner.Controllers
 			PropertyBag["firmType"] = firmType;
 			PropertyBag["findStr"] = findStr;
 
-			if (delBtn != null)
-			{
+			if (delBtn != null) {
 				foreach (string key in Request.Params.AllKeys)
 					if (key.StartsWith("chd"))
 						ReportTunerModel.DeleteClient(rpv.Value, Convert.ToUInt64(Request.Params[key]));
@@ -180,8 +179,7 @@ namespace ReportTuner.Controllers
 				return;
 			}
 
-			if (addBtn != null)
-			{
+			if (addBtn != null) {
 				foreach (string key in Request.Params.AllKeys)
 					if (key.StartsWith("cha"))
 						ReportTunerModel.AddClient(rpv.Value, Convert.ToUInt64(Request.Params[key]));
@@ -199,16 +197,15 @@ namespace ReportTuner.Controllers
 
 			PropertyBag["FilteredClients"] =
 				ReportTunerModel.GetAllSuppliers(rpv.Value, sortOrder.Value, currentPage.Value,
-				                                 pageSize.Value, ref rowsCount, region.Value, firmType, findStr, userId);
+					pageSize.Value, ref rowsCount, region.Value, firmType, findStr, userId);
 
 			PropertyBag["AddedClients"] =
 				ReportTunerModel.GetAddedSuppliers(report.Value, rpv.Value, sortOrder.Value, startPage.Value, pageSize.Value);
 
 			PropertyBag["rowsCount"] = rowsCount.Value;
-			
 		}
 
-		public void SelectAddresses([DataBind("filter")]AddressesFilter filter)
+		public void SelectAddresses([DataBind("filter")] AddressesFilter filter)
 		{
 			filter.DbSession = DbSession;
 			PropertyBag["addresses"] = filter.Find();
@@ -219,8 +216,7 @@ namespace ReportTuner.Controllers
 		[AccessibleThrough(Verb.Get)]
 		public void ChangeAddressSet(UInt64 r, UInt64 report, UInt64 rpv, string addBtn, string delBtn)
 		{
-			if (delBtn != null)
-			{
+			if (delBtn != null) {
 				foreach (string key in Request.Params.AllKeys)
 					if (key.StartsWith("chd"))
 						ReportTunerModel.DeleteClient(rpv, Convert.ToUInt64(Request.Params[key]));
@@ -229,8 +225,7 @@ namespace ReportTuner.Controllers
 				return;
 			}
 
-			if (addBtn != null)
-			{
+			if (addBtn != null) {
 				foreach (string key in Request.Params.AllKeys)
 					if (key.StartsWith("cha"))
 						ReportTunerModel.AddClient(rpv, Convert.ToUInt64(Request.Params[key]));

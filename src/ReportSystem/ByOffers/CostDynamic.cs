@@ -13,7 +13,6 @@ using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.ByOffers
 {
-
 	public class CostDynamicSettings : ReportSettings.BaseReportSettings
 	{
 		private DateTime _date;
@@ -44,23 +43,18 @@ namespace Inforoom.ReportSystem.ByOffers
 				SameDayOnPastWeek = _date.AddDays(-7);
 
 				Dates = new List<ColumnGroupDescription> {
-
 					new ColumnGroupDescription(SomeDate,
 						"SomeDate",
 						String.Format("Относительно {0:d MMMM yyyy}", SomeDate)),
-
 					new ColumnGroupDescription(PrevMonth,
 						"PrevMonth",
 						String.Format("Относительно 1-го числа ({0})", PrevMonth.ToShortDateString())),
-
 					new ColumnGroupDescription(SameDayOnPastWeek,
 						"SameDayOnPastWeek",
 						String.Format("Относительно того же дня недели прошедшей недели ({0})", SameDayOnPastWeek.ToShortDateString())),
-
 					new ColumnGroupDescription(PrevWeek,
 						"PrevWeek",
 						String.Format("Относительно предыдущего понедельника ({0})", PrevWeek.ToShortDateString())),
-
 					new ColumnGroupDescription(PrevDay,
 						"PrevDay",
 						String.Format("Относительно предыдущего дня ({0})", PrevDay.ToShortDateString())),
@@ -79,7 +73,8 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		public CostDynamicSettings(ulong reportCode, string reportCaption)
 			: base(reportCode, reportCaption)
-		{}
+		{
+		}
 	}
 
 	public class ColumnGroupDescription
@@ -119,17 +114,18 @@ namespace Inforoom.ReportSystem.ByOffers
 		private MySqlCommand command;
 
 		public CostDynamic()
-		{}
+		{
+		}
 
 		public CostDynamic(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
-		{}
+		{
+		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			command = args.DataAdapter.SelectCommand;
-			if (regions.Length == 0)
-			{
+			if (regions.Length == 0) {
 				command.CommandText = String.Format(@"
 select oh.RegionCode
 from {0}.OrdersHead oh
@@ -142,8 +138,7 @@ group by oh.RegionCode", OrdersSchema);
 				regions = regionTable.AsEnumerable().Select(r => Convert.ToUInt64(r["RegionCode"])).ToArray();
 			}
 
-			if (suppliers.Length == 0 && regions.Length > 0)
-			{
+			if (suppliers.Length == 0 && regions.Length > 0) {
 				command.CommandText = String.Format(@"
 select pd.FirmCode
 from {0}.OrdersHead oh
@@ -181,8 +176,7 @@ where id in ({0})", suppliers.Implode());
 
 			var results = CreateResultTable(settings.Dates);
 
-			foreach (DataRow supplier in supplierTable.Rows)
-			{
+			foreach (DataRow supplier in supplierTable.Rows) {
 				var row = results.NewRow();
 				row["Id"] = supplier["Id"];
 				row["Name"] = supplier["Name"];
@@ -194,15 +188,13 @@ where id in ({0})", suppliers.Implode());
 
 			var marketSharesOnDate = new Dictionary<string, OrdersOnDate>();
 
-			foreach (var dateColumn in settings.Dates)
-			{
+			foreach (var dateColumn in settings.Dates) {
 				var supplierMarketShares = GetMarketShare(suppliers, regions, dateColumn.Date);
 				var marketTotal = GetMarketValue(regions, dateColumn.Date);
 				marketSharesOnDate.Add(dateColumn.Name, new OrdersOnDate(supplierMarketShares, marketTotal));
 			}
 
-			foreach (var supplier in suppliers)
-			{
+			foreach (var supplier in suppliers) {
 				var row = results.Rows.Cast<DataRow>().First(r => Convert.ToUInt32(r["Id"]) == supplier);
 
 				var baseTotal = GetTotal(baseOrderTotals, supplier);
@@ -210,8 +202,7 @@ where id in ({0})", suppliers.Implode());
 				var marketShare = SaveInPercentOf(baseTotal, marketTotalOnCurrentDate);
 				row.SetField("MarketShare", marketShare);
 
-				foreach (var dateToColumn in settings.Dates)
-				{
+				foreach (var dateToColumn in settings.Dates) {
 					var column = dateToColumn.Name + "MarketShareDiff";
 					var currentDate = dateToColumn.Date;
 
@@ -235,15 +226,14 @@ where id in ({0})", suppliers.Implode());
 				Enumerable.Sum, orderColums);
 			var costIndexColumns = results.Columns.Cast<DataColumn>().Where(c => c.ColumnName.Contains("CostIndex"));
 			BuildAggregateRow(results, "Среднее по мониторируемым компаниям:",
-				Enumerable.Average,costIndexColumns);
+				Enumerable.Average, costIndexColumns);
 		}
 
 		private static void BuildAggregateRow(DataTable results, string name, Func<IEnumerable<decimal>, decimal> aggregate, IEnumerable<DataColumn> columns)
 		{
 			var resultRow = results.NewRow();
 			resultRow["Name"] = name;
-			foreach (var column in columns.Where(c => c.DataType == typeof (decimal)))
-			{
+			foreach (var column in columns.Where(c => c.DataType == typeof(decimal))) {
 				var values = results.AsEnumerable()
 					.Where(r => r[column] != DBNull.Value)
 					.Select(r => Convert.ToDecimal(r[column]));
@@ -275,8 +265,7 @@ group by a.Id", OrdersSchema);
 			args.DataAdapter.Fill(quantityTable);
 			var quantities = new Hashtable();
 
-			foreach (DataRow row in quantityTable.Rows)
-			{
+			foreach (DataRow row in quantityTable.Rows) {
 				quantities.Add(Convert.ToUInt32(row["Id"]), Convert.ToDecimal(row["quantity"]));
 			}
 			return quantities;
@@ -306,7 +295,7 @@ group by a.Id", OrdersSchema);
 
 		private static decimal InPercentOf(decimal value, decimal @base)
 		{
-			return Math.Round(value/@base, 4);
+			return Math.Round(value / @base, 4);
 		}
 
 		private static decimal? GetTotal(DataTable table, uint supplier)
@@ -411,12 +400,11 @@ and a.Date = ?date
 			command.Parameters.AddWithValue("toDate", toDate);
 			var table = new DataTable();
 			args.DataAdapter.Fill(table);
-			foreach (DataRow row in table.Rows)
-			{
+			foreach (DataRow row in table.Rows) {
 				var quantiry = quantities[row["AssortmentId"]];
 				if (quantiry == null)
 					continue;
-				result += Convert.ToDecimal(row["Cost"])*Convert.ToDecimal(quantiry);
+				result += Convert.ToDecimal(row["Cost"]) * Convert.ToDecimal(quantiry);
 			}
 			return result;
 		}
@@ -424,23 +412,22 @@ and a.Date = ?date
 		public DataTable CreateResultTable(List<ColumnGroupDescription> dates)
 		{
 			var results = new DataTable("Results");
-			var column = results.Columns.Add("Id", typeof (uint));
+			var column = results.Columns.Add("Id", typeof(uint));
 
 			column = results.Columns.Add("Name");
 			column.Caption = "Поставщик";
 			column.ExtendedProperties.Add("Width", 23);
 
-			column = results.Columns.Add("MarketShare", typeof (decimal));
+			column = results.Columns.Add("MarketShare", typeof(decimal));
 			column.Caption = "Текущая доля рынка";
 			column.ExtendedProperties.Add("Width", 13);
 
-			foreach(var date in dates)
-			{
-				column = results.Columns.Add(date.Name + "MarketShareDiff", typeof (decimal));
+			foreach (var date in dates) {
+				column = results.Columns.Add(date.Name + "MarketShareDiff", typeof(decimal));
 				column.Caption = "Прирост доли";
 				column.ExtendedProperties.Add("Width", 13);
 
-				column = results.Columns.Add(date.Name + "CostIndex", typeof (decimal));
+				column = results.Columns.Add(date.Name + "CostIndex", typeof(decimal));
 				column.Caption = "Изменение индекса цен ΔP";
 				column.ExtendedProperties.Add("Width", 13);
 			}
@@ -452,14 +439,14 @@ and a.Date = ?date
 		{
 			date = DateTime.Today.AddDays(-1);
 			if (reportParamExists("date"))
-				date = (DateTime) getReportParam("date");
+				date = (DateTime)getReportParam("date");
 
 			if (From != DateTime.MinValue)
 				date = From;
 
-			someDate = (DateTime) getReportParam("someDate");
-			regions = ((List<ulong>) getReportParam("regions")).ToArray();
-			suppliers = ((List<ulong>) getReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
+			someDate = (DateTime)getReportParam("someDate");
+			regions = ((List<ulong>)getReportParam("regions")).ToArray();
+			suppliers = ((List<ulong>)getReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
 
 			LoadFilters();
 		}

@@ -43,7 +43,7 @@ namespace ReportSystem.Test
 		public void Build_chart()
 		{
 			Property("ByPreviousMonth", false);
-			Property("ClientCodeEqual", new List<ulong> {3110, 465, 11279});
+			Property("ClientCodeEqual", new List<ulong> { 3110, 465, 11279 });
 			Property("ProductNamePosition", 0);
 			Property("BuildChart", true);
 			var file = "Build_chart.xls";
@@ -55,7 +55,7 @@ namespace ReportSystem.Test
 		public void Show_only_relative_values()
 		{
 			Property("ByPreviousMonth", false);
-			Property("ClientCodeEqual", new List<ulong> {3110, 465, 11279});
+			Property("ClientCodeEqual", new List<ulong> { 3110, 465, 11279 });
 			Property("ProductNamePosition", 0);
 			Property("BuildChart", true);
 			Property("DoNotShowAbsoluteValues", true);

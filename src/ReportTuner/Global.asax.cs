@@ -40,13 +40,13 @@ namespace ReportTuner
 			LibAssemblies.Add(Assembly.Load("Common.Web.Ui"));
 		}
 
-		void Application_Start(object sender, EventArgs e)
+		private void Application_Start(object sender, EventArgs e)
 		{
 			ConfigReader.LoadSettings(Config);
 			ActiveRecordStarter.Initialize(new[] {
-					Assembly.Load("ReportTuner"),
-					Assembly.Load("Common.Web.Ui")
-				},
+				Assembly.Load("ReportTuner"),
+				Assembly.Load("Common.Web.Ui")
+			},
 				ActiveRecordSectionHandler.Instance);
 
 			Initialize();
@@ -56,9 +56,7 @@ namespace ReportTuner
 			RoutingModuleEx.Engine.Add(
 				new BugRoute(
 					new PatternRoute("/<controller>/[action]")
-						.DefaultForAction().Is("index")
-					)
-				);
+						.DefaultForAction().Is("index")));
 
 			if (!Path.IsPathRooted(Config.SavedFilesPath))
 				Config.SavedFilesPath =
@@ -80,14 +78,11 @@ namespace ReportTuner
 
 			//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
 			ulong _TemplateReportId;
-			if (ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out _TemplateReportId))
-			{
-				try
-				{
+			if (ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out _TemplateReportId)) {
+				try {
 					GeneralReport.Find(_TemplateReportId);
 				}
-				catch (NotFoundException exp)
-				{
+				catch (NotFoundException exp) {
 					throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
 				}
 			}
@@ -107,7 +102,7 @@ namespace ReportTuner
 				Directory.CreateDirectory(dir);
 		}
 
-		void Session_Start(object sender, EventArgs e)
+		private void Session_Start(object sender, EventArgs e)
 		{
 			//Это имя пользователя добавляем для того, чтобы корректно редактировались контакты
 			string UserName = HttpContext.Current.User.Identity.Name;
@@ -117,7 +112,7 @@ namespace ReportTuner
 		}
 
 
-		void Session_End(object sender, EventArgs e)
+		private void Session_End(object sender, EventArgs e)
 		{
 			//Проходим по всем объектам в сессии и если объект поддерживает интефейс IDisposable, то вызываем Dispose()
 			for (int i = 0; i < Session.Count; i++)

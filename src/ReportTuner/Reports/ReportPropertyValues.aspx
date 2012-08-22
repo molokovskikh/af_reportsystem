@@ -24,8 +24,8 @@
                         <asp:CheckBox ID="cbSet" runat="server" Text="Все включено" AutoPostBack="True" OnCheckedChanged="cbSet_CheckedChanged" TextAlign="Left" />
                     </HeaderTemplate>
                     <ItemTemplate>
-                        <asp:CheckBox ID="chbEnabled" runat="server" Checked='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Enabled"))%>'/>
-                        <input type="hidden" runat="server" id="RowID" value='<%#DataBinder.Eval(Container, "DataItem.ID")%>' />
+                        <asp:CheckBox ID="chbEnabled" runat="server" Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Enabled")) %>'/>
+                        <input type="hidden" runat="server" id="RowID" value='<%# DataBinder.Eval(Container, "DataItem.ID") %>' />
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:BoundField HeaderText="Значение" DataField="DisplayValue" ItemStyle-HorizontalAlign="Left" />

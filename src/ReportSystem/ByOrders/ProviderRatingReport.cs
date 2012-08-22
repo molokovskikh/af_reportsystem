@@ -39,8 +39,7 @@ namespace Inforoom.ReportSystem
 		{
 			//Если поле поставщик не в выбранных параметрах, то добавляем его туда и устанавливаем "visible в true"
 			var provideNameField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCode");
-			if (provideNameField == null)
-			{
+			if (provideNameField == null) {
 				provideNameField = registredField.Find(value => value.reportPropertyPreffix == "FirmCode");
 				selectedField.Add(provideNameField);
 			}
@@ -89,8 +88,7 @@ where 1=1", OrdersSchema));
 			var allSumm = 0m;
 			var otherSumm = 0m;
 			var currentCount = 0;
-			foreach (var dr in selectTable.Rows.Cast<DataRow>())
-			{
+			foreach (var dr in selectTable.Rows.Cast<DataRow>()) {
 				currentCount++;
 				allSumm += Convert.ToDecimal(dr["Summ"]);
 				if (currentCount > providerCount)
@@ -98,7 +96,7 @@ where 1=1", OrdersSchema));
 			}
 
 			var res = BuildResultTable(selectTable);
-			var dc = res.Columns.Add("SummPercent", typeof (Double));
+			var dc = res.Columns.Add("SummPercent", typeof(Double));
 			dc.Caption = "Доля рынка в %";
 			var sc = res.Columns.Add("SupplierSumm", typeof(decimal));
 			sc.Caption = "Сумма по поставщику, руб";
@@ -106,8 +104,7 @@ where 1=1", OrdersSchema));
 			DataRow newrow;
 			res.BeginLoadData();
 			currentCount = 0;
-			foreach (DataRow dr in selectTable.Rows)
-			{
+			foreach (DataRow dr in selectTable.Rows) {
 				currentCount++;
 				newrow = res.NewRow();
 
@@ -123,8 +120,7 @@ where 1=1", OrdersSchema));
 					break;
 			}
 
-			if (otherSumm > 0)
-			{
+			if (otherSumm > 0) {
 				newrow = res.NewRow();
 				newrow["FirmShortName"] = "Остальные";
 				newrow["SummPercent"] = Decimal.Round((otherSumm * 100) / allSumm, 2);
@@ -146,18 +142,18 @@ where 1=1", OrdersSchema));
 			var res = _dsReport.Tables["Results"];
 
 			//Выбираем диапазон, по которому будет строить диаграму
-			(ws.Range[ws.Cells[2 + FilterDescriptions.Count, 1], ws.Cells[res.Rows.Count , 2]]).Select();
+			(ws.Range[ws.Cells[2 + FilterDescriptions.Count, 1], ws.Cells[res.Rows.Count, 2]]).Select();
 			Shape s;
 			s = ws.Shapes.AddChart(XlChartType.xlPie, 20, 40, 450, 230);
 
 			//Устанавливаем диаграмму справа от таблицы
 			s.Top = 5;
-			s.Left = Convert.ToSingle(((Range) ws.Cells[1 + FilterDescriptions.Count, 5]).Left);
+			s.Left = Convert.ToSingle(((Range)ws.Cells[1 + FilterDescriptions.Count, 5]).Left);
 
 			//Производим подсчет высоты легенды, чтобы она полностью отобразилась на диаграмме
 			double legendHeight = 0;
-			for (int i = 1; i <= ((LegendEntries) s.Chart.Legend.LegendEntries(Type.Missing)).Count; i++)
-				legendHeight += ((LegendEntry) s.Chart.Legend.LegendEntries(i)).Height;
+			for (int i = 1; i <= ((LegendEntries)s.Chart.Legend.LegendEntries(Type.Missing)).Count; i++)
+				legendHeight += ((LegendEntry)s.Chart.Legend.LegendEntries(i)).Height;
 
 			legendHeight *= 0.9;
 
@@ -175,7 +171,7 @@ where 1=1", OrdersSchema));
 			//Отображаем диаграмму
 			s.Fill.Visible = MsoTriState.msoTrue;
 
-			ws.Range[ws.Cells[2 + FilterDescriptions.Count, 3], ws.Cells[res.Rows.Count , 3]].NumberFormat = @"_($* #,##0_);_($* (#,##0);_($* ""-""_);_(@_)";
+			ws.Range[ws.Cells[2 + FilterDescriptions.Count, 3], ws.Cells[res.Rows.Count, 3]].NumberFormat = @"_($* #,##0_);_($* (#,##0);_($* ""-""_);_(@_)";
 
 			ProfileHelper.End();
 		}

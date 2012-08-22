@@ -26,7 +26,7 @@
 				
 				<asp:TemplateField HeaderText="Биллинг код"  SortExpression="PayerID" HeaderStyle-Width="5%">
 					<ItemTemplate>
-						<a href='<%# String.Format("http://stat.analit.net/adm/Billing/edit.rails?BillingCode={0}",DataBinder.Eval(Container.DataItem, "PayerID")) %>'> <%# DataBinder.Eval(Container.DataItem, "PayerID") %></a>
+						<a href='<%# String.Format("http://stat.analit.net/adm/Billing/edit.rails?BillingCode={0}", DataBinder.Eval(Container.DataItem, "PayerID")) %>'> <%# DataBinder.Eval(Container.DataItem, "PayerID") %></a>
 					</ItemTemplate>
 				</asp:TemplateField>
 				
@@ -49,7 +49,7 @@
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Включен" ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="Allow">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbAllow" runat="server" Checked='<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Allow"))%>' />
+						<asp:CheckBox ID="chbAllow" runat="server" Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Allow")) %>' />
 					</ItemTemplate>
 
 <HeaderStyle Width="5%"></HeaderStyle>
@@ -58,7 +58,7 @@
 				</asp:TemplateField>
 				<asp:TemplateField HeaderText="Примечание" SortExpression="Comment" ItemStyle-Width="45%" HeaderStyle-Width="45%">
 					<ItemTemplate>
-						<asp:TextBox ID="tbComment" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.Comment")%>'></asp:TextBox><br/>
+						<asp:TextBox ID="tbComment" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.Comment") %>'></asp:TextBox><br/>
 					</ItemTemplate>
 
 <HeaderStyle Width="45%"></HeaderStyle>

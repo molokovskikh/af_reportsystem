@@ -16,16 +16,18 @@ namespace Inforoom.ReportSystem.ByOrders
 		private uint _clientId;
 		private Period _period;
 
-		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) 
+		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, format, dsProperties)
-		{}
+		{
+		}
 
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
 			_clientId = Convert.ToUInt32(getReportParam("ClientCode"));
-			_period = new Period(dtFrom,dtTo);
+			_period = new Period(dtFrom, dtTo);
 		}
+
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
@@ -102,8 +104,7 @@ order by O.WriteTime", OrdersSchema);
 			var headParameterReader = headParameterCommand.ExecuteReader();
 			result.Rows.Add("Клиент");
 
-			if (headParameterReader.Read())
-			{
+			if (headParameterReader.Read()) {
 				result.Rows[1][2] = headParameterReader["Name"];
 			}
 			headParameterReader.Close();
@@ -122,8 +123,7 @@ order by O.WriteTime", OrdersSchema);
 			result.Columns["Quantity"].Caption = "Количество";
 			result.Columns["Sum"].Caption = "Сумма";
 
-			foreach (var row in data.Rows.Cast<DataRow>())
-			{
+			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
 				resultRow["MatrixCode"] = row["MatrixCode"];
 				resultRow["Supplier"] = row["Supplier"];
@@ -135,7 +135,7 @@ order by O.WriteTime", OrdersSchema);
 				resultRow["Cost"] = row["Cost"];
 				resultRow["Quantity"] = row["Quantity"];
 				resultRow["Sum"] = row["Summ"];
-			result.Rows.Add(resultRow);
+				result.Rows.Add(resultRow);
 			}
 		}
 	}

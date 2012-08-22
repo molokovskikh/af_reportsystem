@@ -23,7 +23,7 @@ namespace ReportTuner.Helpers
 			if (_sourceReport.ReportType != _destinationReport.ReportType)
 				throw new ReportTunerException(
 					String.Format(
-						"Тип клонируемого отчета отличается от конечного отчета. Тип исходного отчета: {0}. Тип отчета-приемника: {1}", 
+						"Тип клонируемого отчета отличается от конечного отчета. Тип исходного отчета: {0}. Тип отчета-приемника: {1}",
 						_sourceReport.ReportType.ReportTypeName,
 						_destinationReport.ReportType.ReportTypeName));
 
@@ -68,35 +68,28 @@ order by rp.PropertyID;
 
 			StringBuilder sbCommand = new StringBuilder();
 
-			foreach (DataRow drSourceProperty in dtSourceProperties.Rows)
-			{
+			foreach (DataRow drSourceProperty in dtSourceProperties.Rows) {
 				DataRow[] drDestinationProperties = dtDestinationProperties.Select("PropertyId = " + drSourceProperty["PropertyId"]);
-				if (drDestinationProperties.Length == 0)
-				{
+				if (drDestinationProperties.Length == 0) {
 					//Свойство не существует, поэтому просто вставляем новое
 					sbCommand.AppendFormat("insert into reports.report_properties (ReportCode, PropertyId, PropertyValue) values ({0}, {1}, '{2}');\r\n",
 						destinationReportId, drSourceProperty["PropertyId"], drSourceProperty["PropertyValue"]);
-					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase))
-					{
+					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase)) {
 						sbCommand.AppendLine("set @LastReportPropertyId = last_insert_id();");
-						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"]))
-						{
+						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"])) {
 							sbCommand.AppendFormat("insert into reports.report_property_values (ReportPropertyId, Value) values (@LastReportPropertyId, '{0}');\r\n",
 								drSourcePropertiesValue["Value"]);
 						}
 					}
 				}
-				else
-				{
+				else {
 					//Свойство существует, поэтому обновляем запись
 					sbCommand.AppendFormat("update reports.report_properties set PropertyValue = '{0}' where Id = {1};\r\n",
 						drSourceProperty["PropertyValue"], drDestinationProperties[0]["Id"]);
 
-					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase))
-					{
+					if (drSourceProperty["PropertyType"].ToString().Equals("LIST", StringComparison.OrdinalIgnoreCase)) {
 						sbCommand.AppendFormat("delete from reports.report_property_values where ReportPropertyId = {0};\r\n", drDestinationProperties[0]["Id"]);
-						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"]))
-						{
+						foreach (DataRow drSourcePropertiesValue in dtSourcePropertiesValues.Select("ReportPropertyId = " + drSourceProperty["Id"])) {
 							sbCommand.AppendFormat("insert into reports.report_property_values (ReportPropertyId, Value) values ({0}, '{1}');\r\n",
 								drDestinationProperties[0]["Id"], drSourcePropertiesValue["Value"]);
 						}
@@ -106,14 +99,12 @@ order by rp.PropertyID;
 
 			MySqlConnection connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
 			connection.Open();
-			try
-			{
+			try {
 				MySqlTransaction transaction = connection.BeginTransaction();
 				MySqlHelper.ExecuteNonQuery(connection, sbCommand.ToString());
 				transaction.Commit();
 			}
-			finally
-			{
+			finally {
 				connection.Close();
 			}
 		}

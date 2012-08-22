@@ -14,7 +14,7 @@ namespace ReportTuner.Models
 	public static class ReportTunerModel
 	{
 		private const string allClientsSql =
-@"
+			@"
 select
 	   supps.Id,
 	   supps.Name ShortName,
@@ -46,7 +46,7 @@ group by Id
 ";
 
 		private const string suppliersFromActivePrices =
-@"select 
+			@"select 
 	supps.Id,
 	supps.Name ShortName,
 	GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
@@ -64,7 +64,7 @@ group by Id
 ";
 
 		private const string selectedClientsSql =
-@"
+			@"
 select
 	   supps.Id,
 	   supps.Name ShortName,
@@ -104,7 +104,7 @@ group by Id
 			string order = (sortOrder < 1)
 				? ""
 				: ("order by " + headers[Math.Abs(sortOrder) - 1] + ((sortOrder > 0) ? " asc" : " desc"));
-			string limit = usePadding ? String.Format("limit {0}, {1}", currenPage*pageSize, pageSize) : "";
+			string limit = usePadding ? String.Format("limit {0}, {1}", currenPage * pageSize, pageSize) : "";
 
 			return String.Format(sql, selectedIds, order, limit);
 		}
@@ -113,33 +113,31 @@ group by Id
 		{
 			var reader = command.ExecuteReader();
 			var clients = from row in reader.Cast<DbDataRecord>()
-					  select new
-					  {
-						  Id = row["Id"],
-						  ShortName = row["ShortName"],
-						  Regions = row["Regions"]
-					  };
+				select new {
+					Id = row["Id"],
+					ShortName = row["ShortName"],
+					Regions = row["Regions"]
+				};
 			return clients.Cast<object>().ToList();
 		}
 
 		public static void FillActivePrices(MySqlConnection conn, ulong userId)
-		{						
-				var da = new MySqlDataAdapter(new MySqlCommand());
-				var selectCommand = da.SelectCommand;
-				selectCommand.Connection = conn;
-				selectCommand.CommandText = "Customers.GetActivePrices";
-				selectCommand.CommandType = CommandType.StoredProcedure;
-				selectCommand.Parameters.Clear();
-				selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
-				selectCommand.ExecuteNonQuery();
+		{
+			var da = new MySqlDataAdapter(new MySqlCommand());
+			var selectCommand = da.SelectCommand;
+			selectCommand.Connection = conn;
+			selectCommand.CommandText = "Customers.GetActivePrices";
+			selectCommand.CommandType = CommandType.StoredProcedure;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+			selectCommand.ExecuteNonQuery();
 		}
 
 		public static List<object> GetAllSuppliers(ulong reportProperty, int sortOrder, int currenPage, int pageSize,
 			ref int? rowsCount, ulong region, byte firmType, string findStr, ulong? userId)
 		{
 			List<object> clients;
-			using(var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
-			{
+			using (var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString)) {
 				conn.Open();
 				var Ids = GetSelectedIds(reportProperty);
 
@@ -147,8 +145,7 @@ group by Id
 
 				if (userId == null)
 					sql = GetPreparedSql(allClientsSql, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
-				else
-				{
+				else {
 					FillActivePrices(conn, userId.Value);
 					sql = GetPreparedSql(suppliersFromActivePrices, sortOrder, currenPage, pageSize, Ids, rowsCount.HasValue);
 				}
@@ -160,8 +157,7 @@ group by Id
 				command.Parameters.AddWithValue("?filterStr", "%" + findStr + "%");
 
 				clients = ExtractClientsFromCommand(command);
-				if (!rowsCount.HasValue)
-				{
+				if (!rowsCount.HasValue) {
 					rowsCount = clients.Count;
 					clients = clients.GetRange(0, Math.Min(pageSize, clients.Count));
 				}
@@ -173,8 +169,7 @@ group by Id
 			int pageSize)
 		{
 			List<object> clients;
-			using(var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString))
-			{
+			using (var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString)) {
 				var Ids = GetSelectedIds(reportProperty);
 				var sql = GetPreparedSql(selectedClientsSql, sortOrder, 0, pageSize, Ids, false);
 				var command = new MySqlCommand(sql, conn);
@@ -182,17 +177,19 @@ group by Id
 				conn.Open();
 
 				clients = ExtractClientsFromCommand(command);
-				
 			}
 			return clients;
 		}
 
 		public static void DeleteClient(ulong reportProperty, ulong clientCode)
 		{
-			var properties = ReportPropertyValue.FindAll(new[] 
-				{Expression.Eq("ReportPropertyId", reportProperty), Expression.Eq("Value", clientCode.ToString())});
+			var properties = ReportPropertyValue.FindAll(
+				new[] {
+					Expression.Eq("ReportPropertyId", reportProperty),
+					Expression.Eq("Value", clientCode.ToString())
+				});
 
-			foreach(var property in properties)
+			foreach (var property in properties)
 				property.DeleteAndFlush();
 		}
 
@@ -208,6 +205,6 @@ group by Id
 		public static IEnumerable<Regions> GetAllRegions()
 		{
 			return Regions.FindAll().OrderBy(reg => reg.Name).OrderBy(reg => reg.RegionCode != 0);
-		}		
+		}
 	}
 }

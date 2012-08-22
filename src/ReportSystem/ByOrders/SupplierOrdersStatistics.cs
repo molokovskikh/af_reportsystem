@@ -9,26 +9,27 @@ using MySql.Data.MySqlClient;
 namespace Inforoom.ReportSystem.ByOrders
 {
 	/*Отчет статистика заказов по поставщику*/
+
 	public class SupplierOrdersStatistics : OrdersStatistics
 	{
 		protected int sourceFirmCode; //Поставщик, по которому будет строится отчет
-		protected int reportType;  // Вариант отчета (1 - Позаявочно, 2 - Поклиентно)
+		protected int reportType; // Вариант отчета (1 - Позаявочно, 2 - Поклиентно)
 		protected List<ulong> regions; // Список регионов
 		protected string regionsString; // Список регионов в виде строки
 
 		public SupplierOrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
-		{}
+		{
+		}
 
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
 			sourceFirmCode = (int)getReportParam("SourceFirmCode"); // поставщик
 			reportType = (int)getReportParam("ReportType");
-			if (_reportParams.ContainsKey("RegionEqual"))
-			{
-				regions = (List<ulong>) getReportParam("RegionEqual");
-				if(regions.Contains(0)) regions.Clear(); // все регионы
+			if (_reportParams.ContainsKey("RegionEqual")) {
+				regions = (List<ulong>)getReportParam("RegionEqual");
+				if (regions.Contains(0)) regions.Clear(); // все регионы
 				regionsString = String.Join(", ", regions.ConvertAll(value => value.ToString()).ToArray());
 			}
 		}
@@ -42,8 +43,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			string selectedColumns;
 			string groupbyColumns;
 			string orderbyColumns;
-			if (reportType == 1)
-			{
+			if (reportType == 1) {
 				selectedColumns = @"
 	oh.writetime, 
 	oh.pricedate, 
@@ -55,8 +55,7 @@ namespace Inforoom.ReportSystem.ByOrders
 				groupbyColumns = "oh.rowid";
 				orderbyColumns = "oh.writetime";
 			}
-			else
-			{
+			else {
 				selectedColumns = @"
 	fi.supplierclientid firmclientcode, 
 	cl.name shortname, 
@@ -85,7 +84,7 @@ where
 	pd.firmcode = {2}
 	and oh.writetime between '{3}' and '{4}' ", selectedColumns, OrdersSchema, sourceFirmCode, dtFrom.ToString("yyyy-MM-dd HH:mm:ss"), dtTo.ToString("yyyy-MM-dd HH:mm:ss"));
 
-			if(!String.IsNullOrEmpty(regionsString))
+			if (!String.IsNullOrEmpty(regionsString))
 				selectCommand += String.Format("and oh.regioncode in ({0}) ", regionsString);
 
 			selectCommand += String.Format("group by {0} order by {1}", groupbyColumns, orderbyColumns);
@@ -94,8 +93,7 @@ where
 			Debug.WriteLine(selectCommand);
 #endif
 			var dtNewRes = new DataTable();
-			if(reportType == 1)
-			{
+			if (reportType == 1) {
 				dtNewRes.Columns.Add("WriteTime", typeof(string));
 				dtNewRes.Columns.Add("PriceDate", typeof(string));
 				dtNewRes.Columns.Add("FirmClientCode", typeof(int));
@@ -107,8 +105,7 @@ where
 				dtNewRes.Columns["PriceDate"].Caption = "Дата прайса";
 				dtNewRes.Columns["RowCount"].Caption = "Позиций";
 			}
-			else
-			{
+			else {
 				dtNewRes.Columns.Add("FirmClientCode", typeof(int));
 				dtNewRes.Columns.Add("ShortName", typeof(string));
 				dtNewRes.Columns.Add("Region", typeof(string));

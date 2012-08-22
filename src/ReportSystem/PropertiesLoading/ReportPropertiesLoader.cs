@@ -19,7 +19,7 @@ namespace Inforoom.ReportSystem
 			while (File.Exists("..\\" + _reportCode.ToString() + "(" + i.ToString() + ").xml"))
 				i++;
 			result.WriteXml("..\\" + _reportCode.ToString() + "(" + i.ToString() + ").xml");
-			throw new ReportException("Сервисная ошибка. Для тестовой остановки."); 
+			throw new ReportException("Сервисная ошибка. Для тестовой остановки.");
 		}
 
 		public DataSet LoadProperties(MySqlConnection conn, ulong reportCode)

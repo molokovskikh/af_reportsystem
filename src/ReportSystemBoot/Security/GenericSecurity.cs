@@ -34,7 +34,7 @@ namespace Inforoom.WindowsService.Security
 		GENERIC_ALL = 0x10000000,
 
 		GENERIC_ACCESS = GENERIC_READ | GENERIC_WRITE |
-						 GENERIC_EXECUTE | GENERIC_ALL,
+			GENERIC_EXECUTE | GENERIC_ALL,
 
 		DESKTOP_READOBJECTS = 0x00000001,
 		DESKTOP_CREATEWINDOW = 0x00000002,
@@ -47,9 +47,9 @@ namespace Inforoom.WindowsService.Security
 		DESKTOP_SWITCHDESKTOP = 0x00000100,
 
 		DESKTOP_ALL = DESKTOP_READOBJECTS | DESKTOP_CREATEWINDOW |
-					  DESKTOP_CREATEMENU | DESKTOP_HOOKCONTROL | DESKTOP_JOURNALRECORD |
-					  DESKTOP_JOURNALPLAYBACK | DESKTOP_ENUMERATE | DESKTOP_WRITEOBJECTS |
-					  DESKTOP_SWITCHDESKTOP | STANDARD_RIGHTS_REQUIRED,
+			DESKTOP_CREATEMENU | DESKTOP_HOOKCONTROL | DESKTOP_JOURNALRECORD |
+				DESKTOP_JOURNALPLAYBACK | DESKTOP_ENUMERATE | DESKTOP_WRITEOBJECTS |
+					DESKTOP_SWITCHDESKTOP | STANDARD_RIGHTS_REQUIRED,
 
 		WINSTA_ENUMDESKTOPS = 0x00000001,
 		WINSTA_READATTRIBUTES = 0x00000002,
@@ -62,10 +62,10 @@ namespace Inforoom.WindowsService.Security
 		WINSTA_READSCREEN = 0x00000200,
 
 		WINSTA_ALL = WINSTA_ENUMDESKTOPS | WINSTA_READATTRIBUTES |
-					 WINSTA_ACCESSCLIPBOARD | WINSTA_CREATEDESKTOP |
-					 WINSTA_WRITEATTRIBUTES | WINSTA_ACCESSGLOBALATOMS |
-					 WINSTA_EXITWINDOWS | WINSTA_ENUMERATE | WINSTA_READSCREEN |
-					 STANDARD_RIGHTS_REQUIRED,
+			WINSTA_ACCESSCLIPBOARD | WINSTA_CREATEDESKTOP |
+				WINSTA_WRITEATTRIBUTES | WINSTA_ACCESSGLOBALATOMS |
+					WINSTA_EXITWINDOWS | WINSTA_ENUMERATE | WINSTA_READSCREEN |
+						STANDARD_RIGHTS_REQUIRED,
 
 		WINSTA_ALL_ACCESS = 0x0000037f
 	}
@@ -89,7 +89,10 @@ namespace Inforoom.WindowsService.Security
 		{
 		}
 
-		public int AccessRights { get { return AccessMask; } }
+		public int AccessRights
+		{
+			get { return AccessMask; }
+		}
 	}
 
 	public sealed class GenericAuditRule : AuditRule
@@ -111,7 +114,10 @@ namespace Inforoom.WindowsService.Security
 		{
 		}
 
-		public int AccessRights { get { return AccessMask; } }
+		public int AccessRights
+		{
+			get { return AccessMask; }
+		}
 	}
 
 	public sealed class GenericSecurity : NativeObjectSecurity
@@ -206,17 +212,14 @@ namespace Inforoom.WindowsService.Security
 		public void Persist(SafeHandle handle)
 		{
 			WriteLock();
-			try
-			{
+			try {
 				var sectionsModified = GetAccessControlSectionsModified();
-				if (sectionsModified != AccessControlSections.None)
-				{
+				if (sectionsModified != AccessControlSections.None) {
 					Persist(handle, sectionsModified);
 					ResetAccessControlSectionsModified();
 				}
 			}
-			finally
-			{
+			finally {
 				WriteUnlock();
 			}
 		}
@@ -224,17 +227,14 @@ namespace Inforoom.WindowsService.Security
 		public void Persist(string name)
 		{
 			WriteLock();
-			try
-			{
+			try {
 				AccessControlSections sectionsModified = GetAccessControlSectionsModified();
-				if (sectionsModified != AccessControlSections.None)
-				{
+				if (sectionsModified != AccessControlSections.None) {
 					Persist(name, sectionsModified);
 					ResetAccessControlSectionsModified();
 				}
 			}
-			finally
-			{
+			finally {
 				WriteUnlock();
 			}
 		}
@@ -242,20 +242,16 @@ namespace Inforoom.WindowsService.Security
 		private AccessControlSections GetAccessControlSectionsModified()
 		{
 			AccessControlSections sectionsModified = AccessControlSections.None;
-			if (AccessRulesModified)
-			{
+			if (AccessRulesModified) {
 				sectionsModified = AccessControlSections.Access;
 			}
-			if (AuditRulesModified)
-			{
+			if (AuditRulesModified) {
 				sectionsModified |= AccessControlSections.Audit;
 			}
-			if (OwnerModified)
-			{
+			if (OwnerModified) {
 				sectionsModified |= AccessControlSections.Owner;
 			}
-			if (GroupModified)
-			{
+			if (GroupModified) {
 				sectionsModified |= AccessControlSections.Group;
 			}
 
@@ -270,8 +266,19 @@ namespace Inforoom.WindowsService.Security
 			GroupModified = false;
 		}
 
-		public override Type AccessRightType { get { return typeof(int); } }
-		public override Type AccessRuleType { get { return typeof(GenericAccessRule); } }
-		public override Type AuditRuleType { get { return typeof(GenericAuditRule); } }
+		public override Type AccessRightType
+		{
+			get { return typeof(int); }
+		}
+
+		public override Type AccessRuleType
+		{
+			get { return typeof(GenericAccessRule); }
+		}
+
+		public override Type AuditRuleType
+		{
+			get { return typeof(GenericAuditRule); }
+		}
 	}
 }

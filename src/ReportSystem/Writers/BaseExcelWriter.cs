@@ -22,13 +22,13 @@ namespace Inforoom.ReportSystem.Writers
 		public void DataTableToExcel(DataTable dtExport, string ExlFileName, ulong reportCode)
 		{
 			var resultTable = dtExport;
-			if(resultTable == null) return;
+			if (resultTable == null) return;
 			bool cut = false;
-			while(resultTable.Columns.Count >= 256) {
+			while (resultTable.Columns.Count >= 256) {
 				resultTable.Columns.RemoveAt(255);
 				cut = true;
 			}
-			if(cut) {
+			if (cut) {
 #if !DEBUG
 				Mailer.MailReportNotify("При формировании отчета произошло урезание количества столбцов из-за превышения допустимого количества в 256", Program.generalReport._payer, Program.generalReport.GeneralReportID, reportCode);
 #endif
@@ -41,22 +41,19 @@ namespace Inforoom.ReportSystem.Writers
 		{
 			//Имя листа генерируем сами, а потом переименовываем, т.к. русские названия листов потом невозможно найти
 			var ExcellCon = new OleDbConnection();
-			try
-			{
+			try {
 				ExcellCon.ConnectionString = @"
 Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + ExlFileName +
-@";Mode=Share Deny None;Extended Properties=""Excel 8.0;HDR=no"";";
+					@";Mode=Share Deny None;Extended Properties=""Excel 8.0;HDR=no"";";
 				string CreateSQL = "create table [" + listName + "] (";
-				for (int i = 0; i < dtExport.Columns.Count; i++)
-				{
+				for (int i = 0; i < dtExport.Columns.Count; i++) {
 					CreateSQL += "[F" + (i + 1).ToString() + "] ";
 					var column = dtExport.Columns[i];
 					column.ExtendedProperties.Add("OriginalName", column.ColumnName);
 					column.ColumnName = "F" + (i + 1).ToString();
 					if (column.DataType == typeof(int))
 						CreateSQL += " int";
-					else if (column.DataType == typeof(decimal))
-					{
+					else if (column.DataType == typeof(decimal)) {
 						if (column.ExtendedProperties.Contains("AsDecimal"))
 							CreateSQL += " decimal";
 						else
@@ -82,8 +79,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 				cdExcel.QuoteSuffix = "]";
 				daExcel.Update(dtExport);
 			}
-			finally
-			{
+			finally {
 				ExcellCon.Close();
 			}
 		}
@@ -94,32 +90,25 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 			_ws.Name = _caption.Substring(0, (_caption.Length < MaxListName) ? _caption.Length : MaxListName);
 
-			if (CountDownRows > 0)
-			{
-				for (int j = 1; j < 4; j++)
-				{
-					for (int i = 0; i < CountDownRows - 3; i++)
-					{
+			if (CountDownRows > 0) {
+				for (int j = 1; j < 4; j++) {
+					for (int i = 0; i < CountDownRows - 3; i++) {
 						_ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
 					}
 					_ws.Cells[CountDownRows - 2, j] = "";
 					_ws.get_Range("A" + j.ToString(), "B" + j.ToString()).Merge();
 				}
 			}
-			if (CountDownRows == 0)
-			{
+			if (CountDownRows == 0) {
 				CountDownRows = 2;
 			}
-			for (int i = 4; i < 20;i++ )
-			{
+			for (int i = 4; i < 20; i++) {
 				_ws.Cells[1, i] = "";
 			}
-			for (int i = 0; i < _result.Columns.Count; i++)
-			{
+			for (int i = 0; i < _result.Columns.Count; i++) {
 				_ws.Cells[CountDownRows - 1, i + 1] = "";
 				_ws.Cells[CountDownRows - 1, i + 1] = _result.Columns[i].Caption;
-				if (CountDownRows != 2)
-				{
+				if (CountDownRows != 2) {
 					_ws.Cells[1, 4] = "";
 				}
 				if (_result.Columns[i].ExtendedProperties.ContainsKey("Width"))
@@ -132,7 +121,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 
 
 			//рисуем границы на всю таблицу
-			_ws.get_Range(_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = XlBorderWeight.xlThin;
+			_ws.get_Range(_ws.Cells[CountDownRows - 1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]).Borders.Weight = XlBorderWeight.xlThin;
 
 			//Устанавливаем шрифт листа
 			_ws.Rows.Font.Size = 8;
@@ -140,7 +129,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			_ws.Activate();
 
 			//Устанавливаем АвтоФильтр на все колонки
-			_ws.Range[_ws.Cells[CountDownRows-1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
+			_ws.Range[_ws.Cells[CountDownRows - 1, 1], _ws.Cells[_result.Rows.Count + 1, _result.Columns.Count]].Select();
 			((Range)_ws.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 			Thread.CurrentThread.CurrentCulture = oldCI;

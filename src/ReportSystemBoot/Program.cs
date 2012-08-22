@@ -10,14 +10,14 @@ using log4net.Config;
 
 namespace ReportSystemBoot
 {
-	class Program
+	internal class Program
 	{
-		static void DeployFiles(ILog logger)
+		private static void DeployFiles(ILog logger)
 		{
 			try {
 				var releasePath = Settings.Default.ReleasePath;
 				var toPath = ".";
-				if(!Directory.Exists(releasePath)) Directory.CreateDirectory(releasePath);
+				if (!Directory.Exists(releasePath)) Directory.CreateDirectory(releasePath);
 				var files = Directory.GetFiles(releasePath).ToList();
 				var releaseFiles = files.Where(f => !f.Contains("ReportSystemBoot") && !f.Contains("log4net") && !f.Contains("ProcessPrivileges")).ToList();
 				if (releaseFiles.Count == 0) return;
@@ -30,15 +30,14 @@ namespace ReportSystemBoot
 				}
 				logger.Info("Файлы обновлены");
 			}
-			catch(Exception e) {
+			catch (Exception e) {
 				logger.Info("Не удалось обновить файлы: ", e);
 				return;
 			}
 		}
 
-		static void Main(string[] args)
+		private static void Main(string[] args)
 		{
-			
 			XmlConfigurator.Configure();
 			var logger = LogManager.GetLogger(typeof(Program));
 
@@ -50,17 +49,15 @@ namespace ReportSystemBoot
 			if (args.Length >= 1)
 				bootAppName += arg;
 			logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
-			try
-			{	
+			try {
 #if !DEBUG			
-				ProcessStarter.StartProcessInteractivly(bootAppName,"runer", "zcxvcb", "analit");
+				ProcessStarter.StartProcessInteractivly(bootAppName, "runer", "zcxvcb", "analit");
 #else
 				ProcessStarter.StartProcessInteractivly(bootAppName, "tyutin", "*****", "analit");
 #endif
 				logger.InfoFormat("Отчет {0} отработал успешно", bootAppName);
 			}
-			catch (Exception exception)
-			{
+			catch (Exception exception) {
 				logger.Error("Ошибка при запуске отчета : " + bootAppName, exception);
 			}
 		}

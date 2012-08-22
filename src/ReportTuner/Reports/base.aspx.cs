@@ -11,8 +11,7 @@ using System.Web.UI.HtmlControls;
 
 public partial class Reports_base : System.Web.UI.Page
 {
-    protected void Page_Load(object sender, EventArgs e)
-    {
-
-    }
+	protected void Page_Load(object sender, EventArgs e)
+	{
+	}
 }

@@ -4,7 +4,7 @@ namespace Inforoom.ReportSystem.ReportSettings
 {
 	public class OptimizationEfficiencySettings : BaseReportSettings
 	{
-		public OptimizationEfficiencySettings(ulong reportCode, string reportCaption, DateTime beginDate, DateTime endDate, 
+		public OptimizationEfficiencySettings(ulong reportCode, string reportCaption, DateTime beginDate, DateTime endDate,
 			int clientId, int optimizedCount)
 			: base(reportCode, reportCaption)
 		{

@@ -9,8 +9,8 @@ namespace Inforoom.ReportSystem
 {
 	public class CombToPlainReport : ProviderReport
 	{
-		string _sharePath;
-		string _filename;
+		private string _sharePath;
+		private string _filename;
 
 		public CombToPlainReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
@@ -119,9 +119,8 @@ and catalog.id = products.catalogid
 and catalognames.id = catalog.nameid
 and catalogforms.id = catalog.formid
 ",
-						_filename,
-						(char)9
-						);
+				_filename,
+				(char)9);
 #if DEBUG
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 #endif
@@ -132,29 +131,23 @@ and catalogforms.id = catalog.formid
 		{
 			int CopyErrorCount = 0;
 			bool CopySucces = false;
-			do
-			{
-				try
-				{
+			do {
+				try {
 					File.Copy(_sharePath + _filename, FileName, true);
 #if !DEBUG
 					File.Delete(_sharePath + _filename);
 #endif
 					CopySucces = true;
 				}
-				catch (Exception e)
-				{
-					if (CopyErrorCount < 10)
-					{
+				catch (Exception e) {
+					if (CopyErrorCount < 10) {
 						CopyErrorCount++;
 						System.Threading.Thread.Sleep(1000);
 					}
 					else
 						throw new ReportException(String.Format("Не удалось переместить файл {0} в файл {1}.", _sharePath + _filename, FileName), e);
 				}
-			}
-			while (!CopySucces);
+			} while (!CopySucces);
 		}
-
 	}
 }

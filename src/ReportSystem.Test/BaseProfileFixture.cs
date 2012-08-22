@@ -36,7 +36,6 @@ namespace ReportSystem.Test
 			var values = properties.Tables.Add("ReportPropertyValues");
 			values.Columns.Add("ReportPropertyID");
 			values.Columns.Add("Value");
-
 		}
 
 		[TearDown]
@@ -57,22 +56,18 @@ namespace ReportSystem.Test
 				type = "INT";
 			else if (value is bool)
 				type = "BOOL";
-			else if (value is DateTime)
-			{
+			else if (value is DateTime) {
 				type = "DATETIME";
 				row["PropertyValue"] = ((DateTime)value).ToString(MySqlConsts.MySQLDateFormat);
 			}
-			if (value is string)
-			{
+			if (value is string) {
 				type = "STRING";
 			}
-			else if (value is IEnumerable)
-			{
+			else if (value is IEnumerable) {
 				row["PropertyValue"] = null;
 				type = "LIST";
 				var table = properties.Tables["ReportPropertyValues"];
-				foreach (var item in (IEnumerable)value)
-				{
+				foreach (var item in (IEnumerable)value) {
 					var valueRow = table.NewRow();
 					valueRow["ReportPropertyID"] = i;
 					valueRow["Value"] = item;
@@ -110,20 +105,17 @@ namespace ReportSystem.Test
 				row["PropertyType"] = "INT";
 			else if (value is bool)
 				row["PropertyType"] = "BOOL";
-			else if (value is IEnumerable)
-			{
+			else if (value is IEnumerable) {
 				row["PropertyValue"] = null;
 				row["PropertyType"] = "LIST";
 				var table = properties.Tables["ReportPropertyValues"];
-				if (table == null)
-				{
+				if (table == null) {
 					var values = properties.Tables.Add("ReportPropertyValues");
 					values.Columns.Add("ReportPropertyID");
 					values.Columns.Add("Value");
 					table = values;
 				}
-				foreach (var item in (IEnumerable)value)
-				{
+				foreach (var item in (IEnumerable)value) {
 					var valueRow = table.NewRow();
 					valueRow["ReportPropertyID"] = i;
 					valueRow["Value"] = item;

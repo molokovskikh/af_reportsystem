@@ -49,30 +49,27 @@ namespace Report.Data.Builder.Test
 		public void Calculate_cost()
 		{
 			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
-				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(1, 1, 0.1m),
 					},
 					new List<Offer> {
 						new Offer(new OfferId(1, 1), 1, 1000)
-					}
-				),
-				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+					}),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(2, 1, 0.2m),
 					},
 					new List<Offer> {
 						new Offer(new OfferId(1, 1), 1, 900)
-					}
-				),
-				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+					}),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.7m)
 					},
 					new List<Offer> {
 						new Offer(new OfferId(1, 1), 1, 800)
-					}
-				)
+					})
 			};
 
 			var averageCosts = calculator.Calculate(list);
@@ -88,22 +85,20 @@ namespace Report.Data.Builder.Test
 			calculator.CostThreshold = 90000;
 			var offerId = new OfferId(1, 1);
 			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
-				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(2, 1, 0.5m),
 					},
 					new List<Offer> {
 						new Offer(offerId, 1, 100000)
-					}
-				),
-				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+					}),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.7m)
 					},
 					new List<Offer> {
 						new Offer(offerId, 1, 800)
-					}
-				)
+					})
 			};
 
 			var averageCosts = calculator.Calculate(list);
@@ -118,28 +113,26 @@ namespace Report.Data.Builder.Test
 		{
 			var offerId = new OfferId(1, 1);
 			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
-				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(2, 1, 0.5m),
 					},
 					new List<Offer> {
 						new Offer(offerId, 1, 100000, 10)
-					}
-				),
-				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>> (
+					}),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.7m)
 					},
 					new List<Offer> {
 						new Offer(offerId, 1, 800, 10)
-					}
-				)
+					})
 			};
 			var averageCosts = calculator.Calculate(list);
 			Assert.That(averageCosts.Count, Is.EqualTo(1));
 			var costs = (Hashtable)averageCosts[offerId];
 			Assert.That(costs.Count, Is.EqualTo(1));
-			var aggregates = ((OfferAggregates) costs[1u]);
+			var aggregates = ((OfferAggregates)costs[1u]);
 			Assert.That(aggregates.Quantity, Is.EqualTo(20));
 			Assert.That(aggregates.Count, Is.EqualTo(2));
 		}

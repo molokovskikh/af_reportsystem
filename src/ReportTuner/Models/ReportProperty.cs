@@ -14,7 +14,8 @@ namespace ReportTuner.Models
 	public class ReportProperty : ActiveRecordLinqBase<ReportProperty>
 	{
 		public ReportProperty()
-		{}
+		{
+		}
 
 		public ReportProperty(Report report, ReportTypeProperty property)
 		{
@@ -82,7 +83,7 @@ namespace ReportTuner.Models
 			return (Report.ReportType.ReportTypeFilePrefix == "Rating"
 				|| Report.ReportType.ReportTypeFilePrefix == "Mixed"
 				|| Report.ReportType.ReportTypeFilePrefix == "PharmacyMixed")
-				&&  (PropertyType.PropertyName.Match("AddressesEqual")
+				&& (PropertyType.PropertyName.Match("AddressesEqual")
 					|| PropertyType.PropertyName.Match("AddressesNonEqual")
 					|| PropertyType.PropertyName.Match("AddressRivals"));
 		}

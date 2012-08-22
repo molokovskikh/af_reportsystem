@@ -15,7 +15,9 @@ namespace Inforoom.ReportSystem.Writers
 		public Dictionary<string, GetterNames> AssiciateReportParams;
 		public Dictionary<string, object> ReportParams;
 		public List<string> ParamNOVisualisation;
+
 		public delegate List<string> GetterNames(List<ulong> items, ExecuteArgs e);
+
 		public ExecuteArgs e;
 		public string _reportCaption;
 
@@ -28,19 +30,19 @@ namespace Inforoom.ReportSystem.Writers
 			};
 
 			AssiciateReportParams = new Dictionary<string, GetterNames> {
-				{"PayerEqual", ReadParameterHelper.GetPayerNames},
-				{"FirmCodeEqual", ReadParameterHelper.GetSupplierNames},
-				{"PriceCode", ReadParameterHelper.GetPriceName},
-				{"FirmCrEqual", ReadParameterHelper.GetCrNames},
-				{"FirmCrNonEqual", ReadParameterHelper.GetCrNames},
-				{"IgnoredSuppliers", ReadParameterHelper.GetSupplierNames},
-				{"RegionEqual", ReadParameterHelper.GetRegionNames},
-				{"RegionNonEqual", ReadParameterHelper.GetRegionNames},
-				{"PriceCodeValues", ReadParameterHelper.GetPriceNames},
-				{"PriceCodeNonValues", ReadParameterHelper.GetPriceNames},
-				{"ClientsNON", ReadParameterHelper.GetClientNames},
-				{"Clients", ReadParameterHelper.GetClientNames},
-				{"PayerNonEqual", ReadParameterHelper.GetPayerNames},
+				{ "PayerEqual", ReadParameterHelper.GetPayerNames },
+				{ "FirmCodeEqual", ReadParameterHelper.GetSupplierNames },
+				{ "PriceCode", ReadParameterHelper.GetPriceName },
+				{ "FirmCrEqual", ReadParameterHelper.GetCrNames },
+				{ "FirmCrNonEqual", ReadParameterHelper.GetCrNames },
+				{ "IgnoredSuppliers", ReadParameterHelper.GetSupplierNames },
+				{ "RegionEqual", ReadParameterHelper.GetRegionNames },
+				{ "RegionNonEqual", ReadParameterHelper.GetRegionNames },
+				{ "PriceCodeValues", ReadParameterHelper.GetPriceNames },
+				{ "PriceCodeNonValues", ReadParameterHelper.GetPriceNames },
+				{ "ClientsNON", ReadParameterHelper.GetClientNames },
+				{ "Clients", ReadParameterHelper.GetClientNames },
+				{ "PayerNonEqual", ReadParameterHelper.GetPayerNames },
 			};
 			ReportParams = reportParams;
 			_reportCaption = reportCaprion;
@@ -50,10 +52,10 @@ namespace Inforoom.ReportSystem.Writers
 		private string GetDescription(ExecuteArgs e, string PropertyName)
 		{
 			e.DataAdapter.SelectCommand.CommandText = "SELECT r.DisplayName FROM reports.report_type_properties r" +
-														" WHERE r.PropertyName = \"" + PropertyName + "\"";
+				" WHERE r.PropertyName = \"" + PropertyName + "\"";
 			var dataReader = e.DataAdapter.SelectCommand.ExecuteReader();
 			dataReader.Read();
-			
+
 			var result = dataReader["DisplayName"].ToString();
 			dataReader.Close();
 			return result;
@@ -67,14 +69,11 @@ namespace Inforoom.ReportSystem.Writers
 			_result.Rows.InsertAt(ppz, 0);
 
 			var reportParameters = new List<object>();
-			foreach (var reportParam in ReportParams)
-			{
+			foreach (var reportParam in ReportParams) {
 				var typeReportParam = reportParam.Value.GetType();
-				if (typeReportParam.IsGenericType)
-				{
-					if (!ParamNOVisualisation.Contains(reportParam.Key))
-					{
-						var itemList = (List<ulong>) reportParam.Value;
+				if (typeReportParam.IsGenericType) {
+					if (!ParamNOVisualisation.Contains(reportParam.Key)) {
+						var itemList = (List<ulong>)reportParam.Value;
 
 						var namesList = (AssiciateReportParams[reportParam.Key](itemList, e));
 						namesList.Sort();
@@ -84,28 +83,22 @@ namespace Inforoom.ReportSystem.Writers
 						reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + itemString);
 					}
 				}
-				if (typeReportParam == typeof(bool))
-				{
-					if (!ParamNOVisualisation.Contains(reportParam.Key))
-					{
-						var YesNo = (bool) reportParam.Value ? ": Да" : ": Нет";
+				if (typeReportParam == typeof(bool)) {
+					if (!ParamNOVisualisation.Contains(reportParam.Key)) {
+						var YesNo = (bool)reportParam.Value ? ": Да" : ": Нет";
 						reportParameters.Add(GetDescription(e, reportParam.Key) + YesNo);
 					}
 				}
-				if (typeReportParam == typeof(Int32))
-				{
-					if (!ParamNOVisualisation.Contains(reportParam.Key))
-					{
+				if (typeReportParam == typeof(Int32)) {
+					if (!ParamNOVisualisation.Contains(reportParam.Key)) {
 						var value = Convert.ToUInt32(reportParam.Value);
-						if (AssiciateReportParams.ContainsKey(reportParam.Key))
-						{
-							var tempList = new List<ulong> {value};
+						if (AssiciateReportParams.ContainsKey(reportParam.Key)) {
+							var tempList = new List<ulong> { value };
 							var namesList = (AssiciateReportParams[reportParam.Key](tempList, e));
-							if(namesList.Count > 0)
+							if (namesList.Count > 0)
 								reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + namesList[0]);
 						}
-						else
-						{
+						else {
 							reportParameters.Add(GetDescription(e, reportParam.Key) + ": " + value);
 						}
 					}
@@ -113,8 +106,7 @@ namespace Inforoom.ReportSystem.Writers
 			}
 			var countDownRows = reportParameters.Count + 5;
 			var position = 1;
-			foreach (var reportParameter in reportParameters)
-			{
+			foreach (var reportParameter in reportParameters) {
 				ppz = _result.NewRow();
 				ppz[0] = reportParameter;
 				_result.Rows.InsertAt(ppz, position);
@@ -127,38 +119,30 @@ namespace Inforoom.ReportSystem.Writers
 
 			DataTableToExcel(_result, fileName, settings.ReportCode);
 
-			UseExcel.Workbook(fileName, b =>
-			{
+			UseExcel.Workbook(fileName, b => {
 				var _ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
 				_ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 				_ws.Activate();
 
-				if (countDownRows > 0)
-				{
-					for (int j = 1; j < countDownRows - 1; j++)
-					{
-						for (int i = 0; i < countDownRows - 3; i++)
-						{
+				if (countDownRows > 0) {
+					for (int j = 1; j < countDownRows - 1; j++) {
+						for (int i = 0; i < countDownRows - 3; i++) {
 							_ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
 						}
 						_ws.Cells[countDownRows - 2, j] = "";
 						_ws.get_Range("A" + j.ToString(), "Z" + j.ToString()).Merge();
 					}
 				}
-				if (countDownRows == 0)
-				{
+				if (countDownRows == 0) {
 					countDownRows = 2;
 				}
-				for (int i = 4; i < 20; i++)
-				{
+				for (int i = 4; i < 20; i++) {
 					_ws.Cells[1, i] = "";
 				}
-				for (int i = 0; i < _result.Columns.Count; i++)
-				{
+				for (int i = 0; i < _result.Columns.Count; i++) {
 					_ws.Cells[countDownRows - 1, i + 1] = "";
 					_ws.Cells[countDownRows - 1, i + 1] = _result.Columns[i].Caption;
-					if (countDownRows != 2)
-					{
+					if (countDownRows != 2) {
 						_ws.Cells[1, 4] = "";
 					}
 
@@ -190,13 +174,13 @@ namespace Inforoom.ReportSystem.Writers
 	public class SupplierExcelWriter : BaseExcelWriter
 	{
 		public override void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
-		 {
+		{
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			UseExcel.Workbook(fileName, b => {
-				var ws = (MSExcel._Worksheet) b.Worksheets["rep" + settings.ReportCode.ToString()];
+				var ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
 				FormatExcelFile(ws, reportData.Tables["Results"], settings.ReportCaption, 6);
 			});
 			ProfileHelper.End();
-		 }
+		}
 	}
 }

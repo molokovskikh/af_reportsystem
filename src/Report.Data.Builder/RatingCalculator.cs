@@ -14,7 +14,8 @@ namespace Report.Data.Builder
 		private string _ordersSchema = "OrdersOld";
 
 		public RatingCalculator()
-		{}
+		{
+		}
 
 		public RatingCalculator(DateTime begin, DateTime end)
 		{
@@ -32,13 +33,13 @@ namespace Report.Data.Builder
 		}
 
 		public IEnumerable<ClientRating> Calculate(
-			IEnumerable<Tuple<decimal, ulong>> regional, 
+			IEnumerable<Tuple<decimal, ulong>> regional,
 			IEnumerable<ClientRating> clients)
 		{
 			return clients.Join(regional,
 				c => c.RegionId,
 				r => r.Item2,
-				(c, r) => new ClientRating(c.ClientId, c.RegionId, c.Value/r.Item1));
+				(c, r) => new ClientRating(c.ClientId, c.RegionId, c.Value / r.Item1));
 		}
 
 		private IEnumerable<Tuple<decimal, ulong>> CalculateRegionalTotals()
@@ -89,8 +90,7 @@ group by oh.ClientCode, oh.RegionCode
 				command.Parameters.Add("RegionId", MySqlDbType.UInt64);
 				command.Parameters.Add("Rating", MySqlDbType.Decimal);
 				command.Prepare();
-				foreach (var rating in ratings)
-				{
+				foreach (var rating in ratings) {
 					command.Parameters["Date"].Value = date;
 					command.Parameters["ClientId"].Value = rating.ClientId;
 					command.Parameters["RegionId"].Value = rating.RegionId;
@@ -104,7 +104,7 @@ group by oh.ClientCode, oh.RegionCode
 		{
 			var ratings = Db.Read("select ClientId, RegionId, Rating from Reports.ClientRatings where date = ?date",
 				r => new ClientRating(r.GetUInt32("ClientId"), r.GetUInt64("RegionId"), r.GetDecimal("Rating")),
-				new {date})
+				new { date })
 				.ToArray();
 
 			if (ratings.Length > 0)

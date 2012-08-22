@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	class PricesOfCompetitorsReportFixture : BaseProfileFixture
+	internal class PricesOfCompetitorsReportFixture : BaseProfileFixture
 	{
 		[Test, Ignore]
 		public void PricesOfCompetitorsReport()

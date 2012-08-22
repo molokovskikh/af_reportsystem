@@ -9,7 +9,6 @@ using Common.Web.Ui.Models;
 
 namespace ReportTuner.Models
 {
-
 	[ActiveRecord("Clients", Schema = "Customers")]
 	public class Client : ActiveRecordBase<Client>
 	{
@@ -31,12 +30,12 @@ namespace ReportTuner.Models
 		[BelongsTo("ContactGroupOwnerId")]
 		public virtual ContactGroupOwner ContactGroupOwner { get; set; }
 
-		[HasAndBelongsToMany (typeof(Payer),  Schema = "Billing", Table = "PayerClients", ColumnKey = "ClientID", ColumnRef = "PayerID")]
+		[HasAndBelongsToMany(typeof(Payer), Schema = "Billing", Table = "PayerClients", ColumnKey = "ClientID", ColumnRef = "PayerID")]
 		public virtual IList<Payer> Payers { get; set; }
 
 		[HasMany(ColumnKey = "ClientId", Inverse = true, Lazy = true, Cascade = ManyRelationCascadeEnum.All)]
 		public virtual IList<FutureUser> Users { get; set; }
-		
+
 		[HasMany(ColumnKey = "ClientId", Lazy = true, Inverse = true, OrderBy = "Address", Cascade = ManyRelationCascadeEnum.All)]
 		public virtual IList<Address> Addresses { get; set; }
 
@@ -57,7 +56,7 @@ namespace ReportTuner.Models
 		string ShortNameAndId { get; }
 	}
 
-	[ActiveRecord("Users", Schema = "Customers")]	
+	[ActiveRecord("Users", Schema = "Customers")]
 	public class FutureUser : ActiveRecordLinqBase<FutureUser>, IUser
 	{
 		[PrimaryKey]

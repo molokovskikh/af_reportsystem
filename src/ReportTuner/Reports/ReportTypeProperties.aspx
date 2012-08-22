@@ -9,13 +9,13 @@
                     <asp:BoundField DataField="PRTCode" Visible="False" />
                     <asp:TemplateField HeaderText="Наименование">
                         <ItemTemplate>
-                            <asp:Label ID="lblName" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PName")%>'></asp:Label><asp:TextBox ID="tbName" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PName")%>'></asp:TextBox><asp:RequiredFieldValidator ID="rtbName" runat="server" ControlToValidate="tbName"
+                            <asp:Label ID="lblName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PName") %>'></asp:Label><asp:TextBox ID="tbName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PName") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rtbName" runat="server" ControlToValidate="tbName"
                                 ErrorMessage='Поле "Наименование" должно быть заполнено' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
                     <asp:TemplateField HeaderText="Отображаемое наименование">
                         <ItemTemplate>
-                            <asp:Label ID="lblDisplayName" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PDisplayName")%>'></asp:Label><asp:TextBox ID="tbDisplayName" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PDisplayName")%>'></asp:TextBox><asp:RequiredFieldValidator ID="rtbDisplayName" runat="server" ControlToValidate="tbDisplayName"
+                            <asp:Label ID="lblDisplayName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PDisplayName") %>'></asp:Label><asp:TextBox ID="tbDisplayName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PDisplayName") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rtbDisplayName" runat="server" ControlToValidate="tbDisplayName"
                                 ErrorMessage='Поле "Отображаемое наименование" должно быть заполнено' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
@@ -29,19 +29,19 @@
                     </asp:TemplateField>
                     <asp:TemplateField HeaderText="Значение по умолчанию">
                         <ItemTemplate>
-                            <asp:TextBox ID="tbDefault" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PDefaultValue")%>'></asp:TextBox><asp:RequiredFieldValidator
+                            <asp:TextBox ID="tbDefault" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PDefaultValue") %>'></asp:TextBox><asp:RequiredFieldValidator
                                 ID="rfvDefault" runat="server" ControlToValidate="tbDefault" ErrorMessage='Поле "Значение по умолчанию" должно быть заполнено' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
                     <asp:BoundField DataField="PEnumID" Visible="False" />
                     <asp:TemplateField HeaderText="Опциональный">
                         <ItemTemplate>
-                            <asp:Label ID="lblOptional" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.POptional")%>'></asp:Label><asp:CheckBox ID="chbOptional" runat="server" Checked=<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.POptional"))%> />
+                            <asp:Label ID="lblOptional" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.POptional") %>'></asp:Label><asp:CheckBox ID="chbOptional" runat="server" Checked=<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.POptional")) %> />
                         </ItemTemplate>
                     </asp:TemplateField>
                     <asp:TemplateField HeaderText="Хранимая процедура">
                         <ItemTemplate>
-                            <asp:TextBox ID="tbProc" runat="server" Text='<%#DataBinder.Eval(Container, "DataItem.PStoredProc")%>'></asp:TextBox><asp:CustomValidator
+                            <asp:TextBox ID="tbProc" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PStoredProc") %>'></asp:TextBox><asp:CustomValidator
                                 ID="cvProc" runat="server" ControlToValidate="tbProc" ErrorMessage="Процедуры с указанным именем не существует"
                                 OnServerValidate="cvProc_ServerValidate">*</asp:CustomValidator>
                         </ItemTemplate>

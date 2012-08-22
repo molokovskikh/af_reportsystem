@@ -16,19 +16,19 @@ namespace Report.Data.Builder.Test.ActiveRecord
 		{
 			var config = new InPlaceConfigurationSource();
 			config.PluralizeTableNames = true;
-			config.Add(typeof (ActiveRecordBase),
+			config.Add(typeof(ActiveRecordBase),
 				new Dictionary<string, string> {
-					{Environment.Dialect, "NHibernate.Dialect.MySQLDialect"},
-					{Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver"},
-					{Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider"},
-					{Environment.ConnectionStringName, ConnectionHelper.GetConnectionName()},
-					{Environment.Isolation, "ReadCommitted"},
-					{Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle"},
-					{Environment.Hbm2ddlKeyWords, "none"},
-					{Environment.FormatSql, "true"},
-					{Environment.UseSqlComments, "true"}
+					{ Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },
+					{ Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
+					{ Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
+					{ Environment.ConnectionStringName, ConnectionHelper.GetConnectionName() },
+					{ Environment.Isolation, "ReadCommitted" },
+					{ Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle" },
+					{ Environment.Hbm2ddlKeyWords, "none" },
+					{ Environment.FormatSql, "true" },
+					{ Environment.UseSqlComments, "true" }
 				});
-			ActiveRecordStarter.Initialize(new[] {typeof (Job).Assembly}, config);
+			ActiveRecordStarter.Initialize(new[] { typeof(Job).Assembly }, config);
 		}
 	}
 }

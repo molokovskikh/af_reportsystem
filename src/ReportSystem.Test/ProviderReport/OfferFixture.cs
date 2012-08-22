@@ -7,7 +7,6 @@ using ReportSystem.Test.Helpers;
 
 namespace ReportSystem.Test.ProviderReport
 {
-
 	[TestFixture]
 	public class OfferFixture
 	{
@@ -22,7 +21,7 @@ namespace ReportSystem.Test.ProviderReport
 			_random = new Random();
 
 			_dataTable = new DataTable();
-			_dataTable.Columns.Add("CatalogId", typeof (uint));
+			_dataTable.Columns.Add("CatalogId", typeof(uint));
 			_dataTable.Columns.Add("ProductId", typeof(uint));
 			_dataTable.Columns.Add("ProducerId", typeof(uint));
 			_dataTable.Columns.Add("ProductName", typeof(string));
@@ -38,7 +37,7 @@ namespace ReportSystem.Test.ProviderReport
 
 			_dataTable.Columns.Add("AssortmentCoreId", typeof(ulong));
 			_dataTable.Columns.Add("AssortmentCode", typeof(string));
-			_dataTable.Columns.Add("AssortmentCodeCr", typeof (string));
+			_dataTable.Columns.Add("AssortmentCodeCr", typeof(string));
 			_dataTable.Columns.Add("AssortmentSupplierId", typeof(uint));
 			_dataTable.Columns.Add("AssortmentPriceId", typeof(uint));
 			_dataTable.Columns.Add("AssortmentRegionId", typeof(ulong));
@@ -82,17 +81,17 @@ namespace ReportSystem.Test.ProviderReport
 			Assert.That(
 				() => new Offer(null, null, null),
 				Throws.InstanceOf<ArgumentNullException>()
-				.And.Property("ParamName").EqualTo("row"));
+					.And.Property("ParamName").EqualTo("row"));
 		}
 
 		[Test]
 		public void ArgumentNullExceptionOnRandom()
 		{
 			Assert.That(
-				() => new Offer(new DataRowAdapter(_dataTable.NewRow()), 1, null), 
+				() => new Offer(new DataRowAdapter(_dataTable.NewRow()), 1, null),
 				Throws.InstanceOf<ArgumentNullException>()
-				.And.Property("ParamName").EqualTo("random")
-				.And.Message.StartsWith("При установленном параметре noiseSupplierId не установлен параметр random: генератор случайных чисел"));
+					.And.Property("ParamName").EqualTo("random")
+					.And.Message.StartsWith("При установленном параметре noiseSupplierId не установлен параметр random: генератор случайных чисел"));
 		}
 
 		public void CheckRequiredFields(DataRow row, Offer offer)
@@ -140,7 +139,6 @@ namespace ReportSystem.Test.ProviderReport
 		[Test]
 		public void LoadWithoutAssortment()
 		{
-
 			_row["AssortmentCoreId"] = DBNull.Value;
 
 			var offer = new Offer(_rowAdapter, null, null);
@@ -160,7 +158,6 @@ namespace ReportSystem.Test.ProviderReport
 		[Test]
 		public void LoadWithoutAssortmentCost()
 		{
-
 			_row["AssortmentCost"] = DBNull.Value;
 
 			var offer = new Offer(_rowAdapter, null, null);
@@ -204,6 +201,5 @@ namespace ReportSystem.Test.ProviderReport
 
 			Assert.That(offer.AssortmentCost, Is.EqualTo(offer.AssortmentRealCost));
 		}
-
 	}
 }

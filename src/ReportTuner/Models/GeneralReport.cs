@@ -31,7 +31,7 @@ namespace ReportTuner.Models
 		/// </summary>
 		[Property]
 		public virtual uint? FirmCode { get; set; }
-		
+
 		[Property]
 		public virtual bool Allow { get; set; }
 
@@ -63,7 +63,7 @@ namespace ReportTuner.Models
 		public virtual string Format { get; set; }
 
 		[HasMany]
-		public virtual IList<Report> Reports {get; set; }
+		public virtual IList<Report> Reports { get; set; }
 
 		[HasMany(Cascade = ManyRelationCascadeEnum.All)]
 		public virtual IList<FileSendWithReport> Files { get; set; }

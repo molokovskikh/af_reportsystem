@@ -58,9 +58,9 @@ namespace ReportSystem.Test
 		{
 			Property("ByPreviousMonth", false);
 			Property("SourceFirmCode", 3110);
-			Property("BusinessRivals", new List<ulong> {465, 10415});
-			Property("AddressRivals", new List<ulong> {465, 11279});
-			Property("ClientCodeEqual", new List<ulong> {3110, 465, 11279});
+			Property("BusinessRivals", new List<ulong> { 465, 10415 });
+			Property("AddressRivals", new List<ulong> { 465, 11279 });
+			Property("ClientCodeEqual", new List<ulong> { 3110, 465, 11279 });
 			Property("ProductNamePosition", 0);
 			var file = "Filter_concurent_by_address.xls";
 			report = new PharmacyMixedReport(1, file, Conn, ReportFormats.Excel, properties);

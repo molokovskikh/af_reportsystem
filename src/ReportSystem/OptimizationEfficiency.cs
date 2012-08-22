@@ -19,19 +19,19 @@ namespace Inforoom.ReportSystem
 		private int _supplierId = 5;
 		private int _reportInterval;
 		private bool _byPreviousMonth;
-		private int _optimizedCount;	
+		private int _optimizedCount;
 
 		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
-		{ 
+		{
 		}
 
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
 			var command = e.DataAdapter.SelectCommand;
-			
+
 			command.CommandText =
-@"drop temporary table IF EXISTS CostOptimization;
+				@"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
 select oh.writetime,
 	if(u.id is null, cl.Name, fc.Name) as ClientName,
@@ -42,13 +42,13 @@ select oh.writetime,
 	CASE WHEN col.ResultCost < col.SelfCost THEN col.ResultCost*ol.Quantity ELSE null END IncreaseSales
 from " +
 #if DEBUG
-  @"orders.ordershead oh
+					@"orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid " +
 #else
   @"ordersold.ordershead oh
   join ordersold.orderslist ol on ol.orderid = oh.rowid " +
 #endif
- @"
+						@"
 	join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 	join logs.CostOptimizationLogs col on 
 		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and 
@@ -71,8 +71,7 @@ order by oh.writetime, ol.RowId;";
 #endif
 
 			_endDate = DateTime.Today;
-			if (_byPreviousMonth) // Определяем интервал построения отчета
-			{
+			if (_byPreviousMonth) { // Определяем интервал построения отчета
 				_beginDate = DateTime.Today.AddMonths(-1).FirstDayOfMonth();
 				_endDate = DateTime.Today.AddMonths(-1).LastDayOfMonth();
 			}
@@ -85,7 +84,7 @@ order by oh.writetime, ol.RowId;";
 			command.Parameters.AddWithValue("?supplierId", _supplierId);
 			command.ExecuteNonQuery();
 
-	/*		command.CommandText =  На случай показа позиций заказанных у других поставщиков
+			/*		command.CommandText =  На случай показа позиций заказанных у других поставщиков
 @"select oh.writetime, ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, ol.Cost, col.ResultCost OurFirmCost,
 	ol.Cost * ol.Quantity LostSumm
 from orders.ordershead oh
@@ -105,16 +104,16 @@ order by oh.writetime, ol.RowId;";
 			e.DataAdapter.Fill(_dsReport, "LostOrders");*/
 
 			command.CommandText =
-@"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ
+				@"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ
 from " +
 #if DEBUG
-@"orders.ordershead oh
+					@"orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid " +
 #else
 @"ordersold.ordershead oh
   join ordersold.orderslist ol on ol.orderid = oh.rowid " +
 #endif
- @"join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+						@"join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
@@ -122,35 +121,34 @@ and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDa
 			e.DataAdapter.Fill(_dsReport, "Common");
 
 			command.CommandText =
-@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
+				@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
 where diff > 0;";
 			e.DataAdapter.Fill(_dsReport, "OverPrice");
 
 			command.CommandText =
-@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
+				@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
 where diff < 0;";
 			e.DataAdapter.Fill(_dsReport, "UnderPrice");
 
 			command.CommandText =
-@"select ifnull(round(sum(Quantity * (ResultCost - SelfCost)), 2), 0)
+				@"select ifnull(round(sum(Quantity * (ResultCost - SelfCost)), 2), 0)
 from CostOptimization
 where diff > 0";
 			e.DataAdapter.Fill(_dsReport, "Money");
 
 			command.CommandText =
-@"select ifnull(round(sum(Quantity * ResultCost), 2), 0)
+				@"select ifnull(round(sum(Quantity * ResultCost), 2), 0)
 from CostOptimization
 where diff < 0";
 			e.DataAdapter.Fill(_dsReport, "Volume");
 
 			command.CommandText =
-@"select * from CostOptimization order by WriteTime;";
+				@"select * from CostOptimization order by WriteTime;";
 			e.DataAdapter.Fill(_dsReport, "Temp");
 
-			if(_clientId != 0)
-			{
+			if (_clientId != 0) {
 				command.CommandText =
-				@"select concat(cl.Name, ' (', reg.Region, ')'), 1
+					@"select concat(cl.Name, ' (', reg.Region, ')'), 1
 	from Customers.Clients cl
 		 join farm.Regions reg on reg.RegionCode = cl.RegionCode
    where Id = ?clientId";
@@ -182,8 +180,7 @@ where diff < 0";
 			for (int i = 0; i < 7; i++)
 				dtRes.Rows.Add(dtRes.NewRow());
 
-			foreach (DataRow row in _dsReport.Tables["Temp"].Rows)
-			{
+			foreach (DataRow row in _dsReport.Tables["Temp"].Rows) {
 				var newRow = dtRes.NewRow();
 				newRow["writetime"] = row["writetime"];
 				//если строим отчет для всех клиентов или для новых
@@ -227,15 +224,14 @@ where diff < 0";
 			}*/
 
 			_dsReport.Tables.Add(dtRes);
-
 		}
 
 		public override void ReadReportParams()
 		{
-			if(_reportParams.ContainsKey("ClientCode"))
+			if (_reportParams.ContainsKey("ClientCode"))
 				_clientId = (int)_reportParams["ClientCode"];
 			if (_reportParams.ContainsKey("FirmCode"))
-				_supplierId = (int) _reportParams["FirmCode"];
+				_supplierId = (int)_reportParams["FirmCode"];
 			if (_supplierId == 0)
 				_supplierId = 5; // Если не выбрали поставщика, то считаем что это Протек
 
@@ -245,7 +241,7 @@ where diff < 0";
 
 		protected override IWriter GetWriter(ReportFormats format)
 		{
-			if(format != ReportFormats.Excel)
+			if (format != ReportFormats.Excel)
 				return null;
 			//return new OptimizationEfficiencyNativeExcelWriter();
 			return new OptimizationEfficiencyOleExcelWriter();
@@ -253,7 +249,7 @@ where diff < 0";
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new OptimizationEfficiencySettings(ReportCode, ReportCaption, _beginDate, _endDate, 
+			return new OptimizationEfficiencySettings(ReportCode, ReportCaption, _beginDate, _endDate,
 				_clientId, _optimizedCount);
 		}
 	}

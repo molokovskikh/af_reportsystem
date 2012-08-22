@@ -13,10 +13,7 @@ namespace ReportSystemBoot
 
 		public static Settings Default
 		{
-			get
-			{
-				return defaultInstance;
-			}
+			get { return defaultInstance; }
 		}
 
 		[global::System.Configuration.ApplicationScopedSettingAttribute()]
@@ -24,10 +21,7 @@ namespace ReportSystemBoot
 		[global::System.Configuration.DefaultSettingValueAttribute("ReleasePath")]
 		public string ReleasePath
 		{
-			get
-			{
-				return ((string)(this["ReleasePath"]));
-			}
+			get { return ((string)(this["ReleasePath"])); }
 		}
 	}
 }

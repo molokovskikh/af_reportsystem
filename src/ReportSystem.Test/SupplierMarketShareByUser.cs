@@ -15,9 +15,9 @@ namespace ReportSystem.Test
 			Property("SupplierId", 5);
 			Property("Begin", DateTime.Now.AddDays(-10));
 			Property("End", DateTime.Now);
-			Property("Regions", new List<long> {1,2,4});
+			Property("Regions", new List<long> { 1, 2, 4 });
 			Property("ByPreviousMonth", false);
-			Property("ReportInterval", 12); 
+			Property("ReportInterval", 12);
 		}
 
 		[Test]

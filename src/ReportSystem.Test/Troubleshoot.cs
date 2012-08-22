@@ -11,7 +11,7 @@ namespace ReportSystem.Test
 	[TestFixture, Ignore("Что бы подебажить отчет")]
 	public class Troubleshoot
 	{
-		string connectionString = "Database=usersettings;Data Source=localhost;User Id=root;Password=;pooling=false; default command timeout=0;Allow user variables=true;convert zero datetime=yes;";
+		private string connectionString = "Database=usersettings;Data Source=localhost;User Id=root;Password=;pooling=false; default command timeout=0;Allow user variables=true;convert zero datetime=yes;";
 
 		[SetUp]
 		public void Setup()
@@ -24,8 +24,7 @@ namespace ReportSystem.Test
 		public void shoot_it()
 		{
 			uint reportcode = 1215;
-			using(var connection = new MySqlConnection(connectionString))
-			{
+			using (var connection = new MySqlConnection(connectionString)) {
 				connection.Open();
 				var loader = new ReportPropertiesLoader();
 				var prop = loader.LoadProperties(connection, reportcode);
@@ -50,7 +49,7 @@ namespace ReportSystem.Test
 		public void Troubleshoot_general_report()
 		{
 			uint id = 2850;
-			var dataAdapter = new MySqlDataAdapter("",connectionString);
+			var dataAdapter = new MySqlDataAdapter("", connectionString);
 			dataAdapter.SelectCommand.CommandText = @"
 select
   * 
@@ -60,23 +59,20 @@ from
 where
     r.GeneralReportCode = ?reportcode
 and rt.ReportTypeCode = r.ReportTypeCode";
-				dataAdapter.SelectCommand.Parameters.AddWithValue("?reportcode", id);
-				var res = new DataTable();
-				dataAdapter.Fill(res);
+			dataAdapter.SelectCommand.Parameters.AddWithValue("?reportcode", id);
+			var res = new DataTable();
+			dataAdapter.Fill(res);
 
-			using(var connection = new MySqlConnection(connectionString))
-			{
-				foreach (DataRow drGReport in res.Rows)
-				{
-					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled]))
-					{
+			using (var connection = new MySqlConnection(connectionString)) {
+				foreach (DataRow drGReport in res.Rows) {
+					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled])) {
 						var loader = new ReportPropertiesLoader();
 
 						//Создаем отчеты и добавляем их в список отчетов
-						var reportcode = (ulong) drGReport[BaseReportColumns.colReportCode];
+						var reportcode = (ulong)drGReport[BaseReportColumns.colReportCode];
 						Console.WriteLine("Отчет {0}", reportcode);
 						var prop = loader.LoadProperties(connection, reportcode);
-						var bs = (BaseReport) Activator.CreateInstance(
+						var bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] {
 								reportcode,
@@ -87,7 +83,6 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 						bs.ReadReportParams();
 						bs.ProcessReport();
 						bs.ReportToFile(Path.GetFullPath("test.xls"));
-
 					}
 				}
 			}

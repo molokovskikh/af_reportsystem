@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem
 			ProducerName = offer.ProducerName;
 			MinCost = offer.Cost;
 			AssortmentQuantity = offer.AssortmentQuantity;
-			if(!String.IsNullOrEmpty(offer.CodeWithoutProducer)) {
+			if (!String.IsNullOrEmpty(offer.CodeWithoutProducer)) {
 				CodeWithoutProducer = offer.CodeWithoutProducer;
 			}
 		}
@@ -55,7 +55,6 @@ namespace Inforoom.ReportSystem
 
 		public bool IsLeader()
 		{
-
 			if (AssortmentMinCost.HasValue)
 				return AssortmentMinCost.Value < MinCost || Math.Abs(AssortmentMinCost.Value - MinCost) < 0.001;
 			return false;
@@ -69,8 +68,9 @@ namespace Inforoom.ReportSystem
 
 		protected List<ulong> _Clients;
 
-		protected SpecShortReport()// конструктор для возможности тестирования
-		{}
+		protected SpecShortReport() // конструктор для возможности тестирования
+		{
+		}
 
 		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
@@ -104,8 +104,7 @@ from
 	join Customers.suppliers supps on supps.Id = pd.FirmCode
 group by supps.Id
 order by supps.Name";
-			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
-			{
+			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
 				while (reader.Read())
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
@@ -116,18 +115,16 @@ order by supps.Name";
 		public void NewGeneratereport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("PreGetOffers");
-			if (WithoutAssortmentPrice)
-			{
+			if (WithoutAssortmentPrice) {
 				_priceCode = 0;
 				SourcePC = 0;
 				CustomerFirmName = String.Empty;
 			}
-			else
-			{
+			else {
 				//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 				if (_priceCode == 0)
 					throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
-				
+
 				SourcePC = _priceCode;
 				CustomerFirmName = GetSupplierName(_priceCode);
 
@@ -170,7 +167,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.TableName = "Results";
 
 			dtNewRes.Columns.Add("Code", typeof(string));
-			dtNewRes.Columns.Add("CodeWithoutProducer", typeof (string));
+			dtNewRes.Columns.Add("CodeWithoutProducer", typeof(string));
 			dtNewRes.Columns.Add("CodeCr", typeof(string));
 			dtNewRes.Columns.Add("FullName", typeof(string));
 			dtNewRes.Columns.Add("FirmCr", typeof(string));
@@ -197,21 +194,19 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			dtNewRes.Rows.Add(emptyRow);
 
 			var sorted = _reportData.OrderBy(r => r.ProductName);
-			foreach (var specShortReportData in sorted)
-			{
+			foreach (var specShortReportData in sorted) {
 				var newRow = dtNewRes.NewRow();
 				newRow["Code"] = specShortReportData.Code;
-				if(_codesWithoutProducer)
+				if (_codesWithoutProducer)
 					newRow["CodeWithoutProducer"] = specShortReportData.CodeWithoutProducer;
-				if(_showCodeCr)
+				if (_showCodeCr)
 					newRow["CodeCr"] = specShortReportData.CodeCr;
 
 				newRow["FullName"] = specShortReportData.ProductName;
 				newRow["FirmCr"] = specShortReportData.ProducerName;
 
 				newRow["MinCost"] = Convert.ToDecimal(specShortReportData.MinCost);
-				if (specShortReportData.AssortmentMinCost.HasValue)
-				{
+				if (specShortReportData.AssortmentMinCost.HasValue) {
 					newRow["CustomerQuantity"] = specShortReportData.AssortmentQuantity;
 					newRow["CustomerCost"] = Convert.ToDecimal(specShortReportData.AssortmentMinCost);
 					if (specShortReportData.IsLeader())
@@ -230,12 +225,12 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		{
 			ProfileHelper.Next("GetOffers for client: " + clientId);
 			var client = Client.TryFind((uint)clientId);
-			if(client == null) return;
-			if(client.Status == false) return;
+			if (client == null) return;
+			if (client.Status == false) return;
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
 
 			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();
-			if(_reportType > 2 && _codesWithoutProducer) {
+			if (_reportType > 2 && _codesWithoutProducer) {
 				var assortmentGroups = offers.Where(o => o.AssortmentCoreId.HasValue).GroupBy(o => o.ProductId);
 				foreach (var agroup in assortmentGroups) {
 					assortmentMap[agroup.Key] = agroup;
@@ -247,14 +242,14 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			foreach (var @group in groups) {
 				var ordered = group.OrderBy(o => o.Cost);
 				var minOffer = ordered.First();
-				
+
 				if (_reportType > 2 && _codesWithoutProducer) {
 					// отчет с учетом производителя и выбрана опция "Выставление кодов без учета изготовителя."
 					// находим группу с выбранным productId
 					//var assortmentGroup = assortmentGroups.Where(g => g.Key == minOffer.ProductId).FirstOrDefault();
-					if(assortmentMap.ContainsKey(minOffer.ProductId)) {
+					if (assortmentMap.ContainsKey(minOffer.ProductId)) {
 						var assortmentGroup = assortmentMap[minOffer.ProductId];
-						if(assortmentGroup != null) {
+						if (assortmentGroup != null) {
 							IList<long> codes = new List<long>();
 							foreach (var offer in assortmentGroup) {
 								long val;
@@ -277,7 +272,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 						}
 					}
 				}
-			
+
 				var item = FindItem(_hash, minOffer, _reportData);
 				item.UpdateMinCost(minOffer);
 
@@ -290,21 +285,17 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		{
 			if (offer.AssortmentCoreId.HasValue)
 				return offer.AssortmentCoreId;
+			else if (_reportType <= 2)
+				return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, ProducerId = 0 };
 			else
-			{
-				if (_reportType <= 2)
-					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, ProducerId = 0};
-				else
-					return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, offer.ProducerId}; // с учетом производителя
-			}
+				return new { CatalogId = _calculateByCatalog ? offer.CatalogId : offer.ProductId, offer.ProducerId }; // с учетом производителя
 		}
 
 		private SpecShortReportData FindItem(Hashtable hash, Offer offer, List<SpecShortReportData> data)
 		{
 			var key = GetKey(offer);
 			var item = (SpecShortReportData)hash[key];
-			if (item == null)
-			{
+			if (item == null) {
 				item = new SpecShortReportData(offer);
 				hash[key] = item;
 				data.Add(item);
@@ -313,7 +304,8 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		}
 
 		protected override void FormatLeaderAndPrices(MSExcel._Worksheet ws)
-		{}
+		{
+		}
 
 		public override void ReadReportParams()
 		{
@@ -327,7 +319,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				_showCodeCr = (bool)_reportParams["ShowCodeCr"];
 			else
 				_showCodeCr = false;
-			
+
 			_Clients = (List<ulong>)getReportParam("Clients");
 			var clients = _Clients.Select(c => Client.TryFind((uint)c)).Where(c => c != null && c.Status == true).ToList();
 			_Clients = clients.Select(c => (ulong)c.Id).ToList();
@@ -339,17 +331,17 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (WithoutAssortmentPrice)
 				_reportIsFull = true;
 
-			if(_reportParams.ContainsKey("CodesWithoutProducer")) // Выставление кодов без учета изготовителя
-				_codesWithoutProducer = (bool) getReportParam("CodesWithoutProducer");
+			if (_reportParams.ContainsKey("CodesWithoutProducer")) // Выставление кодов без учета изготовителя
+				_codesWithoutProducer = (bool)getReportParam("CodesWithoutProducer");
 		}
 
 		protected override void Calculate()
 		{
 			base.Calculate();
 			DataTable dtNewRes;
-				dtNewRes = _dsReport.Tables["Results"].DefaultView.ToTable("Results", false,
-					new[] { "Code", "CodeCr", "FullName", "FirmCr", "CustomerCost", "CustomerQuantity", "MinCost", "LeaderName" });
-			
+			dtNewRes = _dsReport.Tables["Results"].DefaultView.ToTable("Results", false,
+				new[] { "Code", "CodeCr", "FullName", "FirmCr", "CustomerCost", "CustomerQuantity", "MinCost", "LeaderName" });
+
 			foreach (DataRow drRes in dtNewRes.Rows)
 				if (!drRes["LeaderName"].Equals("+"))
 					drRes["LeaderName"] = String.Empty;
@@ -359,10 +351,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 		public override bool DbfSupported
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		protected override void DataTableToDbf(DataTable dtExport, string fileName)
@@ -390,12 +379,11 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				dtExport.Columns.Remove("PRICECOST");
 				dtExport.Columns.Remove("CODE");
 			}
-			if(!_showCodeCr)
+			if (!_showCodeCr)
 				dtExport.Columns.Remove("CODECR");
-			if(!_codesWithoutProducer)
+			if (!_codesWithoutProducer)
 				dtExport.Columns.Remove("CODE2");
 			base.DataTableToDbf(dtExport, fileName);
 		}
 	}
-
 }

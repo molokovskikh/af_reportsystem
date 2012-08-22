@@ -25,24 +25,23 @@ namespace Inforoom.ReportSystem.Writers
 			UseExcel.Workbook(fileName, b => {
 				var exApp = b.Application;
 				var wb = b;
-				var ws = (_Worksheet) wb.Worksheets["rep" + settings.ReportCode.ToString()];
+				var ws = (_Worksheet)wb.Worksheets["rep" + settings.ReportCode.ToString()];
 
 				ws.Name = settings.ReportCaption.Substring(0,
 					(settings.ReportCaption.Length < MaxListName) ? settings.ReportCaption.Length : MaxListName);
 
 				DataTable res = reportData.Tables["Results"];
-				for (int i = 0; i < res.Columns.Count; i++)
-				{
+				for (int i = 0; i < res.Columns.Count; i++) {
 					ws.Cells[1, i + 1] = "";
 					ws.Cells[1 + settings.Filter.Count, i + 1] = res.Columns[i].Caption;
 					if (res.Columns[i].ExtendedProperties.ContainsKey("Width"))
-						((Range) ws.Columns[i + 1, Type.Missing]).ColumnWidth =
-							((int?) res.Columns[i].ExtendedProperties["Width"]).Value;
+						((Range)ws.Columns[i + 1, Type.Missing]).ColumnWidth =
+							((int?)res.Columns[i].ExtendedProperties["Width"]).Value;
 					else
-						((Range) ws.Columns[i + 1, Type.Missing]).AutoFit();
+						((Range)ws.Columns[i + 1, Type.Missing]).AutoFit();
 					if (res.Columns[i].ExtendedProperties.ContainsKey("Color"))
 						ws.get_Range(ws.Cells[1 + settings.Filter.Count, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]).Interior.Color =
-							ColorTranslator.ToOle((Color) res.Columns[i].ExtendedProperties["Color"]);
+							ColorTranslator.ToOle((Color)res.Columns[i].ExtendedProperties["Color"]);
 				}
 
 				//рисуем границы на всю таблицу
@@ -56,7 +55,7 @@ namespace Inforoom.ReportSystem.Writers
 
 				//Устанавливаем АвтоФильтр на все колонки
 				ws.get_Range(ws.Cells[1 + settings.Filter.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]).Select();
-				((Range) exApp.Selection).AutoFilter(1, Missing.Value,
+				((Range)exApp.Selection).AutoFilter(1, Missing.Value,
 					XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 				for (int i = 0; i < settings.Filter.Count; i++)

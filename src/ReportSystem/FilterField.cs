@@ -44,7 +44,6 @@ namespace Inforoom.ReportSystem.Filters
 		public string nonEqualValuesCaption;
 
 
-
 		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption) :
 			this(PrimaryField, ViewField, OutputField, Preffix, OutputCaption, TableList, WhereList, DefaultPosition, EqualValuesCaption, NonEqualValuesCaption, null)
 		{
@@ -73,21 +72,18 @@ namespace Inforoom.ReportSystem.Filters
 			bool fieldIsSelected = false;
 
 			//≈сли Position существует, то тогда параметр должен отображатьс€ в заголовке отчета и по этому параметру будет группировка
-			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix))
-			{
+			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix)) {
 				position = (int)Parent.getReportParam(reportPropertyPreffix + positionSuffix);
 				visible = true;
 				fieldIsSelected = true;
 			}
 
-			if (Parent.reportParamExists(reportPropertyPreffix + equalSuffix))
-			{
+			if (Parent.reportParamExists(reportPropertyPreffix + equalSuffix)) {
 				equalValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + equalSuffix);
 				fieldIsSelected = true;
 			}
 
-			if (Parent.reportParamExists(reportPropertyPreffix + nonEqualSuffix))
-			{
+			if (Parent.reportParamExists(reportPropertyPreffix + nonEqualSuffix)) {
 				nonEqualValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + nonEqualSuffix);
 				fieldIsSelected = true;
 			}
@@ -98,7 +94,7 @@ namespace Inforoom.ReportSystem.Filters
 		private string GetAllValues(List<ulong> ValuesList)
 		{
 			string Res = "( " + ValuesList[0].ToString();
-			for(int i = 1; i < ValuesList.Count; i++)
+			for (int i = 1; i < ValuesList.Count; i++)
 				Res = String.Concat(Res, ", ", ValuesList[i].ToString());
 			Res = String.Concat(Res, ")");
 			return Res;

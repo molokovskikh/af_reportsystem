@@ -17,7 +17,7 @@ using Test.Support.log4net;
 namespace ReportTuner.Test.Integration
 {
 	[TestFixture]
-	class ReportTest : BaseControllerTest
+	internal class ReportTest : BaseControllerTest
 	{
 		private MySqlConnection MyCn;
 		private MySqlCommand MyCmd;
@@ -35,8 +35,7 @@ namespace ReportTuner.Test.Integration
 		{
 			var dtProcResult = new DataTable();
 			string db = String.Empty;
-			try
-			{
+			try {
 				if (MyCn.State != ConnectionState.Open)
 					MyCn.Open();
 				db = MyCn.Database;
@@ -62,8 +61,7 @@ namespace ReportTuner.Test.Integration
 				MyCmd.CommandType = CommandType.StoredProcedure;
 				MyDA.Fill(dtProcResult);
 			}
-			finally
-			{
+			finally {
 				if (db != String.Empty)
 					MyCn.ChangeDatabase(db);
 				MyCmd.CommandType = CommandType.Text;
@@ -93,11 +91,10 @@ namespace ReportTuner.Test.Integration
 			TestClient client2;
 			ulong reportId;
 
-			using (new SessionScope())
-			{
+			using (new SessionScope()) {
 				var payer = new TestPayer();
 				payer.SaveAndFlush();
-			
+
 				var contactGroupOwner = new TestContactGroupOwner();
 				contactGroupOwner.SaveAndFlush();
 
@@ -108,32 +105,29 @@ namespace ReportTuner.Test.Integration
 				client2.Payers.Add(payer);
 
 				var session = ActiveRecordMediator.GetSessionFactoryHolder().CreateSession(typeof(ActiveRecordBase));
-				try
-				{
+				try {
 					session.CreateSQLQuery(@"INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid1, :payerid);
 											 INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid2, :payerid);")
 						.SetParameter("clientid1", client1.Id).SetParameter("clientid2", client2.Id).SetParameter("payerid", payer.Id).ExecuteUpdate();
 				}
-				finally
-				{
+				finally {
 					ActiveRecordMediator.GetSessionFactoryHolder().ReleaseSession(session);
 				}
 
 				var repPayer = Payer.Find(payer.Id);
 
-				var new_report = new GeneralReport() {Format = "Excel", Payer = repPayer, Comment = "Тестовый отчет"};
+				var new_report = new GeneralReport() { Format = "Excel", Payer = repPayer, Comment = "Тестовый отчет" };
 				new_report.SaveAndFlush();
 				reportId = new_report.Id;
 			}
-			using (new SessionScope())
-			{
-				var report = GeneralReport.Find(Convert.ToUInt64(reportId));				
-				Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));				
+			using (new SessionScope()) {
+				var report = GeneralReport.Find(Convert.ToUInt64(reportId));
+				Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));
 				Assert.That(report.Payer.FutureClients[0].ShortName, Is.EqualTo(client1.Name));
 				Assert.That(report.Payer.FutureClients[1].ShortName, Is.EqualTo(client2.Name));
 			}
 		}
-		
+
 		[Test]
 		public void TestClientsListInCombineReport()
 		{
@@ -141,8 +135,7 @@ namespace ReportTuner.Test.Integration
 			TestClient client;
 			var dt = DateTime.Now.ToString();
 
-			using (new SessionScope())
-			{
+			using (new SessionScope()) {
 				var payer = new TestPayer();
 				payer.SaveAndFlush();
 
@@ -177,20 +170,19 @@ namespace ReportTuner.Test.Integration
 
 			var row = result1.Rows[0];
 
-			var id = Convert.ToUInt32(row[0]);						
+			var id = Convert.ToUInt32(row[0]);
 			var name = Convert.ToString(row[1]);
 
 			Assert.That(result1.Rows.Count, Is.EqualTo(1));
 			Assert.That(result2.Rows.Count, Is.EqualTo(0));
 			Assert.That(id, Is.EqualTo(client.Id));
-			Assert.That(name,Is.EqualTo(client.Name));
+			Assert.That(name, Is.EqualTo(client.Name));
 		}
 
 		[Test]
 		public void Region_mask_for_PharmacyMixedReport()
 		{
-			using (new SessionScope())
-			{				
+			using (new SessionScope()) {
 				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("PharmacyMixedReport") && r.Enabled).ToList();
 				var report = reports.Select(r => {
 					var properties = ReportProperty.Queryable.Where(p => p.Report == r).ToList();
@@ -203,8 +195,7 @@ namespace ReportTuner.Test.Integration
 				var regionProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
 				var clientid = Convert.ToUInt32(clientProperty.Value);
 				var client = Client.TryFind(clientid);
-				if(client == null)
-				{
+				if (client == null) {
 					var tc = TestClient.Create();
 					clientProperty.Value = tc.Id.ToString();
 					clientProperty.Save();
@@ -219,11 +210,10 @@ namespace ReportTuner.Test.Integration
 				var mask = clientMask + regMask;
 
 				var dtNonOptionalParams = new DataTable();
-				dtNonOptionalParams.Columns.AddRange(new[]
-				{
-					new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
-					new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
-					new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
+				dtNonOptionalParams.Columns.AddRange(new[] {
+					new DataColumn() { ColumnName = "PID", DataType = typeof(long) },
+					new DataColumn() { ColumnName = "PPropertyName", DataType = typeof(string) },
+					new DataColumn() { ColumnName = "PPropertyValue", DataType = typeof(string) }
 				});
 				DataRow dr = dtNonOptionalParams.NewRow();
 				dr["PID"] = clientProperty.Id;
@@ -243,8 +233,7 @@ namespace ReportTuner.Test.Integration
 		[Test]
 		public void test_userId_SpecReport()
 		{
-			using (new SessionScope())
-			{
+			using (new SessionScope()) {
 				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("SpecReport") && r.Enabled).ToList();
 				var report = reports.Select(r => {
 					var properties = r.Properties;
@@ -260,11 +249,10 @@ namespace ReportTuner.Test.Integration
 				var user = client.Users.FirstOrDefault();
 
 				var dtNonOptionalParams = new DataTable();
-				dtNonOptionalParams.Columns.AddRange(new[]
-				{
-					new DataColumn() {ColumnName = "PID", DataType = typeof (long)},
-					new DataColumn() {ColumnName = "PPropertyName", DataType = typeof (string)},
-					new DataColumn() {ColumnName = "PPropertyValue", DataType = typeof (string)}
+				dtNonOptionalParams.Columns.AddRange(new[] {
+					new DataColumn() { ColumnName = "PID", DataType = typeof(long) },
+					new DataColumn() { ColumnName = "PPropertyName", DataType = typeof(string) },
+					new DataColumn() { ColumnName = "PPropertyValue", DataType = typeof(string) }
 				});
 				DataRow dr = dtNonOptionalParams.NewRow();
 				dr["PID"] = clientProperty.Id;
@@ -273,11 +261,10 @@ namespace ReportTuner.Test.Integration
 				dtNonOptionalParams.Rows.Add(dr);
 
 				var dtOptionalParams = new DataTable();
-				dtOptionalParams.Columns.AddRange(new[]
-				{
-					new DataColumn() {ColumnName = "OPID", DataType = typeof (long)},
-					new DataColumn() {ColumnName = "OPPropertyName", DataType = typeof (string)},
-					new DataColumn() {ColumnName = "OPPropertyValue", DataType = typeof (string)}
+				dtOptionalParams.Columns.AddRange(new[] {
+					new DataColumn() { ColumnName = "OPID", DataType = typeof(long) },
+					new DataColumn() { ColumnName = "OPPropertyName", DataType = typeof(string) },
+					new DataColumn() { ColumnName = "OPPropertyValue", DataType = typeof(string) }
 				});
 				dr = dtOptionalParams.NewRow();
 				dr["OPID"] = firmCodeProperty.Id;
@@ -299,7 +286,7 @@ namespace ReportTuner.Test.Integration
 		{
 			var controller = new ReportsTuningController();
 			PrepareController(controller);
-			using (new SessionScope()) { 
+			using (new SessionScope()) {
 				var sessionHolder = ActiveRecordMediator.GetSessionFactoryHolder();
 				var DbSession = sessionHolder.CreateSession(typeof(ActiveRecordBase));
 				controller.DbSession = DbSession;
@@ -317,7 +304,7 @@ namespace ReportTuner.Test.Integration
 					Value = "0"
 				};
 				value.Save();
-				reportProperty.Values = new List<ReportPropertyValue> {value};
+				reportProperty.Values = new List<ReportPropertyValue> { value };
 				reportProperty.Save();
 				var filter = new AddressesFilter {
 					Report = report.Id,

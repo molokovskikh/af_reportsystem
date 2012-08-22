@@ -40,20 +40,18 @@ namespace ReportTuner.Reports
 			ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out _templateReportId);
 			((HyperLinkField)dgvReports.Columns[2]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + _templateReportId;
 
-			if (!(Page.IsPostBack))
-			{
+			if (!(Page.IsPostBack)) {
 				PostData();
 			}
-			else
-			{
-				DS = ((DataSet) Session[DSReports]);
+			else {
+				DS = ((DataSet)Session[DSReports]);
 				if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 					Reports_GeneralReports.Redirect(this);
 			}
 
 			btnApply.Visible = dgvReports.Rows.Count > 0;
 		}
-
+#region Component Designer generated code
 		private void InitializeComponent()
 		{
 			this.DS = new System.Data.DataSet();
@@ -74,17 +72,19 @@ namespace ReportTuner.Reports
 			// 
 			this.DS.DataSetName = "NewDataSet";
 			this.DS.Tables.AddRange(new System.Data.DataTable[] {
-            this.dtReports,
-            this.dtTypes});
+				this.dtReports,
+				this.dtTypes
+			});
 			// 
 			// dtReports
 			// 
 			this.dtReports.Columns.AddRange(new System.Data.DataColumn[] {
-            this.RReportCode,
-            this.RReportTypeCode,
-            this.RReportCaption,
-            this.RReportTypeName,
-            this.REnabled});
+				this.RReportCode,
+				this.RReportTypeCode,
+				this.RReportCaption,
+				this.RReportTypeName,
+				this.REnabled
+			});
 			this.dtReports.TableName = "dtReports";
 			// 
 			// RReportCode
@@ -108,8 +108,9 @@ namespace ReportTuner.Reports
 			// dtTypes
 			// 
 			this.dtTypes.Columns.AddRange(new System.Data.DataColumn[] {
-            this.ReportTypeName,
-            this.ReportTypeCode});
+				this.ReportTypeName,
+				this.ReportTypeCode
+			});
 			this.dtTypes.TableName = "dtTypes";
 			// 
 			// ReportTypeName
@@ -128,9 +129,8 @@ namespace ReportTuner.Reports
 			((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dtReports)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dtTypes)).EndInit();
-
 		}
-
+#endregion
 		private void PostData()
 		{
 			if (MyCn.State != ConnectionState.Open)
@@ -187,8 +187,7 @@ order by ReportTypeName
 
 		protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
 		{
-			if (e.CommandName == "Add")
-			{
+			if (e.CommandName == "Add") {
 				CopyChangesToTable();
 
 				DataRow dr = DS.Tables[dtReports.TableName].NewRow();
@@ -203,33 +202,26 @@ order by ReportTypeName
 
 		private void CopyChangesToTable()
 		{
-			foreach (GridViewRow dr in dgvReports.Rows)
-			{
-				if (((DropDownList)dr.FindControl("ddlReports")).Visible == true)
-				{
+			foreach (GridViewRow dr in dgvReports.Rows) {
+				if (((DropDownList)dr.FindControl("ddlReports")).Visible == true) {
 					if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportTypeCode.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlReports")).SelectedValue)
 						DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportTypeCode.ColumnName] = ((DropDownList)dr.FindControl("ddlReports")).SelectedValue;
-
 				}
 
 				if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportCaption.ColumnName].ToString() != ((TextBox)dr.FindControl("tbCaption")).Text)
 					DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportCaption.ColumnName] = ((TextBox)dr.FindControl("tbCaption")).Text;
-
 			}
 		}
 
 		protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
 		{
-			if (e.Row.RowType == DataControlRowType.DataRow)
-			{
-				if (((Label)e.Row.Cells[0].FindControl("lblReports")).Text != "")
-				{
+			if (e.Row.RowType == DataControlRowType.DataRow) {
+				if (((Label)e.Row.Cells[0].FindControl("lblReports")).Text != "") {
 					((DropDownList)e.Row.Cells[0].FindControl("ddlReports")).Visible = false;
 					((Label)e.Row.Cells[0].FindControl("lblReports")).Visible = true;
 					e.Row.Cells[2].Enabled = true;
 				}
-				else
-				{
+				else {
 					DropDownList ddlReports = ((DropDownList)e.Row.Cells[0].FindControl("ddlReports"));
 					ddlReports.Visible = true;
 					e.Row.Cells[2].Enabled = false;
@@ -250,8 +242,7 @@ order by ReportTypeName
 			MySqlTransaction trans;
 			MyCn.Open();
 			trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
-			try
-			{
+			try {
 				MySqlCommand UpdCmd = new MySqlCommand(@"
 UPDATE 
     reports.reports 
@@ -322,8 +313,7 @@ SET
 
 				string strHost = HttpContext.Current.Request.UserHostAddress;
 				string strUser = HttpContext.Current.User.Identity.Name;
-				if (strUser.StartsWith("ANALIT\\"))
-				{
+				if (strUser.StartsWith("ANALIT\\")) {
 					strUser = strUser.Substring(7);
 				}
 				MySqlHelper.ExecuteNonQuery(trans.Connection, "set @INHost = ?Host; set @INUser = ?User", new MySqlParameter[] { new MySqlParameter("Host", strHost), new MySqlParameter("User", strUser) });
@@ -334,13 +324,11 @@ SET
 
 				PostData();
 			}
-			catch
-			{
+			catch {
 				trans.Rollback();
 				throw;
 			}
-			finally
-			{
+			finally {
 				MyCn.Close();
 			}
 			if (dgvReports.Rows.Count > 0)
@@ -348,6 +336,7 @@ SET
 			else
 				btnApply.Visible = false;
 		}
+
 		protected void dgvReports_RowDeleting(object sender, GridViewDeleteEventArgs e)
 		{
 			CopyChangesToTable();

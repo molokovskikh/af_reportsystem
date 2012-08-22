@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 		public string Code { get; set; }
 		public string Name { get; set; }
 		public string CodeCr { get; set; }
-		public List<UInt32 > Drugstore { get; set; }
+		public List<UInt32> Drugstore { get; set; }
 		public List<decimal> Costs { get; set; }
 	}
 
@@ -77,14 +77,14 @@ namespace Inforoom.ReportSystem
 		{
 			base.ReadReportParams();
 			priceForCorel = (int)getReportParam("PriceCode");
-			_ProducerAccount = (bool) getReportParam("ProducerAccount");
+			_ProducerAccount = (bool)getReportParam("ProducerAccount");
 			_AllAssortment = (bool)getReportParam("AllAssortment");
 			_WithWithoutProperties = (bool)getReportParam("WithWithoutProperties");
 			_showCodeCr = (bool)getReportParam("ShowCodeCr");
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
-			_suppliers = (List<ulong>)getReportParam("FirmCodeEqual");
+				_suppliers = (List<ulong>)getReportParam("FirmCodeEqual");
 			if (_reportParams.ContainsKey("IgnoredSuppliers"))
-			_suppliers = (List<ulong>)getReportParam("IgnoredSuppliers");
+				_suppliers = (List<ulong>)getReportParam("IgnoredSuppliers");
 
 			_RegionEqual = new List<ulong>();
 			_RegionNonEqual = new List<ulong>();
@@ -92,15 +92,13 @@ namespace Inforoom.ReportSystem
 			_PayerNonEqual = new List<ulong>();
 			_Clients = new List<ulong>();
 			_ClientsNON = new List<ulong>();
-			if (_reportParams.ContainsKey("RegionEqual"))
-			{
-				_RegionEqual = (List<ulong>) getReportParam("RegionEqual");
+			if (_reportParams.ContainsKey("RegionEqual")) {
+				_RegionEqual = (List<ulong>)getReportParam("RegionEqual");
 				regionNotInprefix = " IN ";
 				_regions = _RegionEqual;
 			}
-			if (_reportParams.ContainsKey("RegionNonEqual"))
-			{
-				_RegionNonEqual = (List<ulong>) getReportParam("RegionNonEqual");
+			if (_reportParams.ContainsKey("RegionNonEqual")) {
+				_RegionNonEqual = (List<ulong>)getReportParam("RegionNonEqual");
 				regionNotInprefix = " NOT IN ";
 				_regions = _RegionNonEqual;
 			}
@@ -115,10 +113,9 @@ namespace Inforoom.ReportSystem
 
 			_groupingFieldText = _WithWithoutProperties ? "CatalogId" : "ProductId";
 			if (_regions != null)
-			if (_regions.Count !=0)
-			{
-				_regionsWhere = " where Prices.RegionCode in " + ConcatWhereIn(_regions);
-			}
+				if (_regions.Count != 0) {
+					_regionsWhere = " where Prices.RegionCode in " + ConcatWhereIn(_regions);
+				}
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -132,11 +129,10 @@ namespace Inforoom.ReportSystem
 			var data = new List<ReportData>();
 			var clientsCount = _clients.Count;
 
-			foreach (var client in _clients)
-			{
+			foreach (var client in _clients) {
 				// проверка клиента на доступность
 				var cl = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual, _PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, client, e);
-				if(cl == null || cl.Count == 0) {
+				if (cl == null || cl.Count == 0) {
 					clientsCount--;
 					continue; // возможно, клиент был заблокирован во время подготовки отчета
 				}
@@ -150,7 +146,7 @@ namespace Inforoom.ReportSystem
 				else
 					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetProductNameSubquery("p.id"));
 				var firmcr = _ProducerAccount ? "and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0)" : string.Empty;
-				
+
 				var JunkWhere = _regionsWhere.Length == 0 ? " WHERE c00.Junk = 0 " : " AND c00.Junk = 0 ";
 				e.DataAdapter.SelectCommand.CommandText =
 					string.Format(
@@ -183,23 +179,21 @@ from Usersettings.ActivePrices Prices
 				var offers = new DataTable();
 				e.DataAdapter.Fill(offers);
 				NoisingCostInDataTable(offers, "Cost", "FirmCode", _SupplierNoise);
-				foreach (var group in Group(offers))
-				{
+				foreach (var group in Group(offers)) {
 					var offer = group.First();
 					var dataItem = FindItem(hash, offer, data);
 					dataItem.Drugstore.AddRange(group.Select(r => r.Field<UInt32>("FirmCode")).Where(u => !dataItem.Drugstore.Contains(u)));
 					dataItem.Costs.Add(group.Min(r => r.Field<decimal>("Cost")));
 				}
 #if DEBUG
-				Console.WriteLine("Код клиента: "+ _clientCode + " Строк в таблице: " + data.Count);
+				Console.WriteLine("Код клиента: " + _clientCode + " Строк в таблице: " + data.Count);
 #endif
 			}
 			ProfileHelper.SpendedTime(string.Format("По {0}ти клиентам запрос выполнен за ", clientsCount));
 
 			var dtRes = new DataTable("Results");
 			dtRes.Columns.Add("Code");
-			if (_showCodeCr)
-			{
+			if (_showCodeCr) {
 				dtRes.Columns.Add("CodeCr");
 				dtRes.Columns["CodeCr"].Caption = "Код изготовителя";
 				dtRes.Columns["CodeCr"].ExtendedProperties["Width"] = 10;
@@ -207,26 +201,22 @@ from Usersettings.ActivePrices Prices
 			dtRes.Columns.Add("ProductName");
 			dtRes.Columns["ProductName"].Caption = "Наименование";
 			dtRes.Columns["ProductName"].ExtendedProperties["Width"] = 65;
-			if (_ProducerAccount)
-			{
+			if (_ProducerAccount) {
 				dtRes.Columns.Add("CodeFirmCr");
 				dtRes.Columns["CodeFirmCr"].Caption = "Производитель";
 				dtRes.Columns["CodeFirmCr"].ExtendedProperties["Width"] = 25;
 			}
-			dtRes.Columns.Add("MinCost", typeof (decimal));
+			dtRes.Columns.Add("MinCost", typeof(decimal));
 			dtRes.Columns["Code"].Caption = "Код товара";
 			dtRes.Columns["MinCost"].Caption = "Минимальная цена";
 			var costNumber = new List<int>();
-			for (double i = 0.01; i < 0.7; i += 0.1)
-			{
-				var okrugl = Math.Round((i*clientsCount) + 1);
-				if (okrugl > 1)
-				{
-					if (!costNumber.Contains((int)okrugl))
-					{
+			for (double i = 0.01; i < 0.7; i += 0.1) {
+				var okrugl = Math.Round((i * clientsCount) + 1);
+				if (okrugl > 1) {
+					if (!costNumber.Contains((int)okrugl)) {
 						costNumber.Add((int)okrugl);
 						dtRes.Columns.Add("Cost" + okrugl, typeof(decimal));
-						dtRes.Columns["Cost" + okrugl].Caption = (100 - i*100) + "% (" + okrugl + "я цена)";
+						dtRes.Columns["Cost" + okrugl].Caption = (100 - i * 100) + "% (" + okrugl + "я цена)";
 					}
 				}
 				if (i == 0.01)
@@ -243,8 +233,7 @@ from Usersettings.ActivePrices Prices
 			else
 				data = data.OrderBy(i => i.Name).ToList();
 
-			foreach (var dataItem in data)
-			{
+			foreach (var dataItem in data) {
 				var newRow = dtRes.NewRow();
 				if (_ProducerAccount)
 					newRow["CodeFirmCr"] = ((ProducerAwareReportData)dataItem).ProducerName;
@@ -256,8 +245,7 @@ from Usersettings.ActivePrices Prices
 				newRow["DrugstoreCount"] = dataItem.Costs.Count;
 				newRow["SupplierCount"] = dataItem.Drugstore.Count;
 				dataItem.Costs.Sort();
-				foreach (var i in costNumber)
-				{
+				foreach (var i in costNumber) {
 					if (dataItem.Costs.Count < i)
 						break;
 					newRow["Cost" + i] = dataItem.Costs[i - 1];
@@ -271,8 +259,7 @@ from Usersettings.ActivePrices Prices
 		{
 			var key = GetKey(offer);
 			var item = (ReportData)hash[key];
-			if (item == null)
-			{
+			if (item == null) {
 				if (_ProducerAccount)
 					item = new ProducerAwareReportData(offer);
 				else
@@ -292,20 +279,16 @@ from Usersettings.ActivePrices Prices
 		{
 			//Дебильная группировка по кодам в прайсе
 			//задача состоит в том что если у поставщика в прайсе две позиции с одним и тем же ProductId но разным кодом они и здесь должны
-			if (row["Code"] is DBNull)
-			{
+			if (row["Code"] is DBNull) {
 				if (!_ProducerAccount)
 					return row[_groupingFieldText];
 				else
 					return new { CatalogId = row.Field<uint>(_groupingFieldText), CodeFirmCr = row.Field<uint?>("CodeFirmCr") };
 			}
+			else if (_showCodeCr)
+				return new { Code = row["Code"], CodeCr = row["CodeCr"] };
 			else
-			{
-				if (_showCodeCr)
-					return new { Code = row["Code"], CodeCr = row["CodeCr"] };
-				else
-					return row["Code"];
-			}
+				return row["Code"];
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)

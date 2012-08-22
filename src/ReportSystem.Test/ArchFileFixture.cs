@@ -20,11 +20,11 @@ namespace ReportSystem.Test
 		[Test]
 		public void TestArchBase()
 		{
-			var gr =  new GeneralReport(true);
+			var gr = new GeneralReport(true);
 			gr.Reports.Add(new FakeReport());
 			var file = gr.BuildResultFile();
 			Assert.That(Path.GetExtension(file), Is.EqualTo(".xls"));
-			gr =  new GeneralReport();
+			gr = new GeneralReport();
 			gr.Reports.Add(new FakeReport());
 			file = gr.BuildResultFile();
 			Assert.That(Path.GetExtension(file), Is.EqualTo(".zip"));
@@ -51,19 +51,17 @@ cr.generalreportcode = @LastReportPropertyId;";
 			DataTable dtGeneralReports;
 			var connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
 			connection.Open();
-			try
-			{
+			try {
 				var transaction = connection.BeginTransaction();
 				dtGeneralReports = MySqlHelper.ExecuteDataset(connection, sqlCommand).Tables[0];
 				transaction.Commit();
 			}
-			finally
-			{
+			finally {
 				connection.Close();
 			}
 
 			foreach (DataRow drReport in dtGeneralReports.Rows) {
-				var GeneralReportCode= (ulong)drReport[GeneralReportColumns.GeneralReportCode];
+				var GeneralReportCode = (ulong)drReport[GeneralReportColumns.GeneralReportCode];
 				var FirmCode = Convert.ToUInt32(drReport[GeneralReportColumns.FirmCode]);
 				var ContactGroupId = (Convert.IsDBNull(drReport[GeneralReportColumns.ContactGroupId])) ? null : (uint?)Convert.ToUInt32(drReport[GeneralReportColumns.ContactGroupId]);
 				var EMailSubject = drReport[GeneralReportColumns.EMailSubject].ToString();

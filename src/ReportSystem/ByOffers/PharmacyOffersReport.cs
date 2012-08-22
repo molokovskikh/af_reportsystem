@@ -31,7 +31,7 @@ create temporary table ExtendedCore
 ) engine=MEMORY;
 ";
 
-        private const string sqlWithoutPriceCode = @"
+		private const string sqlWithoutPriceCode = @"
 insert into ExtendedCore (Id) select Id from Core;
 
 update
@@ -115,7 +115,7 @@ from
 insert into ExtendedCore (Id) select Id from Core;
 ";
 
-        private const string footersqlByPrice = @"
+		private const string footersqlByPrice = @"
 
 update 
   ExtendedCore ec
@@ -199,10 +199,9 @@ into @OffersSynonymCode;
 		private bool _reportIsFull;
 		private int? _priceCode;
 
-		public PharmacyOffersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties) 
+		public PharmacyOffersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
-			
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
@@ -242,22 +241,21 @@ into @OffersSynonymCode;
 
 			ProfileHelper.Next("GetData");
 
-			if (_priceCode.HasValue)
-			{
+			if (_priceCode.HasValue) {
 				if (_reportIsFull)
-					e.DataAdapter.SelectCommand.CommandText = 
+					e.DataAdapter.SelectCommand.CommandText =
 						headersql +
-						String.Format(sqlSetParams, _priceCode) +
-						sqlFullOffers + 
-						footersqlByPrice +
-						footersql;
+							String.Format(sqlSetParams, _priceCode) +
+							sqlFullOffers +
+							footersqlByPrice +
+							footersql;
 				else
-					e.DataAdapter.SelectCommand.CommandText = 
-						headersql + 
-						String.Format(sqlSetParams, _priceCode) + 
-						sqlByPriceCode +
-						footersqlByPrice +
-						footersql;
+					e.DataAdapter.SelectCommand.CommandText =
+						headersql +
+							String.Format(sqlSetParams, _priceCode) +
+							sqlByPriceCode +
+							footersqlByPrice +
+							footersql;
 			}
 			else
 				e.DataAdapter.SelectCommand.CommandText = headersql + sqlWithoutPriceCode + footersql;
@@ -268,8 +266,7 @@ into @OffersSynonymCode;
 				e.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, Cost;";
 
 			DataTable resultTable;
-			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
-			{
+			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
 				ProfileHelper.Next("ProcessData");
 				resultTable = FormReportTable(reader);
 			}
@@ -280,9 +277,8 @@ into @OffersSynonymCode;
 
 		private void CheckPriceCode(ExecuteArgs e)
 		{
-			if (_priceCode.HasValue)
-			{
-                e.DataAdapter.SelectCommand.CommandText = @"
+			if (_priceCode.HasValue) {
+				e.DataAdapter.SelectCommand.CommandText = @"
 select
   pd.PriceCode,
   pd.PriceName,
@@ -294,17 +290,15 @@ from
   left join farm.Core0 c on c.PriceCode = pd.PriceCode
 where
   pd.PriceCode = " + _priceCode;
-				using (var reader = e.DataAdapter.SelectCommand.ExecuteReader())
-				{
-					if (reader.Read() && !reader.IsDBNull(0))
-					{
+				using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+					if (reader.Read() && !reader.IsDBNull(0)) {
 						var priceName = reader.GetString("PriceName");
 						var shortName = reader.GetString("ShortName");
 						var offersCount = reader.GetUInt32("OffersCount");
 						if (!_reportIsFull && offersCount == 0)
 							throw new ReportException(
 								String.Format(
-									"У прайс-листа {0} {1} ({2}) нет предложений.", 
+									"У прайс-листа {0} {1} ({2}) нет предложений.",
 									shortName,
 									priceName,
 									_priceCode));
@@ -327,8 +321,7 @@ where
 			int supplierIndex = 0;
 
 			DataRow row = null;
-			while(reader.Read())
-			{
+			while (reader.Read()) {
 				var productName = Convert.ToString(reader["ProductName"]);
 				var productId = Convert.ToInt32(reader["ProductId"]);
 				var producerName = Convert.ToString(reader["ProducerName"]);
@@ -336,8 +329,8 @@ where
 				var supplierName = Convert.ToString(reader["SupplierName"]);
 				var cost = Convert.ToDecimal(reader["Cost"]);
 
-				if(ShouldCreateNewRow(productId, prevProductId, producerId, prevProducerId))
-				{ // Стартуем новый Продукт
+				if (ShouldCreateNewRow(productId, prevProductId, producerId, prevProducerId)) {
+					// Стартуем новый Продукт
 					prevCost = 0;
 					AddRow(dataTable, row);
 					row = dataTable.NewRow();
@@ -362,12 +355,12 @@ where
 				if (_includeQuantity)
 					row["Quantity" + supplierIndex] = reader["Quantity"].ToString();
 				if (prevCost > 0)
-					row["Diff" + supplierIndex] = Math.Round(((cost - prevCost) / prevCost) *100, 2);
+					row["Diff" + supplierIndex] = Math.Round(((cost - prevCost) / prevCost) * 100, 2);
 				prevCost = cost;
 			}
 
 			AddRow(dataTable, row);
-			
+
 			return dataTable;
 		}
 
@@ -393,8 +386,7 @@ where
 
 		private void CheckSupplierNumb(int numb, DataTable table, DataRow row)
 		{
-			if (numb > _suppliersCount)
-			{
+			if (numb > _suppliersCount) {
 				AddNewSupplierColumn(table);
 
 				var newRow = table.NewRow();
@@ -411,11 +403,10 @@ where
 			dc.Caption = "Цена";
 			dc.ExtendedProperties.Add("Width", (int?)6);
 
-			if (_includeQuantity)
-			{
-				dc = res.Columns.Add("Quantity" + _suppliersCount, typeof (string));
+			if (_includeQuantity) {
+				dc = res.Columns.Add("Quantity" + _suppliersCount, typeof(string));
 				dc.Caption = "Остаток";
-				dc.ExtendedProperties.Add("Width", (int?) 4);
+				dc.ExtendedProperties.Add("Width", (int?)4);
 			}
 
 			dc = res.Columns.Add("Producer" + _suppliersCount, typeof(string));
@@ -435,21 +426,20 @@ where
 		{
 			var dc = res.Columns.Add("Code");
 			dc.Caption = "Код";
-			dc.ExtendedProperties.Add("Width", (int?) 6);
+			dc.ExtendedProperties.Add("Width", (int?)6);
 
 			dc = res.Columns.Add("ProductName", typeof(String));
 			dc.Caption = "Наименование";
-			dc.ExtendedProperties.Add("Width", (int?) 15);
+			dc.ExtendedProperties.Add("Width", (int?)15);
 
 			dc = res.Columns.Add("Mnn", typeof(String));
 			dc.Caption = "Мнн";
-			dc.ExtendedProperties.Add("Width", (int?) 15);
+			dc.ExtendedProperties.Add("Width", (int?)15);
 
-			if (_includeProducer)
-			{
-				dc = res.Columns.Add("ProducerName", typeof (String));
+			if (_includeProducer) {
+				dc = res.Columns.Add("ProducerName", typeof(String));
 				dc.Caption = "Производитель";
-				dc.ExtendedProperties.Add("Width", (int?) 15);
+				dc.ExtendedProperties.Add("Width", (int?)15);
 			}
 		}
 	}
