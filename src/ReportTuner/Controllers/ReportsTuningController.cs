@@ -6,6 +6,7 @@ using System.Web;
 using Castle.MonoRail.Framework;
 using Common.Web.Ui.Controllers;
 using Common.Web.Ui.Helpers;
+using Common.Web.Ui.MonoRailExtentions;
 using Common.Web.Ui.NHibernateExtentions;
 using NHibernate;
 using NHibernate.Linq;

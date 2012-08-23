@@ -1,13 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
 using Castle.ActiveRecord;
+using Common.MySql;
 using ExecuteTemplate;
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem;
+using MySql.Data.MySqlClient;
+using NHibernate.AdoNet;
 using NUnit.Framework;
 using Test.Support;
+using log4net;
 
 namespace ReportSystem.Test
 {
@@ -27,6 +33,15 @@ namespace ReportSystem.Test
 		public override void ReportToFile(string fileName)
 		{
 			File.WriteAllBytes(fileName, new byte[0]);
+		}
+	}
+
+	public class FakeGeneralReport : GeneralReport
+	{
+		public DataTable DataTable
+		{
+			set { _dtReports = value; }
+			get { return _dtReports; }
 		}
 	}
 
@@ -69,6 +84,44 @@ namespace ReportSystem.Test
 			Assert.That(files.Count(), Is.EqualTo(2));
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
 			Assert.That(files[0], Is.EqualTo("123.txt"));
+		}
+
+		[Test, Description("Проверяет, что файлы, которые указаны для типа отчета добвалены к отчету")]
+		public void Archive_files_for_report_type()
+		{
+			var report = new FakeGeneralReport();
+			report.GeneralReportID = 1;
+			report.Logger = LogManager.GetLogger(GetType());
+			MySqlConnection connection = null;
+			object reportTypeCode = null;
+			try {
+				connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
+				connection.Open();
+				report.DataTable = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetReports, null, connection);
+				foreach (DataRow row in report.DataTable.Rows) {
+					if (Convert.ToBoolean(row[BaseReportColumns.colSendFile])) {
+						reportTypeCode = row[BaseReportColumns.colReportTypeCode];
+						new MySqlCommand(string.Format("insert into reports.fileforreporttypes (File, ReportType) value ('testFile{0}', {0})", reportTypeCode), connection).ExecuteNonQuery();
+					}
+				}
+				var files = session.CreateSQLQuery("select id from reports.fileforreporttypes;").List<uint>();
+				var filesNames = session.CreateSQLQuery("select File from reports.fileforreporttypes group by File;").List<string>();
+				foreach (var file in files) {
+					File.Create(file.ToString());
+				}
+				Assert.IsNotNull(reportTypeCode);
+				var additionalFiles = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetFilesForReports, null, connection);
+				Assert.That(additionalFiles.Count, Is.GreaterThan(0));
+				Assert.That(additionalFiles.Count, Is.EqualTo(filesNames.Count()));
+				foreach (var file in files) {
+					File.Delete(file.ToString());
+				}
+			}
+			finally {
+				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
+				new MySqlCommand("update reports.reports r set r.SendFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
+				if (connection != null) connection.Close();
+			}
 		}
 
 		[Test]
