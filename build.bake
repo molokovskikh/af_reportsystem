@@ -12,7 +12,7 @@ Global(
 	Platform : "x86",
 	Project: "ReportTuner",
 	Environment : @Local,
-	Profile : @reports,
+	Profile : @reportTest,
 	Port: 3312,
 	AdditionalAssemblies: ("Common.Web.Ui", "Report.Data.Builder")
 )
