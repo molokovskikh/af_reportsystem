@@ -11,9 +11,6 @@ Global(
 	humanReadableName : "Генератор отчетов",
 	Platform : "x86",
 	Project: "ReportTuner",
-	Environment : @Local,
-	Profile : @reportTest,
-	Port: 3312,
 	AdditionalAssemblies: ("Common.Web.Ui", "Report.Data.Builder")
 )
 
@@ -35,5 +32,3 @@ task @BuildBackground:
 	Cp("src/$project/app.release.config", "output/$project/$project.config")
 	Rm("output/$project/$project.*.config")
 	Globals.Project = oldProject
-
-task @BeforeTest, [@RunMySql, @PrepareLocal]
