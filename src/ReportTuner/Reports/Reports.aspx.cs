@@ -33,6 +33,7 @@ public partial class Reports_Reports : BasePage
 	private DataColumn ReportTypeName;
 	private DataColumn ReportTypeCode;
 	private DataColumn REnabled;
+	private DataColumn RSendFile;
 
 	private const string DSReports = "Inforoom.Reports.Reports.DSReports";
 
@@ -49,7 +50,7 @@ public partial class Reports_Reports : BasePage
 		else if (Request["r"].Equals(ConfigurationManager.AppSettings["TemplateReportId"], StringComparison.OrdinalIgnoreCase))
 			Response.Redirect("TemplateReports.aspx");
 		else
-			((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"];
+			((HyperLinkField)dgvReports.Columns[4]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"];
 
 		SheduleLink.NavigateUrl = "Schedule.aspx?r=" + Request["r"];
 
@@ -93,7 +94,8 @@ SELECT
 	ReportCode as RReportCode,
 	r.ReportTypeCode as RReportTypeCode,
 	ReportCaption as RReportCaption,
-	r.Enabled as REnabled
+	r.Enabled as REnabled,
+	r.SendFile as RSendFile
 FROM
 	reports.reports r, reports.reporttypes rt
 WHERE
@@ -148,6 +150,7 @@ order by ReportTypeName
 		this.ReportTypeName = new System.Data.DataColumn();
 		this.ReportTypeCode = new System.Data.DataColumn();
 		this.REnabled = new System.Data.DataColumn();
+		this.RSendFile = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtReports)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtTypes)).BeginInit();
@@ -167,8 +170,10 @@ order by ReportTypeName
 			this.RReportTypeCode,
 			this.RReportCaption,
 			this.RReportTypeName,
-			this.REnabled
+			this.REnabled,
+			this.RSendFile
 		});
+
 		this.dtReports.TableName = "dtReports";
 		// 
 		// RReportCode
@@ -210,6 +215,9 @@ order by ReportTypeName
 		// 
 		this.REnabled.ColumnName = "REnabled";
 		this.REnabled.DataType = typeof(byte);
+
+		this.RSendFile.ColumnName = "RSendFile";
+		this.RSendFile.DataType = typeof(byte);
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtReports)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtTypes)).EndInit();
@@ -234,6 +242,7 @@ order by ReportTypeName
 
 			DataRow dr = DS.Tables[dtReports.TableName].NewRow();
 			dr[REnabled.ColumnName] = 0;
+			dr[RSendFile.ColumnName] = 0;
 			DS.Tables[dtReports.TableName].Rows.Add(dr);
 			dgvReports.DataSource = DS;
 			dgvReports.DataBind();
@@ -280,6 +289,9 @@ order by ReportTypeName
 
 			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked).ToString())
 				DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked);
+
+			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RSendFile.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbSendFile")).Checked).ToString())
+				DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RSendFile.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbSendFile")).Checked);
 		}
 	}
 
@@ -324,7 +336,8 @@ SET
 	ReportCaption = ?RReportCaption,
 	ReportTypeCode = ?RReportTypeCode,
 	GeneralReportCode = ?RGeneralReportCode,
-	Enabled = ?REnabled
+	Enabled = ?REnabled,
+	SendFile = ?RSendFile
 WHERE ReportCode = ?RReportCode", MyCn, trans);
 
 			UpdCmd.Parameters.Clear();
@@ -344,6 +357,10 @@ WHERE ReportCode = ?RReportCode", MyCn, trans);
 			UpdCmd.Parameters["REnabled"].Direction = ParameterDirection.Input;
 			UpdCmd.Parameters["REnabled"].SourceColumn = REnabled.ColumnName;
 			UpdCmd.Parameters["REnabled"].SourceVersion = DataRowVersion.Current;
+			UpdCmd.Parameters.Add(new MySqlParameter("RSendFile", MySqlDbType.Byte));
+			UpdCmd.Parameters["RSendFile"].Direction = ParameterDirection.Input;
+			UpdCmd.Parameters["RSendFile"].SourceColumn = RSendFile.ColumnName;
+			UpdCmd.Parameters["RSendFile"].SourceVersion = DataRowVersion.Current;
 			UpdCmd.Parameters.Add(new MySqlParameter("RGeneralReportCode", Request["r"]));
 
 			MySqlCommand DelCmd = new MySqlCommand(@"
@@ -363,7 +380,8 @@ SET
 	ReportCaption = ?RReportCaption,
 	ReportTypeCode = ?RReportTypeCode,
 	GeneralReportCode = ?RGeneralReportCode,
-	Enabled = ?REnabled
+	Enabled = ?REnabled,
+	SendFile = ?RSendFile
 ", MyCn, trans);
 
 			InsCmd.Parameters.Clear();
@@ -379,6 +397,10 @@ SET
 			InsCmd.Parameters["REnabled"].Direction = ParameterDirection.Input;
 			InsCmd.Parameters["REnabled"].SourceColumn = REnabled.ColumnName;
 			InsCmd.Parameters["REnabled"].SourceVersion = DataRowVersion.Current;
+			InsCmd.Parameters.Add(new MySqlParameter("RSendFile", MySqlDbType.Byte));
+			InsCmd.Parameters["RSendFile"].Direction = ParameterDirection.Input;
+			InsCmd.Parameters["RSendFile"].SourceColumn = RSendFile.ColumnName;
+			InsCmd.Parameters["RSendFile"].SourceVersion = DataRowVersion.Current;
 			InsCmd.Parameters.Add(new MySqlParameter("RGeneralReportCode", Request["r"]));
 
 			MyDA.UpdateCommand = UpdCmd;

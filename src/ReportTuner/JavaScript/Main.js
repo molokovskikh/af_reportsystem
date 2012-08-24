@@ -83,3 +83,15 @@ function ReloadPageWithParams(orderParamName, paramValue, rowsCountParamName, ro
     window.location.href = url;
     return false;
 }
+
+function deleteFileForReportType(thisButton) {
+	var fileId = jQuery(thisButton).parent().children('input[type=hidden]:first').val();
+	jQuery.ajax({
+		url: "DeleteFileForReportType?fileId=" + fileId,
+		success: function () {
+			var linkTd = jQuery(thisButton).parent().parent().children('td.tdForFileLink');
+			linkTd.empty();
+			linkTd.append('<span class="deletedElement">Удалено</span>');
+		}
+	});
+}

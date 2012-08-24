@@ -16,6 +16,7 @@ using Castle.MonoRail.Framework.Services;
 using Castle.MonoRail.Framework.Views.Aspx;
 using Castle.MonoRail.Views.Brail;
 using Common.Web.Ui.Helpers;
+using Common.Web.Ui.MonoRailExtentions;
 using log4net;
 using log4net.Config;
 using ReportTuner.Models;
@@ -27,6 +28,7 @@ namespace ReportTuner
 	public class Config
 	{
 		public string SavedFilesPath { get; set; }
+		public string SavedFileForReportTypesPath { get; set; }
 	}
 
 	public class Global : WebApplication, IMonoRailConfigurationEvents

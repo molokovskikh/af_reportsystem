@@ -185,6 +185,7 @@
     <Compile Include="Helpers\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\ReportAppHelper.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\PropertiesHelper.cs" />
@@ -194,6 +195,7 @@
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\ExceptionHandling.cs" />
+    <Compile Include="Models\FileForReportType.cs" />
     <Compile Include="Models\FileSendWithReport.cs" />
     <Compile Include="Models\GeneralReport.cs" />
     <Compile Include="Models\MailingAddresses.cs" />
@@ -384,6 +386,7 @@
     <Content Include="App_Themes\MainWithHighLight\Main.skin" />
     <Content Include="JavaScript\jquery-1.4.1.min.js" />
     <None Include="Views\Layouts\MainLayout.brail" />
+    <None Include="Views\ReportsTuning\FileForReportTypes.brail" />
     <None Include="Views\ReportsTuning\SelectAddresses.brail" />
     <None Include="Views\ReportsTuning\SelectClients.brail" />
     <None Include="Views\SubViews\BreadCrumbs.brail" />
