@@ -64,6 +64,7 @@ namespace ReportSystem.Test
 			Assert.That(files.Count(), Is.EqualTo(2));
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
 			Assert.That(files[0], Is.EqualTo("description.xls"));
+			zip.Close();
 		}
 
 		[Test]
@@ -97,6 +98,8 @@ namespace ReportSystem.Test
 			try {
 				connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
 				connection.Open();
+				new MySqlCommand("update reports.reports r set r.SendFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
+				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
 				report.DataTable = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetReports, null, connection);
 				foreach (DataRow row in report.DataTable.Rows) {
 					if (Convert.ToBoolean(row[BaseReportColumns.colSendFile])) {
@@ -107,7 +110,8 @@ namespace ReportSystem.Test
 				var files = session.CreateSQLQuery("select id from reports.fileforreporttypes;").List<uint>();
 				var filesNames = session.CreateSQLQuery("select File from reports.fileforreporttypes group by File;").List<string>();
 				foreach (var file in files) {
-					File.Create(file.ToString());
+					var create = File.Create(file.ToString());
+					create.Close();
 				}
 				Assert.IsNotNull(reportTypeCode);
 				var additionalFiles = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetFilesForReports, null, connection);
@@ -119,7 +123,6 @@ namespace ReportSystem.Test
 			}
 			finally {
 				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
-				new MySqlCommand("update reports.reports r set r.SendFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
 				if (connection != null) connection.Close();
 			}
 		}
