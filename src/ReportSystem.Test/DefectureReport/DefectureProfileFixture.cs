@@ -15,6 +15,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameAndForm);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNameAndForm);
+			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
 		[Test]
@@ -23,6 +24,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameAndFormWithProducer);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNameAndFormWithProducer);
+			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
 		[Test]
@@ -31,6 +33,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameOnly);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNameOnly);
+			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
 		[Test]
@@ -39,6 +42,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureProductsOnly);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureProductsOnly);
+			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
 		[Test]
@@ -47,6 +51,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureProductsWithProducer);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureProductsWithProducer);
+			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 	}
 }
