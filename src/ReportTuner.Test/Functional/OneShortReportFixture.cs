@@ -57,7 +57,9 @@ namespace ReportTuner.Test.Functional
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
 				browser.Button(Find.ByValue("Выполнить")).Click();
-				browser.Reopen();
+			}
+			Thread.Sleep(5000);
+			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
 				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
 				browser.TextField("mail_Text").Clear();
 				browser.Button(Find.ByValue("Выслать готовый")).Click();

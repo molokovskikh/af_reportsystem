@@ -10,6 +10,7 @@ Global(
 	humanReadableName : "Генератор отчетов",
 	Platform : "x86",
 	Project: "ReportTuner",
+	Profile : @reportTest,
 	AdditionalAssemblies: ("Common.Web.Ui", "Report.Data.Builder")
 )
 
