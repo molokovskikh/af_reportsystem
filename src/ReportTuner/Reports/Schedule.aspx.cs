@@ -561,6 +561,14 @@ order by LogTime desc
 		dgvSchedule.DataBind();
 	}
 
+	protected void dgvScheduleMonth_RowDeleting(object sender, GridViewDeleteEventArgs e)
+	{
+		CopyMonthTriggerValuesInToTable();
+		DS.Tables[dtScheduleMonth.TableName].DefaultView[e.RowIndex].Delete();
+		dgvScheduleMonth.DataSource = DS;
+		dgvScheduleMonth.DataBind();
+	}
+
 	protected void dgvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
 		RowDataBoundAll(e, SStartHour.ColumnName, SStartMinute.ColumnName);

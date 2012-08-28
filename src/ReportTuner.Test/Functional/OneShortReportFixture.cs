@@ -42,10 +42,13 @@ namespace ReportTuner.Test.Functional
 		public void Set_shedule_month()
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
+				browser.Button(Find.ByClass("addMonthItem")).Click();
 				browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Button(Find.ByValue("Применить")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
+				browser.Button(Find.ByClass("deleteMonthItem")).Click();
+				browser.Button(Find.ByValue("Применить")).Click();
 			}
 		}
 
@@ -54,8 +57,7 @@ namespace ReportTuner.Test.Functional
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
 				browser.Button(Find.ByValue("Выполнить")).Click();
-				Thread.Sleep(5000);
-				browser.Refresh();
+				browser.Reopen();
 				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
 				browser.TextField("mail_Text").Clear();
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
