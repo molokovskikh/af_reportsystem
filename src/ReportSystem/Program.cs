@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using Common.MySql;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
 using ExecuteTemplate;
@@ -34,7 +35,7 @@ namespace Inforoom.ReportSystem
 			int generalReportId = 0;
 			try {
 				XmlConfigurator.Configure();
-				ActiveRecordInitialize.Init("DB", typeof(Supplier).Assembly);
+				ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(Supplier).Assembly);
 
 				//Попытка получить код общего отчета в параметрах
 				var interval = false;
@@ -53,7 +54,7 @@ namespace Inforoom.ReportSystem
 				}
 
 				if (generalReportId != -1) {
-					var mc = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+					var mc = new MySqlConnection(ConnectionHelper.GetConnectionString());
 					mc.Open();
 					try {
 						//Формируем запрос

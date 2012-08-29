@@ -22,6 +22,7 @@ using log4net.Config;
 using ReportTuner.Models;
 using Microsoft.Win32.TaskScheduler;
 using ReportTuner.Helpers;
+using Common.MySql;
 
 namespace ReportTuner
 {
@@ -45,6 +46,8 @@ namespace ReportTuner
 		private void Application_Start(object sender, EventArgs e)
 		{
 			ConfigReader.LoadSettings(Config);
+			ConnectionHelper.DefaultConnectionStringName = "Default";
+			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
 			ActiveRecordStarter.Initialize(new[] {
 				Assembly.Load("ReportTuner"),
 				Assembly.Load("Common.Web.Ui")

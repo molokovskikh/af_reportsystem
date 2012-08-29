@@ -4,15 +4,17 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Common.MySql;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Data;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace ReportTuner.Reports
 {
 	public partial class TemplateReports : System.Web.UI.Page
 	{
-		private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+		private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 		private MySqlCommand MyCmd = new MySqlCommand();
 		private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 		private DataSet DS;

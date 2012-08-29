@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using Common.MySql;
 using ReportTuner.Models;
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Text;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace ReportTuner.Helpers
 {
@@ -28,7 +30,7 @@ namespace ReportTuner.Helpers
 						_destinationReport.ReportType.ReportTypeName));
 
 			DataSet dsReportProperties = MySqlHelper.ExecuteDataset(
-				ConfigurationManager.ConnectionStrings["DB"].ConnectionString,
+				ConnectionHelper.GetConnectionString(),
 				@"
 SELECT 
 rp.*,
@@ -97,7 +99,7 @@ order by rp.PropertyID;
 				}
 			}
 
-			MySqlConnection connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+			MySqlConnection connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
 			connection.Open();
 			try {
 				MySqlTransaction transaction = connection.BeginTransaction();

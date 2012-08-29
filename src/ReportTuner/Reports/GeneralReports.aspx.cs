@@ -7,11 +7,13 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Common.MySql;
 using Common.Tools;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 public partial class Reports_GeneralReports : System.Web.UI.Page
 {
@@ -32,7 +34,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 
 	private string SetFilterCaption = "Фильтровать";
 
-	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 	private DataSet DS;
