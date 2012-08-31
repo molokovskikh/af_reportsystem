@@ -9,7 +9,7 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class DefectureProfileFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore("Прайс-лист не актуален")]
 		public void DefectureNameAndForm()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameAndForm);
@@ -18,7 +18,7 @@ namespace ReportSystem.Test
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
-		[Test]
+		[Test, Ignore("Прайс-лист не актуален")]
 		public void DefectureNameAndFormWithProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameAndFormWithProducer);
@@ -27,7 +27,7 @@ namespace ReportSystem.Test
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
-		[Test]
+		[Test, Ignore("Прайс-лист не актуален")]
 		public void DefectureNameOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNameOnly);
@@ -36,7 +36,7 @@ namespace ReportSystem.Test
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
-		[Test]
+		[Test, Ignore("Прайс-лист не актуален")]
 		public void DefectureProductsOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureProductsOnly);
@@ -45,7 +45,7 @@ namespace ReportSystem.Test
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
-		[Test]
+		[Test, Ignore("Прайс-лист не актуален")]
 		public void DefectureProductsWithProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureProductsWithProducer);
