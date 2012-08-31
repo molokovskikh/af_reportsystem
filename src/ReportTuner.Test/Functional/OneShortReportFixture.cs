@@ -46,6 +46,10 @@ namespace ReportTuner.Test.Functional
 				browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Button(Find.ByValue("Применить")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
+				browser.TextField(Find.ByValue("0:00")).Value = "10:00";
+				browser.Button(Find.ByValue("Применить")).Click();
+				Assert.That(browser.Text, Is.Not.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
 				Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
 				browser.Button(Find.ByClass("deleteMonthItem")).Click();
 				browser.Button(Find.ByValue("Применить")).Click();

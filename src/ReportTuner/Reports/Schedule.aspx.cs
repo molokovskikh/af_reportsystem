@@ -295,9 +295,31 @@ order by LogTime desc
 			dr[column] = 0;
 	}
 
+	private bool CheckGridTimeValue(GridView grid)
+	{
+		foreach (GridViewRow drv in grid.Rows) {
+			var time = ((TextBox)drv.FindControl("tbStart")).Text;
+			var h = int.Parse(time.Substring(0, time.IndexOf(':')));
+			var m = int.Parse(time.Substring(time.IndexOf(':') + 1, time.Length - time.IndexOf(':') - 1));
+			if((h >= 0 && h < 4) || h == 23 || (h == 4 && m == 0)) {
+				ErrorMassage.Text = "Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета";
+				ErrorMassage.BackColor = Color.Red;
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private bool CheckTimeValue()
+	{
+		return CheckGridTimeValue(dgvSchedule) && CheckGridTimeValue(dgvScheduleMonth);
+	}
+
 	protected void btnApply_Click(object sender, EventArgs e)
 	{
 		if (this.IsValid) {
+			if(!CheckTimeValue())
+				return;
 			CopyChangesToTable();
 			CopyMonthTriggerValuesInToTable();
 
