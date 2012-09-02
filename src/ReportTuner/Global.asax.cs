@@ -28,7 +28,7 @@ namespace ReportTuner
 	public class Config
 	{
 		public string SavedFilesPath { get; set; }
-		public string SavedFileForReportTypesPath { get; set; }
+		public string SavedFilesReportTypePath { get; set; }
 	}
 
 	public class Global : WebApplication, IMonoRailConfigurationEvents
@@ -65,6 +65,11 @@ namespace ReportTuner
 					Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.SavedFilesPath));
 
 			CreateDirectoryTree(Config.SavedFilesPath);
+
+			if (!Path.IsPathRooted(Config.SavedFilesReportTypePath))
+				Config.SavedFilesReportTypePath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.SavedFilesReportTypePath));
+
+			CreateDirectoryTree(Config.SavedFilesReportTypePath);
 
 			if (!Path.IsPathRooted(ScheduleHelper.ScheduleAppPath))
 				ScheduleHelper.ScheduleAppPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ScheduleHelper.ScheduleAppPath));

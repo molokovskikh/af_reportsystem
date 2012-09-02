@@ -246,8 +246,8 @@ namespace ReportTuner.Controllers
 
 		public void SaveFilesForReportType()
 		{
-			if (!Directory.Exists(Global.Config.SavedFileForReportTypesPath))
-				Directory.CreateDirectory(Global.Config.SavedFileForReportTypesPath);
+			if (!Directory.Exists(Global.Config.SavedFilesReportTypePath))
+				Directory.CreateDirectory(Global.Config.SavedFilesReportTypePath);
 			foreach (var key in Request.Files.Keys) {
 				var file = GetFileInRequest(key);
 				if (file != null && file.ContentLength != 0) {
@@ -261,7 +261,7 @@ namespace ReportTuner.Controllers
 					}
 					DbSession.SaveOrUpdate(newFile);
 					using (Stream intoStream = File.OpenWrite(newFile.FillPath)) {
-						FileHelper.CopyStream(file.InputStream, intoStream);
+						file.InputStream.CopyTo(intoStream);
 					}
 				}
 			}
