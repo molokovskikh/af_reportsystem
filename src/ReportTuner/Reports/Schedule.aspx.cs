@@ -738,6 +738,9 @@ and c.Type = ?ContactType");
 
 	protected void btnExecute_mailing(object sender, EventArgs e)
 	{
+#if DEBUG
+		Thread.Sleep(5000);
+#endif
 		if (RadioSelf.Checked)
 			Send_self();
 		if (RadioMails.Checked)

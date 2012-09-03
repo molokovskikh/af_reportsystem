@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
+using ReportTuner.Helpers;
 using ReportTuner.Models;
 using WatiN.Core;
 using System.Diagnostics;
@@ -55,16 +57,20 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void Send_ready_report()
 		{
-			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
-				browser.Button(Find.ByValue("Выполнить")).Click();
+			var generalReport = GeneralReport.Find(Convert.ToUInt64(1));
+			var ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", generalReport.FirmCode.Value.ToString("000"), "Reports");
+			foreach (var file in Directory.GetFiles(ftpDirectory)) {
+				File.Delete(file);
 			}
-			Thread.Sleep(5000);
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
 				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
 				browser.TextField("mail_Text").Clear();
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
 				browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
+				browser.Button(Find.ByValue("Выслать готовый")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Файл отчета не найден"));
+				File.WriteAllText(Path.Combine(ftpDirectory, "test.zip"), "123");
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
 			}
