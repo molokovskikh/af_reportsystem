@@ -8,12 +8,14 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
+using Common.MySql;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 public partial class Reports_EnumValues : System.Web.UI.Page
 {
-	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 	private DataTable dtEnumValues;

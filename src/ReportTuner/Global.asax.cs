@@ -22,6 +22,7 @@ using log4net.Config;
 using ReportTuner.Models;
 using Microsoft.Win32.TaskScheduler;
 using ReportTuner.Helpers;
+using Common.MySql;
 
 namespace ReportTuner
 {
@@ -45,11 +46,14 @@ namespace ReportTuner
 		private void Application_Start(object sender, EventArgs e)
 		{
 			ConfigReader.LoadSettings(Config);
-			ActiveRecordStarter.Initialize(new[] {
-				Assembly.Load("ReportTuner"),
-				Assembly.Load("Common.Web.Ui")
-			},
-				ActiveRecordSectionHandler.Instance);
+			ConnectionHelper.DefaultConnectionStringName = "Default";
+			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
+			ActiveRecordInitialize(
+				ConnectionHelper.GetConnectionName(),
+				new[] {
+					Assembly.Load("ReportTuner"),
+					Assembly.Load("Common.Web.Ui")
+				});
 
 			Initialize();
 
@@ -96,7 +100,27 @@ namespace ReportTuner
 			else
 				throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
 		}
-
+		private void ActiveRecordInitialize(string connectionName, Assembly[] assemblies)
+		{
+			if (!ActiveRecordStarter.IsInitialized) {
+				var config = new InPlaceConfigurationSource();
+				config.IsRunningInWebApp = true;
+				config.PluralizeTableNames = true;
+				config.Add(typeof(ActiveRecordBase),
+					new Dictionary<string, string> {
+						{ NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },
+						{ NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
+						{ NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
+						{ NHibernate.Cfg.Environment.ConnectionStringName, connectionName },
+						{ NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle" },
+						{ NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none" },
+						{ NHibernate.Cfg.Environment.ShowSql, "true" },
+						{ NHibernate.Cfg.Environment.FormatSql, "true" },
+						{ NHibernate.Cfg.Environment.Isolation, "ReadCommitted" }
+					});
+				ActiveRecordStarter.Initialize(assemblies, config);
+			}
+		}
 		private static void CreateDirectoryTree(string dir)
 		{
 			if (String.IsNullOrEmpty(dir))

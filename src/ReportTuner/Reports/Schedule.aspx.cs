@@ -9,6 +9,7 @@ using System.Net.Mail;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Common.MySql;
 using Common.Tools;
 using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
@@ -19,7 +20,7 @@ using ReportTuner.Helpers;
 
 public partial class Reports_schedule : Page
 {
-	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 
@@ -739,6 +740,9 @@ and c.Type = ?ContactType");
 
 	protected void btnExecute_mailing(object sender, EventArgs e)
 	{
+#if DEBUG
+		Thread.Sleep(5000);
+#endif
 		if (RadioSelf.Checked)
 			Send_self();
 		if (RadioMails.Checked)
