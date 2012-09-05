@@ -15,7 +15,7 @@ namespace ReportTuner.Test.Functional
 	[TestFixture]
 	public class OneShortReportFixture : WatinFixture2
 	{
-		[Test]
+		[Test, Ignore]
 		public void TestOneShortReport()
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/GeneralReports.aspx")) {
@@ -54,7 +54,7 @@ namespace ReportTuner.Test.Functional
 			}
 		}
 
-		[Test]
+		[Test, Ignore]
 		public void Send_ready_report()
 		{
 			var generalReport = GeneralReport.Find(Convert.ToUInt64(1));
