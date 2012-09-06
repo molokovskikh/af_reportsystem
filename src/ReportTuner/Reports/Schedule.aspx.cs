@@ -9,6 +9,7 @@ using System.Net.Mail;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Common.MySql;
 using Common.Tools;
 using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
@@ -19,7 +20,7 @@ using ReportTuner.Helpers;
 
 public partial class Reports_schedule : Page
 {
-	private MySqlConnection MyCn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 
@@ -253,11 +254,13 @@ order by LogTime desc
 				Reports_GeneralReports.Redirect(this);
 		}
 
-		ftpDirectory = Path.Combine(ConfigurationManager.AppSettings["FTPOptBoxPath"], _generalReport.FirmCode.Value.ToString("000"), "Reports");
+		if (_generalReport.FirmCode != null) {
+			ftpDirectory = Path.Combine(ConfigurationManager.AppSettings["FTPOptBoxPath"], _generalReport.FirmCode.Value.ToString("000"), "Reports");
 #if DEBUG
-		ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", _generalReport.FirmCode.Value.ToString("000"), "Reports");
+			ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", _generalReport.FirmCode.Value.ToString("000"), "Reports");
 #endif
-		send_created_report.Visible = Directory.Exists(ftpDirectory);
+		}
+		send_created_report.Visible = !string.IsNullOrEmpty(ftpDirectory) && Directory.Exists(ftpDirectory);
 	}
 
 	private List<object[]> ObjectFromQuery(MySqlParameter[] parameters, string commandText)
@@ -759,6 +762,9 @@ and c.Type = ?ContactType");
 
 	protected void btnExecute_mailing(object sender, EventArgs e)
 	{
+#if DEBUG
+		Thread.Sleep(5000);
+#endif
 		if (RadioSelf.Checked)
 			Send_self();
 		if (RadioMails.Checked)
@@ -830,7 +836,7 @@ and c.Type = ?ContactType");
 			ErrorMassage.BackColor = Color.Red;
 			return;
 		}
-		if (Directory.Exists(ftpDirectory))
+		if (!string.IsNullOrEmpty(ftpDirectory) && Directory.Exists(ftpDirectory))
 			foreach (var file in Directory.GetFiles(ftpDirectory)) {
 				message.Attachments.Add(new Attachment(file));
 			}

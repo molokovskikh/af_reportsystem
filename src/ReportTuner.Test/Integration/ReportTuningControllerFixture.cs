@@ -92,7 +92,7 @@ namespace ReportTuner.Test.Integration
 					controller.SaveFilesForReportType();
 					scope.Flush();
 					var fileName = s.QueryOver<FileForReportType>().Where(f => f.File == "testFileName.txt").List().First().Id.ToString();
-					Assert.IsTrue(File.Exists(Path.Combine(Global.Config.SavedFileForReportTypesPath, fileName)));
+					Assert.IsTrue(File.Exists(Path.Combine(Global.Config.SavedFilesReportTypePath, fileName)));
 				});
 			}
 		}

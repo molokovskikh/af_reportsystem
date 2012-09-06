@@ -40,6 +40,14 @@ namespace Inforoom.ReportSystem
 
 		private string _supplierName;
 
+		/// <summary>
+		/// Получаем таблицу результатов для проверки в тестах
+		/// </summary>
+		public DataTable DSResult
+		{
+			get { return _dsReport.Tables["Results"]; }
+		}
+
 		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
@@ -136,6 +144,19 @@ where
 	ol.OrderID = oh.RowID
 	and ol.Junk = 0
 	and pd.PriceCode = oh.PriceCode
+and pd.Enabled = 1
+and exists (select
+  *
+from
+  usersettings.pricescosts pc1,
+  usersettings.priceitems pim1,
+  farm.formrules fr1
+where
+	pc1.PriceCode = pd.PriceCode
+and pc1.BaseCost = 1
+and pim1.Id = pc1.PriceItemId
+and fr1.Id = pim1.FormRuleId
+and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
 	and pd.FirmCode = ", OrdersSchema) + sourceFirmCode.ToString() +
 																		" and oh.WriteTime > '" + dtFrom.ToString(MySqlConsts.MySQLDateFormat) + "' " +
 																			" and oh.WriteTime < '" + dtTo.ToString(MySqlConsts.MySQLDateFormat) + "' " +
@@ -155,6 +176,19 @@ from
 where
 	pd.FirmCode = " + sourceFirmCode.ToString() + @"
 	and core.PriceCode = pd.PriceCode
+and pd.Enabled = 1
+and exists (select
+  *
+from
+  usersettings.pricescosts pc1,
+  usersettings.priceitems pim1,
+  farm.formrules fr1
+where
+	pc1.PriceCode = pd.PriceCode
+and pc1.BaseCost = 1
+and pim1.Id = pc1.PriceItemId
+and fr1.Id = pim1.FormRuleId
+and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
 )) CoreCodes)
   join catalogs.products p on p.Id = CoreCodes.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId

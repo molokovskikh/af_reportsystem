@@ -22,7 +22,7 @@ namespace ReportTuner.Models
 
 		public string FillPath
 		{
-			get { return Path.Combine(Global.Config.SavedFileForReportTypesPath, Id.ToString()); }
+			get { return Path.Combine(Global.Config.SavedFilesReportTypePath, Id.ToString()); }
 		}
 	}
 }

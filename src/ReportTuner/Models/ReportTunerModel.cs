@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Common.MySql;
 using NHibernate.Criterion;
 using System.Text;
 using MySql.Data.MySqlClient;
@@ -137,7 +138,7 @@ group by Id
 			ref int? rowsCount, ulong region, byte firmType, string findStr, ulong? userId)
 		{
 			List<object> clients;
-			using (var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString)) {
+			using (var conn = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				conn.Open();
 				var Ids = GetSelectedIds(reportProperty);
 
@@ -169,7 +170,7 @@ group by Id
 			int pageSize)
 		{
 			List<object> clients;
-			using (var conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["DB"].ConnectionString)) {
+			using (var conn = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				var Ids = GetSelectedIds(reportProperty);
 				var sql = GetPreparedSql(selectedClientsSql, sortOrder, 0, pageSize, Ids, false);
 				var command = new MySqlCommand(sql, conn);

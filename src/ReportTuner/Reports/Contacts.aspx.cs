@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Common.MySql;
 using ReportTuner.Models;
 using Common.Web.Ui.Models;
 using Castle.ActiveRecord;
 using NHibernate.Criterion;
 using System.Data;
 using MySql.Data.MySqlClient;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 
 namespace ReportTuner
@@ -81,7 +83,7 @@ namespace ReportTuner
 
 		protected void BindEmailList()
 		{
-			DataSet dsContacts = MySqlHelper.ExecuteDataset(System.Configuration.ConfigurationManager.ConnectionStrings["DB"].ConnectionString, @"
+			DataSet dsContacts = MySqlHelper.ExecuteDataset(ConnectionHelper.GetConnectionString(), @"
 select lower(c.contactText) as ContactText
 from
   contacts.contact_groups cg

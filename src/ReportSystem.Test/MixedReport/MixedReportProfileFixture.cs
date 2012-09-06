@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
 using MySql.Data.MySqlClient;
@@ -39,6 +40,17 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedFull);
 			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedFull);
+		}
+
+		[Test]
+		public void MixedFullNoActual()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.MixedFullNoActual);
+			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.MixedFullNoActual);
+			foreach (DataRow row in report.DSResult.Rows) {
+				Assert.That(String.IsNullOrEmpty(row["F1"].ToString()), Is.EqualTo(true));
+			}
 		}
 	}
 }
