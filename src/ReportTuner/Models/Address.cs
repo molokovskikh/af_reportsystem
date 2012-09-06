@@ -8,6 +8,7 @@ using Castle.ActiveRecord.Framework;
 using Castle.Components.Validator;
 using Common.Web.Ui.Helpers;
 using Common.Web.Ui.Models;
+using Common.Web.Ui.Models.Audit;
 
 namespace ReportTuner.Models
 {

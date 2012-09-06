@@ -85,7 +85,8 @@ namespace ReportSystem.Test
 		OrdersStatistics,
 		SupplierOrdersStatisticsType1,
 		SupplierOrdersStatisticsType2,
-		SpecialByBaseCostsPriceCodeNonEqual
+		SpecialByBaseCostsPriceCodeNonEqual,
+		MixedFullNoActual
 	}
 
 	public static class TestHelper

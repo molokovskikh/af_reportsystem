@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Web;
 using Castle.MonoRail.Framework;
 using Common.Web.Ui.Controllers;
 using Common.Web.Ui.Helpers;
+using Common.Web.Ui.MonoRailExtentions;
 using Common.Web.Ui.NHibernateExtentions;
 using NHibernate;
 using NHibernate.Linq;
@@ -233,6 +236,51 @@ namespace ReportTuner.Controllers
 				RedirectToReferrer();
 				return;
 			}
+		}
+
+		public void FileForReportTypes()
+		{
+			PropertyBag["FileForReportTypes"] = DbSession.Query<FileForReportType>().ToList();
+			PropertyBag["ReportTypes"] = DbSession.Query<ReportType>().ToList();
+		}
+
+		public void SaveFilesForReportType()
+		{
+			if (!Directory.Exists(Global.Config.SavedFilesReportTypePath))
+				Directory.CreateDirectory(Global.Config.SavedFilesReportTypePath);
+			foreach (var key in Request.Files.Keys) {
+				var file = GetFileInRequest(key);
+				if (file != null && file.ContentLength != 0) {
+					var reportType = DbSession.Get<ReportType>(Convert.ToUInt32(key));
+					var newFile = reportType.File;
+					if (newFile == null)
+						newFile = new FileForReportType { File = file.FileName, ReportType = reportType };
+					else {
+						File.Delete(newFile.FillPath);
+						newFile.File = file.FileName;
+					}
+					DbSession.SaveOrUpdate(newFile);
+					using (Stream intoStream = File.OpenWrite(newFile.FillPath)) {
+						file.InputStream.CopyTo(intoStream);
+					}
+				}
+			}
+			RedirectToReferrer();
+		}
+
+		public void GetFileForReportType(uint id)
+		{
+			var file = DbSession.Get<FileForReportType>(id);
+			this.RenderFile(file.FillPath, file.File);
+		}
+
+		public void DeleteFileForReportType(uint fileId)
+		{
+			var file = DbSession.Get<FileForReportType>(fileId);
+			if (File.Exists(file.FillPath))
+				File.Delete(file.FillPath);
+			DbSession.Delete(file);
+			CancelView();
 		}
 	}
 }

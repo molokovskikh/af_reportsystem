@@ -54,12 +54,13 @@ namespace Inforoom.ReportSystem
 
 		public string _payer;
 
-		private ILog Logger;
+		public ILog Logger;
 
 		public IDictionary<string, string> FilesForReport;
 
 		//таблица отчетов, которая существует в общем отчете
-		private DataTable _dtReports;
+
+		protected DataTable _dtReports;
 
 		//таблица контактов, по которым надо отправить отчет
 		private DataTable _dtContacts;
@@ -390,7 +391,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 		}
 
 		//Выбираем отчеты из базы
-		private DataTable GetReports(ExecuteArgs e)
+		public DataTable GetReports(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select
@@ -408,7 +409,7 @@ and rt.ReportTypeCode = r.ReportTypeCode",
 			return res;
 		}
 
-		private IDictionary<string, string> GetFilesForReports(ExecuteArgs e)
+		public IDictionary<string, string> GetFilesForReports(ExecuteArgs e)
 		{
 			var result = new Dictionary<string, string>();
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -418,6 +419,28 @@ and f.FileName is not null";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", GeneralReportID);
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
+			foreach (DataRow row in _dtReports.Rows) {
+				if (Convert.ToBoolean(row[BaseReportColumns.colSendFile])) {
+					var reportCode = row[BaseReportColumns.colReportTypeCode];
+					e.DataAdapter.SelectCommand.Parameters.Clear();
+					e.DataAdapter.SelectCommand.CommandText = @"SELECT * FROM reports.fileforreporttypes f
+where ReportType = ?ReportTypeCode;";
+					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportTypeCode", reportCode);
+					var dtFiles = new DataTable();
+					e.DataAdapter.Fill(dtFiles);
+					if (dtFiles.Rows.Count > 0) {
+						var filePath = Path.Combine(Settings.Default.SavedFilesReportTypePath, dtFiles.Rows[0]["Id"].ToString());
+						if (File.Exists(filePath)) {
+							var key = dtFiles.Rows[0]["File"].ToString();
+							if (!result.Keys.Contains(key))
+								result.Add(key, filePath);
+							else
+								Logger.Error(string.Format("При формаровании отчета {0} не был добавлен файл {1} с описанием, так как файл с таким именем уже существует", GeneralReportID, key));
+						}
+					}
+				}
+			}
+
 			foreach (DataRow row in res.Rows) {
 				var file = Path.Combine(Settings.Default.SavedFilesPath, row["Id"].ToString());
 				var fileName = row["FileName"].ToString();

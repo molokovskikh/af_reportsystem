@@ -7,7 +7,7 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class RatingProfileFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore("Переполнение электронной таблицы")]
 		public void Rating()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.Rating);
@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.RatingJunkOnly);
 		}
 
-		[Test]
+		[Test, Ignore("Переполнение электронной таблицы")]
 		public void RatingNotJunkOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingNotJunkOnly);

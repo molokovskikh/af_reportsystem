@@ -1,0 +1,38 @@
+﻿<div> <a href="../../Reports/base.aspx">Настройка отчетов</a></div> <br />
+<form action="SaveFilesForReportType" method=post enctype="multipart/form-data">
+	<table class="HighLightCurrentRow DocumentDataTable BorderRow">
+		<thead>
+			<tr>
+				<th>Тип отчета</th>
+				<th>Выбор файла</th>
+				<th colspan=2>Существующий файл</th>
+			</tr>
+		</thead>
+		<tbody>
+		<% for i,item in enumerate(ReportTypes): %>
+			<tr>
+				<td>
+					${item.ReportTypeName}
+				</td>
+				<td>
+					<input type="file" name="${item.Id}"/>
+				</td>
+				<%if item.File != null: %>
+				<td class="tdForFileLink">
+					<a href="GetFileForReportType?id=${item.File.Id}">${item.File.File}</a>
+				</td>
+				<td class="tdDeleteLink">
+					<input type=hidden value="${item.File.Id}" />
+					<button type=button onclick="deleteFileForReportType(this)">Удалить</button>
+				</td>
+				<%else: %>
+					<td colspan=2></td>
+				<%end %>
+			</tr>
+		<%end %>
+			<tr>
+				<td colspan=4><input type=submit value="Сохранить"/></td>
+			</tr>
+		</tbody>
+	</table>
+</form>

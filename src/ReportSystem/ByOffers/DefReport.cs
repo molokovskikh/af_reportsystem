@@ -33,6 +33,14 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
+		/// <summary>
+		/// Получаем таблицу результатов для проверки в тестах
+		/// </summary>
+		public DataTable DSResult
+		{
+			get { return _dsReport.Tables["Results"]; }
+		}
+
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
@@ -139,7 +147,8 @@ from
   left join SummaryByPrices st on st.NameId = Catalog.NameId 
 where     
   c.PriceCode=?SourcePC
-  and st.NameId is NULL;
+  and st.NameId is NULL
+  and Catalog.Pharmacie = 1;
 
 select distinct OtherByPrice.Code, CatalogNames.Name 
 from 
@@ -190,6 +199,7 @@ from
   inner join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
   inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
+where catalog.Pharmacie = 1
 order by CatalogNames.Name, CatalogForms.Form;";
 					break;
 				}
@@ -244,6 +254,7 @@ from
   inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id  
  )
   left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+where catalog.Pharmacie = 1
 order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
 					break;
 				}
@@ -290,6 +301,7 @@ from
   inner join catalogs.catalog on products.CatalogId = catalog.Id
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
  )
+where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm;
 ", GetFullFormSubquery("OtherByPrice.ProductId"));
 					break;
@@ -347,6 +359,7 @@ from
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
  )
   left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm, Producers.Name;
 ", GetFullFormSubquery("OtherByPrice.ProductId"));
 					break;
@@ -429,6 +442,9 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 						//Замораживаем некоторые колонки и столбцы
 						((MSExcel.Range)ws.get_Range("A2", System.Reflection.Missing.Value)).Select();
 						exApp.ActiveWindow.FreezePanes = true;
+						MSExcel.Range rng = (MSExcel.Range)ws.Rows[1];
+						rng.Insert();
+						ws.Cells[1, 1] = "Из отчета исключены (в целях повышения удобства его восприятия) товары, относящиеся к так называемой \"парафармацевтике\"";
 					}
 					finally {
 						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);

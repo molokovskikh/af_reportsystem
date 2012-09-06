@@ -173,7 +173,8 @@
 		<asp:GridView ID="dgvScheduleMonth" runat="server" 
 			AutoGenerateColumns="False" Caption="Ежемесячное расписание"
 			onrowcommand="dgvScheduleMonth_RowCommand"
-			OnRowDataBound="dgvSchedule_RowDataBoundMonth">
+			OnRowDataBound="dgvSchedule_RowDataBoundMonth"
+			OnRowDeleting="dgvScheduleMonth_RowDeleting">
 				<Columns>
 				<asp:TemplateField HeaderText="Время начала">
 					<ItemTemplate>
@@ -244,12 +245,12 @@
 					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
 				</HeaderTemplate>
 				<ItemTemplate>
-					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
+					<asp:Button ID="btnDelete" runat="server" CssClass="deleteMonthItem" Text="Удалить" CommandName="Delete" />
 				</ItemTemplate>
 				</asp:TemplateField>
 			</Columns>
 			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить расписание" />
+				<asp:Button ID="btnAdd"  CssClass="addMonthItem" runat="server" CommandName="Add" Text="Добавить расписание" />
 			</EmptyDataTemplate>
 		</asp:GridView>
 

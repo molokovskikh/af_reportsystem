@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
+using ReportTuner.Helpers;
 using ReportTuner.Models;
 using WatiN.Core;
 using System.Diagnostics;
@@ -13,7 +15,7 @@ namespace ReportTuner.Test.Functional
 	[TestFixture]
 	public class OneShortReportFixture : WatinFixture2
 	{
-		[Test]
+		[Test, Ignore]
 		public void TestOneShortReport()
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/GeneralReports.aspx")) {
@@ -42,25 +44,37 @@ namespace ReportTuner.Test.Functional
 		public void Set_shedule_month()
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
+				browser.Button(Find.ByClass("addMonthItem")).Click();
 				browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 				browser.Button(Find.ByValue("Применить")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
+				browser.TextField(Find.ByValue("0:00")).Value = "10:00";
+				browser.Button(Find.ByValue("Применить")).Click();
+				Assert.That(browser.Text, Is.Not.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
 				Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
+				browser.Button(Find.ByClass("deleteMonthItem")).Click();
+				browser.Button(Find.ByValue("Применить")).Click();
 			}
 		}
 
-		[Test]
+		[Test, Ignore]
 		public void Send_ready_report()
 		{
+			var generalReport = GeneralReport.Find(Convert.ToUInt64(1));
+			var ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", generalReport.FirmCode.Value.ToString("000"), "Reports");
+			foreach (var file in Directory.GetFiles(ftpDirectory)) {
+				File.Delete(file);
+			}
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
-				browser.Button(Find.ByValue("Выполнить")).Click();
-				Thread.Sleep(5000);
-				browser.Refresh();
 				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
 				browser.TextField("mail_Text").Clear();
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
 				browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
+				browser.Button(Find.ByValue("Выслать готовый")).Click();
+				Assert.That(browser.Text, Is.StringContaining("Файл отчета не найден"));
+				File.WriteAllText(Path.Combine(ftpDirectory, "test.zip"), "123");
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
 			}

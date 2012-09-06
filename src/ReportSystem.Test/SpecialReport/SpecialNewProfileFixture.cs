@@ -38,7 +38,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCostsPriceCodeNonEqual);
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Get_report_for_retail()
 		{
 			Property("Retail", true);

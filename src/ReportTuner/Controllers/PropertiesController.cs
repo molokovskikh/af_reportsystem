@@ -1,6 +1,7 @@
 ﻿using Castle.MonoRail.Framework;
 using Common.Web.Ui.Controllers;
 using Common.Web.Ui.Helpers;
+using Common.Web.Ui.MonoRailExtentions;
 using ReportTuner.Models;
 
 namespace ReportTuner.Controllers

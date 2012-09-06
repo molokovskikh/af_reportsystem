@@ -1,0 +1,125 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ReportProperties>
+    <ID>3807</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>78</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>78</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>ByPreviousMonth</PropertyName>
+    <DisplayName>За предыдущий месяц</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3808</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>79</PropertyID>
+    <PropertyValue>5</PropertyValue>
+    <ID1>79</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>ReportInterval</PropertyName>
+    <DisplayName>Интервал отчета (дни) от текущей даты</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>1</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3809</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>80</PropertyID>
+    <PropertyValue>7665</PropertyValue>
+    <ID1>80</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>SourceFirmCode</PropertyName>
+    <DisplayName>Поставщик</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetFirmCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3810</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>81</PropertyID>
+    <PropertyValue>1</PropertyValue>
+    <ID1>81</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>ShowCode</PropertyName>
+    <DisplayName>Показывать код поставщика</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3811</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>115</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>115</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>BusinessRivals</PropertyName>
+    <DisplayName>Список конкурентов</DisplayName>
+    <PropertyType>LIST</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure>GetFirmCode</SelectStoredProcedure>
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3812</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>121</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>121</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>ShowCodeCr</PropertyName>
+    <DisplayName>Показывать код изготовителя</DisplayName>
+    <PropertyType>BOOL</PropertyType>
+    <Optional>0</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3817</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>94</PropertyID>
+    <PropertyValue>2</PropertyValue>
+    <ID1>94</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>FirmCrPosition</PropertyName>
+    <DisplayName>Позиция "Производителя" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>2</DefaultValue>
+  </ReportProperties>
+  <ReportProperties>
+    <ID>3818</ID>
+    <ReportCode>602</ReportCode>
+    <PropertyID>82</PropertyID>
+    <PropertyValue>0</PropertyValue>
+    <ID1>82</ID1>
+    <ReportTypeCode>8</ReportTypeCode>
+    <PropertyName>ProductNamePosition</PropertyName>
+    <DisplayName>Позиция "Наименования продукта" в отчете</DisplayName>
+    <PropertyType>INT</PropertyType>
+    <Optional>1</Optional>
+    <SelectStoredProcedure />
+    <DefaultValue>0</DefaultValue>
+  </ReportProperties>
+  <ReportPropertyValues>
+    <ID>6884</ID>
+    <ReportPropertyID>3811</ReportPropertyID>
+    <Value>42</Value>
+  </ReportPropertyValues>
+  <ReportPropertyValues>
+    <ID>6885</ID>
+    <ReportPropertyID>3811</ReportPropertyID>
+    <Value>5</Value>
+  </ReportPropertyValues>
+</NewDataSet>
