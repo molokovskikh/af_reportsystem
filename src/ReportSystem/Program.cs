@@ -35,6 +35,8 @@ namespace Inforoom.ReportSystem
 			int generalReportId = 0;
 			try {
 				XmlConfigurator.Configure();
+				ConnectionHelper.DefaultConnectionStringName = "Default";
+				With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
 				ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(Supplier).Assembly);
 
 				//Попытка получить код общего отчета в параметрах
