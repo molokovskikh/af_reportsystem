@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace ReportSystem.Test
 {
-	[TestFixture]
+	[TestFixture, Ignore("Временно, выполняется слишком долго")]
 	public class SpecialNewProfileFixture : BaseProfileFixture
 	{
 		[Test]
@@ -30,7 +30,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCosts);
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Get_report_for_retail()
 		{
 			Property("Retail", true);

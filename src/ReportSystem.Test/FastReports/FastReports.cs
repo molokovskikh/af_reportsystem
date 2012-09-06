@@ -6,7 +6,7 @@ using Inforoom.ReportSystem;
 
 namespace ReportSystem.Test.FastReports
 {
-	[TestFixture]
+	[TestFixture, Ignore("Временно, выполняется слишком долго")]
 	public class FastReports : BaseProfileFixture
 	{
 		private void CreateReport()

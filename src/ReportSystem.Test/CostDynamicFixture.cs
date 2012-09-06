@@ -29,7 +29,7 @@ namespace ReportSystem.Test
 			BuildReport("CostDynamic.xls");
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Builder_report_for_all()
 		{
 			var date = DateTime.Today.AddDays(-7);

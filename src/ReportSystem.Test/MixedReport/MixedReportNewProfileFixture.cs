@@ -26,6 +26,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.MixedNewDifficult);
 		}
 
+
 		[Test]
 		public void Build_report_with_several_concurrent_groups()
 		{
