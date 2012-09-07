@@ -245,7 +245,7 @@ where GeneralReport = ?GeneralReport;";
 						Mailer.MailReportErr(ex.ToString(), _payer, GeneralReportID, bs.ReportCode, bs.ReportCaption);
 						continue; // выполняем следующий отчет
 					}
-					throw new ReportException("Ошибка при подготовке подотчета", ex, bs.ReportCode, bs.ReportCaption, _payer); // передаем наверх
+					throw new ReportException(ex.Message, ex, bs.ReportCode, bs.ReportCaption, _payer); // передаем наверх
 				}
 			}
 
