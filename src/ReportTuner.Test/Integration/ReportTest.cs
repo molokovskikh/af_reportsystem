@@ -71,20 +71,6 @@ namespace ReportTuner.Test.Integration
 		}
 
 		[Test]
-		public void TestSpecialReportPricesFilter()
-		{
-			var prices = FillClients("GetPricesByRegionMaskByTypes", "1", "1", String.Format("{0},{1}", 1, 2));
-			List<uint> id = new List<uint>();
-			foreach (DataRow row in prices.Rows) {
-				id.Add(uint.Parse(row[0].ToString()));
-			}
-			using (new SessionScope()) {
-				var query = TestPrice.Queryable.Where(t => id.Contains(t.Id));
-				Assert.That(query.Count(q => q.PriceType == PriceType.Regular), Is.EqualTo(prices.Rows.Count));
-			}
-		}
-
-		[Test]
 		public void TestRecipientsList()
 		{
 			TestClient client1;

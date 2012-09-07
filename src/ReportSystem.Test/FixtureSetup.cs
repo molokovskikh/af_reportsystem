@@ -12,11 +12,13 @@ namespace ReportSystem.Test
 	public class FixtureSetup
 	{
 		public static string ConnectionStringName;
+		public static string ConnectionString;
 
 		[SetUp]
 		public void SetupFixture()
 		{
 			ConnectionStringName = ConnectionHelper.GetConnectionName();
+			ConnectionString = ConnectionHelper.GetConnectionString();
 			if (!ActiveRecordStarter.IsInitialized) {
 				var config = new InPlaceConfigurationSource();
 				config.Add(typeof(ActiveRecordBase),
