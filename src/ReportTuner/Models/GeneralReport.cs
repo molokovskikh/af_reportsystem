@@ -60,6 +60,9 @@ namespace ReportTuner.Models
 		public virtual bool NoArchive { get; set; }
 
 		[Property]
+		public virtual bool SendDescriptionFile { get; set; }
+
+		[Property]
 		public virtual string Format { get; set; }
 
 		[HasMany]

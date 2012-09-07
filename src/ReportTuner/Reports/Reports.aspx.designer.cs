@@ -120,6 +120,24 @@ public partial class Reports_Reports {
     protected global::System.Web.UI.WebControls.CheckBox NoArchive;
     
     /// <summary>
+    /// SendDescriptionFileLabel control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Label SendDescriptionFileLabel;
+
+    /// <summary>
+    /// SendDescriptionFile control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.CheckBox SendDescriptionFile;
+
+    /// <summary>
     /// fileGridView control.
     /// </summary>
     /// <remarks>

@@ -94,20 +94,19 @@ namespace ReportSystem.Test
 		{
 			var report = new FakeGeneralReport();
 			report.GeneralReportID = 1;
+			report.SendDescriptionFile = true;
 			report.Logger = LogManager.GetLogger(GetType());
 			MySqlConnection connection = null;
 			object reportTypeCode = null;
 			try {
 				connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
 				connection.Open();
-				new MySqlCommand("update reports.reports r set r.SendFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
+				new MySqlCommand("update reports.general_reports r set r.SendDescriptionFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
 				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
 				report.DataTable = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetReports, null, connection);
 				foreach (DataRow row in report.DataTable.Rows) {
-					if (Convert.ToBoolean(row[BaseReportColumns.colSendFile])) {
-						reportTypeCode = row[BaseReportColumns.colReportTypeCode];
-						new MySqlCommand(string.Format("insert into reports.fileforreporttypes (File, ReportType) value ('testFile{0}', {0})", reportTypeCode), connection).ExecuteNonQuery();
-					}
+					reportTypeCode = row[BaseReportColumns.colReportTypeCode];
+					new MySqlCommand(string.Format("insert into reports.fileforreporttypes (File, ReportType) value ('testFile{0}', {0})", reportTypeCode), connection).ExecuteNonQuery();
 				}
 				var files = session.CreateSQLQuery("select id from reports.fileforreporttypes;").List<uint>();
 				var filesNames = session.CreateSQLQuery("select File from reports.fileforreporttypes group by File;").List<string>();

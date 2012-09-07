@@ -57,6 +57,14 @@
 			<asp:CheckBox runat="server" ID="NoArchive"/>
 		  </td>
 		</tr>
+		<tr bgcolor="#eef8ff">
+			<td align="right">
+				<asp:Label ID="SendDescriptionFileLabel" runat="server" Text="¬ключать файлы с описанием:" SkinID="paramLabelSkin"></asp:Label>
+		</td>
+		<td>
+			<asp:CheckBox runat="server" ID="SendDescriptionFile"/>
+		</td>
+		</tr>
 		<tr>
 			<td colspan="2">
 				<asp:GridView ID="fileGridView" runat="server" AutoGenerateColumns="False" OnRowCommand="filesDataGridView_RowCommand" OnRowDeleting="filesDataGridView_RowDeleting">
@@ -116,11 +124,6 @@
 				<asp:TemplateField HeaderText="¬ключен">
 					<ItemTemplate>
 						<asp:CheckBox ID="chbEnable" runat="server" Checked=<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.REnabled")) %> />
-					</ItemTemplate>
-				</asp:TemplateField>
-				<asp:TemplateField HeaderText="‘айл с описанием">
-					<ItemTemplate>
-						<asp:CheckBox ID="chbSendFile" runat="server" Checked=<%#Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.RSendFile"))%> />
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:HyperLinkField HeaderText="ѕараметры" Text="..." DataNavigateUrlFields="RReportCode" DataNavigateUrlFormatString="ReportProperties.aspx?rp={0}" />

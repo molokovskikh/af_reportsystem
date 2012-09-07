@@ -26,7 +26,7 @@ namespace Inforoom.ReportSystem
 	public sealed class BaseReportColumns
 	{
 		public const string colReportCode = "ReportCode";
-		public const string colSendFile = "SendFile";
+		//public const string colSendFile = "SendFile";
 		public const string colGeneralReportCode = "GeneralReportCode";
 		public const string colReportCaption = "ReportCaption";
 		public const string colReportTypeCode = "ReportTypeCode";

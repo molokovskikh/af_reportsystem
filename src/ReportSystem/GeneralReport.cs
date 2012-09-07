@@ -25,6 +25,7 @@ namespace Inforoom.ReportSystem
 		public const string ReportFileName = "ReportFileName";
 		public const string ReportArchName = "ReportArchName";
 		public const string NoArchive = "NoArchive";
+		public const string SendDescriptionFile = "SendDescriptionFile";
 		public const string Temporary = "Temporary";
 		public const string Format = "Format";
 	}
@@ -44,6 +45,7 @@ namespace Inforoom.ReportSystem
 		private string _reportArchName;
 
 		private bool _noArchive;
+		public bool SendDescriptionFile;
 
 		private MySqlConnection _conn;
 
@@ -106,7 +108,8 @@ namespace Inforoom.ReportSystem
 			DateTime dtFrom,
 			DateTime dtTo,
 			string payer,
-			bool noArchive)
+			bool noArchive,
+			bool sendDescriptionFile)
 		{
 			Logger = LogManager.GetLogger(GetType());
 			GeneralReportID = id;
@@ -118,6 +121,7 @@ namespace Inforoom.ReportSystem
 			_reportArchName = reportArchName;
 			_payer = payer;
 			_noArchive = noArchive;
+			SendDescriptionFile = sendDescriptionFile;
 			Format = format;
 
 			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
@@ -420,7 +424,7 @@ and f.FileName is not null";
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			foreach (DataRow row in _dtReports.Rows) {
-				if (Convert.ToBoolean(row[BaseReportColumns.colSendFile])) {
+				if (SendDescriptionFile) {
 					var reportCode = row[BaseReportColumns.colReportTypeCode];
 					e.DataAdapter.SelectCommand.Parameters.Clear();
 					e.DataAdapter.SelectCommand.CommandText = @"SELECT * FROM reports.fileforreporttypes f
