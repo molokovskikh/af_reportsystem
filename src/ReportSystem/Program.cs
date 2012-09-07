@@ -107,6 +107,12 @@ and cr.generalreportcode = " + generalReportId;
 										drReport[GeneralReportColumns.ShortName]);
 									_log.Error(message, ex);
 
+									var reportEx = ex as ReportException;
+									if (reportEx != null && reportEx.InnerException != null) {
+										Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, (ulong)drReport[GeneralReportColumns.GeneralReportCode], reportEx.SubreportCode, reportEx.ReportCaption);
+										continue;
+									}
+
 									Mailer.MailGeneralReportErr(
 										ex.ToString(),
 										(string)drReport[GeneralReportColumns.ShortName],

@@ -18,3 +18,7 @@ _resharper.*
 *.log
 src/ReportTuner/Data
 packages/
+Backup/
+UpgradeLog.XML
+UpgradeLog.htm
+_UpgradeReport_Files/
