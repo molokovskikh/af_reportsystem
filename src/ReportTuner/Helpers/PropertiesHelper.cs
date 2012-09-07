@@ -139,7 +139,12 @@ namespace ReportTuner.Helpers
 				if (!String.IsNullOrEmpty(res)) return res;
 				// В специальном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
-				if (!String.IsNullOrEmpty(res)) return res;
+				// Добавляем фильтрацию по типу прайса
+				var resTypes = String.Format("&inTypes={0},{1}", 1, 2);
+				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				// Список исключений "Прайс"
+				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeNonValues" }, new[] { "RegionEqual" });
+				if (!String.IsNullOrEmpty(res)) return res + resTypes;
 			}
 			if (report.ReportType.ReportClassName.Contains("CombReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");

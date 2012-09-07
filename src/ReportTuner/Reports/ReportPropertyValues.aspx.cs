@@ -38,6 +38,7 @@ public partial class Reports_ReportPropertyValues : Page
 
 	private string inFilter; // параметры для хранимых процедур
 	private long? inID = null;
+	private string inTypes;
 
 	protected void Page_Init(object sender, System.EventArgs e)
 	{
@@ -68,6 +69,10 @@ public partial class Reports_ReportPropertyValues : Page
 
 		if (!String.IsNullOrEmpty(Request["inFilter"])) {
 			inFilter = Request["inFilter"];
+		}
+
+		if(!String.IsNullOrEmpty(Request["inTypes"])) {
+			inTypes = Request["inTypes"];
 		}
 
 		if (!(Page.IsPostBack)) {
@@ -311,6 +316,8 @@ WHERE
 			MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
 			MyCmd.Parameters.AddWithValue("inID", !inID.HasValue ? null : inID);
 			MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
+			MyCmd.Parameters.AddWithValue("inTypes", String.IsNullOrEmpty(inTypes) ? "-1" : inTypes);
+			MyCmd.Parameters["inTypes"].Direction = ParameterDirection.Input;
 			MyCmd.CommandText = ListProc;
 			MyCmd.CommandType = CommandType.StoredProcedure;
 			MyDA.Fill(DS, dtProcResult.TableName);

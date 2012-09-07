@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 
 namespace ReportSystem.Test
 {
-	[TestFixture, Ignore("Временно, выполняется слишком долго")]
+	[TestFixture]
 	public class SpecialProfileFixture : BaseProfileFixture
 	{
 		[Test]

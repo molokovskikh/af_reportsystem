@@ -31,7 +31,7 @@ namespace ReportTuner.Test.Integration
 			MyDA = new MySqlDataAdapter();
 		}
 
-		private DataTable FillClients(string proc, string filter, string id)
+		DataTable FillClients(string proc, string filter, string id, string inTypes = null)
 		{
 			var dtProcResult = new DataTable();
 			string db = String.Empty;
@@ -50,6 +50,13 @@ namespace ReportTuner.Test.Integration
 				else
 					MyCmd.Parameters.AddWithValue("inID", Convert.ToInt64(id));
 				MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
+				if(String.IsNullOrEmpty(inTypes)) {
+					MyCmd.Parameters.AddWithValue("inTypes", -1);
+				}
+				else {
+					MyCmd.Parameters.AddWithValue("inTypes", inTypes);
+				}
+				MyCmd.Parameters["inTypes"].Direction = ParameterDirection.Input;
 				MyCmd.CommandText = proc;
 				MyCmd.CommandType = CommandType.StoredProcedure;
 				MyDA.Fill(dtProcResult);
