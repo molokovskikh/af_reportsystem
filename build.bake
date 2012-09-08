@@ -36,4 +36,4 @@ task @BuildBackground:
 	Rm("output/$project/$project.*.config")
 	Globals.Project = oldProject
 
-task @BeforeTest, [@RunMySql, @PrepareLocal]
+task @BeforeTest, [@RunMySql, @PrepareLocal, @Migrate]
