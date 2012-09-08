@@ -11,6 +11,7 @@ Global(
 	humanReadableName : "Генератор отчетов",
 	Platform : "x86",
 	Project: "ReportTuner",
+	Environment: @Development,
 	Profile : @reportTypes,
 	Port: 3312,
 	AdditionalAssemblies: ("Common.Web.Ui", "Report.Data.Builder")

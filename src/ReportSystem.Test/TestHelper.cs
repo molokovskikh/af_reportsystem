@@ -85,6 +85,7 @@ namespace ReportSystem.Test
 		OrdersStatistics,
 		SupplierOrdersStatisticsType1,
 		SupplierOrdersStatisticsType2,
+		SpecialByBaseCostsPriceCodeNonEqual,
 		MixedFullNoActual
 	}
 

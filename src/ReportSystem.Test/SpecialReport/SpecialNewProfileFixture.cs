@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace ReportSystem.Test
 {
-	[TestFixture, Ignore("Временно, выполняется слишком долго")]
+	[TestFixture]
 	public class SpecialNewProfileFixture : BaseProfileFixture
 	{
 		[Test]
@@ -28,6 +28,14 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialByBaseCosts);
 			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCosts);
+		}
+
+		[Test]
+		public void SpecialByBaseCostsPriceCodeNonEqual()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.SpecialByBaseCostsPriceCodeNonEqual);
+			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCostsPriceCodeNonEqual);
 		}
 
 		[Test, Ignore("Временно, выполняется слишком долго")]
