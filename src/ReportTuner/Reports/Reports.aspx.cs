@@ -51,7 +51,7 @@ public partial class Reports_Reports : BasePage
 		else if (Request["r"].Equals(ConfigurationManager.AppSettings["TemplateReportId"], StringComparison.OrdinalIgnoreCase))
 			Response.Redirect("TemplateReports.aspx");
 		else
-			((HyperLinkField)dgvReports.Columns[4]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"];
+			((HyperLinkField)dgvReports.Columns[3]).DataNavigateUrlFormatString = @"ReportProperties.aspx?rp={0}&r=" + Request["r"];
 
 		SheduleLink.NavigateUrl = "Schedule.aspx?r=" + Request["r"];
 
