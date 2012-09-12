@@ -142,3 +142,7 @@ div#sheduleType span {
 .deletedElement {
 	color: red;
 }
+
+.topPadding {
+	padding-top: 15px;
+}

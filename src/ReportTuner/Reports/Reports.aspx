@@ -59,11 +59,14 @@
 		</tr>
 		<tr bgcolor="#eef8ff">
 			<td align="right">
-				<asp:Label ID="SendDescriptionFileLabel" runat="server" Text="¬ключать файлы с описанием:" SkinID="paramLabelSkin"></asp:Label>
-		</td>
+				<asp:Label ID="SendDescriptionFileLabel" runat="server" Text="¬ложить в письмо файлы с описанием:" SkinID="paramLabelSkin"></asp:Label>
+			</td>
 		<td>
 			<asp:CheckBox runat="server" ID="SendDescriptionFile"/>
 		</td>
+		</tr>
+		<tr>
+			<td colspan="2" class="topPadding">¬ложить в письмо с отчетом файлы:</td>
 		</tr>
 		<tr>
 			<td colspan="2">
