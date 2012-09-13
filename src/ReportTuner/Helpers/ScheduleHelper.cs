@@ -145,16 +145,12 @@ namespace ReportTuner.Helpers
 		public static Task GetTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string comment, string prefix)
 		{
 			try {
-				//return FindTask(taskService, reportsFolder, generalReportId, prefix);
-				var updateTask = FindTask(taskService, reportsFolder, generalReportId, prefix);
+				return FindTask(taskService, reportsFolder, generalReportId, prefix);
 				//Нашли задачу, производим обновление
-				TaskDefinition updateTaskDefinition = updateTask.Definition;
-				updateTaskDefinition.Settings.RestartCount = 3;
-				updateTaskDefinition.Settings.RestartInterval = new TimeSpan(0, 15, 0);
-				updateTaskDefinition.Settings.StartWhenAvailable = true;
+				/* TaskDefinition updateTaskDefinition = updateTask.Definition;
 				//updateTaskDefinition.RegistrationInfo.Description = comment;
 
-				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition, prefix);
+				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition, prefix);*/
 			}
 			catch (InvalidOperationException) {
 				//Задачу не нашли, поэтому создаем ее

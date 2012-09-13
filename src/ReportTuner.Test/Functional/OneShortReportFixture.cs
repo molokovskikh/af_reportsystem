@@ -129,7 +129,7 @@ namespace ReportTuner.Test.Functional
 		{
 			var url = String.Format("http://stat.analit.net/reportConf/Reports/GeneralReports.aspx");
 			browser = Open(url);
-			var links = browser.Links.Where(t => t.Url.Contains("Schedule.aspx")).Select(t => t.Url);
+			var links = browser.Links.Where(t => t.Url.Contains("Schedule.aspx")).Select(t => t.Url).ToArray();
 			foreach(var link in links) {
 				browser.GoTo(link);
 				AssertText("Расписание");
