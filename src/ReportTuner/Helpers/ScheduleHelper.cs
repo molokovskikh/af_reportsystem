@@ -68,6 +68,9 @@ namespace ReportTuner.Helpers
 			createTaskDefinition.Settings.AllowDemandStart = true;
 			createTaskDefinition.Settings.AllowHardTerminate = true;
 			createTaskDefinition.Settings.ExecutionTimeLimit = TimeSpan.FromHours(1);
+			createTaskDefinition.Settings.RestartCount = 3;
+			createTaskDefinition.Settings.RestartInterval = new TimeSpan(0, 15, 0);
+			createTaskDefinition.Settings.StartWhenAvailable = true;
 
 			createTaskDefinition.Actions.Add(new ExecAction(ScheduleAppPath, "/gr:" + generalReportId, ScheduleWorkDir));
 
@@ -142,13 +145,16 @@ namespace ReportTuner.Helpers
 		public static Task GetTask(TaskService taskService, TaskFolder reportsFolder, ulong generalReportId, string comment, string prefix)
 		{
 			try {
-				return FindTask(taskService, reportsFolder, generalReportId, prefix);
-
+				//return FindTask(taskService, reportsFolder, generalReportId, prefix);
+				var updateTask = FindTask(taskService, reportsFolder, generalReportId, prefix);
 				//Нашли задачу, производим обновление
-				/*TaskDefinition updateTaskDefinition = updateTask.Definition;
-				updateTaskDefinition.RegistrationInfo.Description = comment;
+				TaskDefinition updateTaskDefinition = updateTask.Definition;
+				updateTaskDefinition.Settings.RestartCount = 3;
+				updateTaskDefinition.Settings.RestartInterval = new TimeSpan(0, 15, 0);
+				updateTaskDefinition.Settings.StartWhenAvailable = true;
+				//updateTaskDefinition.RegistrationInfo.Description = comment;
 
-				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition,prefix);	*/
+				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition, prefix);
 			}
 			catch (InvalidOperationException) {
 				//Задачу не нашли, поэтому создаем ее

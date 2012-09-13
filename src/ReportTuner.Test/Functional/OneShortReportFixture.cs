@@ -53,6 +53,13 @@ namespace ReportTuner.Test.Functional
 				browser.Button(Find.ByValue("Применить")).Click();
 				Assert.That(browser.Text, Is.Not.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
 				Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
+
+				var taskService = ScheduleHelper.GetService();
+				var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
+				var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, (ulong)1, "", "GR");
+				Assert.That(currentTask.Definition.Settings.RestartCount == 3);
+				Assert.That(currentTask.Definition.Settings.RestartInterval == new TimeSpan(0, 15, 0));
+				Assert.That(currentTask.Definition.Settings.StartWhenAvailable == true);
 				browser.Button(Find.ByClass("deleteMonthItem")).Click();
 				browser.Button(Find.ByValue("Применить")).Click();
 			}
@@ -115,6 +122,18 @@ namespace ReportTuner.Test.Functional
 			var url = String.Format("http://localhost:53759/Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
 			browser = Open(url);
 			Assert.That(browser.Text, Is.StringContaining("Настройка параметров отчета"));
+		}
+
+		[Test, Ignore("Не тест, используется для обновления задач в планировщике")]
+		public void WalkSchedulerReport()
+		{
+			var url = String.Format("http://stat.analit.net/reportConf/Reports/GeneralReports.aspx");
+			browser = Open(url);
+			var links = browser.Links.Where(t => t.Url.Contains("Schedule.aspx")).Select(t => t.Url);
+			foreach(var link in links) {
+				browser.GoTo(link);
+				AssertText("Расписание");
+			}
 		}
 	}
 }
