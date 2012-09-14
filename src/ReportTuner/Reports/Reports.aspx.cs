@@ -75,6 +75,7 @@ public partial class Reports_Reports : BasePage
 		tbReportFileName.Text = report.ReportFileName;
 		tbReportArchName.Text = report.ReportArchName;
 		NoArchive.Checked = report.NoArchive;
+		SendDescriptionFile.Checked = report.SendDescriptionFile;
 
 		ReportFormatDD.SelectedValue = report.Format;
 
@@ -414,6 +415,7 @@ SET
 			report.ReportFileName = tbReportFileName.Text;
 			report.ReportArchName = tbReportArchName.Text;
 			report.NoArchive = NoArchive.Checked;
+			report.SendDescriptionFile = SendDescriptionFile.Checked;
 			report.Format = ReportFormatDD.Text;
 			report.Save();
 		}

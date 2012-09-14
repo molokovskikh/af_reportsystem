@@ -424,7 +424,7 @@ and f.FileName is not null";
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			foreach (DataRow row in _dtReports.Rows) {
-				if (SendDescriptionFile) {
+				if (SendDescriptionFile && Convert.ToBoolean(row["Enabled"])) {
 					var reportCode = row[BaseReportColumns.colReportTypeCode];
 					e.DataAdapter.SelectCommand.Parameters.Clear();
 					e.DataAdapter.SelectCommand.CommandText = @"SELECT * FROM reports.fileforreporttypes f
