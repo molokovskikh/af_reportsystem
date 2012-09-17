@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Data;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
 
@@ -37,6 +39,14 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingFull);
 			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingFull);
+		}
+
+		[Test]
+		public void RatingFullWithProductByPrice()
+		{
+			var props = TestHelper.LoadProperties(ReportsTypes.RatingFullWithProductByPrice);
+			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			TestHelper.ProcessReport(report, ReportsTypes.RatingFullWithProductByPrice);
 		}
 
 		[Test]
