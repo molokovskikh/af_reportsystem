@@ -146,11 +146,6 @@ namespace ReportTuner.Helpers
 		{
 			try {
 				return FindTask(taskService, reportsFolder, generalReportId, prefix);
-				//Нашли задачу, производим обновление
-				/* TaskDefinition updateTaskDefinition = updateTask.Definition;
-				//updateTaskDefinition.RegistrationInfo.Description = comment;
-
-				return UpdateTaskDefinition(taskService, reportsFolder, generalReportId, updateTaskDefinition, prefix);*/
 			}
 			catch (InvalidOperationException) {
 				//Задачу не нашли, поэтому создаем ее
