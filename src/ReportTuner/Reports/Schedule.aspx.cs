@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
@@ -16,6 +17,7 @@ using Microsoft.Win32.TaskScheduler;
 using System.Threading;
 using ReportTuner.Models;
 using ReportTuner.Helpers;
+using FileHelper = ReportTuner.Helpers.FileHelper;
 
 
 public partial class Reports_schedule : Page
@@ -260,7 +262,9 @@ order by LogTime desc
 			ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", _generalReport.FirmCode.Value.ToString("000"), "Reports");
 #endif
 		}
-		send_created_report.Visible = !string.IsNullOrEmpty(ftpDirectory) && Directory.Exists(ftpDirectory);
+		send_created_report.Visible = !string.IsNullOrEmpty(ftpDirectory) &&
+			Directory.Exists(ftpDirectory) &&
+			FileHelper.GetFilesForSend(ftpDirectory, _generalReport).Count() > 0;
 	}
 
 	private List<object[]> ObjectFromQuery(MySqlParameter[] parameters, string commandText)
@@ -815,7 +819,7 @@ and c.Type = ?ContactType");
 
 	protected void btnExecute_sendReady(object sender, EventArgs e)
 	{
-		if (_generalReport.FirmCode == null)
+		if (_generalReport.FirmCode == null || _generalReport.Format == "DBF")
 			return;
 
 		var message = new MailMessage();
@@ -837,7 +841,7 @@ and c.Type = ?ContactType");
 			return;
 		}
 		if (!string.IsNullOrEmpty(ftpDirectory) && Directory.Exists(ftpDirectory))
-			foreach (var file in Directory.GetFiles(ftpDirectory)) {
+			foreach (var file in FileHelper.GetFilesForSend(ftpDirectory, _generalReport)) {
 				message.Attachments.Add(new Attachment(file));
 			}
 		if (message.Attachments.Count <= 0) {
