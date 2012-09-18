@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Data;
 using Inforoom.ReportSystem.Helpers;
@@ -17,6 +18,12 @@ namespace Inforoom.ReportSystem
 		public int JunkState { get; set; }
 		public bool BuildChart { get; set; }
 		public bool DoNotShowAbsoluteValues { get; set; }
+		public List<ulong> ProductFromPriceEqual { get; set; }
+
+		public DataTable ResultTable
+		{
+			get { return _dsReport.Tables["Results"]; }
+		}
 
 		public RatingReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, conn, format, dsProperties)
@@ -74,6 +81,19 @@ where 1=1", OrdersSchema));
 				selectCommand = String.Concat(selectCommand, Environment.NewLine + "and (ol.Junk = 0)");
 			else if (2 == JunkState)
 				selectCommand = String.Concat(selectCommand, Environment.NewLine + "and (ol.Junk = 1)");
+
+			// обрабатываем параметр Список значений "Наименование продукта" из прайс-листа
+			if(ProductFromPriceEqual != null) {
+				selectCommand = String.Concat(selectCommand, Environment.NewLine +
+					String.Format("and exists (select * from farm.Core0 cr where cr.ProductId = p.Id and cr.pricecode in ({0}))",
+						String.Join(",", ProductFromPriceEqual.ToArray())));
+				if(reportParamExists("FirmCrPosition")) {
+					selectCommand = String.Concat(selectCommand, Environment.NewLine +
+						String.Format("and exists (select * from farm.Core0 cr join farm.synonymfirmcr fcr on cr.SynonymFirmCrCode=fcr.SynonymFirmCrCode" +
+							" where fcr.CodeFirmCr = cfc.Id and cr.pricecode in ({0}))",
+							String.Join(",", ProductFromPriceEqual.ToArray())));
+				}
+			}
 
 			//Применяем группировку и сортировку
 			selectCommand = ApplyGroupAndSort(selectCommand, "Cost desc");
