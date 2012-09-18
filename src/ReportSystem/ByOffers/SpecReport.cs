@@ -65,6 +65,13 @@ namespace Inforoom.ReportSystem
 		{
 			reportCaptionPreffix = "Специальный отчет";
 		}
+		/// <summary>
+		/// результаты отчета для тестов
+		/// </summary>
+		public DataSet DSResult
+		{
+			get { return _dsReport; }
+		}
 
 		public override void ReadReportParams()
 		{
@@ -260,12 +267,22 @@ group by c.pricecode";
 				if (!(drCatalog["ID"] is DBNull)) {
 					newrow["Code"] = drCatalog["Code"];
 					//Производим поиск предложения по данной позиции по интересующему прайс-листу
-					drsMin = dtCore.Select("ID = " + drCatalog["ID"]);
+					var drsMin1 = dtCore.Select("ID = " + drCatalog["ID"], "Cost asc");
+					drsMin = dtCore.Select("CatalogCode = '" + drsMin1[0]["CatalogCode"] + "' and PriceCode = " + drsMin1[0]["PriceCode"].ToString(), "Cost asc");
 					//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
 					//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
-					if ((drsMin.Length > 0) && !(drsMin[0]["Cost"] is DBNull)) {
-						newrow["CustomerCost"] = Convert.ToDecimal(drsMin[0]["Cost"]);
-						newrow["CustomerQuantity"] = drsMin[0]["Quantity"];
+					if ((drsMin.Length > 0)) {
+						foreach (DataRow dataRow in drsMin) {
+							if(newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false) {
+								newrow["CustomerCost"] = Convert.ToDecimal(dataRow["Cost"]);
+							}
+							if(String.IsNullOrEmpty(newrow["CustomerQuantity"].ToString())) {
+								newrow["CustomerQuantity"] = dataRow["Quantity"];
+							}
+							else {
+								newrow["CustomerQuantity"] = Convert.ToInt64(dataRow["Quantity"]) + Convert.ToInt64(newrow["CustomerQuantity"]);
+							}
+						}
 						if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
 							newrow["LeaderName"] = "+";
 					}
@@ -299,6 +316,8 @@ group by c.pricecode";
 						}
 						newrow["LeaderName"] = String.Join("; ", leaderNames.ToArray());
 					}
+					if (String.IsNullOrEmpty(newrow["LeaderName"].ToString()))
+						newrow["LeaderName"] = "+";
 				}
 				else {
 					//Ищем первую цену, которая будет больше минимальной цены
@@ -327,12 +346,15 @@ group by c.pricecode";
 
 						//Если мы еще не установили значение у поставщика, то делаем это
 						//раньше вставляли последнее значение, которое было максимальным
-						if (newrow["Cost" + priceIndex] is DBNull) {
+						if (newrow["Cost" + priceIndex] is DBNull && Convert.ToBoolean(dtPos["Junk"]) == false) {
 							newrow["Cost" + priceIndex] = dtPos["Cost"];
 
 							var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
 							if (quantityColumn != null)
-								newrow[quantityColumn] = dtPos["Quantity"];
+								if(newrow[quantityColumn] is DBNull)
+									newrow[quantityColumn] = dtPos["Quantity"];
+								else
+									newrow[quantityColumn] = Convert.ToInt64(newrow[quantityColumn]) + Convert.ToInt64(dtPos["Quantity"]);
 
 							var percentColumn = dtRes.Columns["Percents" + priceIndex];
 							if (percentColumn != null) {
@@ -340,6 +362,15 @@ group by c.pricecode";
 								var pricecost = Convert.ToDouble(dtPos["Cost"]);
 								newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
+						}
+						else {
+							var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
+							if (quantityColumn != null)
+								if(newrow[quantityColumn] is DBNull)
+									newrow[quantityColumn] = dtPos["Quantity"];
+								else if(!String.IsNullOrEmpty(dtPos["Quantity"].ToString())) {
+									newrow[quantityColumn] = Convert.ToInt64(newrow[quantityColumn]) + Convert.ToInt64(dtPos["Quantity"]);
+								}
 						}
 					}
 				}
@@ -487,7 +518,8 @@ select
   Core.Cost,
   Core.PriceCode,
   Core.RegionCode,
-  FarmCore.Quantity 
+  FarmCore.Quantity,
+  FarmCore.Junk
 from 
   Core,
   farm.core0 FarmCore
