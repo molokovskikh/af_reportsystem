@@ -1,0 +1,1 @@
+﻿UPDATE reports.report_type_properties r SET SelectStoredProcedure='GetAllPriceCode' where PropertyName='ProductFromPriceEqual' and ReportTypeCode=6;
