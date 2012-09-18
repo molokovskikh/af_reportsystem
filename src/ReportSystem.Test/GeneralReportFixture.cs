@@ -102,6 +102,7 @@ namespace ReportSystem.Test
 				connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
 				connection.Open();
 				new MySqlCommand("update reports.general_reports r set r.SendDescriptionFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
+				new MySqlCommand("update reports.reports r set r.Enabled = true where generalreportcode = 1", connection).ExecuteNonQuery();
 				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
 				report.DataTable = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetReports, null, connection);
 				foreach (DataRow row in report.DataTable.Rows) {
