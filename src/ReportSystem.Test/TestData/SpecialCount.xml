@@ -19,7 +19,7 @@
     <ID>3752</ID>
     <ReportCode>594</ReportCode>
     <PropertyID>2</PropertyID>
-    <PropertyValue>5101</PropertyValue>
+    <PropertyValue>832</PropertyValue>
     <ID1>2</ID1>
     <ReportTypeCode>1</ReportTypeCode>
     <PropertyName>ClientCode</PropertyName>
@@ -88,7 +88,7 @@
     <ID>3757</ID>
     <ReportCode>594</ReportCode>
     <PropertyID>75</PropertyID>
-    <PropertyValue>216</PropertyValue>
+    <PropertyValue>338</PropertyValue>
     <ID1>75</ID1>
     <ReportTypeCode>1</ReportTypeCode>
     <PropertyName>PriceCode</PropertyName>

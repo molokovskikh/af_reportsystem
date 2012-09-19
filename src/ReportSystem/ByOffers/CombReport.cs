@@ -83,7 +83,8 @@ namespace Inforoom.ReportSystem
 				e.DataAdapter.SelectCommand.CommandText += "0";
 			}
 			e.DataAdapter.SelectCommand.CommandText += @"
-As Cfc
+As Cfc,
+  FarmCore.Junk
 from
   Core,
   farm.core0 FarmCore,
@@ -264,16 +265,25 @@ order by 2, 5";
 
 					//Если мы еще не установили значение у поставщика, то делаем это
 					//раньше вставляли последнее значение, которое было максимальным
-					if (newrow[firstColumnCount + priceIndex * 2] is DBNull) {
+					if (newrow[firstColumnCount + priceIndex * 2] is DBNull && Convert.ToBoolean(dtPos["Junk"]) == false) {
 						newrow[firstColumnCount + priceIndex * 2] = dtPos["Cost"];
+
 						if (_reportType == 2 || _reportType == 4) {
 							if (!_showPercents)
-								newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
+								if(newrow[firstColumnCount + priceIndex * 2 + 1] is DBNull)
+									newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
+								else
+									newrow[firstColumnCount + priceIndex * 2 + 1] = Convert.ToInt64(newrow[firstColumnCount + priceIndex * 2 + 1]) + Convert.ToInt64(dtPos["Quantity"]);
 							else {
 								double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
 								newrow[firstColumnCount + priceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
+					}
+					else if(String.IsNullOrEmpty(newrow[firstColumnCount + priceIndex * 2 + 1].ToString()))
+						newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
+					else if(!String.IsNullOrEmpty(dtPos["Quantity"].ToString())) {
+						newrow[firstColumnCount + priceIndex * 2 + 1] = Convert.ToInt64(newrow[firstColumnCount + priceIndex * 2 + 1]) + Convert.ToInt64(dtPos["Quantity"]);
 					}
 				}
 				dtRes.Rows.Add(newrow);

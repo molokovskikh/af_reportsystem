@@ -166,8 +166,8 @@ select  c.ProductId,
         ec.ProducerId,
         ec.ProducerName,
         ec.SupplierName,
-        min(c.cost) Cost,
-		c0.Quantity,
+        min(if(c0.Junk=0, c.cost, null)) Cost,
+		sum(c0.Quantity) as Quantity,
 		sfc.Synonym as Producer,
 		c0.Code
 from Core c
@@ -327,7 +327,7 @@ where
 				var producerName = Convert.ToString(reader["ProducerName"]);
 				var producerId = (reader["ProducerId"] != DBNull.Value) ? Convert.ToInt32(reader["ProducerId"]) : -1;
 				var supplierName = Convert.ToString(reader["SupplierName"]);
-				var cost = Convert.ToDecimal(reader["Cost"]);
+				var cost = reader["Cost"];
 
 				if (ShouldCreateNewRow(productId, prevProductId, producerId, prevProducerId)) {
 					// Стартуем новый Продукт
@@ -350,13 +350,18 @@ where
 				CheckSupplierNumb(supplierIndex, dataTable, row);
 
 				row["Supplier" + supplierIndex] = supplierName;
-				row["Cost" + supplierIndex] = cost;
 				row["Producer" + supplierIndex] = reader["Producer"].ToString();
+				row["Cost" + supplierIndex] = cost;
 				if (_includeQuantity)
 					row["Quantity" + supplierIndex] = reader["Quantity"].ToString();
-				if (prevCost > 0)
-					row["Diff" + supplierIndex] = Math.Round(((cost - prevCost) / prevCost) * 100, 2);
-				prevCost = cost;
+				if(String.IsNullOrEmpty(cost.ToString())) {
+					prevCost = -1;
+				}
+				else if (prevCost > 0)
+					row["Diff" + supplierIndex] = Math.Round(((Convert.ToDecimal(cost) - prevCost) / prevCost) * 100, 2);
+				else {
+					prevCost = Convert.ToDecimal(cost);
+				}
 			}
 
 			AddRow(dataTable, row);

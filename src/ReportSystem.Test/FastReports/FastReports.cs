@@ -6,7 +6,7 @@ using Inforoom.ReportSystem;
 
 namespace ReportSystem.Test.FastReports
 {
-	[TestFixture, Ignore("Временно, выполняется слишком долго")]
+	[TestFixture]
 	public class FastReports : BaseProfileFixture
 	{
 		private void CreateReport()
@@ -14,7 +14,7 @@ namespace ReportSystem.Test.FastReports
 			report = new PharmacyOffersReport(0, "Automate Created Report", Conn, ReportFormats.Excel, properties);
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Build_report_with_producer()
 		{
 			Property("IncludeQuantity", 1);
@@ -24,7 +24,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Build_report_without_producer()
 		{
 			Property("IncludeQuantity", 1);
@@ -34,7 +34,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Build_report_with_cost_diff_threshold()
 		{
 			Property("IncludeQuantity", 1);
@@ -45,7 +45,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Build_report_with_ignored_suppliers()
 		{
 			Property("IncludeQuantity", 1);
@@ -56,7 +56,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Build_report_with_pricelist()
 		{
 			Property("IncludeQuantity", 1);
@@ -67,7 +67,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Build_report_with_pricelist_without_producer_and_quantity()
 		{
 			Property("IncludeQuantity", 0);
@@ -83,14 +83,14 @@ namespace ReportSystem.Test.FastReports
 		{
 			Property("IncludeQuantity", 1);
 			Property("IncludeProducer", 1);
-			Property("ClientCode", 2575);
-			Property("PriceCode", 4649);
+			Property("ClientCode", 832);
+			Property("PriceCode", 338);
 			Property("ReportIsFull", 1);
 			CreateReport();
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Build_full_report_with_pricelist_without_producer_and_quantity()
 		{
 			Property("IncludeQuantity", 0);
@@ -102,7 +102,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		[ExpectedException(typeof(ReportException), ExpectedMessage = "Не найден прайс-лист с кодом: 0.")]
 		public void Build_report_with_non_exists_pricelist()
 		{
@@ -114,7 +114,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		[ExpectedException(typeof(ReportException), ExpectedMessage = "(1) нет предложений.", MatchType = MessageMatch.Contains)]
 		public void Build_report_with_pricelist_without_offers()
 		{

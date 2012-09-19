@@ -6,10 +6,10 @@ using MySql.Data.MySqlClient;
 
 namespace ReportSystem.Test
 {
-	[TestFixture, Ignore("Временно, выполняется слишком долго")]
+	[TestFixture]
 	public class CombineProfileFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void Combine()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.Combine);
@@ -33,7 +33,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.CombineCountAndProducer);
 		}
 
-		[Test]
+		[Test, Ignore("Временно, выполняется слишком долго")]
 		public void CombineProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineProducer);
