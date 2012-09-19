@@ -267,24 +267,26 @@ group by c.pricecode";
 				if (!(drCatalog["ID"] is DBNull)) {
 					newrow["Code"] = drCatalog["Code"];
 					//Производим поиск предложения по данной позиции по интересующему прайс-листу
-					var drsMin1 = dtCore.Select("ID = " + drCatalog["ID"], "Cost asc");
-					drsMin = dtCore.Select("CatalogCode = '" + drsMin1[0]["CatalogCode"] + "' and PriceCode = " + drsMin1[0]["PriceCode"].ToString(), "Cost asc");
-					//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
-					//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
-					if ((drsMin.Length > 0)) {
-						foreach (DataRow dataRow in drsMin) {
-							if(newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false) {
-								newrow["CustomerCost"] = Convert.ToDecimal(dataRow["Cost"]);
+					var drsCore = dtCore.Select("ID = " + drCatalog["ID"], "Cost asc");
+					if(drsCore.Length > 0) {
+						drsMin = dtCore.Select("CatalogCode = '" + drsCore[0]["CatalogCode"] + "' and PriceCode = " + drsCore[0]["PriceCode"].ToString(), "Cost asc");
+						//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
+						//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
+						if ((drsMin.Length > 0)) {
+							foreach (DataRow dataRow in drsMin) {
+								if(newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false) {
+									newrow["CustomerCost"] = Convert.ToDecimal(dataRow["Cost"]);
+								}
+								if(String.IsNullOrEmpty(newrow["CustomerQuantity"].ToString())) {
+									newrow["CustomerQuantity"] = dataRow["Quantity"];
+								}
+								else {
+									newrow["CustomerQuantity"] = Convert.ToInt64(dataRow["Quantity"]) + Convert.ToInt64(newrow["CustomerQuantity"]);
+								}
 							}
-							if(String.IsNullOrEmpty(newrow["CustomerQuantity"].ToString())) {
-								newrow["CustomerQuantity"] = dataRow["Quantity"];
-							}
-							else {
-								newrow["CustomerQuantity"] = Convert.ToInt64(dataRow["Quantity"]) + Convert.ToInt64(newrow["CustomerQuantity"]);
-							}
+							if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
+								newrow["LeaderName"] = "+";
 						}
-						if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
-							newrow["LeaderName"] = "+";
 					}
 				}
 
