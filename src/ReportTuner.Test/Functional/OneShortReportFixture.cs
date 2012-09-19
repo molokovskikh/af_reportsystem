@@ -123,17 +123,5 @@ namespace ReportTuner.Test.Functional
 			browser = Open(url);
 			Assert.That(browser.Text, Is.StringContaining("Настройка параметров отчета"));
 		}
-
-		[Test, Ignore("Не тест, используется для обновления задач в планировщике")]
-		public void WalkSchedulerReport()
-		{
-			var url = String.Format("http://stat.analit.net/reportConf/Reports/GeneralReports.aspx");
-			browser = Open(url);
-			var links = browser.Links.Where(t => t.Url.Contains("Schedule.aspx")).Select(t => t.Url).ToArray();
-			foreach(var link in links) {
-				browser.GoTo(link);
-				AssertText("Расписание");
-			}
-		}
 	}
 }
