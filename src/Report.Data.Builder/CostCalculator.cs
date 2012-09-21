@@ -30,17 +30,6 @@ namespace Report.Data.Builder
 	{
 		public decimal Cost;
 		public uint Quantity;
-		public uint Count;
-
-		public uint AvgQuantity
-		{
-			get
-			{
-				if (Count == 0)
-					return 0;
-				return Quantity / Count;
-			}
-		}
 	}
 
 	public class ClientRating
@@ -74,12 +63,14 @@ namespace Report.Data.Builder
 		public uint AssortmentId;
 		public decimal Cost;
 		public uint Quantity;
+		public bool Junk;
 
-		public Offer(OfferId id, uint assortmentId, decimal cost, uint quantity = 0)
+		public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0)
 		{
 			Id = id;
 			AssortmentId = assortmentId;
 			Cost = cost;
+			Junk = junk;
 			Quantity = quantity;
 		}
 	}
@@ -109,7 +100,7 @@ limit 1);
 
 call Customers.GetPrices(@UserId);
 
-select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity
+select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c0.Id and cc.PC_CostCode = p.CostCode
@@ -117,7 +108,6 @@ from Usersettings.Prices p
 	join Catalogs.Catalog c on c.Id = p.CatalogId
 	join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = c0.CodeFirmCr
 where p.Actual = 1
-and c0.Junk = 0
 ;", QueryParts.CostSubQuery("c0", "cc", "p"));
 			var watch = Stopwatch.StartNew();
 			watch.Start();
@@ -127,6 +117,7 @@ and c0.Junk = 0
 					r.GetUInt64("RegionCode")),
 					r.GetUInt32("Id"),
 					r.GetDecimal("Cost"),
+					r.GetBoolean("Junk"),
 					SafeConvert.ToUInt32(r["Quantity"].ToString())),
 				new { client })
 				.ToArray();
@@ -179,9 +170,9 @@ and c0.Junk = 0
 						continue;
 
 					var regionRating = rating[offer.Id.RegionId];
-					aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
+					if (!offer.Junk)
+						aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
 					aggregates.Quantity += offer.Quantity;
-					aggregates.Count++;
 #if DEBUG
 					if (offer.AssortmentId == DebugAssortmentId && offer.Id.SupplierId == DebugSupplierId)
 						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offer.AssortmentId], client, regionRating, offer.Cost);
@@ -224,7 +215,7 @@ and c0.Junk = 0
 							key.RegionId,
 							assortmentId,
 							aggregates.Cost.ToString(CultureInfo.InvariantCulture),
-							aggregates.AvgQuantity);
+							aggregates.Quantity);
 
 						index++;
 						if (index >= page) {
