@@ -277,12 +277,13 @@ group by c.pricecode";
 								if(newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false) {
 									newrow["CustomerCost"] = Convert.ToDecimal(dataRow["Cost"]);
 								}
-								if(String.IsNullOrEmpty(newrow["CustomerQuantity"].ToString())) {
+								double customerQuantity;
+								double quantity;
+								if(newrow["CustomerQuantity"] is DBNull || !double.TryParse(newrow["CustomerQuantity"].ToString(), out customerQuantity)) {
 									newrow["CustomerQuantity"] = dataRow["Quantity"];
 								}
-								else {
-									newrow["CustomerQuantity"] = Convert.ToInt64(dataRow["Quantity"]) + Convert.ToInt64(newrow["CustomerQuantity"]);
-								}
+								else if(double.TryParse(dataRow["Quantity"].ToString(), out quantity))
+									newrow["CustomerQuantity"] = quantity + customerQuantity;
 							}
 							if (newrow["CustomerCost"].Equals(newrow["MinCost"]))
 								newrow["LeaderName"] = "+";
@@ -351,13 +352,6 @@ group by c.pricecode";
 						if (newrow["Cost" + priceIndex] is DBNull && Convert.ToBoolean(dtPos["Junk"]) == false) {
 							newrow["Cost" + priceIndex] = dtPos["Cost"];
 
-							var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
-							if (quantityColumn != null)
-								if(newrow[quantityColumn] is DBNull)
-									newrow[quantityColumn] = dtPos["Quantity"];
-								else
-									newrow[quantityColumn] = Convert.ToInt64(newrow[quantityColumn]) + Convert.ToInt64(dtPos["Quantity"]);
-
 							var percentColumn = dtRes.Columns["Percents" + priceIndex];
 							if (percentColumn != null) {
 								var mincost = Convert.ToDouble(newrow["MinCost"]);
@@ -365,15 +359,15 @@ group by c.pricecode";
 								newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
-						else {
-							var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
-							if (quantityColumn != null)
-								if(newrow[quantityColumn] is DBNull)
-									newrow[quantityColumn] = dtPos["Quantity"];
-								else if(!String.IsNullOrEmpty(dtPos["Quantity"].ToString())) {
-									newrow[quantityColumn] = Convert.ToInt64(newrow[quantityColumn]) + Convert.ToInt64(dtPos["Quantity"]);
-								}
-						}
+
+						double quantity;
+						double columnQuantity;
+						var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
+						if (quantityColumn != null)
+							if(newrow[quantityColumn] is DBNull || !double.TryParse(newrow[quantityColumn].ToString(), out columnQuantity))
+								newrow[quantityColumn] = dtPos["Quantity"];
+							else if(!(dtPos["Quantity"] is DBNull) && double.TryParse(dtPos["Quantity"].ToString(), out quantity))
+								newrow[quantityColumn] = columnQuantity + quantity;
 					}
 				}
 

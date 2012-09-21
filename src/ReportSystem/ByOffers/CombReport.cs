@@ -269,21 +269,21 @@ order by 2, 5";
 						newrow[firstColumnCount + priceIndex * 2] = dtPos["Cost"];
 
 						if (_reportType == 2 || _reportType == 4) {
-							if (!_showPercents)
-								if(newrow[firstColumnCount + priceIndex * 2 + 1] is DBNull)
-									newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
-								else
-									newrow[firstColumnCount + priceIndex * 2 + 1] = Convert.ToInt64(newrow[firstColumnCount + priceIndex * 2 + 1]) + Convert.ToInt64(dtPos["Quantity"]);
-							else {
+							if (_showPercents) {
 								double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
 								newrow[firstColumnCount + priceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
 					}
-					else if(String.IsNullOrEmpty(newrow[firstColumnCount + priceIndex * 2 + 1].ToString()))
-						newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
-					else if(!String.IsNullOrEmpty(dtPos["Quantity"].ToString())) {
-						newrow[firstColumnCount + priceIndex * 2 + 1] = Convert.ToInt64(newrow[firstColumnCount + priceIndex * 2 + 1]) + Convert.ToInt64(dtPos["Quantity"]);
+
+					if (_reportType == 2 || _reportType == 4) {
+						double quantity;
+						double columnQuantity;
+						if (!_showPercents)
+							if(newrow[firstColumnCount + priceIndex * 2 + 1] is DBNull || !double.TryParse(newrow[firstColumnCount + priceIndex * 2 + 1].ToString(), out columnQuantity))
+								newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
+							else if(!(dtPos["Quantity"] is DBNull) && double.TryParse(dtPos["Quantity"].ToString(), out quantity))
+								newrow[firstColumnCount + priceIndex * 2 + 1] = columnQuantity + quantity;
 					}
 				}
 				dtRes.Rows.Add(newrow);
