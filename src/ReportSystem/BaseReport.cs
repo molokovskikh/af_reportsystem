@@ -78,8 +78,8 @@ namespace Inforoom.ReportSystem
 		public DateTime From;
 		public DateTime To;
 
-		public ulong ReportCode { get; private set; }
-		public string ReportCaption { get; private set; }
+		public ulong ReportCode { get; protected set; }
+		public string ReportCaption { get; protected set; }
 
 		public virtual bool DbfSupported { get; set; }
 

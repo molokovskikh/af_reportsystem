@@ -47,6 +47,12 @@ namespace ReportSystem.Test
 
 		public class FakeReportWithException : FakeReport
 		{
+			public FakeReportWithException()
+			{
+				ReportCode = 10;
+				ReportCaption = "FakeReportWithException";
+			}
+
 			public override void GenerateReport(ExecuteArgs e)
 			{
 				base.GenerateReport(null);
@@ -58,6 +64,7 @@ namespace ReportSystem.Test
 		{
 			public FakeGeneralReport()
 			{
+				_payer = "Тестовый плательщик";
 				Reports = new List<BaseReport>();
 			}
 
@@ -91,8 +98,11 @@ namespace ReportSystem.Test
 			try {
 				gr.ProcessReports();
 			}
-			catch (Exception e) {
+			catch (ReportException e) {
 				Assert.That(e.Message, Is.EqualTo("Системная ошибка."));
+				Assert.That(e.SubreportCode, Is.EqualTo(10));
+				Assert.That(e.Payer, Is.EqualTo("Тестовый плательщик"));
+				Assert.That(e.ReportCaption, Is.EqualTo("FakeReportWithException"));
 				ex = true;
 			}
 			Assert.That(ex, Is.True);
