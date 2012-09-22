@@ -33,5 +33,19 @@ namespace ReportTuner.Test.Functional
 			Open("Reports/Schedule.aspx?r=" + gr.Id);
 			AssertText("Выполнить отчет за указанный период и отослать по выбранным адресам");
 		}
+
+		[Test]
+		public void Check_gile_witch_description()
+		{
+			var gr = session.Query<GeneralReport>().ToList().First();
+			gr.SendDescriptionFile = false;
+			session.SaveOrUpdate(gr);
+			Open(string.Format("Reports/Reports.aspx?r={0}", gr.Id));
+			Assert.IsFalse(browser.CheckBox("SendDescriptionFile").Checked);
+			browser.CheckBox("SendDescriptionFile").Checked = true;
+			Click("Применить");
+			session.Refresh(gr);
+			Assert.IsTrue(gr.SendDescriptionFile);
+		}
 	}
 }

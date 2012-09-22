@@ -62,7 +62,7 @@
 				<asp:Label ID="SendDescriptionFileLabel" runat="server" Text="Вложить в письмо файлы с описанием:" SkinID="paramLabelSkin"></asp:Label>
 			</td>
 		<td>
-			<asp:CheckBox runat="server" ID="SendDescriptionFile"/>
+			<asp:CheckBox runat="server" ID="SendDescriptionFile" ClientIDMode="Static"/>
 		</td>
 		</tr>
 		<tr>
