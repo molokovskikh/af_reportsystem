@@ -10,7 +10,9 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
+using Castle.MonoRail.Framework.Helpers;
 using Common.MySql;
+using Common.Web.Ui.Helpers;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using ReportTuner.Models;
@@ -269,6 +271,13 @@ order by ReportTypeName
 			ReportHelper.CopyReportProperties(sourceReportId, destReportId);
 
 			PostData();
+		}
+		else if (e.CommandName == "CopyTo") {
+			int rowIndex = ((GridViewRow)((DataControlFieldCell)((Button)e.CommandSource).Parent).Parent).RowIndex;
+			var sourceRow = DS.Tables[dtReports.TableName].Rows[rowIndex];
+
+			UInt64 sourceReportId = Convert.ToUInt64(sourceRow[RReportCode.ColumnName]);
+			Response.Redirect(String.Format("../CopyReport/SelectReport?filter.Report={0}&filter.GeneralReport={1}", sourceReportId, Request["r"]));
 		}
 	}
 

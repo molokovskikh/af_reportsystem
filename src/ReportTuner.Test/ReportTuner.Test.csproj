@@ -102,6 +102,7 @@
     <Compile Include="FixtureSetup.cs" />
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Functional\ReportsTuningFixture.cs" />
+    <Compile Include="Integration\CopyReportControllerFixture.cs" />
     <Compile Include="Integration\ReportControllerFixture.cs" />
     <Compile Include="Integration\ReportTest.cs" />
     <Compile Include="Integration\ReportTuningControllerFixture.cs" />

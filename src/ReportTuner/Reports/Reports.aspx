@@ -137,6 +137,7 @@
 				<ItemTemplate>
 					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
 					<asp:Button ID="btnCopy" runat="server" Text="Копировать" CommandName="Copy" Visible=<%# (DataBinder.Eval(Container, "DataItem.RReportCode") != DBNull.Value) %>/>
+					<asp:Button ID="btnCopyToOther" runat="server" Text="Скопировать в др.отчет" CommandName="CopyTo" Visible=<%# (DataBinder.Eval(Container, "DataItem.RReportCode") != DBNull.Value) %>/>
 				</ItemTemplate>
 				</asp:TemplateField>
 			</Columns>

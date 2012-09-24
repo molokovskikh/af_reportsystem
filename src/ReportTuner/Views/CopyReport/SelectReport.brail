@@ -1,0 +1,37 @@
+﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+filter.GeneralReport), ("Редактирование значений списка","")], "pageTitle":"Выбор отчета для копирования", "Title":"Выбор отчета для копирования"} %>
+
+${app.Asset("${siteroot}/CSS/Table.css")}
+${app.Asset("${siteroot}/CSS/filter.css")}
+<div class="headDiv">
+	<h3>Выбор целевого отчета для копирования</h3>
+</div>
+${app.BeginFormFor("filter")}
+${FormHelper.HiddenField("filter.SortBy")}
+${FormHelper.HiddenField("filter.SortDirection")}
+${app.FilterFor("filter.ReportName")}
+${app.EndFormFor("filter")}
+
+<% if IsDefined("Reports"): %>
+	<table class="DataTable">
+	<%if Reports.Count > 0: %>
+		<thead>
+			<tr>
+				<th>${app.Sortable("Код отчета", "Id")}</th>
+				<th>${app.Sortable("Примечание", "Comment")}</th>
+				<th>Плательщик</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%for i, item in enumerate(Reports): %>
+				<tr class="${ViewHelper.GetRowStyle(i)}">
+					<td>${app.LinkTo("${item.Id}", @CopyReport, @CopyReport, {@destId: item.Id, "filter.Report": filter.Report, "filter.GeneralReport": filter.GeneralReport})}</td>
+					<td>${app.LinkTo("${item.Comment}", @CopyReport, @CopyReport, {@destId: item.Id, "filter.Report": filter.Report, "filter.GeneralReport": filter.GeneralReport})}</td>
+					<td>${item.Payer.ShortName}</td>
+				</tr>
+			<%end %>
+					<tr>
+			<td colspan=>${PaginatorHelper.ShowPaginator()}</td>
+		</tr>
+		</tbody>
+	<%end %>
+<%end %>
