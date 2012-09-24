@@ -169,7 +169,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CSS\Table.css" />
+    <Content Include="Assets\Stylesheets\filter.css" />
+    <Content Include="Assets\Stylesheets\Table.css" />
     <Content Include="Global.asax" />
     <Content Include="JavaScript\Controls.js" />
     <Content Include="JavaScript\jquery.validate.js" />

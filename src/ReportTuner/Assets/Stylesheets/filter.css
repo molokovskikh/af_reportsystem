@@ -1,0 +1,50 @@
+﻿.CenterBlock
+{
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.FilterBlock .filter-label
+{
+	font-weight: normal;
+}
+
+.FilterBlock fieldset
+{
+	padding: 0;
+	margin: 0;
+}
+
+.FilterBlock td.value select, .FilterBlock td.value input, .FilterBlock p.value input
+{
+	width: 100%;
+}
+
+.FilterBlock td.value input[type=checkbox]
+{
+	width: auto;
+}
+
+form div.submit
+{
+	text-align:right;
+	margin-top: 10px;
+}
+
+.FilterBlock
+{
+	width:40%; 
+	background-color:rgb(216, 241, 255); 
+	margin-bottom:10px;
+	padding: 10px 30px 10px 30px;
+}
+
+.FilterBlock table
+{
+	width: 100%;
+}
+
+.FilterBlock .calendar table
+{
+	width: auto;
+}
