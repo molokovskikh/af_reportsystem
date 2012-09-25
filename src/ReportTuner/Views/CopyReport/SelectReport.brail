@@ -1,7 +1,7 @@
 ﻿<% component Bubble, {"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка отчетов", "../Reports/Reports.aspx?r="+filter.GeneralReport), ("Редактирование значений списка","")], "pageTitle":"Выбор отчета для копирования", "Title":"Выбор отчета для копирования"} %>
 
-${app.Asset("${siteroot}/CSS/Table.css")}
-${app.Asset("${siteroot}/CSS/filter.css")}
+${app.Asset("Table.css")}
+${app.Asset("filter.css")}
 <div class="headDiv">
 	<h3>Выбор целевого отчета для копирования</h3>
 </div>
