@@ -81,12 +81,6 @@ public partial class Reports_Reports : BasePage
 
 		ReportFormatDD.SelectedValue = report.Format;
 
-		Recipients.DataSource = report.Payer.AllClients;
-		Recipients.DataTextField = "ShortNameAndId";
-		Recipients.DataTextField = "ShortNameAndId";
-		Recipients.DataValueField = "Id";
-		Recipients.DataBind();
-
 		MyCmd.Connection = MyCn;
 		MyDA.SelectCommand = MyCmd;
 		MyCmd.Parameters.Clear();

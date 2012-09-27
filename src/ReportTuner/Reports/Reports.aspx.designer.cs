@@ -66,24 +66,6 @@ public partial class Reports_Reports {
     protected global::System.Web.UI.WebControls.TextBox tbReportArchName;
     
     /// <summary>
-    /// lblReportRecipient control.
-    /// </summary>
-    /// <remarks>
-    /// Auto-generated field.
-    /// To modify move field declaration from designer file to code-behind file.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.Label lblReportRecipient;
-    
-    /// <summary>
-    /// Recipients control.
-    /// </summary>
-    /// <remarks>
-    /// Auto-generated field.
-    /// To modify move field declaration from designer file to code-behind file.
-    /// </remarks>
-    protected global::System.Web.UI.WebControls.DropDownList Recipients;
-    
-    /// <summary>
     /// ReportFormatLbl control.
     /// </summary>
     /// <remarks>
@@ -127,7 +109,7 @@ public partial class Reports_Reports {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.Label SendDescriptionFileLabel;
-
+    
     /// <summary>
     /// SendDescriptionFile control.
     /// </summary>
@@ -136,7 +118,7 @@ public partial class Reports_Reports {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.CheckBox SendDescriptionFile;
-
+    
     /// <summary>
     /// fileGridView control.
     /// </summary>

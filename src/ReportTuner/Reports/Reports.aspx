@@ -30,14 +30,6 @@
 			<asp:TextBox ID="tbReportArchName" runat="server" SkinID="paramTextBoxSkin"/>
 		  </td>
 		</tr>
-		<tr bgcolor="#f6f6f6">
-		  <td align="right">
-			<asp:Label ID="lblReportRecipient" runat="server" Text="Получатель отчета:" SkinID="paramLabelSkin"/>
-		  </td>
-		  <td> 
-			<asp:DropDownList ID="Recipients" runat="server" Width="100%"/>
-		  </td>
-		</tr>
 		<tr bgcolor="#eef8ff">
 		  <td align="right">
 			<asp:Label ID="ReportFormatLbl" runat="server" Text="Формат отчета:" SkinID="paramLabelSkin"/>
