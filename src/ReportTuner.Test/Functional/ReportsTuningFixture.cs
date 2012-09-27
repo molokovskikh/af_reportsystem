@@ -47,5 +47,12 @@ namespace ReportTuner.Test.Functional
 			session.Refresh(gr);
 			Assert.IsTrue(gr.SendDescriptionFile);
 		}
+
+		[Test]
+		public void RecipietntsRemovedTest()
+		{
+			browser = Open("Reports/Reports.aspx?r=1");
+			Assert.That(browser.Text, Is.Not.Contains("Получатель отчета"));
+		}
 	}
 }
