@@ -122,6 +122,7 @@ namespace ReportTuner.Test.Functional
 			var url = String.Format("http://localhost:53759/Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
 			browser = Open(url);
 			Assert.That(browser.Text, Is.StringContaining("Настройка параметров отчета"));
+			Assert.That(browser.Text, Is.Not.Contains("Готовить по розничному сегменту"));
 		}
 	}
 }

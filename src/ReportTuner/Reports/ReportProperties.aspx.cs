@@ -906,13 +906,11 @@ WHERE ID = ?OPID", MyCn, trans);
 	protected void chbValue_CheckedChanged(object sender, EventArgs e)
 	{
 		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
-		var retail = GetValueByLabel(dgvNonOptional.Rows, "Готовить по розничному сегменту");
 		var byPreviousMonth = GetValueByLabel(dgvNonOptional.Rows, "За предыдущий месяц");
 
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !retail && !base_costs);
-		SetRowEnablity(dgvNonOptional.Rows, "По базовым ценам", !retail);
+		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !base_costs);
 		SetRowEnablity(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
 	}

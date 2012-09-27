@@ -80,7 +80,7 @@ namespace Inforoom.ReportSystem
 			_showPercents = (bool)getReportParam("ShowPercents");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
 			_reportSortedByPrice = (bool)getReportParam("ReportSortedByPrice");
-			if (!_byBaseCosts && !_isRetail)
+			if (!_byBaseCosts)
 				_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
