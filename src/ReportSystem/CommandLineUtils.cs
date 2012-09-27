@@ -36,10 +36,10 @@ namespace Inforoom.Common
 		/// </summary>
 		/// <param name="Prefix">значение префикса</param>
 		/// <returns></returns>
-		public static string GetCode(string Prefix)
+		public static string GetCode(string Prefix, string[] args)
 		{
 			var c = new CommandLineUtils(Prefix);
-			var Val = Array.Find<string>(Environment.GetCommandLineArgs(), c.ValueStartsWith);
+			var Val = Array.Find(args, c.ValueStartsWith);
 			if (!String.IsNullOrEmpty(Val))
 				try {
 					Val = Val.Substring(Prefix.Length);
@@ -50,10 +50,10 @@ namespace Inforoom.Common
 			return (-1).ToString();
 		}
 
-		public static string GetStr(string Prefix)
+		public static string GetStr(string Prefix, string[] args)
 		{
 			var c = new CommandLineUtils(Prefix);
-			var Val = Array.Find<string>(Environment.GetCommandLineArgs(), c.ValueStartsWith);
+			var Val = Array.Find(args, c.ValueStartsWith);
 			if (!String.IsNullOrEmpty(Val))
 				try {
 					Val = Val.Substring(Prefix.Length);

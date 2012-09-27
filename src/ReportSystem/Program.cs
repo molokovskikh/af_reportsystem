@@ -32,33 +32,37 @@ namespace Inforoom.ReportSystem
 		[STAThread]
 		public static void Main(string[] args)
 		{
+			var reportLog = new ReportExecuteLog();
 			int generalReportId = 0;
 			try {
 				XmlConfigurator.Configure();
 				ConnectionHelper.DefaultConnectionStringName = "Default";
 				With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
-				ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(Supplier).Assembly);
+				if (!ActiveRecordStarter.IsInitialized)
+					ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(Supplier).Assembly);
 
 				//Попытка получить код общего отчета в параметрах
 				var interval = false;
 				var dtFrom = new DateTime();
 				var dtTo = new DateTime();
 				var manual = false;
-				generalReportId = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:"));
-				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/manual:"))) {
-					manual = Convert.ToBoolean(CommandLineUtils.GetStr(@"/manual:"));
+				generalReportId = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:", args));
+				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/manual:", args))) {
+					manual = Convert.ToBoolean(CommandLineUtils.GetStr(@"/manual:", args));
 				}
 
-				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:"))) {
-					interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:"));
-					dtFrom = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtFrom:"));
-					dtTo = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtTo:"));
+				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:", args))) {
+					interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:", args));
+					dtFrom = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtFrom:", args));
+					dtTo = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtTo:", args));
 				}
 
 				if (generalReportId != -1) {
 					var mc = new MySqlConnection(ConnectionHelper.GetConnectionString());
 					mc.Open();
 					try {
+						reportLog.GeneralReportCode = generalReportId;
+						reportLog.StartTime = DateTime.Now;
 						//Формируем запрос
 						var sqlSelectReports = @"SELECT  
   cr.*,   
@@ -126,6 +130,8 @@ and cr.generalreportcode = " + generalReportId;
 					}
 					finally {
 						mc.Close();
+						reportLog.EndTime = DateTime.Now;
+						ArHelper.WithSession(s => s.SaveOrUpdate(reportLog));
 					}
 				}
 				else

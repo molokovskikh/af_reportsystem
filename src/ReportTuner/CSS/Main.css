@@ -146,3 +146,7 @@ div#sheduleType span {
 .topPadding {
 	padding-top: 15px;
 }
+
+div.midleWidth {
+	width: 70%;
+}

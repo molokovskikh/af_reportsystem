@@ -185,6 +185,21 @@ order by LogTime desc
 						gvLogs.DataSource = _logs;
 					}
 				gvLogs.DataBind();
+
+				MyCmd.Parameters.Clear();
+				MyCmd.CommandText = @"select
+rel.StartTime, rel.EndTime
+from `logs`.reportexecutelogs rel
+where rel.GeneralReportCode = ?GeneralReportCode
+order by StartTime desc
+limit 15;";
+				MyCmd.Parameters.AddWithValue("?GeneralReportCode", _generalReport.Id);
+
+				var startlogs = new DataTable();
+				MyDA.Fill(startlogs);
+				startLogs.DataSource = startlogs;
+
+				startLogs.DataBind();
 			}
 			finally {
 				MyCn.Close();

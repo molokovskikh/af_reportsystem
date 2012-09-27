@@ -261,9 +261,19 @@
 			</Columns>
 		</asp:GridView>
 		<br/>
-		<div align="center" style="width:70%;">
-		<asp:GridView ID="gvLogs" runat="server" 
-			Caption="Статистика выполнения отчета" AutoGenerateColumns="False"  EmptyDataText="Нет данных">
+		<div align="center" class="midleWidth">
+		<asp:GridView ID="startLogs" runat="server"
+			Caption="Статистика запусков отчета" AutoGenerateColumns="False"  EmptyDataText="Нет данных">
+			<Columns>
+				<asp:BoundField DataField="StartTime" HeaderText="Время запуска" />
+				<asp:BoundField DataField="EndTime" HeaderText="Время заверщения" />
+			</Columns>
+		</asp:GridView>
+		</div>
+		<br/>
+		<div align="center" class="midleWidth">
+		<asp:GridView ID="gvLogs" runat="server"
+			Caption="Статистика отсылки отчета" AutoGenerateColumns="False"  EmptyDataText="Нет данных">
 			<Columns>
 				<asp:BoundField DataField="LogTime" HeaderText="Дата" />
 				<asp:BoundField DataField="EMail" HeaderText="EMail" />
