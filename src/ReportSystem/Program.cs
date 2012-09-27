@@ -61,8 +61,14 @@ namespace Inforoom.ReportSystem
 					var mc = new MySqlConnection(ConnectionHelper.GetConnectionString());
 					mc.Open();
 					try {
-						reportLog.GeneralReportCode = generalReportId;
-						reportLog.StartTime = DateTime.Now;
+						using (new SessionScope()) {
+							ArHelper.WithSession(s => {
+								reportLog.GeneralReportCode = generalReportId;
+								reportLog.StartTime = DateTime.Now;
+								reportLog.EndTime = null;
+								s.Save(reportLog);
+							});
+						}
 						//Формируем запрос
 						var sqlSelectReports = @"SELECT  
   cr.*,   
@@ -130,8 +136,13 @@ and cr.generalreportcode = " + generalReportId;
 					}
 					finally {
 						mc.Close();
-						reportLog.EndTime = DateTime.Now;
-						ArHelper.WithSession(s => s.SaveOrUpdate(reportLog));
+						using (new SessionScope()) {
+							ArHelper.WithSession(s => {
+								reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
+								reportLog.EndTime = DateTime.Now;
+								s.SaveOrUpdate(reportLog);
+							});
+						}
 					}
 				}
 				else

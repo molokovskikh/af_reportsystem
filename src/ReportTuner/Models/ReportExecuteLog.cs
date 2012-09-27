@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Web;
 using Castle.ActiveRecord;
-using Castle.ActiveRecord.Framework;
 
-namespace Inforoom.ReportSystem.Model
+namespace ReportTuner.Models
 {
 	[ActiveRecord("ReportExecuteLogs", Schema = "logs")]
 	public class ReportExecuteLog
@@ -14,7 +13,7 @@ namespace Inforoom.ReportSystem.Model
 		public virtual uint Id { get; set; }
 
 		[Property]
-		public virtual int GeneralReportCode { get; set; }
+		public virtual ulong GeneralReportCode { get; set; }
 
 		[Property]
 		public virtual DateTime StartTime { get; set; }

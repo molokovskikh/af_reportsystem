@@ -215,6 +215,7 @@
     <Compile Include="Models\Payer.cs" />
     <Compile Include="Models\Region.cs" />
     <Compile Include="Models\Report.cs" />
+    <Compile Include="Models\ReportExecuteLog.cs" />
     <Compile Include="Models\ReportProperty.cs" />
     <Compile Include="Models\ReportPropertyValue.cs" />
     <Compile Include="Models\ReportTunerModel.cs" />

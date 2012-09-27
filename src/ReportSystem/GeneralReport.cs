@@ -354,9 +354,6 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			if (!String.IsNullOrEmpty(resDirPath)) {
 				if (!(Directory.Exists(resDirPath)))
 					Directory.CreateDirectory(resDirPath);
-
-				foreach (string file in Directory.GetFiles(resDirPath))
-					File.Delete(file);
 			}
 
 			return resDirPath;
@@ -376,7 +373,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 		{
 			var resDirPath = PrepareFtpDirectory();
 			if (!String.IsNullOrEmpty(resDirPath))
-				File.Copy(fromfile, Path.Combine(resDirPath, toFile));
+				File.Copy(fromfile, Path.Combine(resDirPath, toFile), true);
 		}
 
 		private string ArchFile()
