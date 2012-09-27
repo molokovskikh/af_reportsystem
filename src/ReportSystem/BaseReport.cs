@@ -69,7 +69,6 @@ namespace Inforoom.ReportSystem
 		protected ExecuteArgs args;
 
 		protected ILog Logger;
-		protected bool _isRetail;
 
 		protected DateTime _dtStart; // время запуска отчета
 		protected DateTime _dtStop; // время завершения работы отчета

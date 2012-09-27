@@ -47,8 +47,6 @@ namespace Inforoom.ReportSystem
 
 			// если отчет строится по базовым ценам, определяем список прайсов и регионов
 			_byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
-			if (reportParamExists("Retail"))
-				_isRetail = (bool)getReportParam("Retail");
 			if (_byBaseCosts) {
 				_prices = (List<ulong>)getReportParam("PriceCodeEqual");
 				_regions = (List<ulong>)getReportParam("RegionEqual");
@@ -231,11 +229,6 @@ and regions.RegionCode = activeprices.RegionCode";
 		{
 			var selectCommand = args.DataAdapter.SelectCommand;
 
-			if (_isRetail) {
-				GetRetailActivePrices();
-				return;
-			}
-
 			uint userId = 0;
 			// Получаем для него все прайсы
 			if (_byBaseCosts) {
@@ -268,15 +261,6 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.ExecuteNonQuery();
 		}
 
-		private void GetRetailActivePrices()
-		{
-			var selectCommand = args.DataAdapter.SelectCommand;
-			selectCommand.CommandText = "Customers.GetActivePrices";
-			selectCommand.CommandType = CommandType.StoredProcedure;
-			selectCommand.Parameters.Clear();
-			selectCommand.Parameters.AddWithValue("?UserIdParam", 2958);
-			selectCommand.ExecuteNonQuery();
-		}
 
 		private uint GetUserId()
 		{
@@ -314,7 +298,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			var selectCommand = args.DataAdapter.SelectCommand;
 			selectCommand.Parameters.Clear();
 
-			if (_byBaseCosts || _isRetail)
+			if (_byBaseCosts)
 				selectCommand.Parameters.AddWithValue("?UserIdParam", null);
 			else
 				selectCommand.Parameters.AddWithValue("?UserIdParam", GetUserId());
