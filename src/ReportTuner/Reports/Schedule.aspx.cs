@@ -87,13 +87,7 @@ public partial class Reports_schedule : Page
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 
 		ErrorMassage.Text = string.Empty;
-		var executeLogs = ArHelper.WithSession(s => s.Query<ReportExecuteLog>().Where(l => l.GeneralReportCode == _generalReport.Id).OrderByDescending(l => l.StartTime).ToList());
-		var normalLanches = executeLogs.Where(l => l.EndTime != null).ToList();
-		var avgExTime = normalLanches.Sum(l => (l.EndTime.Value - l.StartTime).TotalMinutes / normalLanches.Count);
-		var executeLog = executeLogs.FirstOrDefault(l => l.EndTime == null);
-		var startTime = executeLog != null ? executeLog.StartTime.ToString() : string.Empty;
-		startTime = string.IsNullOrEmpty(startTime) ? startTime : string.Format("Отчет запущен {0}. ", startTime);
-		startTime += string.Format("Среднее время выполнения: {0} минут", avgExTime.ToString("0.0"));
+		var startTime = GetStartTime(_generalReport.Id);
 
 		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
 
@@ -289,6 +283,19 @@ limit 15;";
 		send_created_report.Visible = !string.IsNullOrEmpty(ftpDirectory) &&
 			Directory.Exists(ftpDirectory) &&
 			FileHelper.GetFilesForSend(ftpDirectory, _generalReport).Count() > 0;
+	}
+
+	public static string GetStartTime(ulong grId)
+	{
+		var executeLogs = ArHelper.WithSession(s => s.Query<ReportExecuteLog>().Where(l => l.GeneralReportCode == grId).OrderByDescending(l => l.StartTime).ToList());
+		var normalLanches = executeLogs.Where(l => l.EndTime != null).ToList();
+		var avgExTime = normalLanches.Sum(l => (l.EndTime.Value - l.StartTime).TotalMinutes / normalLanches.Count);
+		var executeLog = executeLogs.FirstOrDefault(l => l.EndTime == null);
+		var startTime = executeLog != null ? executeLog.StartTime.ToString() : string.Empty;
+		startTime = string.IsNullOrEmpty(startTime) ? startTime : string.Format("Отчет запущен {0}. ", startTime);
+		if (avgExTime > 0)
+			startTime += string.Format("Среднее время выполнения: {0} минут", avgExTime.ToString("0.0"));
+		return startTime;
 	}
 
 	private List<object[]> ObjectFromQuery(MySqlParameter[] parameters, string commandText)
