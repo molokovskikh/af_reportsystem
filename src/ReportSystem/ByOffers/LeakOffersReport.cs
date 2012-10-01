@@ -17,6 +17,11 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
+		public DataSet DSResult
+		{
+			get { return _dsReport; }
+		}
+
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
@@ -37,11 +42,15 @@ c.Cost,
 c0.Quantity,
 c0.Period,
 c0.Note,
-c0.PriceCode
+c0.PriceCode,
+if(cg.VitallyImportant, '+', '') as VitallyImportant,
+if(cg.Pharmacie, '+', '') as Pharmacie
 from usersettings.core c
 join farm.core0 c0 on c0.Id = c.Id
 join farm.SynonymArchive s on s.SynonymCode = c0.SynonymCode
-join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode";
+join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
+join catalogs.Products pr on c0.ProductId = pr.Id
+join catalogs.Catalog cg on pr.CatalogId = cg.Id";
 			var data = new DataSet();
 			e.DataAdapter.Fill(data, "offers");
 
