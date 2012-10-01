@@ -32,7 +32,10 @@ namespace Report.Data.Builder.Test
 		[Test]
 		public void Calculate_and_save_rating()
 		{
-			var ratings = RatingCalculator.CaclucatedAndSave(DateTime.Now.FirstDayOfMonth());
+			var runTime = DateTime.Now.FirstDayOfMonth();
+			if(DateTime.Today == DateTime.Today.FirstDayOfMonth())
+				runTime = runTime.AddMonths(-1);
+			var ratings = RatingCalculator.CaclucatedAndSave(runTime);
 			Assert.That(ratings.Count(), Is.GreaterThan(0));
 		}
 	}
