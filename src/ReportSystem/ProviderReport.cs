@@ -22,6 +22,7 @@ namespace Inforoom.ReportSystem
 		protected int? _SupplierNoise;
 		protected int? _userCode;
 		protected bool _byBaseCosts; // строить отчет по базовым ценам
+		protected bool _byWeightCosts; // строить отчет по взвешенным ценам
 		//Список прайсов, для которых нужно вычислять по базовым ценам
 		protected List<ulong> _prices;
 		//Список регионов, для которых нужно вычислять по базовым ценам
@@ -45,6 +46,7 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("SupplierNoise"))
 				_SupplierNoise = (int)getReportParam("SupplierNoise");
 
+			_byWeightCosts = reportParamExists("ByWeightCosts") ? (bool)getReportParam("ByWeightCosts") : false;
 			// если отчет строится по базовым ценам, определяем список прайсов и регионов
 			_byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
 			if (_byBaseCosts) {
@@ -547,6 +549,51 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 			else
 				throw new ReportException(String.Format("Не найден прайс-лист с кодом {0}.", priceId));
 			return customerFirmName;
+		}
+
+
+		protected void GetWeightCostOffers(ExecuteArgs e, int? noise = null, int? userId = null)
+		{
+			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			var selectCommand = args.DataAdapter.SelectCommand;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
+			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noise);
+			selectCommand.Parameters.AddWithValue("?runDate", new DateTime(2012, 9, 22) /* DateTime.Today.AddDays(-1)*/);
+			selectCommand.CommandText = "Customers.GetOffersReportsWeighted";
+			selectCommand.CommandType = CommandType.StoredProcedure;
+			selectCommand.ExecuteNonQuery();
+
+			// Накладываем фильтры
+			// В поле PriceCode храним идентификатор поставщика
+			List<ulong> allowedFirms = null;
+			if (_reportParams.ContainsKey("FirmCodeEqual"))
+				allowedFirms = (List<ulong>)_reportParams["FirmCodeEqual"];
+			if (allowedFirms != null && allowedFirms.Count > 0) {
+				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode not in ({0})", allowedFirms.Implode());
+				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			}
+
+			if (_reportParams.ContainsKey("IgnoredSuppliers")) {
+				var suppliers = (List<ulong>)_reportParams["IgnoredSuppliers"];
+				if (suppliers != null && suppliers.Count > 0) {
+					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode in ({0})", suppliers.Implode());
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				}
+			}
+
+			// В списке регионов только доступные клиенту регионы
+			if (!_byBaseCosts && _reportParams.ContainsKey("RegionClientEqual")) {
+				var RegionClientEqual = (List<ulong>)_reportParams["RegionClientEqual"];
+				if (RegionClientEqual != null && RegionClientEqual.Count > 0) {
+					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where RegionCode not in ({0})", RegionClientEqual.Implode());
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				}
+			}
 		}
 	}
 }

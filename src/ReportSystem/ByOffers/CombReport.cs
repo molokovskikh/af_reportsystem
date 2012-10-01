@@ -55,9 +55,119 @@ namespace Inforoom.ReportSystem
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 		}
 
+		private void ByWeightProcessing(ExecuteArgs e)
+		{
+			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			e.DataAdapter.SelectCommand.CommandText = "select ";
+			e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
+
+			e.DataAdapter.SelectCommand.CommandText += @"
+  Core.Cost as Cost,
+  concat(suppliers.Name, ' - ', regions.Region) as FirmName,
+  FarmCore.Quantity,
+  Core.RegionCode,
+  Core.PriceCode, ";
+			if (_reportType > 2) {
+				e.DataAdapter.SelectCommand.CommandText += "assortment.ProducerId";
+			}
+			else {
+				e.DataAdapter.SelectCommand.CommandText += "0";
+			}
+			e.DataAdapter.SelectCommand.CommandText += @"
+As Cfc,
+  0 as Junk
+from
+  Core,
+  reports.averagecosts FarmCore,
+  catalogs.Assortment,
+  catalogs.catalog,
+  catalogs.catalognames,
+  catalogs.catalogforms,
+  Customers.suppliers,
+  farm.Regions
+where
+	FarmCore.id = Core.Id
+and Assortment.id = core.productid
+and catalog.id = Assortment.catalogid
+and catalognames.id = catalog.NameId
+and catalogforms.id = catalog.FormId
+and suppliers.Id = Core.PriceCode
+and Regions.RegionCode = Core.RegionCode
+order by CatalogCode, Cfc DESC";
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			e.DataAdapter.Fill(_dsReport, "Core");
+
+			e.DataAdapter.SelectCommand.CommandText = "select  ";
+			e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
+
+			e.DataAdapter.SelectCommand.CommandText += @"
+  min(Core.Cost) as MinCost,
+  avg(Core.Cost) as AvgCost,
+  max(Core.Cost) as MaxCost, ";
+			if (_reportType > 2) {
+				e.DataAdapter.SelectCommand.CommandText += "assortment.ProducerId as Cfc, left(Producers.Name, 250) as FirmCr, ";
+			}
+			else {
+				e.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
+			}
+			e.DataAdapter.SelectCommand.CommandText += @"
+	m.Mnn
+from
+	(Core,
+	reports.averagecosts FarmCore,
+	catalogs.assortment,
+	catalogs.catalog)
+	join Catalogs.CatalogNames cn on cn.Id = catalog.NameId
+	left join Catalogs.Mnn m on m.Id = cn.MnnId";
+
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				e.DataAdapter.SelectCommand.CommandText += @"
+  left join catalogs.Producers on Producers.Id = assortment.ProducerId ";
+
+			e.DataAdapter.SelectCommand.CommandText += @"
+where
+	FarmCore.id = Core.Id
+and assortment.id = core.productid
+and catalog.id = assortment.catalogid
+";
+
+			e.DataAdapter.SelectCommand.CommandText += @"
+group by CatalogCode, Cfc
+order by 2, 5";
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			e.DataAdapter.Fill(_dsReport, "Catalog");
+			e.DataAdapter.SelectCommand.CommandText = @"
+select 
+ distinct Core.PriceCode, Core.RegionCode, '' as PriceDate, concat(suppliers.Name, ' - ', regions.Region) as FirmName
+from 
+  usersettings.Core, Customers.suppliers, farm.regions
+where 
+Core.PriceCode = suppliers.Id 
+and regions.RegionCode = Core.RegionCode
+order by Core.Cost DESC";
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			e.DataAdapter.Fill(_dsReport, "Prices");
+
+			ProfileHelper.Next("Calculate");
+
+			Calculate();
+		}
+
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			base.GenerateReport(e);
+
+			// Если отчет строится по взвешенным ценам, то используем другой источник данных
+			// Вместо идентификатора прайса используем идентификатор поставщика
+			if(_byWeightCosts) {
+				ProfileHelper.Next("GetOffers");
+				GetWeightCostOffers(e);
+				ProfileHelper.Next("Processing1");
+				ByWeightProcessing(e);
+				ProfileHelper.End();
+				return;
+			}
 
 			ProfileHelper.Next("Get Offers");
 			GetOffers(_SupplierNoise);

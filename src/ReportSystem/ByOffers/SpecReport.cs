@@ -85,10 +85,230 @@ namespace Inforoom.ReportSystem
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 		}
+		protected void GetWeightMinPrice(ExecuteArgs e)
+		{
+			string SqlCommandText = @"
+select 
+  SourcePrice.ID,
+  SourcePrice.Code,
+  AllPrices.CatalogCode, ";
+			SqlCommandText += String.Format(@"
+(
+	select catalog.Name
+	from catalogs.assortment
+		join catalogs.catalog on catalog.Id = assortment.CatalogId
+	where assortment.Id = AllPrices.ProductId
+) as FullName,
+");
+			/*if (_calculateByCatalog)
+				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
+			else
+				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("AllPrices.ProductId"));*/
+			SqlCommandText += @"
+  min(AllPrices.cost) As MinCost, -- здесь должна быть минимальная цена
+  avg(AllPrices.cost) As AvgCost, -- здесь должна быть средняя цена
+  max(AllPrices.cost) As MaxCost, -- здесь должна быть минимальная цена";
+
+			//Если отчет без учета производителя, то код не учитываем и выводим "-"
+			if (_reportType <= 2)
+				SqlCommandText += @"
+  '-' as FirmCr,
+  0 As Cfc ";
+			else
+				SqlCommandText += @"
+  Cfc.Name as FirmCr,
+  cfc.Id As Cfc ";
+
+			SqlCommandText += @"
+from 
+ (
+  catalogs.assortment,";
+
+			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
+			if (_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
+  Core AllPrices 
+ )
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
+				else
+					SqlCommandText += @"
+  Core AllPrices 
+ )
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=assortment.ProducerId";
+			}
+			else
+				SqlCommandText += @"
+  Core AllPrices, 
+  TmpSourceCodes SourcePrice
+ )";
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				SqlCommandText += @"
+  left join catalogs.Producers cfc on cfc.Id = assortment.ProducerId";
+
+			SqlCommandText += @"
+where 
+  assortment.id = AllPrices.ProductId 
+";
+
+			SqlCommandText += @"
+and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (SourcePrice.id is null) ) )
+	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
+
+			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
+			if (!_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
+and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
+				else
+					SqlCommandText += @"
+and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=assortment.ProducerId ";
+			}
+			SqlCommandText += @"
+group by AllPrices.CatalogCode, Cfc";
+			if ((!_reportIsFull) && (_reportSortedByPrice))
+				SqlCommandText += @"
+order by SourcePrice.ID";
+			else
+				SqlCommandText += @"
+order by FullName, FirmCr";
+			e.DataAdapter.SelectCommand.CommandText = SqlCommandText;
+			e.DataAdapter.Fill(_dsReport, "Catalog");
+
+#if DEBUG
+			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
+#endif
+		}
+		public void GetWeightCostSource(ExecuteArgs e)
+		{
+			//Добавляем к таблице Core поле CatalogCode и заполняем его
+			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
+			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			if (_calculateByCatalog)
+				e.DataAdapter.SelectCommand.CommandText = "update Core, catalogs.assortment set Core.CatalogCode = assortment.CatalogId where assortment.Id = Core.ProductId;";
+			else
+				e.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+
+			e.DataAdapter.SelectCommand.CommandText = @"
+drop temporary table IF EXISTS TmpSourceCodes;
+CREATE temporary table TmpSourceCodes(
+  ID bigint unsigned,
+  PriceCode int(32) unsigned,
+  RegionCode bigint unsigned,
+  Code char(20), 
+  BaseCost decimal(8,2) unsigned,
+  CatalogCode int(32) unsigned,
+  CodeFirmCr int(32) unsigned,
+  key ID(ID),
+  key CatalogCode(CatalogCode),
+  key CodeFirmCr(CodeFirmCr)
+) engine = MEMORY PACK_KEYS = 0;";
+
+			e.DataAdapter.SelectCommand.CommandText += @"
+INSERT INTO TmpSourceCodes 
+Select 
+  Core.ID, 
+  Core.PriceCode,
+  Core.RegionCode,
+Assortment.Id as Code,
+  Core.Cost,";
+			if (_calculateByCatalog)
+				e.DataAdapter.SelectCommand.CommandText += "Assortment.CatalogId, ";
+			else
+				e.DataAdapter.SelectCommand.CommandText += "Assortment.Id, ";
+			e.DataAdapter.SelectCommand.CommandText += @"
+  Assortment.ProducerId
+FROM 
+  Core,
+  catalogs.assortment
+WHERE 
+assortment.id = Core.ProductId
+and Core.PriceCode = ?SourcePC
+and Core.RegionCode = ?SourceRegionCode;";
+
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+
+			e.DataAdapter.SelectCommand.CommandText = @"
+select 
+  Core.Id,
+  Core.CatalogCode,
+  assortment.ProducerId as CodeFirmCr,
+  Core.Cost,
+  Core.PriceCode,
+  Core.RegionCode,
+  FarmCore.Quantity,
+  0 as Junk
+from 
+  Core,
+  reports.averagecosts FarmCore,
+  catalogs.assortment
+where
+  FarmCore.Id = core.id
+and assortment.Id = core.ProductId";
+
+			e.DataAdapter.Fill(_dsReport, "AllCoreT");
+
+			e.DataAdapter.SelectCommand.CommandText = @"
+select 
+ distinct Core.PriceCode, Core.RegionCode, '' as PriceDate, concat(suppliers.Name, ' - ', regions.Region) as FirmName
+from 
+  usersettings.Core, Customers.suppliers, farm.regions
+where 
+Core.PriceCode = suppliers.Id 
+and Core.PriceCode <> ?SourcePC
+and regions.RegionCode = Core.RegionCode
+order by Core.Cost DESC";
+
+
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			e.DataAdapter.Fill(_dsReport, "Prices");
+		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			base.GenerateReport(e);
+			// Если отчет строится по взвешенным ценам, то используем другой источник данных
+			// Вместо идентификатора прайса используем идентификатор поставщика
+			if(_byWeightCosts) {
+				ProfileHelper.Next("PreGetOffers");
+				SourceRegionCode = Convert.ToUInt64(
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+						@"select s.HomeRegion
+	from usersettings.PricesData pd
+	inner join Customers.suppliers s on pd.FirmCode = s.Id
+	and pd.PriceCode = ?PriceCode;",
+						new MySqlParameter("?PriceCode", _priceCode)));
+				CustomerFirmName = GetSupplierName(_priceCode);
+				SourcePC = Convert.ToInt32(
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+						@"
+select 
+  pricesdata.FirmCode
+from 
+  usersettings.pricesdata
+where 
+	pricesdata.PriceCode = ?PriceCode;",
+					new MySqlParameter("?PriceCode", _priceCode)));
+				ProfileHelper.Next("GetOffers");
+				GetWeightCostOffers(e);
+				ProfileHelper.Next("GetCodes");
+				GetWeightCostSource(e);
+				ProfileHelper.Next("GetMinPrices");
+				GetWeightMinPrice(e);
+				ProfileHelper.Next("Calculate");
+				Calculate();
+				return;
+			}
 
 			ProfileHelper.Next("PreGetOffers");
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет

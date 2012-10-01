@@ -907,12 +907,15 @@ WHERE ID = ?OPID", MyCn, trans);
 	{
 		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
 		var byPreviousMonth = GetValueByLabel(dgvNonOptional.Rows, "За предыдущий месяц");
+		var weight_costs = GetValueByLabel(dgvNonOptional.Rows, "По взвешенным ценам");
 
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !base_costs);
 		SetRowEnablity(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
+		SetRowVisibility(dgvNonOptional.Rows, "По взвешенным ценам", !base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !weight_costs);
 	}
 
 	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)

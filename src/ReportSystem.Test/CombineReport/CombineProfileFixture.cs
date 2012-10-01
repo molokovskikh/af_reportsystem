@@ -40,5 +40,17 @@ namespace ReportSystem.Test
 			var report = new CombReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.CombineProducer);
 		}
+
+		[Test]
+		public void CombineCountProducerByWeightCost()
+		{
+			Property("ReportType", 4);
+			Property("ClientCode", 5101);
+			Property("ReportSortedByPrice", false);
+			Property("ShowPercents", false);
+			Property("CalculateByCatalog", false);
+			Property("ByWeightCosts", true);
+			BuildReport("CombineCountProducerByWeightCost.xls", typeof(CombReport));
+		}
 	}
 }
