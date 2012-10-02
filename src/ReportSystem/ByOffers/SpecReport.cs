@@ -576,7 +576,13 @@ group by c.pricecode";
 							if (percentColumn != null) {
 								var mincost = Convert.ToDouble(newrow["MinCost"]);
 								var pricecost = Convert.ToDouble(dtPos["Cost"]);
-								newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
+								try {
+									if(pricecost > 0)
+										newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
+								}
+								catch(Exception ex) {
+									throw;
+								}
 							}
 						}
 
@@ -906,6 +912,10 @@ order by FullName, FirmCr";
 				//Объединяем несколько ячеек, чтобы в них написать текст
 				ws.Range["A1:K2", Missing.Value].Select();
 				((Range)wb.Application.Selection).Merge(null);
+				if(_byBaseCosts)
+					reportCaptionPreffix += " по базовым ценам";
+				else if(_byWeightCosts)
+					reportCaptionPreffix += " по взвешенным ценам";
 				if (!WithoutAssortmentPrice) {
 					if (_reportType < 3)
 						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();

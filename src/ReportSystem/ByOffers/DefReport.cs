@@ -55,6 +55,275 @@ namespace Inforoom.ReportSystem
 			_clientCode = (int)getReportParam("ClientCode");
 		}
 
+		private void ProcessWeigth(ExecuteArgs e)
+		{
+			ProfileHelper.Next("GetOffers");
+			GetWeightCostOffers(e);
+			ProfileHelper.Next("Processing");
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+
+			string SelectCommandText = String.Empty;
+
+			switch (_reportType) {
+				case DefReportType.ByName: {
+					SelectCommandText = @"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  NameId int Unsigned, 
+  key NameId(NameId))engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct Catalog.NameId 
+from 
+  reports.averagecosts apt, 
+  Core c,
+  Catalogs.Assortment,
+  Catalogs.Catalog 
+where 
+	apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and Assortment.Id = c.ProductId
+and Catalog.Id = Assortment.CatalogId;
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  NameId int Unsigned, 
+  Code VARCHAR(20) not NULL,
+  key NameId(NameId))engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct Catalog.NameId, FarmCore.Code
+from 
+  (
+  Core c 
+  inner join Catalogs.Assortment on c.ProductId = Assortment.Id
+  inner join Catalogs.Catalog  on Assortment.CatalogId = Catalog.Id
+  )
+  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
+  left join SummaryByPrices st on st.NameId = Catalog.NameId 
+where     
+  c.PriceCode=?SourcePC
+  and st.NameId is NULL
+  and Catalog.Pharmacie = 1;
+
+select distinct OtherByPrice.Code, CatalogNames.Name 
+from 
+  OtherByPrice
+  inner join catalogs.CatalogNames on OtherByPrice.NameId = CatalogNames.Id
+order by CatalogNames.Name;";
+					break;
+				}
+
+				case DefReportType.ByNameAndForm: {
+					SelectCommandText = @"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  CatalogId int Unsigned, 
+  key CatalogId(CatalogId)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct Assortment.CatalogId 
+from 
+  reports.averagecosts apt, 
+  Core c, 
+  Catalogs.Assortment
+where 
+	apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and Assortment.Id = c.ProductId;
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  CatalogId int Unsigned,
+  Code VARCHAR(20) not NULL, 
+  key CatalogId(CatalogId) ) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct Assortment.CatalogId, '' Code
+from 
+  (
+  Core c 
+  inner join Catalogs.Assortment on c.ProductId = Assortment.Id
+  )
+  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
+  left join SummaryByPrices st on st.CatalogId = Assortment.CatalogId 
+where    
+  c.PriceCode=?SourcePC
+  and st.CatalogId is NULL;
+
+select distinct OtherByPrice.Code, CatalogNames.Name, CatalogForms.Form 
+from 
+  OtherByPrice
+  inner join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+  inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
+where catalog.Pharmacie = 1
+order by CatalogNames.Name, CatalogForms.Form;";
+					break;
+				}
+
+				case DefReportType.ByNameAndFormAndFirmCr: {
+					SelectCommandText = @"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  CatalogId int Unsigned, 
+  CodeFirmCr int Unsigned, 
+  key CatalogId(CatalogId),
+  key CodeFirmCr(CodeFirmCr)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct Products.CatalogId, Assortment.ProducerId as CodeFirmCr 
+from 
+  reports.averagecosts apt, 
+  Core c,
+  Catalogs.Assortment
+where 
+	apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and Assortment.Id = c.ProductId
+
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  CatalogId int Unsigned, 
+  CodeFirmCr int Unsigned,
+  Code VARCHAR(20) not NULL, 
+  key CatalogId(CatalogId),
+  key CodeFirmCr(CodeFirmCr) ) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct Assortment.CatalogId, Assortment.ProducerId as CodeFirmCr, '' as Code
+from 
+  (
+  Core c
+  inner join reports.averagecosts FarmCore on c.Id = FarmCore.Id
+  inner join Catalogs.Assortment on c.ProductId = Assortment.Id
+  )
+  left join SummaryByPrices st on st.CatalogId = Assortment.CatalogId and st.CodeFirmCr = Assortment.ProducerId
+where 
+	c.PriceCode=?SourcePC 
+and st.CatalogId is NULL;
+
+select distinct OtherByPrice.Code, CatalogNames.Name, CatalogForms.Form, Producers.Name as FirmCr
+from 
+ (
+  OtherByPrice
+  inner join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+  inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id  
+ )
+  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+where catalog.Pharmacie = 1
+order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
+					break;
+				}
+
+				case DefReportType.ByProduct: {
+					SelectCommandText = String.Format(@"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  ProductId int Unsigned, 
+  key ProductId(ProductId)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct c.AssortmentId
+from 
+  Core c
+where 
+	c.PriceCode <> ?SourcePC 
+
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  ProductId int Unsigned,
+  Code VARCHAR(20) not NULL,  
+  key ProductId(ProductId)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct c.AssortmentId, '' as Code
+from 
+  Core c
+  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
+  left join SummaryByPrices st on st.ProductId = c.ProductId
+where 
+	c.PriceCode=?SourcePC 
+and st.ProductId is NULL;
+
+select 
+  distinct 
+  OtherByPrice.Code,  
+  CatalogNames.Name,
+  {0} as FullForm
+from 
+ (
+  OtherByPrice
+  inner join catalogs.products on OtherByPrice.ProductId = products.Id
+  inner join catalogs.catalog on products.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+ )
+where catalog.Pharmacie = 1
+order by CatalogNames.Name, FullForm;
+", GetFullFormSubquery("OtherByPrice.ProductId"));
+					break;
+				}
+
+				case DefReportType.ByProductAndFirmCr: {
+					SelectCommandText = String.Format(@"
+drop temporary table IF EXISTS SummaryByPrices;
+CREATE temporary table SummaryByPrices ( 
+  ProductId int Unsigned, 
+  CodeFirmCr int Unsigned, 
+  key ProductId(ProductId),
+  key CodeFirmCr(CodeFirmCr)) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO SummaryByPrices 
+select distinct c.AssortmentId, FarmCore.ProducerId as CodeFirmCr 
+from 
+  reports.averagecosts apt, 
+  Core c,
+  catalogs.Assortment FarmCore
+where 
+	apt.PriceCode <> ?SourcePC 
+and apt.PriceCode=c.PriceCode
+and FarmCore.Id = c.ProductId;
+
+drop temporary table IF EXISTS OtherByPrice;
+CREATE temporary table OtherByPrice ( 
+  ProductId int Unsigned, 
+  CodeFirmCr int Unsigned,
+  Code VARCHAR(20) not NULL, 
+  key ProductId(ProductId),
+  key CodeFirmCr(CodeFirmCr) ) engine=MEMORY PACK_KEYS = 0;
+INSERT INTO OtherByPrice 
+select distinct c.ProductId, assortment.ProducerId as CodeFirmCr, '' as Code
+from 
+  (
+  Core c
+  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
+  inner join catalogs.assortment on assortment.id = c.ProductId
+  )
+  left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = FarmCore.CodeFirmCr
+where
+	c.PriceCode=?SourcePC 
+and st.ProductId is NULL;
+
+select 
+  distinct 
+  OtherByPrice.Code, 
+  CatalogNames.Name,
+  {0} as FullForm,
+  Producers.Name as FirmCr 
+from 
+ (
+  OtherByPrice
+  inner join catalogs.products on OtherByPrice.ProductId = products.Id
+  inner join catalogs.catalog on products.CatalogId = catalog.Id
+  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+ )
+  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+where catalog.Pharmacie = 1
+order by CatalogNames.Name, FullForm, Producers.Name;
+", GetFullFormSubquery("OtherByPrice.ProductId"));
+					break;
+				}
+			}
+			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
+			e.DataAdapter.Fill(_dsReport, "Results");
+			ProfileHelper.End();
+		}
+
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			base.GenerateReport(e);
@@ -87,7 +356,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (ActualPrice == 0)
 				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, _priceCode));
 #endif
-
+			if(_byWeightCosts) {
+				ProcessWeigth(e);
+				return;
+			}
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 
 			GetOffers(_SupplierNoise);

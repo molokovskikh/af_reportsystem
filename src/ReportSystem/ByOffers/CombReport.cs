@@ -438,7 +438,10 @@ order by 2, 5";
 				//Объединяем несколько ячеек, чтобы в них написать текст
 				ws.get_Range(ws.Cells[1, 1], ws.Cells[1, captionedColumnCount]).Select();
 				((Range)exApp.Selection).Merge(null);
-
+				if(_byBaseCosts)
+					reportCaptionPreffix += " по базовым ценам";
+				else if(_byWeightCosts)
+					reportCaptionPreffix += " по взвешенным ценам";
 				if (_reportType < 3)
 					exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now;
 				else

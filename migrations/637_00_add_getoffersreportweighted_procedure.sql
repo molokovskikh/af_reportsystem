@@ -45,7 +45,7 @@ SELECT
         Prices.Cost,
         '',
         Prices.id
-FROM reports.AverageCosts Prices
+FROM usersettings.TmpRegions R join reports.AverageCosts Prices on R.RegionCode = Prices.RegionId
 where Prices.Date = runDate;
 
 if ((select FirmCodeOnly from Usersettings.retclientsset join Customers.Users on Users.ClientId = retclientsset.ClientCode where Users.Id = UserIdParam) is not null) or (NoiseFirmCode is not null) then

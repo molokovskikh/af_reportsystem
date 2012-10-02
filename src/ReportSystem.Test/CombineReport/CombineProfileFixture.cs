@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
@@ -45,6 +46,9 @@ namespace ReportSystem.Test
 		public void CombineCountProducerByWeightCost()
 		{
 			Property("ReportType", 4);
+			Property("RegionEqual", new List<ulong> {
+				1
+			});
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
 			Property("ShowPercents", false);

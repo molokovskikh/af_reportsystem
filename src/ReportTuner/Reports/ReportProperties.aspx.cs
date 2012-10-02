@@ -910,12 +910,14 @@ WHERE ID = ?OPID", MyCn, trans);
 		var weight_costs = GetValueByLabel(dgvNonOptional.Rows, "По взвешенным ценам");
 
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !base_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs || weight_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !base_costs || !weight_costs);
 		SetRowEnablity(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
 		SetRowVisibility(dgvNonOptional.Rows, "По взвешенным ценам", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !weight_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Сортировка по прайсу", !weight_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Продукты без учета свойств (все цвета\\вкусы объединены)", !weight_costs);
 	}
 
 	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)

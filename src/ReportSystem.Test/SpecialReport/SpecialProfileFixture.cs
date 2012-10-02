@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
@@ -43,6 +44,9 @@ namespace ReportSystem.Test
 		public void SpecialCountProducerByWeightCost()
 		{
 			Property("ReportType", 4);
+			Property("RegionEqual", new List<ulong> {
+				1
+			});
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
 			Property("ReportIsFull", false);
