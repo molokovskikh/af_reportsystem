@@ -12,20 +12,16 @@ namespace ReportSystem.Test.DefectureReport
 		[Test]
 		public void DefectureByWeight()
 		{
-			for(int i = 4; i < 6; i++) {
-				properties.Tables[0].Rows.Clear();
-				properties.Tables[1].Rows.Clear();
-				var fileName = "DefectureByWeightCost" + i + ".xls";
-				Property("ReportType", i);
-				Property("RegionEqual", new List<ulong> {
-					1
-				});
-				Property("ClientCode", 7160);
-				Property("PriceCode", 196);
-				Property("ByWeightCosts", true);
-				report = new DefReport(1, fileName, Conn, ReportFormats.Excel, properties);
-				BuildReport(fileName);
-			}
+			var fileName = "DefectureByWeightCost.xls";
+			Property("ReportType", 2);
+			Property("RegionEqual", new List<ulong> {
+				1
+			});
+			Property("ClientCode", 7160);
+			Property("PriceCode", 196);
+			Property("ByWeightCosts", true);
+			report = new DefReport(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
 		}
 	}
 }

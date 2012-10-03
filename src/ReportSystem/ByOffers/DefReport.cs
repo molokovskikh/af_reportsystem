@@ -718,9 +718,9 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 						rng.Insert();
 						var caption = "Из отчета исключены (в целях повышения удобства его восприятия) товары, относящиеся к так называемой \"парафармацевтике\"";
 						if(_byWeightCosts)
-							caption += " Отчет построен по взвешенным ценам";
+							caption += ". Отчет построен по взвешенным ценам";
 						else if(_byBaseCosts)
-							caption += " Отчет построен по базовым ценам";
+							caption += ". Отчет построен по базовым ценам";
 						ws.Cells[1, 1] = caption;
 					}
 					finally {
