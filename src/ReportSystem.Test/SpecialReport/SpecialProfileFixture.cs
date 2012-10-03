@@ -45,14 +45,15 @@ namespace ReportSystem.Test
 		{
 			Property("ReportType", 4);
 			Property("RegionEqual", new List<ulong> {
-				1
+				1,
+				16
 			});
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
 			Property("ReportIsFull", false);
 			Property("ShowPercents", true);
 			Property("CalculateByCatalog", false);
-			Property("PriceCode", 216);
+			Property("PriceCode", 196);
 			Property("ByWeightCosts", true);
 			BuildReport("SpecialCountProducerByWeightCost.xls", typeof(SpecReport));
 		}

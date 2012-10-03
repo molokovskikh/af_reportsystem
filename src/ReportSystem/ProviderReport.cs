@@ -582,7 +582,7 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
 			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noise);
-			selectCommand.Parameters.AddWithValue("?runDate", new DateTime(2012, 9, 22) /* DateTime.Today.AddDays(-1)*/);
+			selectCommand.Parameters.AddWithValue("?runDate", new DateTime(2012, 09, 22) /* DateTime.Today.AddDays(-1)*/);
 			selectCommand.CommandText = "Customers.GetOffersReportsWeighted";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();

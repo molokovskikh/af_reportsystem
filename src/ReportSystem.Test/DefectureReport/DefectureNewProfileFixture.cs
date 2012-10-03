@@ -24,18 +24,5 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNewDifficult);
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
-
-		[Test]
-		public void DefectureByWeight()
-		{
-			Property("ReportType", 1);
-			Property("RegionEqual", new List<ulong> {
-				1
-			});
-			Property("ClientCode", 7160);
-			Property("PriceCode", 4783);
-			Property("ByWeightCosts", true);
-			BuildReport("DefectureByWeightCost.xls", typeof(DefReport));
-		}
 	}
 }

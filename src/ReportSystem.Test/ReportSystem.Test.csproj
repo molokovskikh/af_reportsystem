@@ -85,9 +85,11 @@
   <ItemGroup>
     <Compile Include="ArchFileFixture.cs" />
     <Compile Include="BaseProfileFixture.cs" />
+    <Compile Include="CombineReport\CombineByWeightCostsFixture.cs" />
     <Compile Include="CombineReport\CombineNewProfilleFixture.cs" />
     <Compile Include="CombineReport\CombineProfileFixture.cs" />
     <Compile Include="CostDynamicFixture.cs" />
+    <Compile Include="DefectureReport\DefectureByWeightCostsFixture.cs" />
     <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefecturePharmacieTest.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
@@ -117,6 +119,7 @@
     <Compile Include="RatingReport\RatingNewProfileFixture.cs" />
     <Compile Include="RatingReport\RatingProfileFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpecialReport\SpecialByWeightCostFixture.cs" />
     <Compile Include="SpecialReport\SpecialNewProfileFixture.cs" />
     <Compile Include="SpecialReport\SpecialProfileFixture.cs" />
     <Compile Include="SpecialReport\SpecialReportFilterFixture.cs" />

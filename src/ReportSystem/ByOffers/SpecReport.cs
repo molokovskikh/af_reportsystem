@@ -153,7 +153,7 @@ where
 ";
 
 			SqlCommandText += @"
-and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (SourcePrice.id is null) ) )
+and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ))
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
 			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
@@ -188,10 +188,8 @@ order by FullName, FirmCr";
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
-			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText = "update Core, catalogs.assortment set Core.CatalogCode = assortment.CatalogId where assortment.Id = Core.ProductId;";
-			else
-				e.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
+			
+			e.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -217,10 +215,8 @@ Select
   Core.RegionCode,
 Assortment.Id as Code,
   Core.Cost,";
-			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText += "Assortment.CatalogId, ";
-			else
-				e.DataAdapter.SelectCommand.CommandText += "Assortment.Id, ";
+
+			e.DataAdapter.SelectCommand.CommandText += "Assortment.Id, ";
 			e.DataAdapter.SelectCommand.CommandText += @"
   Assortment.ProducerId
 FROM 
@@ -263,7 +259,7 @@ from
   usersettings.Core, Customers.suppliers, farm.regions
 where 
 Core.PriceCode = suppliers.Id 
-and Core.PriceCode <> ?SourcePC
+and (Core.PriceCode <> ?SourcePC or Core.RegionCode <> ?SourceRegionCode)
 and regions.RegionCode = Core.RegionCode
 order by Core.Cost DESC";
 
@@ -468,7 +464,8 @@ group by c.pricecode";
 				}
 				priceIndex++;
 			}
-			priceBlockSize = (dtRes.Columns.Count - firstColumnCount) / priceIndex;
+			if(priceIndex != 0)
+				priceBlockSize = (dtRes.Columns.Count - firstColumnCount) / priceIndex;
 			var newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
 			newrow = dtRes.NewRow();
@@ -476,6 +473,9 @@ group by c.pricecode";
 
 			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows) {
 				newrow = dtRes.NewRow();
+				if(drCatalog["Code"] == "554393") {
+					int a = 1;
+				}
 				newrow["FullName"] = drCatalog["FullName"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
 				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);

@@ -57,9 +57,20 @@ namespace Inforoom.ReportSystem
 
 		private void ProcessWeigth(ExecuteArgs e)
 		{
+			var SourcePC = Convert.ToInt32(
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+						@"
+select 
+  pricesdata.FirmCode
+from 
+  usersettings.pricesdata
+where 
+	pricesdata.PriceCode = ?PriceCode;",
+					new MySqlParameter("?PriceCode", _priceCode)));
 			ProfileHelper.Next("GetOffers");
 			GetWeightCostOffers(e);
 			ProfileHelper.Next("Processing");
+			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 
 			string SelectCommandText = String.Empty;
@@ -74,13 +85,11 @@ CREATE temporary table SummaryByPrices (
 INSERT INTO SummaryByPrices 
 select distinct Catalog.NameId 
 from 
-  reports.averagecosts apt, 
   Core c,
   Catalogs.Assortment,
   Catalogs.Catalog 
 where 
-	apt.PriceCode <> ?SourcePC 
-and apt.PriceCode=c.PriceCode
+	c.PriceCode <> ?SourcePC 
 and Assortment.Id = c.ProductId
 and Catalog.Id = Assortment.CatalogId;
 
@@ -90,14 +99,13 @@ CREATE temporary table OtherByPrice (
   Code VARCHAR(20) not NULL,
   key NameId(NameId))engine=MEMORY PACK_KEYS = 0;
 INSERT INTO OtherByPrice 
-select distinct Catalog.NameId, FarmCore.Code
+select distinct Catalog.NameId, '' Code
 from 
   (
   Core c 
   inner join Catalogs.Assortment on c.ProductId = Assortment.Id
   inner join Catalogs.Catalog  on Assortment.CatalogId = Catalog.Id
   )
-  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
   left join SummaryByPrices st on st.NameId = Catalog.NameId 
 where     
   c.PriceCode=?SourcePC
@@ -121,12 +129,10 @@ CREATE temporary table SummaryByPrices (
 INSERT INTO SummaryByPrices 
 select distinct Assortment.CatalogId 
 from 
-  reports.averagecosts apt, 
   Core c, 
   Catalogs.Assortment
 where 
-	apt.PriceCode <> ?SourcePC 
-and apt.PriceCode=c.PriceCode
+	c.PriceCode <> ?SourcePC 
 and Assortment.Id = c.ProductId;
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -141,7 +147,6 @@ from
   Core c 
   inner join Catalogs.Assortment on c.ProductId = Assortment.Id
   )
-  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
   left join SummaryByPrices st on st.CatalogId = Assortment.CatalogId 
 where    
   c.PriceCode=?SourcePC
@@ -167,15 +172,13 @@ CREATE temporary table SummaryByPrices (
   key CatalogId(CatalogId),
   key CodeFirmCr(CodeFirmCr)) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO SummaryByPrices 
-select distinct Products.CatalogId, Assortment.ProducerId as CodeFirmCr 
+select distinct Assortment.CatalogId, Assortment.ProducerId as CodeFirmCr 
 from 
-  reports.averagecosts apt, 
   Core c,
   Catalogs.Assortment
 where 
-	apt.PriceCode <> ?SourcePC 
-and apt.PriceCode=c.PriceCode
-and Assortment.Id = c.ProductId
+	c.PriceCode <> ?SourcePC 
+and Assortment.Id = c.ProductId;
 
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -190,7 +193,6 @@ select distinct Assortment.CatalogId, Assortment.ProducerId as CodeFirmCr, '' as
 from 
   (
   Core c
-  inner join reports.averagecosts FarmCore on c.Id = FarmCore.Id
   inner join Catalogs.Assortment on c.ProductId = Assortment.Id
   )
   left join SummaryByPrices st on st.CatalogId = Assortment.CatalogId and st.CodeFirmCr = Assortment.ProducerId
@@ -219,11 +221,11 @@ CREATE temporary table SummaryByPrices (
   ProductId int Unsigned, 
   key ProductId(ProductId)) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO SummaryByPrices 
-select distinct c.AssortmentId
+select distinct c.ProductId
 from 
   Core c
 where 
-	c.PriceCode <> ?SourcePC 
+	c.PriceCode <> ?SourcePC;
 
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -232,10 +234,9 @@ CREATE temporary table OtherByPrice (
   Code VARCHAR(20) not NULL,  
   key ProductId(ProductId)) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO OtherByPrice 
-select distinct c.AssortmentId, '' as Code
+select distinct c.ProductId, '' as Code
 from 
   Core c
-  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
   left join SummaryByPrices st on st.ProductId = c.ProductId
 where 
 	c.PriceCode=?SourcePC 
@@ -245,17 +246,18 @@ select
   distinct 
   OtherByPrice.Code,  
   CatalogNames.Name,
-  {0} as FullForm
+  CatalogForms.Form as FullForm
 from 
  (
   OtherByPrice
-  inner join catalogs.products on OtherByPrice.ProductId = products.Id
-  inner join catalogs.catalog on products.CatalogId = catalog.Id
+  inner join catalogs.assortment on OtherByPrice.ProductId = assortment.Id
+  inner join catalogs.catalog on assortment.CatalogId = catalog.Id
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+  inner join catalogs.CatalogForms on CatalogForms.Id = catalog.FormId
  )
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm;
-", GetFullFormSubquery("OtherByPrice.ProductId"));
+");
 					break;
 				}
 
@@ -268,14 +270,12 @@ CREATE temporary table SummaryByPrices (
   key ProductId(ProductId),
   key CodeFirmCr(CodeFirmCr)) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO SummaryByPrices 
-select distinct c.AssortmentId, FarmCore.ProducerId as CodeFirmCr 
+select distinct c.ProductId, FarmCore.ProducerId as CodeFirmCr 
 from 
-  reports.averagecosts apt, 
   Core c,
   catalogs.Assortment FarmCore
 where 
-	apt.PriceCode <> ?SourcePC 
-and apt.PriceCode=c.PriceCode
+	c.PriceCode <> ?SourcePC 
 and FarmCore.Id = c.ProductId;
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -290,10 +290,9 @@ select distinct c.ProductId, assortment.ProducerId as CodeFirmCr, '' as Code
 from 
   (
   Core c
-  inner join reports.averagecosts FarmCore on FarmCore.Id = c.Id
   inner join catalogs.assortment on assortment.id = c.ProductId
   )
-  left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = FarmCore.CodeFirmCr
+  left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = assortment.ProducerId
 where
 	c.PriceCode=?SourcePC 
 and st.ProductId is NULL;
@@ -302,24 +301,25 @@ select
   distinct 
   OtherByPrice.Code, 
   CatalogNames.Name,
-  {0} as FullForm,
+  CatalogForms.Form as FullForm,
   Producers.Name as FirmCr 
 from 
  (
   OtherByPrice
-  inner join catalogs.products on OtherByPrice.ProductId = products.Id
-  inner join catalogs.catalog on products.CatalogId = catalog.Id
+  inner join catalogs.assortment on OtherByPrice.ProductId = assortment.Id
+  inner join catalogs.catalog on assortment.CatalogId = catalog.Id
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+  inner join catalogs.CatalogForms on CatalogForms.Id = catalog.FormId
  )
   left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm, Producers.Name;
-", GetFullFormSubquery("OtherByPrice.ProductId"));
+");
 					break;
 				}
 			}
 			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			e.DataAdapter.Fill(_dsReport, "Results");
 			ProfileHelper.End();
 		}
@@ -716,7 +716,12 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 						exApp.ActiveWindow.FreezePanes = true;
 						MSExcel.Range rng = (MSExcel.Range)ws.Rows[1];
 						rng.Insert();
-						ws.Cells[1, 1] = "Из отчета исключены (в целях повышения удобства его восприятия) товары, относящиеся к так называемой \"парафармацевтике\"";
+						var caption = "Из отчета исключены (в целях повышения удобства его восприятия) товары, относящиеся к так называемой \"парафармацевтике\"";
+						if(_byWeightCosts)
+							caption += " Отчет построен по взвешенным ценам";
+						else if(_byBaseCosts)
+							caption += " Отчет построен по базовым ценам";
+						ws.Cells[1, 1] = caption;
 					}
 					finally {
 						wb.SaveAs(FileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, MSExcel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);

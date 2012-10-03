@@ -911,7 +911,7 @@ WHERE ID = ?OPID", MyCn, trans);
 
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs || weight_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !base_costs || !weight_costs);
+		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !base_costs && !weight_costs);
 		SetRowEnablity(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
 		SetRowVisibility(dgvNonOptional.Rows, "По взвешенным ценам", !base_costs);
