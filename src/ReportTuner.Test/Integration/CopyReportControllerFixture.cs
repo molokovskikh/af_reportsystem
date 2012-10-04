@@ -43,12 +43,10 @@ namespace ReportTuner.Test.Integration
 				Comment = "тестовый отчет1"
 			};
 			session.Save(generalReport1);
-			session.Flush();
 			var generalReport2 = new GeneralReport {
 				Comment = "тестовый отчет2"
 			};
 			session.Save(generalReport2);
-			session.Flush();
 			var report1 = new Report {
 				GeneralReport = generalReport1,
 				Enabled = true,
@@ -56,14 +54,11 @@ namespace ReportTuner.Test.Integration
 				ReportType = session.Query<ReportType>().First(),
 			};
 			session.Save(report1);
-			session.Flush();
 			var property = session.Query<ReportProperty>().First(t => t.Report == report1);
 			property.Value = "propertyValue1";
 			session.Save(property);
-			session.Flush();
 			generalReport1.Reports.Add(report1);
 			session.Save(generalReport1);
-			session.Flush();
 			var controller = new CopyReportController();
 			PrepareController(controller);
 			controller.DbSession = session;
