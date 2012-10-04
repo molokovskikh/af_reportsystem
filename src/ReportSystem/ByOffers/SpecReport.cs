@@ -213,7 +213,7 @@ Select
   Core.ID, 
   Core.PriceCode,
   Core.RegionCode,
-Assortment.Id as Code,
+  '' as Code,
   Core.Cost,";
 
 			e.DataAdapter.SelectCommand.CommandText += "Assortment.Id, ";
