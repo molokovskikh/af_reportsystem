@@ -17,7 +17,7 @@ namespace ReportSystem.Test
 		public void Base_test()
 		{
 			session.CreateSQLQuery("delete from `logs`.reportexecutelogs; update  reports.general_reports set allow = 0;").ExecuteUpdate();
-			Flush();
+			Close();
 			Program.Main(new[] { "/gr:1" });
 			var reportLogCount = session.Query<ReportExecuteLog>().Count();
 			Assert.AreEqual(reportLogCount, 1);

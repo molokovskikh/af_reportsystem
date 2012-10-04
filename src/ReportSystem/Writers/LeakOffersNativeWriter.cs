@@ -49,6 +49,10 @@ namespace Inforoom.ReportSystem.Writers
 				sheet.Cells.ColumnWidth[6] = 10 * 255;
 				sheet.Cells[0, 7] = new Cell("Примечание") { Style = header };
 				sheet.Cells.ColumnWidth[7] = 20 * 255;
+				sheet.Cells[0, 8] = new Cell("ЖНВЛС") { Style = header };
+				sheet.Cells.ColumnWidth[0] = 11 * 255;
+				sheet.Cells[0, 9] = new Cell("Лек. ассортимент") { Style = header };
+				sheet.Cells.ColumnWidth[0] = 15 * 255;
 
 				var i = 1;
 				foreach (var offer in offers.Rows.Cast<DataRow>()) {
@@ -60,6 +64,8 @@ namespace Inforoom.ReportSystem.Writers
 					sheet.Cells[i, 5] = new Cell(offer["Quantity"]) { Style = body };
 					sheet.Cells[i, 6] = new Cell(offer["Period"]) { Style = body };
 					sheet.Cells[i, 7] = new Cell(offer["Note"]) { Style = body };
+					sheet.Cells[i, 8] = new Cell(offer["VitallyImportant"]) { Style = body };
+					sheet.Cells[i, 9] = new Cell(offer["Pharmacie"]) { Style = body };
 					i++;
 				}
 

@@ -12,9 +12,11 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Common.MySql;
 using Common.Tools;
+using Common.Web.Ui.ActiveRecordExtentions;
 using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
 using System.Threading;
+using NHibernate.Linq;
 using ReportTuner.Models;
 using ReportTuner.Helpers;
 using FileHelper = ReportTuner.Helpers.FileHelper;
@@ -85,17 +87,18 @@ public partial class Reports_schedule : Page
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 
 		ErrorMassage.Text = string.Empty;
+		var startTime = GetStartTime(_generalReport.Id);
 
 		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
 
 		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running) {
 			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
 			if (tempTask.Definition.RegistrationInfo.Description == userName) {
-				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
+				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции. {1}", prefix, startTime);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
 			else {
-				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено {0}", description, prefix);
+				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено {0}. {2}", description, prefix, startTime);
 				ErrorMassage.BackColor = Color.Red;
 			}
 			btn_Mailing.Enabled = false;
@@ -280,6 +283,19 @@ limit 15;";
 		send_created_report.Visible = !string.IsNullOrEmpty(ftpDirectory) &&
 			Directory.Exists(ftpDirectory) &&
 			FileHelper.GetFilesForSend(ftpDirectory, _generalReport).Count() > 0;
+	}
+
+	public static string GetStartTime(ulong grId)
+	{
+		var executeLogs = ArHelper.WithSession(s => s.Query<ReportExecuteLog>().Where(l => l.GeneralReportCode == grId).OrderByDescending(l => l.StartTime).ToList());
+		var normalLanches = executeLogs.Where(l => l.EndTime != null).ToList();
+		var avgExTime = normalLanches.Sum(l => (l.EndTime.Value - l.StartTime).TotalMinutes / normalLanches.Count);
+		var executeLog = executeLogs.FirstOrDefault(l => l.EndTime == null);
+		var startTime = executeLog != null ? executeLog.StartTime.ToString() : string.Empty;
+		startTime = string.IsNullOrEmpty(startTime) ? startTime : string.Format("Отчет запущен {0}. ", startTime);
+		if (avgExTime > 0)
+			startTime += string.Format("Среднее время выполнения: {0} минут", avgExTime.ToString("0.0"));
+		return startTime;
 	}
 
 	private List<object[]> ObjectFromQuery(MySqlParameter[] parameters, string commandText)
