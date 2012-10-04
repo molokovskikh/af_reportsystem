@@ -273,6 +273,32 @@ order by Core.Cost DESC";
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			base.GenerateReport(e);
+			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
+			if (_priceCode == 0)
+				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
+
+			//Проверка актуальности прайс-листа
+			int ActualPrice = Convert.ToInt32(
+				MySqlHelper.ExecuteScalar(
+					e.DataAdapter.SelectCommand.Connection,
+					@"
+select 
+  pc.PriceCode 
+from 
+  usersettings.pricescosts pc,
+  usersettings.priceitems pim,
+  farm.formrules fr 
+where 
+	pc.PriceCode = ?SourcePC
+and pc.BaseCost = 1
+and pim.Id = pc.PriceItemId
+and fr.Id = pim.FormRuleId
+and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
+					new MySqlParameter("?SourcePC", _priceCode)));
+#if !DEBUG
+			if (ActualPrice == 0)
+				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
+#endif
 			// Если отчет строится по взвешенным ценам, то используем другой источник данных
 			// Вместо идентификатора прайса используем идентификатор поставщика
 			if(_byWeightCosts) {
@@ -307,9 +333,6 @@ where
 			}
 
 			ProfileHelper.Next("PreGetOffers");
-			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
-			if (_priceCode == 0)
-				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
 			if (_byBaseCosts) {
 				// Отчет готовится по базовым ценам
 				//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
@@ -334,29 +357,6 @@ where Id = ?ClientCode",
 
 			SourcePC = _priceCode;
 			CustomerFirmName = GetSupplierName(_priceCode);
-
-			//Проверка актуальности прайс-листа
-			int ActualPrice = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(
-					e.DataAdapter.SelectCommand.Connection,
-					@"
-select 
-  pc.PriceCode 
-from 
-  usersettings.pricescosts pc,
-  usersettings.priceitems pim,
-  farm.formrules fr 
-where 
-	pc.PriceCode = ?SourcePC
-and pc.BaseCost = 1
-and pim.Id = pc.PriceItemId
-and fr.Id = pim.FormRuleId
-and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
-					new MySqlParameter("?SourcePC", SourcePC)));
-#if !DEBUG
-			if (ActualPrice == 0)
-				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
-#endif
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем 
