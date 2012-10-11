@@ -19,6 +19,7 @@ using System.Threading;
 using NHibernate.Linq;
 using ReportTuner.Models;
 using ReportTuner.Helpers;
+using log4net;
 using FileHelper = ReportTuner.Helpers.FileHelper;
 
 
@@ -27,6 +28,7 @@ public partial class Reports_schedule : Page
 	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
+	private ILog logger = LogManager.GetLogger("testLogger");
 
 	private GeneralReport _generalReport;
 
@@ -93,7 +95,12 @@ public partial class Reports_schedule : Page
 
 		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running) {
 			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
-			if (tempTask.Definition.RegistrationInfo.Description == userName) {
+			logger.Debug("***********************");
+			logger.DebugFormat("userName: {0}", userName);
+			logger.DebugFormat("Description: {0}", tempTask.Definition.RegistrationInfo.Description);
+			logger.DebugFormat("Description1: {0}", temp1Task.Definition.RegistrationInfo.Description);
+			logger.Debug("***********************");
+			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.Definition.RegistrationInfo.Description == userName) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции. {1}", prefix, startTime);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
