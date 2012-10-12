@@ -93,7 +93,7 @@ public partial class Reports_schedule : Page
 
 		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running) {
 			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
-			if (tempTask.Definition.RegistrationInfo.Description == userName) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Running) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции. {1}", prefix, startTime);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
@@ -107,7 +107,7 @@ public partial class Reports_schedule : Page
 		}
 		if (tempTask.State == TaskState.Queued || temp1Task.State == TaskState.Queued) {
 			var prefix = tempTask.State == TaskState.Running ? "Запускается разовый отчет" : "Отчет запускается";
-			if (tempTask.Definition.RegistrationInfo.Description == userName) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Queued) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
@@ -121,7 +121,7 @@ public partial class Reports_schedule : Page
 		}
 		if ((tempTask.State == TaskState.Ready && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
 			(temp1Task.State == TaskState.Ready && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
-			if (tempTask.Definition.RegistrationInfo.Description == userName) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Ready) {
 				// отчет выполнен				
 				if (Session["StartTaskTime"] != null) {
 					Session.Remove("StartTaskTime");
