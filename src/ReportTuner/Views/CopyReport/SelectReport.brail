@@ -8,6 +8,8 @@ ${app.Asset("filter.css")}
 ${app.BeginFormFor("filter")}
 ${FormHelper.HiddenField("filter.SortBy")}
 ${FormHelper.HiddenField("filter.SortDirection")}
+${FormHelper.HiddenField("filter.GeneralReport")}
+${FormHelper.HiddenField("filter.Report")}
 ${app.FilterFor("filter.ReportName")}
 ${app.EndFormFor("filter")}
 
