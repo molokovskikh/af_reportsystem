@@ -15,10 +15,15 @@ namespace ReportTuner.Test.Functional
 		public void SelectReportLinkTest()
 		{
 			Open("CopyReport/SelectReport?filter.Report=1&filter.GeneralReport=1&filter.ReportName=Тест");
-			browser.Link(Find.ByText("Тестовый отчет АК Инфорум")).Url.Contains("filter.GeneralReport=1&filter.Report=1&destId=1");
-			Assert.That(browser.Link(Find.ByText("Тестовый отчет АК Инфорум")).Url.Contains("filter.GeneralReport=1&filter.Report=1&destId=1"));
 			Click("Показать");
-			Assert.That(browser.Link(Find.ByText("Тестовый отчет АК Инфорум")).Url.Contains("filter.GeneralReport=1&filter.Report=1&destId=1"));
+			AssertText("Тестовый отчет АК Инфорум");
+			Click("Тестовый отчет АК Инфорум");
+			AssertText("Настройка отчетов");
+			var deleteButton = browser.Buttons.Where(b => b.Value == "Удалить").Last();
+			deleteButton.Click();
+			AssertText("Настройка отчетов");
+			Click("Применить");
+			AssertText("Настройка отчетов");
 		}
 	}
 }
