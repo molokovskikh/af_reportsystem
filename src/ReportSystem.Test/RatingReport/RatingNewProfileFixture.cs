@@ -25,5 +25,22 @@ namespace ReportSystem.Test
 			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingWithPayersList);
 		}
+
+		[Test]
+		public void RatingWithoutGroup()
+		{
+			var fileName = "RatingWithoutGroup.xls";
+			Property("JunkState", 0);
+			Property("ReportInterval", 10);
+			Property("ByPreviousMonth", false);
+			Property("PayerEqual", new List<ulong> {
+				3450,
+				3733,
+				3677
+			});
+
+			report = new RatingReport(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
+		}
 	}
 }

@@ -326,7 +326,8 @@ create temporary table MixedData ENGINE=MEMORY
 
 		protected string ApplyGroupAndSort(string selectCommand, string sort)
 		{
-			selectCommand = String.Concat(selectCommand, Environment.NewLine + "group by ", String.Join(",", (from rf in selectedField where rf.visible select rf.primaryField).ToArray()));
+			if(selectedField.Any(f => f.visible))
+				selectCommand = String.Concat(selectCommand, Environment.NewLine + "group by ", String.Join(",", (from rf in selectedField where rf.visible select rf.primaryField).ToArray()));
 			selectCommand = String.Concat(selectCommand, Environment.NewLine + String.Format("order by {0}", sort));
 			return selectCommand;
 		}
