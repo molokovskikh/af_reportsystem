@@ -50,8 +50,8 @@ from " +
 #endif
 						@"
 	join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
-	join logs.CostOptimizationLogs col on 
-		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and 
+	join logs.CostOptimizationLogs col on
+		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and
 		(col.ClientId = ?clientId or ?clientId = 0) and
 		col.SupplierId = pd.FirmCode
   join farm.Synonym s on s.SynonymCode = ol.SynonymCode
@@ -61,7 +61,7 @@ from " +
   left join Customers.Users u on u.Id = oh.UserId
 	left join Customers.Clients fc on fc.Id = u.ClientId
    left join Customers.Clients cl on cl.Id = oh.ClientCode
-where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
+where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
 group by ol.RowId
 order by oh.writetime, ol.RowId;";
@@ -91,13 +91,13 @@ from orders.ordershead oh
   join orders.orderslist ol on ol.orderid = oh.rowid
   join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
   left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
-  join logs.CostOptimizationLogs col on 
-		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ResultCost < col.SelfCost and 
+  join logs.CostOptimizationLogs col on
+		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ResultCost < col.SelfCost and
 		(col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode) and col.ProducerId = ol.CodeFirmCr
   join farm.Synonym s on s.SynonymCode = ol.SynonymCode
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
   join usersettings.CostOptimizationClients cl on cl.ClientId = oh.ClientCode
-where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode <> ?supplierId and ol.Junk = 0 
+where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode <> ?supplierId and ol.Junk = 0
   and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
 group by ol.RowId
 order by oh.writetime, ol.RowId;";
@@ -116,7 +116,7 @@ from " +
 						@"join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
-where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 
+where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
 			e.DataAdapter.Fill(_dsReport, "Common");
 
@@ -219,7 +219,7 @@ where diff < 0";
 				newRow["SelfCost"] = row["Cost"];
 				newRow["ResultCost"] = row["OurFirmCost"];
 				newRow["absDiff"] = row["LostSumm"];
-				
+
 				dtRes.Rows.Add(newRow);
 			}*/
 

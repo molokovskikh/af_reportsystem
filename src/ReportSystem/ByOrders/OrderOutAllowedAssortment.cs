@@ -51,7 +51,7 @@ Prod.Name as Producer,
 Ol.Cost, Ol.Quantity,
 BM.Code as MatrixCode,
 supps.Name AS Supplier,
-(Ol.Cost*Ol.Quantity) as Summ 
+(Ol.Cost*Ol.Quantity) as Summ
 FROM {0}.OrdersHead O
 	join {0}.OrdersList OL on OL.OrderId = O.RowId
 		join usersettings.RetClientsSet RC on RC.ClientCode = O.ClientCode

@@ -32,7 +32,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 		Schedule = 7
 	}
 
-	private string SetFilterCaption = "Фильтровать";
+	private string SetFilterCaption = "Р¤РёР»СЊС‚СЂРѕРІР°С‚СЊ";
 
 	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
@@ -64,14 +64,14 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 		}
 		else {
 			DS = ((DataSet)Session[DSReports]);
-			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+			if (DS == null) // РІРµСЂРѕСЏС‚РЅРѕ, СЃРµСЃСЃРёСЏ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ Рё РІСЃРµ РµРµ РґР°РЅРЅС‹Рµ СѓС‚РµСЂСЏРЅС‹
 				Redirect(this);
 		}
 
 		btnApply.Visible = dgvReports.Rows.Count > 0;
 
 		if (Session["redirected"] != null && Convert.ToBoolean(Session["redirected"])) {
-			lblMessage.Text = "Вследствие закрытия сессии, Вы были переведены на главную страницу. Повторите запрос.";
+			lblMessage.Text = "Р’СЃР»РµРґСЃС‚РІРёРµ Р·Р°РєСЂС‹С‚РёСЏ СЃРµСЃСЃРёРё, Р’С‹ Р±С‹Р»Рё РїРµСЂРµРІРµРґРµРЅС‹ РЅР° РіР»Р°РІРЅСѓСЋ СЃС‚СЂР°РЅРёС†Сѓ. РџРѕРІС‚РѕСЂРёС‚Рµ Р·Р°РїСЂРѕСЃ.";
 			Session["redirected"] = null;
 		}
 		else {
@@ -142,17 +142,17 @@ Order by gr.GeneralReportCode
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtPayers)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtGeneralReports,
 			this.dtPayers
 		});
-		// 
+		//
 		// dtGeneralReports
-		// 
+		//
 		this.dtGeneralReports.Columns.AddRange(new System.Data.DataColumn[] {
 			this.GeneralReportCode,
 			this.FirmCode,
@@ -163,54 +163,54 @@ Order by gr.GeneralReportCode
 			this.dataColumn1
 		});
 		this.dtGeneralReports.TableName = "dtGeneralReports";
-		// 
+		//
 		// GeneralReportCode
-		// 
+		//
 		this.GeneralReportCode.ColumnName = "GeneralReportCode";
 		this.GeneralReportCode.DataType = typeof(long);
-		// 
+		//
 		// FirmCode
-		// 
+		//
 		this.FirmCode.ColumnName = "FirmCode";
 		this.FirmCode.DataType = typeof(long);
-		// 
+		//
 		// Comment
-		// 
+		//
 		this.Comment.ColumnName = "Comment";
-		// 
+		//
 		// Allow
-		// 
+		//
 		this.Allow.ColumnName = "Allow";
 		this.Allow.DataType = typeof(byte);
-		// 
+		//
 		// GRPayerShortName
-		// 
+		//
 		this.GRPayerShortName.ColumnName = "PayerShortName";
-		// 
+		//
 		// GRPayerID
-		// 
+		//
 		this.GRPayerID.ColumnName = "PayerID";
 		this.GRPayerID.DataType = typeof(long);
-		// 
+		//
 		// dtPayers
-		// 
+		//
 		this.dtPayers.Columns.AddRange(new System.Data.DataColumn[] {
 			this.PayerShortName,
 			this.PPayerID
 		});
 		this.dtPayers.TableName = "dtPayers";
-		// 
+		//
 		// PayerShortName
-		// 
+		//
 		this.PayerShortName.ColumnName = "PayerShortName";
-		// 
+		//
 		// PPayerID
-		// 
+		//
 		this.PPayerID.ColumnName = "PayerID";
 		this.PPayerID.DataType = typeof(long);
-		// 
+		//
 		// dataColumn1
-		// 
+		//
 		this.dataColumn1.ColumnName = "IsNewClient";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtGeneralReports)).EndInit();
@@ -220,7 +220,7 @@ Order by gr.GeneralReportCode
 	protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
 		if (e.CommandName == "Add") {
-			//Если нет добавленных записей, то позволяем добавить запись
+			//Р•СЃР»Рё РЅРµС‚ РґРѕР±Р°РІР»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№, С‚Рѕ РїРѕР·РІРѕР»СЏРµРј РґРѕР±Р°РІРёС‚СЊ Р·Р°РїРёСЃСЊ
 			if (DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Added) == null) {
 				CopyChangesToTable();
 
@@ -237,7 +237,7 @@ Order by gr.GeneralReportCode
 				btnApply.Visible = true;
 			}
 			else {
-				//Ищем добавленную запись и позиционируемся на нее
+				//РС‰РµРј РґРѕР±Р°РІР»РµРЅРЅСѓСЋ Р·Р°РїРёСЃСЊ Рё РїРѕР·РёС†РёРѕРЅРёСЂСѓРµРјСЃСЏ РЅР° РЅРµРµ
 				foreach (GridViewRow row in dgvReports.Rows)
 					if (String.IsNullOrEmpty(row.Cells[(int)GeneralReportFields.Code].Text)) {
 						dgvReports.SelectedIndex = row.RowIndex;
@@ -297,7 +297,7 @@ Order by p.ShortName
 
 
 			if (Convert.IsDBNull(dgvReports.DataKeys[dr.RowIndex].Value)) {
-				//добавленная запись
+				//РґРѕР±Р°РІР»РµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ
 				DataRow[] drs = DS.Tables[dtGeneralReports.TableName].Select("GeneralReportCode is null");
 				if (drs.Length == 1) {
 					changedRow = drs[0];
@@ -306,7 +306,7 @@ Order by p.ShortName
 				}
 			}
 			else {
-				//измененная запись
+				//РёР·РјРµРЅРµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ
 				DataRow[] drs = DS.Tables[dtGeneralReports.TableName].Select("GeneralReportCode = " + dgvReports.DataKeys[dr.RowIndex].Value);
 				if (drs.Length == 1)
 					changedRow = drs[0];
@@ -340,12 +340,12 @@ Order by p.ShortName
 	protected void dgvReports_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
 		if (e.Row.RowType == DataControlRowType.DataRow) {
-			//"Рассылки"
-			e.Row.Cells[(int)GeneralReportFields.Delivery].ToolTip = "Рассылки";
-			//"Отчеты"
-			e.Row.Cells[(int)GeneralReportFields.Reports].ToolTip = "Отчеты";
-			//"Расписание"
-			e.Row.Cells[(int)GeneralReportFields.Schedule].ToolTip = "Расписание";
+			//"Р Р°СЃСЃС‹Р»РєРё"
+			e.Row.Cells[(int)GeneralReportFields.Delivery].ToolTip = "Р Р°СЃСЃС‹Р»РєРё";
+			//"РћС‚С‡РµС‚С‹"
+			e.Row.Cells[(int)GeneralReportFields.Reports].ToolTip = "РћС‚С‡РµС‚С‹";
+			//"Р Р°СЃРїРёСЃР°РЅРёРµ"
+			e.Row.Cells[(int)GeneralReportFields.Schedule].ToolTip = "Р Р°СЃРїРёСЃР°РЅРёРµ";
 
 			if (((Label)e.Row.FindControl("lblFirmName")).Text != "") {
 				((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
@@ -366,12 +366,12 @@ Order by p.ShortName
 
 				DropDownList ddlReports = (DropDownList)e.Row.FindControl("ddlNames");
 				ddlReports.Visible = true;
-				//Делаем недоступными столбцы
-				//"Рассылки"
+				//Р”РµР»Р°РµРј РЅРµРґРѕСЃС‚СѓРїРЅС‹РјРё СЃС‚РѕР»Р±С†С‹
+				//"Р Р°СЃСЃС‹Р»РєРё"
 				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = false;
-				//"Отчеты"
+				//"РћС‚С‡РµС‚С‹"
 				e.Row.Cells[(int)GeneralReportFields.Reports].Enabled = false;
-				//"Расписание"
+				//"Р Р°СЃРїРёСЃР°РЅРёРµ"
 				e.Row.Cells[(int)GeneralReportFields.Schedule].Enabled = false;
 				((Label)e.Row.FindControl("lblFirmName")).Visible = false;
 			}
@@ -390,9 +390,9 @@ Order by p.ShortName
 		var trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 		try {
 			var UpdCmd = new MySqlCommand(@"
-UPDATE 
-	reports.general_reports 
-SET 
+UPDATE
+	reports.general_reports
+SET
 	Allow = ?Allow,
 	Comment = ?Comment,
 	FirmCode = if(PayerID = ?payerID, FirmCode,
@@ -420,7 +420,7 @@ WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
 			UpdCmd.Parameters.Add("?payerID", MySqlDbType.Int64).SourceColumn = GRPayerID.ColumnName;
 
 			MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from reports.general_reports 
+DELETE from reports.general_reports
 WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 
 			DelCmd.Parameters.Clear();
@@ -430,10 +430,10 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 			DelCmd.Parameters["GRDelCode"].SourceVersion = DataRowVersion.Original;
 
 			MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT INTO 
-	reports.general_reports 
+INSERT INTO
+	reports.general_reports
 (PayerId, Allow, Comment, FirmCode)
-select 
+select
   ?PayerId,
   ?Allow,
   ?Comment,
@@ -506,14 +506,14 @@ select last_insert_id() as GRLastInsertID;
 			MyCn.Close();
 		}
 
-		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
-		// А также включаем/выключаем задание при изменении галки "Включен"
+		//РЈРґР°Р»СЏРµРј Р·Р°РґР°РЅРёСЏ РґР»СЏ РѕС‚С‡РµС‚РѕРІ Рё РѕР±РЅРѕРІР»СЏРµРј РєРѕРјРјРµРЅС‚Р°СЂРёРё РІ Р·Р°РґР°РЅРёСЏС… (РёР»Рё СЃРѕР·РґР°РµРј СЌС‚Рё Р·Р°РґР°РЅРёСЏ)
+		// Рђ С‚Р°РєР¶Рµ РІРєР»СЋС‡Р°РµРј/РІС‹РєР»СЋС‡Р°РµРј Р·Р°РґР°РЅРёРµ РїСЂРё РёР·РјРµРЅРµРЅРёРё РіР°Р»РєРё "Р’РєР»СЋС‡РµРЅ"
 		if ((_deletedReports.Count > 0) || (_updatedReports.Count > 0)) {
 			using (var helper = new ScheduleHelper()) {
 				foreach (var id in _updatedReports) {
 					var report = GeneralReport.Find(id);
 					helper.GetTask(id, report.Comment);
-					ScheduleHelper.SetTaskEnableStatus(id, report.Allow, "GR"); // включаем/выключаем отчет
+					ScheduleHelper.SetTaskEnableStatus(id, report.Allow, "GR"); // РІРєР»СЋС‡Р°РµРј/РІС‹РєР»СЋС‡Р°РµРј РѕС‚С‡РµС‚
 				}
 				foreach (var id in _deletedReports)
 					helper.DeleteReportTask(id);
@@ -594,8 +594,8 @@ select last_insert_id() as GRLastInsertID;
 
 	protected void dgvReports_RowCreated(object sender, GridViewRowEventArgs e)
 	{
-		// Use the RowType property to determine whether the 
-		// row being created is the header row. 
+		// Use the RowType property to determine whether the
+		// row being created is the header row.
 		if (e.Row.RowType == DataControlRowType.Header) {
 			// Call the GetSortColumnIndex helper method to determine
 			// the index of the column being sorted.
@@ -604,7 +604,7 @@ select last_insert_id() as GRLastInsertID;
 			if (sortColumnIndex != -1) {
 				// Call the AddSortImage helper method to add
 				// a sort direction image to the appropriate
-				// column header. 
+				// column header.
 				AddSortImage(sortColumnIndex, e.Row);
 			}
 		}
@@ -633,11 +633,11 @@ select last_insert_id() as GRLastInsertID;
 		Image sortImage = new Image();
 		if (SortAscending) {
 			sortImage.ImageUrl = "~/Images/Ascending.gif";
-			sortImage.AlternateText = "По возрастанию";
+			sortImage.AlternateText = "РџРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ";
 		}
 		else {
 			sortImage.ImageUrl = "~/Images/Descending.gif";
-			sortImage.AlternateText = "По убыванию";
+			sortImage.AlternateText = "РџРѕ СѓР±С‹РІР°РЅРёСЋ";
 		}
 
 		// Add the image to the appropriate header cell.

@@ -11,7 +11,7 @@
 
 
 public partial class Reports_EnumValues {
-    
+
     /// <summary>
     /// lblEnumName control.
     /// </summary>
@@ -20,7 +20,7 @@ public partial class Reports_EnumValues {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.Label lblEnumName;
-    
+
     /// <summary>
     /// dgvEnumValues control.
     /// </summary>
@@ -29,7 +29,7 @@ public partial class Reports_EnumValues {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.GridView dgvEnumValues;
-    
+
     /// <summary>
     /// btnApply control.
     /// </summary>

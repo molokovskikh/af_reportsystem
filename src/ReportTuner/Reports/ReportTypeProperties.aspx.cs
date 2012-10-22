@@ -55,12 +55,12 @@ public partial class Reports_ReportTypeProperties : System.Web.UI.Page
 		dtParamTypes.Columns.Add("ptName", typeof(string));
 		dtParamTypes.Columns.Add("ptDisplayName", typeof(string));
 
-		dtParamTypes.Rows.Add(new object[] { "BOOL", "Логический" });
-		dtParamTypes.Rows.Add(new object[] { "INT", "Целый" });
-		dtParamTypes.Rows.Add(new object[] { "ENUM", "Перечислимый" });
-		dtParamTypes.Rows.Add(new object[] { "LIST", "Список" });
-		dtParamTypes.Rows.Add(new object[] { "STRING", "Строковый" });
-		dtParamTypes.Rows.Add(new object[] { "DATETIME", "Дата" });
+		dtParamTypes.Rows.Add(new object[] { "BOOL", "Р›РѕРіРёС‡РµСЃРєРёР№" });
+		dtParamTypes.Rows.Add(new object[] { "INT", "Р¦РµР»С‹Р№" });
+		dtParamTypes.Rows.Add(new object[] { "ENUM", "РџРµСЂРµС‡РёСЃР»РёРјС‹Р№" });
+		dtParamTypes.Rows.Add(new object[] { "LIST", "РЎРїРёСЃРѕРє" });
+		dtParamTypes.Rows.Add(new object[] { "STRING", "РЎС‚СЂРѕРєРѕРІС‹Р№" });
+		dtParamTypes.Rows.Add(new object[] { "DATETIME", "Р”Р°С‚Р°" });
 
 
 		//foreach (GridViewRow gvr in dgvProperties.Rows)
@@ -83,9 +83,9 @@ public partial class Reports_ReportTypeProperties : System.Web.UI.Page
 			MyCmd.Parameters.Clear();
 			MyCmd.Parameters.AddWithValue("rtCode", Request["rtc"]);
 			MyCmd.CommandText = @"
-SELECT 
+SELECT
     ReportTypeName
-FROM 
+FROM
     reports.reporttypes rt
 WHERE ReportTypeCode = ?rtCode
 ";
@@ -96,7 +96,7 @@ WHERE ReportTypeCode = ?rtCode
 		}
 		else {
 			DS = ((DataSet)Session[DSReportTypes]);
-			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+			if (DS == null) // РІРµСЂРѕСЏС‚РЅРѕ, СЃРµСЃСЃРёСЏ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ Рё РІСЃРµ РµРµ РґР°РЅРЅС‹Рµ СѓС‚РµСЂСЏРЅС‹
 				Reports_GeneralReports.Redirect(this);
 		}
 		btnApply.Visible = dgvProperties.Rows.Count > 0;
@@ -113,7 +113,7 @@ WHERE ReportTypeCode = ?rtCode
 		MyCmd.Parameters.AddWithValue("rtCode", Request["rtc"]);
 		DS.Tables[dtProperties.TableName].Clear();
 		MyCmd.CommandText = @"
-SELECT 
+SELECT
     ID as PID,
     ReportTypeCode as PRTCode,
     PropertyName as PName,
@@ -123,7 +123,7 @@ SELECT
     Optional as POptional,
     PropertyEnumID as PEnumID,
     SelectStoredProcedure as PStoredProc
-FROM 
+FROM
     reports.report_type_properties rtc
 WHERE ReportTypeCode = ?rtCode
 ";
@@ -170,9 +170,9 @@ from
 			trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 			try {
 				MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-    reports.report_type_properties 
-SET 
+UPDATE
+    reports.report_type_properties
+SET
     PropertyName = ?PName,
     DisplayName = ?PDisplayName,
     DefaultValue = ?PDefaultValue,
@@ -217,7 +217,7 @@ WHERE ID = ?PID", MyCn, trans);
 				UpdCmd.Parameters["PID"].SourceVersion = DataRowVersion.Current;
 
 				MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from reports.report_type_properties 
+DELETE from reports.report_type_properties
 WHERE ID = ?PDelID", MyCn, trans);
 
 				DelCmd.Parameters.Clear();
@@ -227,9 +227,9 @@ WHERE ID = ?PDelID", MyCn, trans);
 				DelCmd.Parameters["PDelID"].SourceVersion = DataRowVersion.Original;
 
 				MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT INTO 
-    reports.report_type_properties 
-SET 
+INSERT INTO
+    reports.report_type_properties
+SET
     PropertyName = ?PName,
     DisplayName = ?PDisplayName,
     DefaultValue = ?PDefaultValue,
@@ -347,16 +347,16 @@ SET
 		this.PDefaultValue = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtProperties)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtProperties
 		});
-		// 
+		//
 		// dtProperties
-		// 
+		//
 		this.dtProperties.Columns.AddRange(new System.Data.DataColumn[] {
 			this.PID,
 			this.PRTCode,
@@ -369,45 +369,45 @@ SET
 			this.PDefaultValue
 		});
 		this.dtProperties.TableName = "dtProperties";
-		// 
+		//
 		// PID
-		// 
+		//
 		this.PID.ColumnName = "PID";
 		this.PID.DataType = typeof(long);
-		// 
+		//
 		// PRTCode
-		// 
+		//
 		this.PRTCode.ColumnName = "PRTCode";
 		this.PRTCode.DataType = typeof(long);
-		// 
+		//
 		// PName
-		// 
+		//
 		this.PName.ColumnName = "PName";
-		// 
+		//
 		// PDisplayName
-		// 
+		//
 		this.PDisplayName.ColumnName = "PDisplayName";
-		// 
+		//
 		// PType
-		// 
+		//
 		this.PType.ColumnName = "PType";
-		// 
+		//
 		// POptional
-		// 
+		//
 		this.POptional.ColumnName = "POptional";
 		this.POptional.DataType = typeof(byte);
-		// 
+		//
 		// PEnumID
-		// 
+		//
 		this.PEnumID.ColumnName = "PEnumID";
 		this.PEnumID.DataType = typeof(long);
-		// 
+		//
 		// PStoredProc
-		// 
+		//
 		this.PStoredProc.ColumnName = "PStoredProc";
-		// 
+		//
 		// PDefaultValue
-		// 
+		//
 		this.PDefaultValue.ColumnName = "PDefaultValue";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtProperties)).EndInit();
@@ -427,9 +427,9 @@ SET
 				((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Visible = true;
 
 				if (((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text == "0")
-					((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text = "Нет";
+					((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text = "РќРµС‚";
 				else
-					((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text = "Да";
+					((Label)e.Row.Cells[(int)GridViewFields.POptional].FindControl("lblOptional")).Text = "Р”Р°";
 
 				((DropDownList)(e.Row.Cells[(int)GridViewFields.PType].FindControl("ddlEnum"))).Visible = false;
 				((Button)(e.Row.Cells[(int)GridViewFields.PType].FindControl("btnEditType"))).Visible = false;
@@ -551,8 +551,8 @@ SET
 				MyCmd.Connection = MyCn;
 				MyDA.SelectCommand = MyCmd;
 				MyCmd.Parameters.Clear();
-				//Если процедура есть, то она вернет какой-либо набор, возможно, пустой
-				//Если не существует, то будет ошибка
+				//Р•СЃР»Рё РїСЂРѕС†РµРґСѓСЂР° РµСЃС‚СЊ, С‚Рѕ РѕРЅР° РІРµСЂРЅРµС‚ РєР°РєРѕР№-Р»РёР±Рѕ РЅР°Р±РѕСЂ, РІРѕР·РјРѕР¶РЅРѕ, РїСѓСЃС‚РѕР№
+				//Р•СЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ Р±СѓРґРµС‚ РѕС€РёР±РєР°
 				MyCmd.Parameters.AddWithValue("inFilter", null);
 				MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
 				MyCmd.CommandText = tbProc.Text;

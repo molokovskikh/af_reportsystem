@@ -298,7 +298,7 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurre
 				((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
 					((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", firmCrField.primaryField) : String.Empty)) : String.Empty) +
 						@"
-where 
+where
 ol.Junk = 0
 ";
 
@@ -314,7 +314,7 @@ ol.Junk = 0
 			if (includeProductName)
 				if (isProductName)
 					selectCommand += @"; select
-				(select concat(c.name, ' ', 
+				(select concat(c.name, ' ',
 							cast(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
 								  order by Properties.PropertyName, PropertyValues.Value
 								  SEPARATOR ', '

@@ -91,7 +91,7 @@ namespace ReportSystem.Test.ProviderReport
 				() => new Offer(new DataRowAdapter(_dataTable.NewRow()), 1, null),
 				Throws.InstanceOf<ArgumentNullException>()
 					.And.Property("ParamName").EqualTo("random")
-					.And.Message.StartsWith("При установленном параметре noiseSupplierId не установлен параметр random: генератор случайных чисел"));
+					.And.Message.StartsWith("РџСЂРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј РїР°СЂР°РјРµС‚СЂРµ noiseSupplierId РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїР°СЂР°РјРµС‚СЂ random: РіРµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»"));
 		}
 
 		public void CheckRequiredFields(DataRow row, Offer offer)

@@ -9,10 +9,10 @@
 //------------------------------------------------------------------------------
 
 namespace ReportTuner.Reports {
-    
-    
+
+
     public partial class TemplateReports {
-        
+
         /// <summary>
         /// dgvReports control.
         /// </summary>
@@ -21,7 +21,7 @@ namespace ReportTuner.Reports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView dgvReports;
-        
+
         /// <summary>
         /// btnApply control.
         /// </summary>

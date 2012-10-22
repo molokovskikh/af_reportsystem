@@ -37,7 +37,7 @@ public partial class Reports_PropertyEnums : System.Web.UI.Page
 		}
 		else {
 			DS = ((DataSet)Session[DSEnums]);
-			if (DS == null) // âåðîÿòíî, ñåññèÿ çàâåðøèëàñü è âñå åå äàííûå óòåðÿíû
+			if (DS == null) // Ð²ÐµÑ€Ð¾ÑÑ‚Ð½Ð¾, ÑÐµÑÑÐ¸Ñ Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ð»Ð°ÑÑŒ Ð¸ Ð²ÑÐµ ÐµÐµ Ð´Ð°Ð½Ð½Ñ‹Ðµ ÑƒÑ‚ÐµÑ€ÑÐ½Ñ‹
 				Reports_GeneralReports.Redirect(this);
 		}
 		btnApply.Visible = dgvEnums.Rows.Count > 0;
@@ -52,10 +52,10 @@ public partial class Reports_PropertyEnums : System.Web.UI.Page
 		MyCmd.Parameters.Clear();
 		DS.Tables[dtEnums.TableName].Clear();
 		MyCmd.CommandText = @"
-SELECT 
+SELECT
     ID as eID,
     EnumName as eName
-FROM 
+FROM
     reports.property_enums pe
 ";
 		MyDA.Fill(DS, dtEnums.TableName);
@@ -75,29 +75,29 @@ FROM
 		this.eName = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtEnums)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtEnums
 		});
-		// 
+		//
 		// dtEnums
-		// 
+		//
 		this.dtEnums.Columns.AddRange(new System.Data.DataColumn[] {
 			this.eID,
 			this.eName
 		});
 		this.dtEnums.TableName = "dtEnums";
-		// 
+		//
 		// eID
-		// 
+		//
 		this.eID.ColumnName = "eID";
 		this.eID.DataType = typeof(long);
-		// 
+		//
 		// eName
-		// 
+		//
 		this.eName.ColumnName = "eName";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtEnums)).EndInit();
@@ -143,9 +143,9 @@ FROM
 		trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 		try {
 			MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-    reports.property_enums 
-SET 
+UPDATE
+    reports.property_enums
+SET
     EnumName = ?eName
 WHERE ID = ?eID", MyCn, trans);
 
@@ -160,7 +160,7 @@ WHERE ID = ?eID", MyCn, trans);
 			UpdCmd.Parameters["eID"].SourceVersion = DataRowVersion.Current;
 
 			MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from reports.property_enums 
+DELETE from reports.property_enums
 WHERE ID = ?eDelID", MyCn, trans);
 
 			DelCmd.Parameters.Clear();
@@ -170,9 +170,9 @@ WHERE ID = ?eDelID", MyCn, trans);
 			DelCmd.Parameters["eDelID"].SourceVersion = DataRowVersion.Original;
 
 			MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT INTO 
-    reports.property_enums 
-SET 
+INSERT INTO
+    reports.property_enums
+SET
     EnumName = ?eName", MyCn, trans);
 
 			InsCmd.Parameters.Clear();

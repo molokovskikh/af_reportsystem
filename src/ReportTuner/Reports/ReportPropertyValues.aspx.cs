@@ -36,7 +36,7 @@ public partial class Reports_ReportPropertyValues : Page
 	private DataColumn LReportType;
 	private const string PPCN = "Inforoom.Reports.ReportPropertyValues.PP";
 
-	private string inFilter; // параметры для хранимых процедур
+	private string inFilter; // РїР°СЂР°РјРµС‚СЂС‹ РґР»СЏ С…СЂР°РЅРёРјС‹С… РїСЂРѕС†РµРґСѓСЂ
 	private long? inID = null;
 	private string inTypes;
 
@@ -101,13 +101,13 @@ select
   rp.ID as LReportPropertyID,
   r.ReportCaption LReportCaption,
   rt.ReportTypeName LReportType
-from 
-  reports.report_properties rp, 
-  reports.report_type_properties rtp, 
-  reports.reports r, 
+from
+  reports.report_properties rp,
+  reports.report_type_properties rtp,
+  reports.reports r,
   reports.general_reports gr,
   reports.reporttypes rt
-where 
+where
 	rtp.ID=rp.PropertyID
 and rtp.ReportTypeCode = r.ReportTypeCode
 and r.generalreportcode=gr.generalreportcode
@@ -128,7 +128,7 @@ and rt.ReportTypeCode = r.ReportTypeCode
 		}
 		else {
 			DS = ((DataSet)Session[DSValues]);
-			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+			if (DS == null) // РІРµСЂРѕСЏС‚РЅРѕ, СЃРµСЃСЃРёСЏ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ Рё РІСЃРµ РµРµ РґР°РЅРЅС‹Рµ СѓС‚РµСЂСЏРЅС‹
 				Reports_GeneralReports.Redirect(this);
 			ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
 			ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
@@ -158,9 +158,9 @@ and rt.ReportTypeCode = r.ReportTypeCode
 SELECT
 	rpv.ID as EVID,
 	rpv.Value as EVName
-FROM 
+FROM
 	reports.report_property_values rpv
-WHERE 
+WHERE
 	ReportPropertyID = ?rpv
 ";
 		MyDA.Fill(DS, dtEnabledValues.TableName);
@@ -207,59 +207,59 @@ WHERE
 		((System.ComponentModel.ISupportInitialize)(this.dtProcResult)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtEnabledValues)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtList)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtProcResult,
 			this.dtEnabledValues,
 			this.dtList
 		});
-		// 
+		//
 		// dtProcResult
-		// 
+		//
 		this.dtProcResult.Columns.AddRange(new System.Data.DataColumn[] {
 			this.PRID,
 			this.DisplayValue,
 			this.Enabled
 		});
 		this.dtProcResult.TableName = "dtProcResult";
-		// 
+		//
 		// PRID
-		// 
+		//
 		this.PRID.ColumnName = "ID";
 		this.PRID.DataType = typeof(long);
-		// 
+		//
 		// DisplayValue
-		// 
+		//
 		this.DisplayValue.ColumnName = "DisplayValue";
-		// 
+		//
 		// Enabled
-		// 
+		//
 		this.Enabled.ColumnName = "Enabled";
 		this.Enabled.DataType = typeof(byte);
 		this.Enabled.DefaultValue = ((byte)(0));
-		// 
+		//
 		// dtEnabledValues
-		// 
+		//
 		this.dtEnabledValues.Columns.AddRange(new System.Data.DataColumn[] {
 			this.EVID,
 			this.EVName
 		});
 		this.dtEnabledValues.TableName = "dtEnabledValues";
-		// 
+		//
 		// EVID
-		// 
+		//
 		this.EVID.ColumnName = "EVID";
 		this.EVID.DataType = typeof(long);
-		// 
+		//
 		// EVName
-		// 
+		//
 		this.EVName.ColumnName = "EVName";
-		// 
+		//
 		// dtList
-		// 
+		//
 		this.dtList.Columns.AddRange(new System.Data.DataColumn[] {
 			this.LProc,
 			this.LName,
@@ -268,26 +268,26 @@ WHERE
 			this.LReportType
 		});
 		this.dtList.TableName = "dtList";
-		// 
+		//
 		// LProc
-		// 
+		//
 		this.LProc.ColumnName = "LProc";
-		// 
+		//
 		// LName
-		// 
+		//
 		this.LName.ColumnName = "LName";
-		// 
+		//
 		// LReportPropertyID
-		// 
+		//
 		this.LReportPropertyID.ColumnName = "LReportPropertyID";
 		this.LReportPropertyID.DataType = typeof(long);
-		// 
+		//
 		// LReportCaption
-		// 
+		//
 		this.LReportCaption.ColumnName = "LReportCaption";
-		// 
+		//
 		// LReportType
-		// 
+		//
 		this.LReportType.ColumnName = "LReportType";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtProcResult)).EndInit();

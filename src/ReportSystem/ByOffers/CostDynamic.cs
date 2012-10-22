@@ -247,7 +247,7 @@ where id in ({0})", suppliers.Implode());
 		{
 			var begin = date.AddMonths(-1);
 			var end = date;
-			//join Catalogs.Catalog c on c.Id = p.CatalogId вроде бы не нужен 
+			//join Catalogs.Catalog c on c.Id = p.CatalogId вроде бы не нужен
 			//но без него оптимизатор строит неправильный план
 			command.CommandText = String.Format(@"
 select a.Id, sum(ol.Quantity) as quantity

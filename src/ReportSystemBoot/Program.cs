@@ -50,7 +50,7 @@ namespace ReportSystemBoot
 				bootAppName += arg;
 			logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
 			try {
-#if !DEBUG			
+#if !DEBUG
 				ProcessStarter.StartProcessInteractivly(bootAppName, "runer", "zcxvcb", "analit");
 #else
 				ProcessStarter.StartProcessInteractivly(bootAppName, "tyutin", "*****", "analit");

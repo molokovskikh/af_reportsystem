@@ -45,21 +45,21 @@ namespace Inforoom.ReportSystem.ByOrders
 			string orderbyColumns;
 			if (reportType == 1) {
 				selectedColumns = @"
-	oh.writetime, 
-	oh.pricedate, 
-	fi.supplierclientid firmclientcode, 
-	cl.name shortname, 
-	r.Region, 
-	count(oh.rowid) rowCount, 
+	oh.writetime,
+	oh.pricedate,
+	fi.supplierclientid firmclientcode,
+	cl.name shortname,
+	r.Region,
+	count(oh.rowid) rowCount,
 	ROUND(SUM(ol.cost*ol.Quantity),2) summa";
 				groupbyColumns = "oh.rowid";
 				orderbyColumns = "oh.writetime";
 			}
 			else {
 				selectedColumns = @"
-	fi.supplierclientid firmclientcode, 
-	cl.name shortname, 
-	r.Region, 
+	fi.supplierclientid firmclientcode,
+	cl.name shortname,
+	r.Region,
 	ROUND(SUM(ol.cost*ol.Quantity),2) summa";
 				groupbyColumns = "cl.Id, oh.RegionCode";
 				orderbyColumns = "cl.Name";
@@ -67,10 +67,10 @@ namespace Inforoom.ReportSystem.ByOrders
 
 			var selectCommand = String.Format(@"
 select {0}
-from 
+from
 	{1}.ordershead oh
     inner join {1}.orderslist ol on oh.rowid = ol.orderid
-    inner join usersettings.pricesdata pd on oh.pricecode = pd.pricecode    
+    inner join usersettings.pricesdata pd on oh.pricecode = pd.pricecode
     inner join farm.regions r on oh.regioncode = r.regioncode
     inner join Customers.users u on oh.userid = u.id
     inner join Customers.clients cl on oh.clientcode = cl.id

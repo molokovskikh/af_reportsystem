@@ -29,21 +29,21 @@ namespace Inforoom.ReportSystem.Writers
 					if (name.Length > 26)
 						name = name.Substring(0, 26);
 					sheet.Name = name;
-					sheet.Cells[1, 1] = "Код";
+					sheet.Cells[1, 1] = "РљРѕРґ";
 					((Range)sheet.Cells[1, 1]).ColumnWidth = 11;
-					sheet.Cells[1, 2] = "Код изготовителя";
+					sheet.Cells[1, 2] = "РљРѕРґ РёР·РіРѕС‚РѕРІРёС‚РµР»СЏ";
 					((Range)sheet.Cells[1, 2]).ColumnWidth = 11;
-					sheet.Cells[1, 3] = "Наименование";
+					sheet.Cells[1, 3] = "РќР°РёРјРµРЅРѕРІР°РЅРёРµ";
 					((Range)sheet.Cells[1, 3]).ColumnWidth = 30;
-					sheet.Cells[1, 4] = "Изготовитель";
+					sheet.Cells[1, 4] = "РР·РіРѕС‚РѕРІРёС‚РµР»СЊ";
 					((Range)sheet.Cells[1, 4]).ColumnWidth = 25;
-					sheet.Cells[1, 5] = "Цена";
+					sheet.Cells[1, 5] = "Р¦РµРЅР°";
 					((Range)sheet.Cells[1, 5]).ColumnWidth = 15.5;
-					sheet.Cells[1, 6] = "Остаток";
+					sheet.Cells[1, 6] = "РћСЃС‚Р°С‚РѕРє";
 					((Range)sheet.Cells[1, 6]).ColumnWidth = 17;
-					sheet.Cells[1, 7] = "Срок годности";
+					sheet.Cells[1, 7] = "РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё";
 					((Range)sheet.Cells[1, 7]).ColumnWidth = 10;
-					sheet.Cells[1, 8] = "Примечание";
+					sheet.Cells[1, 8] = "РџСЂРёРјРµС‡Р°РЅРёРµ";
 					((Range)sheet.Cells[1, 8]).ColumnWidth = 20;
 
 					var header = sheet.get_Range(sheet.Cells[1, 1], sheet.Cells[1, 8]);

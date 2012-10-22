@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Inforoom.Common
 {
 	/// <summary>
-	/// Вспомогательный класс для работы с командной строкой
+	/// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РєР»Р°СЃСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРѕР№
 	/// </summary>
 	public class CommandLineUtils : IComparer
 	{
@@ -23,7 +23,7 @@ namespace Inforoom.Common
 				string Right = (string)y;
 				return (Left.StartsWith(Right)) ? 0 : Left.CompareTo(Right);
 			}
-			throw new ArgumentException("Объекты не являются String");
+			throw new ArgumentException("РћР±СЉРµРєС‚С‹ РЅРµ СЏРІР»СЏСЋС‚СЃСЏ String");
 		}
 
 		private bool ValueStartsWith(string Value)
@@ -32,9 +32,9 @@ namespace Inforoom.Common
 		}
 
 		/// <summary>
-		/// Получить код из параметра формата: <prefix><number>
+		/// РџРѕР»СѓС‡РёС‚СЊ РєРѕРґ РёР· РїР°СЂР°РјРµС‚СЂР° С„РѕСЂРјР°С‚Р°: <prefix><number>
 		/// </summary>
-		/// <param name="Prefix">значение префикса</param>
+		/// <param name="Prefix">Р·РЅР°С‡РµРЅРёРµ РїСЂРµС„РёРєСЃР°</param>
 		/// <returns></returns>
 		public static string GetCode(string Prefix, string[] args)
 		{

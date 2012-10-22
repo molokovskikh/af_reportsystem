@@ -62,7 +62,7 @@ public partial class Reports_Reports : BasePage
 		}
 		else {
 			DS = ((DataSet)Session[DSReports]);
-			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+			if (DS == null) // РІРµСЂРѕСЏС‚РЅРѕ, СЃРµСЃСЃРёСЏ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ Рё РІСЃРµ РµРµ РґР°РЅРЅС‹Рµ СѓС‚РµСЂСЏРЅС‹
 				Reports_GeneralReports.Redirect(this);
 		}
 	}
@@ -122,12 +122,12 @@ Order by r.ReportCode
 		MyDA.SelectCommand = MyCmd;
 		DS.Tables[dtTypes.TableName].Clear();
 		MyCmd.CommandText = @"
-SELECT 
+SELECT
 	ReportTypeName,
 	ReportTypeCode
-FROM 
+FROM
 	reports.reporttypes
-order by ReportTypeName 
+order by ReportTypeName
 ";
 		MyDA.Fill(DS, DS.Tables[dtTypes.TableName].TableName);
 		MyCn.Close();
@@ -150,17 +150,17 @@ order by ReportTypeName
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtReports)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtTypes)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtReports,
 			this.dtTypes
 		});
-		// 
+		//
 		// dtReports
-		// 
+		//
 		this.dtReports.Columns.AddRange(new System.Data.DataColumn[] {
 			this.RReportCode,
 			this.RReportTypeCode,
@@ -170,44 +170,44 @@ order by ReportTypeName
 		});
 
 		this.dtReports.TableName = "dtReports";
-		// 
+		//
 		// RReportCode
-		// 
+		//
 		this.RReportCode.ColumnName = "RReportCode";
 		this.RReportCode.DataType = typeof(long);
-		// 
+		//
 		// RReportTypeCode
-		// 
+		//
 		this.RReportTypeCode.ColumnName = "RReportTypeCode";
 		this.RReportTypeCode.DataType = typeof(long);
-		// 
+		//
 		// RReportCaption
-		// 
+		//
 		this.RReportCaption.ColumnName = "RReportCaption";
-		// 
+		//
 		// RReportTypeName
-		// 
+		//
 		this.RReportTypeName.ColumnName = "RReportTypeName";
-		// 
+		//
 		// dtTypes
-		// 
+		//
 		this.dtTypes.Columns.AddRange(new System.Data.DataColumn[] {
 			this.ReportTypeName,
 			this.ReportTypeCode
 		});
 		this.dtTypes.TableName = "dtTypes";
-		// 
+		//
 		// ReportTypeName
-		// 
+		//
 		this.ReportTypeName.ColumnName = "ReportTypeName";
-		// 
+		//
 		// ReportTypeCode
-		// 
+		//
 		this.ReportTypeCode.ColumnName = "ReportTypeCode";
 		this.ReportTypeCode.DataType = typeof(long);
-		// 
+		//
 		// REnabled
-		// 
+		//
 		this.REnabled.ColumnName = "REnabled";
 		this.REnabled.DataType = typeof(byte);
 
@@ -250,10 +250,10 @@ order by ReportTypeName
 			using (var conn = MyCn) {
 				conn.Open();
 				var command = new MySqlCommand(
-					@"insert into reports.reports 
+					@"insert into reports.reports
 						 (GeneralReportCode, ReportCaption, ReportTypeCode, Enabled)
-					  select 
-						 GeneralReportCode, Concat('Копия ',ReportCaption), ReportTypeCode, Enabled
+					  select
+						 GeneralReportCode, Concat('РљРѕРїРёСЏ ',ReportCaption), ReportTypeCode, Enabled
 						from reports.reports
 					   where ReportCode = ?reportCode;
 					 select last_insert_id() as ReportCode;", conn);
@@ -326,9 +326,9 @@ order by ReportTypeName
 		trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 		try {
 			MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-	reports.reports 
-SET 
+UPDATE
+	reports.reports
+SET
 	ReportCaption = ?RReportCaption,
 	ReportTypeCode = ?RReportTypeCode,
 	GeneralReportCode = ?RGeneralReportCode,
@@ -355,7 +355,7 @@ WHERE ReportCode = ?RReportCode", MyCn, trans);
 			UpdCmd.Parameters.Add(new MySqlParameter("RGeneralReportCode", Request["r"]));
 
 			MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from reports.reports 
+DELETE from reports.reports
 WHERE ReportCode = ?RDelReportCode", MyCn, trans);
 
 			DelCmd.Parameters.Clear();
@@ -365,9 +365,9 @@ WHERE ReportCode = ?RDelReportCode", MyCn, trans);
 			DelCmd.Parameters["RDelReportCode"].SourceVersion = DataRowVersion.Original;
 
 			MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT INTO 
-	reports.reports 
-SET 
+INSERT INTO
+	reports.reports
+SET
 	ReportCaption = ?RReportCaption,
 	ReportTypeCode = ?RReportTypeCode,
 	GeneralReportCode = ?RGeneralReportCode,
@@ -457,10 +457,10 @@ SET
 		File.Delete(delObj.FileNameForSave);
 	}
 
-	// Имена всех листов в отчете
+	// РРјРµРЅР° РІСЃРµС… Р»РёСЃС‚РѕРІ РІ РѕС‚С‡РµС‚Рµ
 	private List<String> reportCaptions = new List<string>();
 
-	// Заполняем имена всех листов отчета
+	// Р—Р°РїРѕР»РЅСЏРµРј РёРјРµРЅР° РІСЃРµС… Р»РёСЃС‚РѕРІ РѕС‚С‡РµС‚Р°
 	private void FillCaptions()
 	{
 		foreach (GridViewRow row in dgvReports.Rows)
@@ -471,7 +471,7 @@ SET
 
 	protected void ServerValidator_ServerValidate(object source, ServerValidateEventArgs args)
 	{
-		// Проверка на то, чтобы не было двух листов с одинаковыми названиями
+		// РџСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ РґРІСѓС… Р»РёСЃС‚РѕРІ СЃ РѕРґРёРЅР°РєРѕРІС‹РјРё РЅР°Р·РІР°РЅРёСЏРјРё
 		if (reportCaptions.Count == 0)
 			FillCaptions();
 

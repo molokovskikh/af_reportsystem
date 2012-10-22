@@ -219,12 +219,12 @@ namespace Inforoom.ReportSystem
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 alter table ActivePrices add column FirmName varchar(100);
-update 
-  ActivePrices, Customers.suppliers, farm.regions 
-set 
+update
+  ActivePrices, Customers.suppliers, farm.regions
+set
   FirmName = concat(suppliers.Name, '(', ActivePrices.PriceName, ') - ', regions.Region)
-where 
-	activeprices.FirmCode = suppliers.Id 
+where
+	activeprices.FirmCode = suppliers.Id
 and regions.RegionCode = activeprices.RegionCode";
 
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -325,7 +325,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS usersettings.TmpPricesRegions;
 CREATE temporary table usersettings.TmpPricesRegions(
-  PriceCode int(32) unsigned,   
+  PriceCode int(32) unsigned,
   RegionCode bigint unsigned
   ) engine=MEMORY;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -412,8 +412,8 @@ order by supps.Name", supplierIds.Implode());
 			var assortmentSupplierId = Convert.ToUInt32(
 				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
 					@"
-select FirmCode 
-	from usersettings.pricesdata 
+select FirmCode
+	from usersettings.pricesdata
 where pricesdata.PriceCode = ?PriceCode
 ",
 					new MySqlParameter("?PriceCode", sourcePriceCode)));
@@ -458,9 +458,9 @@ select * from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceR
 			args.DataAdapter.SelectCommand.CommandText =
 				string.Format(
 					@"
-select 
-	p.CatalogId, 
-	c00.ProductId, 
+select
+	p.CatalogId,
+	c00.ProductId,
 
 	{0} as ProducerId,
 	{1} as ProductName,
@@ -473,7 +473,7 @@ select
 	Prices.RegionCode as RegionId,
 	c00.Quantity,
 	if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
-	c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
+	c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost,
 
 	c0.Id as AssortmentCoreId,
 	c0.Code as AssortmentCode,
@@ -484,19 +484,19 @@ select
 	{10} as AssortmentRegionId,
 	c0.Quantity as AssortmentQuantity,
 	{7} as AssortmentCost
-from 
+from
 	Usersettings.ActivePrices Prices
 	join farm.core0 c00 on c00.PriceCode = Prices.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c00.Id and cc.PC_CostCode = Prices.CostCode
 	join catalogs.Products as p on p.id = c00.productid
 	join Catalogs.Catalog as cg on p.catalogid = cg.id
-	{3} farm.Core0 c0 on c0.productid = c00.productid {4} and C0.PriceCode = {5} 
+	{3} farm.Core0 c0 on c0.productid = c00.productid {4} and C0.PriceCode = {5}
 	{6}
 	left join Catalogs.Producers Prod on c00.CodeFirmCr = Prod.Id
 	left join farm.Synonym S on C0.SynonymCode = S.SynonymCode
 	left join farm.SynonymFirmCr Sfc on C0.SynonymFirmCrCode = Sfc.SynonymFirmCrCode
 	{8}
-WHERE 
+WHERE
   {11}
 ",
 					producerId,
@@ -550,15 +550,15 @@ and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || 
 			var drPrice = MySqlHelper.ExecuteDataset(
 				_conn,
 				@"
-select 
-  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName, 
-  pricesdata.PriceCode, 
+select
+  concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName,
+  pricesdata.PriceCode,
   suppliers.HomeRegion
-from 
-  usersettings.pricesdata, 
+from
+  usersettings.pricesdata,
   Customers.suppliers,
-  farm.regions 
-where 
+  farm.regions
+where
 	pricesdata.PriceCode = ?PriceCode
 and suppliers.Id = pricesdata.FirmCode
 and regions.RegionCode = suppliers.HomeRegion

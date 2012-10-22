@@ -67,24 +67,24 @@ namespace Inforoom.ReportSystem.ByOrders
 			new Grouping("oh.UserId",
 				new[] {
 					new Column("Empty", string.Empty, "''", false),
-					new Column("ClientName", "Клиент", "c.Name"),
-					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))")
+					new Column("ClientName", "РљР»РёРµРЅС‚", "c.Name"),
+					new Column("UserName", "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ", "ifnull(u.Name, CAST(u.Id AS CHAR))")
 				}),
 			new Grouping("oh.AddressId",
 				new[] {
-					new Column("SupplierDeliveryId", "Код доставки", "TI.SupplierDeliveryId", false),
-					new Column("ClientName", "Клиент", "c.Name"),
-					new Column("AddressName", "Адрес", "a.Address")
+					new Column("SupplierDeliveryId", "РљРѕРґ РґРѕСЃС‚Р°РІРєРё", "TI.SupplierDeliveryId", false),
+					new Column("ClientName", "РљР»РёРµРЅС‚", "c.Name"),
+					new Column("AddressName", "РђРґСЂРµСЃ", "a.Address")
 				}) { Join = "left join reports.TempIntersection TI on oh.AddressId = TI.AddressId" },
 			new Grouping("oh.ClientCode",
 				new[] {
 					new Column("Empty", string.Empty, "''", false),
-					new Column("ClientName", "Клиент", "c.Name"),
+					new Column("ClientName", "РљР»РёРµРЅС‚", "c.Name"),
 				}),
 			new Grouping("a.LegalEntityId",
 				new[] {
-					new Column("SupplierClientId", "Код клиента", "TI.SupplierClientId", false),
-					new Column("OrgName", "Юридическое лицо", "le.Name")
+					new Column("SupplierClientId", "РљРѕРґ РєР»РёРµРЅС‚Р°", "TI.SupplierClientId", false),
+					new Column("OrgName", "Р®СЂРёРґРёС‡РµСЃРєРѕРµ Р»РёС†Рѕ", "le.Name")
 				}) { Join = "left join reports.TempIntersection TI on TI.LegalEntityId = a.LegalEntityId" }
 		};
 
@@ -146,7 +146,7 @@ group by ai.id;
 select {2},
 sum(ol.Cost * ol.Quantity) as TotalSum,
 sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
-from Orders.OrdersHead oh 
+from Orders.OrdersHead oh
 	join Orders.OrdersList ol on ol.OrderId = oh.RowId
 	join Customers.Clients c on c.Id = oh.ClientCode
 		join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
@@ -183,12 +183,12 @@ order by {3}", _regions.Implode(), _grouping.Group,
 			var regions = _regions
 				.Select(id => Region.Find(Convert.ToUInt64(id)));
 
-			result.Rows.Add("Поставщик: " + supplier.Name);
-			result.Rows.Add("Период: c " + _period.Begin.Date + " по " + _period.End.Date);
-			result.Rows.Add("Регионы: " + regions.Implode(r => r.Name));
+			result.Rows.Add("РџРѕСЃС‚Р°РІС‰РёРє: " + supplier.Name);
+			result.Rows.Add("РџРµСЂРёРѕРґ: c " + _period.Begin.Date + " РїРѕ " + _period.End.Date);
+			result.Rows.Add("Р РµРіРёРѕРЅС‹: " + regions.Implode(r => r.Name));
 			result.Rows.Add("");
 
-			result.Columns["Share"].Caption = "Доля рынка, %";
+			result.Columns["Share"].Caption = "Р”РѕР»СЏ СЂС‹РЅРєР°, %";
 			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
 				var total = Convert.ToDouble(row["TotalSum"]);

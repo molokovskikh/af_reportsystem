@@ -35,13 +35,13 @@ namespace ReportSystem.Test
 					var core = session.Query<TestCore>().Where(c => c.Code == offer["Code"] &&
 						c.Quantity == offer["Quantity"] && c.Price.Id == Convert.ToInt64(row["PriceCode"]) &&
 						c.Period == offer["Period"]).ToList();
-					
-					if(offer["VitallyImportant"].ToString().Contains("+")) 
+
+					if(offer["VitallyImportant"].ToString().Contains("+"))
 						Assert.That(core[0].Product.CatalogProduct.VitallyImportant, Is.True);
 					else {
 						Assert.That(core[0].Product.CatalogProduct.VitallyImportant, Is.False);
 					}
-					if(offer["Pharmacie"].ToString().Contains("+")) 
+					if(offer["Pharmacie"].ToString().Contains("+"))
 						Assert.That(core[0].Product.CatalogProduct.Pharmacie, Is.True);
 					else {
 						Assert.That(core[0].Product.CatalogProduct.Pharmacie, Is.False);

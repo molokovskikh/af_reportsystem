@@ -54,8 +54,8 @@ namespace Inforoom.ReportSystem
 			selectCommand = String.Concat(
 				selectCommand, String.Format(@"
 Sum(ol.cost*ol.Quantity) as Summ
-from {0}.OrdersHead oh 
-  join {0}.OrdersList ol on ol.OrderID = oh.RowID 
+from {0}.OrdersHead oh
+  join {0}.OrdersList ol on ol.OrderID = oh.RowID
   join catalogs.products p on p.Id = ol.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId

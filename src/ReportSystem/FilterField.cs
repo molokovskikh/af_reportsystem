@@ -14,30 +14,30 @@ namespace Inforoom.ReportSystem.Filters
 		public const string equalSuffix = "Equal";
 		public const string nonEqualSuffix = "NonEqual";
 
-		//Поле, по которому будет производиться выборка
+		//РџРѕР»Рµ, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРѕРґРёС‚СЊСЃСЏ РІС‹Р±РѕСЂРєР°
 		public string primaryField;
-		//Поле, которое будет отображаться в запросе
+		//РџРѕР»Рµ, РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РІ Р·Р°РїСЂРѕСЃРµ
 		public string viewField;
-		//Поле, которое будет выбираться в отчет
+		//РџРѕР»Рµ, РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ РІС‹Р±РёСЂР°С‚СЊСЃСЏ РІ РѕС‚С‡РµС‚
 		public string outputField;
-		//То, что будет видно заказчику
+		//РўРѕ, С‡С‚Рѕ Р±СѓРґРµС‚ РІРёРґРЅРѕ Р·Р°РєР°Р·С‡РёРєСѓ
 		public string outputCaption;
-		//Префикс свойств в параметрах отчета
+		//РџСЂРµС„РёРєСЃ СЃРІРѕР№СЃС‚РІ РІ РїР°СЂР°РјРµС‚СЂР°С… РѕС‚С‡РµС‚Р°
 		public string reportPropertyPreffix;
-		//Позиция в запросе
+		//РџРѕР·РёС†РёСЏ РІ Р·Р°РїСЂРѕСЃРµ
 		public int position;
-		//Будет ли это поле видно в запросе
+		//Р‘СѓРґРµС‚ Р»Рё СЌС‚Рѕ РїРѕР»Рµ РІРёРґРЅРѕ РІ Р·Р°РїСЂРѕСЃРµ
 		public bool visible;
-		//Список таблиц для отображения выбранных и исключенных значений поля
+		//РЎРїРёСЃРѕРє С‚Р°Р±Р»РёС† РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІС‹Р±СЂР°РЅРЅС‹С… Рё РёСЃРєР»СЋС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РїРѕР»СЏ
 		public string tableList;
-		//условие для where, которое начинается с and, для отображения выбранных и исключенных значений поля. Может быть неустановленным
+		//СѓСЃР»РѕРІРёРµ РґР»СЏ where, РєРѕС‚РѕСЂРѕРµ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ and, РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІС‹Р±СЂР°РЅРЅС‹С… Рё РёСЃРєР»СЋС‡РµРЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РїРѕР»СЏ. РњРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµСѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј
 		public string whereList;
-		//ширина колонки при выводе в Excel
+		//С€РёСЂРёРЅР° РєРѕР»РѕРЅРєРё РїСЂРё РІС‹РІРѕРґРµ РІ Excel
 		public int? width;
 
-		//Значения, которым может быть равно primaryField
+		//Р—РЅР°С‡РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рј РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅРѕ primaryField
 		public List<ulong> equalValues = null;
-		//Значения, которым не может быть равно primaryField
+		//Р—РЅР°С‡РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рј РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅРѕ primaryField
 		public List<ulong> nonEqualValues = null;
 
 		public string equalValuesCaption;
@@ -59,7 +59,7 @@ namespace Inforoom.ReportSystem.Filters
 			position = DefaultPosition;
 			visible = false;
 			if (String.IsNullOrEmpty(TableList))
-				throw new ArgumentException("Параметр не может быть null или пустой строкой.", "TableList");
+				throw new ArgumentException("РџР°СЂР°РјРµС‚СЂ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ null РёР»Рё РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРѕР№.", "TableList");
 			tableList = TableList;
 			whereList = WhereList;
 			equalValuesCaption = EqualValuesCaption;
@@ -71,7 +71,7 @@ namespace Inforoom.ReportSystem.Filters
 		{
 			bool fieldIsSelected = false;
 
-			//Если Position существует, то тогда параметр должен отображаться в заголовке отчета и по этому параметру будет группировка
+			//Р•СЃР»Рё Position СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ С‚РѕРіРґР° РїР°СЂР°РјРµС‚СЂ РґРѕР»Р¶РµРЅ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РІ Р·Р°РіРѕР»РѕРІРєРµ РѕС‚С‡РµС‚Р° Рё РїРѕ СЌС‚РѕРјСѓ РїР°СЂР°РјРµС‚СЂСѓ Р±СѓРґРµС‚ РіСЂСѓРїРїРёСЂРѕРІРєР°
 			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix)) {
 				position = (int)Parent.getReportParam(reportPropertyPreffix + positionSuffix);
 				visible = true;

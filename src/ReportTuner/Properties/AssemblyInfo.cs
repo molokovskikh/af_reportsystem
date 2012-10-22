@@ -3,9 +3,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("ReportTuner")]
-[assembly: AssemblyDescription("Web-приложения для настройки отчетов")]
+[assembly: AssemblyDescription("Web-РїСЂРёР»РѕР¶РµРЅРёСЏ РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё РѕС‚С‡РµС‚РѕРІ")]
 [assembly: AssemblyCompany("Inforoom")]
 [assembly: AssemblyProduct("ReportTuner")]
-[assembly: AssemblyCopyright("Copyright © Inforoom 2009")]
+[assembly: AssemblyCopyright("Copyright В© Inforoom 2009")]
 [assembly: CLSCompliant(false)]
 [assembly: AssemblyVersion("1.0.29.44")]

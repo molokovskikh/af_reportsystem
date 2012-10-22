@@ -70,12 +70,12 @@ namespace Inforoom.ReportSystem
 							});
 						}
 						//Формируем запрос
-						var sqlSelectReports = @"SELECT  
-  cr.*,   
-  p.ShortName  
+						var sqlSelectReports = @"SELECT
+  cr.*,
+  p.ShortName
 FROM    reports.general_reports cr,
 		billing.payers p
-WHERE   
+WHERE
 	 p.PayerId = cr.PayerId
 and cr.generalreportcode = " + generalReportId;
 

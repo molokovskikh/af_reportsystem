@@ -9,10 +9,10 @@
 //------------------------------------------------------------------------------
 
 namespace ReportTuner {
-    
-    
+
+
     public partial class Contacts {
-        
+
         /// <summary>
         /// lReportName control.
         /// </summary>
@@ -21,7 +21,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lReportName;
-        
+
         /// <summary>
         /// gvRelatedReports control.
         /// </summary>
@@ -30,7 +30,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView gvRelatedReports;
-        
+
         /// <summary>
         /// tbContactFind control.
         /// </summary>
@@ -39,7 +39,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox tbContactFind;
-        
+
         /// <summary>
         /// btnFind control.
         /// </summary>
@@ -48,7 +48,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnFind;
-        
+
         /// <summary>
         /// ContactGroups control.
         /// </summary>
@@ -57,7 +57,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ContactGroups;
-        
+
         /// <summary>
         /// btnSaveContactGropup control.
         /// </summary>
@@ -66,7 +66,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSaveContactGropup;
-        
+
         /// <summary>
         /// btnCancelContactGroup control.
         /// </summary>
@@ -75,7 +75,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCancelContactGroup;
-        
+
         /// <summary>
         /// hlEditGroup control.
         /// </summary>
@@ -84,7 +84,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HyperLink hlEditGroup;
-        
+
         /// <summary>
         /// tbContactGroupName control.
         /// </summary>
@@ -93,7 +93,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox tbContactGroupName;
-        
+
         /// <summary>
         /// rfvContactGroupName control.
         /// </summary>
@@ -102,7 +102,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvContactGroupName;
-        
+
         /// <summary>
         /// cvOnLikeName control.
         /// </summary>
@@ -111,7 +111,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CustomValidator cvOnLikeName;
-        
+
         /// <summary>
         /// btnSaveChangedGroupName control.
         /// </summary>
@@ -120,7 +120,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSaveChangedGroupName;
-        
+
         /// <summary>
         /// btnCancelChangeGroupName control.
         /// </summary>
@@ -129,7 +129,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCancelChangeGroupName;
-        
+
         /// <summary>
         /// gvEmails control.
         /// </summary>
@@ -138,7 +138,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView gvEmails;
-        
+
         /// <summary>
         /// btnChangeGroupName control.
         /// </summary>
@@ -147,7 +147,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnChangeGroupName;
-        
+
         /// <summary>
         /// btnCreate control.
         /// </summary>
@@ -156,7 +156,7 @@ namespace ReportTuner {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCreate;
-        
+
         /// <summary>
         /// ValidationSummary control.
         /// </summary>

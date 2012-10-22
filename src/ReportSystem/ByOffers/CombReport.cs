@@ -138,12 +138,12 @@ order by 2, 5";
 			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			e.DataAdapter.Fill(_dsReport, "Catalog");
 			e.DataAdapter.SelectCommand.CommandText = @"
-select 
+select
  distinct Core.PriceCode, Core.RegionCode, '' as PriceDate, concat(suppliers.Name, ' - ', regions.Region) as FirmName
-from 
+from
   usersettings.Core, Customers.suppliers, farm.regions
-where 
-Core.PriceCode = suppliers.Id 
+where
+Core.PriceCode = suppliers.Id
 and regions.RegionCode = Core.RegionCode
 order by Core.Cost DESC";
 			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);

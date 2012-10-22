@@ -10,7 +10,7 @@
 
 
 public partial class Reports_base {
-    
+
     /// <summary>
     /// hlReportTypes control.
     /// </summary>
@@ -19,7 +19,7 @@ public partial class Reports_base {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.HyperLink hlReportTypes;
-    
+
     /// <summary>
     /// hlEnums control.
     /// </summary>
@@ -28,7 +28,7 @@ public partial class Reports_base {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.HyperLink hlEnums;
-    
+
     /// <summary>
     /// hlReports control.
     /// </summary>
@@ -37,7 +37,7 @@ public partial class Reports_base {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.HyperLink hlReports;
-    
+
     /// <summary>
     /// hlTemplateReports control.
     /// </summary>
@@ -46,7 +46,7 @@ public partial class Reports_base {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.HyperLink hlTemplateReports;
-    
+
     /// <summary>
     /// hlTemporaryReport control.
     /// </summary>

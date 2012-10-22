@@ -117,8 +117,8 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, rivalFil
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
   join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
-  join billing.payers on payers.PayerId = le.PayerId 
-where 
+  join billing.payers on payers.PayerId = le.PayerId
+where
 ol.Junk = 0
 #and ol.Await = 0
 and (oh.RegionCode & " + regionMask + @") > 0";
@@ -135,7 +135,7 @@ and (oh.RegionCode & " + regionMask + @") > 0";
 			if (includeProductName)
 				if (isProductName)
 					selectCommand += @"; select
-				(select concat(c.name, ' ', 
+				(select concat(c.name, ' ',
 							cast(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
 								  order by Properties.PropertyName, PropertyValues.Value
 								  SEPARATOR ', '

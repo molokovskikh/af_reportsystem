@@ -67,7 +67,7 @@ namespace Inforoom.WindowsService
 				AssignSecurity4(windowStation, desktop, sid);
 				//По завершении работы процесса нужно удалить ace
 				//из station acl и desktop acl
-				//если этого не делать через какоето время получим ошибку 
+				//если этого не делать через какоето время получим ошибку
 				//ERROR_NOT_ENOUGH_QUOTA подробней http://support.microsoft.com/kb/185292
 				var pid = StartProcessInteractivly(user, commandLine);
 				Process.GetProcessById(pid).WaitForExit();

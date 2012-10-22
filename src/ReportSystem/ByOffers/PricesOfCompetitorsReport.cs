@@ -156,7 +156,7 @@ select c00.ProductId, p.CatalogId, c00.CodeFirmCr, c0.Code, c0.CodeCr,
 if(c0.SynonymFirmCrCode is not null, Sf.Synonym , Prod.Name) as ProdName,
 
 if(if(round(cc.Cost * Prices.Upcost, 2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > c00.MaxBoundCost,
-c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost, 
+c00.MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < c00.MinBoundCost, c00.MinBoundCost, round(cc.Cost * Prices.Upcost, 2))) as Cost,
 
 Prices.FirmCode, Prices.PriceCode
 from Usersettings.ActivePrices Prices

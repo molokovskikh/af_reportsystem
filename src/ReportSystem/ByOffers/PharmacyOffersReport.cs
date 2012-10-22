@@ -45,9 +45,9 @@ set
   ec.ProducerName = Producers.Name,
   ec.SupplierName = supps.Name;
 
-update 
+update
   ExtendedCore ec
-  inner join Core cor on cor.id = ec.Id 
+  inner join Core cor on cor.id = ec.Id
 set
   ec.ProductName = (select concat(cat.Name, ' ',
 				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
@@ -99,14 +99,14 @@ where
 and (PricesData.CostType = 0 or PricesData.PriceType = 1);
 
 
-insert into ExtendedCore (Id) 
-select 
-  distinct Core.Id 
-from 
+insert into ExtendedCore (Id)
+select
+  distinct Core.Id
+from
   OffersByPrice
   inner join Core on Core.ProductId = OffersByPrice.ProductId
-  inner join farm.Core0 ExistsOffers on 
-		ExistsOffers.Id = Core.Id 
+  inner join farm.Core0 ExistsOffers on
+		ExistsOffers.Id = Core.Id
     and ((OffersByPrice.ProducerId is null and ExistsOffers.CodeFirmCr is null) or (OffersByPrice.ProducerId = ExistsOffers.CodeFirmCr))
 ;
 ";
@@ -117,7 +117,7 @@ insert into ExtendedCore (Id) select Id from Core;
 
 		private const string footersqlByPrice = @"
 
-update 
+update
   ExtendedCore ec
   inner join farm.Core0 on Core0.id = ec.Id
   inner join usersettings.PricesData pd on pd.PriceCode = Core0.PriceCode
@@ -129,18 +129,18 @@ set
   ec.ProducerName = ifnull(SynonymFirmCr.Synonym, Producers.Name),
   ec.SupplierName = supps.Name;
 
-update 
+update
   ExtendedCore ec
   inner join Core cor on cor.id = ec.Id
-  left join farm.Synonym on Synonym.PriceCode = @OffersSynonymCode and Synonym.ProductId = cor.ProductId 
+  left join farm.Synonym on Synonym.PriceCode = @OffersSynonymCode and Synonym.ProductId = cor.ProductId
 set
   ec.ProductName = Synonym.Synonym;
 
-update 
+update
   ExtendedCore ec
   inner join Core cor on cor.id = ec.Id
 set
-  ec.ProductName = 
+  ec.ProductName =
 		(select concat(cat.Name, ' ',
 				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
 									order by Properties.PropertyName, PropertyValues.Value

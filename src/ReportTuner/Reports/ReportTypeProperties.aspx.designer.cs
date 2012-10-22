@@ -11,7 +11,7 @@
 
 
 public partial class Reports_ReportTypeProperties {
-    
+
     /// <summary>
     /// lblReportName control.
     /// </summary>
@@ -20,7 +20,7 @@ public partial class Reports_ReportTypeProperties {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.Label lblReportName;
-    
+
     /// <summary>
     /// dgvProperties control.
     /// </summary>
@@ -29,7 +29,7 @@ public partial class Reports_ReportTypeProperties {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.GridView dgvProperties;
-    
+
     /// <summary>
     /// btnApply control.
     /// </summary>

@@ -26,12 +26,12 @@ namespace ReportTuner.Helpers
 		private string CalcMaskRegionForSelectedRegions(ReportProperty priceProp, string[] pricePropNames, string[] regionPropNames)
 		{
 			if (pricePropNames.Contains(priceProp.PropertyType.PropertyName)) {
-				// получаем свойство 'Список значений "Прайс"'
+				// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ 'РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "РџСЂР°Р№СЃ"'
 				var prices = reportProperties.FirstOrDefault(p => pricePropNames.Contains(p.PropertyType.PropertyName));
 
 				decimal regionMask = 0;
 				string pricesStr = String.Empty;
-				// получаем свойство 'Список значений "Региона"'
+				// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ 'РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "Р РµРіРёРѕРЅР°"'
 				var regEqual = reportProperties.FirstOrDefault(p => regionPropNames.Contains(p.PropertyType.PropertyName));
 				if (regEqual != null) {
 					regionMask = regEqual.Values.Select(v => {
@@ -56,15 +56,15 @@ namespace ReportTuner.Helpers
 		private string CalcMaskRegionByClient(ReportProperty regionProp, string[] regionPropNames, string[] clientPropNames)
 		{
 			if (regionPropNames.Contains(regionProp.PropertyType.PropertyName)) {
-				// получаем свойство "Клиент"			
+				// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ "РљР»РёРµРЅС‚"
 				DataRow dr = dtNonOptionalParams.Rows.Cast<DataRow>().Where(r => clientPropNames.Contains(r["PPropertyName"].ToString())).FirstOrDefault();
 				if (dr != null) {
 					using (new SessionScope()) {
-						// текущий список регионов
+						// С‚РµРєСѓС‰РёР№ СЃРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ
 						var regEqual =
 							reportProperties.Where(p => p.PropertyType.PropertyName == regionProp.PropertyType.PropertyName).FirstOrDefault();
 						if (!(dr["PPropertyValue"] is DBNull)) {
-							uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // код клиента				
+							uint clientId = Convert.ToUInt32(dr["PPropertyValue"]); // РєРѕРґ РєР»РёРµРЅС‚Р°
 							Client client = Client.TryFind(clientId);
 							if (client != null) {
 								long clientMaskRegion = client.MaskRegion;
@@ -78,9 +78,9 @@ namespace ReportTuner.Helpers
 											return 0u;
 										})
 										.Where(r => r > 0 && (r & clientMaskRegion) == 0).Sum(r => r);
-								// маска для списка регионов, недоступных клиенту
+								// РјР°СЃРєР° РґР»СЏ СЃРїРёСЃРєР° СЂРµРіРёРѕРЅРѕРІ, РЅРµРґРѕСЃС‚СѓРїРЅС‹С… РєР»РёРµРЅС‚Сѓ
 								return String.Format("inID={0}", regionMask);
-								// результирующая маска, включает доступные и ранее выбранные недоступные клиенту регионы
+								// СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰Р°СЏ РјР°СЃРєР°, РІРєР»СЋС‡Р°РµС‚ РґРѕСЃС‚СѓРїРЅС‹Рµ Рё СЂР°РЅРµРµ РІС‹Р±СЂР°РЅРЅС‹Рµ РЅРµРґРѕСЃС‚СѓРїРЅС‹Рµ РєР»РёРµРЅС‚Сѓ СЂРµРіРёРѕРЅС‹
 							}
 						}
 					}
@@ -92,7 +92,7 @@ namespace ReportTuner.Helpers
 		private string GetUserByClient(ReportProperty selectedProp, string[] suppliersPropNames, string[] clientPropNames, string userPropName)
 		{
 			if (suppliersPropNames.Contains(selectedProp.PropertyType.PropertyName)) {
-				// получаем свойство "Пользователь" (если выбрано)
+				// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ" (РµСЃР»Рё РІС‹Р±СЂР°РЅРѕ)
 				DataRow drUser = dtOptionalParams.Rows.Cast<DataRow>().Where(r => r["OPPropertyName"].ToString() == userPropName).FirstOrDefault();
 				uint? userid = null;
 				if (drUser != null) {
@@ -101,12 +101,12 @@ namespace ReportTuner.Helpers
 					}
 				}
 				else {
-					// получаем свойство "Клиент"
+					// РїРѕР»СѓС‡Р°РµРј СЃРІРѕР№СЃС‚РІРѕ "РљР»РёРµРЅС‚"
 					var drClient = dtNonOptionalParams.Rows.Cast<DataRow>().FirstOrDefault(r => clientPropNames.Contains(r["PPropertyName"].ToString()));
 					if (drClient != null) {
 						using (new SessionScope()) {
 							if (!(drClient["PPropertyValue"] is DBNull)) {
-								uint clientId = Convert.ToUInt32(drClient["PPropertyValue"]); // код клиента				
+								uint clientId = Convert.ToUInt32(drClient["PPropertyValue"]); // РєРѕРґ РєР»РёРµРЅС‚Р°
 								Client client = Client.TryFind(clientId);
 								if (client != null) {
 									var user = client.Users.FirstOrDefault();
@@ -126,37 +126,37 @@ namespace ReportTuner.Helpers
 		{
 			if (report == null) return null;
 			if (report.ReportType.ReportClassName.Contains("PharmacyMixedReport")) {
-				// В смешанном для аптеки отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+				// Р’ СЃРјРµС€Р°РЅРЅРѕРј РґР»СЏ Р°РїС‚РµРєРё РѕС‚С‡РµС‚Рµ РІ СЃРїРёСЃРєРё СЂРµРіРёРѕРЅРѕРІ РґРѕР»Р¶РЅС‹ РІРєР»СЋС‡Р°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РґРѕСЃС‚СѓРїРЅС‹Рµ РєР»РёРµРЅС‚Сѓ СЂРµРіРёРѕРЅС‹ (Р° С‚Р°РєР¶Рµ С‚Рµ, РєРѕС‚РѕСЂС‹Рµ СЂР°РЅРµРµ Р±С‹Р»Рё РґРѕСЃС‚СѓРїРЅС‹, С‡С‚РѕР±С‹ РёС… РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РІС‹РєР»СЋС‡РёС‚СЊ)
 				var res = CalcMaskRegionByClient(prop, new[] { "RegionEqual", "RegionNonEqual" }, new[] { "SourceFirmCode" });
 				if (!String.IsNullOrEmpty(res)) return res;
 			}
 			if (report.ReportType.ReportClassName.Contains("SpecReport")) {
-				// В специальном отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
+				// Р’ СЃРїРµС†РёР°Р»СЊРЅРѕРј РѕС‚С‡РµС‚Рµ РІ СЃРїРёСЃРєРё СЂРµРіРёРѕРЅРѕРІ РґРѕР»Р¶РЅС‹ РІРєР»СЋС‡Р°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РґРѕСЃС‚СѓРїРЅС‹Рµ РєР»РёРµРЅС‚Сѓ СЂРµРіРёРѕРЅС‹ (Р° С‚Р°РєР¶Рµ С‚Рµ, РєРѕС‚РѕСЂС‹Рµ СЂР°РЅРµРµ Р±С‹Р»Рё РґРѕСЃС‚СѓРїРЅС‹, С‡С‚РѕР±С‹ РёС… РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РІС‹РєР»СЋС‡РёС‚СЊ)
 				var res = CalcMaskRegionByClient(prop, new[] { "RegionClientEqual" }, new[] { "ClientCode" });
 				if (!String.IsNullOrEmpty(res)) return res;
-				// В специальном отчете список поставщиков должен формироваться с учетом выбранного клиента
+				// Р’ СЃРїРµС†РёР°Р»СЊРЅРѕРј РѕС‚С‡РµС‚Рµ СЃРїРёСЃРѕРє РїРѕСЃС‚Р°РІС‰РёРєРѕРІ РґРѕР»Р¶РµРЅ С„РѕСЂРјРёСЂРѕРІР°С‚СЊСЃСЏ СЃ СѓС‡РµС‚РѕРј РІС‹Р±СЂР°РЅРЅРѕРіРѕ РєР»РёРµРЅС‚Р°
 				res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
 				if (!String.IsNullOrEmpty(res)) return res;
-				// В специальном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
+				// Р’ СЃРїРµС†РёР°Р»СЊРЅРѕРј РѕС‚С‡РµС‚Рµ РїСЂРё РІС‹СЃС‚Р°РІР»РµРЅРЅРѕР№ РѕРїС†РёРё 'РџРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј' РІ СЃРїРёСЃРєРµ РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ (РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "РџСЂР°Р№СЃ") РґРѕР»Р¶РЅС‹ РїРѕРєР°Р·С‹РІР°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РїСЂР°Р№СЃС‹, РґРѕСЃС‚СѓРїРЅС‹Рµ РІ РѕРїС†РёРё 'РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "Р РµРіРёРѕРЅР°"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
-				// Добавляем фильтрацию по типу прайса
+				// Р”РѕР±Р°РІР»СЏРµРј С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ С‚РёРїСѓ РїСЂР°Р№СЃР°
 				var resTypes = String.Format("&inTypes={0},{1}", 1, 2);
 				if (!String.IsNullOrEmpty(res)) return res + resTypes;
-				// Список исключений "Прайс"
+				// РЎРїРёСЃРѕРє РёСЃРєР»СЋС‡РµРЅРёР№ "РџСЂР°Р№СЃ"
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeNonValues" }, new[] { "RegionEqual" });
 				if (!String.IsNullOrEmpty(res)) return res + resTypes;
 			}
 			if (report.ReportType.ReportClassName.Contains("CombReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
 				if (!String.IsNullOrEmpty(res)) return res;
-				// В комбинированном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
+				// Р’ РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅРѕРј РѕС‚С‡РµС‚Рµ РїСЂРё РІС‹СЃС‚Р°РІР»РµРЅРЅРѕР№ РѕРїС†РёРё 'РџРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј' РІ СЃРїРёСЃРєРµ РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ (РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "РџСЂР°Р№СЃ") РґРѕР»Р¶РЅС‹ РїРѕРєР°Р·С‹РІР°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РїСЂР°Р№СЃС‹, РґРѕСЃС‚СѓРїРЅС‹Рµ РІ РѕРїС†РёРё 'РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "Р РµРіРёРѕРЅР°"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
 				if (!String.IsNullOrEmpty(res)) return res;
 			}
 			if (report.ReportType.ReportClassName.Contains("DefReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers" }, new[] { "ClientCode" }, "UserCode");
 				if (!String.IsNullOrEmpty(res)) return res;
-				// В дефектурном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
+				// Р’ РґРµС„РµРєС‚СѓСЂРЅРѕРј РѕС‚С‡РµС‚Рµ РїСЂРё РІС‹СЃС‚Р°РІР»РµРЅРЅРѕР№ РѕРїС†РёРё 'РџРѕ Р±Р°Р·РѕРІС‹Рј С†РµРЅР°Рј' РІ СЃРїРёСЃРєРµ РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ (РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "РџСЂР°Р№СЃ") РґРѕР»Р¶РЅС‹ РїРѕРєР°Р·С‹РІР°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РїСЂР°Р№СЃС‹, РґРѕСЃС‚СѓРїРЅС‹Рµ РІ РѕРїС†РёРё 'РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ "Р РµРіРёРѕРЅР°"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
 				if (!String.IsNullOrEmpty(res)) return res;
 			}

@@ -43,9 +43,9 @@ public partial class Reports_EnumValues : System.Web.UI.Page
 			MyCmd.Parameters.Clear();
 			MyCmd.Parameters.AddWithValue("evPECode", Request["e"]);
 			MyCmd.CommandText = @"
-SELECT 
+SELECT
     EnumName
-FROM 
+FROM
     reports.property_enums pe
 WHERE ID = ?evPECode
 ";
@@ -71,12 +71,12 @@ WHERE ID = ?evPECode
 		MyCmd.Parameters.AddWithValue("evPECode", Request["e"]);
 		DS.Tables[dtEnumValues.TableName].Clear();
 		MyCmd.CommandText = @"
-SELECT 
+SELECT
     ID as evID,
     PropertyEnumID as evPEID,
     Value as evValue,
     DisplayValue as evDisplayValue
-FROM 
+FROM
     reports.enum_values ev
 WHERE PropertyEnumID = ?evPECode
 ";
@@ -100,16 +100,16 @@ WHERE PropertyEnumID = ?evPECode
 		this.evDisplayValue = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtEnumValues)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtEnumValues
 		});
-		// 
+		//
 		// dtEnumValues
-		// 
+		//
 		this.dtEnumValues.Columns.AddRange(new System.Data.DataColumn[] {
 			this.evID,
 			this.evPEID,
@@ -117,23 +117,23 @@ WHERE PropertyEnumID = ?evPECode
 			this.evDisplayValue
 		});
 		this.dtEnumValues.TableName = "dtEnumValues";
-		// 
+		//
 		// evID
-		// 
+		//
 		this.evID.ColumnName = "evID";
 		this.evID.DataType = typeof(long);
-		// 
+		//
 		// evPEID
-		// 
+		//
 		this.evPEID.ColumnName = "evPEID";
 		this.evPEID.DataType = typeof(long);
-		// 
+		//
 		// evValue
-		// 
+		//
 		this.evValue.ColumnName = "evValue";
-		// 
+		//
 		// evDisplayValue
-		// 
+		//
 		this.evDisplayValue.ColumnName = "evDisplayValue";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtEnumValues)).EndInit();
@@ -180,9 +180,9 @@ WHERE PropertyEnumID = ?evPECode
 		trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 		try {
 			MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-    reports.enum_values 
-SET 
+UPDATE
+    reports.enum_values
+SET
     Value = ?evValue,
     DisplayValue = ?evDisplayValue
 WHERE ID = ?evID", MyCn, trans);
@@ -202,7 +202,7 @@ WHERE ID = ?evID", MyCn, trans);
 			UpdCmd.Parameters["evID"].SourceVersion = DataRowVersion.Current;
 
 			MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from reports.enum_values 
+DELETE from reports.enum_values
 WHERE ID = ?evDelID", MyCn, trans);
 
 			DelCmd.Parameters.Clear();
@@ -212,9 +212,9 @@ WHERE ID = ?evDelID", MyCn, trans);
 			DelCmd.Parameters["evDelID"].SourceVersion = DataRowVersion.Original;
 
 			MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT INTO 
-    reports.enum_values 
-SET 
+INSERT INTO
+    reports.enum_values
+SET
     Value = ?evValue,
     DisplayValue = ?evDisplayValue,
     PropertyEnumID = ?evPEID", MyCn, trans);

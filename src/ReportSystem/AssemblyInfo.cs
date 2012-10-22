@@ -1,8 +1,8 @@
 using System.Reflection;
 
 [assembly: AssemblyTitle("ReportSystem")]
-[assembly: AssemblyDescription("Программа для подговтоки отчетов")]
+[assembly: AssemblyDescription("РџСЂРѕРіСЂР°РјРјР° РґР»СЏ РїРѕРґРіРѕРІС‚РѕРєРё РѕС‚С‡РµС‚РѕРІ")]
 [assembly: AssemblyCompany("Inforoom")]
 [assembly: AssemblyProduct("ReportSystem")]
-[assembly: AssemblyCopyright("Copyright © Inforoom 2009")]
+[assembly: AssemblyCopyright("Copyright В© Inforoom 2009")]
 [assembly: AssemblyVersion("2.2.35.61")]

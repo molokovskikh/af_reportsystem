@@ -51,8 +51,8 @@ namespace Inforoom.ReportSystem
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
 			selectCommand = String.Concat(selectCommand, String.Format(@"
-Sum(ol.cost*ol.Quantity) as Cost, 
-Sum(ol.Quantity) as PosOrder, 
+Sum(ol.cost*ol.Quantity) as Cost,
+Sum(ol.Quantity) as PosOrder,
 Min(ol.Cost) as MinCost,
 Avg(ol.Cost) as AvgCost,
 Max(ol.Cost) as MaxCost,

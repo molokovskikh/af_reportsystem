@@ -20,7 +20,7 @@ namespace ReportTuner.Test
 			DataSet dsReportProperties = MySqlHelper.ExecuteDataset(
 				FixtureSetup.ConnectionString,
 				@"
-SELECT 
+SELECT
 rp.*,
 rtp.PropertyType
 FROM
@@ -38,7 +38,7 @@ FROM
 where
 	rp.ReportCode = ?SourceReportId
 and rpv.ReportPropertyId = rp.Id;
-SELECT 
+SELECT
 rp.*,
 rtp.PropertyType
 FROM
@@ -110,9 +110,9 @@ order by rp.PropertyID;
 				conn.Open();
 
 				var command = new MySqlCommand(
-					@"insert into reports.reports 
+					@"insert into reports.reports
 						 (GeneralReportCode, ReportCaption, ReportTypeCode, Enabled)
-					  select 
+					  select
 						 GeneralReportCode, ?ReportCaption, ReportTypeCode, Enabled
 						from reports.reports
 					   where ReportCode = ?reportCode;
@@ -168,12 +168,12 @@ and General_Reports.GeneralReportCode = reports.GeneralReportCode
 
 				var insertReportCommand = new MySqlCommand(
 					@"
-insert into reports.reports 
+insert into reports.reports
   (GeneralReportCode, ReportCaption, ReportTypeCode, Enabled)
-select 
+select
   ?GeneralReportCode, reports.ReportCaption, reports.ReportTypeCode, 1
-from 
-  reports.reports 
+from
+  reports.reports
 where reports.ReportCode = ?reportCode;
 select last_insert_id() as ReportCode;", connection);
 				insertReportCommand.Parameters.Add("?reportCode", MySqlDbType.UInt64);

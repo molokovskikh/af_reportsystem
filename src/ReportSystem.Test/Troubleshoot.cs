@@ -52,7 +52,7 @@ namespace ReportSystem.Test
 			var dataAdapter = new MySqlDataAdapter("", connectionString);
 			dataAdapter.SelectCommand.CommandText = @"
 select
-  * 
+  *
 from
   reports.Reports r,
   reports.reporttypes rt

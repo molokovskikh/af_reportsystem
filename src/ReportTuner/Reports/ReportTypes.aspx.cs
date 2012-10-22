@@ -39,16 +39,16 @@ public partial class Reports_ReportTypes : System.Web.UI.Page
 		this.RTClass = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtReportTypes)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtReportTypes
 		});
-		// 
+		//
 		// dtReportTypes
-		// 
+		//
 		this.dtReportTypes.Columns.AddRange(new System.Data.DataColumn[] {
 			this.RTCode,
 			this.RTName,
@@ -57,26 +57,26 @@ public partial class Reports_ReportTypes : System.Web.UI.Page
 			this.RTClass
 		});
 		this.dtReportTypes.TableName = "dtReportTypes";
-		// 
+		//
 		// RTCode
-		// 
+		//
 		this.RTCode.ColumnName = "RTCode";
 		this.RTCode.DataType = typeof(long);
-		// 
+		//
 		// RTName
-		// 
+		//
 		this.RTName.ColumnName = "RTName";
-		// 
+		//
 		// RTPrefix
-		// 
+		//
 		this.RTPrefix.ColumnName = "RTPrefix";
-		// 
+		//
 		// RTSubject
-		// 
+		//
 		this.RTSubject.ColumnName = "RTSubject";
-		// 
+		//
 		// RTClass
-		// 
+		//
 		this.RTClass.ColumnName = "RTClass";
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtReportTypes)).EndInit();
@@ -94,7 +94,7 @@ public partial class Reports_ReportTypes : System.Web.UI.Page
 		}
 		else {
 			DS = ((DataSet)Session[DSReports]);
-			if (DS == null) // âåðîÿòíî, ñåññèÿ çàâåðøèëàñü è âñå åå äàííûå óòåðÿíû
+			if (DS == null) // Ð²ÐµÑ€Ð¾ÑÑ‚Ð½Ð¾, ÑÐµÑÑÐ¸Ñ Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ð»Ð°ÑÑŒ Ð¸ Ð²ÑÐµ ÐµÐµ Ð´Ð°Ð½Ð½Ñ‹Ðµ ÑƒÑ‚ÐµÑ€ÑÐ½Ñ‹
 				Reports_GeneralReports.Redirect(this);
 		}
 		btnApply.Visible = dgvReportTypes.Rows.Count > 0;
@@ -109,13 +109,13 @@ public partial class Reports_ReportTypes : System.Web.UI.Page
 		MyCmd.Parameters.Clear();
 		DS.Tables[dtReportTypes.TableName].Clear();
 		MyCmd.CommandText = @"
-SELECT 
+SELECT
     ReportTypeCode as RTCode,
     ReportTypeName as RTName,
     ReportTypeFilePrefix as RTPrefix,
     AlternateSubject as RTSubject,
     ReportClassName as RTClass
-FROM 
+FROM
     reports.reporttypes rt
 ";
 		MyDA.Fill(DS, dtReportTypes.TableName);
@@ -136,9 +136,9 @@ FROM
 		trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 		try {
 			MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-    reports.reporttypes 
-SET 
+UPDATE
+    reports.reporttypes
+SET
     ReportTypeName = ?RTName,
     ReportTypeFilePrefix = ?RTPrefix,
     AlternateSubject = ?RTSubject,
@@ -168,7 +168,7 @@ WHERE ReportTypeCode = ?RTCode", MyCn, trans);
 			UpdCmd.Parameters["RTCode"].SourceVersion = DataRowVersion.Current;
 
 			MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from reports.reporttypes 
+DELETE from reports.reporttypes
 WHERE ReportTypeCode = ?RTDelCode", MyCn, trans);
 
 			DelCmd.Parameters.Clear();
@@ -178,9 +178,9 @@ WHERE ReportTypeCode = ?RTDelCode", MyCn, trans);
 			DelCmd.Parameters["RTDelCode"].SourceVersion = DataRowVersion.Original;
 
 			MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT INTO 
-    reports.reporttypes 
-SET 
+INSERT INTO
+    reports.reporttypes
+SET
     ReportTypeName = ?RTName,
     ReportTypeFilePrefix = ?RTPrefix,
     AlternateSubject = ?RTSubject,

@@ -47,7 +47,7 @@ group by Id
 ";
 
 		private const string suppliersFromActivePrices =
-			@"select 
+			@"select
 	supps.Id,
 	supps.Name ShortName,
 	GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions

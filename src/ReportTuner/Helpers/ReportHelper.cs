@@ -32,7 +32,7 @@ namespace ReportTuner.Helpers
 			DataSet dsReportProperties = MySqlHelper.ExecuteDataset(
 				ConnectionHelper.GetConnectionString(),
 				@"
-SELECT 
+SELECT
 rp.*,
 rtp.PropertyType
 FROM
@@ -50,7 +50,7 @@ FROM
 where
     rp.ReportCode = ?SourceReportId
 and rpv.ReportPropertyId = rp.Id;
-SELECT 
+SELECT
 rp.*,
 rtp.PropertyType
 FROM

@@ -49,7 +49,7 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static List<String> GetPriceName(List<ulong> _priceCode, ExecuteArgs e)
 		{
-			var command = @"SELECT supps.Name as ShortName FROM usersettings.PricesData P 
+			var command = @"SELECT supps.Name as ShortName FROM usersettings.PricesData P
 							join Customers.suppliers supps on supps.Id = p.FirmCode
 							where p.PriceCode = " + _priceCode[0];
 			return GetNames(r => r["ShortName"].ToString(), command, e);

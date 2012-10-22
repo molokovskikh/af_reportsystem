@@ -84,10 +84,10 @@ public partial class Reports_ReportProperties : Page
 			MyCmd.Parameters.AddWithValue("rp", Request["rp"]);
 			MyCmd.CommandText = @"
 SELECT
-	rt.ReportCaption as CReportCaption, 
+	rt.ReportCaption as CReportCaption,
 	rts.ReportTypeName as CReportType
 FROM
-	reports.reports rt, 
+	reports.reports rt,
 	reports.general_reports gr,
 	reports.reporttypes rts
 WHERE gr.GeneralReportCode=rt.GeneralReportCode
@@ -140,9 +140,9 @@ SELECT
 	rtp.selectstoredprocedure as PStoredProc,
 	rtp.ReportTypeCode as PReportTypeCode,
 	rtp.PropertyName as PPropertyName
-FROM 
+FROM
 	reports.report_properties rp, reports.report_type_properties rtp
-WHERE 
+WHERE
 	rp.propertyID = rtp.ID
 AND rtp.Optional=0
 and rtp.PropertyName not in ('ByPreviousMonth', 'ReportInterval', 'StartDate', 'EndDate')
@@ -160,9 +160,9 @@ SELECT
 	rtp.selectstoredprocedure as PStoredProc,
 	rtp.ReportTypeCode as PReportTypeCode,
 	rtp.PropertyName as PPropertyName
-FROM 
+FROM
 	reports.report_properties rp, reports.report_type_properties rtp
-WHERE 
+WHERE
 	rp.propertyID = rtp.ID
 AND rtp.Optional=0
 and rtp.PropertyName in ('StartDate', 'EndDate')
@@ -180,9 +180,9 @@ SELECT
 	rtp.selectstoredprocedure as PStoredProc,
 	rtp.ReportTypeCode as PReportTypeCode,
 	rtp.PropertyName as PPropertyName
-FROM 
+FROM
 	reports.report_properties rp, reports.report_type_properties rtp
-WHERE 
+WHERE
 	rp.propertyID = rtp.ID
 AND rtp.Optional=0
 and rtp.PropertyName in ('ByPreviousMonth', 'ReportInterval')
@@ -220,10 +220,10 @@ SELECT
 	rtp.selectstoredprocedure as OPStoredProc,
 	rtp.ReportTypeCode as OPReportTypeCode,
 	rtp.PropertyName as OPPropertyName
-	
-FROM 
+
+FROM
 	reports.report_properties rp, reports.report_type_properties rtp
-WHERE 
+WHERE
 	rp.propertyID = rtp.ID
 AND Optional=1
 AND rp.reportCode=?rp
@@ -267,18 +267,18 @@ AND rp.reportCode=?rp
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtNonOptionalParams,
 			this.dtClient,
 			this.dtOptionalParams
 		});
-		// 
+		//
 		// dtNonOptionalParams
-		// 
+		//
 		this.dtNonOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
 			this.PID,
 			this.PParamName,
@@ -290,60 +290,60 @@ AND rp.reportCode=?rp
 			this.PPropertyName
 		});
 		this.dtNonOptionalParams.TableName = "dtNonOptionalParams";
-		// 
+		//
 		// PID
-		// 
+		//
 		this.PID.ColumnName = "PID";
 		this.PID.DataType = typeof(long);
-		// 
+		//
 		// PParamName
-		// 
+		//
 		this.PParamName.ColumnName = "PParamName";
-		// 
+		//
 		// PPropertyName
-		// 
+		//
 		this.PPropertyName.ColumnName = "PPropertyName";
-		// 
+		//
 		// PPropertyType
-		// 
+		//
 		this.PPropertyType.ColumnName = "PPropertyType";
-		// 
+		//
 		// PPropertyValue
-		// 
+		//
 		this.PPropertyValue.ColumnName = "PPropertyValue";
-		// 
+		//
 		// PPropertyEnumID
-		// 
+		//
 		this.PPropertyEnumID.ColumnName = "PPropertyEnumID";
 		this.PPropertyEnumID.DataType = typeof(long);
-		// 
+		//
 		// PStoredProc
-		// 
+		//
 		this.PStoredProc.ColumnName = "PStoredProc";
-		// 
+		//
 		// PReportTypeCode
-		// 
+		//
 		this.PReportTypeCode.ColumnName = "PReportTypeCode";
 		this.PReportTypeCode.DataType = typeof(long);
-		// 
+		//
 		// dtClient
-		// 
+		//
 		this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
 			this.CReportCaption,
 			this.CReportType
 		});
 		this.dtClient.TableName = "dtClient";
-		// 
+		//
 		// CReportCaption
-		// 
+		//
 		this.CReportCaption.ColumnName = "CReportCaption";
-		// 
+		//
 		// CReportType
-		// 
+		//
 		this.CReportType.ColumnName = "CReportType";
-		// 
+		//
 		// dtOptionalParams
-		// 
+		//
 		this.dtOptionalParams.Columns.AddRange(new System.Data.DataColumn[] {
 			this.OPID,
 			this.OPParamName,
@@ -356,39 +356,39 @@ AND rp.reportCode=?rp
 			this.OPPropertyName
 		});
 		this.dtOptionalParams.TableName = "dtOptionalParams";
-		// 
+		//
 		// OPID
-		// 
+		//
 		this.OPID.ColumnName = "OPID";
 		this.OPID.DataType = typeof(long);
-		// 
+		//
 		// OPParamName
-		// 
+		//
 		this.OPParamName.ColumnName = "OPParamName";
-		// 
+		//
 		// OPPropertyName
-		// 
+		//
 		this.OPPropertyName.ColumnName = "OPPropertyName";
-		// 
+		//
 		// OPPropertyType
-		// 
+		//
 		this.OPPropertyType.ColumnName = "OPPropertyType";
-		// 
+		//
 		// OPPropertyValue
-		// 
+		//
 		this.OPPropertyValue.ColumnName = "OPPropertyValue";
-		// 
+		//
 		// OPPropertyEnumID
-		// 
+		//
 		this.OPPropertyEnumID.ColumnName = "OPPropertyEnumID";
 		this.OPPropertyEnumID.DataType = typeof(long);
-		// 
+		//
 		// OPStoredProc
-		// 
+		//
 		this.OPStoredProc.ColumnName = "OPStoredProc";
-		// 
+		//
 		// OPrtpID
-		// 
+		//
 		this.OPrtpID.ColumnName = "OPrtpID";
 		this.OPrtpID.DataType = typeof(long);
 		//
@@ -530,9 +530,9 @@ AND rp.reportCode=?rp
 SELECT distinct
 	Value as evValue,
 	DisplayValue as evName
-FROM 
+FROM
 	reports.report_type_properties rtp, reports.Property_Enums pe, reports.Enum_Values ev
-WHERE 
+WHERE
 	rtp.PropertyEnumID = pe.ID
 AND pe.ID = ev.PropertyEnumID
 AND rtp.PropertyEnumID=?PEID
@@ -545,9 +545,9 @@ AND rtp.PropertyEnumID=?PEID
 	private void ApplyNonOptimal(MySqlTransaction trans)
 	{
 		MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-	reports.report_properties 
-SET 
+UPDATE
+	reports.report_properties
+SET
 	PropertyValue = ?PPropertyValue
 WHERE ID = ?PID", MyCn, trans);
 
@@ -576,9 +576,9 @@ WHERE ID = ?PID", MyCn, trans);
 	private void ApplyOptimal(MySqlTransaction trans)
 	{
 		MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-	reports.report_properties 
-SET 
+UPDATE
+	reports.report_properties
+SET
 	PropertyValue = ?OPPropertyValue
 WHERE ID = ?OPID", MyCn, trans);
 
@@ -593,9 +593,9 @@ WHERE ID = ?OPID", MyCn, trans);
 		UpdCmd.Parameters["OPPropertyValue"].SourceVersion = DataRowVersion.Current;
 
 		MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT 
-	reports.report_properties 
-SET 
+INSERT
+	reports.report_properties
+SET
 	ReportCode = ?rp,
 	PropertyID = ?OPrtpID,
 	PropertyValue = ?OPPropertyValue
@@ -617,8 +617,8 @@ SET
 		InsCmd.Parameters.Add(new MySqlParameter("rp", Request["rp"]));
 
 		MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE FROM 
-	reports.report_properties 
+DELETE FROM
+	reports.report_properties
 WHERE ID = ?OPID", MyCn, trans);
 
 		DelCmd.Parameters.Clear();

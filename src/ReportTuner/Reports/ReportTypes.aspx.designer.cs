@@ -11,7 +11,7 @@
 
 
 public partial class Reports_ReportTypes {
-    
+
     /// <summary>
     /// dgvReportTypes control.
     /// </summary>
@@ -20,7 +20,7 @@ public partial class Reports_ReportTypes {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.GridView dgvReportTypes;
-    
+
     /// <summary>
     /// btnApply control.
     /// </summary>

@@ -69,17 +69,17 @@ namespace ReportTuner.Reports
 			((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.dtReports)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.dtTypes)).BeginInit();
-			// 
+			//
 			// DS
-			// 
+			//
 			this.DS.DataSetName = "NewDataSet";
 			this.DS.Tables.AddRange(new System.Data.DataTable[] {
 				this.dtReports,
 				this.dtTypes
 			});
-			// 
+			//
 			// dtReports
-			// 
+			//
 			this.dtReports.Columns.AddRange(new System.Data.DataColumn[] {
 				this.RReportCode,
 				this.RReportTypeCode,
@@ -88,44 +88,44 @@ namespace ReportTuner.Reports
 				this.REnabled
 			});
 			this.dtReports.TableName = "dtReports";
-			// 
+			//
 			// RReportCode
-			// 
+			//
 			this.RReportCode.ColumnName = "RReportCode";
 			this.RReportCode.DataType = typeof(long);
-			// 
+			//
 			// RReportTypeCode
-			// 
+			//
 			this.RReportTypeCode.ColumnName = "RReportTypeCode";
 			this.RReportTypeCode.DataType = typeof(long);
-			// 
+			//
 			// RReportCaption
-			// 
+			//
 			this.RReportCaption.ColumnName = "RReportCaption";
-			// 
+			//
 			// RReportTypeName
-			// 
+			//
 			this.RReportTypeName.ColumnName = "RReportTypeName";
-			// 
+			//
 			// dtTypes
-			// 
+			//
 			this.dtTypes.Columns.AddRange(new System.Data.DataColumn[] {
 				this.ReportTypeName,
 				this.ReportTypeCode
 			});
 			this.dtTypes.TableName = "dtTypes";
-			// 
+			//
 			// ReportTypeName
-			// 
+			//
 			this.ReportTypeName.ColumnName = "ReportTypeName";
-			// 
+			//
 			// ReportTypeCode
-			// 
+			//
 			this.ReportTypeCode.ColumnName = "ReportTypeCode";
 			this.ReportTypeCode.DataType = typeof(long);
-			// 
+			//
 			// REnabled
-			// 
+			//
 			this.REnabled.ColumnName = "REnabled";
 			this.REnabled.DataType = typeof(byte);
 			((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
@@ -174,12 +174,12 @@ Order by r.ReportCode
 			MyDA.SelectCommand = MyCmd;
 			DS.Tables[dtTypes.TableName].Clear();
 			MyCmd.CommandText = @"
-SELECT 
+SELECT
     ReportTypeName,
     ReportTypeCode
-FROM 
+FROM
     reports.reporttypes
-order by ReportTypeName 
+order by ReportTypeName
 ";
 			MyDA.Fill(DS, DS.Tables[dtTypes.TableName].TableName);
 			MyCn.Close();
@@ -246,9 +246,9 @@ order by ReportTypeName
 			trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 			try {
 				MySqlCommand UpdCmd = new MySqlCommand(@"
-UPDATE 
-    reports.reports 
-SET 
+UPDATE
+    reports.reports
+SET
     ReportCaption = ?RReportCaption,
     ReportTypeCode = ?RReportTypeCode,
     GeneralReportCode = ?RGeneralReportCode,
@@ -275,7 +275,7 @@ WHERE ReportCode = ?RReportCode", MyCn, trans);
 				UpdCmd.Parameters.Add(new MySqlParameter("RGeneralReportCode", _templateReportId));
 
 				MySqlCommand DelCmd = new MySqlCommand(@"
-DELETE from reports.reports 
+DELETE from reports.reports
 WHERE ReportCode = ?RDelReportCode", MyCn, trans);
 
 				DelCmd.Parameters.Clear();
@@ -285,9 +285,9 @@ WHERE ReportCode = ?RDelReportCode", MyCn, trans);
 				DelCmd.Parameters["RDelReportCode"].SourceVersion = DataRowVersion.Original;
 
 				MySqlCommand InsCmd = new MySqlCommand(@"
-INSERT INTO 
-    reports.reports 
-SET 
+INSERT INTO
+    reports.reports
+SET
     ReportCaption = ?RReportCaption,
     ReportTypeCode = ?RReportTypeCode,
     GeneralReportCode = ?RGeneralReportCode,

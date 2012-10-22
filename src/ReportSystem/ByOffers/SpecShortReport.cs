@@ -96,9 +96,9 @@ namespace Inforoom.ReportSystem
 			var suppliers = new List<string>();
 
 			e.DataAdapter.SelectCommand.CommandText = @"
-select 
+select
 	concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
-from 
+from
 	usersettings.ActivePrices p
 	join usersettings.PricesData pd on pd.PriceCode = p.PriceCode
 	join Customers.suppliers supps on supps.Id = pd.FirmCode
@@ -133,13 +133,13 @@ order by supps.Name";
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						@"
-select 
-  pc.PriceCode 
-from 
+select
+  pc.PriceCode
+from
   usersettings.pricescosts pc,
   usersettings.priceitems pim,
-  farm.formrules fr 
-where 
+  farm.formrules fr
+where
 	pc.PriceCode = ?SourcePC
 and pc.BaseCost = 1
 and pim.Id = pc.PriceItemId
@@ -262,7 +262,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 							}
 							else {
 								var offer = assortmentGroup.FirstOrDefault();
-								// берем первый (если коды преобразуются в числа - нужно брать мин. значение)	
+								// берем первый (если коды преобразуются в числа - нужно брать мин. значение)
 								if (offer != null) {
 									var assortmentCode = offer.AssortmentCode;
 									if (!String.IsNullOrEmpty(assortmentCode))

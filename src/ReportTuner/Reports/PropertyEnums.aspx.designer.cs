@@ -11,7 +11,7 @@
 
 
 public partial class Reports_PropertyEnums {
-    
+
     /// <summary>
     /// dgvEnums control.
     /// </summary>
@@ -20,7 +20,7 @@ public partial class Reports_PropertyEnums {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.GridView dgvEnums;
-    
+
     /// <summary>
     /// btnApply control.
     /// </summary>

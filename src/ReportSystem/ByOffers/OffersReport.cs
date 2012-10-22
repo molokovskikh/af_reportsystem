@@ -79,13 +79,13 @@ where Id = ?ClientCode",
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
 					@"
-select 
-  pc.PriceCode 
-from 
+select
+  pc.PriceCode
+from
   usersettings.pricescosts pc,
   usersettings.priceitems pim,
-  farm.formrules fr 
-where 
+  farm.formrules fr
+where
 	pc.PriceCode = ?SourcePC
 and pc.BaseCost = 1
 and pim.Id = pc.PriceItemId
@@ -144,28 +144,28 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;
-CREATE temporary table TmpSourceCodes( 
-  ID int(32) unsigned, 
-  PriceCode int(32) unsigned, 
-  RegionCode int(32) unsigned, 
-  Code char(20), 
-  BaseCost decimal(8,2) unsigned, 
-  CatalogCode int(32) unsigned, 
-  CodeFirmCr int(32) unsigned, 
-  SynonymCode int(32) unsigned, 
-  SynonymFirmCrCode int(32) unsigned, 
-  key ID(ID), 
-  key CatalogCode(CatalogCode), 
-  key CodeFirmCr(CodeFirmCr), 
-  key SynonymFirmCrCode(SynonymFirmCrCode), 
+CREATE temporary table TmpSourceCodes(
+  ID int(32) unsigned,
+  PriceCode int(32) unsigned,
+  RegionCode int(32) unsigned,
+  Code char(20),
+  BaseCost decimal(8,2) unsigned,
+  CatalogCode int(32) unsigned,
+  CodeFirmCr int(32) unsigned,
+  SynonymCode int(32) unsigned,
+  SynonymFirmCrCode int(32) unsigned,
+  key ID(ID),
+  key CatalogCode(CatalogCode),
+  key CodeFirmCr(CodeFirmCr),
+  key SynonymFirmCrCode(SynonymFirmCrCode),
   key SynonymCode(SynonymCode))engine=MEMORY PACK_KEYS = 0;";
 
 			if (enabledPrice == 0) {
 				//Если прайс-лист не включен клиентом или прайс-лист ассортиментный, то добавляем его в таблицу источников TmpSourceCodes, но с ценами NULL
 				e.DataAdapter.SelectCommand.CommandText += @"
-INSERT INTO TmpSourceCodes 
-Select 
-  FarmCore.ID, 
+INSERT INTO TmpSourceCodes
+Select
+  FarmCore.ID,
   FarmCore.PriceCode,
   ?SourceRegionCode as RegionCode,
   FarmCore.Code,
@@ -178,21 +178,21 @@ Select
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
-FROM 
+FROM
   (
   farm.core0 FarmCore,
   catalogs.products
   )
   left join farm.corecosts cc on cc.Core_Id = FarmCore.id and cc.PC_CostCode = FarmCore.PriceCode
-WHERE 
-	FarmCore.PriceCode = ?SourcePC 
+WHERE
+	FarmCore.PriceCode = ?SourcePC
 and products.id = FarmCore.ProductId;";
 			}
 			else {
 				e.DataAdapter.SelectCommand.CommandText += @"
-INSERT INTO TmpSourceCodes 
-Select 
-  Core.ID, 
+INSERT INTO TmpSourceCodes
+Select
+  Core.ID,
   Core.PriceCode,
   Core.RegionCode,
   FarmCore.Code,
@@ -205,12 +205,12 @@ Select
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
-FROM 
+FROM
   Core,
   farm.core0 FarmCore,
   catalogs.products
-WHERE 
-	Core.PriceCode = ?SourcePC 
+WHERE
+	Core.PriceCode = ?SourcePC
 and FarmCore.id = Core.Id
 and products.id = Core.ProductId
 and Core.RegionCode = ?SourceRegionCode;";
@@ -222,15 +222,15 @@ and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 			e.DataAdapter.SelectCommand.CommandText = @"
-select 
+select
   Core.Id,
   Core.CatalogCode,
   FarmCore.CodeFirmCr,
   Core.Cost,
   Core.PriceCode,
   Core.RegionCode,
-  FarmCore.Quantity 
-from 
+  FarmCore.Quantity
+from
   Core,
   farm.core0 FarmCore
 where
@@ -240,11 +240,11 @@ where
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
 			e.DataAdapter.SelectCommand.CommandText = @"
-select 
+select
   ActivePrices.PriceCode, ActivePrices.RegionCode, ActivePrices.PriceDate, ActivePrices.FirmName
-from 
-  ActivePrices 
-where 
+from
+  ActivePrices
+where
   (ActivePrices.PriceCode <> ?SourcePC or ActivePrices.RegionCode <> ?SourceRegionCode)
 order by ActivePrices.PositionCount DESC";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
@@ -256,7 +256,7 @@ order by ActivePrices.PositionCount DESC";
 		protected void GetMinPrice(ExecuteArgs e)
 		{
 			var sql = @"
-select 
+select
   SourcePrice.ID,
   SourcePrice.Code,
   AllPrices.CatalogCode,
@@ -279,7 +279,7 @@ select
   cfc.Id As Cfc";
 
 			sql += @"
-from 
+from
  (
   catalogs.products,
   farm.core0 FarmCore,";
@@ -288,18 +288,18 @@ from
 			if (_reportIsFull) {
 				if (_reportType <= 2)
 					sql += @"
-  Core AllPrices 
+  Core AllPrices
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 				else
 					sql += @"
-  Core AllPrices 
+  Core AllPrices
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr";
 			}
 			else
 				sql += @"
-  Core AllPrices, 
+  Core AllPrices,
   TmpSourceCodes SourcePrice
  )";
 			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
@@ -308,10 +308,10 @@ from
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
 
 			sql += @"
-  left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode 
+  left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
-where 
-  products.id = AllPrices.ProductId 
+where
+  products.id = AllPrices.ProductId
   and FarmCore.Id = AllPrices.Id";
 
 			sql += @"

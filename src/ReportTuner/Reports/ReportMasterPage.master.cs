@@ -34,7 +34,7 @@ public partial class Reports_ReportMasterPage : System.Web.UI.MasterPage
 		if (currentNode.Key.EndsWith("/reports/reportpropertyvalues.aspx", StringComparison.OrdinalIgnoreCase)) {
 			if (!String.IsNullOrEmpty(e.Context.Request["TemporaryId"])) {
 				SiteMapNode _temporaryNode = e.Provider.FindSiteMapNode("~/Reports/TemporaryReport.aspx");
-				//Здесь это делается не совсем корректно.
+				//Р—РґРµСЃСЊ СЌС‚Рѕ РґРµР»Р°РµС‚СЃСЏ РЅРµ СЃРѕРІСЃРµРј РєРѕСЂСЂРµРєС‚РЅРѕ.
 				currentNode = _temporaryNode.ChildNodes[0].ChildNodes[0].Clone(true);
 				currentNode.ParentNode.ParentNode.Url += "?TemporaryId=" + e.Context.Request["TemporaryId"];
 				currentNode.ParentNode.Url += e.Context.Request["TemporaryId"] + "&rp=" + e.Context.Request["rp"];

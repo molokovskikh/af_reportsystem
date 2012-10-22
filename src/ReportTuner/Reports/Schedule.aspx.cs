@@ -58,8 +58,8 @@ public partial class Reports_schedule : Page
 
 	private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
 
-	private const string StatusRunning = "Выполнить задание";
-	private const string StatusNotRunning = "Выполняется...";
+	private const string StatusRunning = "Р’С‹РїРѕР»РЅРёС‚СЊ Р·Р°РґР°РЅРёРµ";
+	private const string StatusNotRunning = "Р’С‹РїРѕР»РЅСЏРµС‚СЃСЏ...";
 
 	protected void Page_Init(object sender, EventArgs e)
 	{
@@ -89,16 +89,16 @@ public partial class Reports_schedule : Page
 		ErrorMassage.Text = string.Empty;
 		var startTime = GetStartTime(_generalReport.Id);
 
-		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
+		var description = tempTask.State == TaskState.Running ? string.Format("(Р·Р°РїСѓСЃС‚РёР»: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
 
 		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running) {
-			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
+			var prefix = tempTask.State == TaskState.Running ? "РЈСЃРїРµС€РЅРѕ Р·Р°РїСѓС‰РµРЅ СЂР°Р·РѕРІС‹Р№ РѕС‚С‡РµС‚" : "РћС‚С‡РµС‚ Р·Р°РїСѓС‰РµРЅ";
 			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Running) {
-				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции. {1}", prefix, startTime);
+				ErrorMassage.Text = string.Format("{0}, РѕР¶РёРґР°Р№С‚Рµ РѕРєРѕРЅС‡Р°РЅРёСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё. {1}", prefix, startTime);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
 			else {
-				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено {0}. {2}", description, prefix, startTime);
+				ErrorMassage.Text = String.Format("{1}, РІС‹РїРѕР»РЅРµРЅРёРµ РґР°РЅРЅРѕРіРѕ РѕС‡РµС‚Р° РѕС‚Р»РѕР¶РµРЅРѕ {0}. {2}", description, prefix, startTime);
 				ErrorMassage.BackColor = Color.Red;
 			}
 			btn_Mailing.Enabled = false;
@@ -106,13 +106,13 @@ public partial class Reports_schedule : Page
 			RadioMails.Enabled = false;
 		}
 		if (tempTask.State == TaskState.Queued || temp1Task.State == TaskState.Queued) {
-			var prefix = tempTask.State == TaskState.Running ? "Запускается разовый отчет" : "Отчет запускается";
+			var prefix = tempTask.State == TaskState.Running ? "Р—Р°РїСѓСЃРєР°РµС‚СЃСЏ СЂР°Р·РѕРІС‹Р№ РѕС‚С‡РµС‚" : "РћС‚С‡РµС‚ Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ";
 			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Queued) {
-				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
+				ErrorMassage.Text = string.Format("{0}, РѕР¶РёРґР°Р№С‚Рµ РѕРєРѕРЅС‡Р°РЅРёСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё", prefix);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
 			else {
-				ErrorMassage.Text = string.Format("{1} {0}, выполнение данного очета отложено)", description, prefix);
+				ErrorMassage.Text = string.Format("{1} {0}, РІС‹РїРѕР»РЅРµРЅРёРµ РґР°РЅРЅРѕРіРѕ РѕС‡РµС‚Р° РѕС‚Р»РѕР¶РµРЅРѕ)", description, prefix);
 				ErrorMassage.BackColor = Color.Red;
 			}
 			btn_Mailing.Enabled = false;
@@ -122,10 +122,10 @@ public partial class Reports_schedule : Page
 		if ((tempTask.State == TaskState.Ready && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
 			(temp1Task.State == TaskState.Ready && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
 			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Ready) {
-				// отчет выполнен				
+				// РѕС‚С‡РµС‚ РІС‹РїРѕР»РЅРµРЅ
 				if (Session["StartTaskTime"] != null) {
 					Session.Remove("StartTaskTime");
-					ErrorMassage.Text = "Операция выполнена";
+					ErrorMassage.Text = "РћРїРµСЂР°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР°";
 					ErrorMassage.BackColor = Color.LightGreen;
 				}
 				else
@@ -136,7 +136,7 @@ public partial class Reports_schedule : Page
 			(temp1Task.State == TaskState.Disabled && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
 			if (Session["StartTaskTime"] != null) {
 				Session.Remove("StartTaskTime");
-				ErrorMassage.Text = "Операция отменена";
+				ErrorMassage.Text = "РћРїРµСЂР°С†РёСЏ РѕС‚РјРµРЅРµРЅР°";
 				ErrorMassage.BackColor = Color.Red;
 			}
 			else
@@ -148,7 +148,7 @@ public partial class Reports_schedule : Page
 		if (!Page.IsPostBack) {
 			var selfMail = GetSelfEmails();
 			if ((selfMail.Count != 0) && (selfMail[0].Length != 0)) {
-				RadioSelf.Text = "Выполнить и отослать на: " + selfMail[0][0];
+				RadioSelf.Text = "Р’С‹РїРѕР»РЅРёС‚СЊ Рё РѕС‚РѕСЃР»Р°С‚СЊ РЅР°: " + selfMail[0][0];
 			}
 
 			dtFrom.Value = DateTime.Now.AddDays(-7).ToShortDateString();
@@ -164,7 +164,7 @@ SELECT
   Max(LogTime) as MaxLogTime
 FROM
   logs.reportslogs
-WHERE 
+WHERE
   reportslogs.GeneralReportCode = ?GeneralReportCode
 ");
 				if ((lastLogTimes.Count > 0) && (lastLogTimes[0].Length > 0))
@@ -177,7 +177,7 @@ SELECT
   SMTPID
 FROM
   logs.reportslogs
-WHERE 
+WHERE
 	reportslogs.GeneralReportCode = ?GeneralReportCode
 and reportslogs.LogTime > ?LastLogTime
 order by LogTime desc
@@ -270,7 +270,7 @@ limit 15;";
 		}
 		else {
 			DS = ((DataSet)Session[DSSchedule]);
-			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
+			if (DS == null) // РІРµСЂРѕСЏС‚РЅРѕ, СЃРµСЃСЃРёСЏ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ Рё РІСЃРµ РµРµ РґР°РЅРЅС‹Рµ СѓС‚РµСЂСЏРЅС‹
 				Reports_GeneralReports.Redirect(this);
 		}
 
@@ -292,9 +292,9 @@ limit 15;";
 		var avgExTime = normalLanches.Sum(l => (l.EndTime.Value - l.StartTime).TotalMinutes / normalLanches.Count);
 		var executeLog = executeLogs.FirstOrDefault(l => l.EndTime == null);
 		var startTime = executeLog != null ? executeLog.StartTime.ToString() : string.Empty;
-		startTime = string.IsNullOrEmpty(startTime) ? startTime : string.Format("Отчет запущен {0}. ", startTime);
+		startTime = string.IsNullOrEmpty(startTime) ? startTime : string.Format("РћС‚С‡РµС‚ Р·Р°РїСѓС‰РµРЅ {0}. ", startTime);
 		if (avgExTime > 0)
-			startTime += string.Format("Среднее время выполнения: {0} минут", avgExTime.ToString("0.0"));
+			startTime += string.Format("РЎСЂРµРґРЅРµРµ РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ: {0} РјРёРЅСѓС‚", avgExTime.ToString("0.0"));
 		return startTime;
 	}
 
@@ -340,7 +340,7 @@ limit 15;";
 			var h = int.Parse(time.Substring(0, time.IndexOf(':')));
 			var m = int.Parse(time.Substring(time.IndexOf(':') + 1, time.Length - time.IndexOf(':') - 1));
 			if((h >= 0 && h < 4) || h == 23 || (h == 4 && m == 0)) {
-				ErrorMassage.Text = "Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета";
+				ErrorMassage.Text = "Р’СЂРµРјРµРЅРЅРѕР№ РїСЂРѕРјРµР¶СѓС‚РѕРє РѕС‚ 23:00 РґРѕ 4:00 СЏРІР»СЏРµС‚СЃСЏ РЅРµРґРѕРїСѓСЃС‚РёРјС‹Рј РґР»СЏ РІСЂРµРјРµРЅРё РІС‹РїРѕР»РЅРµРЅРёСЏ РѕС‚С‡РµС‚Р°";
 				ErrorMassage.BackColor = Color.Red;
 				return false;
 			}
@@ -492,16 +492,16 @@ limit 15;";
 		this.MSStartMinute = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtSchedule)).BeginInit();
-		// 
+		//
 		// DS
-		// 
+		//
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtSchedule, dtScheduleMonth
 		});
-		// 
+		//
 		// dtSchedule
-		// 
+		//
 		this.dtSchedule.Columns.AddRange(new System.Data.DataColumn[] {
 			this.SWeek,
 			this.SMonday,
@@ -529,62 +529,62 @@ limit 15;";
 
 		this.dtSchedule.TableName = "dtSchedule";
 		this.dtScheduleMonth.TableName = "dtScheduleMonth";
-		// 
+		//
 		// SWeek
-		// 
+		//
 		this.SWeek.ColumnName = "SWeek";
 		this.SWeek.DataType = typeof(int);
-		// 
+		//
 		// SMonday
-		// 
+		//
 		this.SMonday.ColumnName = "SMonday";
 		this.SMonday.DataType = typeof(byte);
 		this.SMonday.DefaultValue = ((byte)(0));
-		// 
+		//
 		// STuesday
-		// 
+		//
 		this.STuesday.ColumnName = "STuesday";
 		this.STuesday.DataType = typeof(byte);
 		this.STuesday.DefaultValue = ((byte)(0));
-		// 
+		//
 		// SWednesday
-		// 
+		//
 		this.SWednesday.ColumnName = "SWednesday";
 		this.SWednesday.DataType = typeof(byte);
 		this.SWednesday.DefaultValue = ((byte)(0));
-		// 
+		//
 		// SThursday
-		// 
+		//
 		this.SThursday.ColumnName = "SThursday";
 		this.SThursday.DataType = typeof(byte);
 		this.SThursday.DefaultValue = ((byte)(0));
-		// 
+		//
 		// SFriday
-		// 
+		//
 		this.SFriday.ColumnName = "SFriday";
 		this.SFriday.DataType = typeof(byte);
 		this.SFriday.DefaultValue = ((byte)(0));
-		// 
+		//
 		// SSaturday
-		// 
+		//
 		this.SSaturday.ColumnName = "SSaturday";
 		this.SSaturday.DataType = typeof(byte);
 		this.SSaturday.DefaultValue = ((byte)(0));
-		// 
+		//
 		// SSunday
-		// 
+		//
 		this.SSunday.ColumnName = "SSunday";
 		this.SSunday.DataType = typeof(byte);
 		this.SSunday.DefaultValue = ((byte)(0));
-		// 
+		//
 		// SStartHour
-		// 
+		//
 		this.SStartHour.ColumnName = "SStartHour";
 		this.SStartHour.DataType = typeof(short);
 		this.SStartHour.DefaultValue = ((short)(0));
-		// 
+		//
 		// SStartMinute
-		// 
+		//
 		this.SStartMinute.ColumnName = "SStartMinute";
 		this.SStartMinute.DataType = typeof(short);
 		this.SStartMinute.DefaultValue = ((short)(0));
@@ -684,7 +684,7 @@ limit 15;";
 	}
 
 	/// <summary>
-	/// Закончили работу с TaskService
+	/// Р—Р°РєРѕРЅС‡РёР»Рё СЂР°Р±РѕС‚Сѓ СЃ TaskService
 	/// </summary>
 	private void CloseTaskService()
 	{
@@ -755,10 +755,10 @@ limit 15;";
 	{
 		var sqlSelectReports = ObjectFromQuery(new[] { new MySqlParameter("?GeneralReportID", _generalReport.Id) },
 			@"
-SELECT    ContactGroupId 
+SELECT    ContactGroupId
 FROM    reports.general_reports cr,
 		billing.payers p
-WHERE   
+WHERE
 	 p.PayerId = cr.PayerId
 and cr.generalreportcode = ?GeneralReportID");
 		if (sqlSelectReports.Count > 0) {
@@ -854,7 +854,7 @@ and c.Type = ?ContactType");
 			return;
 
 		var message = new MailMessage();
-		message.From = new MailAddress("report@analit.net", "АК Инфорум");
+		message.From = new MailAddress("report@analit.net", "РђРљ РРЅС„РѕСЂСѓРј");
 		message.Subject = _generalReport.EMailSubject;
 		if (RadioSelf.Checked)
 			foreach (var selfEmail in GetSelfEmails()) {
@@ -867,7 +867,7 @@ and c.Type = ?ContactType");
 			}
 		}
 		if (message.To.Count <= 0) {
-			ErrorMassage.Text = "Укажите получателя отчета !";
+			ErrorMassage.Text = "РЈРєР°Р¶РёС‚Рµ РїРѕР»СѓС‡Р°С‚РµР»СЏ РѕС‚С‡РµС‚Р° !";
 			ErrorMassage.BackColor = Color.Red;
 			return;
 		}
@@ -876,14 +876,14 @@ and c.Type = ?ContactType");
 				message.Attachments.Add(new Attachment(file));
 			}
 		if (message.Attachments.Count <= 0) {
-			ErrorMassage.Text = "Файл отчета не найден";
+			ErrorMassage.Text = "Р¤Р°Р№Р» РѕС‚С‡РµС‚Р° РЅРµ РЅР°Р№РґРµРЅ";
 			ErrorMassage.BackColor = Color.Red;
 			return;
 		}
 		var client = new SmtpClient(ConfigurationManager.AppSettings["SMTPHost"]);
 		message.BodyEncoding = System.Text.Encoding.UTF8;
 		client.Send(message);
-		ErrorMassage.Text = "Файл отчета успешно отправлен";
+		ErrorMassage.Text = "Р¤Р°Р№Р» РѕС‚С‡РµС‚Р° СѓСЃРїРµС€РЅРѕ РѕС‚РїСЂР°РІР»РµРЅ";
 		ErrorMassage.BackColor = Color.LightGreen;
 	}
 }

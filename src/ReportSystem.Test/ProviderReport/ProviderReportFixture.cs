@@ -28,8 +28,8 @@ namespace ReportSystem.Test.ProviderReport
 			var dataSet = MySqlHelper.ExecuteDataset(
 				e.DataAdapter.SelectCommand.Connection,
 				@"
-select 
-	* 
+select
+	*
 from
 	Core
 	inner join farm.Core0 c on c.Id = Core.Id
@@ -161,10 +161,10 @@ from
 		private DataSet GetClients(int rowCount)
 		{
 			var sql = @"
-select 
+select
 	c.Id,
-	c.Name 
-from 
+	c.Name
+from
 	Customers.Clients c
 limit 1";
 			var dsClients = MySqlHelper.ExecuteDataset(

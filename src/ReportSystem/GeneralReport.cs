@@ -329,8 +329,8 @@ where GeneralReport = ?GeneralReport;";
 
 		private int ProcessLog(ProcessLogArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs 
-(LogTime, GeneralReportCode, SMTPID, MessageID, EMail) 
+			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs
+(LogTime, GeneralReportCode, SMTPID, MessageID, EMail)
 values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", GeneralReportID);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SMTPID", e.SmtpID);
@@ -396,7 +396,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 		{
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select
-  * 
+  *
 from
   reports.Reports r,
   reports.reporttypes rt

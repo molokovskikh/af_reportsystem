@@ -15,14 +15,14 @@ using log4net;
 using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem
-{ //Костыль т.к. не используем ActiveRecord модели, то пришлось копировать enum
+{ //РљРѕСЃС‚С‹Р»СЊ С‚.Рє. РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј ActiveRecord РјРѕРґРµР»Рё, С‚Рѕ РїСЂРёС€Р»РѕСЃСЊ РєРѕРїРёСЂРѕРІР°С‚СЊ enum
 	public enum ReportFormats
 	{
 		Excel,
 		DBF
 	}
 
-	//Содержит названия полей, используемых при создании общего очета
+	//РЎРѕРґРµСЂР¶РёС‚ РЅР°Р·РІР°РЅРёСЏ РїРѕР»РµР№, РёСЃРїРѕР»СЊР·СѓРµРјС‹С… РїСЂРё СЃРѕР·РґР°РЅРёРё РѕР±С‰РµРіРѕ РѕС‡РµС‚Р°
 	public sealed class BaseReportColumns
 	{
 		public const string colReportCode = "ReportCode";
@@ -43,10 +43,10 @@ namespace Inforoom.ReportSystem
 		public const string colReportPropertyValue = "Value";
 	}
 
-	//Общий класс для работы с отчетам
+	//РћР±С‰РёР№ РєР»Р°СЃСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕС‚С‡РµС‚Р°Рј
 	public abstract class BaseReport
 	{
-		//Максимальное значение строки в колонках, необходимо для вывода в Excel, все, что будет больше будет помечаться как memо
+		//РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ СЃС‚СЂРѕРєРё РІ РєРѕР»РѕРЅРєР°С…, РЅРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ РІС‹РІРѕРґР° РІ Excel, РІСЃРµ, С‡С‚Рѕ Р±СѓРґРµС‚ Р±РѕР»СЊС€Рµ Р±СѓРґРµС‚ РїРѕРјРµС‡Р°С‚СЊСЃСЏ РєР°Рє memРѕ
 		private Dictionary<string, uint> _reportParamsIds = new Dictionary<string, uint>();
 
 		public const int MaxStringSize = 250;
@@ -55,11 +55,11 @@ namespace Inforoom.ReportSystem
 
 		protected DataSet _dsReport;
 
-		//Таблица с загруженными свойствами отчета
+		//РўР°Р±Р»РёС†Р° СЃ Р·Р°РіСЂСѓР¶РµРЅРЅС‹РјРё СЃРІРѕР№СЃС‚РІР°РјРё РѕС‚С‡РµС‚Р°
 		protected DataTable dtReportProperties;
-		//Таблица с загруженными значениями списков-свойств
+		//РўР°Р±Р»РёС†Р° СЃ Р·Р°РіСЂСѓР¶РµРЅРЅС‹РјРё Р·РЅР°С‡РµРЅРёСЏРјРё СЃРїРёСЃРєРѕРІ-СЃРІРѕР№СЃС‚РІ
 		protected DataTable dtReportPropertyValues;
-		//Формат файла отчета
+		//Р¤РѕСЂРјР°С‚ С„Р°Р№Р»Р° РѕС‚С‡РµС‚Р°
 		protected ReportFormats Format;
 
 		protected MySqlConnection _conn;
@@ -70,8 +70,8 @@ namespace Inforoom.ReportSystem
 
 		protected ILog Logger;
 
-		protected DateTime _dtStart; // время запуска отчета
-		protected DateTime _dtStop; // время завершения работы отчета
+		protected DateTime _dtStart; // РІСЂРµРјСЏ Р·Р°РїСѓСЃРєР° РѕС‚С‡РµС‚Р°
+		protected DateTime _dtStop; // РІСЂРµРјСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ СЂР°Р±РѕС‚С‹ РѕС‚С‡РµС‚Р°
 
 		public bool Interval;
 		public DateTime From;
@@ -82,7 +82,7 @@ namespace Inforoom.ReportSystem
 
 		public virtual bool DbfSupported { get; set; }
 
-		protected BaseReport() // конструктор для возможности тестирования
+		protected BaseReport() // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
 		{
 		}
 
@@ -111,7 +111,7 @@ namespace Inforoom.ReportSystem
 								_reportParams.Add(currentPropertyName, Convert.ToBoolean(Convert.ToByte(drProperty[BaseReportColumns.colPropertyValue])));
 							}
 							catch (Exception ex) {
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
+								throw new ReportException(String.Format("РћС€РёР±РєР° РїСЂРё РєРѕРЅРІРµСЂС‚Р°С†РёРё РїР°СЂР°РјРµС‚СЂР° '{0}' РёР· СЃС‚СЂРѕРєРё '{1}'.",
 									drProperty[BaseReportColumns.colPropertyType],
 									drProperty[BaseReportColumns.colPropertyValue]), ex);
 							}
@@ -125,7 +125,7 @@ namespace Inforoom.ReportSystem
 									listValues.Add(Convert.ToUInt64(drValue[BaseReportColumns.colReportPropertyValue]));
 								}
 								catch (Exception ex) {
-									throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
+									throw new ReportException(String.Format("РћС€РёР±РєР° РїСЂРё РєРѕРЅРІРµСЂС‚Р°С†РёРё РїР°СЂР°РјРµС‚СЂР° '{0}' РёР· СЃС‚СЂРѕРєРё '{1}'.",
 										drProperty[BaseReportColumns.colPropertyType],
 										drValue[BaseReportColumns.colReportPropertyValue]), ex);
 								}
@@ -144,7 +144,7 @@ namespace Inforoom.ReportSystem
 									_reportParams.Add(currentPropertyName, DateTime.ParseExact(drProperty[BaseReportColumns.colPropertyValue].ToString(), MySqlConsts.MySQLDateFormat, null));
 							}
 							catch (Exception ex) {
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
+								throw new ReportException(String.Format("РћС€РёР±РєР° РїСЂРё РєРѕРЅРІРµСЂС‚Р°С†РёРё РїР°СЂР°РјРµС‚СЂР° '{0}' РёР· СЃС‚СЂРѕРєРё '{1}'.",
 									drProperty[BaseReportColumns.colPropertyType],
 									drProperty[BaseReportColumns.colPropertyValue]), ex);
 							}
@@ -158,18 +158,18 @@ namespace Inforoom.ReportSystem
 									_reportParams.Add(currentPropertyName, Convert.ToInt32(drProperty[BaseReportColumns.colPropertyValue].ToString()));
 							}
 							catch (Exception ex) {
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
+								throw new ReportException(String.Format("РћС€РёР±РєР° РїСЂРё РєРѕРЅРІРµСЂС‚Р°С†РёРё РїР°СЂР°РјРµС‚СЂР° '{0}' РёР· СЃС‚СЂРѕРєРё '{1}'.",
 									drProperty[BaseReportColumns.colPropertyType],
 									drProperty[BaseReportColumns.colPropertyValue]), ex);
 							}
 							break;
 
 						default:
-							throw new ReportException(String.Format("Неизвестный тип параметра : '{0}'.", drProperty[BaseReportColumns.colPropertyType].ToString()));
+							throw new ReportException(String.Format("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РїР°СЂР°РјРµС‚СЂР° : '{0}'.", drProperty[BaseReportColumns.colPropertyType].ToString()));
 					}
 				}
 				else {
-					throw new ReportException(String.Format("Параметр '{0}' задан дважды.", currentPropertyName));
+					throw new ReportException(String.Format("РџР°СЂР°РјРµС‚СЂ '{0}' Р·Р°РґР°РЅ РґРІР°Р¶РґС‹.", currentPropertyName));
 				}
 			}
 		}
@@ -196,19 +196,19 @@ namespace Inforoom.ReportSystem
 		{
 			var writer = GetWriter(Format);
 			if (writer != null) {
-				// Новый механизм, выносим часть для выгрузки в файл в отдельный класс
+				// РќРѕРІС‹Р№ РјРµС…Р°РЅРёР·Рј, РІС‹РЅРѕСЃРёРј С‡Р°СЃС‚СЊ РґР»СЏ РІС‹РіСЂСѓР·РєРё РІ С„Р°Р№Р» РІ РѕС‚РґРµР»СЊРЅС‹Р№ РєР»Р°СЃСЃ
 				var settings = GetSettings();
 				writer.WriteReportToFile(_dsReport, fileName, settings);
 				return;
 			}
 
 			if (Format == ReportFormats.DBF && DbfSupported) {
-// Формируем DBF
+// Р¤РѕСЂРјРёСЂСѓРµРј DBF
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
 				DataTableToDbf(GetReportTable(), fileName);
 			}
 			else {
-// Формируем Excel
+// Р¤РѕСЂРјРёСЂСѓРµРј Excel
 				DataTableToExcel(GetReportTable(), fileName);
 				FormatExcel(fileName);
 			}
@@ -240,7 +240,7 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey(ParamName))
 				return _reportParams[ParamName];
 			else
-				throw new ReportException(String.Format("Параметр '{0}' не найден.", ParamName));
+				throw new ReportException(String.Format("РџР°СЂР°РјРµС‚СЂ '{0}' РЅРµ РЅР°Р№РґРµРЅ.", ParamName));
 		}
 
 		public bool reportParamExists(string ParamName)
@@ -324,11 +324,11 @@ namespace Inforoom.ReportSystem
 			var valuesList = new List<string>();
 			args.DataAdapter.SelectCommand.CommandText = String.Format(
 				@"
-select 
+select
 	c.Name
-from 
+from
 	Customers.Clients c
-where 
+where
 	c.Id in {0}
 order by 1", filterStr);
 			args.DataAdapter.SelectCommand.Parameters.Clear();

@@ -56,7 +56,7 @@ select ifnull(pd.ParentSynonym, pd.PriceCode) from usersettings.pricesdata pd wh
 
 				e.DataAdapter.SelectCommand.CommandText = string.Format(@"
 SELECT
-	AP.PriceDate, 
+	AP.PriceDate,
 	if(s.SynonymCode is not null, s.Synonym, OrigSyn.Synonym) ProductName,
 	if(sfcr.SynonymFirmCrCode is not null, sfcr.Synonym, OrigSynCr.Synonym) ProducerName,
 	supps.Name SupplierName,
@@ -66,7 +66,7 @@ SELECT
 	ifnull(cc.RequestRatio, c0.RequestRatio) as RequestRatio,
 	ifnull(cc.MinOrderSum, c0.OrderCost) as OrderCost,
 	ifnull(cc.MinOrderCount, c0.MinOrderCount) as MinOrderCount
-FROM 
+FROM
 	usersettings.Core
 	join farm.core0 c0 on Core.id = c0.id
 	join usersettings.ActivePrices AP on AP.PriceCode = Core.PriceCode

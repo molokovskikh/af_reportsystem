@@ -35,8 +35,8 @@ namespace Inforoom.ReportSystem
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select
-  * 
-from 
+  *
+from
   reports.Report_Properties rp,
   reports.report_type_properties rtp
 where

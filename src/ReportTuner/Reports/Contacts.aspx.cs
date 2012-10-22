@@ -26,7 +26,7 @@ namespace ReportTuner
 		//все отчеты, которые используют ту же контактную группу
 		private GeneralReport[] _relatedReportsByContactGroup;
 
-		//Имя переменной в сессии, говорящей о том, кто вызвал отображение контролов 
+		//Имя переменной в сессии, говорящей о том, кто вызвал отображение контролов
 		//для изменения имени группы: кнопка "Изменить наименование" или кнопка "Создать группу"
 		private string _changeSenderSessionName = "ReportTuner.Contacts.ChangeSender";
 

@@ -89,7 +89,7 @@ order by ap.PositionCount desc";
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.DBF)
-				throw new ReportException("Не умею готовить отчет в dbf");
+				throw new ReportException("РќРµ СѓРјРµСЋ РіРѕС‚РѕРІРёС‚СЊ РѕС‚С‡РµС‚ РІ dbf");
 
 			return new LeakOffersNativeWriter();
 		}

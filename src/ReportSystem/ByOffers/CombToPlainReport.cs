@@ -17,7 +17,7 @@ namespace Inforoom.ReportSystem
 		{
 			_sharePath = Properties.Settings.Default.DBDumpPath;
 			if (String.IsNullOrEmpty(_sharePath))
-				throw new ReportException("Не установлен параметр DBDumpPath в конфигурационном файле.");
+				throw new ReportException("РќРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїР°СЂР°РјРµС‚СЂ DBDumpPath РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅРѕРј С„Р°Р№Р»Рµ.");
 			if (!_sharePath.EndsWith(Path.DirectorySeparatorChar.ToString()))
 				_sharePath += Path.DirectorySeparatorChar.ToString();
 			_filename = "ind_r_" + ReportCode.ToString() + ".txt";
@@ -35,61 +35,61 @@ namespace Inforoom.ReportSystem
 		{
 			base.GenerateReport(e);
 
-			//Выбираем 
+			//Р’С‹Р±РёСЂР°РµРј
 			GetOffers(_SupplierNoise);
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select
-  -- наименование
+  -- РЅР°РёРјРµРЅРѕРІР°РЅРёРµ
   replace( replace( replace(catalognames.name, '\t', ''), '\r', ''), '\n', '') as name,
-  -- форма выпуска
+  -- С„РѕСЂРјР° РІС‹РїСѓСЃРєР°
   replace( replace( replace(catalogforms.form, '\t', ''), '\r', ''), '\n', '') as form,
-  -- код поставщика
+  -- РєРѕРґ РїРѕСЃС‚Р°РІС‰РёРєР°
   replace( replace( replace(FarmCore.code, '\t', ''), '\r', ''), '\n', '') as code,
-  -- синоним
+  -- СЃРёРЅРѕРЅРёРј
   replace( replace( replace(s.synonym, '\t', ''), '\r', ''), '\n', '') as synonym,
-  -- синоним производителя
+  -- СЃРёРЅРѕРЅРёРј РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ
   replace( replace( replace(sfc.synonym, '\t', ''), '\r', ''), '\n', '') as sfcsynonym,
-  -- упаковка
+  -- СѓРїР°РєРѕРІРєР°
   replace( replace( replace(FarmCore.volume, '\t', ''), '\r', ''), '\n', '') as volume,
-  -- применчание
+  -- РїСЂРёРјРµРЅС‡Р°РЅРёРµ
   replace( replace( replace(FarmCore.note, '\t', ''), '\r', ''), '\n', '') as note,
-  -- срок годности
+  -- СЃСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё
   FarmCore.period,
-  -- признак уценки
+  -- РїСЂРёР·РЅР°Рє СѓС†РµРЅРєРё
   if(FarmCore.junk, '1', '0'),
-  -- наименование прайс-листа
+  -- РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
   pd.PriceName,
-  -- регион
+  -- СЂРµРіРёРѕРЅ
   regions.Region,
-  -- дата прайс-листа
-  date_add(ActivePrices.PriceDate, interval time_to_sec(date_sub(now(), interval unix_timestamp() second)) second) as DateCurPrice, 
-  -- цена препарата
+  -- РґР°С‚Р° РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+  date_add(ActivePrices.PriceDate, interval time_to_sec(date_sub(now(), interval unix_timestamp() second)) second) as DateCurPrice,
+  -- С†РµРЅР° РїСЂРµРїР°СЂР°С‚Р°
   (case Core.Cost
     when 1000000 then 0
     when 999999.99 then 0
     else Core.Cost
   end) as Cost,
-  -- кол-во препарата
+  -- РєРѕР»-РІРѕ РїСЂРµРїР°СЂР°С‚Р°
   FarmCore.Quantity,
-  -- краткое название прайс-листа
+  -- РєСЂР°С‚РєРѕРµ РЅР°Р·РІР°РЅРёРµ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
   supps.Name,
-  -- региональный телефон техподдержки
+  -- СЂРµРіРёРѕРЅР°Р»СЊРЅС‹Р№ С‚РµР»РµС„РѕРЅ С‚РµС…РїРѕРґРґРµСЂР¶РєРё
   rd.SupportPhone,
-  -- факс
+  -- С„Р°РєСЃ
   '' as Fax,
-  -- E-mail для заказов
+  -- E-mail РґР»СЏ Р·Р°РєР°Р·РѕРІ
   rd.adminmail,
-  -- УРЛ
-  '' as Url, 
-  -- открытая наценка
+  -- РЈР Р›
+  '' as Url,
+  -- РѕС‚РєСЂС‹С‚Р°СЏ РЅР°С†РµРЅРєР°
   0 as PublicUpCost,
-  -- жизненно важный
+  -- Р¶РёР·РЅРµРЅРЅРѕ РІР°Р¶РЅС‹Р№
   catalog.VitallyImportant
 INTO OUTFILE 'C:/ReportsFiles/{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
-from 
+from
   Core,
   ActivePrices,
   farm.regions,
@@ -101,10 +101,10 @@ from
   farm.synonym s,
   farm.synonymfirmcr sfc,
   usersettings.regionaldata rd,
-  Customers.suppliers supps,  
+  Customers.suppliers supps,
   usersettings.pricesdata pd
 where
-	FarmCore.Id = Core.Id 
+	FarmCore.Id = Core.Id
 and s.synonymcode = FarmCore.synonymcode
 and sfc.SynonymFirmCrCode = FarmCore.SynonymFirmCrCode
 and ActivePrices.PriceCode = Core.PriceCode
@@ -145,7 +145,7 @@ and catalogforms.id = catalog.formid
 						System.Threading.Thread.Sleep(1000);
 					}
 					else
-						throw new ReportException(String.Format("Не удалось переместить файл {0} в файл {1}.", _sharePath + _filename, FileName), e);
+						throw new ReportException(String.Format("РќРµ СѓРґР°Р»РѕСЃСЊ РїРµСЂРµРјРµСЃС‚РёС‚СЊ С„Р°Р№Р» {0} РІ С„Р°Р№Р» {1}.", _sharePath + _filename, FileName), e);
 				}
 			} while (!CopySucces);
 		}

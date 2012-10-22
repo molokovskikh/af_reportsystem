@@ -9,10 +9,10 @@
 //------------------------------------------------------------------------------
 
 namespace ReportTuner.Reports {
-    
-    
+
+
     public partial class TemporaryReport {
-        
+
         /// <summary>
         /// ddlReportTypes control.
         /// </summary>
@@ -21,7 +21,7 @@ namespace ReportTuner.Reports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlReportTypes;
-        
+
         /// <summary>
         /// ddlTemplates control.
         /// </summary>
@@ -30,7 +30,7 @@ namespace ReportTuner.Reports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlTemplates;
-        
+
         /// <summary>
         /// tbReportName control.
         /// </summary>
@@ -39,7 +39,7 @@ namespace ReportTuner.Reports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox tbReportName;
-        
+
         /// <summary>
         /// rfvReportName control.
         /// </summary>
@@ -48,7 +48,7 @@ namespace ReportTuner.Reports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvReportName;
-        
+
         /// <summary>
         /// btnNext control.
         /// </summary>
@@ -57,7 +57,7 @@ namespace ReportTuner.Reports {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnNext;
-        
+
         /// <summary>
         /// ValidationSummary control.
         /// </summary>
