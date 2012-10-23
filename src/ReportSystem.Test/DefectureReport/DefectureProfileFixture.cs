@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using NUnit.Framework;
 using Inforoom.ReportSystem;
@@ -52,6 +53,21 @@ namespace ReportSystem.Test
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureProductsWithProducer);
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
+		}
+
+		[Test]
+		public void DefectureByBaseCostNew()
+		{
+			var fileName = "DefectureByBaseCostNew.xls";
+			Property("ReportType", 2);
+			Property("RegionEqual", new List<ulong> {
+				1
+			});
+			Property("ClientCode", 7160);
+			Property("PriceCode", 4783);
+			Property("ByBaseCosts", true);
+			report = new DefReport(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
 		}
 	}
 }

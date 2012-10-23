@@ -1,4 +1,5 @@
-﻿using Inforoom.ReportSystem;
+﻿using System.Collections.Generic;
+using Inforoom.ReportSystem;
 using NUnit.Framework;
 
 namespace ReportSystem.Test
@@ -49,6 +50,27 @@ namespace ReportSystem.Test
 			Property("CalculateByCatalog", false);
 			Property("ReportSortedByPrice", false);
 			BuildReport(reportType: typeof(SpecReport));
+		}
+
+		[Test]
+		public void SpecialByBaseCostNew()
+		{
+			var fileName = "SpecialByBaseCostNew.xls";
+			Property("ReportType", 4);
+			Property("RegionEqual", new List<ulong> {
+				70368744177664
+			});
+
+			Property("SupplierNoise", 5);
+			Property("ReportIsFull", false);
+			Property("ClientCode", 5101);
+			Property("ReportSortedByPrice", false);
+			Property("ShowPercents", true);
+			Property("CalculateByCatalog", false);
+			Property("PriceCode", 196);
+			Property("ByBaseCosts", true);
+			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
 		}
 	}
 }
