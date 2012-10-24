@@ -35,7 +35,8 @@ namespace MigrationTasks
 			var files = ArHelper.WithSession(s => s.CreateSQLQuery(@"SELECT r.Id as PropId, f.Id FileId FROM reports.report_properties r
 join reports.reports rp on  rp.ReportCode = r.ReportCode
 join reports.filessendwithreport f on f.Report = rp.GeneralReportCode
-where PropertyId = 438;").ToList<FileProp>());
+where PropertyId = 438;")
+				.ToList<FileProp>());
 			foreach (var fileProp in files) {
 				var from = Path.Combine(dirPath, fileProp.PropId.ToString());
 				var to = Path.Combine(dirPath, fileProp.FileId.ToString());

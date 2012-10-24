@@ -121,7 +121,8 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, rivalFil
 where
 ol.Junk = 0
 #and ol.Await = 0
-and (oh.RegionCode & " + regionMask + @") > 0";
+and (oh.RegionCode & " +
+				regionMask + @") > 0";
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");

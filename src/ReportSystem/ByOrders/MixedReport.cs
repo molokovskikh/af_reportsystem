@@ -194,7 +194,8 @@ and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
-group by " + groupExpression;
+group by " +
+				groupExpression;
 
 #if DEBUG
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
@@ -241,7 +242,8 @@ Avg(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsAvgCost{0},
 Max(if(pd.firmcode in ({1}), ol.cost, NULL)) as RivalsMaxCost{0},
 Count(distinct if(pd.firmcode in ({1}), oh.RowId, NULL)) as RivalsDistinctOrderId{0},
 Count(distinct if(pd.firmcode in ({1}), oh.AddressId, NULL)) as RivalsDistinctAddressId{0},
-Count(distinct if(pd.firmcode in ({1}), pd.FirmCode, NULL)) as RivalsSuppliersSoldPosition{0},", i, concurrentGroups[i].Implode());
+Count(distinct if(pd.firmcode in ({1}), pd.FirmCode, NULL)) as RivalsSuppliersSoldPosition{0},",
+					i, concurrentGroups[i].Implode());
 			}
 
 			selectCommand = String.Concat(selectCommand, String.Format(@"

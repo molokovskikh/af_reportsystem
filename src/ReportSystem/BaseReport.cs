@@ -277,7 +277,8 @@ namespace Inforoom.ReportSystem
 		join catalogs.catalog on catalog.Id = products.CatalogId
 	where products.Id = {0}
 )
-", productIdAlias);
+",
+				productIdAlias);
 		}
 
 		protected string GetFullFormSubquery(string productIdAlias, bool includeName)
@@ -312,7 +313,8 @@ namespace Inforoom.ReportSystem
 	and CatalogForms.Id = catalog.FormId
 	and CatalogNames.Id = catalog.NameId
 )
-", productIdAlias, name);
+",
+				productIdAlias, name);
 		}
 
 		protected string GetClientsNamesFromSQL(List<ulong> equalValues)
