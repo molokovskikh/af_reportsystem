@@ -199,6 +199,15 @@ namespace Inforoom.ReportSystem
 				}
 			}
 
+			if (_reportParams.ContainsKey("PriceCodeEqual")) {
+				var PriceCodeValues = (List<ulong>)_reportParams["PriceCodeEqual"];
+				if (PriceCodeValues != null && PriceCodeValues.Count > 0) {
+					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
+					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				}
+			}
+
 			if (_reportParams.ContainsKey("PriceCodeNonValues")) {
 				var PriceCodeNonValues = (List<ulong>)_reportParams["PriceCodeNonValues"];
 				if (PriceCodeNonValues != null && PriceCodeNonValues.Count > 0) {
