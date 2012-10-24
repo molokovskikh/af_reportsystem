@@ -151,14 +151,20 @@ namespace ReportTuner.Helpers
 				if (!String.IsNullOrEmpty(res)) return res;
 				// В комбинированном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
-				if (!String.IsNullOrEmpty(res)) return res;
+				var resTypes = String.Format("&inTypes={0},{1}", 1, 2);
+				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeNonValues" }, new[] { "RegionEqual" });
+				if (!String.IsNullOrEmpty(res)) return res + resTypes;
 			}
 			if (report.ReportType.ReportClassName.Contains("DefReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers" }, new[] { "ClientCode" }, "UserCode");
 				if (!String.IsNullOrEmpty(res)) return res;
 				// В дефектурном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
-				if (!String.IsNullOrEmpty(res)) return res;
+				var resTypes = String.Format("&inTypes={0},{1}", 1, 2);
+				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeNonValues" }, new[] { "RegionEqual" });
+				if (!String.IsNullOrEmpty(res)) return res + resTypes;
 			}
 			if (report.ReportType.ReportClassName.Contains("LeakOffersReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");

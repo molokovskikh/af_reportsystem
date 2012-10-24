@@ -53,7 +53,11 @@ namespace Inforoom.ReportSystem
 			// если отчет строится по базовым ценам, определяем список прайсов и регионов
 			_byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
 			if (_byBaseCosts) {
-				_prices = (List<ulong>)getReportParam("PriceCodeEqual");
+				if(reportParamExists("PriceCodeEqual"))
+					_prices = (List<ulong>)getReportParam("PriceCodeEqual");
+				else {
+					_prices = null;
+				}
 				_regions = (List<ulong>)getReportParam("RegionEqual");
 			}
 
@@ -322,6 +326,26 @@ and regions.RegionCode = activeprices.RegionCode";
 		/// <returns></returns>
 		private void GetRegionsPrices(ExecuteArgs e)
 		{
+			if(_prices == null) {
+				decimal regionMask = 0;
+				if (_regions != null)
+					regionMask = _regions.Sum(r => Convert.ToDecimal(r));
+				e.DataAdapter.SelectCommand.CommandText = "reports.GetPricesByRegionMaskByTypes";
+				e.DataAdapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?inID", regionMask);
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?inTypes", "1,2");
+				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?inFilter", null);
+				DataTable prices = new DataTable();
+				e.DataAdapter.Fill(prices);
+				_prices = new List<ulong>();
+				foreach (DataRow row in prices.Rows) {
+					ulong priceCode;
+					if (ulong.TryParse(row["ID"].ToString(), out priceCode)) {
+						_prices.Add(priceCode);
+					}
+				}
+			}
+			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS usersettings.TmpPricesRegions;
 CREATE temporary table usersettings.TmpPricesRegions(
@@ -330,6 +354,7 @@ CREATE temporary table usersettings.TmpPricesRegions(
   ) engine=MEMORY;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			e.DataAdapter.SelectCommand.Parameters.Clear();
+
 			foreach (var price in _prices) {
 				foreach (var region in _regions) {
 					e.DataAdapter.SelectCommand.CommandText = @"
