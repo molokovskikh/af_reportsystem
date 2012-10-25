@@ -10,7 +10,7 @@ import file from MySql.bake
 Global(
 	humanReadableName : "Генератор отчетов",
 	Platform : "x86",
-	Project: "ReportTuner",
+	Project: "ReportSystem",
 	Profile : @reportTypes,
 	AdditionalAssemblies: ("Common.Web.Ui", "Report.Data.Builder")
 )
