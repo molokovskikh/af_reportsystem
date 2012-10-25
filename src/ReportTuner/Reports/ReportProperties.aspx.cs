@@ -891,6 +891,8 @@ WHERE ID = ?OPID", MyCn, trans);
 		if (obj != null) chbValue_CheckedChanged(obj, null);
 		obj = FindCheckBoxByKey("За предыдущий месяц");
 		if (obj != null) chbValue_CheckedChanged(obj, null);
+		obj = FindCheckBoxByKey("По взвешенным ценам");
+		if (obj != null) chbValue_CheckedChanged(obj, null);
 	}
 
 	protected object FindCheckBoxByKey(string key)
@@ -918,6 +920,57 @@ WHERE ID = ?OPID", MyCn, trans);
 		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !weight_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Сортировка по прайсу", !weight_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Продукты без учета свойств (все цвета\\вкусы объединены)", !weight_costs);
+
+		dgvOptional.DataSource = DS;
+		dgvOptional.DataBind();
+		SetOptionalVisibility();
+	}
+
+	private void SetOptionalVisibility()
+	{
+		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
+		var weight_costs = GetValueByLabel(dgvNonOptional.Rows, "По взвешенным ценам");
+		SetOptionalRowVisibility("Пользователь", !weight_costs && !base_costs);
+		SetOptionalRowVisibility("Список доступных клиенту регионов", !weight_costs && !base_costs);
+
+		SetOptionalRowVisibility("Зашумлять все прайс листы всех поставщиков кроме", !weight_costs);
+		SetOptionalRowVisibility("Список значений \"Прайс\"", !weight_costs);
+		SetOptionalRowVisibility("Список исключений &quot;Прайс&quot;", !weight_costs);
+	}
+
+	private void FilterDDLOptional()
+	{
+		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
+		var weight_costs = GetValueByLabel(dgvNonOptional.Rows, "По взвешенным ценам");
+		DataRow[] forRemove = new DataRow[0];
+		if(base_costs) {
+			forRemove = dtDDLOptionalParams.Select(String.Format("opName = '{0}' or opName = '{1}'",
+				"Пользователь",
+				"Список доступных клиенту регионов"));
+		}
+		else if(weight_costs) {
+			forRemove = dtDDLOptionalParams.Select(String.Format("opName in ('{0}','{1}','{2}','{3}','{4}')",
+				"Пользователь",
+				"Список доступных клиенту регионов",
+				"Зашумлять все прайс листы всех поставщиков кроме",
+				"Список значений \"Прайс\"",
+				"Список исключений \"Прайс\""));
+		}
+		else {
+			var last = dtDDLOptionalParams.Select(String.Format("opName = 'Список доступных клиенту регионов'"));
+			if(last.Length > 0) {
+				var newRow = dtDDLOptionalParams.NewRow();
+				newRow[0] = last[0][0];
+				newRow[1] = last[0][1];
+				newRow[2] = last[0][2];
+				dtDDLOptionalParams.Rows.Remove(last[0]);
+				dtDDLOptionalParams.Rows.Add(newRow);
+			}
+		}
+
+		foreach (var dataRow in forRemove) {
+			dtDDLOptionalParams.Rows.Remove(dataRow);
+		}
 	}
 
 	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)
@@ -928,6 +981,14 @@ WHERE ID = ?OPID", MyCn, trans);
 
 			var cell = dr.Cells[0];
 			if (cell.Text == label)
+				dr.Visible = visible;
+		}
+	}
+
+	private void SetOptionalRowVisibility(string label, bool visible)
+	{
+		foreach (GridViewRow dr in dgvOptional.Rows) {
+			if(((Label)dr.FindControl("lblName")).Text == label)
 				dr.Visible = visible;
 		}
 	}
@@ -1015,6 +1076,7 @@ WHERE ID = ?OPID", MyCn, trans);
 				btnApply.Visible = true;
 			}
 		}
+		SetOptionalVisibility();
 	}
 
 	private void FillUserDDL(long clientID, DropDownList ddl)
@@ -1094,6 +1156,7 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 			ddlName.Visible = true;
 			(e.Row.Cells[0].FindControl("lblName")).Visible = false;
 			FillDDLOptimal();
+			FilterDDLOptional();
 			ddlName.DataSource = dtDDLOptionalParams;
 			ddlName.DataTextField = "opName";
 			ddlName.DataValueField = "opID";
