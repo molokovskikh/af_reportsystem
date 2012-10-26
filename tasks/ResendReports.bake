@@ -10,7 +10,7 @@ task @ResendReports, [@InitActiveRecord]:
 	ScheduleHelper.ScheduleUserName = "runer"
 	ScheduleHelper.SchedulePassword = "zcxvcb"
 	ScheduleHelper.ReportsFolderName = "Отчеты"
-	sql = "select GeneralReportCode from logs.ReportsLogs where logTime > '${begin}' group by GeneralReportCode" 
+	sql = "select GeneralReportCode from logs.ReportsLogs where logTime > '${begin}' group by GeneralReportCode"
 	print sql
 	for reportId in Db.Read(sql):
 			id = Convert.ToUInt64(reportId.GeneralReportCode)
