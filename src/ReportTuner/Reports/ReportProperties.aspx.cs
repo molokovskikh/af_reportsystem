@@ -733,7 +733,9 @@ WHERE ID = ?OPID", MyCn, trans);
 								((DropDownList)dr.FindControl("ddlValue")).SelectedValue;
 				}
 			}
-			else if ((dr.FindControl("chbValue")).Visible) {
+			else if ((dr.FindControl("chbValue")).Visible
+				|| (row[1].ToString().Contains("По базовым ценам")
+					|| row[1].ToString().Contains("По взвешенным ценам"))) {
 				if (value.ToString() !=
 					((CheckBox)dr.FindControl("chbValue")).Checked.ToString())
 					row[column] =
@@ -1174,6 +1176,7 @@ and rtp.ReportTypeCode = r.ReportTypeCode";
 		DS.Tables[dtOptionalParams.TableName].DefaultView[e.RowIndex].Delete();
 		dgvOptional.DataSource = DS;
 		dgvOptional.DataBind();
+		SetOptionalVisibility();
 	}
 
 	protected void btnBack_Click(object sender, EventArgs e)
