@@ -223,8 +223,10 @@ namespace ReportTuner.Test.Integration
 				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("SpecReport") && r.Enabled).ToList();
 				var report = reports.Select(r => {
 					var properties = r.Properties;
+					var clientCode = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
+					var clientProp = Client.TryFind(Convert.ToUInt32(clientCode.Value));
 					var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
-					if (prop != null) return r;
+					if (prop != null && clientProp != null) return r;
 					return null;
 				}).FirstOrDefault(r => r != null);
 				var reportProperties = report.Properties;
