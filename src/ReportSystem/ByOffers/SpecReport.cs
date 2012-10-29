@@ -555,7 +555,8 @@ group by c.pricecode";
 						var customerCost = Convert.ToDecimal(newrow["CustomerCost"]);
 						var cost = Convert.ToDecimal(drsMin[0]["Cost"]);
 						newrow["Differ"] = customerCost - cost;
-						newrow["DifferPercents"] = Math.Round((customerCost - cost) / customerCost * 100, 0);
+						if(customerCost != 0)
+							newrow["DifferPercents"] = Math.Round((customerCost - cost) / customerCost * 100, 0);
 					}
 				}
 
@@ -902,7 +903,7 @@ order by FullName, FirmCr";
 				ws.Rows.Font.Name = "Arial Narrow";
 
 				//Устанавливаем АвтоФильтр на все колонки
-				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[rowCount, columnCount]].Select();
+				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[lastRowIndex, columnCount]].Select();
 				((Range)wb.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 				//Замораживаем некоторые колонки и столбцы
@@ -915,7 +916,7 @@ order by FullName, FirmCr";
 				if(_byBaseCosts)
 					reportCaptionPreffix += " по базовым ценам";
 				else if(_byWeightCosts)
-					reportCaptionPreffix += " по взвешенным ценам";
+					reportCaptionPreffix += " по взвешенным ценам по данным на " + DateTime.Today.AddDays(-1).ToShortDateString();
 				if (!WithoutAssortmentPrice) {
 					if (_reportType < 3)
 						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();

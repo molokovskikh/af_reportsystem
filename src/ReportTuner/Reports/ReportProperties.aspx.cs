@@ -145,7 +145,26 @@ FROM
 WHERE
 	rp.propertyID = rtp.ID
 AND rtp.Optional=0
-and rtp.PropertyName not in ('ByPreviousMonth', 'ReportInterval', 'StartDate', 'EndDate')
+and rtp.PropertyName not in ('ByPreviousMonth', 'ReportInterval', 'StartDate', 'EndDate', 'RegionEqual')
+AND rp.reportCode=?rp
+";
+		MyCmd.CommandText += @"
+union
+SELECT
+	rp.ID as PID,
+	rtp.DisplayName as PParamName,
+	rtp.PropertyType as PPropertyType,
+	rp.PropertyValue as PPropertyValue,
+	rtp.PropertyEnumID as PPropertyEnumID,
+	rtp.selectstoredprocedure as PStoredProc,
+	rtp.ReportTypeCode as PReportTypeCode,
+	rtp.PropertyName as PPropertyName
+FROM
+	reports.report_properties rp, reports.report_type_properties rtp
+WHERE
+	rp.propertyID = rtp.ID
+AND rtp.Optional=0
+and rtp.PropertyName in ('RegionEqual')
 AND rp.reportCode=?rp
 ";
 		if (!String.IsNullOrEmpty(Request["TemporaryId"]))
