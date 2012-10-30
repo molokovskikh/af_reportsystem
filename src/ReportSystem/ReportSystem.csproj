@@ -1,14 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="..\ProjectLib.properties" Condition="Exists('..\ProjectLib.properties')" />
-  <ItemGroup>
-    
-      
-    
-  </ItemGroup>
   <PropertyGroup>
-    
-    
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
@@ -320,11 +313,10 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" /><Import Project="..\..\packages\StyleCop.MSBuild.4.7.35.0\tools\StyleCop.Targets" /><PropertyGroup><StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings><StyleCopOverrideSettingsFile>..\..\packages\StyleCopAddOn.1.0.4\Settings.StyleCop</StyleCopOverrideSettingsFile></PropertyGroup><ItemGroup><StyleCopAdditionalAddinPaths Include="..\..\packages\StyleCopAddOn.1.0.4\lib\4.0"><InProject>false</InProject></StyleCopAdditionalAddinPaths></ItemGroup>
-  
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-</Project>
+</Project>
