@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
+using Inforoom.ReportSystem.Model;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
@@ -56,6 +57,8 @@ namespace Inforoom.ReportSystem
 		//количество столбцов в блоке прайс листа
 		private int priceBlockSize;
 
+		private int SourcePriceType;
+
 		protected SpecReport() // конструктор для возможности тестирования
 		{
 		}
@@ -95,9 +98,8 @@ select
 			SqlCommandText += String.Format(@"
 (
 	select catalog.Name
-	from catalogs.assortment
-		join catalogs.catalog on catalog.Id = assortment.CatalogId
-	where assortment.Id = AllPrices.ProductId
+	from catalogs.catalog
+	where Catalog.Id = AllPrices.ProductId
 ) as FullName,
 ");
 			/*if (_calculateByCatalog)
@@ -149,7 +151,7 @@ from
 
 			SqlCommandText += @"
 where
-  assortment.id = AllPrices.ProductId
+  assortment.CatalogId = AllPrices.ProductId
 ";
 
 			SqlCommandText += @"
@@ -213,23 +215,25 @@ Select
   Core.ID,
   Core.PriceCode,
   Core.RegionCode,
-  '' as Code,
+  (SELECT GROUP_CONCAT(distinct code SEPARATOR ', ') FROM farm.core0 fc join catalogs.products cp on fc.ProductId=cp.Id
+where PriceCode=?SourcePrice and cp.CatalogId = Assortment.CatalogId) as Code,
   Core.Cost,";
 
-			e.DataAdapter.SelectCommand.CommandText += "Assortment.Id, ";
+			e.DataAdapter.SelectCommand.CommandText += "Core.ProductId, ";
 			e.DataAdapter.SelectCommand.CommandText += @"
   Assortment.ProducerId
 FROM
   Core,
   catalogs.assortment
 WHERE
-assortment.id = Core.ProductId
+assortment.catalogid = Core.ProductId
 and Core.PriceCode = ?SourcePC
 and Core.RegionCode = ?SourceRegionCode;";
 
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 			e.DataAdapter.SelectCommand.CommandText = @"
@@ -240,15 +244,13 @@ select
   Core.Cost,
   Core.PriceCode,
   Core.RegionCode,
-  FarmCore.Quantity,
+  Core.Quantity,
   0 as Junk
 from
   Core,
-  reports.averagecosts FarmCore,
   catalogs.assortment
 where
-  FarmCore.Id = core.id
-and assortment.Id = core.ProductId";
+  assortment.CatalogId = core.ProductId";
 
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
@@ -268,6 +270,45 @@ order by Core.Cost DESC";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			e.DataAdapter.Fill(_dsReport, "Prices");
+		}
+
+		public void AddSourcePriceToCore(ExecuteArgs e)
+		{
+			e.DataAdapter.SelectCommand.CommandText = @"
+set @cnt= (select max(Id) from usersettings.Core);
+insert into usersettings.Core
+select ?SourcePC, ?SourceRegionCode, p.CatalogId,
+if(if(round(cc.Cost * pd.Upcost, 2) < MinBoundCost, MinBoundCost, round(cc.Cost * pd.Upcost, 2)) > MaxBoundCost,
+	MaxBoundCost, if(round(cc.Cost*pd.UpCost,2) < MinBoundCost, MinBoundCost, round(cc.Cost * pd.Upcost, 2))),
+'',
+@cnt:=@cnt+1,
+c.Quantity
+from
+farm.core0 c
+join usersettings.PricesData pd on c.PriceCode = pd.PriceCode
+join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and pc.BaseCost = 1
+left JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = pc.CostCode
+join catalogs.products p on c.ProductId = p.Id
+where
+c.PriceCode = ?SourcePrice;";
+
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
+			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+		}
+
+		public bool IsExistsPriceInCore(ExecuteArgs e, int priceCode, ulong region)
+		{
+			e.DataAdapter.SelectCommand.CommandText = @"
+select * from usersettings.Core
+where regionCode = ?region and PriceCode = ?price";
+			e.DataAdapter.SelectCommand.Parameters.Clear();
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?region", region);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?price", priceCode);
+			var count = e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			return count > 0;
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -321,8 +362,24 @@ from
 where
 	pricesdata.PriceCode = ?PriceCode;",
 					new MySqlParameter("?PriceCode", _priceCode)));
+
+				SourcePriceType = Convert.ToInt32(
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+						@"
+select
+  pricesdata.PriceType
+from
+  usersettings.pricesdata
+where
+	pricesdata.PriceCode = ?PriceCode;",
+					new MySqlParameter("?PriceCode", _priceCode)));
+
 				ProfileHelper.Next("GetOffers");
 				GetWeightCostOffers(e);
+				if(SourcePriceType == (int)PriceType.Assortment || !IsExistsPriceInCore(e, SourcePC, SourceRegionCode)) {
+					ProfileHelper.Next("AdditionGetOffers");
+					AddSourcePriceToCore(e);
+				}
 				ProfileHelper.Next("GetCodes");
 				GetWeightCostSource(e);
 				ProfileHelper.Next("GetMinPrices");

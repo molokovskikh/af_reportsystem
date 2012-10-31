@@ -64,7 +64,7 @@ namespace Inforoom.ReportSystem
 			e.DataAdapter.SelectCommand.CommandText += @"
   Core.Cost as Cost,
   concat(suppliers.Name, ' - ', regions.Region) as FirmName,
-  FarmCore.Quantity,
+  Core.Quantity,
   Core.RegionCode,
   Core.PriceCode, ";
 			if (_reportType > 2) {
@@ -78,7 +78,6 @@ As Cfc,
   0 as Junk
 from
   Core,
-  reports.averagecosts FarmCore,
   catalogs.Assortment,
   catalogs.catalog,
   catalogs.catalognames,
@@ -86,8 +85,7 @@ from
   Customers.suppliers,
   farm.Regions
 where
-	FarmCore.id = Core.Id
-and Assortment.id = core.productid
+	Assortment.catalogid = core.productid
 and catalog.id = Assortment.catalogid
 and catalognames.id = catalog.NameId
 and catalogforms.id = catalog.FormId
@@ -114,7 +112,6 @@ order by CatalogCode, Cfc DESC";
 	m.Mnn
 from
 	(Core,
-	reports.averagecosts FarmCore,
 	catalogs.assortment,
 	catalogs.catalog)
 	join Catalogs.CatalogNames cn on cn.Id = catalog.NameId
@@ -127,8 +124,7 @@ from
 
 			e.DataAdapter.SelectCommand.CommandText += @"
 where
-	FarmCore.id = Core.Id
-and assortment.id = core.productid
+	assortment.catalogid = core.productid
 and catalog.id = assortment.catalogid
 ";
 

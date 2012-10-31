@@ -90,7 +90,7 @@ from
   Catalogs.Catalog
 where
 	c.PriceCode <> ?SourcePC
-and Assortment.Id = c.ProductId
+and Assortment.catalogId = c.ProductId
 and Catalog.Id = Assortment.CatalogId;
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -103,7 +103,7 @@ select distinct Catalog.NameId, '' Code
 from
   (
   Core c
-  inner join Catalogs.Assortment on c.ProductId = Assortment.Id
+  inner join Catalogs.Assortment on c.ProductId = Assortment.catalogId
   inner join Catalogs.Catalog  on Assortment.CatalogId = Catalog.Id
   )
   left join SummaryByPrices st on st.NameId = Catalog.NameId
@@ -133,7 +133,7 @@ from
   Catalogs.Assortment
 where
 	c.PriceCode <> ?SourcePC
-and Assortment.Id = c.ProductId;
+and Assortment.catalogId = c.ProductId;
 
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice (
@@ -145,7 +145,7 @@ select distinct Assortment.CatalogId, '' Code
 from
   (
   Core c
-  inner join Catalogs.Assortment on c.ProductId = Assortment.Id
+  inner join Catalogs.Assortment on c.ProductId = Assortment.catalogId
   )
   left join SummaryByPrices st on st.CatalogId = Assortment.CatalogId
 where
@@ -178,7 +178,7 @@ from
   Catalogs.Assortment
 where
 	c.PriceCode <> ?SourcePC
-and Assortment.Id = c.ProductId;
+and Assortment.catalogId = c.ProductId;
 
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -193,7 +193,7 @@ select distinct Assortment.CatalogId, Assortment.ProducerId as CodeFirmCr, '' as
 from
   (
   Core c
-  inner join Catalogs.Assortment on c.ProductId = Assortment.Id
+  inner join Catalogs.Assortment on c.ProductId = Assortment.catalogId
   )
   left join SummaryByPrices st on st.CatalogId = Assortment.CatalogId and st.CodeFirmCr = Assortment.ProducerId
 where
@@ -250,7 +250,7 @@ select
 from
  (
   OtherByPrice
-  inner join catalogs.assortment on OtherByPrice.ProductId = assortment.Id
+  inner join catalogs.assortment on OtherByPrice.ProductId = assortment.catalogId
   inner join catalogs.catalog on assortment.CatalogId = catalog.Id
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
   inner join catalogs.CatalogForms on CatalogForms.Id = catalog.FormId
@@ -276,7 +276,7 @@ from
   catalogs.Assortment FarmCore
 where
 	c.PriceCode <> ?SourcePC
-and FarmCore.Id = c.ProductId;
+and FarmCore.catalogId = c.ProductId;
 
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice (
@@ -290,7 +290,7 @@ select distinct c.ProductId, assortment.ProducerId as CodeFirmCr, '' as Code
 from
   (
   Core c
-  inner join catalogs.assortment on assortment.id = c.ProductId
+  inner join catalogs.assortment on assortment.catalogid = c.ProductId
   )
   left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = assortment.ProducerId
 where
@@ -306,7 +306,7 @@ select
 from
  (
   OtherByPrice
-  inner join catalogs.assortment on OtherByPrice.ProductId = assortment.Id
+  inner join catalogs.assortment on OtherByPrice.ProductId = assortment.catalogId
   inner join catalogs.catalog on assortment.CatalogId = catalog.Id
   inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
   inner join catalogs.CatalogForms on CatalogForms.Id = catalog.FormId
