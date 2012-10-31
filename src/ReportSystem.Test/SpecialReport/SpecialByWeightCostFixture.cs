@@ -28,7 +28,7 @@ namespace ReportSystem.Test.SpecialReport
 			Property("ReportSortedByPrice", false);
 			Property("ShowPercents", true);
 			Property("CalculateByCatalog", false);
-			Property("PriceCode", 200);
+			Property("PriceCode", 4816);
 			Property("ByWeightCosts", true);
 			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);

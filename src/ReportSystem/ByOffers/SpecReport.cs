@@ -535,9 +535,11 @@ group by c.pricecode";
 				}
 				newrow["FullName"] = drCatalog["FullName"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
-				newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
-				newrow["AvgCost"] = Convert.ToDecimal(drCatalog["AvgCost"]);
-				newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
+				if(drCatalog["MinCost"] != DBNull.Value) {
+					newrow["MinCost"] = Convert.ToDecimal(drCatalog["MinCost"]);
+					newrow["AvgCost"] = Convert.ToDecimal(drCatalog["AvgCost"]);
+					newrow["MaxCost"] = Convert.ToDecimal(drCatalog["MaxCost"]);
+				}
 
 				//Если есть ID, то мы можем заполнить поле Code и, возможно, остальные поля   предложение SourcePC существует
 				DataRow[] drsMin;
@@ -551,7 +553,7 @@ group by c.pricecode";
 						//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
 						if ((drsMin.Length > 0)) {
 							foreach (DataRow dataRow in drsMin) {
-								if(newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false) {
+								if(newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false && dataRow["Cost"] != DBNull.Value) {
 									newrow["CustomerCost"] = Convert.ToDecimal(dataRow["Cost"]);
 								}
 								double customerQuantity;
@@ -601,11 +603,14 @@ group by c.pricecode";
 				}
 				else {
 					//Ищем первую цену, которая будет больше минимальной цены
+					decimal minCostAdd = 0;
+					if(drCatalog["MinCost"] != DBNull.Value)
+						minCostAdd = (decimal)drCatalog["MinCost"];
 					drsMin = dtCore.Select(
 						"CatalogCode = " + drCatalog["CatalogCode"] +
 							" and PriceCode <> " + SourcePC +
 							GetProducerFilter(drCatalog) +
-							" and Cost > " + ((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat),
+							" and Cost > " + minCostAdd.ToString(CultureInfo.InvariantCulture.NumberFormat),
 						"Cost asc");
 
 					if (drsMin.Length > 0) {
