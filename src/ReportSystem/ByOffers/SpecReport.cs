@@ -274,6 +274,7 @@ order by Core.Cost DESC";
 
 		public void AddSourcePriceToCore(ExecuteArgs e)
 		{
+			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.CommandText = @"
 set @cnt= (select max(Id) from usersettings.Core);
 insert into usersettings.Core
