@@ -301,6 +301,7 @@ c.PriceCode = ?SourcePrice;";
 
 		public bool IsExistsPriceInCore(ExecuteArgs e, int priceCode, ulong region)
 		{
+			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.CommandText = @"
 select * from usersettings.Core
 where regionCode = ?region and PriceCode = ?price";
@@ -581,25 +582,27 @@ group by c.pricecode";
 					}
 
 					//Выбираем позиции с минимальной ценой, отличные от SourcePC
-					drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}",
-						drCatalog["CatalogCode"],
-						GetProducerFilter(drCatalog),
-						((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat)));
+					if(!(drCatalog["MinCost"] is DBNull)) {
+						drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}",
+							drCatalog["CatalogCode"],
+							GetProducerFilter(drCatalog),
+							((decimal)drCatalog["MinCost"]).ToString(CultureInfo.InvariantCulture.NumberFormat)));
 
-					if (drsMin.Length > 0) {
-						var leaderNames = new List<string>();
-						foreach (var drmin in drsMin) {
-							var drs = dtPrices.Select(
-								"PriceCode=" + drmin["PriceCode"] +
-									" and RegionCode = " + drmin["RegionCode"]);
-							if (drs.Length > 0)
-								if (!leaderNames.Contains(drs[0]["FirmName"].ToString()))
-									leaderNames.Add(drs[0]["FirmName"].ToString());
+						if (drsMin.Length > 0) {
+							var leaderNames = new List<string>();
+							foreach (var drmin in drsMin) {
+								var drs = dtPrices.Select(
+									"PriceCode=" + drmin["PriceCode"] +
+										" and RegionCode = " + drmin["RegionCode"]);
+								if (drs.Length > 0)
+									if (!leaderNames.Contains(drs[0]["FirmName"].ToString()))
+										leaderNames.Add(drs[0]["FirmName"].ToString());
+							}
+							newrow["LeaderName"] = String.Join("; ", leaderNames.ToArray());
 						}
-						newrow["LeaderName"] = String.Join("; ", leaderNames.ToArray());
+						if (String.IsNullOrEmpty(newrow["LeaderName"].ToString()))
+							newrow["LeaderName"] = "+";
 					}
-					if (String.IsNullOrEmpty(newrow["LeaderName"].ToString()))
-						newrow["LeaderName"] = "+";
 				}
 				else {
 					//Ищем первую цену, которая будет больше минимальной цены

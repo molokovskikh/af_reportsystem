@@ -20,7 +20,7 @@ ProductId INT unsigned,
 Cost DECIMAL(8,2) unsigned,
 CryptCost VARCHAR(32) NOT NULL,
 id bigint unsigned,
-Quantity INT unsigned,
+Quantity VARCHAR(15),
 
 INDEX (id),
 INDEX (PriceCode),
