@@ -58,7 +58,13 @@ namespace ReportSystem.Test
 			var fileName = "SpecialByBaseCostNew.xls";
 			Property("ReportType", 4);
 			Property("RegionEqual", new List<ulong> {
-				70368744177665
+				1
+			});
+
+			Property("PriceCodeEqual", new List<ulong> {
+				4838,
+				4479,
+				196
 			});
 
 			Property("SupplierNoise", 5);
