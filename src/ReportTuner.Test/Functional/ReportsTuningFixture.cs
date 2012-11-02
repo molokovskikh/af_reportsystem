@@ -54,7 +54,6 @@ namespace ReportTuner.Test.Functional
 			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) > 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
-			browser.ShowWindow(NativeMethods.WindowShowStyle.Maximize);
 		}
 		[Test]
 		public void FileForReportTypesTest()
