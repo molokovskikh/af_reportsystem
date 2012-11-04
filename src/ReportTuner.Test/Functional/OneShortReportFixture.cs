@@ -41,6 +41,14 @@ namespace ReportTuner.Test.Functional
 		}
 
 		[Test]
+		public void Task_shedule_base_test()
+		{
+			Open("http://localhost:53759/Reports/schedule.aspx?r=1");
+			Click("Выполнить задание");
+			AssertText("Отчет запущен, ожидайте окончания выполнения операции.");
+		}
+
+		[Test]
 		public void Set_shedule_month()
 		{
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
