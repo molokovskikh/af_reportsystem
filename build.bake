@@ -9,9 +9,10 @@ import file from MySql.bake
 
 Global(
 	humanReadableName : "Генератор отчетов",
-	Project : @ReportTuner,
+	Project : @ReportSystem,
 	Profile : @reportTypes,
-	AdditionalAssemblies: ("Common.Web.Ui", "Report.Data.Builder")
+	SkipDefaultLib: true,
+	AdditionalAssemblies: ("ReportTuner", "Common.Web.Ui", "Report.Data.Builder")
 )
 
 unless Configuration.IsDefined(@notInteractive):
