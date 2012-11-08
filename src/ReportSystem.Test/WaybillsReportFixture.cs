@@ -61,7 +61,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Calculate_retail_cost()
 		{
-			var cost = WaybillsReport.CalculateRetailCost(50, 40, 10, 15);
+			var cost = Markup.CalculateRetailCost(50, 40, 10, 15);
 			Assert.That(cost, Is.EqualTo(56.6));
 		}
 
@@ -70,6 +70,14 @@ namespace ReportSystem.Test
 		{
 			var markups = new[] { new Markup(MarkupType.Supplier, 20), new Markup(MarkupType.Drugstore, 20) };
 			Assert.That(Markup.MaxCost(50, 10, markups), Is.EqualTo(71));
+		}
+
+		[Test]
+		public void Correct_retails_markup()
+		{
+			var markups = new[] { new Markup(MarkupType.Supplier, 20), new Markup(MarkupType.Drugstore, 20) };
+			Assert.That(Markup.RetailCost(70, 50, 10, markups), Is.EqualTo(0));
+			Assert.That(Markup.RetailCost(65, 50, 10, markups), Is.EqualTo(71));
 		}
 
 		private void Init(Action<ISession> action)

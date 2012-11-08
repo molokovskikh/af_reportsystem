@@ -90,18 +90,8 @@ and s.VendorID is not null
 					.Where(m => producerCost >= m.Begin && producerCost <= m.End)
 					.ToList();
 
-				var drugstoeMarkup = currentMarkups.FirstOrDefault(m => m.Type == MarkupType.Drugstore);
-				if (drugstoeMarkup == null)
-					continue;
-
-				var retailCost = CalculateRetailCost(supplierCostWithoutNds,
-					producerCost, nds, drugstoeMarkup.Value - 5);
-
-				if (currentMarkups.All(m => m.Type != MarkupType.Supplier))
-					continue;
-
-				var maxCost = Markup.MaxCost(producerCost, nds, currentMarkups);
-				if (retailCost > maxCost)
+				var retailCost = Markup.RetailCost(supplierCostWithoutNds, producerCost, nds, currentMarkups);
+				if (retailCost == 0)
 					continue;
 
 				resultRow["DrugId"] = row["DrugId"];
@@ -117,11 +107,6 @@ and s.VendorID is not null
 				resultRow["VendorID"] = row["VendorID"];
 				result.Rows.Add(resultRow);
 			}
-		}
-
-		public static decimal CalculateRetailCost(decimal supplierCostWithoutNds, decimal producerCost, decimal nds, decimal markup)
-		{
-			return Math.Round(supplierCostWithoutNds  + producerCost * markup / 100 * (1 + nds / 100), 2);
 		}
 	}
 }
