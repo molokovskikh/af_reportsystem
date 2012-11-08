@@ -55,7 +55,7 @@ namespace ReportSystem.Test
 			report = new WaybillsReport(1, "test", Conn, ReportFormats.CSV, properties);
 			BuildOrderReport("test");
 			var result = File.ReadAllText("test.csv");
-			Assert.That(result, Is.EqualTo("DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;2012;11;\"4563\";10;56.00;70.00;79.24;0;15;;\r\n\r\n"));
+			Assert.That(result, Is.EqualTo("DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;2012;11;\"4563\";10.00;56.00;70.00;79.24;0.00;15;;\r\n"));
 		}
 
 		[Test]

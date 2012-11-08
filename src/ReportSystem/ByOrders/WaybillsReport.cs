@@ -47,7 +47,6 @@ where a.LegalEntityId = ?orgId
 and dh.WriteTime > ?begin
 and dh.WriteTime < ?end
 and db.Quantity is not null
-and db.SerialNumber is not null
 and db.ProducerCost is not null
 and db.SupplierCostWithoutNDS is not null
 and s.VendorID is not null
@@ -98,12 +97,12 @@ and s.VendorID is not null
 				resultRow["Segment"] = 1;
 				resultRow["Year"] = Convert.ToDateTime(row["WriteTime"]).Year;
 				resultRow["Month"] = Convert.ToDateTime(row["WriteTime"]).Month;
-				resultRow["Series"] = "\"" + row["SerialNumber"] + "\"";
-				resultRow["TotDrugQn"] = row["Quantity"];
+				resultRow["Series"] = "\"" + (row["SerialNumber"] is DBNull ? "-" : row["SerialNumber"]) + "\"";
+				resultRow["TotDrugQn"] = Convert.ToDecimal(row["Quantity"]).ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["MnfPrice"] = Convert.ToDecimal(row["ProducerCost"]).ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["PrcPrice"] = supplierCostWithoutNds.ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["RtlPrice"] = retailCost.ToString("0.00", CultureInfo.InvariantCulture);
-				resultRow["Funds"] = 0;
+				resultRow["Funds"] = 0.ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["VendorID"] = row["VendorID"];
 				result.Rows.Add(resultRow);
 			}

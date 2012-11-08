@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Inforoom.ReportSystem.Helpers
 {
@@ -9,7 +10,7 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void Save(DataTable table, string file)
 		{
 			var lastColumn = table.Columns[table.Columns.Count - 1];
-			using (var writer = new StreamWriter(File.OpenWrite(file))) {
+			using (var writer = new StreamWriter(file, false, Encoding.GetEncoding(1251))) {
 				foreach (DataColumn column in table.Columns) {
 					writer.Write(column.ColumnName);
 					if (column != lastColumn)
