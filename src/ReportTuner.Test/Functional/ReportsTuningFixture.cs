@@ -7,12 +7,55 @@ using NUnit.Framework;
 using ReportTuner.Models;
 using Test.Support;
 using Test.Support.Web;
+using WatiN.Core;
+using WatiN.Core.Native.Windows;
 
 namespace ReportTuner.Test.Functional
 {
 	[TestFixture]
 	public class ReportsTuningFixture : WatinFixture2
 	{
+		[Test]
+		public void BaseWeightCostTest()
+		{
+			Open(string.Format("Reports/ReportProperties.aspx?rp=1&r=1"));
+			AssertText("По базовым ценам");
+			var baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+			Assert.That(browser.Text, Is.Not.Contains("По взвешенным ценам"));
+			AssertText("Список значений \"Региона\"");
+			Assert.That(browser.Text, Is.Not.Contains("Список доступных клиенту регионов"));
+			browser.Button(Find.ByValue("Применить")).Click();
+			AssertText("По базовым ценам");
+			baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
+			AssertText("По взвешенным ценам");
+			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+			Assert.That(browser.Text, Is.Not.Contains("По базовым ценам"));
+			AssertText("Список значений \"Региона\"");
+			Assert.That(browser.Text, Is.Not.Contains("Список доступных клиенту регионов"));
+			browser.Button(Find.ByValue("Применить")).Click();
+			AssertText("По взвешенным ценам");
+			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
+			browser.Button(Find.ByValue("Применить")).Click();
+			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+			browser.Button(Find.ByValue("Добавить")).Click();
+			var select = browser.SelectLists.Last();
+			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
+			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) == 0);
+			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
+			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
+			baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+			select = browser.SelectLists.Last();
+			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
+			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) > 0);
+			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
+		}
 		[Test]
 		public void FileForReportTypesTest()
 		{

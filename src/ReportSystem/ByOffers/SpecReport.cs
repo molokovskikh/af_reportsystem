@@ -256,14 +256,25 @@ where
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 select
- distinct Core.PriceCode, Core.RegionCode, '' as PriceDate, concat(suppliers.Name, ' - ', regions.Region) as FirmName
+ distinct Core.PriceCode, Core.RegionCode, '' as PriceDate, concat(suppliers.Name, ' - ', regions.Region) as FirmName, st.Position
 from
-  usersettings.Core, Customers.suppliers, farm.regions
+  (usersettings.Core, Customers.suppliers, farm.regions)
+left join (select pd.firmcode, SUM(pi.RowCount) as Position
+FROM
+    usersettings.PricesData pd
+    JOIN usersettings.PricesCosts pc on pc.PriceCode = pd.PriceCode and pc.BaseCost = 1
+    JOIN usersettings.PriceItems pi on pi.Id = pc.PriceItemId
+WHERE exists (select * from usersettings.PricesRegionalData prd, usersettings.TmpRegions TPR
+    where prd.pricecode = pd.pricecode AND prd.RegionCode = TPR.RegionCode AND prd.enabled = 1)
+    AND pd.agencyenabled = 1
+    AND pd.enabled = 1
+    AND pd.pricetype <> 1
+group by pd.firmcode) st on suppliers.id = st.firmcode
 where
 Core.PriceCode = suppliers.Id
 and (Core.PriceCode <> ?SourcePC or Core.RegionCode <> ?SourceRegionCode)
 and regions.RegionCode = Core.RegionCode
-order by Core.Cost DESC";
+order by st.Position DESC";
 
 
 			e.DataAdapter.SelectCommand.Parameters.Clear();
