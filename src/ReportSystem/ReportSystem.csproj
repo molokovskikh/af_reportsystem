@@ -188,10 +188,13 @@
     <Compile Include="ByOrders\OrderOutAllowedAssortment.cs" />
     <Compile Include="ByOrders\OrdersStatistics.cs" />
     <Compile Include="ByOrders\SupplierOrdersStatistics.cs" />
+    <Compile Include="ByOrders\WaybillsReport.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
+    <Compile Include="Helpers\CsvHelper.cs" />
     <Compile Include="Helpers\ReadParameterHelper.cs" />
     <Compile Include="Mailer.cs" />
     <Compile Include="Model\Client.cs" />
+    <Compile Include="Model\Markup.cs" />
     <Compile Include="Model\Offer.cs" />
     <Compile Include="Model\Price.cs" />
     <Compile Include="Model\Region.cs" />

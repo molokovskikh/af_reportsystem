@@ -21,6 +21,7 @@ namespace ReportSystem.Test
 			ConnectionString = ConnectionHelper.GetConnectionString();
 			if (!ActiveRecordStarter.IsInitialized) {
 				var config = new InPlaceConfigurationSource();
+				config.PluralizeTableNames = true;
 				config.Add(typeof(ActiveRecordBase),
 					new Dictionary<string, string> {
 						{ NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },

@@ -38,6 +38,7 @@
 			<asp:DropDownList ID="ReportFormatDD" runat="server" Width="100%">
 				<asp:ListItem Text="Excel" Value="Excel" />
 				<asp:ListItem Text="DBF" Value="DBF" />
+				<asp:ListItem Text="CSV" Value="CSV" />
 			</asp:DropDownList>
 		  </td>
 		</tr>

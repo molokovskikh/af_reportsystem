@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
+using Castle.ActiveRecord;
 using Common.MySql;
 using Common.Tools;
+using Common.Web.Ui.ActiveRecordExtentions;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
 using Inforoom.ReportSystem.Properties;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
+using NHibernate;
 using log4net;
 using MySql.Data.MySqlClient;
 
@@ -19,7 +22,8 @@ namespace Inforoom.ReportSystem
 	public enum ReportFormats
 	{
 		Excel,
-		DBF
+		DBF,
+		CSV
 	}
 
 	//Содержит названия полей, используемых при создании общего очета
@@ -76,6 +80,7 @@ namespace Inforoom.ReportSystem
 		public bool Interval;
 		public DateTime From;
 		public DateTime To;
+		protected ISession Session;
 
 		public ulong ReportCode { get; protected set; }
 		public string ReportCaption { get; protected set; }
@@ -188,7 +193,12 @@ namespace Inforoom.ReportSystem
 		{
 			args = e;
 			_dsReport.Clear();
-			GenerateReport(e);
+			using(new SessionScope()) {
+				ArHelper.WithSession(s => {
+					Session = s;
+					GenerateReport(e);
+				});
+			}
 			return true;
 		}
 
@@ -203,12 +213,16 @@ namespace Inforoom.ReportSystem
 			}
 
 			if (Format == ReportFormats.DBF && DbfSupported) {
-// Формируем DBF
+				// Формируем DBF
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
 				DataTableToDbf(GetReportTable(), fileName);
 			}
+			if (Format == ReportFormats.CSV && DbfSupported) {
+				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".csv");
+				CsvHelper.Save(GetReportTable(), fileName);
+			}
 			else {
-// Формируем Excel
+				// Формируем Excel
 				DataTableToExcel(GetReportTable(), fileName);
 				FormatExcel(fileName);
 			}
