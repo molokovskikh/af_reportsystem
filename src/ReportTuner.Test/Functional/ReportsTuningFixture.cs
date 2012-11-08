@@ -5,6 +5,7 @@ using System.Text;
 using NHibernate.Linq;
 using NUnit.Framework;
 using ReportTuner.Models;
+using Test.Support;
 using Test.Support.Web;
 
 namespace ReportTuner.Test.Functional
@@ -53,6 +54,34 @@ namespace ReportTuner.Test.Functional
 		{
 			browser = Open("Reports/Reports.aspx?r=1");
 			Assert.That(browser.Text, Is.Not.Contains("Получатель отчета"));
+		}
+
+		[Test]
+		public void Select_current_value()
+		{
+			var payer = new TestPayer();
+			var org = new TestLegalEntity(payer, "Тестовое юр. лицо");
+			session.Save(payer);
+			session.Save(org);
+			session.Flush();
+			org.Name += " " + org.Id;
+			session.Save(org);
+
+			var type = session.Query<ReportType>().First(t => t.ReportClassName.EndsWith("WaybillsReport"));
+			var generalReport = new GeneralReport(session.Load<Payer>(payer.Id));
+			var report = generalReport.AddReport(type);
+			session.Save(generalReport);
+			session.Save(report);
+			//что сработал триггер который создаст параметры
+			session.Flush();
+
+			report.Refresh();
+			report.Properties.First(p => p.PropertyType.PropertyName == "OrgId").Value = org.Id.ToString();
+			session.Save(report);
+
+			Open("Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
+			var select = browser.SelectList(s => s.Name.EndsWith("ddlValue"));
+			Assert.That(select.SelectedItem, Is.EqualTo(org.Name));
 		}
 	}
 }

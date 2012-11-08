@@ -13,6 +13,12 @@ namespace ReportTuner.Models
 	[ActiveRecord("general_reports", Schema = "reports")]
 	public class GeneralReport : ActiveRecordBase<GeneralReport>
 	{
+		public GeneralReport(Payer payer)
+			: this()
+		{
+			Payer = payer;
+		}
+
 		public GeneralReport()
 		{
 			Reports = new List<Report>();
@@ -81,6 +87,13 @@ namespace ReportTuner.Models
 			using (var helper = new ScheduleHelper()) {
 				helper.DeleteReportTask(Id);
 			}
+		}
+
+		public Report AddReport(ReportType type)
+		{
+			var report = new Report(this, type);
+			Reports.Add(report);
+			return report;
 		}
 	}
 }

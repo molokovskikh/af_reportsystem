@@ -12,6 +12,18 @@ namespace ReportTuner.Models
 	[ActiveRecord("reports", Schema = "reports")]
 	public class Report : ActiveRecordLinqBase<Report>
 	{
+		public Report()
+		{
+		}
+
+		public Report(GeneralReport generalReport, ReportType type)
+		{
+			Enabled = true;
+			ReportCaption = type.ReportTypeFilePrefix;
+			GeneralReport = generalReport;
+			ReportType = type;
+		}
+
 		[PrimaryKey("ReportCode")]
 		public virtual ulong Id { get; set; }
 

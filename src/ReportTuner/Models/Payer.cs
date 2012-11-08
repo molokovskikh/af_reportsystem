@@ -7,6 +7,15 @@ namespace ReportTuner.Models
 	[ActiveRecord("Payers", Schema = "Billing")]
 	public class Payer : ActiveRecordBase<Payer>
 	{
+		public Payer()
+		{
+		}
+
+		public Payer(string shortName)
+		{
+			ShortName = shortName;
+		}
+
 		[PrimaryKey("PayerID")]
 		public virtual uint Id { get; set; }
 

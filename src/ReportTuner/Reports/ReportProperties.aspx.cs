@@ -36,7 +36,6 @@ public partial class Reports_ReportProperties : Page
 	private DataColumn PPropertyName;
 	public DataTable dtEnumValues;
 	private DataColumn PStoredProc;
-	private DataTable dtProcResult;
 	private DataTable dtClient;
 	private DataColumn CReportCaption;
 	private DataTable dtOptionalParams;
@@ -482,14 +481,16 @@ AND rp.reportCode=?rp
 			else if (!String.IsNullOrEmpty(value)) {
 				cell.FindControl("ddlValue").Visible = true;
 
-				FillDDL(
+				var table = FillDDL(
 					reportProperty.PropertyType.SelectStoredProcedure,
 					"",
 					value);
 				ShowSearchedParam(
 					((DropDownList)cell.FindControl("ddlValue")),
 					((TextBox)cell.FindControl("tbSearch")),
-					((Button)cell.FindControl("btnFind")));
+					((Button)cell.FindControl("btnFind")),
+					table,
+					value);
 			}
 			else {
 				cell.FindControl("tbSearch").Visible = true;
@@ -790,13 +791,12 @@ WHERE ID = ?OPID", MyCn, trans);
 		}
 	}
 
-	private void FillDDL(string proc, string filter, string id)
+	private DataTable FillDDL(string proc, string filter, string id)
 	{
 		string db = String.Empty;
 		try {
 			if (MyCn.State != ConnectionState.Open)
 				MyCn.Open();
-			dtProcResult = new DataTable();
 			db = MyCn.Database;
 			MyCn.ChangeDatabase("reports");
 			MyCmd.Connection = MyCn;
@@ -811,7 +811,9 @@ WHERE ID = ?OPID", MyCn, trans);
 			MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
 			MyCmd.CommandText = proc;
 			MyCmd.CommandType = CommandType.StoredProcedure;
-			MyDA.Fill(dtProcResult);
+			var table = new DataTable();
+			MyDA.Fill(table);
+			return table;
 		}
 		finally {
 			if (db != String.Empty)
@@ -831,11 +833,11 @@ WHERE ID = ?OPID", MyCn, trans);
 			var tbFind = ((TextBox)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
 			var btnFind = ((Button)dgvNonOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
 
-			FillDDL(
+			var table = FillDDL(
 				DS.Tables[dtNonOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][PStoredProc.ColumnName].ToString(),
 				tbFind.Text,
 				String.Empty);
-			ShowSearchedParam(ddlValues, tbFind, btnFind);
+			ShowSearchedParam(ddlValues, tbFind, btnFind, table);
 		}
 		else if (e.CommandName == "ShowValues")
 			ShowValues(e);
@@ -1039,21 +1041,25 @@ WHERE ID = ?OPID", MyCn, trans);
 		return value;
 	}
 
-	private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn)
+	private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn, DataTable data, string value = null)
 	{
-		if (dtProcResult.Rows.Count > 0) {
+		if (data.Rows.Count > 0) {
 			ddl.Visible = true;
 			tb.Visible = false;
 			btn.Visible = false;
-			ddl.DataSource = dtProcResult;
+			ddl.DataSource = data;
 			ddl.DataTextField = "DisplayValue";
 			ddl.DataValueField = "ID";
 			ddl.DataBind();
-			ListItem li = new ListItem();
-			li.Text = "<изменить>";
-			li.Value = "-1";
+			var li = new ListItem {
+				Text = "<изменить>",
+				Value = "-1"
+			};
 			ddl.Items.Insert(0, li);
-			ddl.SelectedIndex = 1;
+			if (String.IsNullOrEmpty(value))
+				ddl.SelectedIndex = 1;
+			else
+				ddl.SelectedValue = value;
 		}
 		else {
 			ddl.Visible = false;
@@ -1073,11 +1079,11 @@ WHERE ID = ?OPID", MyCn, trans);
 			var tbFind = ((TextBox)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("tbSearch"));
 			var btnFind = ((Button)dgvOptional.Rows[Convert.ToInt32(e.CommandArgument)].FindControl("btnFind"));
 
-			FillDDL(
+			var table = FillDDL(
 				DS.Tables[dtOptionalParams.TableName].DefaultView[Convert.ToInt32(e.CommandArgument)][OPStoredProc.ColumnName].ToString(),
 				tbFind.Text,
 				String.Empty);
-			ShowSearchedParam(ddlValues, tbFind, btnFind);
+			ShowSearchedParam(ddlValues, tbFind, btnFind, table);
 		}
 		else if (e.CommandName == "ShowValues")
 			ShowValues(e);
