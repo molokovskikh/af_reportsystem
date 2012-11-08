@@ -30,6 +30,12 @@ namespace Report.Data.Builder
 	{
 		public decimal Cost;
 		public uint Quantity;
+		public List<ulong> UsedCores;
+
+		public OfferAggregates()
+		{
+			UsedCores = new List<ulong>();
+		}
 	}
 
 	public class ClientRating
@@ -64,14 +70,16 @@ namespace Report.Data.Builder
 		public decimal Cost;
 		public uint Quantity;
 		public bool Junk;
+		public ulong CoreId;
 
-		public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0)
+		public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0)
 		{
 			Id = id;
 			AssortmentId = assortmentId;
 			Cost = cost;
 			Junk = junk;
 			Quantity = quantity;
+			CoreId = coreId;
 		}
 	}
 
@@ -100,7 +108,7 @@ limit 1);
 
 call Customers.GetPrices(@UserId);
 
-select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk
+select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c0.Id and cc.PC_CostCode = p.CostCode
@@ -118,7 +126,8 @@ where p.Actual = 1
 					r.GetUInt32("Id"),
 					r.GetDecimal("Cost"),
 					r.GetBoolean("Junk"),
-					SafeConvert.ToUInt32(r["Quantity"].ToString())),
+					SafeConvert.ToUInt32(r["Quantity"].ToString()),
+					r.GetUInt64("CoreId")),
 				new { client })
 				.ToArray();
 
@@ -172,7 +181,11 @@ where p.Actual = 1
 					var regionRating = rating[offer.Id.RegionId];
 					if (!offer.Junk)
 						aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
-					aggregates.Quantity += offer.Quantity;
+					// проверяем, что этот core мы еще не использовали при подсчете количества
+					if(!aggregates.UsedCores.Contains(offer.CoreId)) {
+						aggregates.Quantity += offer.Quantity;
+						aggregates.UsedCores.Add(offer.CoreId);
+					}
 #if DEBUG
 					if (offer.AssortmentId == DebugAssortmentId && offer.Id.SupplierId == DebugSupplierId)
 						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offer.AssortmentId], client, regionRating, offer.Cost);
