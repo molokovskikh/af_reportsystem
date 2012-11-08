@@ -124,7 +124,7 @@ namespace ReportTuner.Test.Functional
 
 			Open("Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
 			var select = browser.SelectList(s => s.Name.EndsWith("ddlValue"));
-			Assert.That(select.SelectedItem, Is.EqualTo(org.Name));
+			Assert.That(select.SelectedItem, Is.StringEnding(org.Name));
 		}
 	}
 }
