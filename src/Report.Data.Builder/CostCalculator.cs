@@ -217,11 +217,13 @@ where p.Actual = 1
 				foreach (OfferId key in hash.Keys) {
 					var costs = ((Hashtable)hash[key]);
 					foreach (uint assortmentId in costs.Keys) {
+						var aggregates = (OfferAggregates)costs[assortmentId];
+						if (aggregates.Cost == 0)
+							continue;
 						totalCount++;
 						if (sql.Length > header.Length)
 							sql.Append(", ");
 
-						var aggregates = (OfferAggregates)costs[assortmentId];
 						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4}, {5})",
 							date.ToString(MySqlConsts.MySQLDateFormat),
 							key.SupplierId,

@@ -38,6 +38,27 @@ namespace Report.Data.Builder.Test
 		}
 
 		[Test]
+		public void SaveWithZeroCost()
+		{
+			var result = new Hashtable();
+			var offerId = new OfferId(1, 1);
+			var aggregator = new OfferAggregates {
+				Cost = 0,
+				Quantity = 1
+			};
+			var costs = new Hashtable();
+			costs[0u] = aggregator;
+			aggregator = new OfferAggregates {
+				Cost = 2,
+				Quantity = 1
+			};
+			costs[1u] = aggregator;
+			result[offerId] = costs;
+			var count = calculator.Save(DateTime.Today, result);
+			Assert.That(count, Is.EqualTo(1));
+		}
+
+		[Test]
 		public void Get_offers()
 		{
 			var clientId = ratings.First().ClientId;
@@ -197,6 +218,33 @@ namespace Report.Data.Builder.Test
 			var costs = (Hashtable)averageCosts[offerId];
 			var aggregates = ((OfferAggregates)costs[1u]);
 			Assert.That(aggregates.Cost, Is.EqualTo(100000));
+		}
+
+		[Test]
+		public void CalculateOnlyJunkCost()
+		{
+			var offerId = new OfferId(1, 1);
+			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(2, 1, 0.5m),
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 100000, true, 10)
+					}),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(3, 1, 0.5m)
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 100000, true, 10)
+					})
+			};
+			var averageCosts = calculator.Calculate(list);
+			var costs = (Hashtable)averageCosts[offerId];
+			var aggregates = ((OfferAggregates)costs[1u]);
+			Assert.That(aggregates.Cost, Is.EqualTo(0));
+			Assert.That(aggregates.Quantity, Is.EqualTo(10));
 		}
 	}
 }
