@@ -217,7 +217,7 @@ namespace Inforoom.ReportSystem
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
 				DataTableToDbf(GetReportTable(), fileName);
 			}
-			if (Format == ReportFormats.CSV && DbfSupported) {
+			else if (Format == ReportFormats.CSV && DbfSupported) {
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".csv");
 				CsvHelper.Save(GetReportTable(), fileName);
 			}
