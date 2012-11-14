@@ -56,6 +56,17 @@
 
 <ItemStyle Width="5%"></ItemStyle>
 				</asp:TemplateField>
+
+				<asp:TemplateField HeaderText="Публичный" ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="Allow">
+					<ItemTemplate>
+						<asp:CheckBox ID="chbPublic" runat="server" Enabled='<%# Convert.ToInt32(DataBinder.Eval(Container.DataItem, "PayerID")) == 921 %>' Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Public")) %>' />
+					</ItemTemplate>
+
+<HeaderStyle Width="5%"></HeaderStyle>
+
+<ItemStyle Width="5%"></ItemStyle>
+				</asp:TemplateField>
+
 				<asp:TemplateField HeaderText="Примечание" SortExpression="Comment" ItemStyle-Width="45%" HeaderStyle-Width="45%">
 					<ItemTemplate>
 						<asp:TextBox ID="tbComment" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.Comment") %>'></asp:TextBox><br/>

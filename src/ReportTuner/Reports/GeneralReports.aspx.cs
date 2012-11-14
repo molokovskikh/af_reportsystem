@@ -43,6 +43,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 	private DataColumn FirmCode;
 	private DataColumn Comment;
 	private DataColumn Allow;
+	private DataColumn Public;
 	private DataTable dtPayers;
 	private DataColumn PayerShortName;
 	private DataColumn PPayerID;
@@ -94,6 +95,7 @@ SELECT
 	p.ShortName as PayerShortName,
 	gr.FirmCode,
 	gr.Allow,
+	gr.Public,
 	gr.Comment,
 	gr.EMailSubject,
 	gr.ReportFileName,
@@ -133,6 +135,7 @@ Order by gr.GeneralReportCode
 		this.FirmCode = new System.Data.DataColumn();
 		this.Comment = new System.Data.DataColumn();
 		this.Allow = new System.Data.DataColumn();
+		this.Public = new System.Data.DataColumn();
 		this.GRPayerShortName = new System.Data.DataColumn();
 		this.GRPayerID = new System.Data.DataColumn();
 		this.dtPayers = new System.Data.DataTable();
@@ -158,6 +161,7 @@ Order by gr.GeneralReportCode
 			this.FirmCode,
 			this.Comment,
 			this.Allow,
+			this.Public,
 			this.GRPayerShortName,
 			this.GRPayerID,
 			this.dataColumn1
@@ -182,6 +186,11 @@ Order by gr.GeneralReportCode
 		//
 		this.Allow.ColumnName = "Allow";
 		this.Allow.DataType = typeof(byte);
+		//
+		// Public
+		//
+		this.Public.ColumnName = "Public";
+		this.Public.DataType = typeof(byte);
 		//
 		// GRPayerShortName
 		//
@@ -228,6 +237,7 @@ Order by gr.GeneralReportCode
 
 				DataRow dr = DS.Tables[dtGeneralReports.TableName].NewRow();
 				dr[Allow.ColumnName] = 0;
+				dr[Public.ColumnName] = 0;
 				DS.Tables[dtGeneralReports.TableName].Rows.Add(dr);
 
 				dgvReports.DataSource = DS.Tables[dtGeneralReports.TableName].DefaultView;
@@ -316,6 +326,9 @@ Order by p.ShortName
 				if (!changedRow[Allow.ColumnName].Equals(Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked)))
 					changedRow[Allow.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbAllow")).Checked);
 
+				if (!changedRow[Public.ColumnName].Equals(Convert.ToByte(((CheckBox)dr.FindControl("chbPublic")).Checked)))
+					changedRow[Public.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbPublic")).Checked);
+
 				if (!changedRow[Comment.ColumnName].Equals(((TextBox)dr.FindControl("tbComment")).Text))
 					changedRow[Comment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
 
@@ -394,6 +407,7 @@ UPDATE
 	reports.general_reports
 SET
 	Allow = ?Allow,
+	Public = ?Public,
 	Comment = ?Comment,
 	FirmCode = if(PayerID = ?payerID, FirmCode,
 			(select min(Id)
@@ -409,6 +423,10 @@ WHERE GeneralReportCode = ?GeneralReportCode", MyCn, trans);
 			UpdCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
 			UpdCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
 			UpdCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
+			UpdCmd.Parameters.Add(new MySqlParameter("Public", MySqlDbType.Byte));
+			UpdCmd.Parameters["Public"].Direction = ParameterDirection.Input;
+			UpdCmd.Parameters["Public"].SourceColumn = Public.ColumnName;
+			UpdCmd.Parameters["Public"].SourceVersion = DataRowVersion.Current;
 			UpdCmd.Parameters.Add(new MySqlParameter("Comment", MySqlDbType.VarString));
 			UpdCmd.Parameters["Comment"].Direction = ParameterDirection.Input;
 			UpdCmd.Parameters["Comment"].SourceColumn = Comment.ColumnName;
@@ -436,6 +454,7 @@ INSERT INTO
 select
   ?PayerId,
   ?Allow,
+  ?Public,
   ?Comment,
   min(Id)
 from
@@ -452,6 +471,10 @@ select last_insert_id() as GRLastInsertID;
 			InsCmd.Parameters["Allow"].Direction = ParameterDirection.Input;
 			InsCmd.Parameters["Allow"].SourceColumn = Allow.ColumnName;
 			InsCmd.Parameters["Allow"].SourceVersion = DataRowVersion.Current;
+			InsCmd.Parameters.Add(new MySqlParameter("Public", MySqlDbType.Byte));
+			InsCmd.Parameters["Public"].Direction = ParameterDirection.Input;
+			InsCmd.Parameters["Public"].SourceColumn = Public.ColumnName;
+			InsCmd.Parameters["Public"].SourceVersion = DataRowVersion.Current;
 			InsCmd.Parameters.Add(new MySqlParameter("PayerId", MySqlDbType.Int64));
 			InsCmd.Parameters["PayerId"].Direction = ParameterDirection.Input;
 			InsCmd.Parameters["PayerId"].SourceColumn = GRPayerID.ColumnName;
@@ -491,6 +514,7 @@ select last_insert_id() as GRLastInsertID;
 			if (dtUpdated != null) {
 				foreach (DataRow drUpdate in dtUpdated.Rows)
 					if (drUpdate["Comment", DataRowVersion.Original] != drUpdate["Comment", DataRowVersion.Current] ||
+						drUpdate["Public", DataRowVersion.Original] != drUpdate["Public", DataRowVersion.Current] ||
 						drUpdate["Allow", DataRowVersion.Original] != drUpdate["Allow", DataRowVersion.Current])
 						_updatedReports.Add(Convert.ToUInt64(drUpdate["GeneralReportCode"]));
 				MyDA.Update(dtUpdated);
