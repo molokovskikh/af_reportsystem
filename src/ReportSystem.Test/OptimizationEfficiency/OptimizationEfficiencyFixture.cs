@@ -29,5 +29,48 @@ namespace ReportSystem.Test
 			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiencyWithSupplier);
 		}
+
+		[Test]
+		public void OptimizationEfficiencyNew()
+		{
+			var fileName = "OptimizationEfficiencyNew.xls";
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 70);
+			Property("FirmCode", 45);
+			report = new OptimizationEfficiency(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
+		}
+
+		[Test]
+		public void OptimizationRivalOrders()
+		{
+			var fileName = "OptimizationRivalOrders.xls";
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 70);
+			report = new OptimizationRivalOrders(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
+		}
+
+		[Test]
+		public void OptimizationRivalOrdersWithSupplier()
+		{
+			var fileName = "OptimizationRivalOrdersWithSupplier.xls";
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 70);
+			Property("FirmCode", 4138);
+			report = new OptimizationRivalOrders(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
+		}
+
+		[Test]
+		public void OptimizationRivalOrdersWithClient()
+		{
+			var fileName = "OptimizationRivalOrdersWithClient.xls";
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 70);
+			Property("ClientCode", 376);
+			report = new OptimizationRivalOrders(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
+		}
 	}
 }

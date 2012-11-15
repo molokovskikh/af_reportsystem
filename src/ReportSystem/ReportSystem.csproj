@@ -189,6 +189,7 @@
     <Compile Include="ByOrders\OrdersStatistics.cs" />
     <Compile Include="ByOrders\SupplierOrdersStatistics.cs" />
     <Compile Include="ByOrders\WaybillsReport.cs" />
+    <Compile Include="OptimizationRivalOrders.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\CsvHelper.cs" />
     <Compile Include="Helpers\ReadParameterHelper.cs" />
@@ -202,6 +203,7 @@
     <Compile Include="Model\ReportResultLog.cs" />
     <Compile Include="Model\Supplier.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Writers\OptimizationEfficiencyExcludeOleExcelWriter.cs" />
     <Compile Include="Writers\CostDynamicWriter.cs" />
     <Compile Include="Writers\SupplierExcelWriter.cs" />
     <Content Include="App.ico" />
