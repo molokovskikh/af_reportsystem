@@ -640,7 +640,8 @@ group by c.pricecode";
 						var minCost = (decimal)newrow["MinCost"];
 						var customerCost = (decimal)newrow["CustomerCost"];
 						newrow["Differ"] = customerCost - minCost;
-						newrow["DifferPercents"] = Math.Round((customerCost - minCost) / customerCost * 100, 0);
+						if(customerCost != 0)
+							newrow["DifferPercents"] = Math.Round((customerCost - minCost) / customerCost * 100, 0);
 					}
 
 					//Выбираем позиции с минимальной ценой, отличные от SourcePC
