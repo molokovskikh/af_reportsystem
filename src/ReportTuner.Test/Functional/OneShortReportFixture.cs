@@ -45,6 +45,7 @@ namespace ReportTuner.Test.Functional
 		{
 			Open("http://localhost:53759/Reports/schedule.aspx?r=1");
 			Click("Выполнить задание");
+			Thread.Sleep(3000);
 			AssertText("Отчет запущен, ожидайте окончания выполнения операции.");
 		}
 
@@ -83,7 +84,11 @@ namespace ReportTuner.Test.Functional
 			foreach (var file in Directory.GetFiles(ftpDirectory)) {
 				File.Delete(file);
 			}
-			File.WriteAllText(Path.Combine(ftpDirectory, generalReport.ReportFileName), Guid.NewGuid().ToString());
+			if(generalReport.NoArchive)
+				File.WriteAllText(Path.Combine(ftpDirectory, generalReport.ReportFileName), Guid.NewGuid().ToString());
+			else {
+				File.WriteAllText(Path.Combine(ftpDirectory, generalReport.ReportArchName), Guid.NewGuid().ToString());
+			}
 			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
 				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
 				browser.TextField("mail_Text").Clear();

@@ -41,24 +41,6 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
-		public void SpecialCountProducerByWeightCost()
-		{
-			Property("ReportType", 4);
-			Property("RegionEqual", new List<ulong> {
-				1,
-				16
-			});
-			Property("ClientCode", 5101);
-			Property("ReportSortedByPrice", false);
-			Property("ReportIsFull", false);
-			Property("ShowPercents", true);
-			Property("CalculateByCatalog", false);
-			Property("PriceCode", 196);
-			Property("ByWeightCosts", true);
-			BuildReport("SpecialCountProducerByWeightCost.xls", typeof(SpecReport));
-		}
-
-		[Test]
 		public void SpecialProducer()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialProducer);
