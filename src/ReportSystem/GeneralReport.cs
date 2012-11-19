@@ -315,7 +315,7 @@ where GeneralReport = ?GeneralReport;";
 			else {
 				int? SMTPID = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 #if (!TESTING)
-				MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, EMailAddress), ProcessLog, 0, _conn, true, false, null);
+				MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, address), ProcessLog, 0, _conn, true, false, null);
 #endif
 			}
 		}
