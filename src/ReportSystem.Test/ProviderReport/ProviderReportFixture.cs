@@ -126,8 +126,6 @@ from
 		[Test]
 		public void GetOffersByClientIfCodesWithoutProducerTest()
 		{
-			if (!ActiveRecordStarter.IsInitialized)
-				ActiveRecordStarter.Initialize(typeof(Client).Assembly, ActiveRecordSectionHandler.Instance);
 			var report = new SpecShortReportFake();
 			report.ReadReportParams();
 			using (new SessionScope()) {

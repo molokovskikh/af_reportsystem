@@ -19,6 +19,8 @@ namespace ReportSystem.Test
 {
 	public class FakeReport : BaseReport
 	{
+		public string OverideDefaultFilename;
+
 		public FakeReport()
 		{
 			_dsReport = new DataSet();
@@ -34,6 +36,9 @@ namespace ReportSystem.Test
 
 		public override void ReportToFile(string fileName)
 		{
+			if (!String.IsNullOrEmpty(OverideDefaultFilename))
+				fileName = OverideDefaultFilename;
+
 			File.WriteAllBytes(fileName, new byte[0]);
 		}
 	}
@@ -42,31 +47,37 @@ namespace ReportSystem.Test
 	{
 		public DataTable DataTable
 		{
-			set { _dtReports = value; }
-			get { return _dtReports; }
+			set { _reports = value; }
+			get { return _reports; }
 		}
 	}
 
 	[TestFixture]
 	public class GeneralReportFixture : IntegrationFixture
 	{
+		private GeneralReport report;
+
+		[SetUp]
+		public void Setup()
+		{
+			report = new GeneralReport();
+			report.GeneralReportID = 1;
+		}
+
 		[Test]
 		public void Archive_additional_files()
 		{
 			File.WriteAllBytes("description.xls", new byte[0]);
 
-			var report = new GeneralReport();
 			report.FilesForReport = new Dictionary<string, string>();
 			report.FilesForReport.Add("description.xls", "description.xls");
-			report.GeneralReportID = 1;
 			report.Reports.Add(new FakeReport());
 			var result = report.BuildResultFile();
-			var zip = new ZipFile(result);
-			var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
+
+			var files = LsZip(result);
 			Assert.That(files.Count(), Is.EqualTo(2));
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
 			Assert.That(files[0], Is.EqualTo("description.xls"));
-			zip.Close();
 		}
 
 		[Test]
@@ -77,16 +88,45 @@ namespace ReportSystem.Test
 			session.CreateSQLQuery("insert into reports.filessendwithreport (FileName, Report) value (\"123.txt\", 1)").ExecuteUpdate();
 			var id = session.CreateSQLQuery("select LAST_INSERT_ID();").UniqueResult();
 			File.WriteAllBytes(id.ToString(), new byte[0]);
-			var report = new GeneralReport();
-			report.GeneralReportID = 1;
+
 			report.Reports.Add(new FakeReport());
 			report.FilesForReport = new Dictionary<string, string> { { "123.txt", id.ToString() } };
+
 			var result = report.BuildResultFile();
-			var zip = new ZipFile(result);
-			var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
+			var files = LsZip(result);
 			Assert.That(files.Count(), Is.EqualTo(2));
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
 			Assert.That(files[0], Is.EqualTo("123.txt"));
+		}
+
+		private static string[] LsZip(string result)
+		{
+			using(var zip = new ZipFile(result)) {
+				var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
+				return files;
+			}
+		}
+
+		[Test]
+		public void Send_all_report_files_if_not_archive_option_set()
+		{
+			var fakeReport = new FakeReport();
+			fakeReport.OverideDefaultFilename = Path.Combine(Path.GetTempPath(), "Rep1", "1.csv");
+
+			var contacts = new DataTable();
+			contacts.Columns.Add("Contact");
+			contacts.Rows.Add("kvasovtest@analit.net");
+			report.EMailSubject = "test";
+			report.Contacts = contacts;
+			report.NoArchive = true;
+			report.Reports.Add(fakeReport);
+			report.Testing = true;
+			report.ProcessReports();
+
+			Assert.That(report.Messages.Count, Is.EqualTo(1));
+			var message = report.Messages[0];
+			Assert.That(message.Attachments.Length, Is.EqualTo(1));
+			Assert.That(message.Attachments[0].ContentDisposition_FileName, Is.EqualTo("1.csv"));
 		}
 
 		[Test, Description("Проверяет, что файлы, которые указаны для типа отчета добвалены к отчету")]
