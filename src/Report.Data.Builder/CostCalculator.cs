@@ -31,10 +31,12 @@ namespace Report.Data.Builder
 		public decimal Cost;
 		public uint Quantity;
 		public List<ulong> UsedCores;
+		public List<ClientRating> Ratings;
 
 		public OfferAggregates()
 		{
 			UsedCores = new List<ulong>();
+			Ratings = new List<ClientRating>();
 		}
 	}
 
@@ -179,8 +181,30 @@ where p.Actual = 1
 						continue;
 
 					var regionRating = rating[offer.Id.RegionId];
-					if (!offer.Junk)
-						aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
+					// выбераем все записи поставщика в регионе по одному предложению
+					var sameOffers = item.Item2.Where(o => o.Id.Equals(offer.Id) && o.AssortmentId == offer.AssortmentId).ToList();
+					// если такая запись одна, то просто агрегируем
+					if (!offer.Junk) {
+						if (sameOffers.Count == 1) {
+							aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
+						}
+						else {
+							// если записей несколько, то добавляем к агрегату среднюю цену
+							decimal cost = 0;
+							var count = 0;
+							foreach (var sameOffer in sameOffers) {
+								if (!offer.Junk) {
+									cost += sameOffer.Cost;
+									count++;
+								}
+							}
+							if (count != 0)
+								aggregates.Cost = aggregates.Cost + (cost * regionRating) / count / count;
+						}
+						if(aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
+							aggregates.Ratings.Add(new ClientRating(client, offer.Id.RegionId, regionRating));
+						}
+					}
 					// проверяем, что этот core мы еще не использовали при подсчете количества
 					if(!aggregates.UsedCores.Contains(offer.CoreId)) {
 						aggregates.Quantity += offer.Quantity;
@@ -196,6 +220,15 @@ where p.Actual = 1
 
 				watch.Reset();
 				watch.Start();
+			}
+			foreach (OfferId key in result.Keys) {
+				var costs = ((Hashtable)result[key]);
+				foreach (uint assortmentId in costs.Keys) {
+					var aggregates = (OfferAggregates)costs[assortmentId];
+					var sumRating = aggregates.Ratings.Sum(r => r.Value);
+					if(sumRating < 1 && sumRating > 0)
+						aggregates.Cost *= 1 / sumRating;
+				}
 			}
 			return result;
 		}

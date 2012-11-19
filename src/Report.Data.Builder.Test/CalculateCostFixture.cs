@@ -126,7 +126,7 @@ namespace Report.Data.Builder.Test
 			Assert.That(averageCosts.Count, Is.EqualTo(1));
 			var costs = (Hashtable)averageCosts[offerId];
 			Assert.That(costs.Count, Is.EqualTo(1));
-			Assert.That(((OfferAggregates)costs[1u]).Cost, Is.EqualTo(560m));
+			Assert.That(((OfferAggregates)costs[1u]).Cost, Is.EqualTo(800m));
 		}
 
 		[Test]
@@ -155,7 +155,7 @@ namespace Report.Data.Builder.Test
 			Assert.That(costs.Count, Is.EqualTo(1));
 			var aggregates = ((OfferAggregates)costs[1u]);
 			Assert.That(aggregates.Quantity, Is.EqualTo(20));
-			Assert.That(aggregates.Cost, Is.EqualTo(50000));
+			Assert.That(aggregates.Cost, Is.EqualTo(100000));
 		}
 
 		[Test]
@@ -172,14 +172,14 @@ namespace Report.Data.Builder.Test
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
-						new ClientRating(3, 1, 0.7m)
+						new ClientRating(3, 1, 0.3m)
 					},
 					new List<Offer> {
 						new Offer(offerId, 1, 800, true, 10, 1)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
-						new ClientRating(3, 1, 0.7m)
+						new ClientRating(3, 1, 0.3m)
 					},
 					new List<Offer> {
 						new Offer(offerId, 1, 800, false, 10, 1)
@@ -191,7 +191,7 @@ namespace Report.Data.Builder.Test
 			Assert.That(costs.Count, Is.EqualTo(1));
 			var aggregates = ((OfferAggregates)costs[1u]);
 			Assert.That(aggregates.Quantity, Is.EqualTo(25));
-			Assert.That(aggregates.Cost, Is.EqualTo(50560));
+			Assert.That(aggregates.Cost, Is.EqualTo(62800));
 		}
 
 		[Test]
@@ -244,6 +244,60 @@ namespace Report.Data.Builder.Test
 			var costs = (Hashtable)averageCosts[offerId];
 			var aggregates = ((OfferAggregates)costs[1u]);
 			Assert.That(aggregates.Cost, Is.EqualTo(0));
+			Assert.That(aggregates.Quantity, Is.EqualTo(10));
+		}
+
+		[Test]
+		public void CalculateWithSameAssortment()
+		{
+			var offerId = new OfferId(1, 1);
+			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(2, 1, 1m),
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 100, false, 10),
+						new Offer(offerId, 1, 50, false, 10, 1),
+						new Offer(offerId, 1, 150, false, 1, 2)
+					})
+			};
+			var averageCosts = calculator.Calculate(list);
+			var costs = (Hashtable)averageCosts[offerId];
+			var aggregates = ((OfferAggregates)costs[1u]);
+			Assert.That(aggregates.Cost, Is.EqualTo(100));
+			Assert.That(aggregates.Quantity, Is.EqualTo(21));
+		}
+
+		[Test]
+		public void CalculateWithNoFullRating()
+		{
+			var offerId = new OfferId(1, 1);
+			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(2, 1, 0.2m),
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 100, false, 10),
+						new Offer(offerId, 2, 50, false, 10, 1),
+					}),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(1, 1, 0.6m),
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 20, false, 10),
+						new Offer(offerId, 2, 50, false, 10, 1),
+					})
+			};
+			var averageCosts = calculator.Calculate(list);
+			var costs = (Hashtable)averageCosts[offerId];
+			var aggregates = ((OfferAggregates)costs[1u]);
+			Assert.That(aggregates.Cost, Is.EqualTo(40));
+			Assert.That(aggregates.Quantity, Is.EqualTo(10));
+			aggregates = ((OfferAggregates)costs[2u]);
+			Assert.That(aggregates.Cost, Is.EqualTo(50));
 			Assert.That(aggregates.Quantity, Is.EqualTo(10));
 		}
 	}
