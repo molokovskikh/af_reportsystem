@@ -51,7 +51,8 @@ namespace Inforoom.ReportSystem.Model
 
 		public static decimal CalculateRetailCost(decimal supplierCostWithoutNds, decimal producerCost, decimal nds, decimal markup)
 		{
-			return Math.Round(supplierCostWithoutNds  + producerCost * markup / 100 * (1 + nds / 100), 2);
+			var result = supplierCostWithoutNds  + producerCost * markup / 100 * (1 + nds / 100);
+			return Math.Floor(result * 10) / 10;
 		}
 
 		public static decimal RetailCost(decimal supplierCostWithoutNds, decimal producerCost, decimal nds, IEnumerable<Markup> markups)
@@ -62,7 +63,7 @@ namespace Inforoom.ReportSystem.Model
 			if (markups.All(m => m.Type != MarkupType.Supplier))
 				return 0;
 
-			var markup = drugstoeMarkup.Value - 5;
+			var markup = drugstoeMarkup.Value - 2;
 			var retailCost = CalculateRetailCost(supplierCostWithoutNds, producerCost, nds, markup);
 
 			var maxCost = MaxCost(producerCost, nds, markups);
