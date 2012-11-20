@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Castle.ActiveRecord;
 using Common.MySql;
+using Common.Tools;
 using ExecuteTemplate;
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem;
@@ -62,19 +63,24 @@ namespace ReportSystem.Test
 		{
 			report = new GeneralReport();
 			report.GeneralReportID = 1;
+
+			var contacts = new DataTable();
+			contacts.Columns.Add("Contact");
+			contacts.Rows.Add("kvasovtest@analit.net");
+			report.EMailSubject = "test";
+			report.Contacts = contacts;
+			report.Testing = true;
 		}
 
 		[Test]
 		public void Archive_additional_files()
 		{
-			File.WriteAllBytes("description.xls", new byte[0]);
+			AddFile();
 
-			report.FilesForReport = new Dictionary<string, string>();
-			report.FilesForReport.Add("description.xls", "description.xls");
 			report.Reports.Add(new FakeReport());
-			var result = report.BuildResultFile();
+			var file = report.BuildResultFile();
 
-			var files = LsZip(result);
+			var files = LsZip(file);
 			Assert.That(files.Count(), Is.EqualTo(2));
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
 			Assert.That(files[0], Is.EqualTo("description.xls"));
@@ -99,12 +105,19 @@ namespace ReportSystem.Test
 			Assert.That(files[0], Is.EqualTo("123.txt"));
 		}
 
-		private static string[] LsZip(string result)
+		[Test]
+		public void Send_description_with_no_archive()
 		{
-			using(var zip = new ZipFile(result)) {
-				var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
-				return files;
-			}
+			AddFile();
+
+			report.NoArchive = true;
+			report.Reports.Add(new FakeReport());
+			report.ProcessReports();
+
+			Assert.That(report.Messages.Count, Is.EqualTo(1));
+			var message = report.Messages[0];
+			var attachments = message.Attachments.Select(a => a.ContentDisposition_FileName).Implode();
+			Assert.That(attachments, Is.EqualTo("description.xls, Rep1.xls"));
 		}
 
 		[Test]
@@ -113,14 +126,8 @@ namespace ReportSystem.Test
 			var fakeReport = new FakeReport();
 			fakeReport.OverideDefaultFilename = Path.Combine(Path.GetTempPath(), "Rep1", "1.csv");
 
-			var contacts = new DataTable();
-			contacts.Columns.Add("Contact");
-			contacts.Rows.Add("kvasovtest@analit.net");
-			report.EMailSubject = "test";
-			report.Contacts = contacts;
 			report.NoArchive = true;
 			report.Reports.Add(fakeReport);
-			report.Testing = true;
 			report.ProcessReports();
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
@@ -176,6 +183,22 @@ namespace ReportSystem.Test
 			report.GeneralReportID = 1;
 			report.Reports.Add(new FakeReport());
 			report.CopyFileToFtp("", "");
+		}
+
+		private static string[] LsZip(string result)
+		{
+			using(var zip = new ZipFile(result)) {
+				var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
+				return files;
+			}
+		}
+
+		private void AddFile()
+		{
+			File.WriteAllBytes("description.xls", new byte[0]);
+
+			report.FilesForReport = new Dictionary<string, string>();
+			report.FilesForReport.Add("description.xls", "description.xls");
 		}
 	}
 }

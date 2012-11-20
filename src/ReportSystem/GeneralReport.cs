@@ -202,8 +202,11 @@ where GeneralReport = ?GeneralReport;";
 		//Производится построение отчетов
 		public void ProcessReports()
 		{
-			var resFileName = BuildResultFile();
+			SendReport(BuildResultFile());
+		}
 
+		public void SendReport(string resFileName)
+		{
 			var mails = Contacts.AsEnumerable().Select(r => r[0].ToString()).ToArray();
 #if TESTING
 			mails = new[] { Settings.Default.ErrorReportMail };
@@ -301,12 +304,6 @@ where GeneralReport = ?GeneralReport;";
 			}
 			else {
 				AttachFile(mainEntry, archFileName);
-			}
-
-			if (NoArchive) {
-				foreach (var file in FilesForReport.Keys) {
-					AttachFile(mainEntry, Path.Combine(_directoryName, file));
-				}
 			}
 
 			if (Testing) {
