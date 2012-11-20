@@ -109,7 +109,8 @@ where ClientId = ?client
 limit 1);
 
 call Customers.GetPrices(@UserId);
-
+select Id, RegionCode, FirmCode, Avg(Cost) as Cost, Sum(Quantity) as Quantity, Junk, Max(CoreId) as CoreId
+from (
 select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
@@ -118,6 +119,8 @@ from Usersettings.Prices p
 	join Catalogs.Catalog c on c.Id = p.CatalogId
 	join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = c0.CodeFirmCr
 where p.Actual = 1
+) t
+group by Id, RegionCode, FirmCode, Junk
 ;", QueryParts.CostSubQuery("c0", "cc", "p"));
 			var watch = Stopwatch.StartNew();
 			watch.Start();
@@ -181,27 +184,9 @@ where p.Actual = 1
 						continue;
 
 					var regionRating = rating[offer.Id.RegionId];
-					// выбераем все записи поставщика в регионе по одному предложению
-					var sameOffers = item.Item2.Where(o => o.Id.Equals(offer.Id) && o.AssortmentId == offer.AssortmentId).ToList();
-					// если такая запись одна, то просто агрегируем
 					if (!offer.Junk) {
-						if (sameOffers.Count == 1) {
-							aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
-						}
-						else {
-							// если записей несколько, то добавляем к агрегату среднюю цену
-							decimal cost = 0;
-							var count = 0;
-							foreach (var sameOffer in sameOffers) {
-								if (!offer.Junk) {
-									cost += sameOffer.Cost;
-									count++;
-								}
-							}
-							if (count != 0)
-								aggregates.Cost = aggregates.Cost + (cost * regionRating) / count / count;
-						}
-						if(aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
+						aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
+						if (aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
 							aggregates.Ratings.Add(new ClientRating(client, offer.Id.RegionId, regionRating));
 						}
 					}

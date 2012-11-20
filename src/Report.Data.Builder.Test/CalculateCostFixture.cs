@@ -265,7 +265,7 @@ namespace Report.Data.Builder.Test
 			var averageCosts = calculator.Calculate(list);
 			var costs = (Hashtable)averageCosts[offerId];
 			var aggregates = ((OfferAggregates)costs[1u]);
-			Assert.That(aggregates.Cost, Is.EqualTo(100));
+			Assert.That(aggregates.Cost, Is.EqualTo(300));
 			Assert.That(aggregates.Quantity, Is.EqualTo(21));
 		}
 
