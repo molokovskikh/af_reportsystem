@@ -20,6 +20,7 @@ namespace Inforoom.ReportSystem
 		private int _reportInterval;
 		private bool _byPreviousMonth;
 		private int _optimizedCount;
+		private string _suppliersConcurent;
 
 		public OptimizationRivalOrders(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
@@ -28,6 +29,7 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
+			_suppliersConcurent = OptimizationEfficiency.GetCostOptimizationConcurents(e, _supplierId);
 			var command = e.DataAdapter.SelectCommand;
 
 			command.CommandText =
@@ -38,7 +40,7 @@ oh.writetime,
 ol.Cost,
 	if(u.id is null, cl.Name, fc.Name) as ClientName,
 	u.Name as UserName,
-	ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.ResultCost,
+	ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - ol.Cost, 2) absDiff, round((col.ResultCost / ol.Cost - 1) * 100, 2) diff
 from " +
 #if DEBUG
@@ -53,6 +55,7 @@ from " +
 	join logs.CostOptimizationLogs col on
 		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ProducerId = ol.CodeFirmCr and
 		 (col.ClientId = ?clientId or ?clientId = 0) and col.SupplierId = ?supplierId
+and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where SupplierId = ?supplierId and LoggedOn < oh.writetime)
   join farm.Synonym s on s.SynonymCode = ol.SynonymCode
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
    join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
@@ -99,14 +102,12 @@ order by oh.writetime, ol.RowId;";
 			e.DataAdapter.Fill(_dsReport, "Common");
 
 			command.CommandText =
-				@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
-where diff > 0;";
-			e.DataAdapter.Fill(_dsReport, "OverPrice");
+				@"select ifnull(round(avg(diff), 2), 0) Summ, ifnull(round(avg(absDiff), 2), 0) SummAbs from CostOptimization;";
+			e.DataAdapter.Fill(_dsReport, "AvgDiff");
 
 			command.CommandText =
-				@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
-where diff < 0;";
-			e.DataAdapter.Fill(_dsReport, "UnderPrice");
+				@"select ifnull(sum(SelfCost*Quantity), 0) Summ from CostOptimization;";
+			e.DataAdapter.Fill(_dsReport, "OrderVolume");
 
 			command.CommandText =
 				@"select * from CostOptimization order by WriteTime;";
@@ -135,13 +136,14 @@ where diff < 0;";
 			dtRes.Columns.Add("Synonym");
 			dtRes.Columns.Add("Firm");
 			dtRes.Columns.Add("Quantity", typeof(int));
+			dtRes.Columns.Add("SelfCost", typeof(decimal));
 			dtRes.Columns.Add("Cost", typeof(decimal));
 			dtRes.Columns.Add("ResultCost", typeof(decimal));
 			dtRes.Columns.Add("absDiff", typeof(decimal));
 			dtRes.Columns.Add("diff", typeof(double));
 
 			// Добавляем пустые строки для заголовка
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 7; i++)
 				dtRes.Rows.Add(dtRes.NewRow());
 
 			foreach (DataRow row in _dsReport.Tables["Temp"].Rows) {
@@ -159,6 +161,7 @@ where diff < 0;";
 				newRow["Firm"] = row["Firm"];
 				newRow["Quantity"] = row["Quantity"];
 				newRow["Cost"] = row["Cost"];
+				newRow["SelfCost"] = row["SelfCost"];
 				newRow["ResultCost"] = row["ResultCost"];
 				newRow["absDiff"] = row["absDiff"];
 				newRow["diff"] = row["diff"];
@@ -172,11 +175,7 @@ where diff < 0;";
 		{
 			if (_reportParams.ContainsKey("ClientCode"))
 				_clientId = (int)_reportParams["ClientCode"];
-			if (_reportParams.ContainsKey("FirmCode"))
-				_supplierId = (int)_reportParams["FirmCode"];
-			if (_supplierId == 0)
-				_supplierId = 5; // Если не выбрали поставщика, то считаем что это Протек
-
+			_supplierId = (int)getReportParam("FirmCode");
 			_reportInterval = (int)getReportParam("ReportInterval");
 			_byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
 		}
@@ -191,7 +190,7 @@ where diff < 0;";
 		protected override BaseReportSettings GetSettings()
 		{
 			return new OptimizationEfficiencySettings(ReportCode, ReportCaption, _beginDate, _endDate,
-				_clientId, _optimizedCount);
+				_clientId, _optimizedCount, _suppliersConcurent);
 		}
 	}
 }

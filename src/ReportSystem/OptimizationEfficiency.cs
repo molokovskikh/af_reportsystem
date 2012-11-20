@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using Common.Tools;
 using Common.Tools.Calendar;
+using ExecuteTemplate;
 using MySql.Data.MySqlClient;
 using System.Data;
 using ExcelLibrary.SpreadSheet;
@@ -20,14 +23,33 @@ namespace Inforoom.ReportSystem
 		private int _reportInterval;
 		private bool _byPreviousMonth;
 		private int _optimizedCount;
+		private string _suppliersConcurent;
 
 		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 		}
 
+		public static string GetCostOptimizationConcurents(ExecuteArgs e, int supplierId)
+		{
+			var command = e.DataAdapter.SelectCommand;
+			command.CommandText = @"select Name from
+usersettings.costoptimizationrules cr
+join userSettings.CostOptimizationConcurrents cc on cr.Id=cc.RuleId
+join customers.Suppliers s on s.Id=cc.SupplierId
+where cr.SupplierId=?supplier order by Name;";
+			command.Parameters.AddWithValue("?supplier", supplierId);
+			var suppliers = new List<string>();
+			using (var reader = command.ExecuteReader()) {
+				while (reader.Read())
+					suppliers.Add(Convert.ToString(reader[0]));
+			}
+			return suppliers.Implode();
+		}
+
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
+			_suppliersConcurent = GetCostOptimizationConcurents(e, _supplierId);
 			var command = e.DataAdapter.SelectCommand;
 
 			command.CommandText =
@@ -51,8 +73,8 @@ from " +
 	join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 	join logs.CostOptimizationLogs col on
 		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and
-		(col.ClientId = ?clientId or ?clientId = 0) and
-		col.SupplierId = pd.FirmCode
+		(col.ClientId = ?clientId or ?clientId = 0) and col.SupplierId = pd.FirmCode
+and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where SupplierId = ?supplierId and LoggedOn < oh.writetime)
   join farm.Synonym s on s.SynonymCode = ol.SynonymCode
   join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
@@ -175,7 +197,7 @@ where diff > 0";
 			dtRes.Columns.Add("EkonomEffect", typeof(decimal));
 
 			// Добавляем пустые строки для заголовка
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 6; i++)
 				dtRes.Rows.Add(dtRes.NewRow());
 
 			foreach (DataRow row in _dsReport.Tables["Temp"].Rows) {
@@ -227,10 +249,8 @@ where diff > 0";
 		{
 			if (_reportParams.ContainsKey("ClientCode"))
 				_clientId = (int)_reportParams["ClientCode"];
-			if (_reportParams.ContainsKey("FirmCode"))
-				_supplierId = (int)_reportParams["FirmCode"];
-			if (_supplierId == 0)
-				_supplierId = 5; // Если не выбрали поставщика, то считаем что это Протек
+
+			_supplierId = (int)getReportParam("FirmCode");
 
 			_reportInterval = (int)getReportParam("ReportInterval");
 			_byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
@@ -247,7 +267,7 @@ where diff > 0";
 		protected override BaseReportSettings GetSettings()
 		{
 			return new OptimizationEfficiencySettings(ReportCode, ReportCaption, _beginDate, _endDate,
-				_clientId, _optimizedCount);
+				_clientId, _optimizedCount, _suppliersConcurent);
 		}
 	}
 }

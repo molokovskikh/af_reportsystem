@@ -18,6 +18,7 @@ namespace Inforoom.ReportSystem.Writers
 			_beginDate = optimizationSettings.BeginDate;
 			_endDate = optimizationSettings.EndDate;
 			_clientId = optimizationSettings.ClientId;
+			_concurents = optimizationSettings.Concurents;
 
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			FormatExcel(reportData, fileName);
@@ -28,6 +29,7 @@ namespace Inforoom.ReportSystem.Writers
 		private string _reportCaption;
 		private DateTime _beginDate;
 		private DateTime _endDate;
+		private string _concurents;
 
 		private void FormatExcel(DataSet dsReport, string fileName)
 		{
@@ -47,18 +49,18 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
 				((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 
+				ws.Cells[row++, 1] = String.Format("Оптимизация проводится по следующим поставщикам: {0}", _concurents);
 
 				ws.Cells[row++, 1] = String.Format("Всего заказано {0} позиций на сумму {1} руб.",
 					dsReport.Tables["Common"].Rows[0][0],
 					Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"));
 
-				ws.Cells[row++, 1] = String.Format("Оптимизированные Цены завышены у {0} позиции в среднем на {1}%",
-					dsReport.Tables["OverPrice"].Rows[0]["Count"],
-					dsReport.Tables["OverPrice"].Rows[0]["Summ"]);
+				ws.Cells[row++, 1] = String.Format("Средняя разница цен составляет {0} руб. ({1}%)",
+					dsReport.Tables["AvgDiff"].Rows[0]["SummAbs"],
+					dsReport.Tables["AvgDiff"].Rows[0]["Summ"]);
 
-				ws.Cells[row++, 1] = String.Format("Оптимизированные цены занижены у {0} позиции в среднем на {1}%",
-					dsReport.Tables["UnderPrice"].Rows[0]["Count"],
-					dsReport.Tables["UnderPrice"].Rows[0]["Summ"]);
+				ws.Cells[row++, 1] = String.Format("Общий объем заказа в изначальных ценах: {0} руб.",
+					dsReport.Tables["OrderVolume"].Rows[0]["Summ"]);
 				row++;
 				int col = 1;
 				//Форматируем заголовок отчета
@@ -92,11 +94,14 @@ namespace Inforoom.ReportSystem.Writers
 				ws.Cells[row, col] = "Количество";
 				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
-				ws.Cells[row, col] = "Исходная цена заказа (руб.)";
-				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 15.5;
+				ws.Cells[row, col] = "Исходная цена (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
-				ws.Cells[row, col] = "Результирующая цена (руб.)";
-				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 19;
+				ws.Cells[row, col] = "Цена заказа у другого поставщика (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 22;
+
+				ws.Cells[row, col] = "Оптимизированная цена (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
 				ws.Cells[row, col] = "Разница (руб.)";
 				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11;
@@ -110,18 +115,7 @@ namespace Inforoom.ReportSystem.Writers
 					((MSExcel.Range)ws.Cells[row, i]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 				}
 
-
 				int lastRow = dsReport.Tables["Results"].Rows.Count + 2;
-
-				//ws.Cells[lastRow, 1] = "Итого:";
-				//((MSExcel.Range)ws.Cells[lastRow, 1]).Font.Bold = true;
-
-				//ws.Cells[lastRow, 11] = dsReport.Tables["Money"].Rows[0][0];
-				//((MSExcel.Range)ws.Cells[lastRow, 11]).Font.Bold = true;
-
-				//ws.Cells[lastRow, 12] = dsReport.Tables["Volume"].Rows[0][0];
-				//((MSExcel.Range)ws.Cells[lastRow, 12]).Font.Bold = true;
-
 
 				((MSExcel.Range)ws.Cells[1, 7]).Clear();
 				//рисуем границы на всю таблицу
@@ -134,11 +128,11 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 				//Объединяем несколько ячеек, чтобы в них написать текст
-				ws.get_Range("A1:L1", System.Reflection.Missing.Value).Select();
+				ws.get_Range("A1:M1", System.Reflection.Missing.Value).Select();
 				((MSExcel.Range)exApp.Selection).Merge(null);
 
 				// объединяем Итого
-				ws.get_Range(ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count - 2]).Merge(null);
+				ws.get_Range(ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count]).Merge(null);
 			});
 		}
 	}
