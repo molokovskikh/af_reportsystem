@@ -41,7 +41,7 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
-				ws.Cells[row, 1] = String.Format("Статистика оптимизации цен по конкурирующим поставщикам {2} за период с {0} по {1}",
+				ws.Cells[row, 1] = String.Format("Статистика оптимизации цен по конкурирующим поставщикам {2} за период с {0} по {1} включительно",
 					_beginDate.ToString("dd.MM.yyyy"),
 					_endDate.ToString("dd.MM.yyyy"),
 					(_clientId != 0) ? "для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
