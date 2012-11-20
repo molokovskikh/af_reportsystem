@@ -19,6 +19,7 @@ namespace Inforoom.ReportSystem.Writers
 			_endDate = optimizationSettings.EndDate;
 			_clientId = optimizationSettings.ClientId;
 			_optimizedCount = optimizationSettings.OptimizedCount;
+			_concurents = optimizationSettings.Concurents;
 
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			FormatExcel(reportData, fileName);
@@ -30,6 +31,7 @@ namespace Inforoom.ReportSystem.Writers
 		private string _reportCaption;
 		private DateTime _beginDate;
 		private DateTime _endDate;
+		private string _concurents;
 
 		private void FormatExcel(DataSet dsReport, string fileName)
 		{
@@ -41,7 +43,7 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
-				ws.Cells[row, 1] = String.Format("Статистика оптимизации цен {2} за период с {0} по {1}",
+				ws.Cells[row, 1] = String.Format("Статистика оптимизации цен {2} за период с {0} по {1} включительно",
 					_beginDate.ToString("dd.MM.yyyy"),
 					_endDate.ToString("dd.MM.yyyy"),
 					(_clientId != 0) ?
@@ -50,6 +52,7 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
 				((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 
+				ws.Cells[row++, 1] = String.Format("Оптимизация проводится по следующим поставщикам: {0}", _concurents);
 
 				ws.Cells[row++, 1] = String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
 					dsReport.Tables["Common"].Rows[0][0],
