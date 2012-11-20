@@ -31,10 +31,12 @@ namespace Report.Data.Builder
 		public decimal Cost;
 		public uint Quantity;
 		public List<ulong> UsedCores;
+		public List<ClientRating> Ratings;
 
 		public OfferAggregates()
 		{
 			UsedCores = new List<ulong>();
+			Ratings = new List<ClientRating>();
 		}
 	}
 
@@ -107,7 +109,8 @@ where ClientId = ?client
 limit 1);
 
 call Customers.GetPrices(@UserId);
-
+select Id, RegionCode, FirmCode, Avg(Cost) as Cost, Sum(Quantity) as Quantity, Junk, Max(CoreId) as CoreId
+from (
 select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
@@ -116,6 +119,8 @@ from Usersettings.Prices p
 	join Catalogs.Catalog c on c.Id = p.CatalogId
 	join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = c0.CodeFirmCr
 where p.Actual = 1
+) t
+group by Id, RegionCode, FirmCode, Junk
 ;", QueryParts.CostSubQuery("c0", "cc", "p"));
 			var watch = Stopwatch.StartNew();
 			watch.Start();
@@ -179,8 +184,12 @@ where p.Actual = 1
 						continue;
 
 					var regionRating = rating[offer.Id.RegionId];
-					if (!offer.Junk)
+					if (!offer.Junk) {
 						aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
+						if (aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
+							aggregates.Ratings.Add(new ClientRating(client, offer.Id.RegionId, regionRating));
+						}
+					}
 					// проверяем, что этот core мы еще не использовали при подсчете количества
 					if(!aggregates.UsedCores.Contains(offer.CoreId)) {
 						aggregates.Quantity += offer.Quantity;
@@ -196,6 +205,15 @@ where p.Actual = 1
 
 				watch.Reset();
 				watch.Start();
+			}
+			foreach (OfferId key in result.Keys) {
+				var costs = ((Hashtable)result[key]);
+				foreach (uint assortmentId in costs.Keys) {
+					var aggregates = (OfferAggregates)costs[assortmentId];
+					var sumRating = aggregates.Ratings.Sum(r => r.Value);
+					if(sumRating < 1 && sumRating > 0)
+						aggregates.Cost *= 1 / sumRating;
+				}
 			}
 			return result;
 		}
