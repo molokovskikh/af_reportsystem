@@ -77,7 +77,11 @@ order by oh.writetime, ol.RowId;";
 #endif
 
 			_endDate = DateTime.Today;
-			if (_byPreviousMonth) { // Определяем интервал построения отчета
+			if(Interval) {
+				_beginDate = From;
+				_endDate = To;
+			}
+			else if (_byPreviousMonth) { // Определяем интервал построения отчета
 				_beginDate = DateTime.Today.AddMonths(-1).FirstDayOfMonth();
 				_endDate = DateTime.Today.AddMonths(-1).LastDayOfMonth();
 			}

@@ -35,8 +35,8 @@ namespace ReportSystem.Test
 		{
 			var fileName = "OptimizationEfficiencyNew.xls";
 			Property("ByPreviousMonth", false);
-			Property("ReportInterval", 70);
-			Property("FirmCode", 45);
+			Property("ReportInterval", 7);
+			Property("FirmCode", 12423);
 			report = new OptimizationEfficiency(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);
 		}
@@ -56,8 +56,8 @@ namespace ReportSystem.Test
 		{
 			var fileName = "OptimizationRivalOrdersWithSupplier.xls";
 			Property("ByPreviousMonth", false);
-			Property("ReportInterval", 70);
-			Property("FirmCode", 4138);
+			Property("ReportInterval", 7);
+			Property("FirmCode", 12423);
 			report = new OptimizationRivalOrders(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);
 		}
