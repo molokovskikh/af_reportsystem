@@ -30,6 +30,8 @@ namespace ReportTuner.Controllers
 				{ "Id", "Id" },
 				{ "Comment", "Comment" }
 			};
+			PageSize = 15;
+			SortDirection = "Desc";
 		}
 		public IList<GeneralReport> Find()
 		{
