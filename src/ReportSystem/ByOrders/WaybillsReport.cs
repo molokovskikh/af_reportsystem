@@ -55,7 +55,7 @@ and s.VendorID is not null
 group by db.EAN13
 ;
 
-select dh.WriteTime, db.Quantity, db.ProducerCost, db.SerialNumber, db.NDS, db.SupplierCost, s.VendorId, d.DrugId, c.RegionCode
+select db.Quantity, db.ProducerCost, db.SerialNumber, db.NDS, db.SupplierCost, s.VendorId, d.DrugId, c.RegionCode
 from Documents.DocumentBodies db
 	join Documents.DocumentHeaders dh on dh.Id = db.DocumentId
 		join Customers.Addresses a on a.Id = dh.AddressId
@@ -112,8 +112,8 @@ drop temporary table if exists uniq_document_lines;
 
 				resultRow["DrugId"] = row["DrugId"];
 				resultRow["Segment"] = 1;
-				resultRow["Year"] = Convert.ToDateTime(row["WriteTime"]).Year;
-				resultRow["Month"] = Convert.ToDateTime(row["WriteTime"]).Month;
+				resultRow["Year"] = DateTime.Now.Year;
+				resultRow["Month"] = DateTime.Now.Month;
 				resultRow["Series"] = "\"" + (row["SerialNumber"] is DBNull ? "-" : row["SerialNumber"]) + "\"";
 				resultRow["TotDrugQn"] = Convert.ToDecimal(row["Quantity"]).ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["MnfPrice"] = producerCostForReport.ToString("0.00", CultureInfo.InvariantCulture);
