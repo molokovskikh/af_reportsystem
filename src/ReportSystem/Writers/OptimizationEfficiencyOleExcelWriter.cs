@@ -20,6 +20,7 @@ namespace Inforoom.ReportSystem.Writers
 			_clientId = optimizationSettings.ClientId;
 			_optimizedCount = optimizationSettings.OptimizedCount;
 			_concurents = optimizationSettings.Concurents;
+			_supplierName = optimizationSettings.SupplierName;
 
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			FormatExcel(reportData, fileName);
@@ -32,6 +33,7 @@ namespace Inforoom.ReportSystem.Writers
 		private DateTime _beginDate;
 		private DateTime _endDate;
 		private string _concurents;
+		private string _supplierName;
 
 		private void FormatExcel(DataSet dsReport, string fileName)
 		{
@@ -52,12 +54,20 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
 				((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 
-				ws.Cells[row++, 1] = String.Format("Оптимизация проводится по следующим поставщикам: {0}", _concurents);
+				ws.Cells[row++, 1] = String.Format("Оптимизация проводится для {0}", _supplierName);
 
-				ws.Cells[row++, 1] = String.Format("Всего заказано {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
+				ws.Cells[row++, 1] = String.Format("Оптимизация проводится по следующим поставщикам-конкурентам: {0}", _concurents);
+
+				ws.Cells[row++, 1] = String.Format("Всего заказано у всех поставщиков-конкурентов, " +
+					"включенных в данный отчет: {0} позиций на сумму {1} руб.",
+					dsReport.Tables["CommonConcurents"].Rows[0][0],
+					Convert.ToDouble(dsReport.Tables["CommonConcurents"].Rows[0][1]).ToString("### ### ### ##0.00"));
+
+				ws.Cells[row++, 1] = String.Format("Всего заказано у {3}: {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
 					dsReport.Tables["Common"].Rows[0][0],
 					Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
-					_optimizedCount);
+					_optimizedCount,
+					_supplierName);
 
 				ws.Cells[row++, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
 					dsReport.Tables["OverPrice"].Rows[0]["Count"],
@@ -79,6 +89,9 @@ namespace Inforoom.ReportSystem.Writers
 					ws.Cells[row, col] = "Аптека";
 					((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 				}
+
+				ws.Cells[row, col] = "Адрес";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 
 				if (_clientId == 0 || Convert.ToBoolean(dsReport.Tables["Client"].Rows[0][1])) {
 					ws.Cells[row, col] = "Пользователь";
@@ -127,8 +140,8 @@ namespace Inforoom.ReportSystem.Writers
 				ws.Cells[lastRow, 1] = "Итого:";
 				((MSExcel.Range)ws.Cells[lastRow, 1]).Font.Bold = true;
 
-				ws.Cells[lastRow, 11] = dsReport.Tables["Money"].Rows[0][0];
-				((MSExcel.Range)ws.Cells[lastRow, 11]).Font.Bold = true;
+				ws.Cells[lastRow, dsReport.Tables["Results"].Columns.Count] = dsReport.Tables["Money"].Rows[0][0];
+				((MSExcel.Range)ws.Cells[lastRow, dsReport.Tables["Results"].Columns.Count]).Font.Bold = true;
 
 
 				((MSExcel.Range)ws.Cells[1, 7]).Clear();
