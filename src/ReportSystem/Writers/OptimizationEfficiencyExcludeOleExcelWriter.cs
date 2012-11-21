@@ -19,6 +19,7 @@ namespace Inforoom.ReportSystem.Writers
 			_endDate = optimizationSettings.EndDate;
 			_clientId = optimizationSettings.ClientId;
 			_concurents = optimizationSettings.Concurents;
+			_supplierName = optimizationSettings.SupplierName;
 
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			FormatExcel(reportData, fileName);
@@ -30,6 +31,7 @@ namespace Inforoom.ReportSystem.Writers
 		private DateTime _beginDate;
 		private DateTime _endDate;
 		private string _concurents;
+		private string _supplierName;
 
 		private void FormatExcel(DataSet dsReport, string fileName)
 		{
@@ -41,7 +43,7 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
-				ws.Cells[row, 1] = String.Format("Статистика оптимизации цен по конкурирующим поставщикам {2} за период с {0} по {1} включительно",
+				ws.Cells[row, 1] = String.Format("Заказы конкурирующим поставщикам {2} за период с {0} по {1} включительно",
 					_beginDate.ToString("dd.MM.yyyy"),
 					_endDate.ToString("dd.MM.yyyy"),
 					(_clientId != 0) ? "для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
@@ -49,18 +51,23 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
 				((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 
-				ws.Cells[row++, 1] = String.Format("Оптимизация проводится по следующим поставщикам: {0}", _concurents);
+				ws.Cells[row++, 1] = String.Format("Оптимизация проводится для {0}", _supplierName);
 
-				ws.Cells[row++, 1] = String.Format("Всего заказано {0} позиций на сумму {1} руб.",
+				ws.Cells[row++, 1] = String.Format("Оптимизация проводится по следующим поставщикам-конкурентам: {0}", _concurents);
+
+				ws.Cells[row++, 1] = String.Format("Всего заказано поставщикам-конкурентам, указанным в данном отчете, " +
+					"товаров, по которым у {2} цены были ниже цены закупки: {0} позиций на сумму {1} руб.",
 					dsReport.Tables["Common"].Rows[0][0],
-					Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"));
+					Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
+					_supplierName);
 
 				ws.Cells[row++, 1] = String.Format("Средняя разница цен составляет {0} руб. ({1}%)",
 					dsReport.Tables["AvgDiff"].Rows[0]["SummAbs"],
 					dsReport.Tables["AvgDiff"].Rows[0]["Summ"]);
 
-				ws.Cells[row++, 1] = String.Format("Общий объем заказа в изначальных ценах: {0} руб.",
-					dsReport.Tables["OrderVolume"].Rows[0]["Summ"]);
+				ws.Cells[row++, 1] = String.Format("Общий объем заказа в исходных ценах {1}: {0} руб.",
+					dsReport.Tables["OrderVolume"].Rows[0]["Summ"],
+					_supplierName);
 				row++;
 				int col = 1;
 				//Форматируем заголовок отчета
@@ -73,6 +80,9 @@ namespace Inforoom.ReportSystem.Writers
 					ws.Cells[row, col] = "Аптека";
 					((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 				}
+
+				ws.Cells[row, col] = "Адрес";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 
 				if (_clientId == 0 || Convert.ToBoolean(dsReport.Tables["Client"].Rows[0][1])) {
 					ws.Cells[row, col] = "Пользователь";

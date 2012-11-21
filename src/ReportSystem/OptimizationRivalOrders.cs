@@ -16,11 +16,12 @@ namespace Inforoom.ReportSystem
 		private DateTime _beginDate;
 		private DateTime _endDate;
 		private int _clientId = 0;
-		private int _supplierId = 5;
+		private int _supplierId;
 		private int _reportInterval;
 		private bool _byPreviousMonth;
 		private int _optimizedCount;
 		private string _suppliersConcurent;
+		private string _supplierName;
 
 		public OptimizationRivalOrders(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
@@ -30,6 +31,7 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
 			_suppliersConcurent = OptimizationEfficiency.GetCostOptimizationConcurents(e, _supplierId);
+			_supplierName = OptimizationEfficiency.GetSupplierName(e, _supplierId);
 			var command = e.DataAdapter.SelectCommand;
 
 			command.CommandText =
@@ -39,16 +41,17 @@ select
 oh.writetime,
 ol.Cost,
 	if(u.id is null, cl.Name, fc.Name) as ClientName,
+	adr.Address as Address,
 	u.Name as UserName,
 	ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, col.SelfCost, col.ResultCost,
 	round(col.ResultCost - ol.Cost, 2) absDiff, round((col.ResultCost / ol.Cost - 1) * 100, 2) diff
 from " +
 #if DEBUG
 					@"orders.ordershead oh
-  join orders.orderslist ol on ol.orderid = oh.rowid " +
+	join orders.orderslist ol on ol.orderid = oh.rowid " +
 #else
-  @"ordersold.ordershead oh
-  join ordersold.orderslist ol on ol.orderid = oh.rowid " +
+	@"ordersold.ordershead oh
+	join ordersold.orderslist ol on ol.orderid = oh.rowid " +
 #endif
 					@"
 	join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
@@ -56,15 +59,16 @@ from " +
 		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ProducerId = ol.CodeFirmCr and
 		 (col.ClientId = ?clientId or ?clientId = 0) and col.SupplierId = ?supplierId
 and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where SupplierId = ?supplierId and LoggedOn < oh.writetime)
-  join farm.Synonym s on s.SynonymCode = ol.SynonymCode
-  join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
-   join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
-   join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
-  left join Customers.Users u on u.Id = oh.UserId
+	join farm.Synonym s on s.SynonymCode = ol.SynonymCode
+	join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
+	join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
+	join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
+	left join Customers.Users u on u.Id = oh.UserId
 	left join Customers.Clients fc on fc.Id = u.ClientId
-   left join Customers.Clients cl on cl.Id = oh.ClientCode
+	left join Customers.Clients cl on cl.Id = oh.ClientCode
+left join Customers.Addresses adr on adr.Id = oh.AddressId
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode <> ?supplierId and ol.Junk = 0
-  and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)";
+	and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)";
 #if DEBUG
 			command.CommandText += @"
 group by ol.RowId
@@ -82,14 +86,16 @@ order by oh.writetime, ol.RowId;";
 			_endDate = DateTime.Today;
 			if(Interval) {
 				_beginDate = From;
-				_endDate = To;
+				_endDate = To.AddDays(-1);
 			}
 			else if (_byPreviousMonth) {
 				_beginDate = DateTime.Today.AddMonths(-1).FirstDayOfMonth();
 				_endDate = DateTime.Today.AddMonths(-1).LastDayOfMonth();
 			}
-			else
+			else {
+				_endDate = _endDate.AddDays(-1);
 				_beginDate = _endDate.AddDays(-_reportInterval);
+			}
 
 			command.Parameters.AddWithValue("?beginDate", _beginDate);
 			command.Parameters.AddWithValue("?endDate", _endDate);
@@ -118,7 +124,7 @@ order by oh.writetime, ol.RowId;";
 					@"select concat(cl.Name, ' (', reg.Region, ')'), 1
 	from Customers.Clients cl
 		 join farm.Regions reg on reg.RegionCode = cl.RegionCode
-   where Id = ?clientId";
+	where Id = ?clientId";
 				e.DataAdapter.Fill(_dsReport, "Client");
 			}
 			_optimizedCount = _dsReport.Tables["Temp"].Rows.Count;
@@ -128,6 +134,7 @@ order by oh.writetime, ol.RowId;";
 
 			if (_clientId == 0)
 				dtRes.Columns.Add("ClientName");
+			dtRes.Columns.Add("Address");
 			if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
 				dtRes.Columns.Add("UserName");
 
@@ -143,7 +150,7 @@ order by oh.writetime, ol.RowId;";
 			dtRes.Columns.Add("diff", typeof(double));
 
 			// Добавляем пустые строки для заголовка
-			for (int i = 0; i < 7; i++)
+			for (int i = 0; i < 8; i++)
 				dtRes.Rows.Add(dtRes.NewRow());
 
 			foreach (DataRow row in _dsReport.Tables["Temp"].Rows) {
@@ -155,6 +162,7 @@ order by oh.writetime, ol.RowId;";
 				if (_clientId == 0 || Convert.ToBoolean(_dsReport.Tables["Client"].Rows[0][1]))
 					newRow["UserName"] = row["UserName"];
 
+				newRow["Address"] = row["Address"];
 				newRow["Code"] = row["Code"];
 				newRow["CodeCr"] = row["CodeCr"];
 				newRow["Synonym"] = row["Synonym"];
@@ -190,7 +198,7 @@ order by oh.writetime, ol.RowId;";
 		protected override BaseReportSettings GetSettings()
 		{
 			return new OptimizationEfficiencySettings(ReportCode, ReportCaption, _beginDate, _endDate,
-				_clientId, _optimizedCount, _suppliersConcurent);
+				_clientId, _optimizedCount, _suppliersConcurent, _supplierName);
 		}
 	}
 }
