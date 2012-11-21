@@ -34,7 +34,7 @@ namespace ReportSystem.Test
 					SerialNumber = "4563",
 					EAN13 = "5290931004832",
 					ProducerCost = 56,
-					SupplierCostWithoutNDS = 70,
+					SupplierCost = 100,
 				});
 				waybill.Lines.Add(new TestWaybillLine(waybill) {
 					Product = "Аксетин",
@@ -42,7 +42,7 @@ namespace ReportSystem.Test
 					SerialNumber = "4563",
 					EAN13 = "5290931004832",
 					ProducerCost = 56,
-					SupplierCostWithoutNDS = 100,
+					SupplierCost = 70,
 				});
 				session.Save(waybill);
 				session.CreateSQLQuery("update Customers.Suppliers set VendorId = 15 where id = :id")
@@ -55,7 +55,7 @@ namespace ReportSystem.Test
 			report = new WaybillsReport(1, "test", Conn, ReportFormats.CSV, properties);
 			BuildOrderReport("test");
 			var result = File.ReadAllText("test.csv");
-			Assert.That(result, Is.EqualTo("DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;2012;11;\"4563\";10.00;56.00;70.00;79.50;0.00;15;;\r\n"));
+			Assert.That(result, Is.EqualTo("DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;2012;11;\"4563\";10.00;61.60;70.00;80.60;0.00;15;;\r\n"));
 		}
 
 		[Test]
@@ -69,7 +69,7 @@ namespace ReportSystem.Test
 		public void Max_cost()
 		{
 			var markups = new[] { new Markup(MarkupType.Supplier, 20), new Markup(MarkupType.Drugstore, 20) };
-			Assert.That(Markup.MaxCost(50, 10, markups), Is.EqualTo(71));
+			Assert.That(Markup.MaxCost(50, 10, markups), Is.EqualTo(72));
 		}
 
 		[Test]
@@ -77,7 +77,7 @@ namespace ReportSystem.Test
 		{
 			var markups = new[] { new Markup(MarkupType.Supplier, 20), new Markup(MarkupType.Drugstore, 20) };
 			Assert.That(Markup.RetailCost(70, 50, 10, markups), Is.EqualTo(0));
-			Assert.That(Markup.RetailCost(65, 50, 10, markups), Is.EqualTo(71));
+			Assert.That(Markup.RetailCost(65, 50, 10, markups), Is.EqualTo(72));
 			Assert.That(Markup.RetailCost(215.40m, 200.10m, 10, markups), Is.EqualTo(255));
 		}
 

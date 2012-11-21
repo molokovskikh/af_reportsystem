@@ -46,16 +46,17 @@ namespace Inforoom.ReportSystem.Model
 		{
 			var supplierMarkup = markups.First(m => m.Type == MarkupType.Supplier).Value;
 			var drugstoreMarkup = markups.First(m => m.Type == MarkupType.Drugstore).Value;
-			return Math.Round(producerCost * (1  + supplierMarkup / 100 + drugstoreMarkup / 100 * (1 + nds / 100)), 2);
+			var supplierCost = producerCost + producerCost * supplierMarkup / 100 * (1 + nds / 100);
+			return CalculateRetailCost(supplierCost, producerCost, nds, drugstoreMarkup);
 		}
 
-		public static decimal CalculateRetailCost(decimal supplierCostWithoutNds, decimal producerCost, decimal nds, decimal markup)
+		public static decimal CalculateRetailCost(decimal supplierCost, decimal producerCost, decimal nds, decimal markup)
 		{
-			var result = supplierCostWithoutNds  + producerCost * markup / 100 * (1 + nds / 100);
+			var result = supplierCost  + producerCost * markup / 100 * (1 + nds / 100);
 			return Math.Floor(result * 10) / 10;
 		}
 
-		public static decimal RetailCost(decimal supplierCostWithoutNds, decimal producerCost, decimal nds, IEnumerable<Markup> markups)
+		public static decimal RetailCost(decimal supplierCost, decimal producerCost, decimal nds, IEnumerable<Markup> markups)
 		{
 			var drugstoeMarkup = markups.FirstOrDefault(m => m.Type == MarkupType.Drugstore);
 			if (drugstoeMarkup == null)
@@ -64,14 +65,14 @@ namespace Inforoom.ReportSystem.Model
 				return 0;
 
 			var markup = drugstoeMarkup.Value - 2;
-			var retailCost = CalculateRetailCost(supplierCostWithoutNds, producerCost, nds, markup);
+			var retailCost = CalculateRetailCost(supplierCost, producerCost, nds, markup);
 
 			var maxCost = MaxCost(producerCost, nds, markups);
 			if (retailCost > maxCost) {
-				markup = (maxCost - supplierCostWithoutNds) / (producerCost * (1 + nds / 100)) * 100;
+				markup = (maxCost - supplierCost) / (producerCost * (1 + nds / 100)) * 100;
 				if (markup < 5)
 					return 0;
-				retailCost = CalculateRetailCost(supplierCostWithoutNds, producerCost, nds, markup);
+				retailCost = CalculateRetailCost(supplierCost, producerCost, nds, markup);
 			}
 			return retailCost;
 		}
