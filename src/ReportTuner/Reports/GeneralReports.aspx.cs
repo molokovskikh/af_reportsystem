@@ -450,7 +450,7 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 			MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO
 	reports.general_reports
-(PayerId, Allow, Comment, FirmCode)
+(PayerId, Allow, Public, Comment, FirmCode)
 select
   ?PayerId,
   ?Allow,
