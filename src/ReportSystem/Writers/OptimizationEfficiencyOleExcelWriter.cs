@@ -71,8 +71,7 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Cells[row++, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
 					dsReport.Tables["OverPrice"].Rows[0]["Count"],
-					100 * Convert.ToUInt32(dsReport.Tables["OverPrice"].Rows[0]["DiffSumm"]) /
-					Convert.ToUInt32(dsReport.Tables["OverPrice"].Rows[0]["SelfSumm"]));
+					Convert.ToDecimal(dsReport.Tables["OverPrice"].Rows[0]["Summ"]));
 
 				ws.Cells[row++, 1] = String.Format("Суммарный экономический эффект {0} руб.",
 					Convert.ToDouble(dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"));

@@ -13,7 +13,7 @@ namespace ReportTuner.Test.Integration
 		[Test]
 		public void CalculateTest()
 		{
-			var query = session.CreateSQLQuery(@"drop temporary table IF EXISTS usersettings.TmpData;
+			var queryString = @"drop temporary table IF EXISTS usersettings.TmpData;
 CREATE temporary table usersettings.TmpData(
   Cost1 decimal(12,6),
   Cost2 decimal(12,6)
@@ -21,15 +21,20 @@ CREATE temporary table usersettings.TmpData(
   
   insert into usersettings.TmpData values(10, 20);  -- меньше рублевого порога
   insert into usersettings.TmpData values(99, 100); -- считаем
-  insert into usersettings.TmpData values(90, 100); -- считаем
   insert into usersettings.TmpData values(50, 100); -- больше крайнего порога в 23%
   insert into usersettings.TmpData values(900, 1000); -- считаем
   insert into usersettings.TmpData values(950, 1000); -- считаем
   insert into usersettings.TmpData values(999, 1000); -- меньше меньшего порога в 0.8%
   insert into usersettings.TmpData values(38, 40); -- считаем
   insert into usersettings.TmpData values(51, 55); -- считаем
-  
-  select Cost1, Cost2, MakeCostNoLess(Cost1, Cost2)  from usersettings.TmpData;");
+";
+			for (int i = 0; i < 100; i++) {
+				queryString += @"insert into usersettings.TmpData values(90, 100); -- считаем
+";
+			}
+			queryString += @"select Cost1, Cost2, MakeCostNoLess(Cost1, Cost2)  from usersettings.TmpData;
+";
+			var query = session.CreateSQLQuery(queryString);
 			var result = query.List<object[]>();
 
 			foreach (var obj in result) {

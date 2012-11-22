@@ -194,8 +194,9 @@ and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDa
 			e.DataAdapter.Fill(_dsReport, "CommonConcurents");
 
 			command.CommandText =
-				@"select count(*) Count, ifnull(round(sum(diff * Quantity), 2), 0) DiffSumm, ifnull(round(sum(SelfCost * Quantity), 2), 1) SelfSumm from CostOptimization
-where diff > 0;";
+				@"select Count, round(100 * DiffSumm/SelfSumm, 2) Summ from
+(select count(*) Count, ifnull(round(sum(absDiff * Quantity), 2), 0) DiffSumm, ifnull(round(sum(SelfCost * Quantity), 2), 1) SelfSumm from CostOptimization
+where diff > 0) t;";
 			e.DataAdapter.Fill(_dsReport, "OverPrice");
 
 			command.CommandText =
