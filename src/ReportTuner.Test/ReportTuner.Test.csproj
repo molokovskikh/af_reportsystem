@@ -96,6 +96,7 @@
     <Compile Include="Functional\CopyReportFixture.cs" />
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Functional\ReportsTuningFixture.cs" />
+    <Compile Include="Integration\CalculateOrdersFixture.cs" />
     <Compile Include="Integration\CopyReportControllerFixture.cs" />
     <Compile Include="Integration\GeneralReportFixture.cs" />
     <Compile Include="Integration\MakeCostNoLessFixture.cs" />
