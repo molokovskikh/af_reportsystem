@@ -99,6 +99,7 @@
     <Compile Include="Integration\CalculateOrdersFixture.cs" />
     <Compile Include="Integration\CopyReportControllerFixture.cs" />
     <Compile Include="Integration\GeneralReportFixture.cs" />
+    <Compile Include="Integration\MakeCostNoLessFixture.cs" />
     <Compile Include="Integration\ReportControllerFixture.cs" />
     <Compile Include="Integration\ReportTest.cs" />
     <Compile Include="Integration\ReportTuningControllerFixture.cs" />
