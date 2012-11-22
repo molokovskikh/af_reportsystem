@@ -84,9 +84,6 @@ namespace ReportSystem.Test
 		[Test, Description("Тестирует обработку различных типов исключений в процессе работы отчетов")]
 		public void TestExceptionDuringProcessReport()
 		{
-			if (!ActiveRecordStarter.IsInitialized)
-				ActiveRecordStarter.Initialize(typeof(ReportResultLog).Assembly, ActiveRecordSectionHandler.Instance);
-
 			var dtStart = DateTime.Now;
 			var gr = new FakeGeneralReport();
 			gr.AddRange(new[] {

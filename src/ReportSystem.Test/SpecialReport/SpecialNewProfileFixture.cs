@@ -56,7 +56,7 @@ namespace ReportSystem.Test
 		public void SpecialByBaseCostNew()
 		{
 			var fileName = "SpecialByBaseCostNew.xls";
-			Property("ReportType", 4);
+			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
 				1
 			});
@@ -67,13 +67,38 @@ namespace ReportSystem.Test
 				196
 			});
 
-			Property("SupplierNoise", 5);
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
 			Property("ShowPercents", true);
 			Property("CalculateByCatalog", false);
 			Property("PriceCode", 196);
+			Property("ByBaseCosts", true);
+			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
+			BuildReport(fileName);
+		}
+
+		[Test]
+		public void SpecialByBaseCostAssort()
+		{
+			var fileName = "SpecialByBaseCostAssort.xls";
+			Property("ReportType", 1);
+			Property("RegionEqual", new List<ulong> {
+				2097152
+			});
+
+			Property("PriceCodeEqual", new List<ulong> {
+				338,
+				4023
+			});
+
+			Property("SupplierNoise", 5);
+			Property("ReportIsFull", false);
+			Property("ClientCode", 5101);
+			Property("ReportSortedByPrice", false);
+			Property("ShowPercents", true);
+			Property("CalculateByCatalog", false);
+			Property("PriceCode", 5699);
 			Property("ByBaseCosts", true);
 			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);

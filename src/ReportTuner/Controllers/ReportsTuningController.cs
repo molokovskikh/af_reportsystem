@@ -128,9 +128,6 @@ namespace ReportTuner.Controllers
 			addresses.Where(a => !a.Id.IsIn(thisAddrIds));
 			addresses.Where(a => a.Enabled);
 
-#if DEBUG
-			QueryCatcher.Catch();
-#endif
 			if (!string.IsNullOrEmpty(addressText))
 				addresses.And(Restrictions.On<Address>(l => l.Value).IsLike(addressText, MatchMode.Anywhere));
 

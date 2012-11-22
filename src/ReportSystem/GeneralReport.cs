@@ -35,17 +35,17 @@ namespace Inforoom.ReportSystem
 	/// </summary>
 	public class GeneralReport
 	{
+		public bool Testing;
+		public List<Mime> Messages = new List<Mime>();
+
 		public ulong GeneralReportID;
 		public uint? SupplierId;
 
 		private uint? _contactGroupId;
-		private string _eMailSubject;
+		public string EMailSubject;
 
 		private string _reportFileName;
 		private string _reportArchName;
-
-		private bool _noArchive;
-		public bool SendDescriptionFile;
 
 		private MySqlConnection _conn;
 
@@ -58,22 +58,25 @@ namespace Inforoom.ReportSystem
 
 		public ILog Logger;
 
+		public bool NoArchive;
+		public bool SendDescriptionFile;
+
 		public IDictionary<string, string> FilesForReport;
 
 		//таблица отчетов, которая существует в общем отчете
 
-		protected DataTable _dtReports;
+		protected DataTable _reports;
 
 		//таблица контактов, по которым надо отправить отчет
-		private DataTable _dtContacts;
+		public DataTable Contacts;
 
 		public List<BaseReport> Reports = new List<BaseReport>();
 
 		// Проверка спика отчетов
 		private void CheckReports()
 		{
-			foreach (DataRow drGReport1 in _dtReports.Rows) // Проверяем чтобы не было
-				foreach (DataRow drGReport2 in _dtReports.Rows) // двух листов с одинаковыми названиями
+			foreach (DataRow drGReport1 in _reports.Rows) // Проверяем чтобы не было
+				foreach (DataRow drGReport2 in _reports.Rows) // двух листов с одинаковыми названиями
 					if (Convert.ToBoolean(drGReport1[BaseReportColumns.colEnabled]) &&
 						Convert.ToBoolean(drGReport2[BaseReportColumns.colEnabled]) &&
 						Convert.ToUInt32(drGReport1[BaseReportColumns.colReportCode]) !=
@@ -94,7 +97,7 @@ namespace Inforoom.ReportSystem
 		public GeneralReport(bool noArchive) // конструктор для возможности тестирования
 		{
 			FilesForReport = new Dictionary<string, string>();
-			_noArchive = noArchive;
+			NoArchive = noArchive;
 		}
 
 		public GeneralReport(ulong id, uint? supplierId, uint? contactGroupId,
@@ -116,20 +119,20 @@ namespace Inforoom.ReportSystem
 			SupplierId = supplierId;
 			_conn = connection;
 			_contactGroupId = contactGroupId;
-			_eMailSubject = emailSubject;
+			EMailSubject = emailSubject;
 			_reportFileName = reportFileName;
 			_reportArchName = reportArchName;
 			_payer = payer;
-			_noArchive = noArchive;
+			NoArchive = noArchive;
 			SendDescriptionFile = sendDescriptionFile;
 			Format = format;
 
-			_dtReports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
+			_reports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
 
 			FilesForReport = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, _conn);
 
 			if (!interval)
-				_dtContacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
+				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
 					args.DataAdapter.SelectCommand.CommandText = @"
 select lower(c.contactText)
 from
@@ -158,7 +161,7 @@ and c.Type = ?ContactType";
 				},
 					null, _conn);
 			else {
-				_dtContacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
+				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
 					args.DataAdapter.SelectCommand.CommandText = @"
 select Mail FROM reports.Mailing_Addresses M
 where GeneralReport = ?GeneralReport;";
@@ -168,9 +171,9 @@ where GeneralReport = ?GeneralReport;";
 					return res;
 				}, null, _conn);
 			}
-			if ((_dtReports != null) && (_dtReports.Rows.Count > 0)) {
+			if ((_reports != null) && (_reports.Rows.Count > 0)) {
 				CheckReports(); // Проверяем отчеты, если что-то не нравится выдаем исключение
-				foreach (DataRow drGReport in _dtReports.Rows) {
+				foreach (DataRow drGReport in _reports.Rows) {
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled])) {
 						//Создаем отчеты и добавляем их в список отчетов
 						var bs = (BaseReport)Activator.CreateInstance(
@@ -187,8 +190,8 @@ where GeneralReport = ?GeneralReport;";
 						Reports.Add(bs);
 
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
-						if (String.IsNullOrEmpty(_eMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
-							_eMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
+						if (String.IsNullOrEmpty(EMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
+							EMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
 					}
 				}
 			}
@@ -199,9 +202,12 @@ where GeneralReport = ?GeneralReport;";
 		//Производится построение отчетов
 		public void ProcessReports()
 		{
-			var resFileName = BuildResultFile();
+			SendReport(BuildResultFile());
+		}
 
-			var mails = _dtContacts.AsEnumerable().Select(r => r[0].ToString()).ToArray();
+		public void SendReport(string resFileName)
+		{
+			var mails = Contacts.AsEnumerable().Select(r => r[0].ToString()).ToArray();
 #if TESTING
 			mails = new[] { Settings.Default.ErrorReportMail };
 #endif
@@ -261,16 +267,15 @@ where GeneralReport = ?GeneralReport;";
 
 			if (emptyReport) throw new ReportException("Отчет пуст.");
 
-			if (_noArchive) {
+			if (NoArchive) {
 				SafeCopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
 				return _mainFileName;
 			}
 
-			var resFileName = ArchFile();
-			return resFileName;
+			return ArchFile();
 		}
 
-		private void MailWithAttach(string archFileName, string EMailAddress)
+		private void MailWithAttach(string archFileName, string address)
 		{
 			var message = new Mime();
 			var mainEntry = message.MainEntity;
@@ -278,9 +283,9 @@ where GeneralReport = ?GeneralReport;";
 			mainEntry.From = new AddressList { new MailboxAddress("АК Инфорум", "report@analit.net") };
 
 			mainEntry.To = new AddressList();
-			mainEntry.To.Parse(EMailAddress);
+			mainEntry.To.Parse(address);
 
-			mainEntry.Subject = _eMailSubject;
+			mainEntry.Subject = EMailSubject;
 
 			mainEntry.ContentType = MediaType_enum.Multipart_mixed;
 
@@ -289,23 +294,32 @@ where GeneralReport = ?GeneralReport;";
 			textEntity.ContentTransferEncoding = ContentTransferEncoding_enum.QuotedPrintable;
 			textEntity.DataText = String.Empty;
 
-			var attachmentEntity = mainEntry.ChildEntities.Add();
-			AttachFile(attachmentEntity, archFileName);
-			if (_noArchive)
-				foreach (var file in FilesForReport.Keys) {
-					var entity = mainEntry.ChildEntities.Add();
-					AttachFile(entity, Path.Combine(_directoryName, file));
+			//если мы создали архив то все файлы будут в нем
+			//если отчеты не надо архивировать то файлы будут лежать в директории отчета
+			if (NoArchive) {
+				var files = Directory.GetFiles(Path.GetDirectoryName(archFileName));
+				foreach (var file in files) {
+					AttachFile(mainEntry, file);
 				}
+			}
+			else {
+				AttachFile(mainEntry, archFileName);
+			}
 
-			int? SMTPID = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
-
+			if (Testing) {
+				Messages.Add(message);
+			}
+			else {
+				int? SMTPID = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 #if (!TESTING)
-			MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, EMailAddress), ProcessLog, 0, _conn, true, false, null);
+				MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, address), ProcessLog, 0, _conn, true, false, null);
 #endif
+			}
 		}
 
-		private void AttachFile(MimeEntity entity, string file)
+		private void AttachFile(MimeEntity mainEntry, string file)
 		{
+			var entity = mainEntry.ChildEntities.Add();
 			entity.ContentType = MediaType_enum.Application_octet_stream;
 			entity.ContentDisposition = ContentDisposition_enum.Attachment;
 			entity.ContentTransferEncoding = ContentTransferEncoding_enum.Base64;
@@ -420,7 +434,7 @@ and f.FileName is not null";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", GeneralReportID);
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
-			foreach (DataRow row in _dtReports.Rows) {
+			foreach (DataRow row in _reports.Rows) {
 				if (SendDescriptionFile && Convert.ToBoolean(row["Enabled"])) {
 					var reportCode = row[BaseReportColumns.colReportTypeCode];
 					e.DataAdapter.SelectCommand.Parameters.Clear();

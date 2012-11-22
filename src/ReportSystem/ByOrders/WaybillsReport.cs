@@ -36,25 +36,40 @@ namespace Inforoom.ReportSystem.ByOrders
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			var sql = @"
-select dh.WriteTime, db.Quantity, db.ProducerCost, db.SerialNumber, db.NDS, db.SupplierCostWithoutNDS, s.VendorId, d.DrugId, c.RegionCode
+drop temporary table if exists uniq_document_lines;
+create temporary table uniq_document_lines engine=memory
+select max(db.Id) as Id
 from Documents.DocumentBodies db
 	join Documents.DocumentHeaders dh on dh.Id = db.DocumentId
 		join Customers.Addresses a on a.Id = dh.AddressId
 			join Customers.Clients c on c.Id = a.ClientId
 		join Customers.Suppliers s on s.Id = dh.FirmCode
-join Reports.Drugs d on d.EAN = db.EAN13
+	join Reports.Drugs d on d.EAN = db.EAN13
 where a.LegalEntityId = ?orgId
 and dh.WriteTime > ?begin
 and dh.WriteTime < ?end
 and db.Quantity is not null
 and db.ProducerCost is not null
-and db.SupplierCostWithoutNDS is not null
+and db.SupplierCost is not null
 and s.VendorID is not null
+group by db.EAN13
+;
+
+select db.Quantity, db.ProducerCost, db.SerialNumber, db.NDS, db.SupplierCost, s.VendorId, d.DrugId, c.RegionCode
+from Documents.DocumentBodies db
+	join Documents.DocumentHeaders dh on dh.Id = db.DocumentId
+		join Customers.Addresses a on a.Id = dh.AddressId
+			join Customers.Clients c on c.Id = a.ClientId
+		join Customers.Suppliers s on s.Id = dh.FirmCode
+	join uniq_document_lines u on u.Id = db.Id
+	join Reports.Drugs d on d.EAN = db.EAN13
+;
+drop temporary table if exists uniq_document_lines;
 ";
 			var adapter = new MySqlDataAdapter(sql, _conn);
 			var parameters = adapter.SelectCommand.Parameters;
-			parameters.AddWithValue("?begin", dtFrom);
-			parameters.AddWithValue("?end", dtTo);
+			parameters.AddWithValue("begin", dtFrom);
+			parameters.AddWithValue("end", dtTo);
 			parameters.AddWithValue("orgId", orgId);
 			var data = new DataTable();
 			adapter.Fill(data);
@@ -82,25 +97,27 @@ and s.VendorID is not null
 
 				var producerCost = Convert.ToDecimal(row["ProducerCost"]);
 				var regionId = Convert.ToUInt64(row["RegionCode"]);
-				var supplierCostWithoutNds = Convert.ToDecimal(row["SupplierCostWithoutNDS"]);
+				var supplierCost = Convert.ToDecimal(row["SupplierCost"]);
 				var nds = row["NDS"] is DBNull ? 10 : Convert.ToDecimal(row["NDS"]);
 
 				var currentMarkups = markups.Where(m => m.Region.Id == regionId)
 					.Where(m => producerCost >= m.Begin && producerCost <= m.End)
 					.ToList();
 
-				var retailCost = Markup.RetailCost(supplierCostWithoutNds, producerCost, nds, currentMarkups);
+				var retailCost = Markup.RetailCost(supplierCost, producerCost, nds, currentMarkups);
 				if (retailCost == 0)
 					continue;
 
+				var producerCostForReport = producerCost * (1 + nds / 100);
+
 				resultRow["DrugId"] = row["DrugId"];
 				resultRow["Segment"] = 1;
-				resultRow["Year"] = Convert.ToDateTime(row["WriteTime"]).Year;
-				resultRow["Month"] = Convert.ToDateTime(row["WriteTime"]).Month;
+				resultRow["Year"] = DateTime.Now.Year;
+				resultRow["Month"] = DateTime.Now.Month;
 				resultRow["Series"] = "\"" + (row["SerialNumber"] is DBNull ? "-" : row["SerialNumber"]) + "\"";
 				resultRow["TotDrugQn"] = Convert.ToDecimal(row["Quantity"]).ToString("0.00", CultureInfo.InvariantCulture);
-				resultRow["MnfPrice"] = Convert.ToDecimal(row["ProducerCost"]).ToString("0.00", CultureInfo.InvariantCulture);
-				resultRow["PrcPrice"] = supplierCostWithoutNds.ToString("0.00", CultureInfo.InvariantCulture);
+				resultRow["MnfPrice"] = producerCostForReport.ToString("0.00", CultureInfo.InvariantCulture);
+				resultRow["PrcPrice"] = supplierCost.ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["RtlPrice"] = retailCost.ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["Funds"] = 0.ToString("0.00", CultureInfo.InvariantCulture);
 				resultRow["VendorID"] = row["VendorID"];

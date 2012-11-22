@@ -7,7 +7,7 @@ using Inforoom.ReportSystem.ReportSettings;
 
 namespace Inforoom.ReportSystem.Writers
 {
-	public class OptimizationEfficiencyOleExcelWriter : BaseExcelWriter, IWriter
+	public class OptimizationEfficiencyExcludeOleExcelWriter : BaseExcelWriter, IWriter
 	{
 		public void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
@@ -18,7 +18,6 @@ namespace Inforoom.ReportSystem.Writers
 			_beginDate = optimizationSettings.BeginDate;
 			_endDate = optimizationSettings.EndDate;
 			_clientId = optimizationSettings.ClientId;
-			_optimizedCount = optimizationSettings.OptimizedCount;
 			_concurents = optimizationSettings.Concurents;
 			_supplierName = optimizationSettings.SupplierName;
 
@@ -27,7 +26,6 @@ namespace Inforoom.ReportSystem.Writers
 		}
 
 		private int _clientId;
-		private int _optimizedCount;
 		private ulong _reportCode;
 		private string _reportCaption;
 		private DateTime _beginDate;
@@ -45,12 +43,11 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 
-				ws.Cells[row, 1] = String.Format("Статистика оптимизации цен {2} за период с {0} по {1} включительно",
+				ws.Cells[row, 1] = String.Format("Заказы конкурирующим поставщикам {2} за период с {0} по {1} включительно",
 					_beginDate.ToString("dd.MM.yyyy"),
 					_endDate.ToString("dd.MM.yyyy"),
-					(_clientId != 0) ?
-					                 	"для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
-					                 	                                                                        	"для всех клиентов");
+					(_clientId != 0) ? "для клиента " + Convert.ToString(dsReport.Tables["Client"].Rows[0][0]) :
+						"для всех клиентов");
 				((MSExcel.Range)ws.Cells[row, 1]).Font.Bold = true;
 				((MSExcel.Range)ws.Cells[row++, 1]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 
@@ -58,26 +55,20 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Cells[row++, 1] = String.Format("Оптимизация проводится по следующим поставщикам-конкурентам: {0}", _concurents);
 
-				ws.Cells[row++, 1] = String.Format("Всего заказано у всех поставщиков-конкурентов, " +
-					"включенных в данный отчет: {0} позиций на сумму {1} руб.",
-					dsReport.Tables["CommonConcurents"].Rows[0][0],
-					Convert.ToDouble(dsReport.Tables["CommonConcurents"].Rows[0][1]).ToString("### ### ### ##0.00"));
-
-				ws.Cells[row++, 1] = String.Format("Всего заказано у {3}: {0} позиций на сумму {1} руб. из них цены оптимизированы у {2}",
+				ws.Cells[row++, 1] = String.Format("Всего заказано поставщикам-конкурентам, указанным в данном отчете, " +
+					"товаров, по которым у {2} цены были ниже цены закупки: {0} позиций на сумму {1} руб.",
 					dsReport.Tables["Common"].Rows[0][0],
 					Convert.ToDouble(dsReport.Tables["Common"].Rows[0][1]).ToString("### ### ### ##0.00"),
-					_optimizedCount,
 					_supplierName);
 
-				ws.Cells[row++, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
-					dsReport.Tables["OverPrice"].Rows[0]["Count"],
-					dsReport.Tables["OverPrice"].Rows[0]["Summ"]);
+				ws.Cells[row++, 1] = String.Format("Средняя разница цен составляет {0} руб. ({1}%)",
+					dsReport.Tables["AvgDiff"].Rows[0]["SummAbs"],
+					dsReport.Tables["AvgDiff"].Rows[0]["Summ"]);
 
-				ws.Cells[row++, 1] = String.Format("Суммарный экономический эффект {0} руб.",
-					Convert.ToDouble(dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"));
-
+				ws.Cells[row++, 1] = String.Format("Общий объем заказа в исходных ценах {1}: {0} руб.",
+					dsReport.Tables["OrderVolume"].Rows[0]["Summ"],
+					_supplierName);
 				row++;
-
 				int col = 1;
 				//Форматируем заголовок отчета
 				((MSExcel.Range)ws.Cells[row, col]).RowHeight = 25;
@@ -114,10 +105,13 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
 				ws.Cells[row, col] = "Исходная цена (руб.)";
-				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 15.5;
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
-				ws.Cells[row, col] = "Результирующая цена (руб.)";
-				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 19;
+				ws.Cells[row, col] = "Цена заказа у другого поставщика (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 22;
+
+				ws.Cells[row, col] = "Оптимизированная цена (руб.)";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 17;
 
 				ws.Cells[row, col] = "Разница (руб.)";
 				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11;
@@ -125,24 +119,13 @@ namespace Inforoom.ReportSystem.Writers
 				ws.Cells[row, col] = "Разница (%)";
 				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 11;
 
-				ws.Cells[row, col] = "Экономический эффект (руб.)";
-				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
-
 				for (int i = 1; i <= col; i++) {
 					((MSExcel.Range)ws.Cells[row, i]).WrapText = true;
 					((MSExcel.Range)ws.Cells[row, i]).Font.Bold = true;
 					((MSExcel.Range)ws.Cells[row, i]).HorizontalAlignment = MSExcel.XlHAlign.xlHAlignCenter;
 				}
 
-
 				int lastRow = dsReport.Tables["Results"].Rows.Count + 2;
-
-				ws.Cells[lastRow, 1] = "Итого:";
-				((MSExcel.Range)ws.Cells[lastRow, 1]).Font.Bold = true;
-
-				ws.Cells[lastRow, dsReport.Tables["Results"].Columns.Count] = dsReport.Tables["Money"].Rows[0][0];
-				((MSExcel.Range)ws.Cells[lastRow, dsReport.Tables["Results"].Columns.Count]).Font.Bold = true;
-
 
 				((MSExcel.Range)ws.Cells[1, 7]).Clear();
 				//рисуем границы на всю таблицу
@@ -159,7 +142,7 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)exApp.Selection).Merge(null);
 
 				// объединяем Итого
-				ws.get_Range(ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count - 1]).Merge(null);
+				ws.get_Range(ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, 1], ws.Cells[dsReport.Tables["Results"].Rows.Count + 2, dsReport.Tables["Results"].Columns.Count]).Merge(null);
 			});
 		}
 	}
