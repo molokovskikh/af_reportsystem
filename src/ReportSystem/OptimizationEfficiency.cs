@@ -74,7 +74,7 @@ where cr.SupplierId=?supplier order by Name;";
 			command.CommandText =
 				@"drop temporary table IF EXISTS CostOptimization;
 create temporary table CostOptimization engine memory
-select oh.writetime,
+select ol.OrderId, oh.writetime,
 	if(u.id is null, cl.Name, fc.Name) as ClientName,
 	adr.Address as Address,
 	u.Name as UserName,
@@ -122,15 +122,15 @@ order by oh.writetime, ol.RowId;";
 			_endDate = DateTime.Today;
 			if(Interval) {
 				_beginDate = From;
-				_endDate = To.AddDays(-1);
+				_endDate = To;
 			}
 			else if (_byPreviousMonth) { // Определяем интервал построения отчета
 				_beginDate = DateTime.Today.AddMonths(-1).FirstDayOfMonth();
 				_endDate = DateTime.Today.AddMonths(-1).LastDayOfMonth();
 			}
 			else {
-				_endDate = _endDate.AddDays(-1);
 				_beginDate = _endDate.AddDays(-_reportInterval);
+				_endDate = _endDate.AddDays(-1);
 			}
 
 			command.Parameters.AddWithValue("?beginDate", _beginDate);
@@ -194,7 +194,7 @@ and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDa
 			e.DataAdapter.Fill(_dsReport, "CommonConcurents");
 
 			command.CommandText =
-				@"select count(*) Count, ifnull(round(avg(diff), 2), 0) Summ from CostOptimization
+				@"select count(*) Count, ifnull(round(sum(diff * Quantity), 2), 0) DiffSumm, ifnull(round(sum(SelfCost * Quantity), 2), 1) SelfSumm from CostOptimization
 where diff > 0;";
 			e.DataAdapter.Fill(_dsReport, "OverPrice");
 
@@ -219,6 +219,7 @@ where diff > 0";
 			_optimizedCount = _dsReport.Tables["Temp"].Rows.Count;
 
 			var dtRes = new DataTable("Results");
+			dtRes.Columns.Add("OrderId", typeof(uint));
 			dtRes.Columns.Add("writetime", typeof(DateTime));
 
 			if (_clientId == 0)
@@ -262,6 +263,7 @@ where diff > 0";
 				newRow["absDiff"] = row["absDiff"];
 				newRow["diff"] = row["diff"];
 				newRow["EkonomEffect"] = row["EkonomEffect"];
+				newRow["OrderId"] = row["OrderId"];
 				dtRes.Rows.Add(newRow);
 			}
 

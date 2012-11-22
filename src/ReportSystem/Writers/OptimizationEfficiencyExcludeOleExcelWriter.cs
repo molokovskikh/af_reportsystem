@@ -138,7 +138,7 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 				//Объединяем несколько ячеек, чтобы в них написать текст
-				ws.get_Range("A1:M1", System.Reflection.Missing.Value).Select();
+				ws.get_Range("A1:N1", System.Reflection.Missing.Value).Select();
 				((MSExcel.Range)exApp.Selection).Merge(null);
 
 				// объединяем Итого

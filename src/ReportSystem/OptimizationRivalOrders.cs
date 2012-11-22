@@ -86,15 +86,15 @@ order by oh.writetime, ol.RowId;";
 			_endDate = DateTime.Today;
 			if(Interval) {
 				_beginDate = From;
-				_endDate = To.AddDays(-1);
+				_endDate = To;
 			}
 			else if (_byPreviousMonth) {
 				_beginDate = DateTime.Today.AddMonths(-1).FirstDayOfMonth();
 				_endDate = DateTime.Today.AddMonths(-1).LastDayOfMonth();
 			}
 			else {
-				_endDate = _endDate.AddDays(-1);
 				_beginDate = _endDate.AddDays(-_reportInterval);
+				_endDate = _endDate.AddDays(-1);
 			}
 
 			command.Parameters.AddWithValue("?beginDate", _beginDate);

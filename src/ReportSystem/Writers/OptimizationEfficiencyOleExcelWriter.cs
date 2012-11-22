@@ -71,7 +71,8 @@ namespace Inforoom.ReportSystem.Writers
 
 				ws.Cells[row++, 1] = String.Format("Цены завышены у {0} позиции в среднем на {1}%",
 					dsReport.Tables["OverPrice"].Rows[0]["Count"],
-					dsReport.Tables["OverPrice"].Rows[0]["Summ"]);
+					100 * Convert.ToUInt32(dsReport.Tables["OverPrice"].Rows[0]["DiffSumm"]) /
+					Convert.ToUInt32(dsReport.Tables["OverPrice"].Rows[0]["SelfSumm"]));
 
 				ws.Cells[row++, 1] = String.Format("Суммарный экономический эффект {0} руб.",
 					Convert.ToDouble(dsReport.Tables["Money"].Rows[0][0]).ToString("### ### ### ##0.00"));
@@ -81,6 +82,9 @@ namespace Inforoom.ReportSystem.Writers
 				int col = 1;
 				//Форматируем заголовок отчета
 				((MSExcel.Range)ws.Cells[row, col]).RowHeight = 25;
+
+				ws.Cells[row, col] = "Номер заказа";
+				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
 
 				ws.Cells[row, col] = "Дата";
 				((MSExcel.Range)ws.Cells[row, col++]).ColumnWidth = 18;
@@ -155,7 +159,7 @@ namespace Inforoom.ReportSystem.Writers
 				((MSExcel.Range)exApp.Selection).AutoFilter(1, System.Reflection.Missing.Value, Microsoft.Office.Interop.Excel.XlAutoFilterOperator.xlAnd, System.Reflection.Missing.Value, true);
 
 				//Объединяем несколько ячеек, чтобы в них написать текст
-				ws.get_Range("A1:M1", System.Reflection.Missing.Value).Select();
+				ws.get_Range("A1:O1", System.Reflection.Missing.Value).Select();
 				((MSExcel.Range)exApp.Selection).Merge(null);
 
 				// объединяем Итого
