@@ -111,7 +111,7 @@ drop temporary table if exists uniq_document_lines;
 				var producerCostForReport = Math.Round(producerCost * (1 + nds / 100), 2);
 
 				decimal maxProducerCost;
-				if (decimal.TryParse(row["MaxMnfPrice"].ToString(), out maxProducerCost) && maxProducerCost > 0) {
+				if (decimal.TryParse(row["MaxMnfPrice"].ToString(), NumberStyles.Number, CultureInfo.InvariantCulture, out maxProducerCost) && maxProducerCost > 0) {
 					if (producerCostForReport > maxProducerCost)
 						continue;
 
