@@ -58,21 +58,21 @@ namespace ReportSystem.Test
 			var fileName = "SpecialByBaseCostNew.xls";
 			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
-				1
+				4096
 			});
 
-			Property("PriceCodeEqual", new List<ulong> {
-				4838,
-				4479,
-				196
-			});
+			//Property("PriceCodeEqual", new List<ulong> {
+			//	4838,
+			//	4479,
+			//	196
+			//});
 
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
 			Property("ShowPercents", true);
 			Property("CalculateByCatalog", false);
-			Property("PriceCode", 196);
+			Property("PriceCode", 200);
 			Property("ByBaseCosts", true);
 			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);

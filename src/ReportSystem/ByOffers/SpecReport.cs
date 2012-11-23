@@ -87,6 +87,7 @@ namespace Inforoom.ReportSystem
 				_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
+			_selfPrice = _priceCode;
 		}
 		protected void GetWeightMinPrice(ExecuteArgs e)
 		{

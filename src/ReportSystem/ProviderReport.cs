@@ -25,6 +25,8 @@ namespace Inforoom.ReportSystem
 		protected bool _byWeightCosts; // строить отчет по взвешенным ценам
 		//Список прайсов, для которых нужно вычислять по базовым ценам
 		protected List<ulong> _prices;
+		// Прайс-код, по которому строится отчет, для добавления в прайсы, для которых считаем по базовым ценам
+		protected int _selfPrice = -1;
 		//Список регионов, для которых нужно вычислять по базовым ценам
 		protected List<ulong> _regions;
 
@@ -353,6 +355,9 @@ and regions.RegionCode = activeprices.RegionCode";
 						_prices.Add(priceCode);
 					}
 				}
+
+				if(_selfPrice > 0 && !_prices.Contains((ulong)_selfPrice))
+					_prices.Add((ulong)_selfPrice);
 			}
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.CommandText = @"
