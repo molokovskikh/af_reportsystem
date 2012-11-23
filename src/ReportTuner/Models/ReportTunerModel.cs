@@ -19,7 +19,7 @@ namespace ReportTuner.Models
 select
 	   supps.Id,
 	   supps.Name ShortName,
-	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   GROUP_CONCAT(distinct reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
   from Customers.Suppliers supps
 	   left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
  where ?firmType = 0
@@ -50,7 +50,7 @@ group by Id
 			@"select
 	supps.Id,
 	supps.Name ShortName,
-	GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	GROUP_CONCAT(distinct reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
 from usersettings.ActivePrices AP
 	inner join Customers.suppliers supps on AP.FirmCode = supps.Id
 	left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
