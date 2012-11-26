@@ -112,10 +112,10 @@ drop temporary table if exists uniq_document_lines;
 
 				decimal maxProducerCost;
 				if (decimal.TryParse(row["MaxMnfPrice"].ToString(), NumberStyles.Number, CultureInfo.InvariantCulture, out maxProducerCost) && maxProducerCost > 0) {
-					if (producerCostForReport > maxProducerCost)
+					if (producerCost > maxProducerCost)
 						continue;
 
-					if (maxProducerCost / producerCostForReport > 10)
+					if (producerCost / producerCostForReport > 10)
 						continue;
 				}
 
