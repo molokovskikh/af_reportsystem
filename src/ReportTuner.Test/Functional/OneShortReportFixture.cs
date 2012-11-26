@@ -84,6 +84,7 @@ namespace ReportTuner.Test.Functional
 			foreach (var file in Directory.GetFiles(ftpDirectory)) {
 				File.Delete(file);
 			}
+			generalReport.Format = "Excel";
 			if(generalReport.NoArchive)
 				File.WriteAllText(Path.Combine(ftpDirectory, generalReport.ReportFileName), Guid.NewGuid().ToString());
 			else {
