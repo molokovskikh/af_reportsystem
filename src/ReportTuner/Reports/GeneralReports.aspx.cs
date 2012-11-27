@@ -27,9 +27,9 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 	{
 		Code = 0,
 		Payer = 1,
-		Delivery = 5,
-		Reports = 6,
-		Schedule = 7
+		Delivery = 6,
+		Reports = 7,
+		Schedule = 8
 	}
 
 	private string SetFilterCaption = "Фильтровать";
@@ -450,7 +450,7 @@ WHERE GeneralReportCode = ?GRDelCode", MyCn, trans);
 			MySqlCommand InsCmd = new MySqlCommand(@"
 INSERT INTO
 	reports.general_reports
-(PayerId, Allow, Comment, FirmCode)
+(PayerId, Allow, Public, Comment, FirmCode)
 select
   ?PayerId,
   ?Allow,

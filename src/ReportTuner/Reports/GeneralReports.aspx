@@ -59,7 +59,7 @@
 
 				<asp:TemplateField HeaderText="Публичный" ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="Allow">
 					<ItemTemplate>
-						<asp:CheckBox ID="chbPublic" runat="server" Enabled='<%# Convert.ToInt32(DataBinder.Eval(Container.DataItem, "PayerID")) == 921 %>' Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Public")) %>' />
+						<asp:CheckBox ID="chbPublic" runat="server" Visible='<%# DataBinder.Eval(Container.DataItem, "PayerID") != DBNull.Value && Convert.ToInt32(DataBinder.Eval(Container.DataItem, "PayerID")) == 921 %>' Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Public")) %>' />
 					</ItemTemplate>
 
 <HeaderStyle Width="5%"></HeaderStyle>

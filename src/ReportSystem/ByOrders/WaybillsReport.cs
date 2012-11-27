@@ -55,7 +55,7 @@ and s.VendorID is not null
 group by db.EAN13
 ;
 
-select db.Quantity, db.ProducerCost, db.SerialNumber, db.NDS, db.SupplierCost, s.VendorId, d.DrugId, c.RegionCode
+select db.Quantity, db.ProducerCost, db.SerialNumber, db.NDS, db.SupplierCost, s.VendorId, d.DrugId, c.RegionCode, d.MaxMnfPrice
 from Documents.DocumentBodies db
 	join Documents.DocumentHeaders dh on dh.Id = db.DocumentId
 		join Customers.Addresses a on a.Id = dh.AddressId
@@ -108,7 +108,19 @@ drop temporary table if exists uniq_document_lines;
 				if (retailCost == 0)
 					continue;
 
-				var producerCostForReport = producerCost * (1 + nds / 100);
+				var producerCostForReport = Math.Round(producerCost * (1 + nds / 100), 2);
+
+				decimal maxProducerCost;
+				if (decimal.TryParse(row["MaxMnfPrice"].ToString(), NumberStyles.Number, CultureInfo.InvariantCulture, out maxProducerCost) && maxProducerCost > 0) {
+					if (producerCost > maxProducerCost)
+						continue;
+
+					if (producerCost / producerCostForReport > 10)
+						continue;
+				}
+
+				if ((producerCostForReport - supplierCost) / producerCostForReport > 0.25m)
+					continue;
 
 				resultRow["DrugId"] = row["DrugId"];
 				resultRow["Segment"] = 1;
