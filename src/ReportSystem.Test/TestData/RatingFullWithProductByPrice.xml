@@ -170,11 +170,6 @@
     <DefaultValue>1</DefaultValue>
   </ReportProperties>
   <ReportPropertyValues>
-    <ID>6882</ID>
-    <ReportPropertyID>3806</ReportPropertyID>
-    <Value>5</Value>
-  </ReportPropertyValues>
-  <ReportPropertyValues>
     <ID>6883</ID>
     <ReportPropertyID>3806</ReportPropertyID>
     <Value>10</Value>

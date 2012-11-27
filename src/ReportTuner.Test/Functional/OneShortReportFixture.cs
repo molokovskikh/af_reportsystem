@@ -84,7 +84,6 @@ namespace ReportTuner.Test.Functional
 			foreach (var file in Directory.GetFiles(ftpDirectory)) {
 				File.Delete(file);
 			}
-			generalReport.Format = "Excel";
 			if(generalReport.NoArchive)
 				File.WriteAllText(Path.Combine(ftpDirectory, generalReport.ReportFileName), Guid.NewGuid().ToString());
 			else {
@@ -94,7 +93,8 @@ namespace ReportTuner.Test.Functional
 				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
 				browser.TextField("mail_Text").Clear();
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
-				Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
+				if(generalReport.Format != "DBF" && generalReport.FirmCode != null)
+					Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
 				browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
 				Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
