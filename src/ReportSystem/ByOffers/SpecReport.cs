@@ -177,11 +177,7 @@ and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=ass
 			}
 			SqlCommandText += @"
 group by AllPrices.CatalogCode, Cfc";
-			if ((!_reportIsFull) && (_reportSortedByPrice))
-				SqlCommandText += @"
-order by SourcePrice.ID";
-			else
-				SqlCommandText += @"
+			SqlCommandText += @"
 order by FullName, FirmCr";
 			e.DataAdapter.SelectCommand.CommandText = SqlCommandText;
 			e.DataAdapter.Fill(_dsReport, "Catalog");

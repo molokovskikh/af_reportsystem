@@ -109,8 +109,6 @@ where ClientId = ?client
 limit 1);
 
 call Customers.GetPrices(@UserId);
-select Id, RegionCode, FirmCode, Avg(Cost) as Cost, Sum(Quantity) as Quantity, Junk, Max(CoreId) as CoreId
-from (
 select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
@@ -119,8 +117,6 @@ from Usersettings.Prices p
 	join Catalogs.Catalog c on c.Id = p.CatalogId
 	join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = c0.CodeFirmCr
 where p.Actual = 1
-) t
-group by Id, RegionCode, FirmCode, Junk
 ;", QueryParts.CostSubQuery("c0", "cc", "p"));
 			var watch = Stopwatch.StartNew();
 			watch.Start();
@@ -163,42 +159,47 @@ group by Id, RegionCode, FirmCode, Junk
 					log.DebugFormat("Начал вычисление средних цен для клиента {0}", client);
 				var rating = item.Item1.ToDictionary(r => r.RegionId, r => r.Value);
 
-				foreach (var offer in item.Item2) {
-					var costs = (Hashtable)result[offer.Id];
+				var groupOfferId = item.Item2.GroupBy(o => o.Id);
+				foreach (var groupedByOfferId in groupOfferId) {
+					if (!rating.ContainsKey(groupedByOfferId.Key.RegionId))
+						continue;
+					var costs = (Hashtable)result[groupedByOfferId.Key];
 					if (costs == null) {
 						costs = new Hashtable();
-						result[offer.Id] = costs;
+						result[groupedByOfferId.Key] = costs;
 					}
-
-					var aggregates = (OfferAggregates)costs[offer.AssortmentId];
-					if (aggregates == null) {
-						aggregates = new OfferAggregates();
-						costs[offer.AssortmentId] = aggregates;
-					}
-
-					if (!rating.ContainsKey(offer.Id.RegionId))
-						continue;
-
-					//если цена слишком большая значит это какая то лажа и ее нужно игнорировать
-					if (CostThreshold > 0 && offer.Cost > CostThreshold)
-						continue;
-
-					var regionRating = rating[offer.Id.RegionId];
-					if (!offer.Junk) {
-						aggregates.Cost = aggregates.Cost + offer.Cost * regionRating;
-						if (aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
-							aggregates.Ratings.Add(new ClientRating(client, offer.Id.RegionId, regionRating));
+					var regionRating = rating[groupedByOfferId.Key.RegionId];
+					var groupAssortment = groupedByOfferId.GroupBy(v => v.AssortmentId);
+					foreach (var groupedByAssortment in groupAssortment) {
+						var aggregates = (OfferAggregates)costs[groupedByAssortment.Key];
+						if (aggregates == null) {
+							aggregates = new OfferAggregates();
+							costs[groupedByAssortment.Key] = aggregates;
 						}
-					}
-					// проверяем, что этот core мы еще не использовали при подсчете количества
-					if(!aggregates.UsedCores.Contains(offer.CoreId)) {
-						aggregates.Quantity += offer.Quantity;
-						aggregates.UsedCores.Add(offer.CoreId);
-					}
+						var noJunkData = groupedByAssortment.Where(a => !a.Junk).ToList();
+						decimal resultCost = 0;
+						if (noJunkData.Any()) {
+							resultCost = noJunkData.Sum(offer => offer.Cost);
+							resultCost /= noJunkData.Count();
+							//если цена слишком большая значит это какая то лажа и ее нужно игнорировать
+							if (CostThreshold > 0 && resultCost > CostThreshold)
+								continue;
+							aggregates.Cost = aggregates.Cost + resultCost * regionRating;
+							if (aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
+								aggregates.Ratings.Add(new ClientRating(client, groupedByOfferId.Key.RegionId, regionRating));
+							}
+						}
+						foreach (var offer in groupedByAssortment) {
+							if (!aggregates.UsedCores.Contains(offer.CoreId)) {
+								aggregates.Quantity += offer.Quantity;
+								aggregates.UsedCores.Add(offer.CoreId);
+							}
+						}
 #if DEBUG
-					if (offer.AssortmentId == DebugAssortmentId && offer.Id.SupplierId == DebugSupplierId)
-						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offer.AssortmentId], client, regionRating, offer.Cost);
+						if (groupedByAssortment.Key == DebugAssortmentId && groupedByOfferId.Key.SupplierId == DebugSupplierId)
+							Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[groupedByAssortment.Key], client, regionRating, resultCost);
 #endif
+					}
 				}
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Закончил вычисление средних цена для клиента {0}", client);

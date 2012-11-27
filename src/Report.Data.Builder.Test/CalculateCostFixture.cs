@@ -258,14 +258,14 @@ namespace Report.Data.Builder.Test
 					},
 					new List<Offer> {
 						new Offer(offerId, 1, 100, false, 10),
-						new Offer(offerId, 1, 50, false, 10, 1),
+						new Offer(offerId, 1, 125, false, 10, 1),
 						new Offer(offerId, 1, 150, false, 1, 2)
 					})
 			};
 			var averageCosts = calculator.Calculate(list);
 			var costs = (Hashtable)averageCosts[offerId];
 			var aggregates = ((OfferAggregates)costs[1u]);
-			Assert.That(aggregates.Cost, Is.EqualTo(300));
+			Assert.That(aggregates.Cost, Is.EqualTo(125));
 			Assert.That(aggregates.Quantity, Is.EqualTo(21));
 		}
 
