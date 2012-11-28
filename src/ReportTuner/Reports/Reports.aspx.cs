@@ -19,6 +19,7 @@ using ReportTuner.Models;
 using Castle.ActiveRecord;
 using ReportTuner.Helpers;
 using System.Collections.Generic;
+using BasePage = Common.Web.Ui.Helpers.BasePage;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 public partial class Reports_Reports : BasePage
