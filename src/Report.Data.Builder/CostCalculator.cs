@@ -102,6 +102,8 @@ where rcs.InvisibleOnFirm = 0
 
 		public Offer[] GetOffers(uint client)
 		{
+			if (log.IsDebugEnabled)
+				log.DebugFormat("Начинаю загрузку предложений для клиента {0}", client);
 			var sql = String.Format(@"
 set @UserId = (select Id
 from Customers.Users
@@ -148,8 +150,11 @@ where p.Actual = 1
 			foreach (var item in data) {
 				watch.Stop();
 
-				if (item.Item1.Count() == 0)
+				if (item.Item1.Count() == 0) {
+					if (log.IsDebugEnabled)
+						log.DebugFormat("В Item1 отсутствуют данные");
 					continue;
+				}
 
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Ожидание данных {0}с", watch.Elapsed.TotalSeconds);

@@ -97,7 +97,8 @@ namespace ReportTuner.Test.Functional
 					Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
 				browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
 				browser.Button(Find.ByValue("Выслать готовый")).Click();
-				Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
+				if(generalReport.Format != "DBF" && generalReport.FirmCode != null)
+					Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
 			}
 		}
 
