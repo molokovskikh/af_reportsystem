@@ -93,8 +93,8 @@ from " +
 	join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 	join logs.CostOptimizationLogs col on
 		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and
-		(col.ClientId = ?clientId or ?clientId = 0) and col.SupplierId = pd.FirmCode
-and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where SupplierId = ?supplierId and LoggedOn < oh.writetime)
+		(col.ClientId = ?clientId or ?clientId = 0) and col.SupplierId = pd.FirmCode and oh.UserId = col.UserId
+and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where SupplierId = ?supplierId and oh.UserId = UserId and LoggedOn < oh.writetime)
 	join farm.Synonym s on s.SynonymCode = ol.SynonymCode
 	join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
 	join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
