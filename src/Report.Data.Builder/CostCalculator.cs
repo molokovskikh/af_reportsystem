@@ -32,49 +32,18 @@ namespace Report.Data.Builder
 		public uint Quantity;
 		public List<ulong> UsedCores;
 		public List<ClientRating> Ratings;
+		public uint? LastClientId;
+		public decimal LastCost;
+		public uint Count;
 
 		public OfferAggregates()
 		{
 			UsedCores = new List<ulong>();
 			Ratings = new List<ClientRating>();
+			LastClientId = null;
 		}
 	}
-	public class GroupKeyEqual : IEqualityComparer<GroupKey>
-	{
-		public bool Equals(GroupKey x, GroupKey y)
-		{
-			if(x == null || y == null)
-				return false;
-			return x.AssortmentId == y.AssortmentId
-				&& x.OfferId.RegionId == y.OfferId.RegionId
-				&& x.OfferId.SupplierId == y.OfferId.SupplierId;
-		}
 
-		public int GetHashCode(GroupKey obj)
-		{
-			var hCode = obj.AssortmentId ^ obj.OfferId.RegionId ^ obj.OfferId.SupplierId;
-			return hCode.GetHashCode();
-		}
-	}
-	public class GroupKey
-	{
-		public OfferId OfferId;
-		public uint AssortmentId;
-		public GroupKey(OfferId offerId, uint assortmentId)
-		{
-			OfferId = offerId;
-			AssortmentId = assortmentId;
-		}
-		public override bool Equals(object obj)
-		{
-			var groupKey = obj as GroupKey;
-			if(groupKey == null)
-				return false;
-			return groupKey.AssortmentId == AssortmentId
-				&& groupKey.OfferId.RegionId == OfferId.RegionId
-				&& groupKey.OfferId.SupplierId == OfferId.SupplierId;
-		}
-	}
 	public class ClientRating
 	{
 		public uint ClientId;
@@ -138,7 +107,7 @@ where rcs.InvisibleOnFirm = 0
 		public Offer[] GetOffers(uint client)
 		{
 			if (log.IsDebugEnabled)
-				log.DebugFormat("Начал загрузку предложений для клиента {0}", client);
+				log.DebugFormat("Начал загрузка предложений для клиента {0}", client);
 			var sql = String.Format(@"
 set @UserId = (select Id
 from Customers.Users
@@ -197,59 +166,73 @@ where p.Actual = 1
 					log.DebugFormat("Начал вычисление средних цен для клиента {0}", client);
 				var rating = item.Item1.ToDictionary(r => r.RegionId, r => r.Value);
 
-				var groupedItem = item.Item2.GroupBy(offer => new GroupKey(offer.Id, offer.AssortmentId), new GroupKeyEqual());
-				foreach (var offerItem in groupedItem) {
-					var costs = (Hashtable)result[offerItem.Key.OfferId];
+				foreach (var offer in item.Item2) {
+					var costs = (Hashtable)result[offer.Id];
 					if (costs == null) {
 						costs = new Hashtable();
-						result[offerItem.Key.OfferId] = costs;
+						result[offer.Id] = costs;
 					}
 
-					var aggregates = (OfferAggregates)costs[offerItem.Key.AssortmentId];
+					var aggregates = (OfferAggregates)costs[offer.AssortmentId];
 					if (aggregates == null) {
 						aggregates = new OfferAggregates();
-						costs[offerItem.Key.AssortmentId] = aggregates;
+						aggregates.LastClientId = client;
+						costs[offer.AssortmentId] = aggregates;
+					}
+					else if(aggregates.LastClientId != client && aggregates.Count > 0) {
+						aggregates.Cost += aggregates.LastCost / aggregates.Count;
+						aggregates.LastClientId = client;
+						aggregates.LastCost = 0;
+						aggregates.Count = 0;
 					}
 
-					if (!rating.ContainsKey(((OfferId)offerItem.Key.OfferId).RegionId))
+					if (!rating.ContainsKey(offer.Id.RegionId))
 						continue;
-					var regionRating = rating[((OfferId)offerItem.Key.OfferId).RegionId];
-					var noJunkData = offerItem.Where(offer => !offer.Junk).ToList();
-					decimal resultCost = 0;
-					if (noJunkData.Count > 0) {
-						resultCost = noJunkData.Sum(offer => offer.Cost) / noJunkData.Count;
-						//если цена слишком большая значит это какая то лажа и ее нужно игнорировать
-						if (CostThreshold > 0 && resultCost > CostThreshold)
-							continue;
-						aggregates.Cost = aggregates.Cost + resultCost * regionRating;
+
+					//если цена слишком большая значит это какая то лажа и ее нужно игнорировать
+					if (CostThreshold > 0 && offer.Cost > CostThreshold)
+						continue;
+
+					var regionRating = rating[offer.Id.RegionId];
+					if (!offer.Junk) {
+						aggregates.LastCost = aggregates.LastCost + offer.Cost * regionRating;
+						aggregates.Count++;
 						if (aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
-							aggregates.Ratings.Add(new ClientRating(client, offerItem.Key.OfferId.RegionId, regionRating));
+							aggregates.Ratings.Add(new ClientRating(client, offer.Id.RegionId, regionRating));
 						}
 					}
-					var newCore = offerItem.Select(offer => offer.CoreId).Except(aggregates.UsedCores).ToList();
-					aggregates.Quantity += (uint)offerItem.Sum(offer => aggregates.UsedCores.Contains(offer.CoreId) ? 0 : offer.Quantity);
-					aggregates.UsedCores.AddRange(newCore);
+					// проверяем, что этот core мы еще не использовали при подсчете количества
+					if(!aggregates.UsedCores.Contains(offer.CoreId)) {
+						aggregates.Quantity += offer.Quantity;
+						aggregates.UsedCores.Add(offer.CoreId);
+					}
 #if DEBUG
-					if (offerItem.Key.AssortmentId == DebugAssortmentId && offerItem.Key.OfferId.SupplierId == DebugSupplierId)
-						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offerItem.Key.AssortmentId], client, regionRating, resultCost);
+					if (offer.AssortmentId == DebugAssortmentId && offer.Id.SupplierId == DebugSupplierId)
+						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offer.AssortmentId], client, regionRating, offer.Cost);
 #endif
 				}
-
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Закончил вычисление средних цена для клиента {0}", client);
 
 				watch.Reset();
 				watch.Start();
 			}
+			if (log.IsDebugEnabled)
+				log.DebugFormat("Начал нормировку цен по рейтингу");
 			foreach (OfferId key in result.Keys) {
 				var costs = ((Hashtable)result[key]);
 				foreach (uint assortmentId in costs.Keys) {
 					var aggregates = (OfferAggregates)costs[assortmentId];
+					if(aggregates.LastClientId != null
+						&& aggregates.Count > 0)
+						aggregates.Cost += aggregates.LastCost / aggregates.Count;
 					var sumRating = aggregates.Ratings.Sum(r => r.Value);
 					if(sumRating < 1 && sumRating > 0)
 						aggregates.Cost *= 1 / sumRating;
 				}
 			}
+			if (log.IsDebugEnabled)
+				log.DebugFormat("Закончил нормировку цен по рейтингу");
 			return result;
 		}
 
