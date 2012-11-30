@@ -1,0 +1,1 @@
+﻿delete from reports.averagecosts where date='2012-11-30' and id<=1253677692;

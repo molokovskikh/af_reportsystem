@@ -31,15 +31,16 @@ namespace Report.Data.Builder
 		public decimal Cost;
 		public uint Quantity;
 		public List<ulong> UsedCores;
-		public List<ClientRating> Ratings;
 		public uint? LastClientId;
 		public decimal LastCost;
 		public uint Count;
+		public uint? LastClientForRatingId;
+		public decimal SumClientRating;
 
 		public OfferAggregates()
 		{
 			UsedCores = new List<ulong>();
-			Ratings = new List<ClientRating>();
+			LastClientForRatingId = null;
 			LastClientId = null;
 		}
 	}
@@ -107,7 +108,7 @@ where rcs.InvisibleOnFirm = 0
 		public Offer[] GetOffers(uint client)
 		{
 			if (log.IsDebugEnabled)
-				log.DebugFormat("Начал загрузка предложений для клиента {0}", client);
+				log.DebugFormat("Начал загрузку предложений для клиента {0}", client);
 			var sql = String.Format(@"
 set @UserId = (select Id
 from Customers.Users
@@ -197,8 +198,9 @@ where p.Actual = 1
 					if (!offer.Junk) {
 						aggregates.LastCost = aggregates.LastCost + offer.Cost * regionRating;
 						aggregates.Count++;
-						if (aggregates.Ratings.Count(r => r.ClientId == client) == 0) {
-							aggregates.Ratings.Add(new ClientRating(client, offer.Id.RegionId, regionRating));
+						if(aggregates.LastClientForRatingId != client) {
+							aggregates.SumClientRating += regionRating;
+							aggregates.LastClientForRatingId = client;
 						}
 					}
 					// проверяем, что этот core мы еще не использовали при подсчете количества
@@ -212,7 +214,7 @@ where p.Actual = 1
 #endif
 				}
 				if (log.IsDebugEnabled)
-					log.DebugFormat("Закончил вычисление средних цена для клиента {0}", client);
+					log.DebugFormat("Закончил вычисление средних цен для клиента {0}", client);
 
 				watch.Reset();
 				watch.Start();
@@ -226,9 +228,9 @@ where p.Actual = 1
 					if(aggregates.LastClientId != null
 						&& aggregates.Count > 0)
 						aggregates.Cost += aggregates.LastCost / aggregates.Count;
-					var sumRating = aggregates.Ratings.Sum(r => r.Value);
-					if(sumRating < 1 && sumRating > 0)
-						aggregates.Cost *= 1 / sumRating;
+
+					if(aggregates.SumClientRating < 1 && aggregates.SumClientRating > 0)
+						aggregates.Cost *= 1 / aggregates.SumClientRating;
 				}
 			}
 			if (log.IsDebugEnabled)
