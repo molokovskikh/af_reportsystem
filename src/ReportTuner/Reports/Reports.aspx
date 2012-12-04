@@ -99,6 +99,14 @@
 	</div>
 	<div align="center">
 		<strong style="font-size:small;">Настройка отчетов</strong>
+		<asp:Label ID="lblMessage" runat="server" Text="" /><br/><br/>
+		<asp:Label ID="lblFilter" runat="server" Text="Фильтр:" />
+		<asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin"
+			ontextchanged="btnFilter_Click" ToolTip="e-mail адреса можно задавать через запятую"/>
+		<asp:Button ID="btnFilter" runat="server" Text="Фильтровать"
+			onclick="btnFilter_Click" />
+			<br/><br/>
+
 		<asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReports_RowCommand" OnRowDataBound="dgvReports_RowDataBound" OnRowDeleting="dgvReports_RowDeleting">
 			<Columns>
 				<asp:TemplateField HeaderText="Тип отчета">
@@ -128,6 +136,7 @@
 					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
 				</HeaderTemplate>
 				<ItemTemplate>
+					<asp:HiddenField runat="server" ID="Id" Value='<%# DataBinder.Eval(Container, "DataItem.RReportCode") %>'/>
 					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
 					<asp:Button ID="btnCopy" runat="server" Text="Копировать" CommandName="Copy" Visible=<%# (DataBinder.Eval(Container, "DataItem.RReportCode") != DBNull.Value) %>/>
 					<asp:Button ID="btnCopyToOther" runat="server" Text="Скопировать в др.отчет" CommandName="CopyTo" Visible=<%# (DataBinder.Eval(Container, "DataItem.RReportCode") != DBNull.Value) %>/>
