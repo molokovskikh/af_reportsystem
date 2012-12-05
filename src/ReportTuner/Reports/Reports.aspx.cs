@@ -41,6 +41,8 @@ public partial class Reports_Reports : BasePage
 
 	private const string DSReports = "Inforoom.Reports.Reports.DSReports";
 
+	private string SetFilterCaption = "Фильтровать";
+
 	protected void Page_Init(object sender, System.EventArgs e)
 	{
 		InitializeComponent();
@@ -105,7 +107,10 @@ Order by r.ReportCode
 
 		MyCn.Close();
 
-		dgvReports.DataSource = DS;
+		SetFilter();
+
+		//dgvReports.DataSource = DS;
+		dgvReports.DataSource = DS.Tables[dtReports.TableName].DefaultView;
 		dgvReports.DataMember = DS.Tables[dtReports.TableName].TableName;
 		dgvReports.DataBind();
 
@@ -243,10 +248,7 @@ order by ReportTypeName
 		else if (e.CommandName == "Copy") {
 			CopyChangesToTable();
 
-			int rowIndex = ((GridViewRow)((DataControlFieldCell)((Button)e.CommandSource).Parent).Parent).RowIndex;
-			var sourceRow = DS.Tables[dtReports.TableName].Rows[rowIndex];
-
-			UInt64 sourceReportId = Convert.ToUInt64(sourceRow[RReportCode.ColumnName]);
+			UInt64 sourceReportId = Convert.ToUInt64(((((Button)e.CommandSource).Parent).Controls.OfType<HiddenField>().First()).Value);
 			UInt64 destReportId = 0;
 			using (var conn = MyCn) {
 				conn.Open();
@@ -268,10 +270,7 @@ order by ReportTypeName
 			PostData();
 		}
 		else if (e.CommandName == "CopyTo") {
-			int rowIndex = ((GridViewRow)((DataControlFieldCell)((Button)e.CommandSource).Parent).Parent).RowIndex;
-			var sourceRow = DS.Tables[dtReports.TableName].Rows[rowIndex];
-
-			UInt64 sourceReportId = Convert.ToUInt64(sourceRow[RReportCode.ColumnName]);
+			UInt64 sourceReportId = Convert.ToUInt64(((((Button)e.CommandSource).Parent).Controls.OfType<HiddenField>().First()).Value);
 			Response.Redirect(String.Format("../CopyReport/SelectReport?filter.Report={0}&filter.GeneralReport={1}", sourceReportId, Request["r"]));
 		}
 	}
@@ -481,5 +480,31 @@ SET
 			if (Convert.ToString(args.Value) == caption)
 				capCount++;
 		args.IsValid = capCount < 2;
+	}
+
+	public void SetFilter()
+	{
+		var filter = new List<string> { String.Format("(RReportCaption like '%{0}%')", tbFilter.Text) };
+		DS.Tables[dtReports.TableName].DefaultView.RowFilter = String.Join(" or ", filter.ToArray());
+	}
+
+	private void ClearFilter()
+	{
+		tbFilter.Text = String.Empty;
+		btnFilter.Text = SetFilterCaption;
+		DS.Tables[dtReports.TableName].DefaultView.RowFilter = String.Empty;
+	}
+
+	public void btnFilter_Click(object sender, EventArgs e)
+	{
+		CopyChangesToTable();
+
+		if (String.IsNullOrEmpty(tbFilter.Text))
+			ClearFilter();
+		else
+			SetFilter();
+
+		dgvReports.DataSource = DS.Tables[dtReports.TableName].DefaultView;
+		dgvReports.DataBind();
 	}
 }
