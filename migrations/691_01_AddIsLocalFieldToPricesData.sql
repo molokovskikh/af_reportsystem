@@ -1,0 +1,1 @@
+﻿ALTER TABLE `usersettings`.`pricesdata` ADD COLUMN `IsLocal` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `IsStrict`;
