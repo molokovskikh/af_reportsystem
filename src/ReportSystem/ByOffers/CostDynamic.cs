@@ -129,6 +129,7 @@ namespace Inforoom.ReportSystem.ByOffers
 				command.CommandText = String.Format(@"
 select oh.RegionCode
 from {0}.OrdersHead oh
+join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode and pd.IsLocal = 0
 where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
 group by oh.RegionCode", OrdersSchema);
 				command.Parameters.AddWithValue("begin", date);
@@ -144,6 +145,7 @@ select pd.FirmCode
 from {0}.OrdersHead oh
 join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
+and pd.IsLocal = 0
 and oh.RegionCode in ({1})
 group by pd.FirmCode", OrdersSchema, regions.Implode());
 				command.Parameters.Clear();
@@ -256,7 +258,8 @@ join {0}.OrdersList ol on oh.RowId = ol.OrderId
 join Catalogs.Products p on p.Id = ol.ProductId
 join Catalogs.Catalog c on c.Id = p.CatalogId
 join Catalogs.Assortment a on a.CatalogId = c.Id and a.ProducerId = ol.CodeFirmCr
-where oh.WriteTime >= ?begin and oh.WriteTime <= ?end
+join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
+where oh.WriteTime >= ?begin and oh.WriteTime <= ?end and pd.IsLocal = 0
 group by a.Id", OrdersSchema);
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("begin", begin);
@@ -329,6 +332,7 @@ join {1}.OrdersList ol on oh.RowId = ol.OrderId
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
 where writetime >= ?begin and writetime < ?end
+and pd.IsLocal = 0
 and oh.RegionCode in ({0})
 ", regions.Implode(), OrdersSchema);
 
@@ -366,6 +370,7 @@ from {2}.OrdersHead oh
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
 where writetime >= ?begin and writetime < ?end
+and pd.IsLocal = 0
 and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
 ", suppliers.Implode(), regions.Implode(), OrdersSchema);
 

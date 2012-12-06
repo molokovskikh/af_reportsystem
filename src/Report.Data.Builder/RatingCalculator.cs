@@ -48,7 +48,8 @@ namespace Report.Data.Builder
 select sum(ol.Quantity * ol.Cost) as total, oh.RegionCode
 from {0}.OrdersHead oh
 join {0}.OrdersList ol on ol.OrderId = oh.RowId
-where oh.WriteTime >= ?begin and oh.WriteTime < ?end
+join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
+where oh.WriteTime >= ?begin and oh.WriteTime < ?end and pd.IsLocal = 0
 group by oh.RegionCode
 ", _ordersSchema);
 			return Db.Read(sql,
@@ -64,7 +65,8 @@ group by oh.RegionCode
 select sum(ol.Quantity * ol.Cost) as total, oh.ClientCode, oh.RegionCode
 from {0}.OrdersHead oh
 join {0}.OrdersList ol on ol.OrderId = oh.RowId
-where oh.WriteTime >= ?begin and oh.WriteTime < ?end
+join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
+where oh.WriteTime >= ?begin and oh.WriteTime < ?end and pd.IsLocal = 0
 group by oh.ClientCode, oh.RegionCode
 ", _ordersSchema);
 			return Db.Read(sql,

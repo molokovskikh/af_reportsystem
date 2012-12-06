@@ -140,6 +140,7 @@ where oh.WriteTime > ?begin
 and oh.WriteTime < ?end
 and oh.RegionCode in ({0})
 and pd.FirmCode = ?SupplierId
+and pd.IsLocal = 0
 group by ai.id;
 
 
@@ -157,6 +158,7 @@ from Orders.OrdersHead oh
 where oh.WriteTime > ?begin
 and oh.WriteTime < ?end
 and oh.RegionCode in ({0})
+and pd.IsLocal = 0
 group by {1}
 order by {3}", _regions.Implode(), _grouping.Group,
 				_grouping.Columns.Implode(c => String.Format("{0} as {1}", c.Sql, c.Name)),

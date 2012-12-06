@@ -71,7 +71,7 @@ where O.ClientCode = ?ClientCode
 and BM.ID is null and
 O.WriteTime > ?begin
 and O.WriteTime < ?end
-
+and PD.IsLocal = 0
 order by O.WriteTime", OrdersSchema);
 
 // Если написать and BM.ID is NOT null and то будут выводится совпадающие позиции

@@ -144,6 +144,7 @@ where
 	ol.OrderID = oh.RowID
 	and ol.Junk = 0
 	and pd.PriceCode = oh.PriceCode
+and pd.IsLocal = 0
 and pd.Enabled = 1
 and exists (select
   *
@@ -302,6 +303,7 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurre
 						@"
 where
 ol.Junk = 0
+and pd.IsLocal = 0
 ";
 
 			selectCommand = ApplyFilters(selectCommand);

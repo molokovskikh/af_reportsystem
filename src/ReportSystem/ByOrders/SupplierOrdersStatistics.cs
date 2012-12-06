@@ -82,6 +82,7 @@ from
         and fi.legalentityid = a.legalentityid
 where
 	pd.firmcode = {2}
+	and pd.IsLocal = 0
 	and oh.writetime between '{3}' and '{4}' ", selectedColumns, OrdersSchema, sourceFirmCode, dtFrom.ToString("yyyy-MM-dd HH:mm:ss"), dtTo.ToString("yyyy-MM-dd HH:mm:ss"));
 
 			if (!String.IsNullOrEmpty(regionsString))

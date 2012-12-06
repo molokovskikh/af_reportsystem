@@ -103,7 +103,7 @@ and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where S
 	left join Customers.Clients fc on fc.Id = u.ClientId
 	left join Customers.Clients cl on cl.Id = oh.ClientCode
 left join Customers.Addresses adr on adr.Id = oh.AddressId
-where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0
+where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 and pd.IsLocal = 0
 	and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)";
 #if DEBUG
 			command.CommandText += @"
@@ -171,7 +171,7 @@ from " +
 						@"join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 	join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
 	join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
-where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0
+where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 and pd.IsLocal = 0
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
 			e.DataAdapter.Fill(_dsReport, "Common");
 
