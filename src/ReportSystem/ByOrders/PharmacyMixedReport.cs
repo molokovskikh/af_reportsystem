@@ -44,12 +44,6 @@ namespace Inforoom.ReportSystem
 			return ReadNames(field, ids);
 		}
 
-		public string ReadRegions(List<ulong> ids)
-		{
-			var field = registredField.First(f => f.reportPropertyPreffix.Match("Region"));
-			return ReadNames(field, ids);
-		}
-
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
@@ -129,7 +123,6 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, rivalFil
   join billing.payers on payers.PayerId = le.PayerId
 where
 ol.Junk = 0
-and pd.IsLocal = 0
 #and ol.Await = 0
 and (oh.RegionCode & " +
 				regionMask + @") > 0";
