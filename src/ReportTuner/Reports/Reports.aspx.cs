@@ -107,7 +107,8 @@ Order by r.ReportCode
 
 		MyCn.Close();
 
-		SetFilter();
+		if(!String.IsNullOrEmpty(tbFilter.Text))
+			SetFilter();
 
 		//dgvReports.DataSource = DS;
 		dgvReports.DataSource = DS.Tables[dtReports.TableName].DefaultView;
