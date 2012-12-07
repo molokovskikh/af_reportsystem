@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
+using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
 using Microsoft.Office.Interop.Excel;
@@ -33,14 +35,14 @@ namespace Inforoom.ReportSystem.Writers
 				DataTable res = reportData.Tables["Results"];
 				for (int i = 0; i < res.Columns.Count; i++) {
 					ws.Cells[1, i + 1] = "";
-					ws.Cells[1 + settings.Filter.Count, i + 1] = res.Columns[i].Caption;
+					ws.Cells[1 + settings.Filter.Count + 1, i + 1] = res.Columns[i].Caption;
 					if (res.Columns[i].ExtendedProperties.ContainsKey("Width"))
 						((Range)ws.Columns[i + 1, Type.Missing]).ColumnWidth =
 							((int?)res.Columns[i].ExtendedProperties["Width"]).Value;
 					else
 						((Range)ws.Columns[i + 1, Type.Missing]).AutoFit();
 					if (res.Columns[i].ExtendedProperties.ContainsKey("Color"))
-						ws.get_Range(ws.Cells[1 + settings.Filter.Count, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]).Interior.Color =
+						ws.get_Range(ws.Cells[1 + settings.Filter.Count + 1, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]).Interior.Color =
 							ColorTranslator.ToOle((Color)res.Columns[i].ExtendedProperties["Color"]);
 				}
 
@@ -54,12 +56,26 @@ namespace Inforoom.ReportSystem.Writers
 				ws.Activate();
 
 				//Устанавливаем АвтоФильтр на все колонки
-				ws.get_Range(ws.Cells[1 + settings.Filter.Count, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]).Select();
+				ws.get_Range(ws.Cells[1 + settings.Filter.Count + 1, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]).Select();
 				((Range)exApp.Selection).AutoFilter(1, Missing.Value,
 					XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 				for (int i = 0; i < settings.Filter.Count; i++)
 					ws.Cells[1 + i, 1] = settings.Filter[i];
+
+				var groupedHeadersLine = settings.Filter.Count + 1;
+				foreach (var groupHeader in settings.GroupHeaders) {
+							var begin = ColumnIndex(res, groupHeader.BeginColumn);
+							var end = ColumnIndex(res, groupHeader.EndColumn);
+							if (begin == 0 || end == 0)
+								continue;
+							var range = ws.Range[ws.Cells[groupedHeadersLine, begin], ws.Cells[groupedHeadersLine, end]];
+							range.Select();
+							range.Merge(null);
+							range.Value2 = groupHeader.Title;
+							range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+							range.Borders.Weight = XlBorderWeight.xlThin;
+						}
 
 				int _freezeCount = settings.SelectedField.FindAll(fld => fld.visible).Count;
 
@@ -69,6 +85,12 @@ namespace Inforoom.ReportSystem.Writers
 				exApp.ActiveWindow.FreezePanes = true;
 			});
 			ProfileHelper.End();
+		}
+
+		private static int ColumnIndex(DataTable res, string name)
+		{
+			return res.Columns.Cast<DataColumn>()
+				.IndexOf(c => String.Equals(c.ExtendedProperties["OriginalName"] as String, name, StringComparison.InvariantCultureIgnoreCase)) + 1;
 		}
 	}
 }
