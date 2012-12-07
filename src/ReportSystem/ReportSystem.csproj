@@ -183,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByOffers\CostDynamic.cs" />
+    <Compile Include="ByOffers\OffersReportAsc.cs" />
     <Compile Include="ByOffers\PriceCollectionForClientReport.cs" />
     <Compile Include="ByOffers\PricesOfCompetitorsReport.cs" />
     <Compile Include="ByOrders\OrderOutAllowedAssortment.cs" />
