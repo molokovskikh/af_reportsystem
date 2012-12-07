@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
@@ -15,12 +14,12 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem
 {
-	public class OffersReport : SpecReport
+	public class OffersReport : ProviderReport
 	{
 		private int _reportType;
 		private bool _calculateByCatalog;
+		private int _priceCode;
 		private bool _reportIsFull;
-		private int _maxCostCount;
 
 		private long _sourceRegionCode;
 		private int _sourcePriceCode;
@@ -29,87 +28,26 @@ namespace Inforoom.ReportSystem
 		public OffersReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{
-			reportCaptionPreffix = "Отчет по минимальным ценам123";
 		}
 
 		public override void ReadReportParams()
 		{
-			base.ReadBaseReportParams();
+			base.ReadReportParams();
 			_reportType = (int)getReportParam("ReportType");
 			_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");
-			_maxCostCount = (int)getReportParam("MaxCostCount");
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			base.GenerateReport(e);
+
 			ProfileHelper.Next("PreGetOffers");
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
-
-			SourcePriceType = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-					@"
-select
-  pricesdata.PriceType
-from
-  usersettings.pricesdata
-where
-	pricesdata.PriceCode = ?PriceCode;",
-					new MySqlParameter("?PriceCode", _priceCode)));
-
-			SourcePriceType = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-					@"
-select
-	p.PriceType
-from
-	usersettings.pricesdata p
-where
-	p.PriceCode = ?PriceCode;",
-					new MySqlParameter("?PriceCode", _priceCode)));
-
-			// Если отчет строится по взвешенным ценам, то используем другой источник данных
-			// Вместо идентификатора прайса используем идентификатор поставщика
-			if(_byWeightCosts) {
-				ProfileHelper.Next("PreGetOffers");
-				SourceRegionCode = Convert.ToUInt64(
-					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-						@"select s.HomeRegion
-	from usersettings.PricesData pd
-	inner join Customers.suppliers s on pd.FirmCode = s.Id
-	and pd.PriceCode = ?PriceCode;",
-						new MySqlParameter("?PriceCode", _priceCode)));
-				CustomerFirmName = GetSupplierName(_priceCode);
-				SourcePC = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-						@"
-select
-  pricesdata.FirmCode
-from
-  usersettings.pricesdata
-where
-	pricesdata.PriceCode = ?PriceCode;",
-					new MySqlParameter("?PriceCode", _priceCode)));
-
-				ProfileHelper.Next("GetOffers");
-				GetWeightCostOffers(e);
-				if(!IsExistsPriceInCore(e, SourcePC, SourceRegionCode)) {
-					ProfileHelper.Next("AdditionGetOffers");
-					AddSourcePriceToCore(e);
-				}
-				ProfileHelper.Next("GetCodes");
-				GetWeightCostSource(e);
-				ProfileHelper.Next("GetMinPrices");
-				IsOffersReport = true;
-				GetWeightMinPrice(e);
-				ProfileHelper.Next("Calculate");
-				Transform();
-				return;
-			}
 
 			if (_byBaseCosts) {
 				// Отчет готовится по базовым ценам
@@ -158,7 +96,6 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			if (actualPrice == 0)
 				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", _customerFirmName, _sourcePriceCode));
 #endif
-			CustomerFirmName = GetSupplierName(_priceCode);
 
 			GetOffers(_SupplierNoise);
 
@@ -390,22 +327,28 @@ and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 					sql += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr ";
 			}
-			sql += @"
+			if (!_reportIsFull)
+				sql += @"
+order by SourcePrice.ID";
+			else
+				sql += @"
 order by FullName, FirmCr";
 			e.DataAdapter.SelectCommand.CommandText = sql;
-			e.DataAdapter.Fill(_dsReport, "Catalog");
+			e.DataAdapter.Fill(_dsReport, "Data");
 		}
 
 		private void Transform()
 		{
-			var data = _dsReport.Tables["Catalog"];
+			var data = _dsReport.Tables["Data"];
 			var groupedRows = data.Rows
 				.Cast<DataRow>()
 				.GroupBy(r => r["Code"].ToString() + "\t" + r["CatalogCode"].ToString() + "\t" + r["Cfc"].ToString());
 			var result = new DataTable("Results");
-
+			result.Columns.Add(new DataColumn("AnalitId") {
+				Caption = "Код аналит"
+			});
 			result.Columns.Add(new DataColumn("SupplierId") {
-				Caption = "Код"
+				Caption = "Код поставщика"
 			});
 			result.Columns.Add(new DataColumn("Product") {
 				Caption = "Наименование"
@@ -413,31 +356,29 @@ order by FullName, FirmCr";
 			result.Columns.Add(new DataColumn("Producer") {
 				Caption = "Производитель"
 			});
-			for (var i = 1; i <= _maxCostCount; i++) {
+			for (var i = 1; i <= 15; i++) {
 				result.Columns.Add(new DataColumn("Cost" + i, typeof(decimal)) {
 					Caption = "Цена " + i
 				});
 				if (_reportType == 2 || _reportType == 4)
 					result.Columns.Add(new DataColumn("Quantity" + i, typeof(int)) {
-						Caption = "Количество " + i
+						Caption = "Остаток " + i
 					});
 			}
 			foreach (var group in groupedRows) {
 				var resultRow = result.NewRow();
-				var first = group.OrderBy(r => Convert.ToDecimal(r["Cost"] == DBNull.Value ? decimal.MaxValue : r["Cost"]))
-					.First();
+				var first = group.OrderBy(r => Convert.ToDecimal(r["Cost"])).First();
+				resultRow["AnalitId"] = first["CatalogCode"];
 				resultRow["SupplierId"] = first["Code"];
 				resultRow["Product"] = first["FullName"];
 				resultRow["Producer"] = first["FirmCr"];
 				var index = 1;
-				foreach (var row in group.OrderBy(r => Convert.ToDecimal(r["Cost"] == DBNull.Value ? decimal.MaxValue : r["Cost"]))) {
-					if (index > _maxCostCount)
+				foreach (var row in group.OrderBy(r => Convert.ToDecimal(r["Cost"]))) {
+					if (index > 15)
 						break;
-					if(row["Cost"] != DBNull.Value) {
-						resultRow["Cost" + index] = row["Cost"];
-						if (_reportType == 2 || _reportType == 4)
-							resultRow["Quantity" + index] = String.IsNullOrEmpty(row["Quantity"].ToString()) ? DBNull.Value : row["Quantity"];
-					}
+					resultRow["Cost" + index] = row["Cost"];
+					if (_reportType == 2 || _reportType == 4)
+						resultRow["Quantity" + index] = String.IsNullOrEmpty(row["Quantity"].ToString()) ? DBNull.Value : row["Quantity"];
 					index++;
 				}
 				result.Rows.Add(resultRow);
@@ -452,42 +393,26 @@ order by FullName, FirmCr";
 
 		protected override void FormatExcel(string fileName)
 		{
-			UseExcel.Workbook(fileName, wb => {
-				var ws = (_Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
+			UseExcel.Workbook(fileName, b => {
+				var ws = (_Worksheet)b.Worksheets["rep" + ReportCode.ToString()];
 				var caption = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 				ws.Name = caption;
 				var res = _dsReport.Tables["Results"];
 				var columnCount = _dsReport.Tables["Results"].Columns.Count;
 				var rowCount = _dsReport.Tables["Results"].Rows.Count;
+				for (var i = 0; i < res.Columns.Count; i++)
+					ws.Cells[1, i + 1] = res.Columns[i].Caption;
 
 				//Код
 				((Range)ws.Columns[1, Type.Missing]).AutoFit();
 				//Наименование
-				((Range)ws.Cells[3, 2]).ColumnWidth = 40;
+				((Range)ws.Cells[3, 2]).ColumnWidth = 20;
 				//Производитель
-				((Range)ws.Cells[3, 3]).ColumnWidth = 20;
-
-				if(_byBaseCosts)
-					reportCaptionPreffix += " по базовым ценам";
-				else if(_byWeightCosts)
-					reportCaptionPreffix += " по взвешенным ценам по данным на " + DateTime.Today.AddDays(-1).ToShortDateString();
-				if (_reportType < 3)
-					reportCaptionPreffix += " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
-				else
-					reportCaptionPreffix += " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
-
-				var tableBeginRowIndex = ExcelHelper.PutHeader(ws, 1, columnCount, reportCaptionPreffix);
-
-				for (var i = 0; i < res.Columns.Count; i++)
-					ws.Cells[tableBeginRowIndex, i + 1] = res.Columns[i].Caption;
+				((Range)ws.Cells[3, 3]).ColumnWidth = 10;
 
 				//рисуем границы на всю таблицу
-				ws.get_Range(ws.Cells[tableBeginRowIndex, 1], ws.Cells[tableBeginRowIndex + rowCount, columnCount]).Borders.Weight = XlBorderWeight.xlThin;
-				ws.get_Range(ws.Cells[tableBeginRowIndex, 1], ws.Cells[tableBeginRowIndex, columnCount]).Font.Bold = true;
-
-				//Устанавливаем АвтоФильтр на все колонки
-				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[tableBeginRowIndex + rowCount, columnCount]].Select();
-				((Range)wb.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
+				ws.get_Range(ws.Cells[1, 1], ws.Cells[rowCount + 1, columnCount]).Borders.Weight = XlBorderWeight.xlThin;
+				ws.get_Range(ws.Cells[1, 1], ws.Cells[1, columnCount]).Font.Bold = true;
 
 				//Устанавливаем шрифт листа
 				ws.Rows.Font.Size = 8;
