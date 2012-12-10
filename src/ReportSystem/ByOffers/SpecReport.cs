@@ -57,7 +57,9 @@ namespace Inforoom.ReportSystem
 		//количество столбцов в блоке прайс листа
 		private int priceBlockSize;
 
-		private int SourcePriceType;
+		protected int SourcePriceType;
+
+		protected bool IsOffersReport = false;
 
 		protected SpecReport() // конструктор для возможности тестирования
 		{
@@ -89,6 +91,12 @@ namespace Inforoom.ReportSystem
 			_priceCode = (int)getReportParam("PriceCode");
 			_selfPrice = _priceCode;
 		}
+
+		protected void ReadBaseReportParams()
+		{
+			base.ReadReportParams();
+		}
+
 		protected void GetWeightMinPrice(ExecuteArgs e)
 		{
 			string SqlCommandText = @"
@@ -103,14 +111,17 @@ select
 	where Catalog.Id = AllPrices.ProductId
 ) as FullName,
 ");
-			/*if (_calculateByCatalog)
-				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
-			else
-				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("AllPrices.ProductId"));*/
-			SqlCommandText += @"
+			if(IsOffersReport) {
+				SqlCommandText += @"
+AllPrices.Cost,
+AllPrices.Quantity,";
+			}
+			else {
+				SqlCommandText += @"
   min(AllPrices.cost) As MinCost, -- здесь должна быть минимальная цена
   avg(AllPrices.cost) As AvgCost, -- здесь должна быть средняя цена
   max(AllPrices.cost) As MaxCost, -- здесь должна быть минимальная цена";
+			}
 
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
 			if (_reportType <= 2)
@@ -175,7 +186,8 @@ and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=assortment.ProducerId and SourcePrice.CatalogCode=assortment.CatalogId";
 				}
 			}
-			SqlCommandText += @"
+			if(!IsOffersReport)
+				SqlCommandText += @"
 group by AllPrices.CatalogCode, Cfc";
 			SqlCommandText += @"
 order by FullName, FirmCr";
