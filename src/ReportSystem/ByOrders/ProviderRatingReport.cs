@@ -69,7 +69,7 @@ from {0}.OrdersHead oh
   join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
-where 1=1", OrdersSchema));
+where pd.IsLocal = 0", OrdersSchema));
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "Summ desc");

@@ -123,6 +123,7 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, rivalFil
   join billing.payers on payers.PayerId = le.PayerId
 where
 ol.Junk = 0
+and pd.IsLocal = 0
 #and ol.Await = 0
 and (oh.RegionCode & " +
 				regionMask + @") > 0";

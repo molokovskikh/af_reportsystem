@@ -73,7 +73,7 @@ from {0}.OrdersHead oh
   join Customers.addresses ad on oh.AddressId = ad.Id
   join billing.LegalEntities le on ad.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
-where 1=1", OrdersSchema));
+where pd.IsLocal = 0", OrdersSchema));
 
 			selectCommand = ApplyFilters(selectCommand);
 
