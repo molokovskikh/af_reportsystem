@@ -28,6 +28,7 @@ namespace Inforoom.ReportSystem
 		}
 
 		public List<ulong> AddressRivals { get; set; }
+		public List<ulong> AddressesEqual { get; set; }
 
 		public override void ReadReportParams()
 		{
@@ -46,8 +47,10 @@ namespace Inforoom.ReportSystem
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			FilterDescriptions.Add(String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)sourceFirmCode })));
-			FilterDescriptions.Add(String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0])));
+			var _clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)sourceFirmCode }));
+			FilterDescriptions.Add(_clientName);
+			var concurentClientNames = String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0]));
+			FilterDescriptions.Add(concurentClientNames);
 			if (AddressRivals.Count > 0)
 				FilterDescriptions.Add(String.Format("Список адресов доставки-конкурентов : {0}", ReadAddress(AddressRivals)));
 
@@ -168,6 +171,18 @@ and (oh.RegionCode & " +
 			e.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");
+
+			GroupHeaders.Add(new ColumnGroupHeader(_clientName,
+				"SourceFirmCodeSum",
+				"SourceFirmDistinctOrderId"));
+			GroupHeaders.Add(new ColumnGroupHeader(
+				concurentClientNames,
+				"RivalsSum",
+				"RivalsDistinctAddressId"));
+			GroupHeaders.Add(new ColumnGroupHeader(
+				"Общие данные по рынку",
+				"AllSum",
+				"AllDistinctAddressId"));
 
 			var result = BuildResultTable(selectTable);
 			CustomizeResultTableColumns(result);
@@ -291,7 +306,7 @@ and (oh.RegionCode & " +
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new PharmacyMixedSettings(ReportCode, ReportCaption, FilterDescriptions, selectedField);
+			return new PharmacyMixedSettings(ReportCode, ReportCaption, FilterDescriptions, selectedField, GroupHeaders);
 		}
 	}
 }

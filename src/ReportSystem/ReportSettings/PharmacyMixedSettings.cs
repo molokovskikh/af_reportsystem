@@ -5,14 +5,17 @@ namespace Inforoom.ReportSystem.ReportSettings
 {
 	public class PharmacyMixedSettings : BaseReportSettings
 	{
-		public PharmacyMixedSettings(ulong reportCode, string reportCaption, List<string> filter, List<FilterField> selectedField)
+		public PharmacyMixedSettings(ulong reportCode, string reportCaption, List<string> filter, List<FilterField> selectedField,
+			List<ColumnGroupHeader> groupHeaders)
 			: base(reportCode, reportCaption)
 		{
 			Filter = filter;
 			SelectedField = selectedField;
+			GroupHeaders = groupHeaders;
 		}
 
 		public List<string> Filter;
 		public List<FilterField> SelectedField;
+		public List<ColumnGroupHeader> GroupHeaders;
 	}
 }
