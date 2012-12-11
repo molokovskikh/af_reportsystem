@@ -99,7 +99,7 @@ where
 				GetWeightCostOffers(e);
 				if(!IsExistsPriceInCore(e, SourcePC, SourceRegionCode)) {
 					ProfileHelper.Next("AdditionGetOffers");
-					AddSourcePriceToCore(e);
+					AddSourcePriceToWeightCore(e);
 				}
 				ProfileHelper.Next("GetCodes");
 				GetWeightCostSource(e);

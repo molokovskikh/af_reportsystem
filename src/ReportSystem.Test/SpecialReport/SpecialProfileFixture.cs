@@ -61,7 +61,7 @@ namespace ReportSystem.Test
 						continue;
 					var productRows = catalog.Select(String.Format("Code='{0}'", row["F1"]));
 					var product = session.Query<TestCore>().First(t => t.Code == row["F1"] && t.Id == Convert.ToUInt64(productRows[0]["ID"])).Product;
-					var core = session.Query<TestCore>().Where(t => t.Price.Id == priceCode && t.Product == product);
+					var core = session.Query<TestCore>().Where(t => t.Price.Id == priceCode && t.Product == product && t.Code == row["F1"].ToString());
 					int quantity = 0;
 					foreach (var testCore in core) {
 						quantity += Convert.ToInt32(testCore.Quantity);
