@@ -18,6 +18,7 @@ Default skin template. The following skins are provided as examples only.
 <asp:Label runat="server" SkinId="scheduleLabelSkin" Width="200px"/>
 <asp:Label runat="server" SkinId="paramLabelSkin" Width="150px"/>
 <asp:TextBox runat="server" SkinId="searchTextBoxSkin" BorderStyle="Groove" Width="30%"/>
+<asp:TextBox runat="server" SkinId="shortTextBoxSkin" BorderStyle="Groove" Width="40px"/>
 <asp:TextBox runat="server" SkinId="passwordTextBoxSkin" BorderStyle="Groove" Width="15%"/>
 <asp:TextBox runat="server" SkinId="findTextBoxSkin" BorderStyle="Groove" Width="150"/>
 <asp:TextBox runat="server" SkinId="dateTextBoxSkin" BorderStyle="Groove" Width="100"/>
