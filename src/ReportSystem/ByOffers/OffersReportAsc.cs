@@ -456,6 +456,7 @@ order by FullName, FirmCr";
 				var ws = (_Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
 				var caption = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
 				ws.Name = caption;
+				ws.Activate();
 				var res = _dsReport.Tables["Results"];
 				var columnCount = _dsReport.Tables["Results"].Columns.Count;
 				var rowCount = _dsReport.Tables["Results"].Rows.Count;
