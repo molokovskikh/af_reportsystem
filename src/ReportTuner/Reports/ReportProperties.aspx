@@ -41,6 +41,7 @@
 				<asp:TemplateField HeaderText="Значение">
 					<ItemTemplate>
 						<asp:CheckBox ID="chbValue" runat="server" Visible="False" />
+						<asp:TextBox ID="tbValueShort" SkinID="shortTextBoxSkin" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.OPPropertyValue") %>' Width="40px" Visible="False"></asp:TextBox>
 						<asp:TextBox ID="tbValue" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.OPPropertyValue") %>' Visible="False"></asp:TextBox>
 						<asp:TextBox ID="tbSearch" runat="server" SkinID="searchTextBoxSkin" Width="30%" Visible="False"></asp:TextBox>
 						<asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" Visible="False" />
