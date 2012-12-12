@@ -66,5 +66,21 @@ namespace ReportSystem.Test
 			report = new PharmacyMixedReport(1, file, Conn, ReportFormats.Excel, properties);
 			BuildOrderReport(file);
 		}
+
+		[Test]
+		public void PharmacyMixedWithRegions()
+		{
+			Property("ByPreviousMonth", false);
+			Property("SourceFirmCode", 3110);
+			Property("BusinessRivals", new List<ulong> { 465, 10415 });
+			Property("AddressRivals", new List<ulong> { 465, 11279 });
+			Property("ClientCodeEqual", new List<ulong> { 3110, 465, 11279 });
+			Property("RegionEqual", new List<ulong> { 1, 2 });
+			Property("AddressesEqual", new List<ulong> { 465 });
+			Property("ProductNamePosition", 0);
+			var file = "PharmacyMixedWithRegions.xls";
+			report = new PharmacyMixedReport(1, file, Conn, ReportFormats.Excel, properties);
+			BuildOrderReport(file);
+		}
 	}
 }
