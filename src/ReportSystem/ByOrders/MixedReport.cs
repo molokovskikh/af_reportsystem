@@ -352,7 +352,7 @@ and pd.IsLocal = 0
 			ProfileHelper.Next("GenerateReport3");
 
 			GroupHeaders.Add(new ColumnGroupHeader(
-				String.Format("Выбранный поставщик: {0}", _supplierName),
+				String.Format("{0}", _supplierName),
 				"SourceFirmCodeSum",
 				"SourceSuppliersSoldPosition"));
 			for (var i = 0; i < concurrentGroups.Count; i++) {

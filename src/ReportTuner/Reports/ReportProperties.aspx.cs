@@ -476,7 +476,10 @@ AND rp.reportCode=?rp
 		}
 		else if (type == "INT") {
 			if (String.IsNullOrEmpty(reportProperty.PropertyType.SelectStoredProcedure)) {
-				cell.FindControl("tbValue").Visible = true;
+				if(row[1].ToString() == "Количество отображаемых цен")
+					cell.FindControl("tbValueShort").Visible = true;
+				else
+					cell.FindControl("tbValue").Visible = true;
 			}
 			else if (!String.IsNullOrEmpty(value)) {
 				cell.FindControl("ddlValue").Visible = true;
@@ -769,6 +772,11 @@ WHERE ID = ?OPID", MyCn, trans);
 				if (value.ToString() !=
 					((TextBox)dr.FindControl("tbValue")).Text)
 					row[column] = ((TextBox)dr.FindControl("tbValue")).Text;
+			}
+			else if ((dr.FindControl("tbValueShort")).Visible) {
+				if (value.ToString() !=
+					((TextBox)dr.FindControl("tbValueShort")).Text)
+					row[column] = ((TextBox)dr.FindControl("tbValueShort")).Text;
 			}
 			else {
 				var allControls = dr.Controls.Cast<Control>().Flat(c => c.Controls.Cast<Control>());

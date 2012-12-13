@@ -12,8 +12,9 @@
 				<asp:TemplateField HeaderText="Значение">
 					<ItemTemplate>
 						<asp:CheckBox ID="chbValue" runat="server" Visible="False" AutoPostBack="True" OnCheckedChanged="chbValue_CheckedChanged" />
+						<asp:TextBox ID="tbValueShort" SkinID="shortTextBoxSkin" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyValue") %>' Width="40px"></asp:TextBox>
 						<asp:TextBox ID="tbValue" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyValue") %>'></asp:TextBox>
-						<asp:TextBox ID="tbSearch"  SkinID="searchTextBoxSkin" runat="server" Width="30%"></asp:TextBox>
+						<asp:TextBox ID="tbSearch"  SkinID="searchTextBoxSkin" runat="server" Width="50%"></asp:TextBox>
 						<asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" />
 						<asp:DropDownList ID="ddlValue" runat="server" Visible="False" AutoPostBack="True" OnSelectedIndexChanged="ddlValue_SelectedIndexChanged"></asp:DropDownList>
 						<asp:Label ID="lblType" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PPropertyType") %>'  Visible="False"></asp:Label>
@@ -40,6 +41,7 @@
 				<asp:TemplateField HeaderText="Значение">
 					<ItemTemplate>
 						<asp:CheckBox ID="chbValue" runat="server" Visible="False" />
+						<asp:TextBox ID="tbValueShort" SkinID="shortTextBoxSkin" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.OPPropertyValue") %>' Width="40px" Visible="False"></asp:TextBox>
 						<asp:TextBox ID="tbValue" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.OPPropertyValue") %>' Visible="False"></asp:TextBox>
 						<asp:TextBox ID="tbSearch" runat="server" SkinID="searchTextBoxSkin" Width="30%" Visible="False"></asp:TextBox>
 						<asp:Button ID="btnFind" runat="server" CommandName="Find" Text="Найти" Visible="False" />
