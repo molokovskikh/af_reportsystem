@@ -13,16 +13,20 @@ namespace ReportSystem.Test.SpecialReport
 		public void SpecialCountProducerByWeightCost()
 		{
 			var fileName = "SpecialCountProducerByWeightCost.xls";
-			Property("ReportType", 4);
+			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
-				4194304
+				2
+			});
+			Property("FirmCodeEqual", new List<ulong> {
+				7,
+				196
 			});
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
 			Property("ShowPercents", true);
 			Property("CalculateByCatalog", false);
-			Property("PriceCode", 216);
+			Property("PriceCode", 196);
 			Property("ByWeightCosts", true);
 			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);
@@ -32,14 +36,14 @@ namespace ReportSystem.Test.SpecialReport
 		public void SpecialCountProducerByWeightCostAssort()
 		{
 			var fileName = "SpecialCountProducerByWeightCostAssort.xls";
-			Property("ReportType", 4);
+			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
 				4194304
 			});
-			Property("FirmCodeEqual", new List<ulong> {
-				338,
-				126
-			});
+			//Property("FirmCodeEqual", new List<ulong> {
+			//	338,
+			//	126
+			//});
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);

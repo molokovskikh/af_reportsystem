@@ -140,9 +140,8 @@ AllPrices.Quantity,";
 from
  (
 
-reports.averagecosts AvgCost,
-  Core AllPrices,
-catalogs.assortment";
+  Core AllPrices
+";
 
 
 				//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
@@ -155,7 +154,7 @@ catalogs.assortment";
 						SqlCommandText += @"
 
  )
-  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=assortment.ProducerId";
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=AllPrices.ProducerId";
 				}
 				else
 					SqlCommandText += @",
@@ -164,16 +163,14 @@ catalogs.assortment";
 				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
 				if (_reportType > 2)
 					SqlCommandText += @"
-  left join catalogs.Producers cfc on cfc.Id = assortment.ProducerId";
+  left join catalogs.Producers cfc on cfc.Id = AllPrices.ProducerId";
 
 				SqlCommandText += @"
 where
-  assortment.Id = AvgCost.AssortmentId
-and AvgCost.Id = AllPrices.Id
 ";
 
 				SqlCommandText += @"
-and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ))
+ (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ))
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
 				//Если отчет не полный, то выбираем только те, которые есть в SourcePC
@@ -183,7 +180,8 @@ and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 					else
 						SqlCommandText += @"
-and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=assortment.ProducerId and SourcePrice.CatalogCode=assortment.CatalogId";
+and SourcePrice.CatalogCode=AllPrices.CatalogCode and (SourcePrice.codefirmcr=AllPrices.ProducerId or 
+(SourcePrice.codefirmcr is null and AllPrices.ProducerId is not null)) and SourcePrice.CatalogCode=AllPrices.ProductId";
 				}
 			}
 			if(!IsOffersReport)
@@ -192,11 +190,11 @@ group by AllPrices.CatalogCode, Cfc";
 			SqlCommandText += @"
 order by FullName, FirmCr";
 			e.DataAdapter.SelectCommand.CommandText = SqlCommandText;
-			e.DataAdapter.Fill(_dsReport, "Catalog");
+			e.DataAdapter.Fill(_dsReport, "MinCatalog");
 
 #if DEBUG
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
+			var cnt = _dsReport.Tables["MinCatalog"].Rows.Count;
 #endif
 		}
 
@@ -208,13 +206,6 @@ select
   SourcePrice.Code,
   ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode, ";
 			SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("c0.ProductId"));
-//			SqlCommandText += String.Format(@"
-//(
-//	select catalog.Name
-//	from catalogs.catalog
-//	where Catalog.Id = AllPrices.ProductId
-//) as FullName,
-//");
 
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
 			if (_reportType <= 2)
@@ -233,9 +224,7 @@ select
 from
  (
 
-reports.averagecosts AvgCost,
-  Core AllPrices,
-catalogs.assortment";
+  Core AllPrices";
 
 
 				//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
@@ -248,32 +237,31 @@ catalogs.assortment";
 						SqlCommandText += @"
 
  )
-  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=assortment.ProducerId";
+  left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=AllPrices.ProducerId";
 				}
 				else
 					SqlCommandText += @",
   TmpSourceCodes SourcePrice
  )";
 				SqlCommandText += @"
-join catalogs.catalog ctl on ctl.id = assortment.catalogid
+join catalogs.catalog ctl on ctl.id = AllPrices.ProductId
 join catalogs.products pr on ctl.id = pr.catalogid
-right join farm.Core0 c0 on c0.priductid = pr.id and c0.pricecode = ?SourcePrice
+right join farm.Core0 c0 on c0.productid = pr.id and c0.pricecode = ?SourcePrice
 left join farm.synonym s on s.SynonymCode = c0.SynonymCode
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 ";
 				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
 				if (_reportType > 2)
 					SqlCommandText += @"
-  left join catalogs.Producers cfc on cfc.Id = assortment.ProducerId";
+  left join catalogs.Producers cfc on cfc.Id = AllPrices.ProducerId";
 
 				SqlCommandText += @"
 where
-  assortment.Id = AvgCost.AssortmentId
-and AvgCost.Id = AllPrices.Id
+
 ";
 
 				SqlCommandText += @"
-and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ))
+(( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ))
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
 				//Если отчет не полный, то выбираем только те, которые есть в SourcePC
@@ -283,7 +271,8 @@ and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
 					else
 						SqlCommandText += @"
-and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=assortment.ProducerId and SourcePrice.CatalogCode=assortment.CatalogId";
+and SourcePrice.CatalogCode=AllPrices.CatalogCode and (SourcePrice.codefirmcr=AllPrices.ProducerId or 
+(SourcePrice.codefirmcr is null and AllPrices.ProducerId is not null)) and SourcePrice.CatalogCode=AllPrices.ProductId";
 				}
 			}
 			if(!IsOffersReport)
@@ -391,7 +380,10 @@ and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.Fill(_dsReport, "TmpSourceCodes");
 #endif
 			e.DataAdapter.SelectCommand.CommandText = @"
-select
+create temporary table CoreCopy engine memory
+select * from core;
+
+(select
   Core.Id,
   Core.CatalogCode,
   assortment.ProducerId as CodeFirmCr,
@@ -399,14 +391,29 @@ select
   Core.PriceCode,
   Core.RegionCode,
   Core.Quantity,
-  0 as Junk
+  0 as Junk,
+  '' as Code
 from
   Core,
   reports.averagecosts,
   catalogs.assortment
 where
-Core.Id=averagecosts.Id
-and assortment.id = averagecosts.AssortmentId";
+Core.Id=averagecosts.Id and Core.CoreNew = 0
+and assortment.id = averagecosts.AssortmentId)
+union all
+(select
+  CoreCopy.Id,
+  CoreCopy.CatalogCode,
+  CoreCopy.ProducerId as CodeFirmCr,
+  CoreCopy.Cost,
+  CoreCopy.PriceCode,
+  CoreCopy.RegionCode,
+  CoreCopy.Quantity,
+  0 as Junk,
+  '' as Code
+from
+  CoreCopy 
+  where CoreCopy.CoreNew = 1);";
 
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
@@ -443,7 +450,7 @@ order by st.Position DESC";
 		{
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 
-			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column ProducerId int unsigned;";
+			e.DataAdapter.SelectCommand.CommandText = @"alter table Core add column CoreNew int unsigned DEFAULT 0;";
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -457,7 +464,8 @@ if(if(round(cc.Cost * pd.Upcost, 2) < MinBoundCost, MinBoundCost, round(cc.Cost 
 '',
 @cnt:=@cnt+1,
 c.Quantity,
-c.CodeFirmCr
+c.CodeFirmCr,
+1
 from
 farm.core0 c
 join usersettings.PricesData pd on c.PriceCode = pd.PriceCode
@@ -556,11 +564,14 @@ where
 				if(SourcePriceType == (int)PriceType.Assortment || !IsExistsPriceInCore(e, SourcePC, SourceRegionCode)) {
 					ProfileHelper.Next("AdditionGetOffers");
 					AddSourcePriceToWeightCore(e);
+					SourcePriceType = (int)PriceType.Assortment;
 				}
 				ProfileHelper.Next("GetCodes");
 				GetWeightCostSource(e);
 				ProfileHelper.Next("GetMinPrices");
 				GetWeightMinPrice(e);
+				ProfileHelper.Next("GetCatalog");
+				GetWeightCatalog(e);
 				ProfileHelper.Next("Calculate");
 				Calculate();
 				return;
@@ -733,7 +744,7 @@ group by c.pricecode";
 				}
 				priceIndex++;
 			}
-			if(priceIndex != 0)
+			if (priceIndex != 0)
 				priceBlockSize = (dtRes.Columns.Count - firstColumnCount) / priceIndex;
 			var newrow = dtRes.NewRow();
 			dtRes.Rows.Add(newrow);
@@ -745,56 +756,49 @@ group by c.pricecode";
 				newrow["FullName"] = drCatalog["FullName"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
 				var drCatalog1 = new DataRow[0];
-				try {
-					if(drCatalog["Cfc"] == DBNull.Value)
+
+				if (!_byWeightCosts) {
+					if (drCatalog["Cfc"] == DBNull.Value)
 						drCatalog1 = _dsReport.Tables["MinCatalog"].Select("Code = '" + drCatalog["Code"] +
 							"' and CatalogCode = '" + drCatalog["CatalogCode"] + "'" + " and Cfc is null ");
 					else
 						drCatalog1 = _dsReport.Tables["MinCatalog"].Select("Code = '" + drCatalog["Code"] +
 							"' and CatalogCode = '" + drCatalog["CatalogCode"] + "'" + " and Cfc = '" + drCatalog["Cfc"].ToString() + "'");
-					if (drCatalog1.Length > 0 && drCatalog1[0]["MinCost"] != DBNull.Value) {
-						newrow["MinCost"] = Convert.ToDecimal(drCatalog1[0]["MinCost"]);
-						newrow["AvgCost"] = Convert.ToDecimal(drCatalog1[0]["AvgCost"]);
-						newrow["MaxCost"] = Convert.ToDecimal(drCatalog1[0]["MaxCost"]);
-					}
-					if(drCatalog1.Length > 1) {
-						int b = 1;
-					}
 				}
-				catch(Exception ex) {
-					int a = 1;
+				else if (drCatalog["Cfc"] == DBNull.Value)
+					drCatalog1 = _dsReport.Tables["MinCatalog"].Select("CatalogCode = '" + drCatalog["CatalogCode"] + "'" + " and Cfc is null ");
+				else
+					drCatalog1 = _dsReport.Tables["MinCatalog"].Select("CatalogCode = '" + drCatalog["CatalogCode"] + "'" + " and Cfc = '" + drCatalog["Cfc"].ToString() + "'");
+
+				if (drCatalog1.Length > 0 && drCatalog1[0]["MinCost"] != DBNull.Value) {
+					newrow["MinCost"] = Convert.ToDecimal(drCatalog1[0]["MinCost"]);
+					newrow["AvgCost"] = Convert.ToDecimal(drCatalog1[0]["AvgCost"]);
+					newrow["MaxCost"] = Convert.ToDecimal(drCatalog1[0]["MaxCost"]);
 				}
 
 				//Если есть ID, то мы можем заполнить поле Code и, возможно, остальные поля   предложение SourcePC существует
 				DataRow[] drsMin = new DataRow[1];
 				if (!(drCatalog["ID"] is DBNull)) {
 					newrow["Code"] = drCatalog["Code"];
-					if(drCatalog["Code"].ToString() == "8822") {
-						int a = 1;
-					}
 					//Производим поиск предложения по данной позиции по интересующему прайс-листу
 					var drsCore = dtCore.Select("ID = " + drCatalog["ID"], "Cost asc");
-					if(drsCore.Length > 0) {
-						try {
-							drsMin = dtCore.Select("CatalogCode = '" + drsCore[0]["CatalogCode"] + "' and PriceCode = "
-								+ drsCore[0]["PriceCode"].ToString() + " and Code = '" + drsCore[0]["Code"] + "'", "Cost asc");
-						}
-						catch(Exception ex) {
-							int a = 1;
-						}
+					if (drsCore.Length > 0) {
+						drsMin = dtCore.Select("CatalogCode = '" + drsCore[0]["CatalogCode"] + "' and PriceCode = "
+							+ drsCore[0]["PriceCode"].ToString() + " and Code = '" + drsCore[0]["Code"] + "'", "Cost asc");
+
 						//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
 						//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
 						if ((drsMin.Length > 0)) {
 							foreach (DataRow dataRow in drsMin) {
-								if(newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false && dataRow["Cost"] != DBNull.Value) {
+								if (newrow["CustomerCost"] is DBNull && Convert.ToBoolean(dataRow["Junk"]) == false && dataRow["Cost"] != DBNull.Value) {
 									newrow["CustomerCost"] = Convert.ToDecimal(dataRow["Cost"]);
 								}
 								double customerQuantity;
 								double quantity;
-								if(newrow["CustomerQuantity"] is DBNull || !double.TryParse(newrow["CustomerQuantity"].ToString(), out customerQuantity)) {
+								if (newrow["CustomerQuantity"] is DBNull || !double.TryParse(newrow["CustomerQuantity"].ToString(), out customerQuantity)) {
 									newrow["CustomerQuantity"] = dataRow["Quantity"];
 								}
-								else if(double.TryParse(dataRow["Quantity"].ToString(), out quantity))
+								else if (double.TryParse(dataRow["Quantity"].ToString(), out quantity))
 									newrow["CustomerQuantity"] = quantity + customerQuantity;
 							}
 							if (newrow["CustomerCost"].Equals(newrow["MinCost"]) && !String.IsNullOrEmpty(newrow["MinCost"].ToString()))
@@ -810,12 +814,12 @@ group by c.pricecode";
 						var minCost = (decimal)newrow["MinCost"];
 						var customerCost = (decimal)newrow["CustomerCost"];
 						newrow["Differ"] = customerCost - minCost;
-						if(customerCost != 0)
+						if (customerCost != 0)
 							newrow["DifferPercents"] = Math.Round((customerCost - minCost) / customerCost * 100, 0);
 					}
 
 					//Выбираем позиции с минимальной ценой, отличные от SourcePC
-					if(!(drCatalog1.Length == 0 || drCatalog1[0]["MinCost"] is DBNull)) {
+					if (!(drCatalog1.Length == 0 || drCatalog1[0]["MinCost"] is DBNull)) {
 						drsMin = dtCore.Select(string.Format("CatalogCode = {0}{1} and Cost = {2}",
 							drCatalog["CatalogCode"],
 							GetProducerFilter(drCatalog),
@@ -840,7 +844,7 @@ group by c.pricecode";
 				else {
 					//Ищем первую цену, которая будет больше минимальной цены
 					decimal minCostAdd = 0;
-					if(drCatalog1.Length > 0 && drCatalog1[0]["MinCost"] != DBNull.Value)
+					if (drCatalog1.Length > 0 && drCatalog1[0]["MinCost"] != DBNull.Value)
 						minCostAdd = (decimal)drCatalog1[0]["MinCost"];
 					drsMin = dtCore.Select(
 						"CatalogCode = " + drCatalog["CatalogCode"] +
@@ -853,7 +857,7 @@ group by c.pricecode";
 						var customerCost = Convert.ToDecimal(newrow["CustomerCost"]);
 						var cost = Convert.ToDecimal(drsMin[0]["Cost"]);
 						newrow["Differ"] = customerCost - cost;
-						if(customerCost != 0)
+						if (customerCost != 0)
 							newrow["DifferPercents"] = Math.Round((customerCost - cost) / customerCost * 100, 0);
 					}
 				}
@@ -876,10 +880,10 @@ group by c.pricecode";
 								var mincost = Convert.ToDouble(newrow["MinCost"]);
 								var pricecost = Convert.ToDouble(dtPos["Cost"]);
 								try {
-									if(pricecost > 0)
+									if (pricecost > 0)
 										newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 								}
-								catch(Exception ex) {
+								catch (Exception ex) {
 									throw;
 								}
 							}
@@ -889,9 +893,9 @@ group by c.pricecode";
 						double columnQuantity;
 						var quantityColumn = dtRes.Columns["Quantity" + priceIndex];
 						if (quantityColumn != null)
-							if(newrow[quantityColumn] is DBNull || !double.TryParse(newrow[quantityColumn].ToString(), out columnQuantity))
+							if (newrow[quantityColumn] is DBNull || !double.TryParse(newrow[quantityColumn].ToString(), out columnQuantity))
 								newrow[quantityColumn] = dtPos["Quantity"];
-							else if(!(dtPos["Quantity"] is DBNull) && double.TryParse(dtPos["Quantity"].ToString(), out quantity))
+							else if (!(dtPos["Quantity"] is DBNull) && double.TryParse(dtPos["Quantity"].ToString(), out quantity))
 								newrow[quantityColumn] = columnQuantity + quantity;
 					}
 				}
