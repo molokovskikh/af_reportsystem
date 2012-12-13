@@ -50,6 +50,7 @@ public partial class Reports_Reports : BasePage
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
+		tbFilter.Attributes.Add("onKeyPress", "javascript:if (event.keyCode == 13) __doPostBack('" + btnFilter.UniqueID + "','')");
 		if ((Request["r"] == null)) {
 			Response.Redirect("GeneralReports.aspx");
 		}
@@ -442,7 +443,8 @@ SET
 	{
 		CopyChangesToTable();
 		DS.Tables[dtReports.TableName].DefaultView[e.RowIndex].Delete();
-		dgvReports.DataSource = DS;
+		SetFilter();
+		dgvReports.DataSource = DS.Tables[dtReports.TableName].DefaultView;
 		dgvReports.DataBind();
 	}
 

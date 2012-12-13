@@ -1,5 +1,4 @@
 <%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_Reports" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="Reports.aspx.cs" %>
-
 <asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 	<div align="center">
 		<strong style="font-size:small;">Настройка дополнительных параметров</strong> <br/>
@@ -102,7 +101,7 @@
 		<asp:Label ID="lblMessage" runat="server" Text="" /><br/><br/>
 		<asp:Label ID="lblFilter" runat="server" Text="Фильтр:" />
 		<asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin"
-			ontextchanged="btnFilter_Click" ToolTip="e-mail адреса можно задавать через запятую"/>
+			ontextchanged="btnFilter_Click" ToolTip="Введите имя листа или часть имени для поиска по вхождению"/>
 		<asp:Button ID="btnFilter" runat="server" Text="Фильтровать"
 			onclick="btnFilter_Click" />
 			<br/><br/>
