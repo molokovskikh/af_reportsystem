@@ -252,5 +252,27 @@ namespace Report.Data.Builder.Test.Unit
 			Assert.That(aggregates.Cost, Is.EqualTo(50));
 			Assert.That(aggregates.Quantity, Is.EqualTo(10));
 		}
+
+		[Test]
+		public void CalculateWithSameProductInOtherPrice()
+		{
+			var offerId = new OfferId(1, 1);
+			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(2, 1, 1m),
+					},
+					new List<Offer> {
+						new Offer(offerId, 1, 100, false, 10, 0, "Code"),
+						new Offer(offerId, 1, 50, false, 10, 1, "Code"),
+						new Offer(offerId, 1, 150, false, 10, 2, "Code", priceCode: 1)
+					})
+			};
+			var averageCosts = _calculator.Calculate(list);
+			var costs = (Hashtable)averageCosts[offerId];
+			var aggregates = ((OfferAggregates)costs[1u]);
+			Assert.That(aggregates.Cost, Is.EqualTo(100));
+			Assert.That(aggregates.Quantity, Is.EqualTo(20));
+		}
 	}
 }

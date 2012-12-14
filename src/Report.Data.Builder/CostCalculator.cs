@@ -31,6 +31,7 @@ namespace Report.Data.Builder
 		public decimal Cost;
 		public uint Quantity;
 		public List<ulong> UsedCores;
+		public List<string> UsedCodes;
 		public uint? LastClientId;
 		public decimal LastCost;
 		public uint Count;
@@ -40,6 +41,7 @@ namespace Report.Data.Builder
 		public OfferAggregates()
 		{
 			UsedCores = new List<ulong>();
+			UsedCodes = new List<string>();
 			LastClientForRatingId = null;
 			LastClientId = null;
 		}
@@ -78,8 +80,21 @@ namespace Report.Data.Builder
 		public uint Quantity;
 		public bool Junk;
 		public ulong CoreId;
+		public string Code;
+		public string CodeCr;
+		public uint PriceCode;
 
-		public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0)
+		//public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0)
+		//{
+		//	Id = id;
+		//	AssortmentId = assortmentId;
+		//	Cost = cost;
+		//	Junk = junk;
+		//	Quantity = quantity;
+		//	CoreId = coreId;
+		//}
+
+		public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0, string code = "", string codeCr = "", uint priceCode = 0)
 		{
 			Id = id;
 			AssortmentId = assortmentId;
@@ -87,6 +102,9 @@ namespace Report.Data.Builder
 			Junk = junk;
 			Quantity = quantity;
 			CoreId = coreId;
+			Code = code ?? "";
+			CodeCr = codeCr ?? "";
+			PriceCode = priceCode;
 		}
 	}
 
@@ -107,17 +125,17 @@ where rcs.InvisibleOnFirm = 0
 
 		public Offer[] GetOffers(uint client)
 		{
-			if (log.IsDebugEnabled)
-				log.DebugFormat("Начал загрузку предложений для клиента {0}", client);
+			//if (log.IsDebugEnabled)
+			//	log.DebugFormat("Начал загрузку предложений для клиента {0}", client);
 			var sql = String.Format(@"
 set @UserId = (select Id
 from Customers.Users
 where ClientId = ?client
 limit 1);
 
-call Customers.GetPrices(@UserId);
+call Customers.GetPricesAVGCost(@UserId);
 
-select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId
+select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c0.Id and cc.PC_CostCode = p.CostCode
@@ -136,7 +154,10 @@ where p.Actual = 1
 					r.GetDecimal("Cost"),
 					r.GetBoolean("Junk"),
 					SafeConvert.ToUInt32(r["Quantity"].ToString()),
-					r.GetUInt64("CoreId")),
+					r.GetUInt64("CoreId"),
+					r.GetString("Code"),
+					r.GetString("CodeCr"),
+					r.GetUInt32("PriceCode")),
 				new { client })
 				.ToArray();
 
@@ -205,7 +226,16 @@ where p.Actual = 1
 					}
 					// проверяем, что этот core мы еще не использовали при подсчете количества
 					if(!aggregates.UsedCores.Contains(offer.CoreId)) {
-						aggregates.Quantity += offer.Quantity;
+						if(aggregates.UsedCodes.Any(s => s.Contains(offer.Code + "|" + offer.CodeCr))) {
+							if(aggregates.UsedCodes.Any(s => s.Contains(offer.PriceCode.ToString() + "|" + offer.Code + "|" + offer.CodeCr))) {
+								aggregates.Quantity += offer.Quantity;
+							}
+						}
+						else {
+							aggregates.UsedCodes.Add(offer.PriceCode.ToString() + "|" + offer.Code + "|" + offer.CodeCr);
+							aggregates.Quantity += offer.Quantity;
+						}
+						
 						aggregates.UsedCores.Add(offer.CoreId);
 					}
 #if DEBUG
