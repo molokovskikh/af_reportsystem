@@ -393,12 +393,12 @@ and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=Far
 			sql += @"
 order by FullName, FirmCr";
 			e.DataAdapter.SelectCommand.CommandText = sql;
-			e.DataAdapter.Fill(_dsReport, "Catalog");
+			e.DataAdapter.Fill(_dsReport, "MinCatalog");
 		}
 
 		private void Transform()
 		{
-			var data = _dsReport.Tables["Catalog"];
+			var data = _dsReport.Tables["MinCatalog"];
 			var groupedRows = data.Rows
 				.Cast<DataRow>()
 				.GroupBy(r => r["Code"].ToString() + "\t" + r["CatalogCode"].ToString() + "\t" + r["Cfc"].ToString());

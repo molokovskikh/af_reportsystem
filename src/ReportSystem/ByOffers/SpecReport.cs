@@ -459,8 +459,10 @@ order by st.Position DESC";
 set @cnt= (select max(Id) from usersettings.Core);
 insert into usersettings.Core
 select ?SourcePC, ?SourceRegionCode, p.CatalogId,
-if(if(round(cc.Cost * pd.Upcost, 2) < MinBoundCost, MinBoundCost, round(cc.Cost * pd.Upcost, 2)) > MaxBoundCost,
-	MaxBoundCost, if(round(cc.Cost*pd.UpCost,2) < MinBoundCost, MinBoundCost, round(cc.Cost * pd.Upcost, 2))),
+if(if(round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2) < MinBoundCost,
+MinBoundCost, round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2)) > MaxBoundCost,
+	MaxBoundCost, if(round(cc.Cost*round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5),2) < MinBoundCost,
+MinBoundCost, round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2))),
 '',
 @cnt:=@cnt+1,
 c.Quantity,
@@ -472,6 +474,7 @@ join usersettings.PricesData pd on c.PriceCode = pd.PriceCode
 join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and pc.BaseCost = 1
 left JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = pc.CostCode
 join catalogs.products p on c.ProductId = p.Id
+left JOIN usersettings.PricesRegionalData prd ON prd.pricecode = pd.pricecode AND prd.RegionCode = ?SourceRegionCode
 where
 c.PriceCode = ?SourcePrice;";
 
@@ -635,13 +638,16 @@ SELECT
 	?SourcePrice,
 	?SourceRegionCode,
 	c.ProductId,
-	if(if(round(cc.Cost * pd.Upcost, 2) < MinBoundCost, MinBoundCost, round(cc.Cost * pd.Upcost, 2)) > MaxBoundCost,
-	MaxBoundCost, if(round(cc.Cost*pd.UpCost,2) < MinBoundCost, MinBoundCost, round(cc.Cost * pd.Upcost, 2))),
+	if(if(round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2) < MinBoundCost,
+MinBoundCost, round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2)) > MaxBoundCost,
+	MaxBoundCost, if(round(cc.Cost*round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5),2) < MinBoundCost,
+MinBoundCost, round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2))),
 	'',
 	c.id
 FROM farm.core0 c
 join usersettings.PricesData pd on c.PriceCode = pd.PriceCode
 join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and pc.BaseCost = 1
+left JOIN usersettings.PricesRegionalData prd ON prd.pricecode = pd.pricecode AND prd.RegionCode = ?SourceRegionCode
 left JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = pc.CostCode
 where
 	c.PriceCode = ?SourcePrice;
@@ -1083,13 +1089,10 @@ order by ActivePrices.PositionCount DESC";
 
 		protected void GetMinPrice(ExecuteArgs e)
 		{
-			string SqlCommand = @"insert into usersettings.Core
-select";
-
 			string SqlCommandText = @"
 select
   SourcePrice.ID,
-  SourcePrice.Code,
+  ifnull(SourcePrice.Code,'') as Code,
   ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode, ";
 			if (_calculateByCatalog)
 				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
@@ -1185,7 +1188,7 @@ order by FullName, FirmCr";
 			string SqlCommandText = @"
 select
   SourcePrice.ID,
-  SourcePrice.Code,
+  ifnull(SourcePrice.Code,'') as Code,
   ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode, ";
 			if (_calculateByCatalog)
 				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
