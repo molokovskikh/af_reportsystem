@@ -40,10 +40,10 @@ namespace ReportSystem.Test.SpecialReport
 			Property("RegionEqual", new List<ulong> {
 				4194304
 			});
-			//Property("FirmCodeEqual", new List<ulong> {
-			//	338,
-			//	126
-			//});
+			Property("FirmCodeEqual", new List<ulong> {
+				338,
+				126
+			});
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);

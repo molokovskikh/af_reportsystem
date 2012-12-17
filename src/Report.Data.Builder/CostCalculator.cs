@@ -84,16 +84,6 @@ namespace Report.Data.Builder
 		public string CodeCr;
 		public uint PriceCode;
 
-		//public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0)
-		//{
-		//	Id = id;
-		//	AssortmentId = assortmentId;
-		//	Cost = cost;
-		//	Junk = junk;
-		//	Quantity = quantity;
-		//	CoreId = coreId;
-		//}
-
 		public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0, string code = "", string codeCr = "", uint priceCode = 0)
 		{
 			Id = id;
@@ -125,8 +115,8 @@ where rcs.InvisibleOnFirm = 0
 
 		public Offer[] GetOffers(uint client)
 		{
-			//if (log.IsDebugEnabled)
-			//	log.DebugFormat("Начал загрузку предложений для клиента {0}", client);
+			if (log.IsDebugEnabled)
+				log.DebugFormat("Начал загрузку предложений для клиента {0}", client);
 			var sql = String.Format(@"
 set @UserId = (select Id
 from Customers.Users

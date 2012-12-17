@@ -86,10 +86,10 @@ namespace ReportSystem.Test
 				2097152
 			});
 
-			//Property("PriceCodeEqual", new List<ulong> {
-			//	338,
-			//	4023
-			//});
+			Property("PriceCodeEqual", new List<ulong> {
+				338,
+				4023
+			});
 
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);

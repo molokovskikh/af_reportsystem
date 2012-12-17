@@ -111,7 +111,7 @@ select
 	where Catalog.Id = AllPrices.ProductId
 ) as FullName,
 ");
-			if(IsOffersReport) {
+			if (IsOffersReport) {
 				SqlCommandText += @"
 AllPrices.Cost,
 AllPrices.Quantity,";
@@ -133,10 +133,7 @@ AllPrices.Quantity,";
   Cfc.Name as FirmCr,
   cfc.Id As Cfc ";
 
-			if(SourcePriceType == (int)PriceType.Assortment && 1 == 0)
-				SqlCommandText += GetFromForWeightAssortmentPrice();
-			else {
-				SqlCommandText += @"
+			SqlCommandText += @"
 from
  (
 
@@ -144,47 +141,46 @@ from
 ";
 
 
-				//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
-				if (_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
+			if (_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
 
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=AllPrices.ProducerId";
-				}
-				else
-					SqlCommandText += @",
+			}
+			else
+				SqlCommandText += @",
   TmpSourceCodes SourcePrice
  )";
-				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
-				if (_reportType > 2)
-					SqlCommandText += @"
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = AllPrices.ProducerId";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
 where
 ";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
  (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ))
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
-				//Если отчет не полный, то выбираем только те, которые есть в SourcePC
-				if (!_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
+			if (!_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode and (SourcePrice.codefirmcr=AllPrices.ProducerId or 
 (SourcePrice.codefirmcr is null and AllPrices.ProducerId is not null)) and SourcePrice.CatalogCode=AllPrices.ProductId";
-				}
 			}
-			if(!IsOffersReport)
+			if (!IsOffersReport)
 				SqlCommandText += @"
 group by AllPrices.CatalogCode, Cfc";
 			SqlCommandText += @"
@@ -217,65 +213,62 @@ select
   Cfc.Name as FirmCr,
   cfc.Id As Cfc ";
 
-			if(SourcePriceType == (int)PriceType.Assortment && 1 == 0)
-				SqlCommandText += GetFromForWeightAssortmentPrice();
-			else {
-				SqlCommandText += @"
+			SqlCommandText += @"
 from
  (
 
   Core AllPrices";
 
 
-				//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
-				if (_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
+			if (_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
 
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=AllPrices.ProducerId";
-				}
-				else
-					SqlCommandText += @",
+			}
+			else
+				SqlCommandText += @",
   TmpSourceCodes SourcePrice
  )";
-				SqlCommandText += @"
+			SqlCommandText += @"
 join catalogs.catalog ctl on ctl.id = AllPrices.ProductId
 join catalogs.products pr on ctl.id = pr.catalogid
 right join farm.Core0 c0 on c0.productid = pr.id and c0.pricecode = ?SourcePrice
 left join farm.synonym s on s.SynonymCode = c0.SynonymCode
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 ";
-				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
-				if (_reportType > 2)
-					SqlCommandText += @"
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = AllPrices.ProducerId";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
 where
 
 ";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
 (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ))
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
-				//Если отчет не полный, то выбираем только те, которые есть в SourcePC
-				if (!_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
+			if (!_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode and (SourcePrice.codefirmcr=AllPrices.ProducerId or 
 (SourcePrice.codefirmcr is null and AllPrices.ProducerId is not null)) and SourcePrice.CatalogCode=AllPrices.ProductId";
-				}
 			}
-			if(!IsOffersReport)
+
+			if (!IsOffersReport)
 				SqlCommandText += @"
 group by FullName, AllPrices.CatalogCode, Cfc";
 			SqlCommandText += @"
@@ -885,13 +878,8 @@ group by c.pricecode";
 							if (percentColumn != null && newrow["MinCost"] != DBNull.Value) {
 								var mincost = Convert.ToDouble(newrow["MinCost"]);
 								var pricecost = Convert.ToDouble(dtPos["Cost"]);
-								try {
-									if (pricecost > 0)
-										newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
-								}
-								catch (Exception ex) {
-									throw;
-								}
+								if (pricecost > 0)
+									newrow[percentColumn] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
 
@@ -1113,59 +1101,56 @@ select
   ifnull(sfc.Synonym, Cfc.Name) as FirmCr,
   cfc.Id As Cfc ";
 
-			if(SourcePriceType == (int)PriceType.Assortment && 0 == 1)
-				SqlCommandText += GetFromForAssortmentPrice();
-			else {
-				SqlCommandText += @"
+			SqlCommandText += @"
 from
  (
   catalogs.products,
   farm.core0 FarmCore,";
 
-				//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
-				if (_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
+			if (_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
   Core AllPrices
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
   Core AllPrices
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr";
-				}
-				else
-					SqlCommandText += @"
+			}
+			else
+				SqlCommandText += @"
   Core AllPrices,
   TmpSourceCodes SourcePrice
  )";
-				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
-				if (_reportType > 2)
-					SqlCommandText += @"
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
 where
   products.id = AllPrices.ProductId
   and FarmCore.Id = AllPrices.Id";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
 and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
-				//Если отчет не полный, то выбираем только те, которые есть в SourcePC
-				if (!_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
+			if (!_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr ";
-				}
 			}
+
 			SqlCommandText += @"
 group by SourcePrice.Code, CatalogCode, Cfc";
 			if ((!_reportIsFull) && (_reportSortedByPrice))
@@ -1205,59 +1190,56 @@ select
   ifnull(sfc.Synonym, Cfc.Name) as FirmCr,
   cfc.Id As Cfc ";
 
-			if(SourcePriceType == (int)PriceType.Assortment && 0 == 1)
-				SqlCommandText += GetFromForAssortmentPrice();
-			else {
-				SqlCommandText += @"
+			SqlCommandText += @"
 from
  (
   catalogs.products,
   farm.core0 FarmCore,";
 
-				//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
-				if (_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
+			if (_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
   Core AllPrices
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
   Core AllPrices
  )
   left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr";
-				}
-				else
-					SqlCommandText += @"
+			}
+			else
+				SqlCommandText += @"
   Core AllPrices,
   TmpSourceCodes SourcePrice
  )";
-				//Если отчет с учетом производителя, то пересекаем с таблицой Producers
-				if (_reportType > 2)
-					SqlCommandText += @"
+			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			if (_reportType > 2)
+				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
   left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode
 where
   products.id = AllPrices.ProductId
   and FarmCore.Id = AllPrices.Id";
 
-				SqlCommandText += @"
+			SqlCommandText += @"
 and (( ( (AllPrices.PriceCode <> SourcePrice.PriceCode) or (AllPrices.RegionCode <> SourcePrice.RegionCode) or (SourcePrice.id is null) ) and (FarmCore.Junk =0) and (FarmCore.Await=0) )
 	  or ( (AllPrices.PriceCode = SourcePrice.PriceCode) and (AllPrices.RegionCode = SourcePrice.RegionCode) and (AllPrices.Id = SourcePrice.id) ) )";
 
-				//Если отчет не полный, то выбираем только те, которые есть в SourcePC
-				if (!_reportIsFull) {
-					if (_reportType <= 2)
-						SqlCommandText += @"
+			//Если отчет не полный, то выбираем только те, которые есть в SourcePC
+			if (!_reportIsFull) {
+				if (_reportType <= 2)
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-					else
-						SqlCommandText += @"
+				else
+					SqlCommandText += @"
 and SourcePrice.CatalogCode=AllPrices.CatalogCode and SourcePrice.codefirmcr=FarmCore.codefirmcr ";
-				}
 			}
+
 			SqlCommandText += @"
 group by SourcePrice.Code, FullName, CatalogCode, Cfc";
 			if ((!_reportIsFull) && (_reportSortedByPrice))
