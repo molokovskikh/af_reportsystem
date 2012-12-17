@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Web;
+using Common.MySql;
 using Microsoft.Win32.TaskScheduler;
 using System.Configuration;
 using ReportTuner.Models;
@@ -104,6 +105,11 @@ namespace ReportTuner.Helpers
 
 		public static TaskLogonType GetLogonType()
 		{
+#if DEBUG
+			if (!ConnectionHelper.IsIntegration()) {
+				return TaskLogonType.InteractiveToken;
+			}
+#endif
 			if (!String.IsNullOrEmpty(SchedulePassword))
 				return TaskLogonType.Password;
 			return TaskLogonType.InteractiveToken;

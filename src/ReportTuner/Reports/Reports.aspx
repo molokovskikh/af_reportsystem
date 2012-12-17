@@ -100,9 +100,9 @@
 		<strong style="font-size:small;">Настройка отчетов</strong>
 		<asp:Label ID="lblMessage" runat="server" Text="" /><br/><br/>
 		<asp:Label ID="lblFilter" runat="server" Text="Фильтр:" />
-		<asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin"
+		<asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin" ClientIDMode="Static"
 			ontextchanged="btnFilter_Click" ToolTip="Введите имя листа или часть имени для поиска по вхождению"/>
-		<asp:Button ID="btnFilter" runat="server" Text="Фильтровать"
+		<asp:Button ID="btnFilter" runat="server" Text="Фильтровать" ClientIDMode="Static"
 			onclick="btnFilter_Click" />
 			<br/><br/>
 

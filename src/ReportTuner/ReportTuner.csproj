@@ -167,6 +167,7 @@
     <Content Include="Global.asax" />
     <Content Include="JavaScript\Controls.js" />
     <Content Include="JavaScript\jquery.validate.js" />
+    <Content Include="JavaScript\User.js" />
     <Content Include="Reports\base.aspx" />
     <Content Include="Reports\EnumValues.aspx" />
     <Content Include="Reports\error.aspx" />
