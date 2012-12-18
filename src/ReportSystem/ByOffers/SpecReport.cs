@@ -373,6 +373,7 @@ and Core.RegionCode = ?SourceRegionCode;";
 			e.DataAdapter.Fill(_dsReport, "TmpSourceCodes");
 #endif
 			e.DataAdapter.SelectCommand.CommandText = @"
+drop temporary table IF EXISTS CoreCopy;
 create temporary table CoreCopy engine memory
 select * from core;
 
