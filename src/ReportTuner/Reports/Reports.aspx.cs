@@ -239,12 +239,12 @@ order by ReportTypeName
 	protected void dgvReports_RowCommand(object sender, GridViewCommandEventArgs e)
 	{
 		if (e.CommandName == "Add") {
+			SetupFilter();
 			CopyChangesToTable();
-
 			DataRow dr = DS.Tables[dtReports.TableName].NewRow();
 			dr[REnabled.ColumnName] = 0;
+			dr[RReportCaption.ColumnName] = string.Empty;
 			DS.Tables[dtReports.TableName].Rows.Add(dr);
-			dgvReports.DataSource = DS;
 			dgvReports.DataBind();
 		}
 		else if (e.CommandName == "Copy") {
@@ -279,17 +279,22 @@ order by ReportTypeName
 
 	private void CopyChangesToTable()
 	{
+		var skipRowCont = 0;
 		foreach (GridViewRow dr in dgvReports.Rows) {
+			var view = DS.Tables[dtReports.TableName].DefaultView;
+
+			skipRowCont = dgvReports.Rows.Count - view.Count;
+
 			if (((DropDownList)dr.FindControl("ddlReports")).Visible == true) {
-				if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportTypeCode.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlReports")).SelectedValue)
-					DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportTypeCode.ColumnName] = ((DropDownList)dr.FindControl("ddlReports")).SelectedValue;
+				if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex - skipRowCont][RReportTypeCode.ColumnName].ToString() != ((DropDownList)dr.FindControl("ddlReports")).SelectedValue)
+					DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex - skipRowCont][RReportTypeCode.ColumnName] = ((DropDownList)dr.FindControl("ddlReports")).SelectedValue;
 			}
 
-			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked).ToString())
-				DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][REnabled.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked);
+			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex - skipRowCont][REnabled.ColumnName].ToString() != Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked).ToString())
+				DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex - skipRowCont][REnabled.ColumnName] = Convert.ToByte(((CheckBox)dr.FindControl("chbEnable")).Checked);
 
-			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportCaption.ColumnName].ToString() != ((TextBox)dr.FindControl("tbCaption")).Text)
-				DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex][RReportCaption.ColumnName] = ((TextBox)dr.FindControl("tbCaption")).Text;
+			if (DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex - skipRowCont][RReportCaption.ColumnName].ToString() != ((TextBox)dr.FindControl("tbCaption")).Text)
+				DS.Tables[dtReports.TableName].DefaultView[dr.RowIndex - skipRowCont][RReportCaption.ColumnName] = ((TextBox)dr.FindControl("tbCaption")).Text;
 		}
 	}
 
@@ -441,9 +446,9 @@ SET
 
 	protected void dgvReports_RowDeleting(object sender, GridViewDeleteEventArgs e)
 	{
-		CopyChangesToTable();
-		DS.Tables[dtReports.TableName].DefaultView[e.RowIndex].Delete();
 		SetFilter();
+		//CopyChangesToTable();
+		DS.Tables[dtReports.TableName].DefaultView[e.RowIndex].Delete();
 		dgvReports.DataSource = DS.Tables[dtReports.TableName].DefaultView;
 		dgvReports.DataBind();
 	}
@@ -488,6 +493,7 @@ SET
 	public void SetFilter()
 	{
 		var filter = new List<string> { String.Format("(RReportCaption like '%{0}%')", tbFilter.Text) };
+		filter.Add("(RReportCaption = '')");
 		DS.Tables[dtReports.TableName].DefaultView.RowFilter = String.Join(" or ", filter.ToArray());
 	}
 
@@ -498,10 +504,8 @@ SET
 		DS.Tables[dtReports.TableName].DefaultView.RowFilter = String.Empty;
 	}
 
-	public void btnFilter_Click(object sender, EventArgs e)
+	private void SetupFilter()
 	{
-		CopyChangesToTable();
-
 		if (String.IsNullOrEmpty(tbFilter.Text))
 			ClearFilter();
 		else
@@ -509,5 +513,12 @@ SET
 
 		dgvReports.DataSource = DS.Tables[dtReports.TableName].DefaultView;
 		dgvReports.DataBind();
+	}
+
+	public void btnFilter_Click(object sender, EventArgs e)
+	{
+		CopyChangesToTable();
+
+		SetupFilter();
 	}
 }

@@ -110,6 +110,7 @@
 			<Columns>
 				<asp:TemplateField HeaderText="Тип отчета">
 					<ItemTemplate>
+						<asp:HiddenField ID="lblInstanceID" Value='<%# DataBinder.Eval(Container, "DataItem.RReportCode") %>' runat=server></asp:HiddenField>
 						<asp:Label ID="lblReports" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RReportTypeName") %>'></asp:Label><asp:DropDownList ID="ddlReports" runat="server" Visible="False">
 						</asp:DropDownList>
 					</ItemTemplate>
