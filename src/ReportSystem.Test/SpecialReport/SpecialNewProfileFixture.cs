@@ -63,8 +63,7 @@ namespace ReportSystem.Test
 
 			//Property("PriceCodeEqual", new List<ulong> {
 			//	4838,
-			//	4479,
-			//	196
+			//	4479
 			//});
 
 			Property("ReportIsFull", false);
@@ -72,7 +71,7 @@ namespace ReportSystem.Test
 			Property("ReportSortedByPrice", false);
 			Property("ShowPercents", true);
 			Property("CalculateByCatalog", false);
-			Property("PriceCode", 200);
+			Property("PriceCode", 196);
 			Property("ByBaseCosts", true);
 			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);
@@ -92,7 +91,6 @@ namespace ReportSystem.Test
 				4023
 			});
 
-			Property("SupplierNoise", 5);
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
