@@ -949,7 +949,6 @@ WHERE ID = ?OPID", MyCn, trans);
 		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
 		SetRowVisibility(dgvNonOptional.Rows, "По взвешенным ценам", !base_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !weight_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Сортировка по прайсу", !weight_costs);
 		SetRowVisibility(dgvNonOptional.Rows, "Продукты без учета свойств (все цвета\\вкусы объединены)", !weight_costs);
 
 		dgvOptional.DataSource = DS;
