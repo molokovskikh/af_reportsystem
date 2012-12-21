@@ -53,6 +53,8 @@
                 <asp:GridView ID="gvEmails" runat="server" AutoGenerateColumns="false" Width="50px">
                     <Columns>
                         <asp:BoundField DataField="ContactText" HeaderText="Email"/>
+                        <asp:BoundField DataField="Comment" HeaderText="Комментарий"/>
+                        <asp:BoundField DataField="Payer" HeaderText="Плательщик"/>
                     </Columns>
                     <EmptyDataTemplate>
                         Список адресов пуст.

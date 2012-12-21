@@ -84,24 +84,34 @@ namespace ReportTuner
 		protected void BindEmailList()
 		{
 			DataSet dsContacts = MySqlHelper.ExecuteDataset(ConnectionHelper.GetConnectionString(), @"
-select lower(c.contactText) as ContactText
+select lower(c.contactText) as ContactText,
+lower(c.Comment) as Comment,
+p.ShortName as Payer
 from
-  contacts.contact_groups cg
-  join contacts.contacts c on cg.Id = c.ContactOwnerId
+	contacts.contact_groups cg
+	join contacts.contacts c on cg.Id = c.ContactOwnerId
+	left join contacts.PayerOwnerContacts pc on pc.Contact = c.Id
+	left join billing.Payers p on p.PayerId = pc.Payer
 where
     cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType
+group by c.id
 union
-select lower(c.contactText) as ContactText
+select lower(c.contactText) as ContactText,
+lower(c.Comment) as Comment,
+p.ShortName as Payer
 from
-  contacts.contact_groups cg
-  join contacts.persons p on cg.id = p.ContactGroupId
-  join contacts.contacts c on p.Id = c.ContactOwnerId
+	contacts.contact_groups cg
+	join contacts.persons p on cg.id = p.ContactGroupId
+	join contacts.contacts c on p.Id = c.ContactOwnerId
+	left join contacts.PayerOwnerContacts pc on pc.Contact = c.Id
+	left join billing.Payers p on p.PayerId = pc.Payer
 where
     cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType
+group by c.id
 order by 1",
 				new MySqlParameter("?ContactGroupId", _currentContactGroup.Id),
 				new MySqlParameter("?ContactGroupType", 6),
