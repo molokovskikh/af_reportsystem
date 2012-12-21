@@ -123,7 +123,16 @@ from Customers.Users
 where ClientId = ?client
 limit 1);
 
-call Customers.GetPricesAVGCost(@UserId);
+call Customers.GetPrices(@UserId);
+
+update Usersettings.prices p, usersettings.pricescosts pc, usersettings.pricesregionaldata prd
+ set p.costcode = ifnull(prd.BaseCost, pc.CostCode)
+ where p.costtype=1
+ and p.pricecode = pc.pricecode
+ and pc.BaseCost = 1
+ and p.pricecode = prd.pricecode
+ and prd.RegionCode = p.RegionCode
+ and prd.enabled = 1;
 
 select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
 from Usersettings.Prices p

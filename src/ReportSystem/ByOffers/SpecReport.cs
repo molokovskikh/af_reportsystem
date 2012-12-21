@@ -200,7 +200,8 @@ order by FullName, FirmCr";
 select
   SourcePrice.ID,
   SourcePrice.Code,
-  ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode, ";
+  ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode,
+  c0.Id as CoreCode, ";
 			SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("c0.ProductId"));
 
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
@@ -218,7 +219,6 @@ from
  (
 
   Core AllPrices";
-
 
 			//Если отчет полный, то интересуют все прайс-листы, если нет, то только SourcePC
 			if (_reportIsFull) {
@@ -271,7 +271,11 @@ and SourcePrice.CatalogCode=AllPrices.CatalogCode and (SourcePrice.codefirmcr=Al
 			if (!IsOffersReport)
 				SqlCommandText += @"
 group by FullName, AllPrices.CatalogCode, Cfc";
-			SqlCommandText += @"
+			if ((!_reportIsFull) && (_reportSortedByPrice))
+				SqlCommandText += @"
+order by CoreCode";
+			else
+				SqlCommandText += @"
 order by FullName, FirmCr";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
