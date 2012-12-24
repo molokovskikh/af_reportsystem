@@ -129,7 +129,7 @@ LegalEntityId INT unsigned) engine=MEMORY;
 
 INSERT
 INTO reports.TempIntersection
-select oh.AddressId as AddressId, ai.SupplierDeliveryId as SupplierDeliveryId, i.SupplierClientId as SupplierClientId, a.LegalEntityId
+(select oh.AddressId as AddressId, ai.SupplierDeliveryId as SupplierDeliveryId, i.SupplierClientId as SupplierClientId, a.LegalEntityId
 from
 usersettings.PricesData pd
 join Orders.OrdersHead oh on oh.PriceCode = pd.PriceCode
@@ -141,7 +141,25 @@ and oh.WriteTime < ?end
 and oh.RegionCode in ({0})
 and pd.FirmCode = ?SupplierId
 and pd.IsLocal = 0
-group by ai.id;
+group by ai.id)
+union
+(select a.Id as AddressId,
+group_concat(distinct ai.SupplierDeliveryId order by ai.SupplierDeliveryId) as SupplierDeliveryId,
+group_concat(distinct i.SupplierClientId order by i.SupplierClientId) as SupplierClientId, a.LegalEntityId
+from
+usersettings.PricesData pd
+join Customers.Intersection i on i.PriceId = pd.PriceCode and i.RegionId in ({0}) and pd.FirmCode=?SupplierId
+left join Customers.AddressIntersection ai on ai.IntersectionId = i.id
+left join Customers.Addresses a on i.LegalEntityId = a.LegalEntityId and ai.AddressId = a.Id
+ where
+ not exists (select * from Orders.OrdersHead oh join usersettings.PricesData pdd on pdd.pricecode=oh.pricecode
+ where a.Id = oh.AddressId and i.ClientId = oh.ClientCode and ai.AddressId = oh.AddressId
+and oh.WriteTime > ?begin
+and oh.WriteTime < ?end
+ and oh.RegionCode in ({0})
+ and pdd.FirmCode=?SupplierId)
+ and pd.enabled=1 and pd.AgencyEnabled=1 and pd.IsLocal=0
+group by a.id);
 
 
 select {2},
