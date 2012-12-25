@@ -34,6 +34,13 @@ namespace ReportTuner.Helpers
 
 		public static TaskService GetService()
 		{
+#if DEBUG
+			if (!ConnectionHelper.IsIntegration()) {
+				ScheduleUserName = string.Empty;
+				ScheduleDomainName = string.Empty;
+				SchedulePassword = string.Empty;
+			}
+#endif
 			return new TaskService(ScheduleServer, ScheduleUserName, ScheduleDomainName, SchedulePassword);
 		}
 

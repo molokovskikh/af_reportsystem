@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FixtureSetup.cs" />
+    <Compile Include="Functional\ContactFixture.cs" />
     <Compile Include="Functional\CopyReportFixture.cs" />
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Functional\ReportsTuningFixture.cs" />

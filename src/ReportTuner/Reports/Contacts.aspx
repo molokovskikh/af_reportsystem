@@ -50,7 +50,7 @@
                 <asp:Button ID="btnCancelChangeGroupName" Text="Отменить изменение" 
                     runat="server" CausesValidation="False" 
                     onclick="btnCancelChangeGroupName_Click"/>
-                <asp:GridView ID="gvEmails" runat="server" AutoGenerateColumns="false" Width="50px">
+                <asp:GridView ID="gvEmails" runat="server" AutoGenerateColumns="false">
                     <Columns>
                         <asp:BoundField DataField="ContactText" HeaderText="Email"/>
                         <asp:BoundField DataField="Comment" HeaderText="Комментарий"/>

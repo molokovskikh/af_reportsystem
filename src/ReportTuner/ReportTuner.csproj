@@ -207,6 +207,7 @@
     <Compile Include="Models\GeneralReport.cs" />
     <Compile Include="Models\MailingAddresses.cs" />
     <Compile Include="Models\Payer.cs" />
+    <Compile Include="Models\PayerOwnerContact.cs" />
     <Compile Include="Models\Region.cs" />
     <Compile Include="Models\Report.cs" />
     <Compile Include="Models\ReportExecuteLog.cs" />

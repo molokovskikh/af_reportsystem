@@ -102,3 +102,9 @@
 	font-size: small;
 */
 }
+
+.ContactTableHeader {
+	font-weight: bold;
+	background-color: white;
+	padding: 5px;
+}

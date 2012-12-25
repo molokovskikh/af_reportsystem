@@ -118,7 +118,7 @@ order by 1",
 				new MySqlParameter("?ContactType", MySqlDbType.Byte) { Value = 0 });
 
 			gvEmails.DataSource = dsContacts.Tables[0];
-			gvEmails.Width = Unit.Pixel(250);
+			gvEmails.Width = Unit.Pixel(700);
 			gvEmails.DataBind();
 		}
 
