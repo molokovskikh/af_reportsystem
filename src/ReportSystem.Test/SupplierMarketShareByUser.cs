@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ReportSystem.Test
 {
-	[TestFixture, Ignore("Временно, выполняется слишком долго")]
+	[TestFixture]
 	public class SupplierMarketShareByUserFixture : BaseProfileFixture
 	{
 		[SetUp]
