@@ -34,7 +34,8 @@ namespace Inforoom.ReportSystem
 		{
 			base.ReadReportParams();
 			_reportType = (int)getReportParam("ReportType");
-			_clientCode = (int)getReportParam("ClientCode");
+			if (!_byBaseCosts && !_byWeightCosts)
+				_clientCode = (int)getReportParam("ClientCode");
 			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
 			_priceCode = (int)getReportParam("PriceCode");
 			_reportIsFull = (bool)getReportParam("ReportIsFull");

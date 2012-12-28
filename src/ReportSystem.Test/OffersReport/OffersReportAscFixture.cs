@@ -70,7 +70,6 @@ namespace ReportSystem.Test
 		{
 			var fileName = "OffersReportAscByProducerCountBaseCost.xls";
 			Property("ReportType", 4);
-			Property("ClientCode", 5101);
 			Property("CalculateByCatalog", false);
 			Property("PriceCode", 216);
 			Property("ReportIsFull", false);
@@ -88,7 +87,6 @@ namespace ReportSystem.Test
 		{
 			var fileName = "OffersReportAscByProducerCountWeightCost.xls";
 			Property("ReportType", 4);
-			Property("ClientCode", 5101);
 			Property("CalculateByCatalog", false);
 			Property("PriceCode", 5699);
 			Property("ReportIsFull", false);
