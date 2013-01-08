@@ -85,5 +85,13 @@ namespace Inforoom.ReportSystem.Properties {
                 return ((string)(this["SavedFilesReportTypePath"]));
             }
         }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string HistoryPath {
+            get {
+                return ((string)(this["HistoryPath"]));
+            }
+        }
     }
 }

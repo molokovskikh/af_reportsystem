@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
+using Inforoom.ReportSystem.Model;
 using log4net;
 using LumiSoft.Net.SMTP.Client;
 using MySql.Data.MySqlClient;
@@ -200,34 +201,56 @@ where GeneralReport = ?GeneralReport;";
 		}
 
 		//Производится построение отчетов
-		public void ProcessReports()
+		public void ProcessReports(ReportExecuteLog log)
 		{
-			SendReport(BuildResultFile());
+			try {
+				var files = BuildResultFile();
+				SendReport(files, log);
+				Historify(files, log);
+			}
+			finally {
+				Clean();
+			}
 		}
 
-		public void SendReport(string resFileName)
+		public void SendReport(string[] files, ReportExecuteLog log)
 		{
 			var mails = Contacts.AsEnumerable().Select(r => r[0].ToString()).ToArray();
 #if TESTING
 			mails = new[] { Settings.Default.ErrorReportMail };
 #endif
 			foreach (var mail in mails)
-				MailWithAttach(resFileName, mail);
+				MailWithAttach(log, mail, files);
 
 			//Написать удаление записей из таблицы !!
 			MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
-				//args.DataAdapter.DeleteCommand = new MySqlCommand();
 				args.DataAdapter.SelectCommand.CommandText =
 					"delete FROM reports.Mailing_Addresses";
 				args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				return new DataTable();
 			}, null, _conn);
+		}
 
+		private void Clean()
+		{
 			if (Directory.Exists(_directoryName))
 				Directory.Delete(_directoryName, true);
 		}
 
-		public string BuildResultFile()
+		private void Historify(string[] files, ReportExecuteLog log)
+		{
+			if (files.Length == 1) {
+				var reportFile = files[0];
+				var historyFile = Path.Combine(Settings.Default.HistoryPath, log.Id + Path.GetExtension(reportFile));
+				File.Copy(reportFile, historyFile);
+			}
+			else {
+				var historyFile = Path.Combine(Settings.Default.HistoryPath, log.Id + ".zip");
+				WithTempArchive(_directoryName, f => File.Copy(f, historyFile));
+			}
+		}
+
+		public string[] BuildResultFile()
 		{
 			_directoryName = Path.GetTempPath() + "Rep" + GeneralReportID.ToString();
 			if (Directory.Exists(_directoryName))
@@ -269,13 +292,13 @@ where GeneralReport = ?GeneralReport;";
 
 			if (NoArchive) {
 				SafeCopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
-				return _mainFileName;
+				return Directory.GetFiles(Path.GetDirectoryName(_mainFileName));
 			}
 
-			return ArchFile();
+			return new[] { ArchFile() };
 		}
 
-		private void MailWithAttach(string archFileName, string address)
+		private void MailWithAttach(ReportExecuteLog log, string address, string[] files)
 		{
 			var message = new Mime();
 			var mainEntry = message.MainEntity;
@@ -294,26 +317,18 @@ where GeneralReport = ?GeneralReport;";
 			textEntity.ContentTransferEncoding = ContentTransferEncoding_enum.QuotedPrintable;
 			textEntity.DataText = String.Empty;
 
-			//если мы создали архив то все файлы будут в нем
-			//если отчеты не надо архивировать то файлы будут лежать в директории отчета
-			if (NoArchive) {
-				var files = Directory.GetFiles(Path.GetDirectoryName(archFileName));
-				foreach (var file in files) {
-					AttachFile(mainEntry, file);
-				}
-			}
-			else {
-				AttachFile(mainEntry, archFileName);
+			foreach (var file in files) {
+				AttachFile(mainEntry, file);
 			}
 
 			if (Testing) {
 				Messages.Add(message);
 			}
 			else {
-				int? SMTPID = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
-#if (!TESTING)
-				MethodTemplate.ExecuteMethod<ProcessLogArgs, int>(new ProcessLogArgs(SMTPID, message.MainEntity.MessageID, address), ProcessLog, 0, _conn, true, false, null);
-#endif
+				var smtpId = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
+				MethodTemplate.ExecuteMethod(new ExecuteArgs(),
+					e => ProcessLog(e, smtpId, message.MainEntity.MessageID, address, log),
+					0, _conn, true, false, null);
 			}
 		}
 
@@ -327,29 +342,17 @@ where GeneralReport = ?GeneralReport;";
 			entity.DataFromFile(file);
 		}
 
-		private class ProcessLogArgs : ExecuteArgs
-		{
-			public int? SmtpID;
-			public string MessageID;
-			public string EMail;
-
-			public ProcessLogArgs(int? smtpID, string messageID, string eMail)
-			{
-				SmtpID = smtpID;
-				MessageID = messageID;
-				EMail = eMail;
-			}
-		}
-
-		private int ProcessLog(ProcessLogArgs e)
+		private int ProcessLog(ExecuteArgs e, int? smtpId, string messageId, string email, ReportExecuteLog log)
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs
-(LogTime, GeneralReportCode, SMTPID, MessageID, EMail)
-values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", GeneralReportID);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SMTPID", e.SmtpID);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?MessageID", e.MessageID);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?EMail", e.EMail);
+(LogTime, GeneralReportCode, SMTPID, MessageID, EMail, ResultId)
+values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
+			var parameters = e.DataAdapter.SelectCommand.Parameters;
+			parameters.AddWithValue("?GeneralReportCode", GeneralReportID);
+			parameters.AddWithValue("?SMTPID", smtpId);
+			parameters.AddWithValue("?MessageID", messageId);
+			parameters.AddWithValue("?EMail", email);
+			parameters.AddWithValue("?ResultId", log.Id);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			return 0;
 		}
@@ -394,15 +397,25 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail)";
 		{
 			var resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
 
-			var zip = new FastZip();
-			var tempArchive = Path.GetTempFileName();
-			zip.CreateZip(tempArchive, _directoryName, false, null, null);
 			var archive = Path.Combine(_directoryName, resArchFileName);
-			File.Move(tempArchive, archive);
+			WithTempArchive(_directoryName, f => File.Move(f, archive));
 
 			SafeCopyFileToFtp(archive, resArchFileName);
 
 			return archive;
+		}
+
+		public static void WithTempArchive(string dir, Action<string> action)
+		{
+			var zip = new FastZip();
+			var tempArchive = Path.GetTempFileName();
+			try {
+				zip.CreateZip(tempArchive, dir, false, null, null);
+				action(tempArchive);
+			}
+			finally {
+				File.Delete(tempArchive);
+			}
 		}
 
 		//Выбираем отчеты из базы

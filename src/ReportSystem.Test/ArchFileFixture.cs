@@ -22,11 +22,11 @@ namespace ReportSystem.Test
 		{
 			var gr = new GeneralReport(true);
 			gr.Reports.Add(new FakeReport());
-			var file = gr.BuildResultFile();
+			var file = gr.BuildResultFile()[0];
 			Assert.That(Path.GetExtension(file), Is.EqualTo(".xls"));
 			gr = new GeneralReport();
 			gr.Reports.Add(new FakeReport());
-			file = gr.BuildResultFile();
+			file = gr.BuildResultFile()[0];
 			Assert.That(Path.GetExtension(file), Is.EqualTo(".zip"));
 		}
 

@@ -110,7 +110,7 @@ and cr.generalreportcode = " + generalReportId;
 										Convert.ToBoolean(drReport[GeneralReportColumns.SendDescriptionFile]));
 									generalReport = gr;
 									_log.DebugFormat("Запуск отчета {0}", gr.GeneralReportID);
-									gr.ProcessReports();
+									gr.ProcessReports(reportLog);
 									_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
 								}
 								catch (Exception ex) {

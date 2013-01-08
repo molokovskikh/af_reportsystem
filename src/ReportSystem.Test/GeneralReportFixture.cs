@@ -10,6 +10,7 @@ using Common.Tools;
 using ExecuteTemplate;
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem;
+using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using NHibernate.AdoNet;
 using NUnit.Framework;
@@ -78,7 +79,7 @@ namespace ReportSystem.Test
 			AddFile();
 
 			report.Reports.Add(new FakeReport());
-			var file = report.BuildResultFile();
+			var file = report.BuildResultFile()[0];
 
 			var files = LsZip(file);
 			Assert.That(files.Count(), Is.EqualTo(2));
@@ -98,7 +99,7 @@ namespace ReportSystem.Test
 			report.Reports.Add(new FakeReport());
 			report.FilesForReport = new Dictionary<string, string> { { "123.txt", id.ToString() } };
 
-			var result = report.BuildResultFile();
+			var result = report.BuildResultFile()[0];
 			var files = LsZip(result);
 			Assert.That(files.Count(), Is.EqualTo(2));
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
@@ -112,7 +113,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(new FakeReport());
-			report.ProcessReports();
+			report.ProcessReports(new ReportExecuteLog());
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -128,7 +129,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(fakeReport);
-			report.ProcessReports();
+			report.ProcessReports(new ReportExecuteLog());
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -179,10 +180,19 @@ namespace ReportSystem.Test
 		[Test]
 		public void Do_not_copy_to_ftp_if_supplier_unknown()
 		{
-			var report = new GeneralReport();
-			report.GeneralReportID = 1;
 			report.Reports.Add(new FakeReport());
 			report.CopyFileToFtp("", "");
+		}
+
+		[Test]
+		public void Save_report_file()
+		{
+			FileHelper.InitDir("history");
+			report.Reports.Add(new FakeReport());
+			report.ProcessReports(new ReportExecuteLog { Id = 1 });
+
+			var files = Directory.GetFiles("history");
+			Assert.That(files.Length, Is.EqualTo(1), files.Implode());
 		}
 
 		private static string[] LsZip(string result)
