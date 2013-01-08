@@ -195,6 +195,16 @@ namespace ReportSystem.Test
 			Assert.That(files.Length, Is.EqualTo(1), files.Implode());
 		}
 
+		[Test]
+		public void Log_success()
+		{
+			using(var connection = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
+				connection.Open();
+				report.Connection = connection;
+				report.LogSuccess();
+			}
+		}
+
 		private static string[] LsZip(string result)
 		{
 			using(var zip = new ZipFile(result)) {

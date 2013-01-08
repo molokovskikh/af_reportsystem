@@ -32,7 +32,6 @@ namespace Inforoom.ReportSystem
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			var reportLog = new ReportExecuteLog();
 			int generalReportId = 0;
 			try {
 				XmlConfigurator.Configure();
@@ -57,100 +56,105 @@ namespace Inforoom.ReportSystem
 					dtTo = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtTo:", args));
 				}
 
-				if (generalReportId != -1) {
-					var mc = new MySqlConnection(ConnectionHelper.GetConnectionString());
-					mc.Open();
-					try {
-						using (new SessionScope()) {
-							ArHelper.WithSession(s => {
-								reportLog.GeneralReportCode = generalReportId;
-								reportLog.StartTime = DateTime.Now;
-								reportLog.EndTime = null;
-								s.Save(reportLog);
-							});
-						}
-						//Формируем запрос
-						var sqlSelectReports = @"SELECT
-  cr.*,
-  p.ShortName
-FROM    reports.general_reports cr,
-		billing.payers p
-WHERE
-	 p.PayerId = cr.PayerId
-and cr.generalreportcode = " + generalReportId;
+				if (generalReportId == -1)
+					throw new Exception("Не указан код отчета для запуска в параметре gr.");
 
-						//Выбирает отчеты согласно фильтру
-						var dtGeneralReports = MethodTemplate.ExecuteMethod(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc);
-
-						if ((dtGeneralReports != null) && (dtGeneralReports.Rows.Count > 0)) {
-							foreach (DataRow drReport in dtGeneralReports.Rows) {
-								if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]) && !manual) {
-									Mailer.MailGeneralReportErr(
-										"Невозможно выполнить отчет, т.к. отчет выключен.",
-										(string)drReport[GeneralReportColumns.ShortName],
-										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
-									continue;
-								}
-
-								try {
-									var propertiesLoader = new ReportPropertiesLoader();
-
-									//Создаем каждый отчет отдельно и пытаемся его сформировать
-									var gr = new GeneralReport(
-										(ulong)drReport[GeneralReportColumns.GeneralReportCode],
-										ReadNullableUint32(drReport, GeneralReportColumns.FirmCode),
-										ReadNullableUint32(drReport, GeneralReportColumns.ContactGroupId),
-										drReport[GeneralReportColumns.EMailSubject].ToString(),
-										mc,
-										drReport[GeneralReportColumns.ReportFileName].ToString(),
-										drReport[GeneralReportColumns.ReportArchName].ToString(),
-										(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
-										propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString(),
-										Convert.ToBoolean(drReport[GeneralReportColumns.NoArchive]),
-										Convert.ToBoolean(drReport[GeneralReportColumns.SendDescriptionFile]));
-									generalReport = gr;
-									_log.DebugFormat("Запуск отчета {0}", gr.GeneralReportID);
-									gr.ProcessReports(reportLog);
-									_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
-								}
-								catch (Exception ex) {
-									var message = String.Format("Ошибка при запуске отчета {0}",
-										drReport[GeneralReportColumns.ShortName]);
-									_log.Error(message, ex);
-
-									var reportEx = ex as ReportException;
-									if (reportEx != null && reportEx.InnerException != null) {
-										Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, (ulong)drReport[GeneralReportColumns.GeneralReportCode], reportEx.SubreportCode, reportEx.ReportCaption);
-										continue;
-									}
-
-									Mailer.MailGeneralReportErr(
-										ex.ToString(),
-										(string)drReport[GeneralReportColumns.ShortName],
-										(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
-								}
-							}
-						}
-						else
-							Mailer.MailGlobalErr(String.Format("Отчет с кодом {0} не существует.", generalReportId));
-					}
-					finally {
-						mc.Close();
-						using (new SessionScope()) {
-							ArHelper.WithSession(s => {
-								reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
-								reportLog.EndTime = DateTime.Now;
-								s.SaveOrUpdate(reportLog);
-							});
-						}
-					}
-				}
-				else
-					Mailer.MailGlobalErr("Не указан код отчета для запуска в параметре gr.");
+				ProcessReport(generalReportId, manual, interval, dtFrom, dtTo);
 			}
 			catch (Exception ex) {
 				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
 				Mailer.MailGlobalErr(ex.ToString());
+			}
+		}
+
+		public static void ProcessReport(int generalReportId, bool manual, bool interval, DateTime dtFrom, DateTime dtTo)
+		{
+			var reportLog = new ReportExecuteLog();
+			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
+				mc.Open();
+				try {
+					using (new SessionScope()) {
+						ArHelper.WithSession(s => {
+							reportLog.GeneralReportCode = generalReportId;
+							reportLog.StartTime = DateTime.Now;
+							reportLog.EndTime = null;
+							s.Save(reportLog);
+						});
+					}
+					//Формируем запрос
+					var sqlSelectReports = @"SELECT
+cr.*,
+p.ShortName
+FROM    reports.general_reports cr,
+billing.payers p
+WHERE
+p.PayerId = cr.PayerId
+and cr.generalreportcode = " + generalReportId;
+
+					//Выбирает отчеты согласно фильтру
+					var dtGeneralReports = MethodTemplate.ExecuteMethod(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc);
+
+					if (dtGeneralReports == null || dtGeneralReports.Rows.Count == 0)
+						throw new Exception(String.Format("Отчет с кодом {0} не существует.", generalReportId));
+
+					foreach (DataRow drReport in dtGeneralReports.Rows) {
+						if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]) && !manual) {
+							Mailer.MailGeneralReportErr(
+								"Невозможно выполнить отчет, т.к. отчет выключен.",
+								(string)drReport[GeneralReportColumns.ShortName],
+								(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
+							continue;
+						}
+
+						try {
+							var propertiesLoader = new ReportPropertiesLoader();
+
+							//Создаем каждый отчет отдельно и пытаемся его сформировать
+							var gr = new GeneralReport(
+								(ulong)drReport[GeneralReportColumns.GeneralReportCode],
+								ReadNullableUint32(drReport, GeneralReportColumns.FirmCode),
+								ReadNullableUint32(drReport, GeneralReportColumns.ContactGroupId),
+								drReport[GeneralReportColumns.EMailSubject].ToString(),
+								mc,
+								drReport[GeneralReportColumns.ReportFileName].ToString(),
+								drReport[GeneralReportColumns.ReportArchName].ToString(),
+								(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
+								propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString(),
+								Convert.ToBoolean(drReport[GeneralReportColumns.NoArchive]),
+								Convert.ToBoolean(drReport[GeneralReportColumns.SendDescriptionFile]));
+							generalReport = gr;
+							_log.DebugFormat("Запуск отчета {0}", gr.GeneralReportID);
+							gr.ProcessReports(reportLog);
+							gr.LogSuccess();
+							_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
+						}
+						catch (Exception ex) {
+							var message = String.Format("Ошибка при запуске отчета {0}",
+								drReport[GeneralReportColumns.ShortName]);
+							_log.Error(message, ex);
+
+							var reportEx = ex as ReportException;
+							if (reportEx != null && reportEx.InnerException != null) {
+								Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, (ulong)drReport[GeneralReportColumns.GeneralReportCode], reportEx.SubreportCode, reportEx.ReportCaption);
+								continue;
+							}
+
+							Mailer.MailGeneralReportErr(
+								ex.ToString(),
+								(string)drReport[GeneralReportColumns.ShortName],
+								(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
+						}
+					}
+				}
+				finally {
+					using (new SessionScope()) {
+						ArHelper.WithSession(s => {
+							reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
+							reportLog.EndTime = DateTime.Now;
+							s.SaveOrUpdate(reportLog);
+						});
+					}
+				}
 			}
 		}
 

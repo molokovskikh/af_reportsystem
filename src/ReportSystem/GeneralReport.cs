@@ -48,8 +48,6 @@ namespace Inforoom.ReportSystem
 		private string _reportFileName;
 		private string _reportArchName;
 
-		private MySqlConnection _conn;
-
 		private string _directoryName;
 		private string _mainFileName;
 
@@ -59,6 +57,7 @@ namespace Inforoom.ReportSystem
 
 		public ILog Logger;
 
+		public MySqlConnection Connection;
 		public bool NoArchive;
 		public bool SendDescriptionFile;
 
@@ -118,7 +117,7 @@ namespace Inforoom.ReportSystem
 			Logger = LogManager.GetLogger(GetType());
 			GeneralReportID = id;
 			SupplierId = supplierId;
-			_conn = connection;
+			Connection = connection;
 			_contactGroupId = contactGroupId;
 			EMailSubject = emailSubject;
 			_reportFileName = reportFileName;
@@ -128,9 +127,9 @@ namespace Inforoom.ReportSystem
 			SendDescriptionFile = sendDescriptionFile;
 			Format = format;
 
-			_reports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, _conn);
+			_reports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, Connection);
 
-			FilesForReport = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, _conn);
+			FilesForReport = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, Connection);
 
 			if (!interval)
 				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
@@ -160,7 +159,7 @@ and c.Type = ?ContactType";
 					args.DataAdapter.Fill(res);
 					return res;
 				},
-					null, _conn);
+					null, Connection);
 			else {
 				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
 					args.DataAdapter.SelectCommand.CommandText = @"
@@ -170,7 +169,7 @@ where GeneralReport = ?GeneralReport;";
 					var res = new DataTable();
 					args.DataAdapter.Fill(res);
 					return res;
-				}, null, _conn);
+				}, null, Connection);
 			}
 			if ((_reports != null) && (_reports.Rows.Count > 0)) {
 				CheckReports(); // Проверяем отчеты, если что-то не нравится выдаем исключение
@@ -181,9 +180,9 @@ where GeneralReport = ?GeneralReport;";
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] {
 								(ulong)drGReport[BaseReportColumns.colReportCode],
-								drGReport[BaseReportColumns.colReportCaption].ToString(), _conn,
+								drGReport[BaseReportColumns.colReportCaption].ToString(), Connection,
 								Format,
-								propertiesLoader.LoadProperties(_conn, (ulong)drGReport[BaseReportColumns.colReportCode])
+								propertiesLoader.LoadProperties(Connection, (ulong)drGReport[BaseReportColumns.colReportCode])
 							});
 						bs.Interval = interval;
 						bs.From = dtFrom;
@@ -213,6 +212,13 @@ where GeneralReport = ?GeneralReport;";
 			}
 		}
 
+		public void LogSuccess()
+		{
+			MySqlHelper.ExecuteScalar(Connection,
+				"update Reports.general_reports set LastSuccess = now() where GeneralReportCode = ?id",
+				new MySqlParameter("id", GeneralReportID));
+		}
+
 		public void SendReport(string[] files, ReportExecuteLog log)
 		{
 			var mails = Contacts.AsEnumerable().Select(r => r[0].ToString()).ToArray();
@@ -228,7 +234,7 @@ where GeneralReport = ?GeneralReport;";
 					"delete FROM reports.Mailing_Addresses";
 				args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				return new DataTable();
-			}, null, _conn);
+			}, null, Connection);
 		}
 
 		private void Clean()
@@ -328,7 +334,7 @@ where GeneralReport = ?GeneralReport;";
 				var smtpId = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
 				MethodTemplate.ExecuteMethod(new ExecuteArgs(),
 					e => ProcessLog(e, smtpId, message.MainEntity.MessageID, address, log),
-					0, _conn, true, false, null);
+					0, Connection, true, false, null);
 			}
 		}
 

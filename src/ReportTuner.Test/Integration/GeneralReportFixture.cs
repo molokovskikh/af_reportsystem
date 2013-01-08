@@ -12,7 +12,7 @@ namespace ReportTuner.Test.Integration
 	public class GeneralReportFixture : IntegrationFixture
 	{
 		[Test]
-		public void Statr_time_test()
+		public void Start_time_test()
 		{
 			session.CreateSQLQuery("delete from `logs`.reportexecutelogs;").ExecuteUpdate();
 			Flush();
