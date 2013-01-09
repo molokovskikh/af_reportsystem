@@ -148,7 +148,7 @@ and catalogforms.id = catalog.formid
 						System.Threading.Thread.Sleep(1000);
 					}
 					else
-						throw new ReportException(String.Format("Не удалось переместить файл {0} в файл {1}.", _sharePath + _filename, FileName), e);
+						throw new ReportException(String.Format("Не удалось переместить файл {0} в файл {1}.", _filename, FileName), e);
 				}
 			} while (!CopySucces);
 		}
