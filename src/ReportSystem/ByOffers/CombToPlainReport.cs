@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Inforoom.ReportSystem.Properties;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using System.Data;
@@ -9,20 +10,22 @@ namespace Inforoom.ReportSystem
 {
 	public class CombToPlainReport : ProviderReport
 	{
-		private string _sharePath;
 		private string _filename;
+		private string _exportFilename;
 
 		public CombToPlainReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
-			_sharePath = Properties.Settings.Default.DBDumpPath;
-			if (String.IsNullOrEmpty(_sharePath))
+			if (String.IsNullOrEmpty(Settings.Default.DBDumpPath))
 				throw new ReportException("Не установлен параметр DBDumpPath в конфигурационном файле.");
-			if (!_sharePath.EndsWith(Path.DirectorySeparatorChar.ToString()))
-				_sharePath += Path.DirectorySeparatorChar.ToString();
-			_filename = "ind_r_" + ReportCode.ToString() + ".txt";
-			if (File.Exists(_sharePath + _filename))
-				File.Delete(_sharePath + _filename);
+			if (String.IsNullOrEmpty(Settings.Default.IntoOutfilePath))
+				throw new ReportException("Не установлен параметр IntoOutfilePath в конфигурационном файле.");
+
+			var name = "ind_r_" + ReportCode.ToString() + ".txt";
+			_exportFilename = Path.Combine(Settings.Default.IntoOutfilePath, name);
+			_filename = Path.Combine(Settings.Default.DBDumpPath, name);
+			if (File.Exists(_filename))
+				File.Delete(_filename);
 		}
 
 		public override void ReadReportParams()
@@ -86,7 +89,7 @@ select
   0 as PublicUpCost,
   -- жизненно важный
   catalog.VitallyImportant
-INTO OUTFILE 'C:/ReportsFiles/{0}'
+INTO OUTFILE '{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
 from
@@ -119,7 +122,7 @@ and catalog.id = products.catalogid
 and catalognames.id = catalog.nameid
 and catalogforms.id = catalog.formid
 ",
-				_filename,
+				_exportFilename,
 				(char)9);
 #if DEBUG
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
@@ -133,9 +136,9 @@ and catalogforms.id = catalog.formid
 			bool CopySucces = false;
 			do {
 				try {
-					File.Copy(_sharePath + _filename, FileName, true);
+					File.Copy(_filename, FileName, true);
 #if !DEBUG
-					File.Delete(_sharePath + _filename);
+					File.Delete(_filename);
 #endif
 					CopySucces = true;
 				}

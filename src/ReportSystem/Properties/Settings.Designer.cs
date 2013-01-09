@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Configuration;
+
 namespace Inforoom.ReportSystem.Properties {
 
 
@@ -56,6 +58,13 @@ namespace Inforoom.ReportSystem.Properties {
         public string DBDumpPath {
             get {
                 return ((string)(this["DBDumpPath"]));
+            }
+        }
+
+        [ApplicationScopedSetting]
+        public string IntoOutfilePath {
+            get {
+                return ((string)(this["IntoOutfilePath"]));
             }
         }
 
