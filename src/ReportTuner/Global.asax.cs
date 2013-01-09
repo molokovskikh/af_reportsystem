@@ -15,6 +15,7 @@ using Castle.MonoRail.Framework.Routing;
 using Castle.MonoRail.Framework.Services;
 using Castle.MonoRail.Framework.Views.Aspx;
 using Castle.MonoRail.Views.Brail;
+using Common.Tools;
 using Common.Web.Ui.Helpers;
 using Common.Web.Ui.MonoRailExtentions;
 using log4net;
@@ -28,8 +29,15 @@ namespace ReportTuner
 {
 	public class Config
 	{
+		public Config()
+		{
+			ReportHistoryStorageInterval = 30;
+		}
+
 		public string SavedFilesPath { get; set; }
 		public string SavedFilesReportTypePath { get; set; }
+		public string ReportHistoryPath { get; set; }
+		public double ReportHistoryStorageInterval { get; set; }
 	}
 
 	public class Global : WebApplication, IMonoRailConfigurationEvents
@@ -39,7 +47,6 @@ namespace ReportTuner
 		public Global() : base(Assembly.Load("ReportTuner"))
 		{
 			Logger.ErrorSubject = "[ReportTuner] Ошибка в Интерфейсе настройки отчетов";
-			Logger.SmtpHost = "box.analit.net";
 			LibAssemblies.Add(Assembly.Load("Common.Web.Ui"));
 		}
 
@@ -65,21 +72,23 @@ namespace ReportTuner
 						.DefaultForAction().Is("index")));
 
 			if (!Path.IsPathRooted(Config.SavedFilesPath))
-				Config.SavedFilesPath =
-					Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.SavedFilesPath));
+				Config.SavedFilesPath = FileHelper.MakeRooted(Config.SavedFilesPath);
 
 			CreateDirectoryTree(Config.SavedFilesPath);
 
+			if (!Path.IsPathRooted(Config.ReportHistoryPath))
+				Config.ReportHistoryPath = FileHelper.MakeRooted(Config.ReportHistoryPath);
+
 			if (!Path.IsPathRooted(Config.SavedFilesReportTypePath))
-				Config.SavedFilesReportTypePath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Config.SavedFilesReportTypePath));
+				Config.SavedFilesReportTypePath = FileHelper.MakeRooted(Config.SavedFilesReportTypePath);
 
 			CreateDirectoryTree(Config.SavedFilesReportTypePath);
 
 			if (!Path.IsPathRooted(ScheduleHelper.ScheduleAppPath))
-				ScheduleHelper.ScheduleAppPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ScheduleHelper.ScheduleAppPath));
+				ScheduleHelper.ScheduleAppPath = FileHelper.MakeRooted(ScheduleHelper.ScheduleAppPath);
 
 			if (!Path.IsPathRooted(ScheduleHelper.ScheduleWorkDir))
-				ScheduleHelper.ScheduleWorkDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ScheduleHelper.ScheduleWorkDir));
+				ScheduleHelper.ScheduleWorkDir = FileHelper.MakeRooted(ScheduleHelper.ScheduleWorkDir);
 
 
 #if DEBUG

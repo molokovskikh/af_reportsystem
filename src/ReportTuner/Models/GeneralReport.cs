@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
+using Common.Tools;
 using Common.Web.Ui.Models;
 using Microsoft.Win32.TaskScheduler;
 using ReportTuner.Helpers;
@@ -71,11 +73,43 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual string Format { get; set; }
 
+		[Property]
+		public virtual DateTime? LastSuccess { get; set; }
+
 		[HasMany]
 		public virtual IList<Report> Reports { get; set; }
 
 		[HasMany(Cascade = ManyRelationCascadeEnum.All)]
 		public virtual IList<FileSendWithReport> Files { get; set; }
+
+		public virtual bool IsSuccessfulyProcessed
+		{
+			get
+			{
+				return LastSuccess != null
+					&& LastSuccess + TimeSpan.FromDays(Global.Config.ReportHistoryStorageInterval) > DateTime.Now;
+			}
+		}
+
+		public string ActualReportName
+		{
+			get
+			{
+				if (!String.IsNullOrEmpty(ReportFileName))
+					return Path.ChangeExtension(ReportFileName, ".xls");
+				return String.Format("Rep{0}.xls", Id);
+			}
+		}
+
+		public string ActualArchiveName
+		{
+			get
+			{
+				if (!String.IsNullOrEmpty(ReportArchName))
+					return ReportArchName;
+				return Path.ChangeExtension(ActualReportName, ".zip");
+			}
+		}
 
 		public bool IsOrderReport()
 		{
@@ -94,6 +128,14 @@ namespace ReportTuner.Models
 			var report = new Report(this, type);
 			Reports.Add(report);
 			return report;
+		}
+
+		public string Filename(string name)
+		{
+			if (Path.GetExtension(name).Match(".zip")) {
+				return ActualArchiveName;
+			}
+			return ActualReportName;
 		}
 	}
 }

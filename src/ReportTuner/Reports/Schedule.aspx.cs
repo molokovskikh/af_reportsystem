@@ -16,13 +16,13 @@ using Common.Web.Ui.ActiveRecordExtentions;
 using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
 using System.Threading;
+using NHibernate;
 using NHibernate.Linq;
+using ReportTuner;
 using ReportTuner.Models;
 using ReportTuner.Helpers;
-using FileHelper = ReportTuner.Helpers.FileHelper;
 
-
-public partial class Reports_schedule : Page
+public partial class Reports_schedule : BasePage
 {
 	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
@@ -53,8 +53,6 @@ public partial class Reports_schedule : Page
 
 	private DataColumn MSStartHour;
 	private DataColumn MSStartMinute;
-
-	private string ftpDirectory;
 
 	private const string DSSchedule = "Inforoom.Reports.Schedule.DSSchedule";
 
@@ -87,7 +85,7 @@ public partial class Reports_schedule : Page
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 
 		ErrorMassage.Text = string.Empty;
-		var startTime = GetStartTime(_generalReport.Id);
+		var startTime = GetStartTime(DbSession, _generalReport.Id);
 
 		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
 
@@ -274,20 +272,12 @@ limit 15;";
 				Reports_GeneralReports.Redirect(this);
 		}
 
-		if (_generalReport.FirmCode != null) {
-			ftpDirectory = Path.Combine(ConfigurationManager.AppSettings["FTPOptBoxPath"], _generalReport.FirmCode.Value.ToString("000"), "Reports");
-#if DEBUG
-			ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", _generalReport.FirmCode.Value.ToString("000"), "Reports");
-#endif
-		}
-		send_created_report.Visible = !string.IsNullOrEmpty(ftpDirectory) &&
-			Directory.Exists(ftpDirectory) &&
-			FileHelper.GetFilesForSend(ftpDirectory, _generalReport).Count() > 0;
+		send_created_report.Visible = _generalReport.IsSuccessfulyProcessed;
 	}
 
-	public static string GetStartTime(ulong grId)
+	public static string GetStartTime(ISession session, ulong grId)
 	{
-		var executeLogs = ArHelper.WithSession(s => s.Query<ReportExecuteLog>().Where(l => l.GeneralReportCode == grId).OrderByDescending(l => l.StartTime).ToList());
+		var executeLogs = session.Query<ReportExecuteLog>().Where(l => l.GeneralReportCode == grId).OrderByDescending(l => l.StartTime).ToList();
 		var normalLanches = executeLogs.Where(l => l.EndTime != null).ToList();
 		var avgExTime = normalLanches.Sum(l => (l.EndTime.Value - l.StartTime).TotalMinutes / normalLanches.Count);
 		var executeLog = executeLogs.FirstOrDefault(l => l.EndTime == null);
@@ -850,39 +840,48 @@ and c.Type = ?ContactType");
 
 	protected void btnExecute_sendReady(object sender, EventArgs e)
 	{
-		if (_generalReport.FirmCode == null || _generalReport.Format == "DBF")
-			return;
-
-		var message = new MailMessage();
-		message.From = new MailAddress("report@analit.net", "АК Инфорум");
-		message.Subject = _generalReport.EMailSubject;
-		if (RadioSelf.Checked)
-			foreach (var selfEmail in GetSelfEmails()) {
-				message.To.Add(new MailAddress(selfEmail[0].ToString()));
-			}
-		if (RadioMails.Checked) {
-			var adresses = mail_Text.Text.Split(',').Select(a => a.Trim(new[] { ' ', '\n', '\r' })).Where(a => !string.IsNullOrEmpty(a));
-			foreach (var adress in adresses) {
-				message.To.Add(new MailAddress(adress));
-			}
+		var mails = new List<string>();
+		if (RadioSelf.Checked) {
+			mails.AddRange(GetSelfEmails().Select(selfEmail => selfEmail[0].ToString()));
 		}
-		if (message.To.Count <= 0) {
+		if (RadioMails.Checked) {
+			var adresses = mail_Text.Text.Split(',').Select(a => a.Trim()).Where(a => !string.IsNullOrEmpty(a));
+			mails.AddRange(adresses);
+		}
+		if (mails.Count <= 0) {
 			ErrorMassage.Text = "Укажите получателя отчета !";
 			ErrorMassage.BackColor = Color.Red;
 			return;
 		}
-		if (!string.IsNullOrEmpty(ftpDirectory) && Directory.Exists(ftpDirectory))
-			foreach (var file in FileHelper.GetFilesForSend(ftpDirectory, _generalReport)) {
-				message.Attachments.Add(new Attachment(file));
-			}
-		if (message.Attachments.Count <= 0) {
+
+		var log = DbSession.Query<ReportLog>()
+			.Where(l => l.Result != null)
+			.OrderByDescending(l => l.LogTime)
+			.Take(1)
+			.FirstOrDefault();
+		var files = new string[0];
+		if (log != null) {
+			files = Directory.GetFiles(Global.Config.ReportHistoryPath, log.Result.Id + ".*");
+		}
+		if (files.Length == 0) {
 			ErrorMassage.Text = "Файл отчета не найден";
 			ErrorMassage.BackColor = Color.Red;
 			return;
 		}
-		var client = new SmtpClient(ConfigurationManager.AppSettings["SMTPHost"]);
+
+		var message = new MailMessage();
+		message.From = new MailAddress("report@analit.net", "АК Инфорум");
+		foreach (var mail in mails) {
+			message.To.Add(mail);
+		}
+		message.Subject = _generalReport.EMailSubject;
+		message.Attachments.Add(new Attachment(files[0]) {
+			Name = _generalReport.Filename(files[0])
+		});
+		var client = new SmtpClient();
 		message.BodyEncoding = System.Text.Encoding.UTF8;
 		client.Send(message);
+
 		ErrorMassage.Text = "Файл отчета успешно отправлен";
 		ErrorMassage.BackColor = Color.LightGreen;
 	}

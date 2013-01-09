@@ -18,32 +18,31 @@ namespace ReportTuner.Test.Functional
 		[Test, Ignore]
 		public void TestOneShortReport()
 		{
-			using (var browser = new IE("http://localhost:53759/Reports/GeneralReports.aspx")) {
-				var row = browser.Table(Find.ByClass("DocumentDataTable HighLightCurrentRow")).TableRows.First();
-				var row2 = (TableRow)row.NextSibling;
-				var cells = row2.OwnTableCells;
-				var cell = cells[0];
-				browser.GoTo("http://localhost:53759/Reports/schedule.aspx?r=" + cell.Text);
+			Open("Reports/GeneralReports.aspx");
+			var row = browser.Table(Find.ByClass("DocumentDataTable HighLightCurrentRow")).TableRows.First();
+			var row2 = (TableRow)row.NextSibling;
+			var cells = row2.OwnTableCells;
+			var cell = cells[0];
+			browser.GoTo("http://localhost:53759/Reports/schedule.aspx?r=" + cell.Text);
 
-				browser.Button(Find.ByValue("Выполнить")).Click();
-				Assert.That(browser.Text, Is.StringContaining("Успешно запущен разовый отчет"));
+			browser.Button(Find.ByValue("Выполнить")).Click();
+			Assert.That(browser.Text, Is.StringContaining("Успешно запущен разовый отчет"));
 
-				var processes = Process.GetProcesses();
-				var finded = false;
-				for (int i = 0; i < 20; i++) {
-					if (processes.Any(process => process.ProcessName.Contains("ReportSystem"))) {
-						finded = true;
-					}
-					Thread.Sleep(50);
+			var processes = Process.GetProcesses();
+			var finded = false;
+			for (int i = 0; i < 20; i++) {
+				if (processes.Any(process => process.ProcessName.Contains("ReportSystem"))) {
+					finded = true;
 				}
-				Assert.That(finded, Is.True);
+				Thread.Sleep(50);
 			}
+			Assert.That(finded, Is.True);
 		}
 
 		[Test]
 		public void Task_shedule_base_test()
 		{
-			Open("http://localhost:53759/Reports/schedule.aspx?r=1");
+			Open("Reports/schedule.aspx?r=1");
 			Click("Выполнить задание");
 			Thread.Sleep(3000);
 			AssertText("Отчет запущен, ожидайте окончания выполнения операции.");
@@ -52,54 +51,52 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void Set_shedule_month()
 		{
-			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
-				browser.Button(Find.ByClass("addMonthItem")).Click();
-				browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
-				browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
-				browser.Button(Find.ByValue("Применить")).Click();
-				Assert.That(browser.Text, Is.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
-				browser.TextField(Find.ByValue("0:00")).Value = "10:00";
-				browser.Button(Find.ByValue("Применить")).Click();
-				Assert.That(browser.Text, Is.Not.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
-				Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
+			Open("/Reports/schedule.aspx?r=1");
 
-				var taskService = ScheduleHelper.GetService();
-				var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-				var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, (ulong)1, "", "GR");
-				Assert.That(currentTask.Definition.Settings.RestartCount == 3);
-				Assert.That(currentTask.Definition.Settings.RestartInterval == new TimeSpan(0, 15, 0));
-				Assert.That(currentTask.Definition.Settings.StartWhenAvailable == true);
-				browser.Button(Find.ByClass("deleteMonthItem")).Click();
-				browser.Button(Find.ByValue("Применить")).Click();
-			}
+			browser.Button(Find.ByClass("addMonthItem")).Click();
+			browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
+			browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
+			browser.Button(Find.ByValue("Применить")).Click();
+			Assert.That(browser.Text, Is.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
+			browser.TextField(Find.ByValue("0:00")).Value = "10:00";
+			browser.Button(Find.ByValue("Применить")).Click();
+			Assert.That(browser.Text, Is.Not.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
+			Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
+
+			var taskService = ScheduleHelper.GetService();
+			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
+			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 1, "", "GR");
+			Assert.That(currentTask.Definition.Settings.RestartCount == 3);
+			Assert.That(currentTask.Definition.Settings.RestartInterval == new TimeSpan(0, 15, 0));
+			Assert.That(currentTask.Definition.Settings.StartWhenAvailable);
+			browser.Button(Find.ByClass("deleteMonthItem")).Click();
+			browser.Button(Find.ByValue("Применить")).Click();
 		}
 
 		[Test]
 		public void Send_ready_report()
 		{
 			var generalReport = GeneralReport.Find(Convert.ToUInt64(1));
-			var ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "OptBox", generalReport.FirmCode.Value.ToString("000"), "Reports");
+			generalReport.LastSuccess = DateTime.Now;
+			var executelog = new ReportExecuteLog(generalReport);
+			session.Save(executelog);
+			session.Save(new ReportLog(generalReport, executelog));
+			session.Flush();
+
+			var ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "History");
 			if (!Directory.Exists(ftpDirectory))
 				Directory.CreateDirectory(ftpDirectory);
-			foreach (var file in Directory.GetFiles(ftpDirectory)) {
-				File.Delete(file);
-			}
-			if(generalReport.NoArchive)
-				File.WriteAllText(Path.Combine(ftpDirectory, generalReport.ReportFileName), Guid.NewGuid().ToString());
-			else {
-				File.WriteAllText(Path.Combine(ftpDirectory, generalReport.ReportArchName), Guid.NewGuid().ToString());
-			}
-			using (var browser = new IE("http://localhost:53759/Reports/schedule.aspx?r=1")) {
-				browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
-				browser.TextField("mail_Text").Clear();
-				browser.Button(Find.ByValue("Выслать готовый")).Click();
-				if(generalReport.Format != "DBF" && generalReport.FirmCode != null)
-					Assert.That(browser.Text, Is.StringContaining("Укажите получателя отчета !"));
-				browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
-				browser.Button(Find.ByValue("Выслать готовый")).Click();
-				if(generalReport.Format != "DBF" && generalReport.FirmCode != null)
-					Assert.That(browser.Text, Is.StringContaining("Файл отчета успешно отправлен"));
-			}
+			File.WriteAllText(Path.Combine(ftpDirectory, executelog.Id + ".txt"), Guid.NewGuid().ToString());
+
+			Open("/Reports/schedule.aspx?r=1");
+			browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
+			browser.TextField("mail_Text").Clear();
+			Click("Выслать готовый");
+
+			AssertText("Укажите получателя отчета !");
+			browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
+			Click("Выслать готовый");
+			AssertText("Файл отчета успешно отправлен");
 		}
 
 		[Test]
@@ -110,8 +107,8 @@ namespace ReportTuner.Test.Functional
 				.SetParameter("startTime", startTime)
 				.SetParameter("endTime", DateTime.Now.AddHours(1))
 				.ExecuteUpdate();
-			session.Flush();
-			browser = Open("http://localhost:53759/Reports/schedule.aspx?r=1");
+
+			Open("/Reports/schedule.aspx?r=1");
 			Assert.That(browser.Text, Is.StringContaining("Статистика запусков отчета"));
 			Assert.That(browser.Text, Is.StringContaining(startTime.ToString()));
 		}
@@ -122,8 +119,8 @@ namespace ReportTuner.Test.Functional
 			var report = session.Get<GeneralReport>((ulong)1);
 			report.Files.Clear();
 			session.Save(report);
-			session.Flush();
-			browser = Open("Reports/Reports.aspx?r=1");
+
+			Open("Reports/Reports.aspx?r=1");
 			Click("Добавить файл");
 			session.Refresh(report);
 			Assert.That(report.Files.Count, Is.EqualTo(1));
@@ -148,7 +145,7 @@ namespace ReportTuner.Test.Functional
 
 		private void CheckReport(Report report)
 		{
-			var url = String.Format("http://localhost:53759/Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
+			var url = String.Format("/Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
 			browser = Open(url);
 			Assert.That(browser.Text, Is.StringContaining("Настройка параметров отчета"));
 			Assert.That(browser.Text, Is.Not.Contains("Готовить по розничному сегменту"));

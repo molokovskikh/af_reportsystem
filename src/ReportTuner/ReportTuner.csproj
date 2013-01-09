@@ -192,7 +192,6 @@
     <Compile Include="Helpers\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\ReportAppHelper.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\PropertiesHelper.cs" />
@@ -211,6 +210,7 @@
     <Compile Include="Models\Region.cs" />
     <Compile Include="Models\Report.cs" />
     <Compile Include="Models\ReportExecuteLog.cs" />
+    <Compile Include="Models\ReportLog.cs" />
     <Compile Include="Models\ReportProperty.cs" />
     <Compile Include="Models\ReportPropertyValue.cs" />
     <Compile Include="Models\ReportTunerModel.cs" />

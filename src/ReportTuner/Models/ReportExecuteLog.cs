@@ -9,6 +9,17 @@ namespace ReportTuner.Models
 	[ActiveRecord("ReportExecuteLogs", Schema = "logs")]
 	public class ReportExecuteLog
 	{
+		public ReportExecuteLog()
+		{
+		}
+
+		public ReportExecuteLog(GeneralReport report)
+		{
+			GeneralReportCode = report.Id;
+			StartTime = DateTime.Now;
+			EndTime = DateTime.Now;
+		}
+
 		[PrimaryKey]
 		public virtual uint Id { get; set; }
 

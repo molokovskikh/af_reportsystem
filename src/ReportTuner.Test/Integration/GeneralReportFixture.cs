@@ -16,13 +16,13 @@ namespace ReportTuner.Test.Integration
 		{
 			session.CreateSQLQuery("delete from `logs`.reportexecutelogs;").ExecuteUpdate();
 			Flush();
-			var startTime = Reports_schedule.GetStartTime(1);
+			var startTime = Reports_schedule.GetStartTime(session, 1);
 			Assert.IsNullOrEmpty(startTime);
 			session.Save(new ReportExecuteLog { StartTime = DateTime.Now, GeneralReportCode = 1 });
-			startTime = Reports_schedule.GetStartTime(1);
+			startTime = Reports_schedule.GetStartTime(session, 1);
 			Assert.AreEqual(startTime, string.Format("Отчет запущен {0}. ", DateTime.Now));
 			session.Save(new ReportExecuteLog { StartTime = DateTime.Now, EndTime = DateTime.Now.AddHours(1), GeneralReportCode = 1 });
-			startTime = Reports_schedule.GetStartTime(1);
+			startTime = Reports_schedule.GetStartTime(session, 1);
 			Assert.AreEqual(startTime, string.Format("Отчет запущен {0}. Среднее время выполнения: 60,0 минут", DateTime.Now));
 		}
 	}
