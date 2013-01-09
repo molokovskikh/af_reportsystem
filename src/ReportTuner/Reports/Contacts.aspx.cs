@@ -96,7 +96,6 @@ where
     cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType
-group by c.id
 union
 select lower(c.contactText) as ContactText,
 lower(c.Comment) as Comment,
@@ -111,7 +110,6 @@ where
     cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType
-group by c.id
 order by 1",
 				new MySqlParameter("?ContactGroupId", _currentContactGroup.Id),
 				new MySqlParameter("?ContactGroupType", 6),
