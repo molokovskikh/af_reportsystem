@@ -15,7 +15,7 @@ namespace ReportSystem.Test.SpecialReport
 			var fileName = "SpecialCountProducerByWeightCost.xls";
 			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
-				2
+				4096
 			});
 			Property("FirmCodeEqual", new List<ulong> {
 				7,
