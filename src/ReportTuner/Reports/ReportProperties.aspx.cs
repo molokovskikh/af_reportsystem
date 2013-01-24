@@ -686,6 +686,17 @@ WHERE ID = ?OPID", MyCn, trans);
 		var trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
 		try {
 			var requiredParameters = DS.Tables[dtNonOptionalParams.TableName];
+
+			var baseCostRows = requiredParameters.Select("PPropertyName = 'ByBaseCosts'");
+			var weightCostRows = requiredParameters.Select("PPropertyName = 'ByWeightCosts'");
+			var clientRows = requiredParameters.Select("PPropertyName = 'ClientCode'");
+			if(baseCostRows.Length > 0 && weightCostRows.Length > 0 && clientRows.Length > 0) {
+				if(baseCostRows[0]["PPropertyValue"].ToString() == "1"
+					|| weightCostRows[0]["PPropertyValue"].ToString() == "1") {
+					clientRows[0]["PPropertyValue"] = 1;
+				}
+			}
+
 			var optionalParameters = DS.Tables[dtOptionalParams.TableName];
 
 			var deletedFiles = requiredParameters.AsEnumerable()
@@ -1046,6 +1057,17 @@ WHERE ID = ?OPID", MyCn, trans);
 			}
 		}
 		return value;
+	}
+
+	private void SetValueByLabel(GridViewRowCollection rows, string label, int value)
+	{
+		foreach (GridViewRow dr in dgvNonOptional.Rows) {
+			if (dr.Cells.Count > 1 && dr.Cells[0].Text == label) {
+				var chk = (TextBox)dr.Cells[1].FindControl("tbValue");
+				chk.Text = value.ToString();
+				break;
+			}
+		}
 	}
 
 	private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn, DataTable data, string value = null)
