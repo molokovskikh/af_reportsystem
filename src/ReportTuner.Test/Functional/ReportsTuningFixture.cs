@@ -16,6 +16,51 @@ namespace ReportTuner.Test.Functional
 	public class ReportsTuningFixture : WatinFixture2
 	{
 		[Test]
+		public void ResetClientCodeIfBaseCost()
+		{
+			Open(string.Format("Reports/Reports.aspx?r=1"));
+			// создвем новый отчет
+			browser.Button(Find.ByValue("Добавить")).Click();
+			var select = browser.SelectLists.Last();
+			select.Select("Отчет по минимальным ценам по возрастанию по прайсу");
+			var row = browser.TableCells
+				.Last(c => !String.IsNullOrEmpty(c.Text) && c.Text.Contains("...")).ContainingTableRow;
+			var name = row.OwnTableCells[1].TextFields[0];
+			var newReportName = "Для теста" + DateTime.Now.ToString();
+			name.AppendText(newReportName);
+			browser.Button(Find.ByValue("Применить")).Click();
+			var link = browser.Links[browser.Links.Count - 1];
+			link.Click();
+			// выставляем параметр клинта
+			row = browser.TableCell(Find.ByText("Клиент")).ContainingTableRow;
+			name = row.OwnTableCells[1].TextFields[0];
+			name.AppendText("Тест");
+			row.OwnTableCells[1].Buttons[0].Click();
+			browser.Button(Find.ByValue("Применить")).Click();
+			// проверяем, что клиент установлен
+			row = browser.TableCell(Find.ByText("Клиент")).ContainingTableRow;
+			Assert.That(row.OwnTableCells[1].TextFields.Count, Is.EqualTo(0));
+			Assert.That(row.OwnTableCells[1].SelectLists.Count, Is.EqualTo(1));
+			// сохраняем отчет с опцией по базовым ценам, после чего эту опцию снимаем
+			var baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+			browser.Button(Find.ByValue("Применить")).Click();
+			baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
+			browser.Button(Find.ByValue("Применить")).Click();
+			// проверяем, что настройка клиента сброшена
+			row = browser.TableCell(Find.ByText("Клиент")).ContainingTableRow;
+			Assert.That(row.OwnTableCells[1].TextFields.Count, Is.EqualTo(1));
+			Assert.That(row.OwnTableCells[1].SelectLists.Count, Is.EqualTo(0));
+			// удаляем созданный отчет
+			Open(string.Format("Reports/Reports.aspx?r=1"));
+			var cell = browser.TableCells.Last(c => !String.IsNullOrEmpty(c.Text)
+				&& c.Text.Contains("Отчет по минимальным ценам по возрастанию по прайсу"));
+			row = cell.ContainingTableRow;
+			row.OwnTableCells[4].Button(Find.ByValue("Удалить")).Click();
+			Click("Применить");
+		}
+		[Test]
 		public void BaseWeightCostTest()
 		{
 			Open(string.Format("Reports/ReportProperties.aspx?rp=1&r=1"));
