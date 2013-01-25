@@ -76,7 +76,7 @@ from
     inner join Customers.clients cl on oh.clientcode = cl.id
 	inner join usersettings.retclientsset rcs on cl.id = rcs.clientcode
     inner join Customers.addresses a on oh.addressid = a.id
-    inner join Customers.intersection fi on fi.clientid = cl.id
+    left join Customers.intersection fi on fi.clientid = cl.id
         and fi.regionid = oh.regioncode
         and fi.priceid = pd.pricecode
         and fi.legalentityid = a.legalentityid
