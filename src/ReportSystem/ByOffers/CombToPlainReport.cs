@@ -88,12 +88,16 @@ select
   -- открытая наценка
   0 as PublicUpCost,
   -- жизненно важный
-  catalog.VitallyImportant
+  catalog.VitallyImportant,
+  -- МНН
+  mnn.Mnn,
+  -- Производитель
+  producers.Name
 INTO OUTFILE '{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
 from
-  Core,
+  (Core,
   ActivePrices,
   farm.regions,
   Farm.Core0 FarmCore,
@@ -105,7 +109,9 @@ from
   farm.synonymfirmcr sfc,
   usersettings.regionaldata rd,
   Customers.suppliers supps,
-  usersettings.pricesdata pd
+  usersettings.pricesdata pd)
+left join catalogs.mnn on mnn.Id = catalognames.mnnid
+left join catalogs.producers on producers.id = FarmCore.CodeFirmCr
 where
 	FarmCore.Id = Core.Id
 and s.synonymcode = FarmCore.synonymcode
