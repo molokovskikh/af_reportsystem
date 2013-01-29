@@ -1359,10 +1359,12 @@ where SourcePrice.codefirmcr=FarmCore.codefirmcr or SourcePrice.codefirmcr is nu
 			var priceIndex = 0;
 			foreach (DataRow drPrice in _dsReport.Tables["Prices"].Rows) {
 				var columnIndex = columnPrefix + priceIndex * priceBlockSize;
-				//Устанавливаем название фирмы
-				ws.Cells[1, columnIndex] = drPrice["FirmName"].ToString();
-				//Устанавливаем дату фирмы
-				ws.Cells[2, columnIndex] = drPrice["PriceDate"].ToString();
+				if(columnIndex < 255) {
+					//Устанавливаем название фирмы
+					ws.Cells[1, columnIndex] = drPrice["FirmName"].ToString();
+					//Устанавливаем дату фирмы
+					ws.Cells[2, columnIndex] = drPrice["PriceDate"].ToString();
+				}
 				priceIndex++;
 			}
 		}
