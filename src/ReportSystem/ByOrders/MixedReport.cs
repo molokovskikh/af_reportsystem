@@ -154,7 +154,7 @@ from
   farm.formrules fr1
 where
 	pc1.PriceCode = pd.PriceCode
-and pc1.BaseCost = 1
+and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc1.PriceCode and prd.BaseCost=pc1.CostCode limit 1)
 and pim1.Id = pc1.PriceItemId
 and fr1.Id = pim1.FormRuleId
 and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
@@ -186,7 +186,7 @@ from
   farm.formrules fr1
 where
 	pc1.PriceCode = pd.PriceCode
-and pc1.BaseCost = 1
+and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc1.PriceCode and prd.BaseCost=pc1.CostCode limit 1)
 and pim1.Id = pc1.PriceItemId
 and fr1.Id = pim1.FormRuleId
 and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)

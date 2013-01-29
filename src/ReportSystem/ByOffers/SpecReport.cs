@@ -423,7 +423,7 @@ from
 left join (select pd.firmcode, SUM(pi.RowCount) as Position
 FROM
     usersettings.PricesData pd
-    JOIN usersettings.PricesCosts pc on pc.PriceCode = pd.PriceCode and pc.BaseCost = 1
+    JOIN usersettings.PricesCosts pc on pc.PriceCode = pd.PriceCode and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = PricesData.PriceCode and prd.BaseCost=pc.CostCode limit 1)
     JOIN usersettings.PriceItems pi on pi.Id = pc.PriceItemId
 WHERE exists (select * from usersettings.PricesRegionalData prd, usersettings.TmpRegions TPR
     where prd.pricecode = pd.pricecode AND prd.RegionCode = TPR.RegionCode AND prd.enabled = 1)
@@ -456,7 +456,7 @@ order by st.Position DESC";
 			e.DataAdapter.SelectCommand.CommandText = @"
 set @cnt= (select max(Id) from usersettings.Core);
 insert into usersettings.Core
-select ?SourcePC, ?SourceRegionCode, p.CatalogId,
+select distinct ?SourcePC, ?SourceRegionCode, p.CatalogId,
 if(if(round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2) < MinBoundCost,
 MinBoundCost, round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2)) > MaxBoundCost,
 	MaxBoundCost, if(round(cc.Cost*round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5),2) < MinBoundCost,
@@ -469,7 +469,7 @@ c.CodeFirmCr,
 from
 farm.core0 c
 join usersettings.PricesData pd on c.PriceCode = pd.PriceCode
-join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and pc.BaseCost = 1
+join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pd.PriceCode and prd.BaseCost=pc.CostCode limit 1)
 left JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = pc.CostCode
 join catalogs.products p on c.ProductId = p.Id
 left JOIN usersettings.PricesRegionalData prd ON prd.pricecode = pd.pricecode AND prd.RegionCode = ?SourceRegionCode
@@ -508,7 +508,7 @@ where regionCode = ?region and PriceCode = ?price;";
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
 					@"
-select
+select distinct
   pc.PriceCode
 from
   usersettings.pricescosts pc,
@@ -516,7 +516,7 @@ from
   farm.formrules fr
 where
 	pc.PriceCode = ?SourcePC
-and pc.BaseCost = 1
+and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc.PriceCode and prd.BaseCost=pc.CostCode limit 1)
 and pim.Id = pc.PriceItemId
 and fr.Id = pim.FormRuleId
 and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
@@ -631,7 +631,7 @@ where Id = ?ClientCode",
 			executeArgs.DataAdapter.SelectCommand.CommandText = @"
 INSERT
 INTO	Usersettings.Core
-SELECT
+SELECT distinct
 	straight_join
 	?SourcePrice,
 	?SourceRegionCode,
@@ -644,7 +644,7 @@ MinBoundCost, round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCo
 	c.id
 FROM farm.core0 c
 join usersettings.PricesData pd on c.PriceCode = pd.PriceCode
-join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and pc.BaseCost = 1
+join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pd.PriceCode and prd.BaseCost=pc.CostCode limit 1)
 left JOIN usersettings.PricesRegionalData prd ON prd.pricecode = pd.pricecode AND prd.RegionCode = ?SourceRegionCode
 left JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = pc.CostCode
 where

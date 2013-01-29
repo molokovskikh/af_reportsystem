@@ -339,7 +339,7 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
 					@"
-select
+select distinct
   pc.PriceCode
 from
   usersettings.pricescosts pc,
@@ -347,7 +347,7 @@ from
   farm.formrules fr
 where
 	pc.PriceCode = ?SourcePC
-and pc.BaseCost = 1
+and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc.PriceCode and prd.BaseCost=pc.CostCode limit 1)
 and pim.Id = pc.PriceItemId
 and fr.Id = pim.FormRuleId
 and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",

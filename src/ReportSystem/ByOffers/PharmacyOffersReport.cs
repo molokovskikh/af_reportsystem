@@ -76,12 +76,12 @@ create temporary table OffersByPrice
 ) engine=MEMORY;
 
 insert into OffersByPrice
-select
+select distinct
   Core0.ProductId,
   Core0.CodeFirmCr
 from
   usersettings.PricesData
-  inner join usersettings.PricesCosts pc on pc.PriceCode = PricesData.PriceCode and pc.BaseCost = 1
+  inner join usersettings.PricesCosts pc on pc.PriceCode = PricesData.PriceCode and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = PricesData.PriceCode and prd.BaseCost=pc.CostCode limit 1)
   inner join farm.Core0 on Core0.PriceCode = PricesData.PriceCode
   inner join farm.CoreCosts cc on cc.Core_Id = Core0.Id and cc.PC_CostCode = pc.CostCode
 where
