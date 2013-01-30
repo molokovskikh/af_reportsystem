@@ -423,7 +423,7 @@ from
 left join (select pd.firmcode, SUM(pi.RowCount) as Position
 FROM
     usersettings.PricesData pd
-    JOIN usersettings.PricesCosts pc on pc.PriceCode = pd.PriceCode and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = PricesData.PriceCode and prd.BaseCost=pc.CostCode limit 1)
+    JOIN usersettings.PricesCosts pc on pc.PriceCode = pd.PriceCode and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pd.PriceCode and prd.BaseCost=pc.CostCode limit 1)
     JOIN usersettings.PriceItems pi on pi.Id = pc.PriceItemId
 WHERE exists (select * from usersettings.PricesRegionalData prd, usersettings.TmpRegions TPR
     where prd.pricecode = pd.pricecode AND prd.RegionCode = TPR.RegionCode AND prd.enabled = 1)
