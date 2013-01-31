@@ -83,10 +83,7 @@ namespace ReportTuner.Test.Functional
 			session.Save(new ReportLog(generalReport, executelog));
 			session.Flush();
 
-			var ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "History");
-			if (!Directory.Exists(ftpDirectory))
-				Directory.CreateDirectory(ftpDirectory);
-			File.WriteAllText(Path.Combine(ftpDirectory, executelog.Id + ".txt"), Guid.NewGuid().ToString());
+			executelog.BuildTestFile();
 
 			Open("/Reports/schedule.aspx?r=1");
 			browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;

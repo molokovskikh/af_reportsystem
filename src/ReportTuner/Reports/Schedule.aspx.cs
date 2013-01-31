@@ -854,33 +854,12 @@ and c.Type = ?ContactType");
 			return;
 		}
 
-		var log = DbSession.Query<ReportLog>()
-			.Where(l => l.Result != null && l.Report == _generalReport)
-			.OrderByDescending(l => l.LogTime)
-			.Take(1)
-			.FirstOrDefault();
-		var files = new string[0];
-		if (log != null) {
-			files = Directory.GetFiles(Global.Config.ReportHistoryPath, log.Result.Id + ".*");
-		}
-		if (files.Length == 0) {
-			ErrorMassage.Text = "Файл отчета не найден";
+		var error = _generalReport.ResendReport(DbSession, mails);
+		if (!String.IsNullOrEmpty(error)) {
+			ErrorMassage.Text = error;
 			ErrorMassage.BackColor = Color.Red;
 			return;
 		}
-
-		var message = new MailMessage();
-		message.From = new MailAddress("report@analit.net", "АК Инфорум");
-		foreach (var mail in mails) {
-			message.To.Add(mail);
-		}
-		message.Subject = _generalReport.EMailSubject;
-		message.Attachments.Add(new Attachment(files[0]) {
-			Name = _generalReport.Filename(files[0])
-		});
-		var client = new SmtpClient();
-		message.BodyEncoding = System.Text.Encoding.UTF8;
-		client.Send(message);
 
 		ErrorMassage.Text = "Файл отчета успешно отправлен";
 		ErrorMassage.BackColor = Color.LightGreen;

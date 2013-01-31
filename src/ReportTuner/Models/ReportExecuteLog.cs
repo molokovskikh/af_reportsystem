@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
+using ReportTuner.Helpers;
 
 namespace ReportTuner.Models
 {
@@ -31,5 +33,15 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual DateTime? EndTime { get; set; }
+
+		public string BuildTestFile()
+		{
+			var ftpDirectory = Path.Combine(ScheduleHelper.ScheduleWorkDir, "History");
+			if (!Directory.Exists(ftpDirectory))
+				Directory.CreateDirectory(ftpDirectory);
+			var contents = Guid.NewGuid().ToString();
+			File.WriteAllText(Path.Combine(ftpDirectory, Id + ".txt"), contents);
+			return contents;
+		}
 	}
 }

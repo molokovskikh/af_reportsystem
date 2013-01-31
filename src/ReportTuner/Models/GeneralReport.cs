@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Web;
 using Castle.ActiveRecord;
 using Common.Tools;
 using Common.Web.Ui.Models;
 using Microsoft.Win32.TaskScheduler;
+using NHibernate;
+using NHibernate.Linq;
 using ReportTuner.Helpers;
 
 namespace ReportTuner.Models
@@ -15,6 +18,9 @@ namespace ReportTuner.Models
 	[ActiveRecord("general_reports", Schema = "reports")]
 	public class GeneralReport : ActiveRecordBase<GeneralReport>
 	{
+		public bool UnderTest;
+		public List<MailMessage> Messages = new List<MailMessage>();
+
 		public GeneralReport(Payer payer)
 			: this()
 		{
@@ -136,6 +142,41 @@ namespace ReportTuner.Models
 				return ActualArchiveName;
 			}
 			return ActualReportName;
+		}
+
+		public string ResendReport(ISession session, List<string> mails)
+		{
+			var log = session.Query<ReportLog>()
+				.Where(l => l.Result != null && l.Report == this)
+				.OrderByDescending(l => l.LogTime)
+				.Take(1)
+				.FirstOrDefault();
+			var files = new string[0];
+			if (log != null) {
+				files = Directory.GetFiles(Global.Config.ReportHistoryPath, log.Result.Id + ".*");
+			}
+			if (files.Length == 0) {
+				return "Файл отчета не найден";
+			}
+
+			var message = new MailMessage();
+			message.From = new MailAddress("report@analit.net", "АК Инфорум");
+			foreach (var mail in mails) {
+				message.To.Add(mail);
+			}
+			message.Subject = EMailSubject;
+			message.Attachments.Add(new Attachment(files[0]) {
+				Name = Filename(files[0])
+			});
+			var client = new SmtpClient();
+			message.BodyEncoding = System.Text.Encoding.UTF8;
+			if (UnderTest) {
+				Messages.Add(message);
+			}
+			else {
+				client.Send(message);
+			}
+			return null;
 		}
 	}
 }
