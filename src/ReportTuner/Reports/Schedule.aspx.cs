@@ -855,7 +855,7 @@ and c.Type = ?ContactType");
 		}
 
 		var log = DbSession.Query<ReportLog>()
-			.Where(l => l.Result != null)
+			.Where(l => l.Result != null && l.Report == _generalReport)
 			.OrderByDescending(l => l.LogTime)
 			.Take(1)
 			.FirstOrDefault();
