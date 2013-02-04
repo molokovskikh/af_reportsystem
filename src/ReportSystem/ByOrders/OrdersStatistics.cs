@@ -59,10 +59,12 @@ namespace Inforoom.ReportSystem.ByOrders
 			dtNewRes.Columns.Add("Region", typeof(string));
 			var column = dtNewRes.Columns.Add("OrdersSum", typeof(decimal));
 			column.ExtendedProperties.Add("AsDecimal", "");
+			dtNewRes.Columns.Add("RowCount", typeof(int));
 			dtNewRes.Columns["PayerId"].Caption = "Код плательщика поставщика";
 			dtNewRes.Columns["SupplierName"].Caption = "Поставщик";
 			dtNewRes.Columns["Region"].Caption = "Регион";
 			dtNewRes.Columns["OrdersSum"].Caption = "Сумма заказов";
+			dtNewRes.Columns["RowCount"].Caption = "Количество записей";
 			e.DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (string t in FilterDescriptions)
