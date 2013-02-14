@@ -252,7 +252,7 @@ where id in ({0})", suppliers.Implode());
 			//join Catalogs.Catalog c on c.Id = p.CatalogId вроде бы не нужен
 			//но без него оптимизатор строит неправильный план
 			command.CommandText = String.Format(@"
-select a.Id, sum(ol.Quantity) as quantity
+select ol.ProductId, ol.CodeFirmCr as ProducerId, sum(ol.Quantity) as quantity
 from {0}.OrdersHead oh
 join {0}.OrdersList ol on oh.RowId = ol.OrderId
 join Catalogs.Products p on p.Id = ol.ProductId
@@ -269,7 +269,7 @@ group by a.Id", OrdersSchema);
 			var quantities = new Hashtable();
 
 			foreach (DataRow row in quantityTable.Rows) {
-				quantities.Add(Convert.ToUInt32(row["Id"]), Convert.ToDecimal(row["quantity"]));
+				quantities.Add(row["ProductId"] + "|" + row["ProducerId"], Convert.ToDecimal(row["quantity"]));
 			}
 			return quantities;
 		}
@@ -391,9 +391,10 @@ and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
 
 			var command = args.DataAdapter.SelectCommand;
 			command.CommandText = @"
-select a.AssortmentId, a.Cost
+select a.ProductId, a.ProducerId, a.Cost
 from Reports.AverageCosts a
-join Reports.AverageCosts a1 on a.SupplierId = a1.SupplierId and a.RegionId = a1.RegionId and a.AssortmentId = a1.AssortmentId and a1.Date = ?toDate
+join Reports.AverageCosts a1 on a.SupplierId = a1.SupplierId and a.RegionId = a1.RegionId
+and a.ProductId = a1.ProductId and a.ProducerId = a1.ProducerId and a1.Date = ?toDate
 where a.SupplierId = ?supplierId
 and a.RegionId = ?regionId
 and a.Date = ?date
@@ -406,7 +407,7 @@ and a.Date = ?date
 			var table = new DataTable();
 			args.DataAdapter.Fill(table);
 			foreach (DataRow row in table.Rows) {
-				var quantiry = quantities[row["AssortmentId"]];
+				var quantiry = quantities[row["ProductId"] + "|" + row["ProducerId"]];
 				if (quantiry == null)
 					continue;
 				result += Convert.ToDecimal(row["Cost"]) * Convert.ToDecimal(quantiry);

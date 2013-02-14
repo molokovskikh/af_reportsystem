@@ -75,7 +75,8 @@ namespace Report.Data.Builder
 	{
 		public OfferId Id;
 
-		public uint AssortmentId;
+		public uint ProductId;
+		public uint ProducerId;
 		public decimal Cost;
 		public uint Quantity;
 		public bool Junk;
@@ -84,10 +85,11 @@ namespace Report.Data.Builder
 		public string CodeCr;
 		public uint PriceCode;
 
-		public Offer(OfferId id, uint assortmentId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0, string code = "", string codeCr = "", uint priceCode = 0)
+		public Offer(OfferId id, uint productId, uint producerId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0, string code = "", string codeCr = "", uint priceCode = 0)
 		{
 			Id = id;
-			AssortmentId = assortmentId;
+			ProductId = productId;
+			ProducerId = producerId;
 			Cost = cost;
 			Junk = junk;
 			Quantity = quantity;
@@ -134,7 +136,7 @@ update Usersettings.prices p, usersettings.pricescosts pc, usersettings.pricesre
  and prd.RegionCode = p.RegionCode
  and prd.enabled = 1;
 
-select straight_join a.Id, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
+select straight_join c0.ProductId, c0.CodeFirmCr, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c0.Id and cc.PC_CostCode = p.CostCode
@@ -149,7 +151,8 @@ where p.Actual = 1
 			var data = Db.Read(sql,
 				r => new Offer(new OfferId(r.GetUInt32("FirmCode"),
 					r.GetUInt64("RegionCode")),
-					r.GetUInt32("Id"),
+					r.GetUInt32("ProductId"),
+					r.GetUInt32("CodeFirmCr"),
 					r.GetDecimal("Cost"),
 					r.GetBoolean("Junk"),
 					SafeConvert.ToUInt32(r["Quantity"].ToString()),
@@ -193,12 +196,12 @@ where p.Actual = 1
 						costs = new Hashtable();
 						result[offer.Id] = costs;
 					}
-
-					var aggregates = (OfferAggregates)costs[offer.AssortmentId];
+					var costsKey = offer.ProductId + "|" + offer.ProducerId;
+					var aggregates = (OfferAggregates)costs[costsKey];
 					if (aggregates == null) {
 						aggregates = new OfferAggregates();
 						aggregates.LastClientId = client;
-						costs[offer.AssortmentId] = aggregates;
+						costs[costsKey] = aggregates;
 					}
 					else if(aggregates.LastClientId != client && aggregates.Count > 0) {
 						aggregates.Cost += aggregates.LastCost / aggregates.Count;
@@ -238,8 +241,8 @@ where p.Actual = 1
 						aggregates.UsedCores.Add(offer.CoreId);
 					}
 #if DEBUG
-					if (offer.AssortmentId == DebugAssortmentId && offer.Id.SupplierId == DebugSupplierId)
-						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[offer.AssortmentId], client, regionRating, offer.Cost);
+					if (offer.ProductId == DebugProductId && offer.ProducerId == DebugProducerId && offer.Id.SupplierId == DebugSupplierId)
+						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[costsKey], client, regionRating, offer.Cost);
 #endif
 				}
 				if (log.IsDebugEnabled)
@@ -252,7 +255,7 @@ where p.Actual = 1
 				log.DebugFormat("Начал нормировку цен по рейтингу");
 			foreach (OfferId key in result.Keys) {
 				var costs = ((Hashtable)result[key]);
-				foreach (uint assortmentId in costs.Keys) {
+				foreach (string assortmentId in costs.Keys) {
 					var aggregates = (OfferAggregates)costs[assortmentId];
 					if(aggregates.LastClientId != null
 						&& aggregates.Count > 0)
@@ -267,13 +270,14 @@ where p.Actual = 1
 			return result;
 		}
 
-		public uint DebugAssortmentId;
+		public uint DebugProductId;
+		public uint DebugProducerId;
 		public uint DebugSupplierId;
 		public decimal CostThreshold;
 
 		public int Save(DateTime date, Hashtable hash)
 		{
-			var header = "insert into Reports.AverageCosts(Date, SupplierId, RegionId, AssortmentId, Cost, Quantity) values ";
+			var header = "insert into Reports.AverageCosts(Date, SupplierId, RegionId, ProductId, ProducerId, Cost, Quantity) values ";
 			var page = 100;
 			var totalCount = 0;
 			With.Transaction(t => {
@@ -283,19 +287,20 @@ where p.Actual = 1
 				var index = 0;
 				foreach (OfferId key in hash.Keys) {
 					var costs = ((Hashtable)hash[key]);
-					foreach (uint assortmentId in costs.Keys) {
-						var aggregates = (OfferAggregates)costs[assortmentId];
+					foreach (string costKey in costs.Keys) {
+						var aggregates = (OfferAggregates)costs[costKey];
 						if (aggregates.Cost == 0)
 							continue;
 						totalCount++;
 						if (sql.Length > header.Length)
 							sql.Append(", ");
-
-						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4}, {5})",
+						var separatorIndex = costKey.IndexOf("|");
+						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4}, {5}, {6})",
 							date.ToString(MySqlConsts.MySQLDateFormat),
 							key.SupplierId,
 							key.RegionId,
-							assortmentId,
+							costKey.Substring(0, separatorIndex),
+							costKey.Substring(separatorIndex + 1, costKey.Length - separatorIndex - 1),
 							aggregates.Cost.ToString(CultureInfo.InvariantCulture),
 							aggregates.Quantity);
 

@@ -13,7 +13,7 @@ namespace ReportSystem.Test.DefectureReport
 		public void DefectureByWeight()
 		{
 			var fileName = "DefectureByWeightCost.xls";
-			Property("ReportType", 2);
+			Property("ReportType", 5);
 			Property("RegionEqual", new List<ulong> {
 				1
 			});

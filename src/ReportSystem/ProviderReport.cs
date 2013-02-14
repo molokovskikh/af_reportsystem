@@ -622,7 +622,7 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
 			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noise);
 #if DEBUG
-			selectCommand.Parameters.AddWithValue("?runDate", new DateTime(2012, 12, 3));
+			selectCommand.Parameters.AddWithValue("?runDate", new DateTime(2013, 02, 12));
 #else
 			selectCommand.Parameters.AddWithValue("?runDate", DateTime.Today.AddDays(-1));
 #endif

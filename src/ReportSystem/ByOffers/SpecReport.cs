@@ -237,8 +237,8 @@ from
   TmpSourceCodes SourcePrice
  )";
 			SqlCommandText += @"
-join catalogs.catalog ctl on ctl.id = AllPrices.ProductId
-join catalogs.products pr on ctl.id = pr.catalogid
+join catalogs.products pr on pr.id = AllPrices.ProductId
+join catalogs.catalog ctl on ctl.id = pr.CatalogId
 right join farm.Core0 c0 on c0.productid = pr.id and c0.pricecode = ?SourcePrice
 left join farm.synonym s on s.SynonymCode = c0.SynonymCode
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
@@ -346,26 +346,26 @@ where PriceCode=?SourcePrice and cp.CatalogId = Core.ProductId) as Code,
   Core.Cost,";
 
 			e.DataAdapter.SelectCommand.CommandText += "Core.ProductId, ";
-			if(SourcePriceType == (int)PriceType.Assortment)
-				e.DataAdapter.SelectCommand.CommandText += @"
+			//if(SourcePriceType == (int)PriceType.Assortment)
+			e.DataAdapter.SelectCommand.CommandText += @"
 Core.ProducerId
 FROM
   Core
 WHERE
 Core.PriceCode = ?SourcePC
 and Core.RegionCode = ?SourceRegionCode;";
-			else
-				e.DataAdapter.SelectCommand.CommandText += @"
-  Assortment.ProducerId
-FROM
-  Core,
-  reports.averagecosts,
-  catalogs.assortment
-WHERE
-Core.Id=averagecosts.Id
-and assortment.id = averagecosts.AssortmentId
-and Core.PriceCode = ?SourcePC
-and Core.RegionCode = ?SourceRegionCode;";
+//			else
+//				e.DataAdapter.SelectCommand.CommandText += @"
+//  Assortment.ProducerId
+//FROM
+//  Core,
+//  reports.averagecosts,
+//  catalogs.assortment
+//WHERE
+//Core.Id=averagecosts.Id
+//and assortment.id = averagecosts.AssortmentId
+//and Core.PriceCode = ?SourcePC
+//and Core.RegionCode = ?SourceRegionCode;";
 
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
@@ -381,10 +381,10 @@ drop temporary table IF EXISTS CoreCopy;
 create temporary table CoreCopy engine memory
 select * from core;
 
-(select
+select
   Core.Id,
   Core.CatalogCode,
-  assortment.ProducerId as CodeFirmCr,
+  Core.ProducerId as CodeFirmCr,
   Core.Cost,
   Core.PriceCode,
   Core.RegionCode,
@@ -392,26 +392,7 @@ select * from core;
   0 as Junk,
   '' as Code
 from
-  Core,
-  reports.averagecosts,
-  catalogs.assortment
-where
-Core.Id=averagecosts.Id and Core.CoreNew = 0
-and assortment.id = averagecosts.AssortmentId)
-union all
-(select
-  CoreCopy.Id,
-  CoreCopy.CatalogCode,
-  CoreCopy.ProducerId as CodeFirmCr,
-  CoreCopy.Cost,
-  CoreCopy.PriceCode,
-  CoreCopy.RegionCode,
-  CoreCopy.Quantity,
-  0 as Junk,
-  '' as Code
-from
-  CoreCopy 
-  where CoreCopy.CoreNew = 1);";
+  Core;";
 
 			e.DataAdapter.Fill(_dsReport, "AllCoreT");
 
@@ -456,7 +437,7 @@ order by st.Position DESC";
 			e.DataAdapter.SelectCommand.CommandText = @"
 set @cnt= (select max(Id) from usersettings.Core);
 insert into usersettings.Core
-select distinct ?SourcePC, ?SourceRegionCode, p.CatalogId,
+select distinct ?SourcePC, ?SourceRegionCode, c.ProductId,
 if(if(round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2) < MinBoundCost,
 MinBoundCost, round(cc.Cost * round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5), 2)) > MaxBoundCost,
 	MaxBoundCost, if(round(cc.Cost*round((1 + pd.UpCost / 100) * (1 + ifnull(prd.UpCost, 0) / 100), 5),2) < MinBoundCost,
@@ -471,7 +452,6 @@ farm.core0 c
 join usersettings.PricesData pd on c.PriceCode = pd.PriceCode
 join usersettings.PricesCosts pc on pd.PriceCode = pc.PriceCode and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pd.PriceCode and prd.BaseCost=pc.CostCode limit 1)
 left JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = pc.CostCode
-join catalogs.products p on c.ProductId = p.Id
 left JOIN usersettings.PricesRegionalData prd ON prd.pricecode = pd.pricecode AND prd.RegionCode = ?SourceRegionCode
 where
 c.PriceCode = ?SourcePrice;";

@@ -15,12 +15,12 @@ namespace ReportSystem.Test.SpecialReport
 			var fileName = "SpecialCountProducerByWeightCost.xls";
 			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
-				4096
+				1
 			});
-			Property("FirmCodeEqual", new List<ulong> {
-				7,
-				196
-			});
+			//Property("FirmCodeEqual", new List<ulong> {
+			//	7,
+			//	196
+			//});
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
@@ -38,12 +38,12 @@ namespace ReportSystem.Test.SpecialReport
 			var fileName = "SpecialCountProducerByWeightCostAssort.xls";
 			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
-				4194304
+				1
 			});
-			Property("FirmCodeEqual", new List<ulong> {
-				338,
-				126
-			});
+			//Property("FirmCodeEqual", new List<ulong> {
+			//	338,
+			//	126
+			//});
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);

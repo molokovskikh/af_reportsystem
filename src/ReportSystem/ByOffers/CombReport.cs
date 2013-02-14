@@ -68,7 +68,7 @@ namespace Inforoom.ReportSystem
   Core.RegionCode,
   Core.PriceCode, ";
 			if (_reportType > 2) {
-				e.DataAdapter.SelectCommand.CommandText += "assortment.ProducerId";
+				e.DataAdapter.SelectCommand.CommandText += "Core.ProducerId";
 			}
 			else {
 				e.DataAdapter.SelectCommand.CommandText += "0";
@@ -78,15 +78,15 @@ As Cfc,
   0 as Junk
 from
   Core,
-  catalogs.Assortment,
+  catalogs.Products,
   catalogs.catalog,
   catalogs.catalognames,
   catalogs.catalogforms,
   Customers.suppliers,
   farm.Regions
 where
-	Assortment.catalogid = core.productid
-and catalog.id = Assortment.catalogid
+	Products.id = core.productid
+and catalog.id = Products.catalogid
 and catalognames.id = catalog.NameId
 and catalogforms.id = catalog.FormId
 and suppliers.Id = Core.PriceCode
@@ -103,7 +103,7 @@ order by CatalogCode, Cfc DESC";
   avg(Core.Cost) as AvgCost,
   max(Core.Cost) as MaxCost, ";
 			if (_reportType > 2) {
-				e.DataAdapter.SelectCommand.CommandText += "assortment.ProducerId as Cfc, left(Producers.Name, 250) as FirmCr, ";
+				e.DataAdapter.SelectCommand.CommandText += "Core.ProducerId as Cfc, left(Producers.Name, 250) as FirmCr, ";
 			}
 			else {
 				e.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
@@ -112,7 +112,7 @@ order by CatalogCode, Cfc DESC";
 	m.Mnn
 from
 	(Core,
-	catalogs.assortment,
+	catalogs.Products,
 	catalogs.catalog)
 	join Catalogs.CatalogNames cn on cn.Id = catalog.NameId
 	left join Catalogs.Mnn m on m.Id = cn.MnnId";
@@ -120,12 +120,12 @@ from
 			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
 			if (_reportType > 2)
 				e.DataAdapter.SelectCommand.CommandText += @"
-  left join catalogs.Producers on Producers.Id = assortment.ProducerId ";
+  left join catalogs.Producers on Producers.Id = Core.ProducerId ";
 
 			e.DataAdapter.SelectCommand.CommandText += @"
 where
-	assortment.catalogid = core.productid
-and catalog.id = assortment.catalogid
+	Products.id = core.productid
+and catalog.id = Products.catalogid
 ";
 
 			e.DataAdapter.SelectCommand.CommandText += @"

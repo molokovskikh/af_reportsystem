@@ -27,21 +27,21 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(1, 1, 0.1m),
 					},
 					new List<Offer> {
-						new Offer(new OfferId(1, 1), 1, 1000, false)
+						new Offer(new OfferId(1, 1), 1, 1, 1000, false)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(2, 1, 0.2m),
 					},
 					new List<Offer> {
-						new Offer(new OfferId(1, 1), 1, 900, false)
+						new Offer(new OfferId(1, 1), 1, 1, 900, false)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.7m)
 					},
 					new List<Offer> {
-						new Offer(new OfferId(1, 1), 1, 800, false)
+						new Offer(new OfferId(1, 1), 1, 1, 800, false)
 					})
 			};
 
@@ -49,7 +49,7 @@ namespace Report.Data.Builder.Test.Unit
 			Assert.That(averageCosts.Count, Is.EqualTo(1));
 			var costs = (Hashtable)averageCosts[new OfferId(1, 1)];
 			Assert.That(costs.Count, Is.EqualTo(1));
-			Assert.That(((OfferAggregates)costs[1u]).Cost, Is.EqualTo(840m));
+			Assert.That(((OfferAggregates)costs["1|1"]).Cost, Is.EqualTo(840m));
 		}
 
 		[Test]
@@ -63,14 +63,14 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 0.5m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100000, false)
+						new Offer(offerId, 1, 1, 100000, false)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.7m)
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 800, false)
+						new Offer(offerId, 1, 1, 800, false)
 					})
 			};
 
@@ -78,7 +78,7 @@ namespace Report.Data.Builder.Test.Unit
 			Assert.That(averageCosts.Count, Is.EqualTo(1));
 			var costs = (Hashtable)averageCosts[offerId];
 			Assert.That(costs.Count, Is.EqualTo(1));
-			Assert.That(((OfferAggregates)costs[1u]).Cost, Is.EqualTo(800m));
+			Assert.That(((OfferAggregates)costs["1|1"]).Cost, Is.EqualTo(800m));
 		}
 
 		[Test]
@@ -91,21 +91,21 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 0.5m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100000, false, 10)
+						new Offer(offerId, 1, 1, 100000, false, 10)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.7m)
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 800, true, 10, 1)
+						new Offer(offerId, 1, 1, 800, true, 10, 1)
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
 			Assert.That(averageCosts.Count, Is.EqualTo(1));
 			var costs = (Hashtable)averageCosts[offerId];
 			Assert.That(costs.Count, Is.EqualTo(1));
-			var aggregates = ((OfferAggregates)costs[1u]);
+			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Quantity, Is.EqualTo(20));
 			Assert.That(aggregates.Cost, Is.EqualTo(100000));
 		}
@@ -120,28 +120,28 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 0.5m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100000, false, 15)
+						new Offer(offerId, 1, 1, 100000, false, 15)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.3m)
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 800, true, 10, 1)
+						new Offer(offerId, 1, 1, 800, true, 10, 1)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.3m)
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 800, false, 10, 1)
+						new Offer(offerId, 1, 1, 800, false, 10, 1)
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
 			Assert.That(averageCosts.Count, Is.EqualTo(1));
 			var costs = (Hashtable)averageCosts[offerId];
 			Assert.That(costs.Count, Is.EqualTo(1));
-			var aggregates = ((OfferAggregates)costs[1u]);
+			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Quantity, Is.EqualTo(25));
 			Assert.That(aggregates.Cost, Is.EqualTo(62800));
 		}
@@ -156,19 +156,19 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 0.5m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100000, false, 10)
+						new Offer(offerId, 1, 1, 100000, false, 10)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.5m)
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100000, false, 10)
+						new Offer(offerId, 1, 1, 100000, false, 10)
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
 			var costs = (Hashtable)averageCosts[offerId];
-			var aggregates = ((OfferAggregates)costs[1u]);
+			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Cost, Is.EqualTo(100000));
 		}
 
@@ -182,19 +182,19 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 0.5m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100000, true, 10)
+						new Offer(offerId, 1, 1, 100000, true, 10)
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(3, 1, 0.5m)
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100000, true, 10)
+						new Offer(offerId, 1, 1, 100000, true, 10)
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
 			var costs = (Hashtable)averageCosts[offerId];
-			var aggregates = ((OfferAggregates)costs[1u]);
+			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Cost, Is.EqualTo(0));
 			Assert.That(aggregates.Quantity, Is.EqualTo(10));
 		}
@@ -209,14 +209,14 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 1m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100, false, 10),
-						new Offer(offerId, 1, 125, false, 10, 1),
-						new Offer(offerId, 1, 150, false, 1, 2)
+						new Offer(offerId, 1, 1, 100, false, 10),
+						new Offer(offerId, 1, 1, 125, false, 10, 1),
+						new Offer(offerId, 1, 1, 150, false, 1, 2)
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
 			var costs = (Hashtable)averageCosts[offerId];
-			var aggregates = ((OfferAggregates)costs[1u]);
+			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Cost, Is.EqualTo(125));
 			Assert.That(aggregates.Quantity, Is.EqualTo(21));
 		}
@@ -231,24 +231,24 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 0.2m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100, false, 10),
-						new Offer(offerId, 2, 50, false, 10, 1),
+						new Offer(offerId, 1, 1, 100, false, 10),
+						new Offer(offerId, 2, 1, 50, false, 10, 1),
 					}),
 				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
 					new List<ClientRating> {
 						new ClientRating(1, 1, 0.6m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 20, false, 10),
-						new Offer(offerId, 2, 50, false, 10, 1),
+						new Offer(offerId, 1, 1, 20, false, 10),
+						new Offer(offerId, 2, 1, 50, false, 10, 1),
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
 			var costs = (Hashtable)averageCosts[offerId];
-			var aggregates = ((OfferAggregates)costs[1u]);
+			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Cost, Is.EqualTo(40));
 			Assert.That(aggregates.Quantity, Is.EqualTo(10));
-			aggregates = ((OfferAggregates)costs[2u]);
+			aggregates = ((OfferAggregates)costs["2|1"]);
 			Assert.That(aggregates.Cost, Is.EqualTo(50));
 			Assert.That(aggregates.Quantity, Is.EqualTo(10));
 		}
@@ -263,14 +263,14 @@ namespace Report.Data.Builder.Test.Unit
 						new ClientRating(2, 1, 1m),
 					},
 					new List<Offer> {
-						new Offer(offerId, 1, 100, false, 10, 0, "Code"),
-						new Offer(offerId, 1, 50, false, 10, 1, "Code"),
-						new Offer(offerId, 1, 150, false, 10, 2, "Code", priceCode: 1)
+						new Offer(offerId, 1, 1, 100, false, 10, 0, "Code"),
+						new Offer(offerId, 1, 1, 50, false, 10, 1, "Code"),
+						new Offer(offerId, 1, 1, 150, false, 10, 2, "Code", priceCode: 1)
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
 			var costs = (Hashtable)averageCosts[offerId];
-			var aggregates = ((OfferAggregates)costs[1u]);
+			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Cost, Is.EqualTo(100));
 			Assert.That(aggregates.Quantity, Is.EqualTo(20));
 		}
