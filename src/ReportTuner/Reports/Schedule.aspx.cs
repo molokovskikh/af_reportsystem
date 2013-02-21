@@ -76,21 +76,47 @@ public partial class Reports_schedule : BasePage
 		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
 
-		temp1Task = Report.CreateTemporaryTaskForRunFromInterface(taskService, reportsFolder, currentTask, "/gr:" + _generalReport.Id + string.Format(" /manual:true"));
-
-		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
-		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
+		temp1Task = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(1), "tempTask1", "temp");
 
 		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
+		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running && tempTask.State != TaskState.Running;
+		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
+
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 
 		ErrorMassage.Text = string.Empty;
-		var startTime = GetStartTime(DbSession, _generalReport.Id);
 
 		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
 
 		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running) {
-			var prefix = tempTask.State == TaskState.Running ? "Успешно запущен разовый отчет" : "Отчет запущен";
+			ExecAction action = null;
+			var currentReportNumber = "";
+			ulong runningNumber = 0;
+			if(tempTask.State == TaskState.Running) {
+				action = (ExecAction)tempTask.Definition.Actions.FirstOrDefault();
+			}
+			else {
+				action = (ExecAction)temp1Task.Definition.Actions.FirstOrDefault();
+			}
+			if (action != null) {
+				var arguments = (action).Arguments;
+				if(!String.IsNullOrEmpty(arguments)) {
+					if(arguments.IndexOf("/gr:") >= 0) {
+						var substring = arguments.Substring(arguments.IndexOf("/gr:") + 4);
+						var numberLength = substring.IndexOf(@" /");
+						var reportNumber = substring.Substring(0, numberLength != -1 ? numberLength : substring.Length);
+						if (!String.IsNullOrEmpty(reportNumber)) {
+							currentReportNumber += " № ";
+							currentReportNumber += reportNumber;
+							ulong.TryParse(reportNumber, out runningNumber);
+						}
+					}
+				}
+			}
+			var startTime = GetStartTime(DbSession, runningNumber != 0 ? runningNumber : _generalReport.Id);
+
+			var prefix = tempTask.State == TaskState.Running ? String.Format("Успешно запущен разовый отчет{0}", currentReportNumber)
+				: String.Format("Отчет запущен ({0})", currentReportNumber);
 			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Running) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции. {1}", prefix, startTime);
 				ErrorMassage.BackColor = Color.LightGreen;
@@ -660,6 +686,7 @@ limit 15;";
 	{
 		var runed = false;
 		if (IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running)) {
+			temp1Task = Report.CreateTemporaryTaskForRunFromInterface(taskService, reportsFolder, currentTask, "/gr:" + _generalReport.Id + string.Format(" /manual:true"));
 			temp1Task.Run();
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
