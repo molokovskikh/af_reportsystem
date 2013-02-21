@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Security;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
@@ -679,7 +680,9 @@ select last_insert_id() as GRLastInsertID;
 	{
 		var codes = new List<uint>();
 		var condition = new List<string>();
-		emails.Each(m => condition.Add(String.Format("c.ContactText like '%{0}%'", m)));
+		for (int i = 0; i < emails.Count; i++) {
+			condition.Add(string.Format("(c.ContactText like ?email_{0})", i));
+		}
 		try {
 			if (MyCn.State != ConnectionState.Open)
 				MyCn.Open();
@@ -688,8 +691,15 @@ select last_insert_id() as GRLastInsertID;
 			MyCmd.CommandText = String.Format(@"
 select distinct gr.GeneralReportCode from reports.general_reports gr
 inner join contacts.contacts c on gr.ContactGroupId = c.ContactOwnerId and c.Type = 0
-and ({0});
+and ( {0} );
 ", String.Join(" or ", condition.ToArray()));
+			var count = 0;
+			foreach (var email in emails) {
+				var param = string.Format("email_{0}", count);
+				if (!MyCmd.Parameters.Contains(param))
+					MyCmd.Parameters.AddWithValue(param, "%" + email.Trim() + "%");
+				count++;
+			}
 			using (var reader = MyCmd.ExecuteReader()) {
 				while (reader.Read()) {
 					codes.Add(Convert.ToUInt32(reader[0]));
@@ -719,11 +729,13 @@ and ({0});
 				: "(GeneralReportCode is null)");
 		}
 
-		filter.Add(String.Format("(PayerShortName like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(Comment like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(EMailSubject like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(ReportFileName like '%{0}%')", tbFilter.Text));
-		filter.Add(String.Format("(ReportArchName like '%{0}%')", tbFilter.Text));
+		var filterText = SecurityElement.Escape(tbFilter.Text);
+
+		filter.Add(String.Format("(PayerShortName like '%{0}%')", filterText));
+		filter.Add(String.Format("(Comment like '%{0}%')", filterText));
+		filter.Add(String.Format("(EMailSubject like '%{0}%')", filterText));
+		filter.Add(String.Format("(ReportFileName like '%{0}%')", filterText));
+		filter.Add(String.Format("(ReportArchName like '%{0}%')", filterText));
 		DS.Tables[dtGeneralReports.TableName].DefaultView.RowFilter = String.Join(" or ", filter.ToArray());
 	}
 
