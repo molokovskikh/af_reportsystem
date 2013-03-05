@@ -17,3 +17,6 @@
 [submodule "src/Common.MySql"]
 	path = src/Common.MySql
 	url = ssh://git.analit.net/var/www/git/Common.MySql
+[submodule "src/Common.Models"]
+	path = src/Common.Models
+	url = ssh://git.analit.net/var/www/git/Common.Models

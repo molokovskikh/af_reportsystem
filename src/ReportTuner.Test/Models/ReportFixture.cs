@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Schedule;
 using Microsoft.Win32.TaskScheduler;
 using NUnit.Framework;
 using ReportTuner.Helpers;
