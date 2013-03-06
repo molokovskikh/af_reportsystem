@@ -9,7 +9,6 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Common.MySql;
-using Common.Schedule;
 using Common.Tools;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;

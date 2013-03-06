@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Common.Schedule;
 using NUnit.Framework;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;

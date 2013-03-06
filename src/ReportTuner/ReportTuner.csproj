@@ -196,9 +196,11 @@
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\PropertiesHelper.cs" />
     <Compile Include="Helpers\ReportHelper.cs" />
+    <Compile Include="Helpers\ScheduleHelper.cs" />
     <Compile Include="Helpers\ViewHelper.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\ExceptionHandling.cs" />
     <Compile Include="Models\FileForReportType.cs" />
     <Compile Include="Models\FileSendWithReport.cs" />
     <Compile Include="Models\GeneralReport.cs" />
@@ -405,10 +407,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common.Models\Common.Schedule\Common.Schedule.csproj">
-      <Project>{9c706c92-b332-46b9-a1c8-d603b2534b26}</Project>
-      <Name>Common.Schedule</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">
       <Project>{8A680813-C83B-497A-85E6-E8F07B7D7650}</Project>
       <Name>Common.MySql</Name>

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Common.Schedule;
 using NUnit.Framework;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
