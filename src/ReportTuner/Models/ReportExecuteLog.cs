@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using Castle.ActiveRecord;
+using Common.Schedule;
 using ReportTuner.Helpers;
 
 namespace ReportTuner.Models

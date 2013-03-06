@@ -8,3 +8,4 @@
 \src\ReportTuner\Views\ReportsTuning\SelectAddresses.brail
 \src\ReportTuner\Views\ReportsTuning\SelectClients.brail
 \src\ReportTuner\Views\SubViews\BreadCrumbs.brail
+\src\Common.Web.Ui\Common.Web.Ui\Views\SubViews\Regions.brail

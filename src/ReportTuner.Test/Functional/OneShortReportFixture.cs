@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Common.Schedule;
 using NUnit.Framework;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
@@ -45,7 +46,7 @@ namespace ReportTuner.Test.Functional
 			Open("Reports/schedule.aspx?r=1");
 			Click("Выполнить задание");
 			Thread.Sleep(3000);
-			AssertText("Отчет запущен, ожидайте окончания выполнения операции.");
+			AssertText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
 		}
 
 		[Test]

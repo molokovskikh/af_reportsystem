@@ -6,6 +6,7 @@ using System.IO;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
+using Common.Schedule;
 using NUnit.Framework;
 using CassiniDev;
 using ReportTuner.Helpers;
