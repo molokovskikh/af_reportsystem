@@ -1,5 +1,5 @@
-﻿DROP PROCEDURE Customers.GetOffersReportsWeighted;
-CREATE DEFINER=`RootDBMS`@`127.0.0.1` PROCEDURE Customers.`GetOffersReportsWeighted`(IN UserIdParam INT UNSIGNED, IN NoiseFirmCode INT UNSIGNED, IN runDate DATE)
+﻿DROP PROCEDURE customers.GetOffersReports;
+CREATE DEFINER=`RootDBMS`@`127.0.0.1` PROCEDURE customers.`GetOffersReports`(IN UserIdParam INT UNSIGNED, IN NoiseFirmCode INT UNSIGNED)
 BEGIN
 
 Declare TableExsists Bool DEFAULT false;
@@ -20,8 +20,6 @@ ProductId INT unsigned,
 Cost DECIMAL(8,2) unsigned,
 CryptCost VARCHAR(32) NOT NULL,
 id bigint unsigned,
-Quantity VARCHAR(15),
-ProducerId INT unsigned,
 INDEX (id),
 INDEX (PriceCode),
 INDEX (ProductId),
@@ -34,23 +32,27 @@ MinCost DECIMAL(8,2) unsigned,
 ProductId INT unsigned,
 regionCode bigint unsigned,
 PriceCode INT unsigned,
-id bigint unsigned,UNIQUE  MultiK(ProductId, RegionCode, MinCost),
+id bigint unsigned,
+UNIQUE  MultiK(ProductId, RegionCode, MinCost),
 INDEX (id)
 )engine=MEMORY;
 
 INSERT
 INTO    Usersettings.Core
 SELECT
-        Prices.SupplierId,
-        Prices.RegionId,
-        Prices.ProductId,
-        Prices.Cost,
+        Prices.PriceCode,
+        Prices.RegionCode,
+        c.ProductId,
+        if(if(round(cc.Cost * Prices.Upcost, 2) < MinBoundCost, MinBoundCost, round(cc.Cost * Prices.Upcost, 2)) > MaxBoundCost,
+        MaxBoundCost, if(round(cc.Cost*Prices.UpCost,2) < MinBoundCost, MinBoundCost, round(cc.Cost * Prices.Upcost, 2))),
         '',
-        Prices.id,
-        Prices.Quantity,
-		Prices.ProducerId
-FROM usersettings.TmpRegions R join reports.AverageCosts Prices on R.RegionCode = Prices.RegionId
-where Prices.Date = runDate;
+        c.id
+FROM Usersettings.ActivePrices Prices
+  JOIN farm.core0 c on c.PriceCode = Prices.PriceCode
+    JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = Prices.CostCode;
+
+Delete from Usersettings.Core where Cost < 0.01;
+
 
 if ((select FirmCodeOnly from Usersettings.retclientsset join Customers.Users on Users.ClientId = retclientsset.ClientCode where Users.Id = UserIdParam) is not null) or (NoiseFirmCode is not null) then
 
