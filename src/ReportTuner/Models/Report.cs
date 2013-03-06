@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
+using Common.Schedule;
 using Common.Web.Ui.Models;
 using Microsoft.Win32.TaskScheduler;
 using ReportTuner.Helpers;

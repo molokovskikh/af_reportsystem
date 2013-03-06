@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Web;
 using Castle.ActiveRecord;
+using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.Models;
 using Microsoft.Win32.TaskScheduler;

@@ -15,6 +15,7 @@ using Castle.MonoRail.Framework.Routing;
 using Castle.MonoRail.Framework.Services;
 using Castle.MonoRail.Framework.Views.Aspx;
 using Castle.MonoRail.Views.Brail;
+using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.Helpers;
 using Common.Web.Ui.MonoRailExtentions;
