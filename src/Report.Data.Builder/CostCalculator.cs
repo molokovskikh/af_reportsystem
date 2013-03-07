@@ -302,7 +302,7 @@ where p.Actual = 1
 							costKey.Substring(0, separatorIndex),
 							costKey.Substring(separatorIndex + 1, costKey.Length - separatorIndex - 1),
 							aggregates.Cost.ToString(CultureInfo.InvariantCulture),
-							aggregates.Quantity);
+							(aggregates.Quantity == 0 ? "null" : aggregates.Quantity.ToString()));
 
 						index++;
 						if (index >= page) {
