@@ -193,7 +193,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			emptyRow = dtNewRes.NewRow();
 			dtNewRes.Rows.Add(emptyRow);
 
-			var sorted = _reportData.OrderBy(r => r.ProductName);
+			var sorted = _reportData.GroupBy(r => r.Code).Select(r => r.FirstOrDefault()).Where(r => r != null).OrderBy(r => r.ProductName);
 			foreach (var specShortReportData in sorted) {
 				var newRow = dtNewRes.NewRow();
 				newRow["Code"] = specShortReportData.Code;
