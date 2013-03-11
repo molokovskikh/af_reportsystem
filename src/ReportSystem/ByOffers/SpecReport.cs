@@ -612,6 +612,7 @@ where Id = ?ClientCode",
 INSERT
 INTO	Usersettings.Core
 SELECT distinct
+	straight_join
 	?SourcePrice,
 	?SourceRegionCode,
 	c.ProductId,
