@@ -645,10 +645,9 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 			ProfileHelper.End();
 		}
 
-		public override void ReportToFile(string FileName)
+		protected override DataTable GetReportTable()
 		{
-			DataTableToExcel(_dsReport.Tables["Results"].DefaultView.ToTable(), FileName);
-			FormatExcel(FileName);
+			return _dsReport.Tables["Results"].DefaultView.ToTable();
 		}
 
 		protected void FormatExcel(string FileName)

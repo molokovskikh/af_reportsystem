@@ -204,6 +204,13 @@ namespace Inforoom.ReportSystem
 
 		public virtual void ReportToFile(string fileName)
 		{
+			var reportTable = GetReportTable();
+			if (reportTable != null && reportTable.Rows.Count == 0)
+				throw new Exception("В результате подготовки отчета получился пустой набор данных"
+					+ "\r\nэсли это отчет по заказам то возможно не были импортированы данные за выбраный период, нужно проверить ordersold"
+					+ "\r\nесли это отчет по динамики цен то возможно не были подготовленны данные"
+					+ "\r\nесли это отчет по предложениям то нужно проверить настройки отчета возможно в них ошибка");
+
 			var writer = GetWriter(Format);
 			if (writer != null) {
 				// Новый механизм, выносим часть для выгрузки в файл в отдельный класс
@@ -215,15 +222,15 @@ namespace Inforoom.ReportSystem
 			if (Format == ReportFormats.DBF && DbfSupported) {
 				// Формируем DBF
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
-				DataTableToDbf(GetReportTable(), fileName);
+				DataTableToDbf(reportTable, fileName);
 			}
 			else if (Format == ReportFormats.CSV && DbfSupported) {
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".csv");
-				CsvHelper.Save(GetReportTable(), fileName);
+				CsvHelper.Save(reportTable, fileName);
 			}
 			else {
 				// Формируем Excel
-				DataTableToExcel(GetReportTable(), fileName);
+				DataTableToExcel(reportTable, fileName);
 				FormatExcel(fileName);
 			}
 		}

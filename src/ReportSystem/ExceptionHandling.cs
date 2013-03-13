@@ -26,8 +26,4 @@ namespace Inforoom.ReportSystem
 		{
 		}
 	}
-
-	public class ExceptionHandling
-	{
-	}
 }
