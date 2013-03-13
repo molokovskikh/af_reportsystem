@@ -136,7 +136,7 @@ update Usersettings.prices p, usersettings.pricescosts pc, usersettings.pricesre
  and prd.RegionCode = p.RegionCode
  and prd.enabled = 1;
 
-select straight_join c0.ProductId, c0.CodeFirmCr, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
+select c0.ProductId, c0.CodeFirmCr, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
 		join farm.CoreCosts cc on cc.Core_Id = c0.Id and cc.PC_CostCode = p.CostCode
