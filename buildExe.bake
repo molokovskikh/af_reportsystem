@@ -13,7 +13,8 @@ import file from Test.bake
 Global(
 	Project : "ReportSystem",
 	ProjectBoot : "ReportSystemBoot",
-	humanReadableName : "Генератор отчетов"
+	humanReadableName : "Генератор отчетов",
+	Platform : "x86"
 )
 
 buildTo = Path.GetFullPath("build/ReportSystem/")
