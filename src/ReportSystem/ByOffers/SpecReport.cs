@@ -483,6 +483,16 @@ where regionCode = ?region and PriceCode = ?price;";
 			if (_priceCode == 0)
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
 
+			CustomerFirmName = GetSupplierName(_priceCode);
+			SourcePC = Convert.ToInt32(MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+					@"
+select
+	pricesdata.FirmCode
+from
+	usersettings.pricesdata
+where
+	pricesdata.PriceCode = ?PriceCode;", new MySqlParameter("?PriceCode", _priceCode)));
+
 			//Проверка актуальности прайс-листа
 			int ActualPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
@@ -528,17 +538,6 @@ where
 	inner join Customers.suppliers s on pd.FirmCode = s.Id
 	and pd.PriceCode = ?PriceCode;",
 						new MySqlParameter("?PriceCode", _priceCode)));
-				CustomerFirmName = GetSupplierName(_priceCode);
-				SourcePC = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-						@"
-select
-  pricesdata.FirmCode
-from
-  usersettings.pricesdata
-where
-	pricesdata.PriceCode = ?PriceCode;",
-					new MySqlParameter("?PriceCode", _priceCode)));
 
 				ProfileHelper.Next("GetOffers");
 				GetWeightCostOffers(e);
@@ -582,7 +581,6 @@ where Id = ?ClientCode",
 			}
 
 			SourcePC = _priceCode;
-			CustomerFirmName = GetSupplierName(_priceCode);
 
 			ProfileHelper.Next("GetOffers");
 			//Выбираем
