@@ -146,16 +146,14 @@ and cr.generalreportcode = " + generalReportId;
 						}
 					}
 				}
-				catch (Exception ex) {
-					var message = String.Format("Ошибка при подготовке к запуску отчета {0}", generalReportId);
-					_log.Error(message, ex);
-				}
 				finally {
 					using (new SessionScope()) {
 						ArHelper.WithSession(s => {
 							reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
-							reportLog.EndTime = DateTime.Now;
-							s.SaveOrUpdate(reportLog);
+							if (reportLog != null) {
+								reportLog.EndTime = DateTime.Now;
+								s.SaveOrUpdate(reportLog);
+							}
 						});
 					}
 				}
