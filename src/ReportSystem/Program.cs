@@ -7,6 +7,7 @@ using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
+using Common.Web.Ui.NHibernateExtentions;
 using ExecuteTemplate;
 using Inforoom.Common;
 using Inforoom.ReportSystem.Model;
@@ -73,7 +74,7 @@ namespace Inforoom.ReportSystem
 			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				mc.Open();
 				try {
-					using (new SessionScope()) {
+					using (new ConnectionScope(mc)) {
 						ArHelper.WithSession(s => {
 							reportLog.GeneralReportCode = generalReportId;
 							reportLog.StartTime = DateTime.Now;
@@ -147,7 +148,7 @@ and cr.generalreportcode = " + generalReportId;
 					}
 				}
 				finally {
-					using (new SessionScope()) {
+					using (new ConnectionScope(mc)) {
 						ArHelper.WithSession(s => {
 							reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
 							if (reportLog != null) {
