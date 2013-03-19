@@ -106,7 +106,7 @@ namespace Report.Data.Builder.Test.Unit
 			var costs = (Hashtable)averageCosts[offerId];
 			Assert.That(costs.Count, Is.EqualTo(1));
 			var aggregates = ((OfferAggregates)costs["1|1"]);
-			Assert.That(aggregates.Quantity, Is.EqualTo(20));
+			Assert.That(aggregates.Quantity, Is.EqualTo(10));
 			Assert.That(aggregates.Cost, Is.EqualTo(100000));
 		}
 
@@ -142,7 +142,7 @@ namespace Report.Data.Builder.Test.Unit
 			var costs = (Hashtable)averageCosts[offerId];
 			Assert.That(costs.Count, Is.EqualTo(1));
 			var aggregates = ((OfferAggregates)costs["1|1"]);
-			Assert.That(aggregates.Quantity, Is.EqualTo(25));
+			Assert.That(aggregates.Quantity, Is.EqualTo(15));
 			Assert.That(aggregates.Cost, Is.EqualTo(62800));
 		}
 
@@ -265,7 +265,7 @@ namespace Report.Data.Builder.Test.Unit
 					new List<Offer> {
 						new Offer(offerId, 1, 1, 100, false, 10, 0, "Code"),
 						new Offer(offerId, 1, 1, 50, false, 10, 1, "Code"),
-						new Offer(offerId, 1, 1, 150, false, 10, 2, "Code", priceCode: 1)
+						new Offer(offerId, 1, 1, 150, false, 10, 2, "Code", priceId: 1)
 					})
 			};
 			var averageCosts = _calculator.Calculate(list);
@@ -273,6 +273,29 @@ namespace Report.Data.Builder.Test.Unit
 			var aggregates = ((OfferAggregates)costs["1|1"]);
 			Assert.That(aggregates.Cost, Is.EqualTo(100));
 			Assert.That(aggregates.Quantity, Is.EqualTo(20));
+		}
+
+		[Test]
+		public void Get_max_quiantity_from_all_prices()
+		{
+			var offerId = new OfferId(1, 1);
+			var offers = new List<Offer>();
+			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(2, 1, 1m),
+					},
+					offers)
+			};
+
+			offers.Add(new Offer(offerId, 1, 1, 100, false, 50, priceId: 1));
+			offers.Add(new Offer(offerId, 1, 1, 101, false, 200, priceId: 1));
+			offers.Add(new Offer(offerId, 1, 1, 100, false, 50, priceId: 2));
+
+			var averageCosts = _calculator.Calculate(list);
+			var costs = (Hashtable)averageCosts[offerId];
+			var aggregates = ((OfferAggregates)costs["1|1"]);
+			Assert.That(aggregates.Quantity, Is.EqualTo(250));
 		}
 	}
 }

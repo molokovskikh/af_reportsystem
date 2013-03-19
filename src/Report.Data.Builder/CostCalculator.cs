@@ -30,20 +30,36 @@ namespace Report.Data.Builder
 	{
 		public decimal Cost;
 		public uint Quantity;
-		public List<ulong> UsedCores;
-		public List<string> UsedCodes;
 		public uint? LastClientId;
 		public decimal LastCost;
-		public uint Count;
+		public uint OfferCount;
 		public uint? LastClientForRatingId;
 		public decimal SumClientRating;
+		public Dictionary<uint, uint> QuantityPerPrice = new Dictionary<uint, uint>();
 
 		public OfferAggregates()
 		{
-			UsedCores = new List<ulong>();
-			UsedCodes = new List<string>();
 			LastClientForRatingId = null;
 			LastClientId = null;
+		}
+
+		public void Calculate()
+		{
+			if (LastClientId != null
+				&& OfferCount > 0)
+				Cost += LastCost / OfferCount;
+
+			if (SumClientRating < 1 && SumClientRating > 0)
+				Cost *= 1 / SumClientRating;
+		}
+
+		public void CalculateQuantity()
+		{
+			var max = QuantityPerPrice.Select(p => p.Value).DefaultIfEmpty().Max();
+			if (max > Quantity)
+				Quantity = max;
+
+			QuantityPerPrice.Clear();
 		}
 	}
 
@@ -83,9 +99,9 @@ namespace Report.Data.Builder
 		public ulong CoreId;
 		public string Code;
 		public string CodeCr;
-		public uint PriceCode;
+		public uint PriceId;
 
-		public Offer(OfferId id, uint productId, uint producerId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0, string code = "", string codeCr = "", uint priceCode = 0)
+		public Offer(OfferId id, uint productId, uint producerId, decimal cost, bool junk, uint quantity = 0, ulong coreId = 0, string code = "", string codeCr = "", uint priceId = 0)
 		{
 			Id = id;
 			ProductId = productId;
@@ -96,7 +112,7 @@ namespace Report.Data.Builder
 			CoreId = coreId;
 			Code = code ?? "";
 			CodeCr = codeCr ?? "";
-			PriceCode = priceCode;
+			PriceId = priceId;
 		}
 	}
 
@@ -203,11 +219,11 @@ where p.Actual = 1
 						aggregates.LastClientId = client;
 						costs[costsKey] = aggregates;
 					}
-					else if(aggregates.LastClientId != client && aggregates.Count > 0) {
-						aggregates.Cost += aggregates.LastCost / aggregates.Count;
+					else if(aggregates.LastClientId != client && aggregates.OfferCount > 0) {
+						aggregates.Cost += aggregates.LastCost / aggregates.OfferCount;
 						aggregates.LastClientId = client;
 						aggregates.LastCost = 0;
-						aggregates.Count = 0;
+						aggregates.OfferCount = 0;
 					}
 
 					if (!rating.ContainsKey(offer.Id.RegionId))
@@ -220,34 +236,36 @@ where p.Actual = 1
 					var regionRating = rating[offer.Id.RegionId];
 					if (!offer.Junk) {
 						aggregates.LastCost = aggregates.LastCost + offer.Cost * regionRating;
-						aggregates.Count++;
+						aggregates.OfferCount++;
 						if(aggregates.LastClientForRatingId != client) {
 							aggregates.SumClientRating += regionRating;
 							aggregates.LastClientForRatingId = client;
 						}
 					}
-					// проверяем, что этот core мы еще не использовали при подсчете количества
-					if(!aggregates.UsedCores.Contains(offer.CoreId)) {
-						if(aggregates.UsedCodes.Any(s => s.Contains(offer.Code + "|" + offer.CodeCr))) {
-							if(aggregates.UsedCodes.Any(s => s.Contains(offer.PriceCode.ToString() + "|" + offer.Code + "|" + offer.CodeCr))) {
-								aggregates.Quantity += offer.Quantity;
-							}
-						}
-						else {
-							aggregates.UsedCodes.Add(offer.PriceCode.ToString() + "|" + offer.Code + "|" + offer.CodeCr);
-							aggregates.Quantity += offer.Quantity;
-						}
-						
-						aggregates.UsedCores.Add(offer.CoreId);
+
+					if (aggregates.QuantityPerPrice.ContainsKey(offer.PriceId)) {
+						aggregates.QuantityPerPrice[offer.PriceId] += offer.Quantity;
 					}
+					else {
+						aggregates.QuantityPerPrice.Add(offer.PriceId, offer.Quantity);
+					}
+
 #if DEBUG
 					if (offer.ProductId == DebugProductId && offer.ProducerId == DebugProducerId && offer.Id.SupplierId == DebugSupplierId)
 						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[costsKey], client, regionRating, offer.Cost);
 #endif
 				}
+
+				foreach (OfferId key in result.Keys) {
+					var costs = ((Hashtable)result[key]);
+					foreach (string assortmentId in costs.Keys) {
+						var aggregates = (OfferAggregates)costs[assortmentId];
+						aggregates.CalculateQuantity();
+					}
+				}
+
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Закончил вычисление средних цен для клиента {0}", client);
-
 				watch.Reset();
 				watch.Start();
 			}
@@ -257,12 +275,7 @@ where p.Actual = 1
 				var costs = ((Hashtable)result[key]);
 				foreach (string assortmentId in costs.Keys) {
 					var aggregates = (OfferAggregates)costs[assortmentId];
-					if(aggregates.LastClientId != null
-						&& aggregates.Count > 0)
-						aggregates.Cost += aggregates.LastCost / aggregates.Count;
-
-					if(aggregates.SumClientRating < 1 && aggregates.SumClientRating > 0)
-						aggregates.Cost *= 1 / aggregates.SumClientRating;
+					aggregates.Calculate();
 				}
 			}
 			if (log.IsDebugEnabled)
