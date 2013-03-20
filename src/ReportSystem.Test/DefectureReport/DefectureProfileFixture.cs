@@ -55,7 +55,7 @@ namespace ReportSystem.Test
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
-		[Test]
+		[Test, Ignore("Готовит пустой набор данных, смысла в нем нет")]
 		public void DefectureByBaseCostNew()
 		{
 			var fileName = "DefectureByBaseCostNew.xls";

@@ -9,7 +9,7 @@ namespace ReportSystem.Test.DefectureReport
 {
 	public class DefectureByWeightCostsFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore("Готовит пустой набор данных")]
 		public void DefectureByWeight()
 		{
 			var fileName = "DefectureByWeightCost.xls";
