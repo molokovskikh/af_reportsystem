@@ -47,12 +47,12 @@ namespace Report.Data.Builder.Test
 				Quantity = 1
 			};
 			var costs = new Hashtable();
-			costs["0|0"] = aggregator;
+			costs[new AggregateId(0, 0)] = aggregator;
 			aggregator = new OfferAggregates {
 				Cost = 2,
 				Quantity = 1
 			};
-			costs["1|1"] = aggregator;
+			costs[new AggregateId(1, 1)] = aggregator;
 			result[offerId] = costs;
 			var count = calculator.Save(DateTime.Today, result);
 			Assert.That(count, Is.EqualTo(1));

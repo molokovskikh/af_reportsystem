@@ -104,10 +104,7 @@ group by oh.ClientCode, oh.RegionCode
 
 		public static IEnumerable<ClientRating> CaclucatedAndSave(DateTime date)
 		{
-			var ratings = Db.Read("select ClientId, RegionId, Rating from Reports.ClientRatings where date = ?date",
-				r => new ClientRating(r.GetUInt32("ClientId"), r.GetUInt64("RegionId"), r.GetDecimal("Rating")),
-				new { date })
-				.ToArray();
+			var ratings = ReadRating(date);
 
 			if (ratings.Length > 0)
 				return ratings;
@@ -115,6 +112,15 @@ group by oh.ClientCode, oh.RegionCode
 			var calculator = new RatingCalculator(date, date.LastDayOfMonth());
 			ratings = calculator.Ratings().ToArray();
 			Save(date, ratings);
+			return ratings;
+		}
+
+		public static ClientRating[] ReadRating(DateTime date)
+		{
+			var ratings = Db.Read("select ClientId, RegionId, Rating from Reports.ClientRatings where date = ?date",
+				r => new ClientRating(r.GetUInt32("ClientId"), r.GetUInt64("RegionId"), r.GetDecimal("Rating")),
+				new { date })
+				.ToArray();
 			return ratings;
 		}
 	}

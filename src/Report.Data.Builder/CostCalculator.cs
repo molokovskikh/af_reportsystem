@@ -26,6 +26,18 @@ namespace Report.Data.Builder
 		}
 	}
 
+	public struct AggregateId
+	{
+		public uint ProductId;
+		public uint ProducerId;
+
+		public AggregateId(uint productId, uint producerId)
+		{
+			ProductId = productId;
+			ProducerId = producerId;
+		}
+	}
+
 	public class OfferAggregates
 	{
 		public decimal Cost;
@@ -45,6 +57,8 @@ namespace Report.Data.Builder
 
 		public void Calculate()
 		{
+			CalculateQuantity();
+
 			if (LastClientId != null
 				&& OfferCount > 0)
 				Cost += LastCost / OfferCount;
@@ -55,11 +69,26 @@ namespace Report.Data.Builder
 
 		public void CalculateQuantity()
 		{
+			if (QuantityPerPrice.Count == 0)
+				return;
+
 			var max = QuantityPerPrice.Select(p => p.Value).DefaultIfEmpty().Max();
 			if (max > Quantity)
 				Quantity = max;
 
 			QuantityPerPrice.Clear();
+		}
+
+		public void StartNewClientAggregation(uint client)
+		{
+			CalculateQuantity();
+
+			if (OfferCount > 0) {
+				Cost += LastCost / OfferCount;
+				LastClientId = client;
+				LastCost = 0;
+				OfferCount = 0;
+			}
 		}
 	}
 
@@ -212,18 +241,15 @@ where p.Actual = 1
 						costs = new Hashtable();
 						result[offer.Id] = costs;
 					}
-					var costsKey = offer.ProductId + "|" + offer.ProducerId;
-					var aggregates = (OfferAggregates)costs[costsKey];
+					var aggregateId = new AggregateId(offer.ProductId, offer.ProducerId);
+					var aggregates = (OfferAggregates)costs[aggregateId];
 					if (aggregates == null) {
 						aggregates = new OfferAggregates();
 						aggregates.LastClientId = client;
-						costs[costsKey] = aggregates;
+						costs[aggregateId] = aggregates;
 					}
-					else if(aggregates.LastClientId != client && aggregates.OfferCount > 0) {
-						aggregates.Cost += aggregates.LastCost / aggregates.OfferCount;
-						aggregates.LastClientId = client;
-						aggregates.LastCost = 0;
-						aggregates.OfferCount = 0;
+					else if(aggregates.LastClientId != client) {
+						aggregates.StartNewClientAggregation(client);
 					}
 
 					if (!rating.ContainsKey(offer.Id.RegionId))
@@ -252,20 +278,13 @@ where p.Actual = 1
 
 #if DEBUG
 					if (offer.ProductId == DebugProductId && offer.ProducerId == DebugProducerId && offer.Id.SupplierId == DebugSupplierId)
-						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[costsKey], client, regionRating, offer.Cost);
+						Console.WriteLine("Average cost = {0}, cost = {3}, client = {1}, ratings = {2}", costs[aggregateId], client, regionRating, offer.Cost);
 #endif
-				}
-
-				foreach (OfferId key in result.Keys) {
-					var costs = ((Hashtable)result[key]);
-					foreach (string assortmentId in costs.Keys) {
-						var aggregates = (OfferAggregates)costs[assortmentId];
-						aggregates.CalculateQuantity();
-					}
 				}
 
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Закончил вычисление средних цен для клиента {0}", client);
+
 				watch.Reset();
 				watch.Start();
 			}
@@ -273,7 +292,7 @@ where p.Actual = 1
 				log.DebugFormat("Начал нормировку цен по рейтингу");
 			foreach (OfferId key in result.Keys) {
 				var costs = ((Hashtable)result[key]);
-				foreach (string assortmentId in costs.Keys) {
+				foreach (AggregateId assortmentId in costs.Keys) {
 					var aggregates = (OfferAggregates)costs[assortmentId];
 					aggregates.Calculate();
 				}
@@ -300,20 +319,19 @@ where p.Actual = 1
 				var index = 0;
 				foreach (OfferId key in hash.Keys) {
 					var costs = ((Hashtable)hash[key]);
-					foreach (string costKey in costs.Keys) {
-						var aggregates = (OfferAggregates)costs[costKey];
+					foreach (AggregateId aggregateId in costs.Keys) {
+						var aggregates = (OfferAggregates)costs[aggregateId];
 						if (aggregates.Cost == 0)
 							continue;
 						totalCount++;
 						if (sql.Length > header.Length)
 							sql.Append(", ");
-						var separatorIndex = costKey.IndexOf("|");
 						sql.AppendFormat("('{0}', {1}, {2}, {3}, {4}, {5}, {6})",
 							date.ToString(MySqlConsts.MySQLDateFormat),
 							key.SupplierId,
 							key.RegionId,
-							costKey.Substring(0, separatorIndex),
-							costKey.Substring(separatorIndex + 1, costKey.Length - separatorIndex - 1),
+							aggregateId.ProductId,
+							aggregateId.ProducerId,
 							aggregates.Cost.ToString(CultureInfo.InvariantCulture),
 							(aggregates.Quantity == 0 ? "null" : aggregates.Quantity.ToString()));
 
@@ -341,10 +359,9 @@ where p.Actual = 1
 
 		public IEnumerable<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> Offers(IEnumerable<ClientRating> ratings, int count)
 		{
-			var clients = ratings.Select(r => r.ClientId).Distinct().ToList();
-			return TaskLoader.ParallelLoader(clients, GetOffers, count)
+			return TaskLoader.ParallelLoader(ratings.GroupBy(r => r.ClientId).ToList(), g => GetOffers(g.Key), count)
 				.Select(t => Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
-					ratings.Where(r => r.ClientId == t.Item1).ToArray(),
+					t.Item1.ToArray(),
 					t.Item2));
 		}
 	}
