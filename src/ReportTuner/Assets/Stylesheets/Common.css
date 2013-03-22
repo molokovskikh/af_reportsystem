@@ -1,0 +1,216 @@
+.PageHeader
+{
+	padding: 5px;
+	background-color: #d8f1ff;
+	text-align: center;
+	vertical-align: middle;
+	font-weight:bold;
+	margin-bottom:10px;
+	width: 100%;
+}
+
+.LegendMarker
+{
+	width: 20px;
+	height: 20px;
+}
+
+.filter-label
+{
+	font-weight:bolder;
+}
+
+
+/*------breadcrumb-------*/
+
+#breadcrumb
+{
+    font: 11px Arial, Helvetica, sans-serif;
+    background-image:url('../images/bc_bg.png');
+    background-repeat:repeat-x;
+    height:30px;
+    line-height:30px;
+    color:#9b9b9b;
+    border:solid 1px #cacaca;
+    width:100%;
+    overflow:hidden;
+    margin:0px;
+    padding:0px;
+}
+
+#breadcrumb li
+{
+    list-style-type:none;
+    float:left;
+    padding-left:10px;
+}
+
+#breadcrumb a
+{
+    height:30px;
+    display:block;
+    background-image:url('../images/bc_separator.png');
+    background-repeat:no-repeat;
+    background-position:right;
+    padding-right: 15px;
+    text-decoration: none;
+    color:#454545;
+}
+
+.home
+{
+    border: none;
+    margin: 8px 0px;
+}
+
+/*------breadcrumb-------*/
+
+.date-input
+{
+	width: 11ex;
+}
+
+/*------tabs-------*/
+.tabs
+{
+	height: 2.6em;
+	border-bottom: 1px solid #bbbbbb;
+	margin-bottom: 1.2em;
+	position: relative;
+}
+.tabs ul
+{
+	margin:0;
+	position:absolute;
+	bottom:-2px;
+	padding-left:1em;
+}
+.tabs>ul
+{
+	bottom:-1px;
+} /* others */
+.tabs ul li {
+	float:left;
+	list-style-type:none;
+	white-space:nowrap;
+	margin-right:8px;
+	background:#fff;
+}
+.tabs ul li a{
+	display:block;
+	font-size: 0.9em;
+	text-decoration:none;
+	line-height:1.3em;
+	padding:4px 6px 4px 6px;
+	border: 1px solid #ccc;
+	border-bottom: 1px solid #bbbbbb;
+	background-color: #eeeeee;
+	color:#777;
+	font-weight:bold;
+}
+
+.tabs ul li a:hover
+{
+	background-color: #ffffdd;
+	text-decoration:none;
+}
+
+.tabs ul li a.selected {
+	background-color: #fff;
+	border: 1px solid #bbbbbb;
+	border-bottom: 1px solid #fff;
+}
+
+.tabs ul li a.selected:hover {
+	background-color: #fff;
+}
+/*------tabs-------*/
+
+/*------messages---*/
+div.flash.notice {
+    background:#DFFFDF url(../images/true.png) no-repeat scroll 8px 5px;
+    border-color:#9FCF9F;
+    color:#005F00;
+}
+
+div.flash.err, #errorExplanation {
+    background: url(../images/false.png) 8px 5px no-repeat;
+    background-color: #ffe3e3;
+    border-color: #dd0000;
+    color: #550000;
+}
+
+div.flash {
+    margin-top:8px;
+}
+#errorExplanation, div.flash, .nodata, .warning {
+    border:2px solid;
+    font-size:1.1em;
+    margin-bottom:12px;
+    padding:4px 4px 4px 30px;
+}
+/*------messages---*/
+.RightButton
+{
+	 float: right;
+	 margin: 2px 0 8px 0;
+}
+
+table td.NotCommitedUpdate,
+table.DataTable tr.update-is-uncommited td.update-date
+{
+	background-color: #e2c5c5;
+}
+
+.DataTable #SearchResults tr.allow-download-unconfirmed-orders td.login, #users td.allow-download-unconfirmed-orders, .allow-download-unconfirmed-orders
+{
+	background-color: #77ac6c;
+}
+
+#UserListBody .DataTable tr.allow-download-unconfirmed-orders td.login
+{
+	background-color: #77ac6c;
+}
+
+#UserListBody .DataTable tr.first-table td.login
+{
+	background-color: #b5fb8e;
+}
+
+.DataTable #SearchResults tr.first-table td.user-name, #users td.first-table, .first-table
+{
+	background-color: #b5fb8e;
+}
+
+.NotCommitedUpdate
+{
+	background-color: #e2c5c5;
+}
+
+.DataTable tbody tr.OkUpdate {
+	background-color: #c5e2c6;
+}
+
+.waiter
+{
+	background-image: url(../images/loading.gif);
+	width: 18px;
+	height: 18px;
+}
+
+pre.Log {
+	width:100%;
+	white-space:pre-wrap;
+}
+
+.OnCenter {
+	text-align: center;
+}
+
+.nodisplay {
+	display: none;
+}
+
+.width15 {
+	width: 15%;
+}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Common.Web.Ui.Models.Jobs;
 using NUnit.Framework;
 
@@ -7,6 +8,12 @@ namespace Report.Data.Builder.Test
 	[TestFixture]
 	public class JobFixture
 	{
+		[Test]
+		public void Test()
+		{
+			Console.WriteLine(File.ReadAllText("c:/1.txt"));
+		}
+
 		[Test]
 		public void Is_job_ready()
 		{

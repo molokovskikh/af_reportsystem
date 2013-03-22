@@ -189,6 +189,7 @@
     <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Controllers\ReportsTuningController.cs" />
+    <Compile Include="Helpers\AppHelper.cs" />
     <Compile Include="Helpers\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

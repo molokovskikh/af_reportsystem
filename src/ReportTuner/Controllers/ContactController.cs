@@ -1,14 +1,21 @@
-﻿using Castle.ActiveRecord;
+﻿using System.Text;
+using Castle.ActiveRecord;
 using Castle.MonoRail.Framework;
+using Common.Tools;
 using Common.Web.Ui.Controllers;
+using Common.Web.Ui.Helpers;
 using Common.Web.Ui.Models;
 using NHibernate.Linq;
+using ReportTuner.Helpers;
 using ReportTuner.Models;
 using System.Linq;
 
 namespace ReportTuner.Controllers
 {
-	[Layout("contact")]
+	[
+		Layout("contact"),
+		Helper(typeof(ApplicationHelper), "app")
+	]
 	public class ContactController : AbstractContactController
 	{
 		public override void AddPerson(uint contactGroupId,
@@ -23,7 +30,27 @@ namespace ReportTuner.Controllers
 		public override void UpdateContactGroup(uint contactGroupId,
 			[DataBind("Contacts")] Contact[] contacts)
 		{
-			base.UpdateContactGroup(contactGroupId, contacts);
+			var mails = contacts.Select(c => c.ContactText).ToList();
+			var payerContacts = DbSession.Query<PayerOwnerContact>().Where(c => mails.Contains(c.Contact.ContactText)).ToList();
+			if (payerContacts.Count > 0) {
+				var errorBuilder = new StringBuilder();
+				foreach (var email in mails) {
+					var payers = payerContacts.Where(p => p.Contact.ContactText == email).GroupBy(g => g.Payer).ToList();
+					foreach (var payer in payers) {
+						errorBuilder.AppendLine(string.Format("E-mail <b>{0}</b> уже зарегистрирован для плательщика <b>{1}</b>", email, payer.Key.ShortName));
+					}
+				}
+				if (errorBuilder.Length > 0) {
+					errorBuilder.AppendLine();
+					errorBuilder.AppendLine("Для добавления данных E-mail в список рассылки отчетов воспользуйтесь Л.К. любого Поставщика или Аптеки для этого Плательщика");
+					PropertyBag["Message"] = Message.Error(errorBuilder.ToString().Replace("\r\n", "<br/>"));
+				}
+				var contactGroup = ContactGroup.Find(contactGroupId);
+				RenderInvalidGroup(contacts, contactGroup);
+			}
+			else {
+				base.UpdateContactGroup(contactGroupId, contacts);
+			}
 			if (Response.StatusCode == 302)
 				RedirectToAction("CloseWindow");
 		}
