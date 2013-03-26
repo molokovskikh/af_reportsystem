@@ -9,12 +9,6 @@ namespace Report.Data.Builder.Test
 	public class JobFixture
 	{
 		[Test]
-		public void Test()
-		{
-			Console.WriteLine(File.ReadAllText("c:/1.txt"));
-		}
-
-		[Test]
 		public void Is_job_ready()
 		{
 			var job = new Job {
