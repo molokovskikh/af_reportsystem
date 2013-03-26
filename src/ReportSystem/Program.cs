@@ -153,7 +153,8 @@ and cr.generalreportcode = " + generalReportId;
 							reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
 							if (reportLog != null) {
 								reportLog.EndTime = DateTime.Now;
-								s.SaveOrUpdate(reportLog);
+								s.Save(reportLog);
+								s.Flush();
 							}
 						});
 					}
