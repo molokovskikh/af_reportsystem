@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Castle.ActiveRecord;
 using Common.MySql;
@@ -205,7 +206,7 @@ namespace Inforoom.ReportSystem
 		public virtual void ReportToFile(string fileName)
 		{
 			var reportTable = GetReportTable();
-			if (reportTable != null && reportTable.Rows.Count == 0)
+			if (IsEmpty(reportTable))
 				throw new Exception("В результате подготовки отчета получился пустой набор данных"
 					+ "\r\nэсли это отчет по заказам то возможно не были импортированы данные за выбраный период, нужно проверить ordersold"
 					+ "\r\nесли это отчет по динамики цен то возможно не были подготовленны данные"
@@ -233,6 +234,23 @@ namespace Inforoom.ReportSystem
 				DataTableToExcel(reportTable, fileName);
 				FormatExcel(fileName);
 			}
+		}
+
+		//таблица будет пустой в двух случаях
+		//когда она на самом деле пустая и если она содержит только пусты строки
+		//пустые строки получатся из-за того что некоторые отчеты их формируют для того что бы
+		//зарезервировать место под заголовок отчета
+		private static bool IsEmpty(DataTable reportTable)
+		{
+			if (reportTable == null)
+				return true;
+			if (reportTable.Rows.Count == 0)
+				return true;
+
+			if (reportTable.Rows.Count < 100) {
+				return reportTable.AsEnumerable().All(r => reportTable.Columns.Cast<DataColumn>().All(c => r[c] is DBNull));
+			}
+			return false;
 		}
 
 		protected virtual void DataTableToExcel(DataTable dtExport, string exlFileName)

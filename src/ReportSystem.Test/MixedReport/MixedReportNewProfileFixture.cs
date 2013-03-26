@@ -45,5 +45,24 @@ namespace ReportSystem.Test
 			Property("BusinessRivals3", new List<long> { 39 });
 			BuildReport(reportType: typeof(MixedReport));
 		}
+
+		[Test]
+		public void Throw_on_empty_order()
+		{
+			Property("ByPreviousMonth", false);
+			Property("ProductNamePosition", 0);
+			//протек
+			Property("SourceFirmCode", 5);
+			//роста
+			Property("BusinessRivals", new List<long> { 216 });
+
+			report = new MixedReport(1, "", Conn, ReportFormats.Excel, properties);
+			report.Interval = true;
+			report.From = new DateTime(2000, 1, 1);
+			report.To = new DateTime(2000, 1, 2);
+
+			var e = Assert.Throws<Exception>(() => BuildReport());
+			Assert.That(e.Message, Is.StringContaining("В результате подготовки отчета получился пустой набор данных"));
+		}
 	}
 }
