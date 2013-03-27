@@ -248,8 +248,11 @@ namespace Inforoom.ReportSystem
 			if (!CheckEmptyData)
 				return false;
 
+			//если таблицы с данными нет то значит в отчете проиходит
+			//что то специальное
 			if (reportTable == null)
-				return true;
+				return false;
+
 			if (reportTable.Rows.Count == 0)
 				return true;
 
