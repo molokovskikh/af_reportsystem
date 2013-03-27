@@ -115,6 +115,7 @@ namespace ReportSystem.Test
 		public static void ProcessReport(BaseReport report, ReportsTypes type)
 		{
 			ProfileHelper.Start();
+			report.CheckEmptyData = false;
 			report.ReadReportParams();
 			report.ProcessReport();
 			report.ReportToFile(TestHelper.EnsureDeletion(type));
@@ -124,6 +125,7 @@ namespace ReportSystem.Test
 		public static void ProcessReportWithOutDeletion(BaseReport report, ReportsTypes type)
 		{
 			ProfileHelper.Start();
+			report.CheckEmptyData = false;
 			report.ProcessReport();
 			report.ReportToFile(TestHelper.GetFileName(type));
 			ProfileHelper.Stop();
