@@ -30,7 +30,7 @@ namespace ReportTuner.Controllers
 		public override void UpdateContactGroup(uint contactGroupId,
 			[DataBind("Contacts")] Contact[] contacts)
 		{
-			var mails = contacts.Select(c => c.ContactText).ToList();
+			var mails = contacts.Where(c => c.Id == 0).Select(c => c.ContactText).ToList();
 			var payerContacts = DbSession.Query<PayerOwnerContact>().Where(c => mails.Contains(c.Contact.ContactText)).ToList();
 			if (payerContacts.Count > 0) {
 				var errorBuilder = new StringBuilder();
