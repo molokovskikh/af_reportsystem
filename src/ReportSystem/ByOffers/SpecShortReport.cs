@@ -91,27 +91,6 @@ namespace Inforoom.ReportSystem
 				_clientsNames = GetClientsNamesFromSQL(_Clients);
 		}
 
-		public string GetShortSuppliers(ExecuteArgs e)
-		{
-			var suppliers = new List<string>();
-
-			e.DataAdapter.SelectCommand.CommandText = @"
-select
-	concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
-from
-	usersettings.ActivePrices p
-	join usersettings.PricesData pd on pd.PriceCode = p.PriceCode
-	join Customers.suppliers supps on supps.Id = pd.FirmCode
-group by supps.Id
-order by supps.Name";
-			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
-				while (reader.Read())
-					suppliers.Add(Convert.ToString(reader[0]));
-			}
-			return suppliers.Distinct().Implode();
-		}
-
-
 		public void NewGeneratereport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("PreGetOffers");

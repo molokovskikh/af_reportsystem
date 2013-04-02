@@ -98,6 +98,7 @@ where
 
 				ProfileHelper.Next("GetOffers");
 				GetWeightCostOffers(e);
+
 				if(!IsExistsPriceInCore(e, SourcePC, SourceRegionCode)) {
 					ProfileHelper.Next("AdditionGetOffers");
 					AddSourcePriceToWeightCore(e);
@@ -162,6 +163,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			CustomerFirmName = GetSupplierName(_priceCode);
 
 			GetOffers(_SupplierNoise);
+
+			_suppliers = GetShortSuppliers(e);
+			_ignoredSuppliers = GetIgnoredSuppliers(e);
 
 			//Получили предложения интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes(e);
@@ -478,7 +482,21 @@ order by FullName, FirmCr";
 				else
 					reportCaptionPreffix += " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 
-				var tableBeginRowIndex = ExcelHelper.PutHeader(ws, 1, columnCount, reportCaptionPreffix);
+				var tableBeginRowIndex = 3;
+
+				if (!String.IsNullOrEmpty(_suppliers))
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 6, String.Format("Список поставщиков: {0}", _suppliers));
+				if (!String.IsNullOrEmpty(_ignoredSuppliers))
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 6, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
+
+				ExcelHelper.FormatHeader(ws, tableBeginRowIndex, res);
+
+				//Форматирование заголовков прайс-листов
+				FormatLeaderAndPrices(ws);
+
+				ws.Range["A1:F2", Missing.Value].Select();
+				((Range)wb.Application.Selection).Merge(null);
+				wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix;
 
 				for (var i = 0; i < res.Columns.Count; i++)
 					ws.Cells[tableBeginRowIndex, i + 1] = res.Columns[i].Caption;
