@@ -79,7 +79,7 @@ namespace ReportSystem.Test
 			properties.Tables[0].Rows.Add(row);
 		}
 
-		protected void BuildReport(string file = null, Type reportType = null)
+		protected void BuildReport(string file = null, Type reportType = null, bool checkEmptyData = false)
 		{
 			if (reportType != null && report == null)
 				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
@@ -89,6 +89,7 @@ namespace ReportSystem.Test
 			if (File.Exists(file))
 				File.Delete(file);
 			ProfileHelper.Start();
+			report.CheckEmptyData = checkEmptyData;
 			report.ReadReportParams();
 			report.ProcessReport();
 			report.ReportToFile(Path.GetFullPath(file));
@@ -128,6 +129,7 @@ namespace ReportSystem.Test
 
 		protected void BuildOrderReport(string file)
 		{
+			report.CheckEmptyData = false;
 			report.From = DateTime.Today.AddDays(-10);
 			report.To = DateTime.Today;
 			report.Interval = true;

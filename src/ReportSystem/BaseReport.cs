@@ -83,6 +83,9 @@ namespace Inforoom.ReportSystem
 		public DateTime To;
 		protected ISession Session;
 
+		//для тестов
+		public bool CheckEmptyData = true;
+
 		public ulong ReportCode { get; protected set; }
 		public string ReportCaption { get; protected set; }
 
@@ -240,10 +243,16 @@ namespace Inforoom.ReportSystem
 		//когда она на самом деле пустая и если она содержит только пусты строки
 		//пустые строки получатся из-за того что некоторые отчеты их формируют для того что бы
 		//зарезервировать место под заголовок отчета
-		private static bool IsEmpty(DataTable reportTable)
+		private bool IsEmpty(DataTable reportTable)
 		{
+			if (!CheckEmptyData)
+				return false;
+
+			//если таблицы с данными нет то значит в отчете проиходит
+			//что то специальное
 			if (reportTable == null)
-				return true;
+				return false;
+
 			if (reportTable.Rows.Count == 0)
 				return true;
 

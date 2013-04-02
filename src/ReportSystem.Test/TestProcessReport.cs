@@ -15,6 +15,22 @@ namespace ReportSystem.Test
 	[TestFixture]
 	internal class TestProcessReport
 	{
+		public class FakeEmptyReport : BaseReport
+		{
+			public FakeEmptyReport()
+			{
+				_dsReport = new DataSet();
+			}
+
+			public override void GenerateReport(ExecuteArgs e)
+			{
+			}
+
+			public override void ReadReportParams()
+			{
+			}
+		}
+
 		public class FakeReport : BaseReport
 		{
 			public FakeReport()
@@ -79,6 +95,13 @@ namespace ReportSystem.Test
 					Reports.Add(fakeReport);
 				}
 			}
+		}
+
+		[Test]
+		public void Skip_empty_check_if_result_table_not_exists()
+		{
+			var report = new FakeEmptyReport();
+			report.ReportToFile("test.xls");
 		}
 
 		[Test, Description("Тестирует обработку различных типов исключений в процессе работы отчетов")]
