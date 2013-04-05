@@ -489,15 +489,6 @@ order by FullName, FirmCr";
 				if (!String.IsNullOrEmpty(_ignoredSuppliers))
 					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
 
-				ExcelHelper.FormatHeader(ws, tableBeginRowIndex, res);
-
-				//Форматирование заголовков прайс-листов
-				FormatLeaderAndPrices(ws);
-
-				ws.Range["A1:F2", Missing.Value].Select();
-				((Range)wb.Application.Selection).Merge(null);
-				wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix;
-
 				for (var i = 0; i < res.Columns.Count; i++)
 					ws.Cells[tableBeginRowIndex, i + 1] = res.Columns[i].Caption;
 
