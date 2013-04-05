@@ -482,12 +482,12 @@ order by FullName, FirmCr";
 				else
 					reportCaptionPreffix += " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 
-				var tableBeginRowIndex = 3;
+				var tableBeginRowIndex = ExcelHelper.PutHeader(ws, 1, columnCount, reportCaptionPreffix);
 
 				if (!String.IsNullOrEmpty(_suppliers))
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 6, String.Format("Список поставщиков: {0}", _suppliers));
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, String.Format("Список поставщиков: {0}", _suppliers));
 				if (!String.IsNullOrEmpty(_ignoredSuppliers))
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 6, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
+					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
 
 				ExcelHelper.FormatHeader(ws, tableBeginRowIndex, res);
 
