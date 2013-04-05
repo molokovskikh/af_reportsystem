@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Castle.ActiveRecord;
+using Castle.MonoRail.ActiveRecordSupport;
 using Castle.MonoRail.Framework;
 using Common.Tools;
 using Common.Web.Ui.Controllers;
@@ -30,7 +31,9 @@ namespace ReportTuner.Controllers
 		public override void UpdateContactGroup(uint contactGroupId,
 			[DataBind("Contacts")] Contact[] contacts)
 		{
-			var mails = contacts.Where(c => c.Id == 0).Select(c => c.ContactText).ToList();
+			var actualContactId = contacts.Select(c => c.Id).ToList();
+			var oldContacts = DbSession.Query<Contact>().Where(c => actualContactId.Contains(c.Id)).ToList().ToDictionary(c => c.Id);
+			var mails = contacts.Where(c => c.Id == 0 || oldContacts[c.Id].ContactText != c.ContactText).Select(c => c.ContactText).Distinct().ToList();
 			var payerContacts = DbSession.Query<PayerOwnerContact>().Where(c => mails.Contains(c.Contact.ContactText)).ToList();
 			if (payerContacts.Count > 0) {
 				var errorBuilder = new StringBuilder();
