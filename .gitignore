@@ -22,3 +22,4 @@ Backup/
 UpgradeLog.XML
 UpgradeLog.htm
 _UpgradeReport_Files/
+src/*.properties
