@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
+using Common.Tools;
+using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.Helpers
 {
@@ -77,10 +80,18 @@ namespace Inforoom.ReportSystem.Helpers
 			}
 		}
 
+		public static void WriteLine(MySqlCommand command)
+		{
+			if (IsProfiling) {
+				Debug.WriteLine(command.CommandText + ";");
+				Debug.WriteLine(command.Parameters.Cast<MySqlParameter>().Implode(p => Tuple.Create(p.ParameterName, p.Value)) + ";");
+			}
+		}
+
 		public static void WriteLine(string text)
 		{
 			if (IsProfiling)
-				Debug.WriteLine(text);
+				Debug.WriteLine(text + ";");
 		}
 	}
 }
