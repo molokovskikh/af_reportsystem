@@ -621,7 +621,7 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
 			selectCommand.Parameters.AddWithValue("?NoiseFirmCode", noise);
-			selectCommand.Parameters.AddWithValue("?runDate", GetDate());
+			selectCommand.Parameters.AddWithValue("?runDate", GetStatOffersDate());
 			selectCommand.CommandText = "Customers.GetOffersReportsWeighted";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
@@ -643,11 +643,12 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode in ({0})", suppliers.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					ProfileHelper.WriteLine(selectCommand);
 				}
 			}
 		}
 
-		private DateTime GetDate()
+		protected DateTime GetStatOffersDate()
 		{
 			if (Interval) {
 				return From;

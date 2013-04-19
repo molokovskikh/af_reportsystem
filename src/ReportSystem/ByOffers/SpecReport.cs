@@ -1337,7 +1337,7 @@ where SourcePrice.codefirmcr=FarmCore.codefirmcr or SourcePrice.codefirmcr is nu
 				if(_byBaseCosts)
 					reportCaptionPreffix += " по базовым ценам";
 				else if(_byWeightCosts)
-					reportCaptionPreffix += " по взвешенным ценам по данным на " + DateTime.Today.AddDays(-1).ToShortDateString();
+					reportCaptionPreffix += " по взвешенным ценам по данным на " + GetStatOffersDate().ToShortDateString();
 				if (!WithoutAssortmentPrice) {
 					if (_reportType < 3)
 						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
