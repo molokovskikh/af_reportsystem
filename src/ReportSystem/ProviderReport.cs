@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Common.Tools;
+using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
