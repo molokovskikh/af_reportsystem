@@ -390,12 +390,14 @@ CREATE temporary table usersettings.TmpRegions(
   RegionCode bigint unsigned
   ) engine=MEMORY;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			foreach (var region in _regions) {
 				e.DataAdapter.SelectCommand.CommandText = @"
 INSERT INTO usersettings.TmpRegions(RegionCode) VALUES(?regioncode);";
 				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 				e.DataAdapter.SelectCommand.Parameters.Clear();
 			}
 		}
@@ -626,6 +628,7 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 			selectCommand.CommandText = "Customers.GetOffersReportsWeighted";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(selectCommand);
 
 			// Накладываем фильтры
 			// В поле PriceCode храним идентификатор поставщика
@@ -636,6 +639,7 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode not in ({0})", allowedFirms.Implode());
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				ProfileHelper.WriteLine(selectCommand);
 			}
 
 			if (_reportParams.ContainsKey("IgnoredSuppliers")) {

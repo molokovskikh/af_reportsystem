@@ -1,13 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using Castle.ActiveRecord;
+using Common.Web.Ui.Models;
+using ExcelLibrary.SpreadSheet;
 using Inforoom.ReportSystem;
+using MySql.Data.MySqlClient;
+using NHibernate;
+using NHibernate.Linq;
+using NPOI.HSSF.UserModel;
 using NUnit.Framework;
+using Test.Support;
+using Test.Support.Suppliers;
 
 namespace ReportSystem.Test.SpecialReport
 {
-	public class SpecialByWeightCostFixture : BaseProfileFixture
+	public class SpecialByWeightCostFixture : BaseProfileFixture2
 	{
 		[Test]
 		public void SpecialCountProducerByWeightCost()
@@ -17,10 +27,6 @@ namespace ReportSystem.Test.SpecialReport
 			Property("RegionEqual", new List<ulong> {
 				1
 			});
-			//Property("FirmCodeEqual", new List<ulong> {
-			//	7,
-			//	196
-			//});
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
@@ -40,10 +46,6 @@ namespace ReportSystem.Test.SpecialReport
 			Property("RegionEqual", new List<ulong> {
 				1
 			});
-			//Property("FirmCodeEqual", new List<ulong> {
-			//	338,
-			//	126
-			//});
 			Property("ReportIsFull", false);
 			Property("ClientCode", 5101);
 			Property("ReportSortedByPrice", false);
@@ -53,6 +55,52 @@ namespace ReportSystem.Test.SpecialReport
 			Property("ByWeightCosts", true);
 			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
 			BuildReport(fileName);
+		}
+
+		[Test]
+		public void Build_data_for_interval()
+		{
+			var dateTime = DateTime.Today.AddDays(-2);
+			var supplier = TestSupplier.CreateNaked();
+			supplier.CreateSampleCore();
+
+			var offer = supplier.Prices[0].Core[0];
+			var product = offer.Product;
+			session.CreateSQLQuery("insert into Reports.AverageCosts(Date, SupplierId, RegionId, ProductId, ProducerId, Cost, Quantity) values (:date, :supplierId, :regionId, :productId, null, 100, 1);")
+				.SetParameter("supplierId", supplier.Id)
+				.SetParameter("regionId", supplier.HomeRegion.Id)
+				.SetParameter("date", dateTime)
+				.SetParameter("productId", product.Id)
+				.ExecuteUpdate();
+
+			var fileName = "temp.xls";
+			Property("ReportType", 2);
+			Property("RegionEqual", new List<ulong> {
+				1
+			});
+			Property("ClientCode", 0);
+			Property("ReportIsFull", false);
+			Property("ReportSortedByPrice", false);
+			Property("ShowPercents", true);
+			Property("CalculateByCatalog", false);
+			Property("PriceCode", (int)supplier.Prices[0].Id);
+			Property("ByWeightCosts", true);
+			report = new SpecReport(1, fileName, (MySqlConnection)session.Connection, ReportFormats.Excel, properties);
+			report.Interval = true;
+			report.From = dateTime;
+			BuildReport(fileName);
+
+			var book = Load(fileName);
+			var sheet = book.GetSheetAt(0);
+			Assert.That(sheet.GetRow(0).GetCell(0).StringCellValue,
+				Is.StringContaining(String.Format("Специальный отчет по взвешенным ценам по данным на {0}", dateTime.ToShortDateString())));
+			Assert.That(sheet.GetRow(3).GetCell(1).StringCellValue, Is.StringMatching(offer.ProductSynonym.Name));
+		}
+
+		private static HSSFWorkbook Load(string name)
+		{
+			using(var stream = File.OpenRead(name))
+				return new HSSFWorkbook(stream);
 		}
 	}
 }

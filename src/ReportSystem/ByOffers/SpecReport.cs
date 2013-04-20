@@ -366,7 +366,6 @@ where PriceCode=?SourcePrice and cp.CatalogId = Core.ProductId) as Code,
   Core.Cost,";
 
 			e.DataAdapter.SelectCommand.CommandText += "Core.ProductId, ";
-			//if(SourcePriceType == (int)PriceType.Assortment)
 			e.DataAdapter.SelectCommand.CommandText += @"
 Core.ProducerId
 FROM
@@ -374,24 +373,13 @@ FROM
 WHERE
 Core.PriceCode = ?SourcePC
 and Core.RegionCode = ?SourceRegionCode;";
-//			else
-//				e.DataAdapter.SelectCommand.CommandText += @"
-//  Assortment.ProducerId
-//FROM
-//  Core,
-//  reports.averagecosts,
-//  catalogs.assortment
-//WHERE
-//Core.Id=averagecosts.Id
-//and assortment.id = averagecosts.AssortmentId
-//and Core.PriceCode = ?SourcePC
-//and Core.RegionCode = ?SourceRegionCode;";
 
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 #if DEBUG
 			e.DataAdapter.SelectCommand.CommandText = @"select * from TmpSourceCodes";
 			e.DataAdapter.Fill(_dsReport, "TmpSourceCodes");
@@ -945,11 +933,13 @@ group by c.pricecode";
 			e.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 			if (_calculateByCatalog)
 				e.DataAdapter.SelectCommand.CommandText = "update Core, catalogs.products set Core.CatalogCode = products.CatalogId where products.Id = Core.ProductId;";
 			else
 				e.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;

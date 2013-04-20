@@ -476,7 +476,7 @@ order by FullName, FirmCr";
 				if(_byBaseCosts)
 					reportCaptionPreffix += " по базовым ценам";
 				else if(_byWeightCosts)
-					reportCaptionPreffix += " по взвешенным ценам по данным на " + DateTime.Today.AddDays(-1).ToShortDateString();
+					reportCaptionPreffix += " по взвешенным ценам по данным на " + GetStatOffersDate().ToShortDateString();
 				if (_reportType < 3)
 					reportCaptionPreffix += " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
 				else
