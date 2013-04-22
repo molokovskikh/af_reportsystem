@@ -12,7 +12,7 @@ Global(
 	Project : @ReportSystem,
 	Profile : @reportTypes,
 	SkipDefaultLib: true,
-	AdditionalAssemblies: ("ReportTuner", "Common.Web.Ui", "Report.Data.Builder")
+	AdditionalAssemblies: ("ReportTuner", "Common.Web.Ui", "Common.Models/Common.Schedule", "Report.Data.Builder")
 )
 
 unless Configuration.IsDefined(@notInteractive):

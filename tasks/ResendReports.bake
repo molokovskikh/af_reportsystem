@@ -1,6 +1,7 @@
 import System
 import ReportTuner.Helpers
 import ReportTuner.Models
+import Common.Schedule
 import file from Db.boo
 
 task @ResendReports, [@InitActiveRecord]:
