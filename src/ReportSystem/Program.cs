@@ -71,6 +71,7 @@ namespace Inforoom.ReportSystem
 		public static void ProcessReport(int generalReportId, bool manual, bool interval, DateTime dtFrom, DateTime dtTo)
 		{
 			var reportLog = new ReportExecuteLog();
+			var errorCount = 0;
 			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				mc.Open();
 				try {
@@ -139,6 +140,10 @@ and cr.generalreportcode = " + generalReportId;
 								Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, (ulong)drReport[GeneralReportColumns.GeneralReportCode], reportEx.SubreportCode, reportEx.ReportCaption);
 								continue;
 							}
+							else {
+								//Это долно быть именно тут, порядок строк важен
+								errorCount++;
+							}
 
 							Mailer.MailGeneralReportErr(
 								ex.ToString(),
@@ -148,15 +153,17 @@ and cr.generalreportcode = " + generalReportId;
 					}
 				}
 				finally {
-					using (new ConnectionScope(mc)) {
-						ArHelper.WithSession(s => {
-							reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
-							if (reportLog != null) {
-								reportLog.EndTime = DateTime.Now;
-								s.Save(reportLog);
-								s.Flush();
-							}
-						});
+					if (errorCount == 0) {
+						using (new ConnectionScope(mc)) {
+							ArHelper.WithSession(s => {
+								reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
+								if (reportLog != null) {
+									reportLog.EndTime = DateTime.Now;
+									s.Save(reportLog);
+									s.Flush();
+								}
+							});
+						}
 					}
 				}
 			}
