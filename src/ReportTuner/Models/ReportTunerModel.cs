@@ -19,9 +19,11 @@ namespace ReportTuner.Models
 select
 	   supps.Id,
 	   supps.Name ShortName,
-	   GROUP_CONCAT(distinct reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   GROUP_CONCAT(distinct reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions,
+		hr.Region as HomeRegion
   from Customers.Suppliers supps
 	   left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+		left join farm.Regions hr on hr.RegionCode = supps.HomeRegion
  where ?firmType = 0
    and supps.Disabled = 0
    and (supps.RegionMask & ?region) > 0
@@ -34,9 +36,11 @@ union
 select
 	   cl.Id,
 	   cl.Name ShortName,
-	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions,
+		hr.Region as HomeRegion
   from Customers.Clients cl
 	   left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+		left join farm.Regions hr on hr.RegionCode = cl.RegionCode
  where ?firmType = 1
    and cl.Status = 1
    and (cl.MaskRegion & ?region) > 0
@@ -50,10 +54,12 @@ group by Id
 			@"select
 	supps.Id,
 	supps.Name ShortName,
-	GROUP_CONCAT(distinct reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	GROUP_CONCAT(distinct reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions,
+	hr.Region as HomeRegion
 from usersettings.ActivePrices AP
 	inner join Customers.suppliers supps on AP.FirmCode = supps.Id
 	left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+	left join farm.Regions hr on hr.RegionCode = supps.HomeRegion
 where
 	?firmType = 0
 	and supps.Disabled = 0
@@ -69,9 +75,11 @@ group by Id
 select
 	   supps.Id,
 	   supps.Name ShortName,
-	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions,
+		hr.Region as HomeRegion
   from Customers.Suppliers supps
 	   left join farm.Regions reg on (reg.regionCode & supps.RegionMask) > 0
+	left join farm.Regions hr on hr.RegionCode = supps.HomeRegion
  where supps.Id in {0}
 	 and not exists(select 1 from Customers.Clients where id = supps.Id)
 group by Id
@@ -79,11 +87,13 @@ group by Id
 union
 
 select
-	   cl.Id,
-	   cl.Name ShortName,
-	   GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions
+		cl.Id,
+		cl.Name ShortName,
+		GROUP_CONCAT(reg.Region ORDER BY reg.Region SEPARATOR ', ') Regions,
+		hr.Region as HomeRegion
   from Customers.Clients cl
-	   left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+		left join farm.Regions reg on (reg.regionCode & cl.MaskRegion) > 0
+		left join farm.Regions hr on hr.RegionCode = cl.RegionCode
  where cl.Id in {0}
 group by Id
 {1} {2}
@@ -117,7 +127,8 @@ group by Id
 				select new {
 					Id = row["Id"],
 					ShortName = row["ShortName"],
-					Regions = row["Regions"]
+					Regions = row["Regions"],
+					HomeRegion = row["HomeRegion"]
 				};
 			return clients.Cast<object>().ToList();
 		}

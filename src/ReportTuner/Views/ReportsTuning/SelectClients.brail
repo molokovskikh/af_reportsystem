@@ -75,7 +75,7 @@ ${FormHelper.HiddenField('userId')}
 						</thead>
 						<%if FilteredClients.Count > 0: %>
 						<tr class="NoHighLightRow">
-							<%OutputSubView('SelectClientsSortHeadersSubView', {"headers":['nsAll', 'Код', 'Наименование', 'Регионы'], "sortOrder":sortOrder})%>
+							<%OutputSubView('SelectClientsSortHeadersSubView', {"headers":['nsAll', 'Код', 'Наименование', 'Домашний регион', 'Регионы'], "sortOrder":sortOrder})%>
 						</tr>
 						<%for i, item in enumerate(FilteredClients):%>
 							<tr class="${ViewHelper.GetRowStyle(i)}">
@@ -94,7 +94,7 @@ ${FormHelper.HiddenField('userId')}
 								<td>
 									${item.ShortName}
 								</td>
-								
+								<td>${item.HomeRegion}</td>
 								<td>
 									${item.Regions}
 								</td>
@@ -138,6 +138,7 @@ ${FormHelper.HiddenField('userId')}
 							<td><input id="sAll" name="sAll" type="checkbox" /></td>
 							<td>Код</td>
 							<td>Наименование</td>
+							<td>Домашний регион</td>
 							<td>Регионы</td>
 						</tr>
 						<%for i, item in enumerate(AddedClients):%>
@@ -153,7 +154,7 @@ ${FormHelper.HiddenField('userId')}
 								<td>
 									${item.ShortName}
 								</td>
-								
+								<td>${item.HomeRegion}</td>
 								<td>
 									${item.Regions}
 								</td>
