@@ -5,6 +5,7 @@ using System.Data;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
+using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
 using Common.Web.Ui.NHibernateExtentions;
@@ -165,6 +166,9 @@ and cr.generalreportcode = " + generalReportId;
 							});
 						}
 					}
+					var taskService = ScheduleHelper.GetService();
+					var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
+					ScheduleHelper.DeleteTask(reportsFolder, generalReport.GeneralReportID, "temp_");
 				}
 			}
 		}

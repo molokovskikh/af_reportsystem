@@ -79,7 +79,9 @@ public partial class Reports_schedule : BasePage
 
 		temp1Task = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(1), "tempTask1", "temp");
 
-		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(0), "tempTask", "temp");
+		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, "tempTask", "temp_");
+		var runningTempTask = tempTask.State == TaskState.Running;
+
 		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running && tempTask.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
@@ -167,6 +169,8 @@ public partial class Reports_schedule : BasePage
 			else
 				ErrorMassage.Text = "";
 		}
+		if (!runningTempTask)
+			ScheduleHelper.DeleteTask(reportsFolder, _generalReport.Id, "temp_");
 
 
 		var otherTriggers = new List<Trigger>();
@@ -724,7 +728,7 @@ limit 15;";
 	{
 		const int tempNum = 0;
 		string user = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
-		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(tempNum), user, "temp");
+		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(_generalReport.Id), user, "temp_");
 
 		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath,
 			"/gr:" + _generalReport.Id +
@@ -736,7 +740,7 @@ limit 15;";
 		taskDefinition.Actions.RemoveAt(0);
 		taskDefinition.Actions.Add(newAction);
 		taskDefinition.RegistrationInfo.Description = user;
-		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(tempNum), taskDefinition, "temp");
+		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(_generalReport.Id), taskDefinition, "temp_");
 
 		if (thisTask.State != TaskState.Running) {
 			thisTask.Run();
