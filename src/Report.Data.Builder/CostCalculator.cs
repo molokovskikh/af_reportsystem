@@ -172,13 +172,6 @@ limit 1);
 
 call Customers.GetPrices(@UserId);
 
-update Usersettings.prices p
-	join usersettings.pricesregionaldata prd on p.pricecode = prd.pricecode and prd.RegionCode = p.RegionCode
-set p.costcode = prd.BaseCost
-where p.costtype = 1
-and prd.enabled = 1
-and prd.BaseCost is not null;
-
 select c0.ProductId, c0.CodeFirmCr, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode
