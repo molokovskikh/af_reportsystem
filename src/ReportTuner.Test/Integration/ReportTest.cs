@@ -109,8 +109,8 @@ namespace ReportTuner.Test.Integration
 			using (new SessionScope()) {
 				var report = GeneralReport.Find(Convert.ToUInt64(reportId));
 				Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));
-				Assert.That(report.Payer.FutureClients[0].ShortName, Is.EqualTo(client1.Name));
-				Assert.That(report.Payer.FutureClients[1].ShortName, Is.EqualTo(client2.Name));
+				Assert.That(report.Payer.Clients[0].ShortName, Is.EqualTo(client1.Name));
+				Assert.That(report.Payer.Clients[1].ShortName, Is.EqualTo(client2.Name));
 			}
 		}
 
