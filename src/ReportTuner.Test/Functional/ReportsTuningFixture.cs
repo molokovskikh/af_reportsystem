@@ -68,7 +68,6 @@ namespace ReportTuner.Test.Functional
 			var report = CreateReport("Spec");
 			OpenReport(report);
 
-			browser.ShowWindow(NativeMethods.WindowShowStyle.Maximize);
 			AssertText("По базовым ценам");
 
 			Checked("По базовым ценам", true);
