@@ -24,12 +24,11 @@ namespace ReportTuner.Models
 
 		[HasAndBelongsToMany(typeof(Client), Schema = "Billing", Table = "PayerClients",
 			ColumnKey = "PayerID", ColumnRef = "ClientID")]
-		public virtual IList<Client> FutureClients { get; set; }
-
+		public virtual IList<Client> Clients { get; set; }
 
 		public List<Client> AllClients
 		{
-			get { return FutureClients.OrderBy(rec => rec.ShortName).ToList(); }
+			get { return Clients.OrderBy(rec => rec.ShortName).ToList(); }
 		}
 	}
 }

@@ -15,6 +15,8 @@ namespace ReportTuner.Test.Functional
 	[TestFixture]
 	public class ReportsTuningFixture : WatinFixture2
 	{
+		TestPayer payer;
+
 		[Test]
 		public void ResetClientCodeIfBaseCost()
 		{
@@ -63,44 +65,45 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void BaseWeightCostTest()
 		{
-			Open(string.Format("Reports/ReportProperties.aspx?rp=1&r=1"));
+			var report = CreateReport("Spec");
+			OpenReport(report);
+
 			AssertText("По базовым ценам");
-			var baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+
+			Checked("По базовым ценам", true);
 			Assert.That(browser.Text, Is.Not.Contains("По взвешенным ценам"));
 			AssertText("Список значений \"Региона\"");
 			Assert.That(browser.Text, Is.Not.Contains("Список доступных клиенту регионов"));
-			browser.Button(Find.ByValue("Применить")).Click();
+			Click("Применить");
+
 			AssertText("По базовым ценам");
-			baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
+			Checked("По базовым ценам", false);
 			AssertText("По взвешенным ценам");
-			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+			Checked("По взвешенным ценам", true);
+
 			Assert.That(browser.Text, Is.Not.Contains("По базовым ценам"));
 			AssertText("Список значений \"Региона\"");
 			Assert.That(browser.Text, Is.Not.Contains("Список доступных клиенту регионов"));
-			browser.Button(Find.ByValue("Применить")).Click();
+			Click("Применить");
 			AssertText("По взвешенным ценам");
-			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
-			browser.Button(Find.ByValue("Применить")).Click();
-			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
-			browser.Button(Find.ByValue("Добавить")).Click();
+			Checked("По взвешенным ценам", false);
+			Click("Применить");
+			Checked("По взвешенным ценам", true);
+			Click("Добавить параметр");
 			var select = browser.SelectLists.Last();
 			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
-			baseRow = browser.TableCell(Find.ByText("По взвешенным ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
-			baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
+
+			Checked("По взвешенным ценам", false);
+			Checked("По базовым ценам", true);
+
 			select = browser.SelectLists.Last();
 			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) > 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
 		}
+
 		[Test]
 		public void FileForReportTypesTest()
 		{
@@ -147,15 +150,38 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void Select_current_value()
 		{
-			var payer = new TestPayer();
+			var report = CreateReport("WaybillsReport");
+			var org = payer.Orgs.First();
+			report.Properties.First(p => p.PropertyType.PropertyName == "OrgId").Value = org.Id.ToString();
+			session.Save(report);
+			OpenReport(report);
+
+			var select = browser.SelectList(s => s.Name.EndsWith("ddlValue"));
+			Assert.That(select.SelectedItem, Is.StringEnding(org.Name));
+		}
+
+		private void Checked(string name, bool value)
+		{
+			var baseRow = browser.TableCell(Find.ByText(name)).ContainingTableRow;
+			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = value;
+		}
+
+		private void OpenReport(Report report)
+		{
+			Open("Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
+		}
+
+		private Report CreateReport(string reportType)
+		{
+			payer = new TestPayer();
 			var org = new TestLegalEntity(payer, "Тестовое юр. лицо");
+			payer.Orgs.Add(org);
 			session.Save(payer);
-			session.Save(org);
 			session.Flush();
 			org.Name += " " + org.Id;
 			session.Save(org);
 
-			var type = session.Query<ReportType>().First(t => t.ReportClassName.EndsWith("WaybillsReport"));
+			var type = session.Query<ReportType>().First(t => t.ReportTypeFilePrefix == reportType);
 			var generalReport = new GeneralReport(session.Load<Payer>(payer.Id));
 			var report = generalReport.AddReport(type);
 			session.Save(generalReport);
@@ -164,12 +190,8 @@ namespace ReportTuner.Test.Functional
 			session.Flush();
 
 			report.Refresh();
-			report.Properties.First(p => p.PropertyType.PropertyName == "OrgId").Value = org.Id.ToString();
-			session.Save(report);
 
-			Open("Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
-			var select = browser.SelectList(s => s.Name.EndsWith("ddlValue"));
-			Assert.That(select.SelectedItem, Is.StringEnding(org.Name));
+			return report;
 		}
 	}
 }
