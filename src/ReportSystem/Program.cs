@@ -154,17 +154,17 @@ and cr.generalreportcode = " + generalReportId;
 					}
 				}
 				finally {
-					if (errorCount == 0) {
-						using (new ConnectionScope(mc)) {
-							ArHelper.WithSession(s => {
-								reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
-								if (reportLog != null) {
+					using (new ConnectionScope(mc)) {
+						ArHelper.WithSession(s => {
+							reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
+							if (reportLog != null) {
+								if (errorCount == 0)
 									reportLog.EndTime = DateTime.Now;
-									s.Save(reportLog);
-									s.Flush();
-								}
-							});
-						}
+								reportLog.EndError = errorCount > 0;
+								s.Save(reportLog);
+								s.Flush();
+							}
+						});
 					}
 					var taskService = ScheduleHelper.GetService();
 					var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);

@@ -21,5 +21,8 @@ namespace Inforoom.ReportSystem.Model
 
 		[Property]
 		public virtual DateTime? EndTime { get; set; }
+
+		[Property]
+		public virtual bool EndError { get; set; }
 	}
 }

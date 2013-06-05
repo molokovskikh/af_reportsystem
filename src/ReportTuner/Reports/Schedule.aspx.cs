@@ -220,7 +220,8 @@ order by LogTime desc
 
 				MyCmd.Parameters.Clear();
 				MyCmd.CommandText = @"select
-rel.StartTime, rel.EndTime
+rel.StartTime,
+if (not EndError, rel.EndTime, 'Ошибка при формировании отчета') as EndTime
 from `logs`.reportexecutelogs rel
 where rel.GeneralReportCode = ?GeneralReportCode
 order by StartTime desc

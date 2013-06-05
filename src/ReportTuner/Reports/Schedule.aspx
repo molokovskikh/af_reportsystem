@@ -266,7 +266,7 @@
 			Caption="Статистика запусков отчета" AutoGenerateColumns="False"  EmptyDataText="Нет данных">
 			<Columns>
 				<asp:BoundField DataField="StartTime" HeaderText="Время запуска" />
-				<asp:BoundField DataField="EndTime" NullDisplayText="Ошибка при формировании отчета" HeaderText="Время заверщения" />
+				<asp:BoundField DataField="EndTime" HeaderText="Время заверщения" />
 			</Columns>
 		</asp:GridView>
 		</div>

@@ -294,7 +294,8 @@ where GeneralReport = ?GeneralReport;";
 					File.Copy(source, Path.Combine(_directoryName, file), true);
 			}
 
-			if (emptyReport) throw new ReportException("Отчет пуст.");
+			if (emptyReport)
+				throw new ReportException("Отчет пуст.");
 
 			if (NoArchive) {
 				SafeCopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
