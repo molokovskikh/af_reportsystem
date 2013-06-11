@@ -10,9 +10,13 @@ namespace Inforoom.ReportSystem.Filters
 	/// </summary>
 	public class FilterField
 	{
-		public const string positionSuffix = "Position";
-		public const string equalSuffix = "Equal";
-		public const string nonEqualSuffix = "NonEqual";
+		public const string PositionSuffix = "Position";
+		public const string EqualSuffix = "Equal";
+		public const string NonEqualSuffix = "NonEqual";
+
+		public static string[] Sufixes = new[] {
+			PositionSuffix, EqualSuffix, NonEqualSuffix
+		};
 
 		//Поле, по которому будет производиться выборка
 		public string primaryField;
@@ -42,14 +46,15 @@ namespace Inforoom.ReportSystem.Filters
 
 		public string equalValuesCaption;
 		public string nonEqualValuesCaption;
+		public bool Nullable;
 
 
-		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption) :
-			this(PrimaryField, ViewField, OutputField, Preffix, OutputCaption, TableList, WhereList, DefaultPosition, EqualValuesCaption, NonEqualValuesCaption, null)
+		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption) :
+			this(PrimaryField, ViewField, OutputField, Preffix, OutputCaption, TableList, DefaultPosition, EqualValuesCaption, NonEqualValuesCaption, null)
 		{
 		}
 
-		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, string WhereList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption, int? Width)
+		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption, int? Width)
 		{
 			primaryField = PrimaryField;
 			viewField = ViewField;
@@ -61,7 +66,6 @@ namespace Inforoom.ReportSystem.Filters
 			if (String.IsNullOrEmpty(TableList))
 				throw new ArgumentException("Параметр не может быть null или пустой строкой.", "TableList");
 			tableList = TableList;
-			whereList = WhereList;
 			equalValuesCaption = EqualValuesCaption;
 			nonEqualValuesCaption = NonEqualValuesCaption;
 			width = Width;
@@ -72,19 +76,19 @@ namespace Inforoom.ReportSystem.Filters
 			bool fieldIsSelected = false;
 
 			//Если Position существует, то тогда параметр должен отображаться в заголовке отчета и по этому параметру будет группировка
-			if (Parent.reportParamExists(reportPropertyPreffix + positionSuffix)) {
-				position = (int)Parent.getReportParam(reportPropertyPreffix + positionSuffix);
+			if (Parent.reportParamExists(reportPropertyPreffix + PositionSuffix)) {
+				position = (int)Parent.getReportParam(reportPropertyPreffix + PositionSuffix);
 				visible = true;
 				fieldIsSelected = true;
 			}
 
-			if (Parent.reportParamExists(reportPropertyPreffix + equalSuffix)) {
-				equalValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + equalSuffix);
+			if (Parent.reportParamExists(reportPropertyPreffix + EqualSuffix)) {
+				equalValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + EqualSuffix);
 				fieldIsSelected = true;
 			}
 
-			if (Parent.reportParamExists(reportPropertyPreffix + nonEqualSuffix)) {
-				nonEqualValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + nonEqualSuffix);
+			if (Parent.reportParamExists(reportPropertyPreffix + NonEqualSuffix)) {
+				nonEqualValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + NonEqualSuffix);
 				fieldIsSelected = true;
 			}
 
@@ -100,19 +104,21 @@ namespace Inforoom.ReportSystem.Filters
 			return Res;
 		}
 
-		public string GetEqualValues()
-		{
-			return String.Format("({0} in {1})", primaryField, GetAllValues(equalValues));
-		}
-
 		public string GetNamesSql(List<ulong> ids)
 		{
 			return String.Format("select {0} from {1} where ({2} in {3}) {4} order by {5}",
 				viewField, tableList, primaryField, GetAllValues(ids), whereList, outputField);
 		}
 
+		public string GetEqualValues()
+		{
+			return String.Format("({0} in {1})", primaryField, GetAllValues(equalValues));
+		}
+
 		public string GetNonEqualValues()
 		{
+			if (Nullable)
+				return String.Format("({0} is null or {0} not in {1})", primaryField, GetAllValues(nonEqualValues));
 			return String.Format("({0} not in {1})", primaryField, GetAllValues(nonEqualValues));
 		}
 	}

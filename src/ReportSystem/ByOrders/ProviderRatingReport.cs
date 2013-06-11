@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem
 				throw new ReportException(String.Format("Некорректно задан параметр 'Кол-во поставщиков': {0}", providerCount));
 		}
 
-		protected override void CheckAfterLoadFields()
+		public override void CheckAfterLoadFields()
 		{
 			//Если поле поставщик не в выбранных параметрах, то добавляем его туда и устанавливаем "visible в true"
 			var provideNameField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCode");

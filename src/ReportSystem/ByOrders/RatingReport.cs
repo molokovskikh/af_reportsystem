@@ -64,6 +64,7 @@ from {0}.OrdersHead oh
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
   join catalogs.catalogforms cf on cf.Id = c.FormId
+  left join catalogs.mnn m on cn.MnnId = m.Id
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join Customers.Clients cl on cl.Id = oh.ClientCode
   join farm.regions rg on rg.RegionCode = oh.RegionCode

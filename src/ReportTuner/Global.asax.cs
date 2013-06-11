@@ -74,15 +74,14 @@ namespace ReportTuner
 
 			if (!Path.IsPathRooted(Config.SavedFilesPath))
 				Config.SavedFilesPath = FileHelper.MakeRooted(Config.SavedFilesPath);
-
 			CreateDirectoryTree(Config.SavedFilesPath);
 
 			if (!Path.IsPathRooted(Config.ReportHistoryPath))
 				Config.ReportHistoryPath = FileHelper.MakeRooted(Config.ReportHistoryPath);
+			CreateDirectoryTree(Config.ReportHistoryPath);
 
 			if (!Path.IsPathRooted(Config.SavedFilesReportTypePath))
 				Config.SavedFilesReportTypePath = FileHelper.MakeRooted(Config.SavedFilesReportTypePath);
-
 			CreateDirectoryTree(Config.SavedFilesReportTypePath);
 
 			if (!Path.IsPathRooted(ScheduleHelper.ScheduleAppPath))
@@ -90,7 +89,6 @@ namespace ReportTuner
 
 			if (!Path.IsPathRooted(ScheduleHelper.ScheduleWorkDir))
 				ScheduleHelper.ScheduleWorkDir = FileHelper.MakeRooted(ScheduleHelper.ScheduleWorkDir);
-
 
 #if DEBUG
 			var taskService = ScheduleHelper.GetService();

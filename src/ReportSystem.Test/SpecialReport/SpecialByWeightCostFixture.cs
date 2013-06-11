@@ -96,11 +96,5 @@ namespace ReportSystem.Test.SpecialReport
 				Is.StringContaining(String.Format("Специальный отчет по взвешенным ценам по данным на {0}", dateTime.ToShortDateString())));
 			Assert.That(sheet.GetRow(3).GetCell(1).StringCellValue, Is.StringMatching(offer.ProductSynonym.Name));
 		}
-
-		private static HSSFWorkbook Load(string name)
-		{
-			using(var stream = File.OpenRead(name))
-				return new HSSFWorkbook(stream);
-		}
 	}
 }

@@ -89,7 +89,7 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		protected override void CheckAfterLoadFields()
+		public override void CheckAfterLoadFields()
 		{
 			ProfileHelper.Next("BaseCheckAfterLoad");
 			base.CheckAfterLoadFields();
@@ -267,27 +267,14 @@ Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct pd.firmcode) as AllSuppliersSoldPosition,
 Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurrentSqlBlock));
-			selectCommand +=
-				@"from " +
-#if DEBUG
-					@"orders.OrdersHead oh
-  join orders.OrdersList ol on ol.OrderID = oh.RowID ";
-#else
-@"ordersold.OrdersHead oh
-  join ordersold.OrdersList ol on ol.OrderID = oh.RowID ";
-#endif
-
-			if (!includeProductName || !isProductName || firmCrPosition)
-				selectCommand += @"
-  join catalogs.products p on p.Id = ol.ProductId";
-
-			if (!includeProductName || firmCrPosition)
-				selectCommand += @"
+			selectCommand += String.Format(@"
+from {0}.OrdersHead oh
+  join {0}.OrdersList ol on ol.OrderID = oh.RowID
+  join catalogs.products p on p.Id = ol.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
-  join catalogs.catalogforms cf on cf.Id = c.FormId";
-
-			selectCommand += @"
+  join catalogs.catalogforms cf on cf.Id = c.FormId
+  left join catalogs.mnn m on cn.MnnId = m.Id
   left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
   left join Customers.Clients cl on cl.Id = oh.ClientCode
   join customers.addresses ad on ad.Id = oh.AddressId
@@ -297,7 +284,7 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, concurre
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
   join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
-  join billing.payers on payers.PayerId = le.PayerId" +
+  join billing.payers on payers.PayerId = le.PayerId", OrdersSchema) +
 				((showCode || showCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
 					((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", firmCrField.primaryField) : String.Empty)) : String.Empty) +
 						@"

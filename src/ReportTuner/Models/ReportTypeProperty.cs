@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.UI.WebControls;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
+using Inforoom.ReportSystem;
+using Inforoom.ReportSystem.Filters;
 
 namespace ReportTuner.Models
 {
@@ -112,5 +114,23 @@ namespace ReportTuner.Models
 
 		[BelongsTo("PropertyEnumId", Cascade = CascadeEnum.All)]
 		public virtual PropertyEnum Enum { get; set; }
+
+		public FilterField FindFilterField()
+		{
+			var report = new OrdersReport();
+			return FilterField.Sufixes.Select(
+				s => report.registredField
+					.FirstOrDefault(f => f.reportPropertyPreffix == PropertyName.Replace(s, "")))
+				.FirstOrDefault(f => f != null);
+		}
+
+		public string SelectSql()
+		{
+			var field = FindFilterField();
+			return String.Format("select {0} as Id, {1} as DisplayValue from {2} where ({1} like ?filter) order by {1}",
+				field.primaryField,
+				field.viewField,
+				field.tableList);
+		}
 	}
 }

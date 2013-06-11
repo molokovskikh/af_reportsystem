@@ -6,7 +6,6 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using Inforoom.WindowsService;
 using Inforoom.WindowsService.Security;
-using ProcessPrivileges;
 
 namespace Inforoom.WindowsService
 {

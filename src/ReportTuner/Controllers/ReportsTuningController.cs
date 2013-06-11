@@ -14,7 +14,6 @@ using NHibernate.SqlCommand;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
 using NHibernate.Criterion;
-using Test.Support.log4net;
 using ControllerHelper = ReportTuner.Helpers.ControllerHelper;
 using ViewHelper = ReportTuner.Helpers.ViewHelper;
 

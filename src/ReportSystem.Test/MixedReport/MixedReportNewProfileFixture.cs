@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Inforoom.ReportSystem;
 using NUnit.Framework;
+using Test.Support.Suppliers;
 
 namespace ReportSystem.Test
 {

@@ -1,16 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\ProjectLib.properties" Condition="Exists('..\ProjectLib.properties')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DFF860DB-DE84-4964-978C-F5E202A8D65A}</ProjectGuid>
+    <ProjectGuid>{5004F914-6ACA-4D21-9038-7AACD6F57B94}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Report.Data.Builder</RootNamespace>
-    <AssemblyName>Report.Data.Builder</AssemblyName>
+    <RootNamespace>ReportSysmte.Tasks</RootNamespace>
+    <AssemblyName>ReportSysmte.Tasks</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,9 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net" />
-    <Reference Include="MySql.Data">
-      <HintPath>..\..\lib\MySql.Data.dll</HintPath>
+    <Reference Include="Castle.ActiveRecord">
+    </Reference>
+    <Reference Include="NHibernate">
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,49 +42,24 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Topshelf">
-      <HintPath>..\..\lib\TopShelf\2.2.1\Topshelf.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CalculatorJob.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="CostCalculator.cs" />
-    <Compile Include="RatingCalculator.cs" />
-    <Compile Include="Bootstrapper.cs" />
+    <Compile Include="UpdateReportConfig.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">
-      <Project>{8A680813-C83B-497A-85E6-E8F07B7D7650}</Project>
-      <Name>Common.MySql</Name>
+    <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">
+      <Project>{BDC750F3-0940-43DB-9501-87A219530C35}</Project>
+      <Name>ReportSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Common.Tools\Common.Tools\Common.Tools.csproj">
-      <Project>{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}</Project>
-      <Name>Common.Tools</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Common.Web.Ui\Common.Web.Ui\Common.Web.Ui.csproj">
-      <Project>{95E2C313-46FA-4B4B-9EFF-3228662908F4}</Project>
-      <Name>Common.Web.Ui</Name>
+    <ProjectReference Include="..\ReportTuner\ReportTuner.csproj">
+      <Project>{4D9B03C7-734B-410F-9C4A-FF9A44591036}</Project>
+      <Name>ReportTuner</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="App.release.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(StylecopPath)\tools\StyleCop.Targets" />
-  <PropertyGroup>
-    <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
-    <StyleCopOverrideSettingsFile>$(StylecopAddonPath)\Settings.StyleCop</StyleCopOverrideSettingsFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <StyleCopAdditionalAddinPaths Include="$(StylecopAddonPath)\lib\4.0">
-      <InProject>false</InProject>
-    </StyleCopAdditionalAddinPaths>
-  </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

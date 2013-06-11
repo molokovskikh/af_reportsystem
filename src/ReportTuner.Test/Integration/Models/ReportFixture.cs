@@ -2,10 +2,9 @@
 using Common.Schedule;
 using Microsoft.Win32.TaskScheduler;
 using NUnit.Framework;
-using ReportTuner.Helpers;
 using ReportTuner.Models;
 
-namespace ReportTuner.Test.Models
+namespace ReportTuner.Test.Integration.Models
 {
 	[TestFixture]
 	public class ReportFixture

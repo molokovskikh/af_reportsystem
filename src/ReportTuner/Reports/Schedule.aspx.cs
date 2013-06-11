@@ -1,27 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Configuration;
 using System.Drawing;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net.Mail;
 using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 using Common.MySql;
 using Common.Schedule;
 using Common.Tools;
-using Common.Web.Ui.ActiveRecordExtentions;
+using Common.Web.Ui.Helpers;
 using MySql.Data.MySqlClient;
 using Microsoft.Win32.TaskScheduler;
 using System.Threading;
 using NHibernate;
 using NHibernate.Linq;
-using ReportTuner;
 using ReportTuner.Models;
-using ReportTuner.Helpers;
 
 public partial class Reports_schedule : BasePage
 {
@@ -174,7 +167,7 @@ public partial class Reports_schedule : BasePage
 
 
 		var otherTriggers = new List<Trigger>();
-		if (!Page.IsPostBack) {
+		if (!IsPostBack) {
 			var selfMail = GetSelfEmails();
 			if ((selfMail.Count != 0) && (selfMail[0].Length != 0)) {
 				RadioSelf.Text = "Выполнить и отослать на: " + selfMail[0][0];
@@ -672,7 +665,7 @@ limit 15;";
 
 	protected bool Send_in_Emails()
 	{
-		if (Page.IsValid) {
+		if (IsValid) {
 			var mails = mail_Text.Text.Split(',');
 			for (int i = 0; i < mails.Length; i++) {
 				mails[i] = mails[i].Trim(new[] { ' ', '\n', '\r' });
@@ -727,7 +720,6 @@ limit 15;";
 
 	private void RunSelfTaskAndUpdateAction()
 	{
-		const int tempNum = 0;
 		string user = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(_generalReport.Id), user, "temp_");
 

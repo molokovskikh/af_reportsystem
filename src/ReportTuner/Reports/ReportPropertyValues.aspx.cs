@@ -2,21 +2,20 @@ using System;
 using System.Data;
 using System.Configuration;
 using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.HtmlControls;
 using Common.MySql;
+using Common.Web.Ui.Helpers;
 using MySql.Data.MySqlClient;
+using ReportTuner.Models;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
-public partial class Reports_ReportPropertyValues : Page
+public partial class Reports_ReportPropertyValues : BasePage
 {
 	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
 	private MySqlDataAdapter MyDA = new MySqlDataAdapter();
 
-	private string ListProc = String.Empty;
-	private Int64 ReportPropertyID;
 	private DataSet DS;
 	private DataTable dtProcResult;
 	private DataColumn PRID;
@@ -37,8 +36,10 @@ public partial class Reports_ReportPropertyValues : Page
 	private const string PPCN = "Inforoom.Reports.ReportPropertyValues.PP";
 
 	private string inFilter; // параметры для хранимых процедур
-	private long? inID = null;
+	private long? inID;
 	private string inTypes;
+
+	private ReportProperty property;
 
 	protected void Page_Init(object sender, System.EventArgs e)
 	{
@@ -75,7 +76,10 @@ public partial class Reports_ReportPropertyValues : Page
 			inTypes = Request["inTypes"];
 		}
 
-		if (!(Page.IsPostBack)) {
+		var propertyId = Convert.ToUInt64(Request["rpv"]);
+		property = DbSession.Load<ReportProperty>(propertyId);
+
+		if (!(IsPostBack)) {
 			try {
 				PP = Convert.ToInt32(Request.Cookies[PPCN].Value);
 			}
@@ -91,7 +95,7 @@ public partial class Reports_ReportPropertyValues : Page
 			MyCmd.Connection = MyCn;
 			MyDA.SelectCommand = MyCmd;
 			MyCmd.Parameters.Clear();
-			MyCmd.Parameters.AddWithValue("rpv", Request["rpv"]);
+			MyCmd.Parameters.AddWithValue("rpv", property.Id);
 			MyCmd.Parameters.AddWithValue("rp", Request["rp"]);
 			MyCmd.Parameters.AddWithValue("r", (!String.IsNullOrEmpty(Request["r"])) ? Request["r"] : Request["TemporaryId"]);
 			MyCmd.CommandText = @"
@@ -117,11 +121,9 @@ and r.ReportCode=?rp
 and rt.ReportTypeCode = r.ReportTypeCode
 ";
 			MyDA.Fill(DS, dtList.TableName);
-			lblListName.Text = DS.Tables[dtList.TableName].Rows[0][LName.ColumnName].ToString();
-			lblReportCaption.Text = DS.Tables[dtList.TableName].Rows[0][LReportCaption.ColumnName].ToString();
-			lblReportType.Text = DS.Tables[dtList.TableName].Rows[0][LReportType.ColumnName].ToString();
-			ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
-			ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
+			lblListName.Text = property.PropertyType.DisplayName;
+			lblReportCaption.Text = property.Report.ReportCaption;
+			lblReportType.Text = property.Report.ReportType.ReportTypeName;
 
 			MyCn.Close();
 			PostData();
@@ -130,8 +132,6 @@ and rt.ReportTypeCode = r.ReportTypeCode
 			DS = ((DataSet)Session[DSValues]);
 			if (DS == null) // вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
-			ListProc = DS.Tables[dtList.TableName].Rows[0][LProc.ColumnName].ToString();
-			ReportPropertyID = Convert.ToInt64(DS.Tables[dtList.TableName].Rows[0][LReportPropertyID.ColumnName]);
 			dgvListValues.DataSource = DS.Tables[dtProcResult.TableName].DefaultView;
 		}
 	}
@@ -175,17 +175,6 @@ WHERE
 		DS.Tables[dtProcResult.TableName].AcceptChanges();
 	}
 
-	private bool ShowEnabled(String id)
-	{
-		bool find = false;
-		foreach (DataRow drEnabled in DS.Tables[dtEnabledValues.TableName].Rows) {
-			if (id == drEnabled[EVName.ColumnName].ToString()) {
-				find = true;
-				break;
-			}
-		}
-		return find;
-	}
 	#region Component Designer generated code
 	private void InitializeComponent()
 	{
@@ -311,15 +300,24 @@ WHERE
 			MyCmd.Connection = MyCn;
 			MyDA.SelectCommand = MyCmd;
 			DS.Tables[dtProcResult.TableName].Clear();
-			MyCmd.Parameters.Clear();
-			MyCmd.Parameters.AddWithValue("inFilter", String.IsNullOrEmpty(inFilter) ? null : inFilter);
-			MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
-			MyCmd.Parameters.AddWithValue("inID", !inID.HasValue ? null : inID);
-			MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
-			MyCmd.Parameters.AddWithValue("inTypes", String.IsNullOrEmpty(inTypes) ? "-1" : inTypes);
-			MyCmd.Parameters["inTypes"].Direction = ParameterDirection.Input;
-			MyCmd.CommandText = ListProc;
-			MyCmd.CommandType = CommandType.StoredProcedure;
+			if (!string.IsNullOrEmpty(property.PropertyType.SelectStoredProcedure)) {
+				MyCmd.Parameters.Clear();
+				MyCmd.Parameters.AddWithValue("inFilter", String.IsNullOrEmpty(inFilter) ? null : inFilter);
+				MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
+				MyCmd.Parameters.AddWithValue("inID", !inID.HasValue ? null : inID);
+				MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
+				MyCmd.Parameters.AddWithValue("inTypes", String.IsNullOrEmpty(inTypes) ? "-1" : inTypes);
+				MyCmd.Parameters["inTypes"].Direction = ParameterDirection.Input;
+				MyCmd.CommandText = property.PropertyType.SelectStoredProcedure;
+				MyCmd.CommandType = CommandType.StoredProcedure;
+			}
+			else {
+				var sql = property.PropertyType.SelectSql();
+				MyCmd.CommandType = CommandType.Text;
+				MyCmd.CommandText = sql;
+				var filter = String.IsNullOrEmpty(inFilter) ? "%" : inFilter;
+				MyCmd.Parameters.AddWithValue("filter", filter);
+			}
 			MyDA.Fill(DS, dtProcResult.TableName);
 		}
 		finally {
@@ -389,7 +387,7 @@ and ?Enabled = 0;", MyCn, trans);
 			UpdCmd.Parameters["Enabled"].Direction = ParameterDirection.Input;
 			UpdCmd.Parameters["Enabled"].SourceColumn = Enabled.ColumnName;
 			UpdCmd.Parameters["Enabled"].SourceVersion = DataRowVersion.Current;
-			UpdCmd.Parameters.Add(new MySqlParameter("RPID", ReportPropertyID));
+			UpdCmd.Parameters.Add(new MySqlParameter("RPID", property.Id));
 
 			MyDA.UpdateCommand = UpdCmd;
 

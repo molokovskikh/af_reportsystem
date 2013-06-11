@@ -36,8 +36,8 @@ namespace Inforoom.ReportSystem
 		protected const string reportIntervalProperty = "ReportInterval";
 		protected const string byPreviousMonthProperty = "ByPreviousMonth";
 
-		protected List<FilterField> registredField;
-		protected List<FilterField> selectedField;
+		public List<FilterField> registredField;
+		public List<FilterField> selectedField;
 
 		protected DateTime dtFrom;
 		protected DateTime dtTo;
@@ -57,8 +57,11 @@ namespace Inforoom.ReportSystem
 		public List<ColumnGroupHeader> GroupHeaders
 			= new List<ColumnGroupHeader>();
 
+		private string[] nameFields = new[] { "FullName", "ShortName", "ProductName" };
+
 		public OrdersReport()
 		{
+			Init();
 		}
 
 		public OrdersReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
@@ -67,10 +70,12 @@ namespace Inforoom.ReportSystem
 #if !DEBUG
 			OrdersSchema = "OrdersOld";
 #endif
+			Init();
 		}
 
-		protected void FillFilterFields()
+		private void Init()
 		{
+			selectedField = new List<FilterField>();
 			registredField = new List<FilterField>();
 			registredField.Add(new FilterField("p.Id", @"concat(cn.Name, cf.Form, ' ',
 			  (select
@@ -85,18 +90,63 @@ namespace Inforoom.ReportSystem
 			   where inp.Id = p.Id)) as ProductName",
 				"ProductName", "ProductName", "Наименование и форма выпуска",
 				"catalogs.products p, catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf",
-				"and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId", 0,
-				"В отчет включены следующие продукты", "Следующие продукты исключены из отчета", 40));
+				0,
+				"В отчет включены следующие продукты", "Следующие продукты исключены из отчета", 40) {
+					whereList = "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId"
+				});
 
-			registredField.Add(new FilterField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName", "Наименование и форма выпуска", "catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf", "and cn.id = c.NameId and cf.Id = c.FormId", 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета", 40));
-			registredField.Add(new FilterField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", null, 0, "В отчет включены следующие наименования", "Следующие наименования исключены из отчета", 40));
-			registredField.Add(new FilterField("cfc.Id", "cfc.Name as FirmCr", "FirmCr", "FirmCr", "Производитель", "catalogs.Producers cfc", null, 1, "В отчет включены следующие производители", "Следующие производители исключены из отчета", 15));
-			registredField.Add(new FilterField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", null, 2, "В отчет включены следующие регионы", "Следующие регионы исключены из отчета"));
-			registredField.Add(new FilterField("prov.Id", "concat(prov.Name, ' - ', provrg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик", "Customers.suppliers prov, farm.regions provrg", "and prov.HomeRegion = provrg.RegionCode", 3, "В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета", 10));
-			registredField.Add(new FilterField("pd.PriceCode", "concat(prov.Name , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист", "usersettings.pricesdata pd, Customers.suppliers prov, farm.regions provrg", "and prov.Id = pd.FirmCode and prov.HomeRegion = provrg.RegionCode", 4, "В отчет включены следующие прайс-листы поставщиков", "Следующие прайс-листы поставщиков исключены из отчета", 10));
-			registredField.Add(new FilterField("cl.Id", "cl.Name as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "Customers.clients cl", null, 5, "В отчет включены следующие аптеки", "Следующие аптеки исключены из отчета", 10));
-			registredField.Add(new FilterField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", null, 6, "В отчет включены следующие плательщики", "Следующие плательщики исключены из отчета"));
-			registredField.Add(new FilterField("ad.Id", "concat(ad.Address, ' (', cl.Name, ') ') as AddressName", "AddressName", "Addresses", "Адрес доставки", "customers.addresses ad, Customers.Clients cl", "and ad.ClientId = cl.Id", 7, "В отчет включены следующие адреса доставки", "Следующие адреса доставки исключены из отчета"));
+			registredField.Add(new FilterField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName",
+				"Наименование и форма выпуска",
+				"catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf",
+				0,
+				"В отчет включены следующие наименования",
+				"Следующие наименования исключены из отчета",
+				40) {
+					whereList = "and cn.id = c.NameId and cf.Id = c.FormId"
+				});
+			registredField.Add(new FilterField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", 0,
+				"В отчет включены следующие наименования",
+				"Следующие наименования исключены из отчета", 40));
+			registredField.Add(new FilterField("m.Id", "m.Mnn", "Mnn", "Mnn", "МНН", "catalogs.mnn m",
+				41,
+				"В отчет включены следующие МНН",
+				"Следующие МНН исключены из отчета") {
+					Nullable = true
+				});
+			registredField.Add(new FilterField("cfc.Id", "cfc.Name as FirmCr", "FirmCr", "FirmCr", "Производитель", "catalogs.Producers cfc", 1,
+				"В отчет включены следующие производители",
+				"Следующие производители исключены из отчета", 15));
+			registredField.Add(new FilterField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", 2,
+				"В отчет включены следующие регионы",
+				"Следующие регионы исключены из отчета"));
+			registredField.Add(new FilterField("prov.Id", "concat(prov.Name, ' - ', provrg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик",
+				"Customers.suppliers prov, farm.regions provrg",
+				3,
+				"В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета",
+				10) {
+					whereList = "and prov.HomeRegion = provrg.RegionCode"
+				});
+			registredField.Add(new FilterField("pd.PriceCode", "concat(prov.Name , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист",
+				"usersettings.pricesdata pd, Customers.suppliers prov, farm.regions provrg",
+				4,
+				"В отчет включены следующие прайс-листы поставщиков",
+				"Следующие прайс-листы поставщиков исключены из отчета",
+				10) {
+					whereList = "and prov.Id = pd.FirmCode and prov.HomeRegion = provrg.RegionCode",
+				});
+			registredField.Add(new FilterField("cl.Id", "cl.Name as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "Customers.clients cl", 5,
+				"В отчет включены следующие аптеки",
+				"Следующие аптеки исключены из отчета",
+				10));
+			registredField.Add(new FilterField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", 6,
+				"В отчет включены следующие плательщики",
+				"Следующие плательщики исключены из отчета"));
+			registredField.Add(new FilterField("ad.Id", "concat(ad.Address, ' (', cl.Name, ') ') as AddressName", "AddressName", "Addresses", "Адрес доставки",
+				"customers.addresses ad, Customers.Clients cl", 7,
+				"В отчет включены следующие адреса доставки",
+				"Следующие адреса доставки исключены из отчета") {
+					whereList = "and ad.ClientId = cl.Id"
+				});
 		}
 
 		public override void ReadReportParams()
@@ -124,19 +174,39 @@ namespace Inforoom.ReportSystem
 
 			LoadFilters();
 			CheckAfterLoadFields();
-
-			selectedField.Sort((x, y) => (x.position - y.position));
+			SortFields();
 		}
 
 		protected void LoadFilters()
 		{
-			FillFilterFields();
 			selectedField = registredField.Where(f => f.LoadFromDB(this)).ToList();
 		}
 
-		protected virtual void CheckAfterLoadFields()
+		public void SortFields()
+		{
+			var mnn = selectedField.FirstOrDefault(f => f.reportPropertyPreffix == "Mnn");
+			if (mnn != null) {
+				var names = selectedField.Where(f => nameFields.Contains(f.reportPropertyPreffix));
+				var maxPosition = names.Max(n => n.position);
+				selectedField
+					.Except(names)
+					.Where(f => f.position >= maxPosition)
+					.Each(f => f.position += Math.Max(1, f.position - maxPosition));
+				mnn.position = maxPosition + 1;
+			}
+
+			selectedField.Sort((x, y) => (x.position - y.position));
+		}
+
+		public virtual void CheckAfterLoadFields()
 		{
 			firmCrPosition = reportParamExists("FirmCrPosition");
+
+			var mnn = selectedField.FirstOrDefault(f => f.reportPropertyPreffix == "Mnn");
+			var names = selectedField.Where(f => nameFields.Contains(f.reportPropertyPreffix));
+			if (mnn != null && !names.Any()) {
+				selectedField.Remove(mnn);
+			}
 		}
 
 		protected string GetValuesFromSQL(string SQL)

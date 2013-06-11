@@ -69,7 +69,7 @@ namespace Inforoom.ReportSystem
 
 		protected MySqlConnection _conn;
 
-		protected Dictionary<string, object> _reportParams;
+		protected Dictionary<string, object> _reportParams = new Dictionary<string, object>();
 
 		protected ExecuteArgs args;
 

@@ -6,6 +6,7 @@ using Common.MySql;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.FastReports;
 using Inforoom.ReportSystem.Helpers;
+using NPOI.HSSF.UserModel;
 using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.Configuration;
@@ -133,6 +134,12 @@ namespace ReportSystem.Test
 			report.To = DateTime.Today;
 			report.Interval = true;
 			BuildReport(file);
+		}
+
+		protected static HSSFWorkbook Load(string name)
+		{
+			using(var stream = File.OpenRead(name))
+				return new HSSFWorkbook(stream);
 		}
 	}
 

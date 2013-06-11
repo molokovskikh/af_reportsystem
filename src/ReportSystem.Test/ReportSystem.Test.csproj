@@ -103,6 +103,7 @@
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\MinCostByPriceNewProfileFixture.cs" />
     <Compile Include="MinCostByPriceReport\MinCostByPriceProfileFixture.cs" />
+    <Compile Include="MixedReport\MixedReportFixture.cs" />
     <Compile Include="MixedReport\MixedReportNewProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
     <Compile Include="OffersReport\OffersReportAscFixture.cs" />
@@ -359,6 +360,10 @@
       <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
       <Name>ExecuteTemplate</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ReportSystem.Tasks\ReportSystem.Tasks.csproj">
+      <Project>{5004F914-6ACA-4D21-9038-7AACD6F57B94}</Project>
+      <Name>ReportSysmte.Tasks</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Test.Support\Test.Support\Test.Support.csproj">
       <Project>{A215E837-1208-49E3-AF93-A9612223122C}</Project>
       <Name>Test.Support</Name>
@@ -369,13 +374,13 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\packages\StyleCop.MSBuild.4.7.35.0\tools\StyleCop.Targets" />
+  <Import Project="$(StylecopPath)\tools\StyleCop.Targets" />
   <PropertyGroup>
     <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
-    <StyleCopOverrideSettingsFile>..\..\packages\StyleCopAddOn.1.0.4\Settings.StyleCop</StyleCopOverrideSettingsFile>
+    <StyleCopOverrideSettingsFile>$(StylecopAddonPath)\Settings.StyleCop</StyleCopOverrideSettingsFile>
   </PropertyGroup>
   <ItemGroup>
-    <StyleCopAdditionalAddinPaths Include="..\..\packages\StyleCopAddOn.1.0.4\lib\4.0">
+    <StyleCopAdditionalAddinPaths Include="$(StylecopAddonPath)\lib\4.0">
       <InProject>false</InProject>
     </StyleCopAdditionalAddinPaths>
   </ItemGroup>
