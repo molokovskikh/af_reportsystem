@@ -111,7 +111,8 @@ namespace Inforoom.ReportSystem
 				41,
 				"В отчет включены следующие МНН",
 				"Следующие МНН исключены из отчета") {
-					Nullable = true
+					Nullable = true,
+					width = 40
 				});
 			registredField.Add(new FilterField("cfc.Id", "cfc.Name as FirmCr", "FirmCr", "FirmCr", "Производитель", "catalogs.Producers cfc", 1,
 				"В отчет включены следующие производители",
