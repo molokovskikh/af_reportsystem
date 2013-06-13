@@ -7,6 +7,8 @@
 \src\ReportSystem\ByOffers\PricesOfCompetitorsReport.cs
 \src\ReportSystem.Test\Troubleshoot.cs
 \src\ReportSystem.Test\ProviderReport\ProviderReportFixture.cs
-\src\ReportTuner.Test\ReportsBatch.cs
 \src\Test.Support\Test.Support\log4net\EventFilter.cs
 \src\Test.Support\Test.Support.Web\WatinSetup.cs
+\src\ReportTuner.Test\Integration\TaskFixture.cs
+\src\ReportTuner.Test\Integration\ReportsBatch.cs
+\src\ReportSystem.Tasks\UpdateReportConfig.cs
