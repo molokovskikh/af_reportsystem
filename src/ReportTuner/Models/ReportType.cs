@@ -66,7 +66,7 @@ namespace ReportTuner.Models
 			get
 			{
 				if (ReportClassName == "Inforoom.ReportSystem.ByOrders.OrdersStatistics")
-					return new [] {
+					return new[] {
 						"Region" + FilterField.NonEqualSuffix,
 						"Region" + FilterField.EqualSuffix,
 					};
