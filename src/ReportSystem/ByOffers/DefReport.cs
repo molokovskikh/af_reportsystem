@@ -645,7 +645,7 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 			ProfileHelper.End();
 		}
 
-		protected override DataTable GetReportTable()
+		public override DataTable GetReportTable()
 		{
 			return _dsReport.Tables["Results"].DefaultView.ToTable();
 		}

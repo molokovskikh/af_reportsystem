@@ -111,7 +111,7 @@
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
     <Compile Include="OrderOutAllowedAssortmentFixture.cs" />
     <Compile Include="OrdersReportFixture.cs" />
-    <Compile Include="OrdersStatistics\OrdersStatisticsProfileFixture.cs" />
+    <Compile Include="OrdersStatistics\OrdersStatisticsFixture.cs" />
     <Compile Include="PharmacyMixed\PharmacyMixedProfileFixture.cs" />
     <Compile Include="PriceCollectionForClientReport\PriceCollectionForClientReportProfileFixture.cs" />
     <Compile Include="PricesOfCompetitors\PricesOfcompetitorsFixture.cs" />

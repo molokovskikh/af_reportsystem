@@ -146,12 +146,17 @@ namespace ReportSystem.Test
 		protected ISheet ReadReport<T>()
 		{
 			var fileName = "test.xls";
-			report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, ReportFormats.Excel, properties);
+			InitReport<T>(fileName);
 			BuildReport(fileName);
 
 			var book = Load(fileName);
 			var sheet = book.GetSheetAt(0);
 			return sheet;
+		}
+
+		protected void InitReport<T>(string fileName)
+		{
+			report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, ReportFormats.Excel, properties);
 		}
 
 		public string ToText(ISheet sheet)

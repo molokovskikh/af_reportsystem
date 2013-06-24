@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using ExecuteTemplate;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
+using MySql.Data.MySqlClient;
 using NHibernate.Linq;
 using NUnit.Framework;
 using Test.Support;
@@ -11,7 +14,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	internal class OrdersStatisticsProfileFixture : BaseProfileFixture2
+	internal class OrdersStatisticsFixture : BaseProfileFixture2
 	{
 		[Test]
 		public void CheckReport()
@@ -44,6 +47,50 @@ namespace ReportSystem.Test
 			var report = ReadReport<OrdersStatistics>();
 			var result = ToText(report);
 			Assert.That(result, Is.Not.StringContaining("Воронеж"));
+		}
+
+		[Test]
+		public void FreeOrdersTest()
+		{
+			var supplier = TestSupplier.CreateNaked();
+			var client = TestClient.CreateNaked();
+			var product = new TestProduct("Тестовый продукт");
+			session.Save(product);
+
+			var order = new TestOrder(client.Users.First(), supplier.Prices[0]);
+			order.AddItem(product, 1, 100);
+			session.Save(order);
+
+			var result = ExecuteReport();
+			var sum1 = result.AsEnumerable().Where(r => r["OrdersSum"] != DBNull.Value).Sum(r => (decimal)r["OrdersSum"]);
+
+			var freeOrdersQuery = session.CreateSQLQuery(
+				String.Format("INSERT INTO billing.freeorders VALUES({0}, {1});",
+					order.Address.Payer.Id,
+					supplier.Payer.Id));
+			freeOrdersQuery.ExecuteUpdate();
+
+			result = ExecuteReport();
+			var sum2 = result.AsEnumerable().Where(r => r["OrdersSum"] != DBNull.Value).Sum(r => (decimal)r["OrdersSum"]);
+
+			Assert.That(sum2, Is.EqualTo(sum1 - 100));
+		}
+
+		private DataTable ExecuteReport()
+		{
+			if (properties.Tables[0].Rows.Count == 0)
+				Property("ByPreviousMonth", false);
+
+			InitReport<OrdersStatistics>("test.xls");
+			report.Interval = true;
+			report.From = DateTime.Today;
+			report.To = DateTime.Today.AddDays(1);
+			report.ReadReportParams();
+
+			report.GenerateReport(new ExecuteArgs {
+				DataAdapter = new MySqlDataAdapter("", (MySqlConnection)session.Connection)
+			});
+			return report.GetReportTable();
 		}
 
 		private TestOrder MakeOrder(TestClient client, TestSupplier supplier)

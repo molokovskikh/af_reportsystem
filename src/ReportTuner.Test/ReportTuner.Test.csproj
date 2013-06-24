@@ -100,7 +100,6 @@
     <Compile Include="Functional\MnnPropertyFixture.cs" />
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Functional\ReportsTuningFixture.cs" />
-    <Compile Include="Integration\CalculateOrdersFixture.cs" />
     <Compile Include="Integration\CopyReportControllerFixture.cs" />
     <Compile Include="Integration\GeneralReportFixture.cs" />
     <Compile Include="Integration\ReportControllerFixture.cs" />

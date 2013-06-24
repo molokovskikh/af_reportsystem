@@ -278,7 +278,7 @@ namespace Inforoom.ReportSystem
 				Dbf.Save(dtExport, writer);
 		}
 
-		protected virtual DataTable GetReportTable()
+		public virtual DataTable GetReportTable()
 		{
 			return _dsReport.Tables["Results"];
 		}

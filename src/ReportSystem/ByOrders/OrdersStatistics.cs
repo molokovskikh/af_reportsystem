@@ -14,8 +14,6 @@ namespace Inforoom.ReportSystem.ByOrders
 {
 	public class OrdersStatistics : OrdersReport
 	{
-		protected const string reportIntervalProperty = "ReportInterval";
-
 		public OrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
@@ -82,6 +80,7 @@ order by supps.Name, supps.Payer, rg.Region;";
 			selectCommand.Parameters.AddWithValue("?EndDate", dtTo);
 			selectCommand.CommandText = sql;
 			e.DataAdapter.Fill(dtNewRes);
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (string t in FilterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);

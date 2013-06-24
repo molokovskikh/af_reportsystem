@@ -308,27 +308,6 @@ order by FullName, FirmCr";
 #endif
 		}
 
-		private string GetFromForWeightAssortmentPrice()
-		{
-			string result = @"from
-catalogs.catalog
-join Core AllPrices on catalog.Id = AllPrices.ProductId";
-			if(!_reportIsFull)
-				result += @"
-right join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-			else {
-				result += @"
-left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode ";
-			}
-			if (_reportType > 2)
-				result += @"
-	left join catalogs.assortment on assortment.catalogid=catalog.id
-	left join catalogs.Producers cfc on cfc.Id = SourcePrice.CodeFirmCr
-where assortment.ProducerId = SourcePrice.CodeFirmCr or SourcePrice.CodeFirmCr is null";
-
-			return result;
-		}
-
 		public void GetWeightCostSource(ExecuteArgs e)
 		{
 			//Добавляем к таблице Core поле CatalogCode и заполняем его
@@ -336,9 +315,11 @@ where assortment.ProducerId = SourcePrice.CodeFirmCr or SourcePrice.CodeFirmCr i
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 
 			e.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;
@@ -441,6 +422,7 @@ order by st.Position DESC";
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 
 			e.DataAdapter.SelectCommand.CommandText = @"
 set @cnt= (select max(Id) from usersettings.Core);
@@ -469,6 +451,7 @@ c.PriceCode = ?SourcePrice;";
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 		}
 
 		public bool IsExistsPriceInCore(ExecuteArgs e, int priceCode, ulong region)
