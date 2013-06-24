@@ -23,35 +23,46 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public override void ReadReportParams()
 		{
-			ByPreviousMonth = (bool)getReportParam(byPreviousMonthProperty);
-			if (Interval) {
-				dtFrom = From;
-				dtTo = To;
-				dtTo = dtTo.Date.AddDays(1);
-			}
-			else if (ByPreviousMonth) {
-				dtTo = DateTime.Now;
-				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца
-				dtFrom = dtTo.AddMonths(-1).Date;
-			}
-			else {
-				_reportInterval = (int)getReportParam(reportIntervalProperty);
-				dtTo = DateTime.Now.Date;
-				dtFrom = dtTo.AddDays(-_reportInterval).Date;
-			}
-			FilterDescriptions = new List<string>();
-			FilterDescriptions.Add(String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
+			base.ReadReportParams();
+
+			FilterDescriptions.Remove(FilterDescriptions.First(d => d.StartsWith("Период дат")));
+			FilterDescriptions.Insert(0, String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next(String.Format("CalculateOrders: dtFrom={0}, dtTo={1}", dtFrom.ToString(), dtTo.ToString()));
-			var selectCommand = e.DataAdapter.SelectCommand;
-			selectCommand.CommandText = "orders.CalculateOrders"; // в ХП в фильтре по регионам указаны платные регионы
-			selectCommand.CommandType = CommandType.StoredProcedure;
-			selectCommand.Parameters.Clear();
-			selectCommand.Parameters.AddWithValue("?StartDate", dtFrom);
-			selectCommand.Parameters.AddWithValue("?EndDate", dtTo);
+			FillFilterDescriptions();
+			var sql = @"
+SELECT
+    supps.Payer PayerId,
+    supps.Name SupplierName,
+    rg.region,
+    round(sum(if(free.ClientPayerId is null, cost * quantity, 0)), 2) OrdersSum,
+	count(*) RowCount
+FROM Orders.OrdersHead oh
+    join usersettings.pricesdata pd on oh.pricecode = pd.pricecode
+    join Customers.suppliers supps on pd.firmcode = supps.Id
+    join farm.regions rg on oh.regioncode = rg.regioncode
+    join Orders.OrdersList ol on ol.orderid = oh.rowid
+    join usersettings.retclientsset rcs on rcs.clientcode = oh.clientcode
+    join Customers.Users u on u.Id = oh.UserId
+    join Customers.Addresses adr on oh.AddressId = adr.Id
+    left join billing.FreeOrders free on free.ClientPayerId = adr.PayerId and free.SupplierPayerId = supps.Payer
+where
+    oh.writetime between ?StartDate and ?EndDate
+    and rcs.InvisibleOnFirm < 2
+    and rcs.ServiceClient = 0
+    and u.PayerId <> 921
+    and oh.Deleted = 0
+    and oh.Submited = 1
+    and rg.RegionCode <> 524288
+    and rg.Retail = 0
+";
+			sql = ApplyUserFilters(sql);
+			sql += @"
+group by supps.id, rg.regioncode
+order by supps.Name, supps.Payer, rg.Region;";
 
 			var dtNewRes = new DataTable();
 			dtNewRes.Columns.Add("PayerId", typeof(int));
@@ -65,6 +76,11 @@ namespace Inforoom.ReportSystem.ByOrders
 			dtNewRes.Columns["Region"].Caption = "Регион";
 			dtNewRes.Columns["OrdersSum"].Caption = "Сумма заказов";
 			dtNewRes.Columns["RowCount"].Caption = "Количество записей";
+			var selectCommand = e.DataAdapter.SelectCommand;
+			selectCommand.Parameters.Clear();
+			selectCommand.Parameters.AddWithValue("?StartDate", dtFrom);
+			selectCommand.Parameters.AddWithValue("?EndDate", dtTo);
+			selectCommand.CommandText = sql;
 			e.DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (string t in FilterDescriptions)

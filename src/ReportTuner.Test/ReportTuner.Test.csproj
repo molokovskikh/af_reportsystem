@@ -141,7 +141,7 @@
     </ProjectReference>
     <ProjectReference Include="..\ReportSystem.Tasks\ReportSystem.Tasks.csproj">
       <Project>{5004F914-6ACA-4D21-9038-7AACD6F57B94}</Project>
-      <Name>ReportSysmte.Tasks</Name>
+      <Name>ReportSystem.Tasks</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test.Support\Test.Support.Web\Test.Support.Web.csproj">
       <Project>{12258B1D-35E8-45BA-9C1E-5F7B8ACD7D37}</Project>

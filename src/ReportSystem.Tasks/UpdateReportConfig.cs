@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Inforoom.ReportSystem;
+using Inforoom.ReportSystem.ByOrders;
 using Inforoom.ReportSystem.Filters;
 using NHibernate;
 using NHibernate.Linq;
@@ -22,22 +23,24 @@ namespace ReportSysmte.Tasks
 		{
 			var procedures = new Dictionary<string, string> {
 				{"Payer", "GetPayerCode"},
-				{"Mnn", null}
+				{"Mnn", null},
+				{"Region", "GetRegion"}
 			};
 			var orderReport = new OrdersReport();
 			var rootType = typeof(OrdersReport);
 			//некоторые отчеты унаследованы от базового но на самом деле они не умеют использовать общие настройки
-			var configurableReports = new [] { typeof(RatingReport), typeof(MixedReport), typeof(PharmacyMixedReport) };
+			var configurableReports = new [] { typeof(RatingReport), typeof(MixedReport), typeof(PharmacyMixedReport), typeof(OrdersStatistics) };
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
 			foreach (var type in types) {
-				Console.WriteLine(type.FullName);
 				var reportType = session.Query<ReportType>().First(r => r.ReportClassName == type.FullName);
 				var notExists = orderReport.registredField.SelectMany(f => new [] {
 					f.reportPropertyPreffix + FilterField.PositionSuffix,
 					f.reportPropertyPreffix + FilterField.NonEqualSuffix,
 					f.reportPropertyPreffix + FilterField.EqualSuffix,
 				}).Except(reportType.Properties.Select(p => p.PropertyName));
+				if (reportType.RestrictedFields.Any())
+					notExists = notExists.Intersect(reportType.RestrictedFields);
 				foreach (var notExist in notExists) {
 					if (notExist.EndsWith(FilterField.PositionSuffix)) {
 						var field = orderReport.registredField.First(f => f.reportPropertyPreffix == notExist.Replace(FilterField.PositionSuffix, ""));

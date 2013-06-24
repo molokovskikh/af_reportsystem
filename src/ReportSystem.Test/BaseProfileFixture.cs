@@ -7,6 +7,7 @@ using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.FastReports;
 using Inforoom.ReportSystem.Helpers;
 using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.Configuration;
@@ -140,6 +141,38 @@ namespace ReportSystem.Test
 		{
 			using(var stream = File.OpenRead(name))
 				return new HSSFWorkbook(stream);
+		}
+
+		protected ISheet ReadReport<T>()
+		{
+			var fileName = "test.xls";
+			report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, ReportFormats.Excel, properties);
+			BuildReport(fileName);
+
+			var book = Load(fileName);
+			var sheet = book.GetSheetAt(0);
+			return sheet;
+		}
+
+		public string ToText(ISheet sheet)
+		{
+			var writer = new StringWriter();
+			for(var i = sheet.FirstRowNum; i < sheet.LastRowNum; i++) {
+				var row = sheet.GetRow(i);
+				writer.Write("|");
+				for(var j = row.FirstCellNum; j < row.LastCellNum; j++) {
+					var cell = row.GetCell(j);
+					if (cell.CellType == CellType.NUMERIC) {
+						writer.Write(cell.NumericCellValue);
+					}
+					else {
+						writer.Write(cell.StringCellValue);
+					}
+					writer.Write("|");
+				}
+				writer.WriteLine();
+			}
+			return writer.ToString();
 		}
 	}
 

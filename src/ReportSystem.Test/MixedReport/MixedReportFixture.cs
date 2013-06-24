@@ -26,7 +26,7 @@ namespace ReportSystem.Test
 		{
 			DefaultConf();
 
-			var sheet = ReadReport();
+			var sheet = ReadReport<MixedReport>();
 			var product = order.Items[0].Product;
 			Assert.That(sheet.GetRow(5).GetCell(1).StringCellValue, Is.EqualTo(product.CatalogProduct.CatalogName.Mnn.Mnn));
 		}
@@ -43,7 +43,7 @@ namespace ReportSystem.Test
 			Property("MnnNonEqual", new List<long> { mnn1.Id });
 			order.AddItem(product1, 34, 123.34f);
 
-			var sheet = ReadReport();
+			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
 			Assert.That(sheet.GetRow(3).GetCell(0).StringCellValue,
 				Is.EqualTo(String.Format("Следующие МНН исключены из отчета: {0}", mnn1.Mnn)));
@@ -72,27 +72,6 @@ namespace ReportSystem.Test
 			report.CheckAfterLoadFields();
 			report.SortFields();
 			Assert.That(report.selectedField.Implode(f => f.reportPropertyPreffix), Is.EqualTo("FirmCr"));
-		}
-
-		public string ToText(ISheet sheet)
-		{
-			var writer = new StringWriter();
-			for(var i = sheet.FirstRowNum; i < sheet.LastRowNum; i++) {
-				var row = sheet.GetRow(i);
-				writer.Write("|");
-				for(var j = row.FirstCellNum; j < row.LastCellNum; j++) {
-					var cell = row.GetCell(j);
-					if (cell.CellType == CellType.NUMERIC) {
-						writer.Write(cell.NumericCellValue);
-					}
-					else {
-						writer.Write(cell.StringCellValue);
-					}
-					writer.Write("|");
-				}
-				writer.WriteLine();
-			}
-			return writer.ToString();
 		}
 
 		private static string MakeColumns(string decl)
@@ -129,17 +108,6 @@ namespace ReportSystem.Test
 
 			Property("SourceFirmCode", (int)supplier.Id);
 			Property("BusinessRivals", new List<long> { rival.Id });
-		}
-
-		private ISheet ReadReport()
-		{
-			var fileName = "test.xls";
-			report = new MixedReport(1, fileName, (MySqlConnection)session.Connection, ReportFormats.Excel, properties);
-			BuildReport(fileName);
-
-			var book = Load(fileName);
-			var sheet = book.GetSheetAt(0);
-			return sheet;
 		}
 	}
 }

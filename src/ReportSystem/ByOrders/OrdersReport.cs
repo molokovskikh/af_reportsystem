@@ -159,17 +159,15 @@ namespace Inforoom.ReportSystem
 				dtTo = dtTo.Date.AddDays(1);
 			}
 			else if (ByPreviousMonth) {
-				dtTo = DateTime.Now;
+				dtTo = DateTime.Today;
 				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца
 				dtFrom = dtTo.AddMonths(-1).Date;
 			}
 			else {
 				_reportInterval = (int)getReportParam(reportIntervalProperty);
-				dtTo = DateTime.Now;
+				dtTo = DateTime.Today;
 				//От текущей даты вычитаем интервал - дата начала отчета
 				dtFrom = dtTo.AddDays(-_reportInterval).Date;
-				//К текущей дате 00 часов 00 минут является окончанием периода и ее в отчет не включаем
-				dtTo = dtTo.Date;
 			}
 			FilterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
 

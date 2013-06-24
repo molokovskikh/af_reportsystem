@@ -362,7 +362,7 @@
     </ProjectReference>
     <ProjectReference Include="..\ReportSystem.Tasks\ReportSystem.Tasks.csproj">
       <Project>{5004F914-6ACA-4D21-9038-7AACD6F57B94}</Project>
-      <Name>ReportSysmte.Tasks</Name>
+      <Name>ReportSystem.Tasks</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test.Support\Test.Support\Test.Support.csproj">
       <Project>{A215E837-1208-49E3-AF93-A9612223122C}</Project>

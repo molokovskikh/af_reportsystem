@@ -4,6 +4,7 @@ using System.Linq;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Common.Tools;
+using Inforoom.ReportSystem.Filters;
 
 namespace ReportTuner.Models
 {
@@ -57,6 +58,19 @@ namespace ReportTuner.Models
 					"RatingReport",
 					"SupplierMarketShareByUser"
 				}.Any(n => ReportClassName.EndsWith(n, StringComparison.InvariantCultureIgnoreCase));
+			}
+		}
+
+		public virtual IEnumerable<string> RestrictedFields
+		{
+			get
+			{
+				if (ReportClassName == "Inforoom.ReportSystem.ByOrders.OrdersStatistics")
+					return new [] {
+						"Region" + FilterField.NonEqualSuffix,
+						"Region" + FilterField.EqualSuffix,
+					};
+				return Enumerable.Empty<string>();
 			}
 		}
 
