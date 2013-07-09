@@ -6,12 +6,15 @@ using System.Linq;
 using System.Diagnostics;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using Common.Models;
 using Common.Tools;
+using Common.Web.Ui.ActiveRecordExtentions;
 using ExecuteTemplate;
 using Inforoom.ReportSystem;
-using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
+using NHibernate.Linq;
 using NUnit.Framework;
+using Offer = Inforoom.ReportSystem.Model.Offer;
 
 namespace ReportSystem.Test.ProviderReport
 {
@@ -129,7 +132,7 @@ from
 			var report = new SpecShortReportFake();
 			report.ReadReportParams();
 			using (new SessionScope()) {
-				var client = Client.Queryable.FirstOrDefault();
+				var client = ArHelper.WithSession(s => s.Query<Client>().First());
 				report.GetOffersByClient((int)client.Id);
 			}
 			Assert.That(report.ReportData.Count, Is.EqualTo(10));

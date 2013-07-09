@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Castle.ActiveRecord;
 using Castle.MonoRail.TestSupport;
@@ -68,6 +69,12 @@ namespace ReportTuner.Test.Integration
 				MyCn.Close();
 			}
 			return dtProcResult;
+		}
+
+		[Test]
+		public void test()
+		{
+			Console.WriteLine(File.ReadAllText("c:/1.txt"));
 		}
 
 		[Test]

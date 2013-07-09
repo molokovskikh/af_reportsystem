@@ -3,13 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Common.Models;
 using Common.Tools;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
-using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using System.Data;
+using NHibernate.Linq;
 using MSExcel = Microsoft.Office.Interop.Excel;
+using Offer = Inforoom.ReportSystem.Model.Offer;
 
 namespace Inforoom.ReportSystem
 {
@@ -203,9 +205,9 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		protected void GetOffersByClient(int clientId)
 		{
 			ProfileHelper.Next("GetOffers for client: " + clientId);
-			var client = Client.TryFind((uint)clientId);
+			var client = Session.Get<Client>((uint)clientId);
 			if (client == null) return;
-			if (client.Status == false) return;
+			if (client.Enabled == false) return;
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
 
 			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();
@@ -300,7 +302,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				_showCodeCr = false;
 
 			_Clients = (List<ulong>)getReportParam("Clients");
-			var clients = _Clients.Select(c => Client.TryFind((uint)c)).Where(c => c != null && c.Status == true).ToList();
+			var clients = Session.Query<Client>().Where(c => _Clients.Contains(c.Id)).Where(c => c != null && c.Enabled).ToList();
 			_Clients = clients.Select(c => (ulong)c.Id).ToList();
 			if (_Clients.Count == 0)
 				throw new ReportException("Не установлен параметр \"Список аптек\".");

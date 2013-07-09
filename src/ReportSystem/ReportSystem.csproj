@@ -159,6 +159,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\NHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="NHibernate.Mapping.Attributes, Version=3.2.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL" />
     <Reference Include="Office">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Office.dll</HintPath>
@@ -186,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByOffers\CostDynamic.cs" />
+    <Compile Include="ByOffers\MatrixReport.cs" />
     <Compile Include="ByOffers\OffersReportAsc.cs" />
     <Compile Include="ByOffers\PriceCollectionForClientReport.cs" />
     <Compile Include="ByOffers\PricesOfCompetitorsReport.cs" />
@@ -198,14 +200,12 @@
     <Compile Include="Helpers\CsvHelper.cs" />
     <Compile Include="Helpers\ReadParameterHelper.cs" />
     <Compile Include="Mailer.cs" />
-    <Compile Include="Model\Client.cs" />
     <Compile Include="Model\Markup.cs" />
     <Compile Include="Model\Offer.cs" />
     <Compile Include="Model\Price.cs" />
     <Compile Include="Model\Region.cs" />
     <Compile Include="Model\ReportExecuteLog.cs" />
     <Compile Include="Model\ReportResultLog.cs" />
-    <Compile Include="Model\Supplier.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Writers\OptimizationEfficiencyExcludeOleExcelWriter.cs" />
     <Compile Include="Writers\CostDynamicWriter.cs" />
@@ -227,7 +227,7 @@
     <Compile Include="ByOrders\MixedReport.cs" />
     <Compile Include="ByOffers\OffersReport.cs" />
     <Compile Include="ByOrders\OrdersReport.cs">
-        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="ByOrders\PharmacyMixedReport.cs" />
     <Compile Include="ByOrders\ProviderRatingReport.cs" />
@@ -307,6 +307,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common.Models\Common.Models\Common.Models.csproj">
+      <Project>{80C9F352-5EED-41B2-989A-6628BCAF4D36}</Project>
+      <Name>Common.Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common.Models\Common.Schedule\Common.Schedule.csproj">
       <Project>{9c706c92-b332-46b9-a1c8-d603b2534b26}</Project>
       <Name>Common.Schedule</Name>

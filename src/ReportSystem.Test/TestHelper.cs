@@ -78,6 +78,7 @@ namespace ReportSystem.Test
 		PharmacyMixedNameOld,
 		PharmacyOffers,
 		OffersReport,
+		MatrixReport,
 		LeakOffers,
 		PricesOfCompetitors,
 		OrderOutAllowedAssortment,

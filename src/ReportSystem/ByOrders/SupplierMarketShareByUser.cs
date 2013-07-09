@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Common.Models;
 using Common.Tools;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Model;
@@ -199,7 +200,7 @@ order by {3}", _regions.Implode(), _grouping.Group,
 			}
 			result.Columns.Add("Share", typeof(double));
 
-			var supplier = Supplier.Find(_supplierId);
+			var supplier = Session.Get<Supplier>(_supplierId);
 			var regions = _regions
 				.Select(id => Region.Find(Convert.ToUInt64(id)));
 

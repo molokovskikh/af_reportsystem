@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
+using Common.Models;
 using Common.MySql;
 using Common.Schedule;
 using Common.Tools;
@@ -12,9 +14,11 @@ using Common.Web.Ui.NHibernateExtentions;
 using ExecuteTemplate;
 using Inforoom.Common;
 using Inforoom.ReportSystem.Model;
+using NHibernate.Mapping.Attributes;
 using log4net;
 using log4net.Config;
 using MySql.Data.MySqlClient;
+using With = Common.MySql.With;
 
 namespace Inforoom.ReportSystem
 {
@@ -39,8 +43,13 @@ namespace Inforoom.ReportSystem
 				XmlConfigurator.Configure();
 				ConnectionHelper.DefaultConnectionStringName = "Default";
 				With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
-				if (!ActiveRecordStarter.IsInitialized)
-					ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(Supplier).Assembly);
+				if (!ActiveRecordStarter.IsInitialized) {
+					ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(ReportExecuteLog).Assembly);
+
+					foreach (NHibernate.Cfg.Configuration cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
+						cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
+					}
+				}
 
 				//Попытка получить код общего отчета в параметрах
 				var interval = false;
