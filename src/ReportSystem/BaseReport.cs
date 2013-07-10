@@ -85,7 +85,7 @@ namespace Inforoom.ReportSystem
 		public bool Interval;
 		public DateTime From;
 		public DateTime To;
-		protected ISession Session;
+		public ISession Session;
 
 		//для тестов
 		public bool CheckEmptyData = true;
@@ -206,12 +206,7 @@ namespace Inforoom.ReportSystem
 		{
 			args = e;
 			_dsReport.Clear();
-			using(new SessionScope()) {
-				ArHelper.WithSession(s => {
-					Session = s;
-					GenerateReport(e);
-				});
-			}
+			GenerateReport(e);
 			return true;
 		}
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using Castle.ActiveRecord;
+using Common.Web.Ui.ActiveRecordExtentions;
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem.Model;
 using log4net;
@@ -271,8 +273,13 @@ where GeneralReport = ?GeneralReport;";
 				var bs = Reports.First();
 				try {
 					Reports.Remove(bs);
-					bs.ReadReportParams();
-					bs.ProcessReport();
+					using (new SessionScope()) {
+						ArHelper.WithSession(s => {
+							bs.Session = s;
+							bs.ReadReportParams();
+							bs.ProcessReport();
+						});
+					}
 					bs.ReportToFile(_mainFileName);
 					bs.ToLog(GeneralReportID); // логируем успешное выполнение отчета
 					emptyReport = false;

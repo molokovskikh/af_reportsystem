@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Castle.ActiveRecord;
+using Common.Web.Ui.ActiveRecordExtentions;
 using Inforoom.ReportSystem;
 using System.Data;
 using System.IO;
@@ -116,9 +118,14 @@ namespace ReportSystem.Test
 		public static void ProcessReport(BaseReport report, ReportsTypes type)
 		{
 			ProfileHelper.Start();
-			report.CheckEmptyData = false;
-			report.ReadReportParams();
-			report.ProcessReport();
+			using (new SessionScope()) {
+				ArHelper.WithSession(s => {
+					report.Session = s;
+					report.CheckEmptyData = false;
+					report.ReadReportParams();
+					report.ProcessReport();
+				});
+			}
 			report.ReportToFile(TestHelper.EnsureDeletion(type));
 			ProfileHelper.Stop();
 		}

@@ -93,6 +93,7 @@ namespace ReportSystem.Test
 			if (File.Exists(file))
 				File.Delete(file);
 			ProfileHelper.Start();
+			report.Session = session;
 			report.CheckEmptyData = checkEmptyData;
 			report.ReadReportParams();
 			report.ProcessReport();
