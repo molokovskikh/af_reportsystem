@@ -72,12 +72,6 @@ namespace ReportTuner.Test.Integration
 		}
 
 		[Test]
-		public void test()
-		{
-			Console.WriteLine(File.ReadAllText("c:/1.txt"));
-		}
-
-		[Test]
 		public void TestRecipientsList()
 		{
 			TestClient client1;

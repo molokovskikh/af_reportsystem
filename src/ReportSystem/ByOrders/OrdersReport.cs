@@ -51,12 +51,6 @@ namespace Inforoom.ReportSystem
 		protected bool firmCrPosition; // есть ли параметр "Позиция производителя"
 		protected string OrdersSchema = "Orders";
 
-		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
-		public List<string> FilterDescriptions = new List<string>();
-
-		public List<ColumnGroupHeader> GroupHeaders
-			= new List<ColumnGroupHeader>();
-
 		private string[] nameFields = new[] { "FullName", "ShortName", "ProductName" };
 
 		public OrdersReport()
@@ -219,113 +213,6 @@ namespace Inforoom.ReportSystem
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
-		{
-		}
-
-		protected override void FormatExcel(string fileName)
-		{
-			ProfileHelper.Next("FormatExcel");
-			Application exApp = new ApplicationClass();
-			try {
-				exApp.DisplayAlerts = false;
-				var wb = exApp.Workbooks.Open(fileName, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
-					Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
-					Type.Missing);
-				_Worksheet ws;
-				try {
-					ws = (_Worksheet)wb.Worksheets["rep" + ReportCode];
-
-					try {
-						ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
-
-						var res = _dsReport.Tables["Results"];
-						var tableBegin = 1 + FilterDescriptions.Count;
-						var groupedHeadersLine = tableBegin;
-						if (GroupHeaders.Count > 0)
-							tableBegin++;
-
-						for (var i = 0; i < res.Columns.Count; i++) {
-							var dataColumn = res.Columns[i];
-
-							ws.Cells[1, i + 1] = "";
-							ws.Cells[tableBegin, i + 1] = dataColumn.Caption;
-							if (dataColumn.ExtendedProperties.ContainsKey("Width"))
-								((Range)ws.Columns[i + 1, Type.Missing]).ColumnWidth = ((int?)dataColumn.ExtendedProperties["Width"]).Value;
-							else
-								((Range)ws.Columns[i + 1, Type.Missing]).AutoFit();
-
-							if (dataColumn.ExtendedProperties.ContainsKey("Color"))
-								ws.Range[ws.Cells[tableBegin, i + 1], ws.Cells[res.Rows.Count + 1, i + 1]].Interior.Color = ColorTranslator.ToOle((Color)dataColumn.ExtendedProperties["Color"]);
-						}
-
-						//рисуем границы на всю таблицу
-						ws.Range[ws.Cells[tableBegin, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Borders
-							.Weight = XlBorderWeight.xlThin;
-
-						//Устанавливаем шрифт листа
-						ws.Rows.Font.Size = 8;
-						ws.Rows.Font.Name = "Arial Narrow";
-						ws.Activate();
-
-						//Устанавливаем АвтоФильтр на все колонки
-						ws.Range[ws.Cells[tableBegin, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Select();
-						((Range)exApp.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
-
-						for (var i = 0; i < FilterDescriptions.Count; i++)
-							ws.Cells[1 + i, 1] = FilterDescriptions[i];
-
-						foreach (var groupHeader in GroupHeaders) {
-							var begin = ColumnIndex(res, groupHeader.BeginColumn);
-							var end = ColumnIndex(res, groupHeader.EndColumn);
-							if (begin == 0 || end == 0)
-								continue;
-							var range = ws.Range[ws.Cells[groupedHeadersLine, begin], ws.Cells[groupedHeadersLine, end]];
-							range.Select();
-							range.Merge(null);
-							range.Value2 = groupHeader.Title;
-							range.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-							range.Borders.Weight = XlBorderWeight.xlThin;
-						}
-
-						PostProcessing(exApp, ws);
-					}
-					finally {
-						wb.SaveAs(fileName, 56, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-					}
-				}
-				finally {
-					ws = null;
-					wb = null;
-					try {
-						exApp.Workbooks.Close();
-					}
-					catch {
-					}
-				}
-			}
-			finally {
-				try {
-					exApp.Quit();
-				}
-				catch {
-				}
-				exApp = null;
-			}
-			ProfileHelper.End();
-		}
-
-		private static int ColumnIndex(DataTable res, string name)
-		{
-			return res.Columns.Cast<DataColumn>()
-				.IndexOf(c => String.Equals(c.ExtendedProperties["OriginalName"] as String, name, StringComparison.InvariantCultureIgnoreCase)) + 1;
-		}
-
-		/// <summary>
-		/// Дополнительные действия с форматированием отчета, специфичные для отчета
-		/// </summary>
-		/// <param name="exApp"></param>
-		/// <param name="ws"></param>
-		protected virtual void PostProcessing(Application exApp, _Worksheet ws)
 		{
 		}
 

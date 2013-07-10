@@ -26,7 +26,7 @@ namespace Inforoom.ReportSystem.ByOffers
 		{
 		}
 
-		private static readonly string[] CollumnNames = new[] {
+		private static string[] CollumnNames = new[] {
 			"Код товара из матрицы",
 			"Код изготовителя из матрицы",
 			"Написание товара из матрицы",
@@ -38,9 +38,17 @@ namespace Inforoom.ReportSystem.ByOffers
 			"Оригинальное наименование товара",
 			"Оригинальное наименование Производителя",
 			"Поставщик",
-			"Прайс лист",
 			"Дата и время прайс-листа",
 			"Действие по позиции"
+		};
+
+		private static Dictionary<string, int> ColumnsWidhts = new Dictionary<string, int> {
+			{ "ProductSynonym", 60 },
+			{ "ProducerSynonym", 60 },
+			{ "CatalogName", 60 },
+			{ "ProducerName", 40 },
+			{ "OriginalName", 60 },
+			{ "OriginalProducerName", 40 }
 		};
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -77,7 +85,6 @@ Core.CodeCr as OriginalCodeCr,
 origSyn.Synonym as OriginalName,
 origSynCr.Synonym as OriginalProducerName,
 AT.FirmName as  FirmName,
-AT.PriceName as  PriceName,
 AT.PriceDate as PriceDate
 ", sql.Alias, sql.Alias2);
 			e.DataAdapter.SelectCommand.CommandText = selectPart + sql.Select + Environment.NewLine + fromQueryPart;
@@ -94,9 +101,23 @@ AT.PriceDate as PriceDate
 			foreach (DataRow row in result.Rows) {
 				row["BuyingMatrixTypeString"] = GetMatrigTypeString(row);
 			}
-			result.Columns.Remove("BuyingMatrixType");
+			for (int i = 0; i < 4; i++) {
+				var row = result.NewRow();
+				result.Rows.InsertAt(row, 0);
+			}
+
+			PrepareCollumns(result, rules);
 			SetTableCollomnNames(result);
+			SetTableCollumnWidth(result);
+
 			_dsReport.Tables.Add(result);
+
+			FilterDescriptions.AddRange(new[] {
+				"Товары поставщиков, подпадающие под действие матрицы",
+				String.Format("Выбранная аптека: {0}", _client.Name),
+				String.Format("Отчет сформирован: {0}", DateTime.Now),
+				string.Empty
+			});
 		}
 
 		private string GetMatrigTypeString(DataRow row)
@@ -116,27 +137,8 @@ AT.PriceDate as PriceDate
 		private void SetTableCollumnWidth(DataTable table)
 		{
 			foreach (DataColumn column in table.Columns) {
-				switch (column.ExtendedProperties["OriginalName"].ToString()) {
-					case "ProductSynonym":
-						column.ExtendedProperties["Width"] = 60;
-						continue;
-					case "ProducerSynonym":
-						column.ExtendedProperties["Width"] = 60;
-						continue;
-					case "CatalogName":
-						column.ExtendedProperties["Width"] = 60;
-						continue;
-					case "ProducerName":
-						column.ExtendedProperties["Width"] = 40;
-						continue;
-					case "OriginalName":
-						column.ExtendedProperties["Width"] = 60;
-						continue;
-					case "OriginalProducerName":
-						column.ExtendedProperties["Width"] = 40;
-						continue;
-					default: continue;
-				}
+				if (ColumnsWidhts.Keys.Contains(column.ColumnName))
+					column.ExtendedProperties["Width"] = ColumnsWidhts[column.ColumnName];
 			}
 		}
 
@@ -147,43 +149,18 @@ AT.PriceDate as PriceDate
 			}
 		}
 
-		protected override void FormatExcel(string fileName)
+		private void PrepareCollumns(DataTable table, OrderRules rules)
 		{
-			UseExcel.Workbook(fileName, wb => {
-				var ws = (_Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
+			table.Columns.Remove("BuyingMatrixType");
 
-				ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
-				ws.Activate();
+			if ((rules.BuyingMatrixType == MatrixType.WhiteList && rules.BuyingMatrix != null) || (rules.OfferMatrixType == MatrixType.WhiteList && rules.OfferMatrix != null)) {
+				table.Columns.Remove("ProductId");
+				table.Columns.Remove("ProducerId");
+				table.Columns.Remove("ProductSynonym");
+				table.Columns.Remove("ProducerSynonym");
 
-				var result = _dsReport.Tables["Results"];
-				//очищаем заголовки
-				for (var i = 0; i < result.Columns.Count; i++)
-					ws.Cells[1, i + 1] = "";
-
-				var tableBeginRowIndex = 5;
-				var rowCount = result.Rows.Count;
-				var columnCount = result.Columns.Count;
-
-				ExcelHelper.Header(ws, 0, 13, "Товары поставщиков, подпадающие под действие матрицы");
-				ExcelHelper.Header(ws, 1, 13, String.Format("Выбранная аптека: {0}", _client.Name));
-				ExcelHelper.Header(ws, 2, 13, String.Format("Отчет сформирован: {0}", DateTime.Now));
-				ExcelHelper.Header(ws, 3, 13, string.Empty);
-
-				var lastRowIndex = rowCount + tableBeginRowIndex;
-
-				SetTableCollumnWidth(result);
-				ExcelHelper.FormatHeader(ws, tableBeginRowIndex, result);
-
-				//рисуем границы на всю таблицу
-				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[lastRowIndex, columnCount]].Borders.Weight = XlBorderWeight.xlThin;
-				//Устанавливаем шрифт листа
-				ws.Rows.Font.Size = 8;
-				ws.Rows.Font.Name = "Arial Narrow";
-
-				//Устанавливаем АвтоФильтр на все колонки
-				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[lastRowIndex, columnCount]].Select();
-				((Range)wb.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
-			});
+				CollumnNames = CollumnNames.Skip(4).ToArray();
+			}
 		}
 
 		public override void ReadReportParams()

@@ -2,10 +2,13 @@
 using System.Collections;
 using System.Data;
 using System.IO;
+using Castle.ActiveRecord;
 using Common.MySql;
+using Common.Web.Ui.ActiveRecordExtentions;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.FastReports;
 using Inforoom.ReportSystem.Helpers;
+using NHibernate;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NUnit.Framework;
@@ -221,7 +224,7 @@ namespace ReportSystem.Test
 			row["ID"] = i;
 			row["PropertyName"] = name;
 			row["PropertyValue"] = value;
-			if (value is int)
+			if (value is int || value is uint)
 				type = "INT";
 			else if (value is bool)
 				type = "BOOL";
@@ -263,6 +266,13 @@ namespace ReportSystem.Test
 			report.ProcessReport();
 			report.ReportToFile(Path.GetFullPath(file));
 			ProfileHelper.Stop();
+		}
+
+		protected void Init(Action<ISession> action)
+		{
+			using (new SessionScope()) {
+				ArHelper.WithSession(action);
+			}
 		}
 
 		public void AddProperty(DataSet properties, string name, object value)

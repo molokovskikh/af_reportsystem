@@ -81,12 +81,5 @@ namespace ReportSystem.Test
 			Assert.That(Markup.RetailCost(65, 50, 10, markups), Is.EqualTo(72));
 			Assert.That(Markup.RetailCost(215.40m, 200.10m, 10, markups), Is.EqualTo(255));
 		}
-
-		private void Init(Action<ISession> action)
-		{
-			using (new SessionScope()) {
-				ArHelper.WithSession(action);
-			}
-		}
 	}
 }
