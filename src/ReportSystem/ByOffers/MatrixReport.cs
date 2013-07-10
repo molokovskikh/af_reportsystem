@@ -153,7 +153,8 @@ AT.PriceDate as PriceDate
 		{
 			table.Columns.Remove("BuyingMatrixType");
 
-			if ((rules.BuyingMatrixType == MatrixType.WhiteList && rules.BuyingMatrix != null) || (rules.OfferMatrixType == MatrixType.WhiteList && rules.OfferMatrix != null)) {
+			if ((rules.BuyingMatrixType == MatrixType.WhiteList && rules.BuyingMatrix != null && (rules.OfferMatrix == null || rules.OfferMatrixType == MatrixType.WhiteList))
+				|| (rules.OfferMatrixType == MatrixType.WhiteList && rules.OfferMatrix != null && (rules.BuyingMatrix == null || rules.BuyingMatrixType == MatrixType.WhiteList))) {
 				table.Columns.Remove("ProductId");
 				table.Columns.Remove("ProducerId");
 				table.Columns.Remove("ProductSynonym");
