@@ -260,7 +260,6 @@ and regions.RegionCode = activeprices.RegionCode";
 			else {
 				// Получаем пользователя
 				userId = GetUserId();
-				Console.WriteLine("UserId: {0}", userId);
 				selectCommand.CommandText = "Customers.GetPrices";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.Parameters.Clear();

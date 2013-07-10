@@ -88,7 +88,6 @@ AT.FirmName as  FirmName,
 AT.PriceDate as PriceDate
 ", sql.Alias, sql.Alias2);
 			e.DataAdapter.SelectCommand.CommandText = selectPart + sql.Select + Environment.NewLine + fromQueryPart;
-			Console.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 			if (rules.OfferMatrix.HasValue)
 				e.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
 
