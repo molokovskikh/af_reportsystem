@@ -15,40 +15,40 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class WaybillsReportFixture : BaseProfileFixture
+	public class WaybillsReportFixture : BaseProfileFixture2
 	{
 		[Test]
 		public void Build()
 		{
 			int orgId = 0;
-			Init(session => {
-				var client = TestClient.CreateNaked();
-				var address = client.Addresses[0];
-				var supplier = TestSupplier.CreateNaked();
+			var client = TestClient.CreateNaked();
+			var address = client.Addresses[0];
+			var supplier = TestSupplier.CreateNaked();
 
-				orgId = (int)address.LegalEntity.Id;
-				var waybill = new TestWaybill(new TestDocumentLog(supplier, address));
-				waybill.Lines.Add(new TestWaybillLine(waybill) {
-					Product = "Аксетин",
-					Quantity = 10,
-					SerialNumber = "4563",
-					EAN13 = "5290931004832",
-					ProducerCost = 56,
-					SupplierCost = 100,
-				});
-				waybill.Lines.Add(new TestWaybillLine(waybill) {
-					Product = "Аксетин",
-					Quantity = 10,
-					SerialNumber = "4563",
-					EAN13 = "5290931004832",
-					ProducerCost = 56,
-					SupplierCost = 70,
-				});
-				session.Save(waybill);
-				session.CreateSQLQuery("update Customers.Suppliers set VendorId = 15 where id = :id")
-					.SetParameter("id", supplier.Id)
-					.ExecuteUpdate();
+			orgId = (int)address.LegalEntity.Id;
+			var waybill = new TestWaybill(new TestDocumentLog(supplier, address));
+			waybill.Lines.Add(new TestWaybillLine(waybill) {
+				Product = "Аксетин",
+				Quantity = 10,
+				SerialNumber = "4563",
+				EAN13 = "5290931004832",
+				ProducerCost = 56,
+				SupplierCost = 100,
 			});
+			waybill.Lines.Add(new TestWaybillLine(waybill) {
+				Product = "Аксетин",
+				Quantity = 10,
+				SerialNumber = "4563",
+				EAN13 = "5290931004832",
+				ProducerCost = 56,
+				SupplierCost = 70,
+			});
+			session.Save(waybill);
+			session.CreateSQLQuery("update Customers.Suppliers set VendorId = 15 where id = :id")
+				.SetParameter("id", supplier.Id)
+				.ExecuteUpdate();
+
+			Reopen();
 
 			Property("ByPreviousMonth", false);
 			Property("OrgId", orgId);

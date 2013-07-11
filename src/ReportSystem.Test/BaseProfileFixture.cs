@@ -39,11 +39,15 @@ namespace ReportSystem.Test
 			var values = properties.Tables.Add("ReportPropertyValues");
 			values.Columns.Add("ReportPropertyID");
 			values.Columns.Add("Value");
+
+			Conn = new MySqlConnection(ConfigurationManager.ConnectionStrings[FixtureSetup.ConnectionStringName].ConnectionString);
+			Conn.Open();
 		}
 
 		[TearDown]
 		public void Stop()
 		{
+			Conn.Dispose();
 			ProfileHelper.End();
 		}
 

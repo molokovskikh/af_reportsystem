@@ -239,7 +239,8 @@ namespace Inforoom.ReportSystem
 			else {
 				// Формируем Excel
 				DataTableToExcel(reportTable, fileName);
-				FormatExcel(fileName);
+				if (File.Exists(fileName))
+					FormatExcel(fileName);
 			}
 		}
 

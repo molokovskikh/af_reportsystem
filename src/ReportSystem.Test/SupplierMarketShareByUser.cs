@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class SupplierMarketShareByUserFixture : BaseProfileFixture
+	public class SupplierMarketShareByUserFixture : BaseProfileFixture2
 	{
 		[SetUp]
 		public void Setup()
