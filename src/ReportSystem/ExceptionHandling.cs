@@ -26,11 +26,4 @@ namespace Inforoom.ReportSystem
 		{
 		}
 	}
-
-	public class EmptyReportExceprion : Exception
-	{
-		public EmptyReportExceprion(string message) : base(message)
-		{
-		}
-	}
 }
