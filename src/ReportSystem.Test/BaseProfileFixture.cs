@@ -24,6 +24,7 @@ namespace ReportSystem.Test
 		protected int i;
 		protected DataSet properties;
 		protected BaseReport report;
+		private string _fileName;
 
 		[SetUp]
 		public void Start()
@@ -48,6 +49,8 @@ namespace ReportSystem.Test
 		public void Stop()
 		{
 			Conn.Dispose();
+			if (File.Exists(_fileName))
+				File.Delete(_fileName);
 			ProfileHelper.End();
 		}
 
@@ -94,6 +97,7 @@ namespace ReportSystem.Test
 
 			if (file == null)
 				file = "test.xls";
+			_fileName = file;
 			if (File.Exists(file))
 				File.Delete(file);
 			ProfileHelper.Start();
@@ -195,6 +199,7 @@ namespace ReportSystem.Test
 		protected int i;
 		protected DataSet properties;
 		protected BaseReport report;
+		private string _fileName;
 
 		[SetUp]
 		public void Start()
@@ -219,7 +224,8 @@ namespace ReportSystem.Test
 		public void Stop()
 		{
 			Conn.Dispose();
-
+			if (File.Exists(_fileName))
+				File.Delete(_fileName);
 			ProfileHelper.End();
 		}
 
@@ -263,6 +269,7 @@ namespace ReportSystem.Test
 
 			if (file == null)
 				file = "test.xls";
+			_fileName = file;
 			if (File.Exists(file))
 				File.Delete(file);
 			ProfileHelper.Start();

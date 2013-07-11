@@ -132,8 +132,11 @@ from
 			var report = new SpecShortReportFake();
 			report.ReadReportParams();
 			using (new SessionScope()) {
-				var client = ArHelper.WithSession(s => s.Query<Client>().First());
-				report.GetOffersByClient((int)client.Id);
+				ArHelper.WithSession(s => {
+					var client = s.Query<Client>().First();
+					report.Session = s;
+					report.GetOffersByClient((int)client.Id);
+				});
 			}
 			Assert.That(report.ReportData.Count, Is.EqualTo(10));
 

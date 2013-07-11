@@ -286,7 +286,7 @@ where GeneralReport = ?GeneralReport;";
 				}
 				catch (Exception ex) {
 					bs.ToLog(GeneralReportID, ex.ToString()); // логируем ошибку при выполнении отчета
-					if (ex is ReportException) {
+					if (ex is ReportException || (ex is EmptyReportExceprion && Reports.Count > 1)) {
 						// уведомление об ошибке при формировании одного из подотчетов
 						Mailer.MailReportErr(ex.ToString(), _payer, GeneralReportID, bs.ReportCode, bs.ReportCaption);
 						continue; // выполняем следующий отчет
