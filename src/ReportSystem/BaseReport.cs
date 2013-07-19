@@ -389,6 +389,16 @@ namespace Inforoom.ReportSystem
 			return _dsReport.Tables["Results"];
 		}
 
+		protected string GetValuesFromSQL(string SQL)
+		{
+			args.DataAdapter.SelectCommand.CommandText = SQL;
+			args.DataAdapter.SelectCommand.Parameters.Clear();
+			var dtValues = new DataTable();
+			args.DataAdapter.Fill(dtValues);
+
+			return (from DataRow dr in dtValues.Rows select dr[0]).Implode();
+		}
+
 		public object getReportParam(string ParamName)
 		{
 			if (_reportParams.ContainsKey(ParamName))
@@ -458,6 +468,39 @@ order by 1", filterStr);
 				valuesList.Add(dr[0].ToString());
 
 			return String.Join(", ", valuesList.ToArray());
+		}
+
+		protected string GetSqlFromSuppliers(List<ulong> ids)
+		{
+			return @"
+select concat(supps.Name, ' - ', rg.Region) as FirmShortName
+from
+Customers.suppliers supps,
+farm.regions rg
+where
+rg.RegionCode = supps.HomeRegion and supps.Id in (" +
+				ids.Implode() +
+				") order by supps.Name";
+		}
+
+		protected string GetSqlFromPrices(List<ulong> ids)
+		{
+			return @"
+SELECT concat(p.PriceName, ' (', s.Name, ' - ', rg.Region, ')') FROM PricesData P
+join customers.Suppliers s on s.id = p.FirmCode
+join farm.regions rg on rg.RegionCode = s.HomeRegion
+where p.PriceCode in (" +
+				ids.Implode() +
+				") order by p.PriceName";
+		}
+
+		protected string GetSqlFromRegions(List<ulong> ids)
+		{
+			return @"
+select rg.Region from farm.regions rg
+where rg.RegionCode in (" +
+				ids.Implode() +
+				") order by rg.Region";
 		}
 
 		public void ToLog(ulong generalReportCode, string errDesc = null)

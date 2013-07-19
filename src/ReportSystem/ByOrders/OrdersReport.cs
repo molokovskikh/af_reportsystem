@@ -202,16 +202,6 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		protected string GetValuesFromSQL(string SQL)
-		{
-			args.DataAdapter.SelectCommand.CommandText = SQL;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			var dtValues = new DataTable();
-			args.DataAdapter.Fill(dtValues);
-
-			return (from DataRow dr in dtValues.Rows select dr[0]).Implode();
-		}
-
 		public override void GenerateReport(ExecuteArgs e)
 		{
 		}
