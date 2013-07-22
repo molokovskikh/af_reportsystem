@@ -11,13 +11,15 @@ using System.Web.UI.WebControls;
 using Common.MySql;
 using Common.Schedule;
 using Common.Tools;
+using Common.Web.Ui.Helpers;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
+using Page = System.Web.UI.Page;
 
-public partial class Reports_GeneralReports : System.Web.UI.Page
+public partial class Reports_GeneralReports : BasePage
 {
 	public static void Redirect(Page CurrentPage)
 	{
@@ -62,7 +64,7 @@ public partial class Reports_GeneralReports : System.Web.UI.Page
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
-		if (!Page.IsPostBack) {
+		if (!IsPostBack) {
 			PostData();
 		}
 		else {
@@ -534,17 +536,7 @@ select last_insert_id() as GRLastInsertID;
 
 		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
 		// А также включаем/выключаем задание при изменении галки "Включен"
-		if ((_deletedReports.Count > 0) || (_updatedReports.Count > 0)) {
-			using (var helper = new ScheduleHelper()) {
-				foreach (var id in _updatedReports) {
-					var report = GeneralReport.Find(id);
-					helper.GetTask(id, report.Comment);
-					ScheduleHelper.SetTaskEnableStatus(id, report.Allow, "GR"); // включаем/выключаем отчет
-				}
-				foreach (var id in _deletedReports)
-					helper.DeleteReportTask(id);
-			}
-		}
+		UpdateTasksForGeneralReports(_deletedReports, _updatedReports);
 
 		PostData();
 
@@ -556,6 +548,24 @@ select last_insert_id() as GRLastInsertID;
 		if (dtInserted != null) {
 			if (!Request.Url.OriginalString.Contains("#"))
 				Response.Redirect(Request.Url.OriginalString + "#addedPage");
+		}
+	}
+
+	public void UpdateTasksForGeneralReports(List<ulong> deletedReports,
+		List<ulong> updatedReports)
+	{
+		if ((deletedReports.Count > 0)
+			|| (updatedReports.Count > 0)) {
+			using (var helper = new ScheduleHelper()) {
+				foreach (var id in updatedReports) {
+					var report = DbSession.Get<GeneralReport>(id);
+					helper.GetTask(id, report.Comment);
+					ScheduleHelper.SetTaskComment(id, report.Comment, "GR");
+					ScheduleHelper.SetTaskEnableStatus(id, report.Allow, "GR");
+				}
+				foreach (var id in deletedReports)
+					helper.DeleteReportTask(id);
+			}
 		}
 	}
 

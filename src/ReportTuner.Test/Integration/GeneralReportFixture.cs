@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using Common.Schedule;
+using Common.Tools;
 using NUnit.Framework;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
@@ -28,6 +29,36 @@ namespace ReportTuner.Test.Integration
 			session.Save(new ReportExecuteLog { StartTime = DateTime.Now, EndTime = DateTime.Now.AddHours(1), GeneralReportCode = 1 });
 			startTime = Reports_schedule.GetStartTime(session, 1);
 			Assert.AreEqual(startTime, string.Format("Отчет запущен {0}. Среднее время выполнения: 60,0 минут", DateTime.Now));
+		}
+
+		[Test]
+		public void CheckTaskDefinitionUpdate()
+		{
+			var comment = Generator.Name();
+			var payer = new Payer("Тестовый плательщик");
+			var report = new GeneralReport(payer) {
+				Comment = comment
+			};
+			session.Save(payer);
+			session.Save(report);
+
+			var helper = new ScheduleHelper();
+			helper.GetTask(report.Id, report.Comment);
+
+			var reportPage = new Reports_GeneralReports {
+				DbSession = session
+			};
+			comment = Generator.Name();
+			report.Comment = comment;
+			session.Save(report);
+			session.Flush();
+
+			reportPage.UpdateTasksForGeneralReports(new List<ulong>(),
+				new List<ulong> {
+					report.Id
+				});
+			var task = helper.GetTask(report.Id, report.Comment);
+			Assert.AreEqual(task.Definition.RegistrationInfo.Description, comment);
 		}
 
 		[Test]
