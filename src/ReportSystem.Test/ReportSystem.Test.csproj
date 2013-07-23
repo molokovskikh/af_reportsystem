@@ -57,6 +57,7 @@
     <Reference Include="Microsoft.Office.Interop.Excel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.Win32.TaskScheduler, Version=1.9.4.17032, Culture=neutral, PublicKeyToken=0d013ddd5178a2ae, processorArchitecture=MSIL" />
     <Reference Include="MySql.Data">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MySql.Data.dll</HintPath>
@@ -353,6 +354,10 @@
     <ProjectReference Include="..\Common.Models\Common.Models\Common.Models.csproj">
       <Project>{80c9f352-5eed-41b2-989a-6628bcaf4d36}</Project>
       <Name>Common.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common.Models\Common.Schedule\Common.Schedule.csproj">
+      <Project>{9c706c92-b332-46b9-a1c8-d603b2534b26}</Project>
+      <Name>Common.Schedule</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">
       <Project>{8A680813-C83B-497A-85E6-E8F07B7D7650}</Project>

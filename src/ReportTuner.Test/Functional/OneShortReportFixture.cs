@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Common.Schedule;
+using Microsoft.Win32.TaskScheduler;
 using NUnit.Framework;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
@@ -47,6 +48,20 @@ namespace ReportTuner.Test.Functional
 			Click("Выполнить задание");
 			Thread.Sleep(3000);
 			AssertText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
+		}
+
+		[Test]
+		public void CurrentTaskStartReport()
+		{
+			Open("/Reports/schedule.aspx?r=50");
+			Click("Выполнить задание");
+
+			Thread.Sleep(500);
+
+			var taskService = ScheduleHelper.GetService();
+			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
+			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 50, "", "GR");
+			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Is.StringContaining("manual:true"));
 		}
 
 		[Test]

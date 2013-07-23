@@ -39,7 +39,6 @@ public partial class Reports_schedule : BasePage
 	private DataColumn SSaturday;
 	private DataColumn SSunday;
 	private Task currentTask;
-	private Task temp1Task;
 	private TaskDefinition currentTaskDefinition;
 	private DaysOfTheWeek triggerDays = 0;
 	private DataColumn SStartHour;
@@ -70,12 +69,10 @@ public partial class Reports_schedule : BasePage
 		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
 
-		temp1Task = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(1), "tempTask1", "temp");
-
 		var tempTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, "tempTask", "temp_");
 		var runningTempTask = tempTask.State == TaskState.Running;
 
-		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running && tempTask.State != TaskState.Running;
+		btnExecute.Enabled = currentTask.State != TaskState.Running && tempTask.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
@@ -84,7 +81,7 @@ public partial class Reports_schedule : BasePage
 
 		var description = tempTask.State == TaskState.Running ? string.Format("(запустил: {0})", tempTask.Definition.RegistrationInfo.Description) : string.Empty;
 
-		if (tempTask.State == TaskState.Running || temp1Task.State == TaskState.Running) {
+		if (tempTask.State == TaskState.Running || currentTask.State == TaskState.Running) {
 			ExecAction action = null;
 			var currentReportNumber = "";
 			ulong runningNumber = 0;
@@ -92,7 +89,7 @@ public partial class Reports_schedule : BasePage
 				action = (ExecAction)tempTask.Definition.Actions.FirstOrDefault();
 			}
 			else {
-				action = (ExecAction)temp1Task.Definition.Actions.FirstOrDefault();
+				action = (ExecAction)currentTask.Definition.Actions.FirstOrDefault();
 			}
 			if (action != null) {
 				var arguments = (action).Arguments;
@@ -113,7 +110,7 @@ public partial class Reports_schedule : BasePage
 
 			var prefix = tempTask.State == TaskState.Running ? String.Format("Успешно запущен разовый отчет{0}", currentReportNumber)
 				: String.Format("Отчет запущен ({0})", currentReportNumber);
-			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Running) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName || currentTask.State == TaskState.Running) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции. {1}", prefix, startTime);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
@@ -125,9 +122,9 @@ public partial class Reports_schedule : BasePage
 			RadioSelf.Enabled = false;
 			RadioMails.Enabled = false;
 		}
-		if (tempTask.State == TaskState.Queued || temp1Task.State == TaskState.Queued) {
+		if (tempTask.State == TaskState.Queued || currentTask.State == TaskState.Queued) {
 			var prefix = tempTask.State == TaskState.Running ? "Запускается разовый отчет" : "Отчет запускается";
-			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Queued) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName || currentTask.State == TaskState.Queued) {
 				ErrorMassage.Text = string.Format("{0}, ожидайте окончания выполнения операции", prefix);
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
@@ -139,9 +136,9 @@ public partial class Reports_schedule : BasePage
 			RadioSelf.Enabled = false;
 			RadioMails.Enabled = false;
 		}
-		if ((tempTask.State == TaskState.Ready && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
-			(temp1Task.State == TaskState.Ready && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
-			if (tempTask.Definition.RegistrationInfo.Description == userName || temp1Task.State == TaskState.Ready) {
+		if ((tempTask.State == TaskState.Ready && currentTask.State != TaskState.Running && currentTask.State != TaskState.Queued) ||
+			(currentTask.State == TaskState.Ready && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
+			if (tempTask.Definition.RegistrationInfo.Description == userName || currentTask.State == TaskState.Ready) {
 				// отчет выполнен
 				if (Session["StartTaskTime"] != null) {
 					Session.Remove("StartTaskTime");
@@ -152,8 +149,8 @@ public partial class Reports_schedule : BasePage
 					ErrorMassage.Text = "";
 			}
 		}
-		if ((tempTask.State == TaskState.Disabled && temp1Task.State != TaskState.Running && temp1Task.State != TaskState.Queued) ||
-			(temp1Task.State == TaskState.Disabled && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
+		if ((tempTask.State == TaskState.Disabled && currentTask.State != TaskState.Running && currentTask.State != TaskState.Queued) ||
+			(currentTask.State == TaskState.Disabled && tempTask.State != TaskState.Running && tempTask.State != TaskState.Queued)) {
 			if (Session["StartTaskTime"] != null) {
 				Session.Remove("StartTaskTime");
 				ErrorMassage.Text = "Операция отменена";
@@ -414,7 +411,7 @@ limit 15;";
 		_generalReport.Allow = chbAllow.Checked;
 		_generalReport.Save();
 
-		btnExecute.Enabled = currentTask.State != TaskState.Running && temp1Task.State != TaskState.Running;
+		btnExecute.Enabled = currentTask.State != TaskState.Running && currentTask.State != TaskState.Running;
 		btnExecute.Text = (currentTask.State == TaskState.Running) ? StatusNotRunning : StatusRunning;
 
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, _generalReport.Id, currentTaskDefinition, "GR");
@@ -684,9 +681,10 @@ limit 15;";
 	protected void btnExecute_Click(object sender, EventArgs e)
 	{
 		var runed = false;
-		if (IsValid && (currentTask.State != TaskState.Running) && (temp1Task.State != TaskState.Running)) {
-			temp1Task = Report.CreateTemporaryTaskForRunFromInterface(taskService, reportsFolder, currentTask, "/gr:" + _generalReport.Id + string.Format(" /manual:true"));
-			temp1Task.Run();
+		if (IsValid && (currentTask.State != TaskState.Running)) {
+			ScheduleHelper.SetTaskEnableStatus(_generalReport.Id, true, "GR");
+			ScheduleHelper.SetTaskAction(_generalReport.Id, string.Format("/gr:{0} /manual:true", _generalReport.Id));
+			currentTask.Run();
 			Thread.Sleep(500);
 			btnExecute.Enabled = false;
 			btnExecute.Text = StatusNotRunning;
@@ -707,10 +705,6 @@ limit 15;";
 		if (currentTask != null) {
 			currentTask.Dispose();
 			currentTask = null;
-		}
-		if (temp1Task != null) {
-			temp1Task.Dispose();
-			temp1Task = null;
 		}
 		if (taskService != null) {
 			taskService.Dispose();

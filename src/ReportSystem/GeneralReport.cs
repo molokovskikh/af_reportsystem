@@ -42,6 +42,7 @@ namespace Inforoom.ReportSystem
 		public List<Mime> Messages = new List<Mime>();
 
 		public ulong GeneralReportID;
+		public bool Allow;
 		public uint? SupplierId;
 
 		private uint? _contactGroupId;
@@ -102,7 +103,7 @@ namespace Inforoom.ReportSystem
 			NoArchive = noArchive;
 		}
 
-		public GeneralReport(ulong id, uint? supplierId, uint? contactGroupId,
+		public GeneralReport(ulong id, bool allow, uint? supplierId, uint? contactGroupId,
 			string emailSubject,
 			MySqlConnection connection,
 			string reportFileName,
@@ -118,6 +119,7 @@ namespace Inforoom.ReportSystem
 		{
 			Logger = LogManager.GetLogger(GetType());
 			GeneralReportID = id;
+			Allow = allow;
 			SupplierId = supplierId;
 			Connection = connection;
 			_contactGroupId = contactGroupId;

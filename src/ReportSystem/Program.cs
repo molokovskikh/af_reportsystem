@@ -124,6 +124,7 @@ and cr.generalreportcode = " + generalReportId;
 							//Создаем каждый отчет отдельно и пытаемся его сформировать
 							var gr = new GeneralReport(
 								(ulong)drReport[GeneralReportColumns.GeneralReportCode],
+								(bool)drReport[GeneralReportColumns.Allow],
 								ReadNullableUint32(drReport, GeneralReportColumns.FirmCode),
 								ReadNullableUint32(drReport, GeneralReportColumns.ContactGroupId),
 								drReport[GeneralReportColumns.EMailSubject].ToString(),
@@ -175,6 +176,8 @@ and cr.generalreportcode = " + generalReportId;
 							}
 						});
 					}
+					ScheduleHelper.SetTaskAction(generalReport.GeneralReportID, "/gr:" + generalReport.GeneralReportID);
+					ScheduleHelper.SetTaskEnableStatus(generalReport.GeneralReportID, generalReport.Allow, "GR");
 					var taskService = ScheduleHelper.GetService();
 					var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
 					ScheduleHelper.DeleteTask(reportsFolder, generalReport.GeneralReportID, "temp_");
