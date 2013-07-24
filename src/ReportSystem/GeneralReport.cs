@@ -74,6 +74,7 @@ namespace Inforoom.ReportSystem
 		public DataTable Contacts;
 
 		public List<BaseReport> Reports = new List<BaseReport>();
+		public int ReportsCount { get; set; }
 
 		// Проверка спика отчетов
 		private void CheckReports()
@@ -198,6 +199,7 @@ where GeneralReport = ?GeneralReport;";
 							EMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
 					}
 				}
+				ReportsCount = Reports.Count;
 			}
 			else
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");

@@ -147,7 +147,7 @@ and cr.generalreportcode = " + generalReportId;
 							_log.Error(message, ex);
 
 							var reportEx = ex as ReportException;
-							if (reportEx != null && reportEx.InnerException != null) {
+							if (reportEx != null && reportEx.InnerException != null && generalReport.ReportsCount > 1) {
 								Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, (ulong)drReport[GeneralReportColumns.GeneralReportCode], reportEx.SubreportCode, reportEx.ReportCaption);
 								continue;
 							}
