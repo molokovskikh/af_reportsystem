@@ -21,6 +21,17 @@ namespace ReportSystem.Test
 		private TestClient client;
 		private TestOrder order;
 
+		private bool HaveMnn(ISheet sheet,
+			TestProduct product)
+		{
+			var haveMnn = false;
+			for (int i = 0; i < sheet.LastRowNum; i++) {
+				if (sheet.GetRow(i).GetCell(1).StringCellValue == product.CatalogProduct.CatalogName.Mnn.Mnn)
+					haveMnn = true;
+			}
+			return haveMnn;
+		}
+
 		[Test]
 		public void Build_with_mnn()
 		{
@@ -28,7 +39,8 @@ namespace ReportSystem.Test
 
 			var sheet = ReadReport<MixedReport>();
 			var product = order.Items[0].Product;
-			Assert.That(sheet.GetRow(5).GetCell(1).StringCellValue, Is.EqualTo(product.CatalogProduct.CatalogName.Mnn.Mnn));
+
+			Assert.IsTrue(HaveMnn(sheet, product));
 		}
 
 		[Test]
@@ -45,9 +57,8 @@ namespace ReportSystem.Test
 
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
-			Assert.That(sheet.GetRow(3).GetCell(0).StringCellValue,
-				Is.EqualTo(String.Format("Следующие МНН исключены из отчета: {0}", mnn1.Mnn)));
-			Assert.That(sheet.GetRow(6).GetCell(1).StringCellValue, Is.EqualTo(mnn.Mnn));
+			Assert.IsTrue(HaveMnn(sheet, product1), String.Format("Следующие МНН исключены из отчета: {0}", mnn1.Mnn));
+			Assert.IsTrue(HaveMnn(sheet, product));
 			var tableText = text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
 				.Skip(4)
 				.Implode(Environment.NewLine);
