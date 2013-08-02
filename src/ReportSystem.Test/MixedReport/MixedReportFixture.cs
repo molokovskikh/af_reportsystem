@@ -25,7 +25,7 @@ namespace ReportSystem.Test
 			TestProduct product)
 		{
 			var haveMnn = false;
-			for (int i = 0; i < sheet.LastRowNum; i++) {
+			for (int i = 1; i < sheet.LastRowNum; i++) {
 				if (sheet.GetRow(i).GetCell(1).StringCellValue == product.CatalogProduct.CatalogName.Mnn.Mnn)
 					haveMnn = true;
 			}
