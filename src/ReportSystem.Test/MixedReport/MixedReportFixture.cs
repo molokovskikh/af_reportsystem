@@ -22,14 +22,22 @@ namespace ReportSystem.Test
 		private TestOrder order;
 
 		private bool HaveMnn(ISheet sheet,
-			TestProduct product)
+			string mnn,
+			int cell = 1)
 		{
 			var haveMnn = false;
-			for (int i = 1; i < sheet.LastRowNum; i++) {
-				if (sheet.GetRow(i).GetCell(1).StringCellValue == product.CatalogProduct.CatalogName.Mnn.Mnn)
+			for (int i = 1; i < sheet.LastRowNum + 1; i++) {
+				if (sheet.GetRow(i).GetCell(cell) != null && sheet.GetRow(i).GetCell(cell).StringCellValue.Equals(mnn))
 					haveMnn = true;
 			}
 			return haveMnn;
+		}
+
+		private bool HaveMnn(ISheet sheet,
+			TestProduct product,
+			int cell = 1)
+		{
+			return HaveMnn(sheet, product.CatalogProduct.CatalogName.Mnn.Mnn, cell);
 		}
 
 		[Test]
@@ -57,7 +65,7 @@ namespace ReportSystem.Test
 
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
-			Assert.IsTrue(HaveMnn(sheet, product1), String.Format("Следующие МНН исключены из отчета: {0}", mnn1.Mnn));
+			Assert.IsTrue(HaveMnn(sheet, String.Format("Следующие МНН исключены из отчета: {0}", mnn1.Mnn), 0));
 			Assert.IsTrue(HaveMnn(sheet, product));
 			var tableText = text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
 				.Skip(4)
