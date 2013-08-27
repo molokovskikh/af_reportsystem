@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
 
 namespace ReportSystem.Test
@@ -50,6 +52,34 @@ namespace ReportSystem.Test
 			Property("Type", 3);
 			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("SupplierMarketShareByUserByLegalEntity.xls");
+		}
+
+		[Test]
+		public void SetTotalSumTest()
+		{
+			var testReport = new SupplierMarketShareByUser();
+
+			var table = new DataTable("testTable");
+			table.Columns.Add("TotalSum");
+			table.Columns.Add("SupplierSum");
+			var dataRow = table.NewRow();
+
+			var resultTable = new DataTable("resultTable");
+			resultTable.Columns.Add("Share");
+			var resultRow = resultTable.NewRow();
+
+			dataRow["TotalSum"] = 0;
+			testReport.SetTotalSum(dataRow, resultRow);
+			Assert.AreEqual(resultRow["Share"], DBNull.Value);
+
+			dataRow["TotalSum"] = 100000;
+			dataRow["SupplierSum"] = 5000;
+			testReport.SetTotalSum(dataRow, resultRow);
+			Assert.AreEqual(resultRow["Share"], "нет заказов");
+
+			dataRow["SupplierSum"] = 20000;
+			testReport.SetTotalSum(dataRow, resultRow);
+			Assert.AreEqual(resultRow["Share"], "20");
 		}
 	}
 }

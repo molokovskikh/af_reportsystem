@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -93,6 +94,11 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, connection, format, dsProperties)
+		{
+		}
+
+		//Конструктор для тестирования
+		public SupplierMarketShareByUser()
 		{
 		}
 
@@ -212,24 +218,31 @@ order by {3}", _regions.Implode(), _grouping.Group,
 			result.Columns["Share"].Caption = "Доля рынка, %";
 			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
-				var total = Convert.ToDouble(row["TotalSum"]);
-				if (total == 0)
-					resultRow["Share"] = DBNull.Value;
-				else {
-					var supplierSum = Convert.ToDouble(row["SupplierSum"]);
-					if (supplierSum < 10000) {
-						resultRow["Share"] = "нет заказов";
-					}
-					else {
-						var quota = Math.Round((supplierSum / total) * 100, 2);
-						resultRow["Share"] = quota > 0 ? quota.ToString() : "нет заказов";
-					}
-				}
+				SetTotalSum(row, resultRow);
 				foreach (var column in _grouping.Columns) {
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];
 				}
 				result.Rows.Add(resultRow);
+			}
+		}
+
+		public void SetTotalSum(DataRow dataRow,
+			DataRow resultRow)
+		{
+			var total = Convert.ToDouble(dataRow["TotalSum"]);
+			if (total <= 0)
+				resultRow["Share"] = DBNull.Value;
+			else {
+				var supplierSum = Convert.ToDouble(dataRow["SupplierSum"]);
+				var minimumReactionSum = Convert.ToDouble(ConfigurationManager.AppSettings["MinimumReactionSum"]);
+				if (supplierSum < minimumReactionSum) {
+					resultRow["Share"] = "нет заказов";
+				}
+				else {
+					var quota = Math.Round((supplierSum / total) * 100, 2);
+					resultRow["Share"] = quota > 0 ? quota.ToString() : "нет заказов";
+				}
 			}
 		}
 	}
