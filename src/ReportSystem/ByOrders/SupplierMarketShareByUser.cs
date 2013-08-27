@@ -198,7 +198,7 @@ order by {3}", _regions.Implode(), _grouping.Group,
 				var dataColumn = result.Columns.Add(column.Name);
 				dataColumn.Caption = column.Caption;
 			}
-			result.Columns.Add("Share", typeof(double));
+			result.Columns.Add("Share", typeof(string));
 
 			var supplier = Session.Get<Supplier>(_supplierId);
 			var regions = _regions
@@ -215,8 +215,16 @@ order by {3}", _regions.Implode(), _grouping.Group,
 				var total = Convert.ToDouble(row["TotalSum"]);
 				if (total == 0)
 					resultRow["Share"] = DBNull.Value;
-				else
-					resultRow["Share"] = Math.Round((Convert.ToDouble(row["SupplierSum"]) / total) * 100, 2);
+				else {
+					var supplierSum = Convert.ToDouble(row["SupplierSum"]);
+					if (supplierSum < 10000) {
+						resultRow["Share"] = "нет заказов";
+					}
+					else {
+						var quota = Math.Round((supplierSum / total) * 100, 2);
+						resultRow["Share"] = quota > 0 ? quota.ToString() : "нет заказов";
+					}
+				}
 				foreach (var column in _grouping.Columns) {
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];
