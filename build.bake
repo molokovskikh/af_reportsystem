@@ -15,8 +15,9 @@ Global(
 	AdditionalAssemblies: ("ReportTuner", "Common.Web.Ui", "Common.Models/Common.Schedule", "Report.Data.Builder")
 )
 
-unless Configuration.IsDefined(@notInteractive):
-	Engine.Execute("LoadProject")
+task @ready:
+	unless Configuration.IsDefined(@notInteractive):
+		Engine.Execute("LoadProject")
 
 task @DeployBackground, [@BuildBackground]:
 	Globals.Project = "Report.Data.Builder"
