@@ -113,7 +113,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			if (_reportParams.ContainsKey("MinimumReactionSum"))
 				_minimumReactionSum = (int)getReportParam("MinimumReactionSum");
 			if (_minimumReactionSum <= 0)
-				_minimumReactionSum = 10000;
+				_minimumReactionSum = 500;
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
