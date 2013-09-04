@@ -64,6 +64,7 @@ namespace Inforoom.ReportSystem.ByOrders
 		private uint _supplierId;
 		private Period _period;
 		private List<ulong> _regions;
+		private int _minimumReactionSum;
 
 		private Grouping[] groupings = new[] {
 			new Grouping("oh.UserId",
@@ -109,6 +110,10 @@ namespace Inforoom.ReportSystem.ByOrders
 			_period = new Period(dtFrom, dtTo);
 			_regions = (List<ulong>)getReportParam("Regions");
 			_grouping = groupings[Convert.ToInt32(getReportParam("Type"))];
+			if (_reportParams.ContainsKey("MinimumReactionSum"))
+				_minimumReactionSum = (int)getReportParam("MinimumReactionSum");
+			if (_minimumReactionSum <= 0)
+				_minimumReactionSum = 10000;
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
@@ -230,19 +235,14 @@ order by {3}", _regions.Implode(), _grouping.Group,
 		public void SetTotalSum(DataRow dataRow,
 			DataRow resultRow)
 		{
+			var minimumReactionSum = Convert.ToDouble(_minimumReactionSum);
 			var total = Convert.ToDouble(dataRow["TotalSum"]);
-			if (total <= 0)
-				resultRow["Share"] = DBNull.Value;
+			if (total < minimumReactionSum)
+				resultRow["Share"] = "нет заказов";
 			else {
 				var supplierSum = Convert.ToDouble(dataRow["SupplierSum"]);
-				var minimumReactionSum = Convert.ToDouble(ConfigurationManager.AppSettings["MinimumReactionSum"]);
-				if (supplierSum < minimumReactionSum) {
-					resultRow["Share"] = "нет заказов";
-				}
-				else {
-					var quota = Math.Round((supplierSum / total) * 100, 2);
-					resultRow["Share"] = quota > 0 ? quota.ToString() : "нет заказов";
-				}
+				var quota = Math.Round((supplierSum / total) * 100, 2);
+				resultRow["Share"] = quota.ToString();
 			}
 		}
 	}

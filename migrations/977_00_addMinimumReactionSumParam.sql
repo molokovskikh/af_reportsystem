@@ -1,0 +1,2 @@
+﻿insert into reports.report_type_properties (ReporttypeCode, PropertyName, DisplayName, PropertyType, Optional, DefaultValue) value
+(15, 'MinimumReactionSum', 'Порог реакции "нет заказов" (руб)', 'INT', true, 0);
