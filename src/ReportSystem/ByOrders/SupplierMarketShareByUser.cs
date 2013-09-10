@@ -10,6 +10,7 @@ using ExecuteTemplate;
 using Inforoom.ReportSystem.Model;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
+using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.ByOrders
@@ -59,12 +60,26 @@ namespace Inforoom.ReportSystem.ByOrders
 		public bool Order;
 	}
 
+	public class SupplierShareByUserExcelWriter : SupplierExcelWriter
+	{
+		public SupplierShareByUserExcelWriter()
+		{
+			CountDownRows = 7;
+		}
+
+		public override Range GetRangeForMerge(_Worksheet sheet, int rowCount)
+		{
+			if (rowCount > 1)
+				return sheet.get_Range("A" + rowCount.ToString(), "B" + rowCount.ToString());
+			return sheet.get_Range("A" + rowCount.ToString(), "F" + rowCount.ToString());
+		}
+	}
+
 	public class SupplierMarketShareByUser : OrdersReport
 	{
 		private uint _supplierId;
 		private Period _period;
 		private List<ulong> _regions;
-		private int _minimumReactionSum;
 
 		private Grouping[] groupings = new[] {
 			new Grouping("oh.UserId",
@@ -75,10 +90,12 @@ namespace Inforoom.ReportSystem.ByOrders
 				}),
 			new Grouping("oh.AddressId",
 				new[] {
-					new Column("SupplierDeliveryId", "Код доставки", "TI.SupplierDeliveryId", false),
+					new Column("SupplierDeliveryId", "Код доставки", @"(select group_concat(distinct TI.SupplierDeliveryId order by TI.SupplierDeliveryId )
+from reports.TempIntersection TI
+where oh.AddressId = TI.AddressId)", false),
 					new Column("ClientName", "Клиент", "c.Name"),
 					new Column("AddressName", "Адрес", "a.Address")
-				}) { Join = "left join reports.TempIntersection TI on oh.AddressId = TI.AddressId" },
+				}),
 			new Grouping("oh.ClientCode",
 				new[] {
 					new Column("Empty", string.Empty, "''", false),
@@ -86,9 +103,12 @@ namespace Inforoom.ReportSystem.ByOrders
 				}),
 			new Grouping("a.LegalEntityId",
 				new[] {
-					new Column("SupplierClientId", "Код клиента", "TI.SupplierClientId", false),
+					new Column("SupplierClientId", "Код клиента",
+						@"(select group_concat(distinct TI.SupplierClientId order by TI.SupplierClientId )
+from reports.TempIntersection TI
+where TI.LegalEntityId = a.LegalEntityId)", false),
 					new Column("OrgName", "Юридическое лицо", "le.Name")
-				}) { Join = "left join reports.TempIntersection TI on TI.LegalEntityId = a.LegalEntityId" }
+				})
 		};
 
 		private Grouping _grouping;
@@ -110,16 +130,12 @@ namespace Inforoom.ReportSystem.ByOrders
 			_period = new Period(dtFrom, dtTo);
 			_regions = (List<ulong>)getReportParam("Regions");
 			_grouping = groupings[Convert.ToInt32(getReportParam("Type"))];
-			if (_reportParams.ContainsKey("MinimumReactionSum"))
-				_minimumReactionSum = (int)getReportParam("MinimumReactionSum");
-			if (_minimumReactionSum <= 0)
-				_minimumReactionSum = 500;
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new SupplierExcelWriter();
+				return new SupplierShareByUserExcelWriter();
 			return null;
 		}
 
@@ -135,8 +151,8 @@ DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;
 
 CREATE TEMPORARY TABLE reports.TempIntersection (
 AddressId INT unsigned,
-SupplierDeliveryId INT unsigned,
-SupplierClientId INT unsigned,
+SupplierDeliveryId varchar(255),
+SupplierClientId varchar(255),
 LegalEntityId INT unsigned) engine=MEMORY;
 
 INSERT
@@ -209,17 +225,21 @@ order by {3}", _regions.Implode(), _grouping.Group,
 				var dataColumn = result.Columns.Add(column.Name);
 				dataColumn.Caption = column.Caption;
 			}
+			result.Columns.Add("SupplierSum", typeof(string));
 			result.Columns.Add("Share", typeof(string));
 
 			var supplier = Session.Get<Supplier>(_supplierId);
 			var regions = _regions
 				.Select(id => Region.Find(Convert.ToUInt64(id)));
 
+			result.Rows.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
+				" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
 			result.Rows.Add("Поставщик: " + supplier.Name);
 			result.Rows.Add("Период: c " + _period.Begin.Date + " по " + _period.End.Date);
 			result.Rows.Add("Регионы: " + regions.Implode(r => r.Name));
 			result.Rows.Add("");
 
+			result.Columns["SupplierSum"].Caption = "Сумма заказов";
 			result.Columns["Share"].Caption = "Доля рынка, %";
 			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
@@ -235,14 +255,14 @@ order by {3}", _regions.Implode(), _grouping.Group,
 		public void SetTotalSum(DataRow dataRow,
 			DataRow resultRow)
 		{
-			var minimumReactionSum = Convert.ToDouble(_minimumReactionSum);
 			var total = Convert.ToDouble(dataRow["TotalSum"]);
-			if (total < minimumReactionSum)
-				resultRow["Share"] = "нет заказов";
+			if (total <= 0)
+				resultRow["Share"] = DBNull.Value;
 			else {
 				var supplierSum = Convert.ToDouble(dataRow["SupplierSum"]);
 				var quota = Math.Round((supplierSum / total) * 100, 2);
 				resultRow["Share"] = quota.ToString();
+				resultRow["SupplierSum"] = supplierSum.ToString("C");
 			}
 		}
 	}

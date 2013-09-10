@@ -84,6 +84,12 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			}
 		}
 
+		public virtual Range GetRangeForMerge(_Worksheet sheet,
+			int rowCount)
+		{
+			return sheet.get_Range("A" + rowCount.ToString(), "B" + rowCount.ToString());
+		}
+
 		public void FormatExcelFile(_Worksheet _ws, DataTable _result, string _caption, int CountDownRows)
 		{
 			var oldCI = Thread.CurrentThread.CurrentCulture;
@@ -96,7 +102,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 						_ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
 					}
 					_ws.Cells[CountDownRows - 2, j] = "";
-					_ws.get_Range("A" + j.ToString(), "B" + j.ToString()).Merge();
+					GetRangeForMerge(_ws, j).Merge();
 				}
 			}
 			if (CountDownRows == 0) {

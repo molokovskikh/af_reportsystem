@@ -173,12 +173,14 @@ namespace Inforoom.ReportSystem.Writers
 
 	public class SupplierExcelWriter : BaseExcelWriter
 	{
+		public int CountDownRows = 6;
+
 		public override void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 			UseExcel.Workbook(fileName, b => {
 				var ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
-				FormatExcelFile(ws, reportData.Tables["Results"], settings.ReportCaption, 6);
+				FormatExcelFile(ws, reportData.Tables["Results"], settings.ReportCaption, CountDownRows);
 			});
 			ProfileHelper.End();
 		}
