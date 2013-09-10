@@ -66,6 +66,7 @@ namespace ReportSystem.Test
 
 			var resultTable = new DataTable("resultTable");
 			resultTable.Columns.Add("Share");
+			resultTable.Columns.Add("SupplierSum");
 			var resultRow = resultTable.NewRow();
 
 			dataRow["TotalSum"] = 0;
@@ -75,7 +76,7 @@ namespace ReportSystem.Test
 			dataRow["TotalSum"] = 100000;
 			dataRow["SupplierSum"] = 5000;
 			testReport.SetTotalSum(dataRow, resultRow);
-			Assert.AreEqual(resultRow["Share"], "нет заказов");
+			Assert.AreEqual(resultRow["Share"], "5");
 
 			dataRow["SupplierSum"] = 20000;
 			testReport.SetTotalSum(dataRow, resultRow);
