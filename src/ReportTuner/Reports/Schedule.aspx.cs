@@ -734,6 +734,7 @@ limit 15;";
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(_generalReport.Id), taskDefinition, "temp_");
 
 		if (thisTask.State != TaskState.Running) {
+			Thread.Sleep(1500);
 			thisTask.Run();
 			Session.Add("StartTaskTime", DateTime.Now);
 			Response.Redirect("Schedule.aspx?r=" + _generalReport.Id);
