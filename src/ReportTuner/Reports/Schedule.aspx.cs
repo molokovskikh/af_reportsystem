@@ -727,6 +727,10 @@ limit 15;";
 		taskDefinition.Actions.RemoveAt(0);
 		taskDefinition.Actions.Add(newAction);
 		taskDefinition.RegistrationInfo.Description = user;
+		taskDefinition.Settings.RunOnlyIfIdle = false;
+		taskDefinition.Settings.StopIfGoingOnBatteries = false;
+		taskDefinition.Settings.DisallowStartIfOnBatteries = false;
+		taskDefinition.Settings.StopIfGoingOnBatteries = false;
 		ScheduleHelper.UpdateTaskDefinition(taskService, reportsFolder, Convert.ToUInt64(_generalReport.Id), taskDefinition, "temp_");
 
 		if (thisTask.State != TaskState.Running) {
