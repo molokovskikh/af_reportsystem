@@ -18,6 +18,7 @@ namespace Inforoom.ReportSystem.Writers
 	{
 		public const int MaxStringSize = 250;
 		public const int MaxListName = 26;
+		public int HeaderCollumnCount = 4;
 
 		public void DataTableToExcel(DataTable dtExport, string ExlFileName, ulong reportCode)
 		{
@@ -97,7 +98,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			_ws.Name = _caption.Substring(0, (_caption.Length < MaxListName) ? _caption.Length : MaxListName);
 
 			if (CountDownRows > 0) {
-				for (int j = 1; j < 4; j++) {
+				for (int j = 1; j < HeaderCollumnCount; j++) {
 					for (int i = 0; i < CountDownRows - 3; i++) {
 						_ws.Cells[1 + i, j] = _ws.Cells[2 + i, j];
 					}

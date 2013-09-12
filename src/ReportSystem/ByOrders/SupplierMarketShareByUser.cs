@@ -65,11 +65,12 @@ namespace Inforoom.ReportSystem.ByOrders
 		public SupplierShareByUserExcelWriter()
 		{
 			CountDownRows = 7;
+			HeaderCollumnCount = 5;
 		}
 
 		public override Range GetRangeForMerge(_Worksheet sheet, int rowCount)
 		{
-			if (rowCount > 1)
+			if (rowCount != 4)
 				return sheet.get_Range("A" + rowCount.ToString(), "B" + rowCount.ToString());
 			return sheet.get_Range("A" + rowCount.ToString(), "F" + rowCount.ToString());
 		}
@@ -225,22 +226,22 @@ order by {3}", _regions.Implode(), _grouping.Group,
 				var dataColumn = result.Columns.Add(column.Name);
 				dataColumn.Caption = column.Caption;
 			}
-			result.Columns.Add("SupplierSum", typeof(string));
 			result.Columns.Add("Share", typeof(string));
+			result.Columns.Add("SupplierSum", typeof(string));
 
 			var supplier = Session.Get<Supplier>(_supplierId);
 			var regions = _regions
 				.Select(id => Region.Find(Convert.ToUInt64(id)));
 
-			result.Rows.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
-				" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
 			result.Rows.Add("Поставщик: " + supplier.Name);
 			result.Rows.Add("Период: c " + _period.Begin.Date + " по " + _period.End.Date);
 			result.Rows.Add("Регионы: " + regions.Implode(r => r.Name));
+			result.Rows.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
+				" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
 			result.Rows.Add("");
 
-			result.Columns["SupplierSum"].Caption = "Сумма заказов";
-			result.Columns["Share"].Caption = "Доля рынка, %";
+			result.Columns["SupplierSum"].Caption = string.Format("Сумма по '{0}'", supplier.Name);
+			result.Columns["Share"].Caption = string.Format("Доля '{0}', %", supplier.Name);
 			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
 				SetTotalSum(row, resultRow);
