@@ -5,8 +5,10 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using Common.Models;
+using Common.MySql;
 using Common.Tools;
 using ExecuteTemplate;
+using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
@@ -71,11 +73,12 @@ namespace Inforoom.ReportSystem.ByOrders
 		public override Range GetRangeForMerge(_Worksheet sheet, int rowCount)
 		{
 			if (rowCount != 4)
-				return sheet.get_Range("A" + rowCount.ToString(), "B" + rowCount.ToString());
-			return sheet.get_Range("A" + rowCount.ToString(), "F" + rowCount.ToString());
+				return sheet.get_Range("A" + rowCount, "B" + rowCount);
+			return sheet.get_Range("A" + rowCount, "F" + rowCount);
 		}
 	}
 
+	//Доля поставщика в заказах аптек
 	public class SupplierMarketShareByUser : OrdersReport
 	{
 		private uint _supplierId;
@@ -147,50 +150,72 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
-DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;
-
+			var connection = e.DataAdapter.SelectCommand.Connection;
+			var supplierDeliveryIdSql = @"DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;
 CREATE TEMPORARY TABLE reports.TempIntersection (
-AddressId INT unsigned,
-SupplierDeliveryId varchar(255),
-SupplierClientId varchar(255),
-LegalEntityId INT unsigned) engine=MEMORY;
+	AddressId INT unsigned,
+	SupplierDeliveryId varchar(255),
+	index(AddressId)
+) engine=MEMORY;
 
-INSERT
-INTO reports.TempIntersection
-(select oh.AddressId as AddressId, ai.SupplierDeliveryId as SupplierDeliveryId, i.SupplierClientId as SupplierClientId, a.LegalEntityId
-from
-usersettings.PricesData pd
-join Orders.OrdersHead oh on oh.PriceCode = pd.PriceCode
-join Customers.Addresses a on a.Id = oh.AddressId
-left join Customers.Intersection i on i.LegalEntityId = a.LegalEntityId and i.PriceId = oh.PriceCode and i.ClientId = oh.ClientCode and i.RegionId in ({0})
-left join Customers.AddressIntersection ai on ai.IntersectionId = i.id and ai.AddressId = oh.AddressId
-where oh.WriteTime > ?begin
-and oh.WriteTime < ?end
-and oh.RegionCode in ({0})
-and pd.FirmCode = ?SupplierId
-and pd.IsLocal = 0
-group by ai.id)
-union
-(select a.Id as AddressId,
-group_concat(distinct ai.SupplierDeliveryId order by ai.SupplierDeliveryId) as SupplierDeliveryId,
-group_concat(distinct i.SupplierClientId order by i.SupplierClientId) as SupplierClientId, a.LegalEntityId
-from
-usersettings.PricesData pd
-join Customers.Intersection i on i.PriceId = pd.PriceCode and i.RegionId in ({0}) and pd.FirmCode=?SupplierId
-left join Customers.AddressIntersection ai on ai.IntersectionId = i.id
-left join Customers.Addresses a on i.LegalEntityId = a.LegalEntityId and ai.AddressId = a.Id
- where
- not exists (select * from Orders.OrdersHead oh join usersettings.PricesData pdd on pdd.pricecode=oh.pricecode
- where a.Id = oh.AddressId and i.ClientId = oh.ClientCode and ai.AddressId = oh.AddressId
-and oh.WriteTime > ?begin
-and oh.WriteTime < ?end
- and oh.RegionCode in ({0})
- and pdd.FirmCode=?SupplierId)
- and pd.enabled=1 and pd.AgencyEnabled=1 and pd.IsLocal=0
-group by a.id);
+insert into reports.TempIntersection(SupplierDeliveryId, AddressId)
+SELECT ai.SupplierDeliveryId, ai.AddressId
+FROM Customers.Intersection i
+	JOIN Customers.AddressIntersection ai on ai.IntersectionId = i.Id
+	JOIN Customers.Clients c ON c.Id = i.ClientId
+	JOIN usersettings.RetClientsSet r ON r.clientcode = c.Id
+	JOIN usersettings.PricesData pd ON pd.pricecode = i.PriceId
+	JOIN Customers.Suppliers supplier ON supplier.Id = pd.firmcode
+	JOIN usersettings.PricesRegionalData prd ON prd.regioncode = i.RegionId AND prd.pricecode = pd.pricecode
+	JOIN usersettings.RegionalData rd ON rd.RegionCode = i.RegionId AND rd.FirmCode = pd.firmcode
+WHERE  c.Status = 1
+	and (supplier.RegionMask & i.RegionId) > 0
+	and (c.maskregion & i.RegionId) > 0
+	and (r.WorkRegionMask & i.RegionId) > 0
+	and pd.agencyenabled = 1
+	and pd.enabled = 1
+	and prd.enabled = 1
+	and i.AvailableForClient = 1
+	and i.AgencyEnabled = 1
+	and supplier.Id = ?supplierId
+group by ai.AddressId, ai.SupplierDeliveryId";
 
+			var supplierClientIdSql = @"DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;
+CREATE TEMPORARY TABLE reports.TempIntersection (
+	SupplierClientId varchar(255),
+	LegalEntityId INT unsigned,
+	index(LegalEntityId)
+) engine=MEMORY;
 
+insert into reports.TempIntersection(SupplierClientId, LegalEntityId)
+SELECT i.SupplierClientId, i.LegalEntityId
+FROM Customers.Intersection i
+	JOIN Customers.Clients c ON c.Id = i.ClientId
+	JOIN usersettings.RetClientsSet r ON r.clientcode = c.Id
+	JOIN usersettings.PricesData pd ON pd.pricecode = i.PriceId
+	JOIN Customers.Suppliers supplier ON supplier.Id = pd.firmcode
+	JOIN usersettings.PricesRegionalData prd ON prd.regioncode = i.RegionId AND prd.pricecode = pd.pricecode
+	JOIN usersettings.RegionalData rd ON rd.RegionCode = i.RegionId AND rd.FirmCode = pd.firmcode
+WHERE  c.Status = 1
+	and (supplier.RegionMask & i.RegionId) > 0
+	and (c.maskregion & i.RegionId) > 0
+	and (r.WorkRegionMask & i.RegionId) > 0
+	and pd.agencyenabled = 1
+	and pd.enabled = 1
+	and prd.enabled = 1
+	and i.AvailableForClient = 1
+	and i.AgencyEnabled = 1
+	and supplier.Id = ?supplierId
+group by i.LegalEntityId, i.SupplierClientId";
+
+			if (_grouping.Group.Match("a.LegalEntityId")) {
+				connection.Execute(supplierClientIdSql, new { supplierId = _supplierId });
+			}
+			else if (_grouping.Group.Match("oh.AddressId")) {
+				connection.Execute(supplierDeliveryIdSql, new { supplierId = _supplierId });
+			}
+
+			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select {2},
 sum(ol.Cost * ol.Quantity) as TotalSum,
 sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
@@ -217,9 +242,12 @@ order by {3}", _regions.Implode(), _grouping.Group,
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
 
 #if DEBUG
-			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
 #endif
 			e.DataAdapter.Fill(_dsReport, "data");
+
+			connection.Execute("drop temporary table if exists reports.TempIntersection");
+
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");
 			foreach (var column in _grouping.Columns) {
@@ -253,8 +281,7 @@ order by {3}", _regions.Implode(), _grouping.Group,
 			}
 		}
 
-		public void SetTotalSum(DataRow dataRow,
-			DataRow resultRow)
+		public void SetTotalSum(DataRow dataRow, DataRow resultRow)
 		{
 			var total = Convert.ToDouble(dataRow["TotalSum"]);
 			if (total <= 0)

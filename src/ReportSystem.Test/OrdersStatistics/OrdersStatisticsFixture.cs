@@ -92,14 +92,5 @@ namespace ReportSystem.Test
 			});
 			return report.GetReportTable();
 		}
-
-		private TestOrder MakeOrder(TestClient client, TestSupplier supplier)
-		{
-			var order = new TestOrder(client.Users[0], supplier.Prices[0]);
-			var product = session.Query<TestProduct>().First();
-			order.WriteTime = order.WriteTime.AddDays(-1);
-			order.AddItem(product, 10, 897.23f);
-			return order;
-		}
 	}
 }

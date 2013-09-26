@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Data;
 using System.IO;
+using System.Linq;
 using Castle.ActiveRecord;
 using Common.MySql;
 using Common.Web.Ui.ActiveRecordExtentions;
@@ -9,12 +10,14 @@ using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.FastReports;
 using Inforoom.ReportSystem.Helpers;
 using NHibernate;
+using NHibernate.Linq;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 using Test.Support;
+using Test.Support.Suppliers;
 
 namespace ReportSystem.Test
 {
@@ -174,7 +177,7 @@ namespace ReportSystem.Test
 		public string ToText(ISheet sheet)
 		{
 			var writer = new StringWriter();
-			for(var i = sheet.FirstRowNum; i < sheet.LastRowNum; i++) {
+			for(var i = sheet.FirstRowNum; i <= sheet.LastRowNum; i++) {
 				var row = sheet.GetRow(i);
 				writer.Write("|");
 				for(var j = row.FirstCellNum; j < row.LastCellNum; j++) {
@@ -190,6 +193,22 @@ namespace ReportSystem.Test
 				writer.WriteLine();
 			}
 			return writer.ToString();
+		}
+
+		protected TestOrder MakeOrder()
+		{
+			var supplier = TestSupplier.CreateNaked();
+			var client = TestClient.CreateNaked();
+			return MakeOrder(client, supplier);
+		}
+
+		protected TestOrder MakeOrder(TestClient client, TestSupplier supplier)
+		{
+			var order = new TestOrder(client.Users[0], supplier.Prices[0]);
+			var product = session.Query<TestProduct>().First();
+			order.WriteTime = order.WriteTime.AddDays(-1);
+			order.AddItem(product, 10, 897.23f);
+			return order;
 		}
 	}
 

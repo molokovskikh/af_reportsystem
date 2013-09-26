@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
 using MySql.Data.MySqlClient;
+using NHibernate.Linq;
 using NUnit.Framework;
+using Test.Support;
+using Test.Support.Suppliers;
 
 namespace ReportSystem.Test
 {
@@ -26,6 +30,7 @@ namespace ReportSystem.Test
 		public void Build_report()
 		{
 			Property("Type", 0);
+
 			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport();
 		}
@@ -34,6 +39,7 @@ namespace ReportSystem.Test
 		public void Build_report_by_address()
 		{
 			Property("Type", 1);
+
 			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("SupplierMarketShareByUserByAddress.xls");
 		}
@@ -42,6 +48,7 @@ namespace ReportSystem.Test
 		public void Build_report_by_client()
 		{
 			Property("Type", 2);
+
 			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("SupplierMarketShareByUserByClient.xls");
 		}
@@ -50,8 +57,31 @@ namespace ReportSystem.Test
 		public void Build_report_by_legal_entity()
 		{
 			Property("Type", 3);
+
 			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
 			BuildReport("SupplierMarketShareByUserByLegalEntity.xls");
+		}
+
+		[Test]
+		public void Calculate_supplier_client_id()
+		{
+			var order = MakeOrder();
+			session.Save(order);
+			var intersection = session.Query<TestIntersection>()
+				.First(i => i.Price == order.Price && i.Client == order.Client);
+			intersection.SupplierClientId = Guid.NewGuid().ToString();
+			session.Save(intersection);
+
+			var data = properties.Tables[0];
+			var row = data.AsEnumerable().First(r => r["PropertyName"].Equals("SupplierId"));
+			data.Rows.Remove(row);
+
+			Property("SupplierId", order.Price.Supplier.Id);
+			Property("Type", 3);
+
+			var report = ReadReport<SupplierMarketShareByUser>();
+			var result = ToText(report);
+			Assert.That(result, Is.StringContaining(intersection.SupplierClientId));
 		}
 
 		[Test]
