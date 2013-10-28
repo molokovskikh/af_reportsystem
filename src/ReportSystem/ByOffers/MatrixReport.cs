@@ -71,7 +71,6 @@ namespace Inforoom.ReportSystem.ByOffers
 			var fromQueryPart = SqlQueryBuilderHelper.GetFromPartForCoreTable(sql, false);
 			fromQueryPart = string.Format(fromQueryPart,  string.Format(@"
 left join farm.Core0 core01 on core01.ProductId = {0}.ProductId and core01.PriceCode = {0}.PriceId and if({0}.ProducerId is not null, {0}.ProducerId = core01.CodeFirmCr, 1)
-left join farm.Core0 core02 on core02.ProductId = {1}.ProductId and core02.PriceCode = {1}.PriceId and if({1}.ProducerId is not null, {1}.ProducerId = core02.CodeFirmCr, 1)
 left join farm.Synonym syn on syn.SynonymCode = core01.SynonymCode
 left join farm.Synonym syn1 on  syn1.SynonymCode = core02.SynonymCode
 left join farm.Synonymfirmcr synCr on synCr.SynonymFirmCrCode = core01.SynonymFirmCrCode
@@ -79,13 +78,13 @@ left join farm.Synonymfirmcr synCr1 on  synCr1.SynonymFirmCrCode = core02.Synony
 join catalogs.Producers prod on prod.Id = core.CodeFirmCr
 left join farm.Synonym origSyn on origSyn.SynonymCode = Core.SynonymCode
 left join farm.Synonymfirmcr origSynCr on origSynCr.SynonymFirmCrCode = Core.SynonymFirmCrCode
-{2}
-", sql.Alias, sql.Alias2, matrixPatr.Join));
+{1}
+", sql.Alias, matrixPatr.Join));
 
 			var selectPart = string.Format(@"
 select
-if ({0}.ProductId is not null, {0}.ProductId, if ({1}.ProductId is not null, {1}.ProductId, null)) as ProductId,
-if ({0}.ProducerId is not null, {0}.ProducerId, if ({1}.ProducerId is not null, {1}.ProducerId, null)) as ProducerId,
+{0}.ProductId as ProductId,
+{0}.ProducerId as ProducerId,
 if (syn.Synonym is not null, syn.Synonym, syn1.Synonym) as ProductSynonym,
 if (synCr.Synonym is not null, synCr.Synonym, synCr1.Synonym) as ProducerSynonym,
 catalog.Name as CatalogName,
@@ -96,8 +95,8 @@ origSyn.Synonym as OriginalName,
 origSynCr.Synonym as OriginalProducerName,
 AT.FirmName as  FirmName,
 AT.PriceDate as PriceDate,
-{2}
-", sql.Alias, sql.Alias2, matrixPatr.Select);
+{1}
+", sql.Alias, matrixPatr.Select);
 			e.DataAdapter.SelectCommand.CommandText = selectPart + sql.Select + Environment.NewLine + fromQueryPart;
 			if (rules.OfferMatrix.HasValue)
 				e.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
