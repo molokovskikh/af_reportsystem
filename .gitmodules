@@ -1,15 +1,15 @@
 [submodule "src/Common.Tools"]
 	path = src/Common.Tools
-	url = git@git.analit.net:root/common-tools-git
+	url = git@git.analit.net:root/common-tools.git
 [submodule "src/Common.Web.Ui"]
 	path = src/Common.Web.Ui
-	url = git@git.analit.net:root/common-web-ui-git
+	url = git@git.analit.net:root/common-web-ui.git
 [submodule "src/ExecuteTemplate"]
 	path = src/ExecuteTemplate
-	url = git@git.analit.net:root/executetemplate-git
+	url = git@git.analit.net:root/executetemplate.git
 [submodule "src/Test.Support"]
 	path = src/Test.Support
-	url = git@git.analit.net:root/test-support-git
+	url = git@git.analit.net:root/test-support.git
 
 [submodule "lib/MonoRail.Debugger.Toolbar"]
 	path = lib/MonoRail.Debugger.Toolbar
