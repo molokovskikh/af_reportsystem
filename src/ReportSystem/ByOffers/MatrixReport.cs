@@ -174,27 +174,15 @@ AT.PriceDate as PriceDate,
 			var buyingSelectPart = string.Empty;
 
 			if (rules.OfferMatrix.HasValue) {
-				offerJoinPart = @"left join usersettings.PricesData pd1 on pd1.PriceCode = mol.PriceId
-left join usersettings.PricesData pd2 on pd2.PriceCode = mol_1.PriceId
-left join customers.Suppliers s1 on s1.Id = pd1.FirmCode
-left join customers.Suppliers s2 on s2.Id = pd2.FirmCode";
-				offerSelectPart = @"Concat(
-if (pd1.PriceCode is not null, s1.Name, s2.Name),
-' - (',
-if (pd1.PriceCode is not null, pd1.PriceName, pd2.PriceName),
-')')";
+				offerJoinPart = "left join usersettings.PricesData pd1 on pd1.PriceCode = mol.PriceId\r\n"
+					+ "left join customers.Suppliers s1 on s1.Id = pd1.FirmCode";
+				offerSelectPart = "Concat(s1.Name, ' - (', pd1.PriceName, ')')";
 			}
 
 			if (rules.BuyingMatrix.HasValue) {
-				buyingJoinPart = @"left join usersettings.PricesData pd3 on pd3.PriceCode = bol.PriceId
-left join usersettings.PricesData pd4 on pd4.PriceCode = bol_1.PriceId
-left join customers.Suppliers s3 on s3.Id = pd3.FirmCode
-left join customers.Suppliers s4 on s4.Id = pd4.FirmCode";
-				buyingSelectPart = @"Concat(
-if (pd3.PriceCode is not null, s3.Name, s4.Name),
-' - (',
-if (pd3.PriceCode is not null, pd3.PriceName, pd4.PriceName),
-')')";
+				buyingJoinPart = "left join usersettings.PricesData pd3 on pd3.PriceCode = bol.PriceId\r\n"
+					+ "left join customers.Suppliers s3 on s3.Id = pd3.FirmCode";
+				buyingSelectPart = "Concat(s3.Name, ' - (', pd3.PriceName, ')')";
 			}
 			var part = new SqlParts();
 			if (!string.IsNullOrEmpty(offerJoinPart))
