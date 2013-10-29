@@ -10,6 +10,7 @@ using Common.Web.Ui.NHibernateExtentions;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;
 using ReportTuner.Models;
+using Task = Microsoft.Win32.TaskScheduler.Task;
 
 namespace MigrationTasks
 {

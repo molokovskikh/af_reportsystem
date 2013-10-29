@@ -72,9 +72,7 @@ namespace Inforoom.ReportSystem.ByOffers
 			fromQueryPart = string.Format(fromQueryPart,  string.Format(@"
 left join farm.Core0 core01 on core01.ProductId = {0}.ProductId and core01.PriceCode = {0}.PriceId and if({0}.ProducerId is not null, {0}.ProducerId = core01.CodeFirmCr, 1)
 left join farm.Synonym syn on syn.SynonymCode = core01.SynonymCode
-left join farm.Synonym syn1 on  syn1.SynonymCode = core02.SynonymCode
 left join farm.Synonymfirmcr synCr on synCr.SynonymFirmCrCode = core01.SynonymFirmCrCode
-left join farm.Synonymfirmcr synCr1 on  synCr1.SynonymFirmCrCode = core02.SynonymFirmCrCode
 join catalogs.Producers prod on prod.Id = core.CodeFirmCr
 left join farm.Synonym origSyn on origSyn.SynonymCode = Core.SynonymCode
 left join farm.Synonymfirmcr origSynCr on origSynCr.SynonymFirmCrCode = Core.SynonymFirmCrCode
@@ -83,10 +81,10 @@ left join farm.Synonymfirmcr origSynCr on origSynCr.SynonymFirmCrCode = Core.Syn
 
 			var selectPart = string.Format(@"
 select
-{0}.ProductId as ProductId,
-{0}.ProducerId as ProducerId,
-if (syn.Synonym is not null, syn.Synonym, syn1.Synonym) as ProductSynonym,
-if (synCr.Synonym is not null, synCr.Synonym, synCr1.Synonym) as ProducerSynonym,
+	{0}.ProductId as ProductId,
+	{0}.ProducerId as ProducerId,
+	syn.Synonym as ProductSynonym,
+	synCr.Synonym as ProducerSynonym,
 catalog.Name as CatalogName,
 prod.Name as ProducerName,
 Core.Code as OriginalCode,

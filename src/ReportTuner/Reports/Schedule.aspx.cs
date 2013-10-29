@@ -15,6 +15,7 @@ using System.Threading;
 using NHibernate;
 using NHibernate.Linq;
 using ReportTuner.Models;
+using Task = Microsoft.Win32.TaskScheduler.Task;
 
 public partial class Reports_schedule : BasePage
 {
