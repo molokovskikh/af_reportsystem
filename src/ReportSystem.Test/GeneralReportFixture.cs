@@ -173,7 +173,8 @@ namespace ReportSystem.Test
 			}
 			finally {
 				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
-				if (connection != null) connection.Close();
+				if (connection != null)
+					connection.Close();
 			}
 		}
 
@@ -198,7 +199,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Log_success()
 		{
-			using(var connection = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
+			using (var connection = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				connection.Open();
 				report.Connection = connection;
 				report.LogSuccess();
@@ -207,7 +208,7 @@ namespace ReportSystem.Test
 
 		private static string[] LsZip(string result)
 		{
-			using(var zip = new ZipFile(result)) {
+			using (var zip = new ZipFile(result)) {
 				var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
 				return files;
 			}
