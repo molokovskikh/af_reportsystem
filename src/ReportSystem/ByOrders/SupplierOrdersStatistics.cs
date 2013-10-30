@@ -29,7 +29,8 @@ namespace Inforoom.ReportSystem.ByOrders
 			reportType = (int)getReportParam("ReportType");
 			if (_reportParams.ContainsKey("RegionEqual")) {
 				regions = (List<ulong>)getReportParam("RegionEqual");
-				if (regions.Contains(0)) regions.Clear(); // все регионы
+				if (regions.Contains(0))
+					regions.Clear(); // все регионы
 				regionsString = String.Join(", ", regions.ConvertAll(value => value.ToString()).ToArray());
 			}
 		}

@@ -117,68 +117,85 @@ namespace ReportTuner.Helpers
 						}
 					}
 				}
-				if (userid != null) return String.Format("userId={0}", userid);
+				if (userid != null)
+					return String.Format("userId={0}", userid);
 			}
 			return String.Empty;
 		}
 
 		public string GetRelativeValue(ReportProperty prop)
 		{
-			if (report == null) return null;
+			if (report == null)
+				return null;
 			if (report.ReportType.ReportClassName.Contains("PharmacyMixedReport")) {
 				// В смешанном для аптеки отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
 				var res = CalcMaskRegionByClient(prop, new[] { "RegionEqual", "RegionNonEqual" }, new[] { "SourceFirmCode" });
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 			}
 			if (report.ReportType.ReportClassName.Contains("SpecReport")) {
 				// В специальном отчете в списки регионов должны включаться только доступные клиенту регионы (а также те, которые ранее были доступны, чтобы их можно было выключить)
 				var res = CalcMaskRegionByClient(prop, new[] { "RegionClientEqual" }, new[] { "ClientCode" });
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 				// В специальном отчете список поставщиков должен формироваться с учетом выбранного клиента
 				res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 				// В специальном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
 				// Добавляем фильтрацию по типу прайса
 				var resTypes = String.Format("&inTypes={0},{1}", 1, 2);
-				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				if (!String.IsNullOrEmpty(res))
+					return res + resTypes;
 				// Список исключений "Прайс"
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeNonValues" }, new[] { "RegionEqual" });
-				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				if (!String.IsNullOrEmpty(res))
+					return res + resTypes;
 			}
 			if (report.ReportType.ReportClassName.Contains("CombReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 				// В комбинированном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
 				var resTypes = String.Format("&inTypes={0},{1}", 1, 2);
-				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				if (!String.IsNullOrEmpty(res))
+					return res + resTypes;
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeNonValues" }, new[] { "RegionEqual" });
-				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				if (!String.IsNullOrEmpty(res))
+					return res + resTypes;
 			}
 			if (report.ReportType.ReportClassName.Contains("DefReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers" }, new[] { "ClientCode" }, "UserCode");
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 				// В дефектурном отчете при выставленной опции 'По базовым ценам' в списке прайс-листов (Список значений "Прайс") должны показываться только прайсы, доступные в опции 'Список значений "Региона"'
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
 				var resTypes = String.Format("&inTypes={0},{1}", 1, 2);
-				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				if (!String.IsNullOrEmpty(res))
+					return res + resTypes;
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeNonValues" }, new[] { "RegionEqual" });
-				if (!String.IsNullOrEmpty(res)) return res + resTypes;
+				if (!String.IsNullOrEmpty(res))
+					return res + resTypes;
 			}
 			if (report.ReportType.ReportClassName.Contains("LeakOffersReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 			}
 			if (report.ReportType.ReportClassName.Contains("OffersReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 				res = CalcMaskRegionForSelectedRegions(prop, new[] { "PriceCodeEqual" }, new[] { "RegionEqual" });
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 			}
 			if (report.ReportType.ReportClassName.Contains("PharmacyOffersReport")) {
 				var res = GetUserByClient(prop, new[] { "IgnoredSuppliers", "FirmCodeEqual" }, new[] { "ClientCode" }, "UserCode");
-				if (!String.IsNullOrEmpty(res)) return res;
+				if (!String.IsNullOrEmpty(res))
+					return res;
 			}
 			return String.Empty;
 		}

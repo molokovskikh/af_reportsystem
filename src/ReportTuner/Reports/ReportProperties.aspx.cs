@@ -105,7 +105,8 @@ and rts.ReportTypeCode = rt.ReportTypeCode
 		else {
 			DS = ((DataSet)Session[DSParams]);
 			propertiesHelper = (PropertiesHelper)Session[PropHelper];
-			if (DS == null || propertiesHelper == null) { // вероятно, сессия завершилась и все ее данные утеряны
+			if (DS == null || propertiesHelper == null) {
+				// вероятно, сессия завершилась и все ее данные утеряны
 				Reports_GeneralReports.Redirect(this);
 			}
 		}
@@ -255,7 +256,9 @@ AND rp.reportCode=?rp
 		dgvOptional.DataBind();
 		Session[DSParams] = DS;
 	}
+
 	#region Component Designer generated code
+
 	private void InitializeComponent()
 	{
 		this.DS = new System.Data.DataSet();
@@ -419,7 +422,9 @@ AND rp.reportCode=?rp
 		((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).EndInit();
 	}
+
 	#endregion
+
 	protected void dgvNonOptional_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
 		ShowEditor(e.Row);
@@ -476,7 +481,7 @@ AND rp.reportCode=?rp
 		}
 		else if (type == "INT") {
 			if (String.IsNullOrEmpty(reportProperty.PropertyType.SelectStoredProcedure)) {
-				if(row[1].ToString() == "Количество отображаемых цен")
+				if (row[1].ToString() == "Количество отображаемых цен")
 					cell.FindControl("tbValueShort").Visible = true;
 				else
 					cell.FindControl("tbValue").Visible = true;
@@ -690,8 +695,8 @@ WHERE ID = ?OPID", MyCn, trans);
 			var baseCostRows = requiredParameters.Select("PPropertyName = 'ByBaseCosts'");
 			var weightCostRows = requiredParameters.Select("PPropertyName = 'ByWeightCosts'");
 			var clientRows = requiredParameters.Select("PPropertyName = 'ClientCode'");
-			if(baseCostRows.Length > 0 && weightCostRows.Length > 0 && clientRows.Length > 0) {
-				if(baseCostRows[0]["PPropertyValue"].ToString() == "1"
+			if (baseCostRows.Length > 0 && weightCostRows.Length > 0 && clientRows.Length > 0) {
+				if (baseCostRows[0]["PPropertyValue"].ToString() == "1"
 					|| weightCostRows[0]["PPropertyValue"].ToString() == "1") {
 					clientRows[0]["PPropertyValue"] = 1;
 				}
@@ -930,11 +935,14 @@ WHERE ID = ?OPID", MyCn, trans);
 	protected void ExtraRefresh()
 	{
 		object obj = FindCheckBoxByKey("По базовым ценам");
-		if (obj != null) chbValue_CheckedChanged(obj, null);
+		if (obj != null)
+			chbValue_CheckedChanged(obj, null);
 		obj = FindCheckBoxByKey("За предыдущий месяц");
-		if (obj != null) chbValue_CheckedChanged(obj, null);
+		if (obj != null)
+			chbValue_CheckedChanged(obj, null);
 		obj = FindCheckBoxByKey("По взвешенным ценам");
-		if (obj != null) chbValue_CheckedChanged(obj, null);
+		if (obj != null)
+			chbValue_CheckedChanged(obj, null);
 	}
 
 	protected object FindCheckBoxByKey(string key)
@@ -984,12 +992,12 @@ WHERE ID = ?OPID", MyCn, trans);
 		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
 		var weight_costs = GetValueByLabel(dgvNonOptional.Rows, "По взвешенным ценам");
 		DataRow[] forRemove = new DataRow[0];
-		if(base_costs) {
+		if (base_costs) {
 			forRemove = dtDDLOptionalParams.Select(String.Format("opName = '{0}' or opName = '{1}'",
 				"Пользователь",
 				"Список доступных клиенту регионов"));
 		}
-		else if(weight_costs) {
+		else if (weight_costs) {
 			forRemove = dtDDLOptionalParams.Select(String.Format("opName in ('{0}','{1}','{2}','{3}','{4}')",
 				"Пользователь",
 				"Список доступных клиенту регионов",
@@ -999,7 +1007,7 @@ WHERE ID = ?OPID", MyCn, trans);
 		}
 		else {
 			var last = dtDDLOptionalParams.Select(String.Format("opName = 'Список доступных клиенту регионов'"));
-			if(last.Length > 0) {
+			if (last.Length > 0) {
 				var newRow = dtDDLOptionalParams.NewRow();
 				newRow[0] = last[0][0];
 				newRow[1] = last[0][1];
@@ -1029,7 +1037,7 @@ WHERE ID = ?OPID", MyCn, trans);
 	private void SetOptionalRowVisibility(string label, bool visible)
 	{
 		foreach (GridViewRow dr in dgvOptional.Rows) {
-			if(((Label)dr.FindControl("lblName")).Text == label)
+			if (((Label)dr.FindControl("lblName")).Text == label)
 				dr.Visible = visible;
 		}
 	}
@@ -1137,7 +1145,8 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	private void FillUserDDL(long clientID, DropDownList ddl)
 	{
-		if (clientID < 0) clientID = 0;
+		if (clientID < 0)
+			clientID = 0;
 		var users = FutureUser.Queryable.Where(u => u.Client.Id == clientID).ToList();
 		var ulist = users.Cast<IUser>().OrderBy(u => u.ShortNameAndId).ToList();
 		ddl.DataSource = ulist;
@@ -1147,8 +1156,10 @@ WHERE ID = ?OPID", MyCn, trans);
 		var reportCode = Convert.ToUInt64(Request["rp"]);
 		var property = ReportProperty.Queryable.FirstOrDefault(p =>
 			p.Report.Id == reportCode && p.PropertyType.PropertyName == "UserCode");
-		if (property == null) return;
-		if (String.IsNullOrEmpty(property.Value)) return;
+		if (property == null)
+			return;
+		if (String.IsNullOrEmpty(property.Value))
+			return;
 
 		var user = ulist.FirstOrDefault(u => u.Id == Convert.ToUInt32(property.Value));
 		var index = ulist.IndexOf(user);

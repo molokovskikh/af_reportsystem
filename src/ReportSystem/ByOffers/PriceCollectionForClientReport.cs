@@ -191,13 +191,16 @@ group by Core.Id;",
 				ClientName = Convert.ToString(row["ClientName"]);
 				if (!Convert.IsDBNull(row["RequestRatio"]))
 					RequestRatio = Convert.ToInt32(row["RequestRatio"]);
-				else RequestRatio = null;
+				else
+					RequestRatio = null;
 				if (!Convert.IsDBNull(row["OrderCost"]))
 					OrderCost = Convert.ToSingle(row["OrderCost"]);
-				else OrderCost = null;
+				else
+					OrderCost = null;
 				if (!Convert.IsDBNull(row["MinOrderCount"]))
 					MinOrderCount = Convert.ToInt32(row["MinOrderCount"]);
-				else MinOrderCount = null;
+				else
+					MinOrderCount = null;
 			}
 
 			public DateTime PriceDate { get; private set; }

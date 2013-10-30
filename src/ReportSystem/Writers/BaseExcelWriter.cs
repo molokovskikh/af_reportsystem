@@ -23,7 +23,8 @@ namespace Inforoom.ReportSystem.Writers
 		public void DataTableToExcel(DataTable dtExport, string ExlFileName, ulong reportCode)
 		{
 			var resultTable = dtExport;
-			if (resultTable == null) return;
+			if (resultTable == null)
+				return;
 			bool cut = false;
 			while (resultTable.Columns.Count >= 256) {
 				resultTable.Columns.RemoveAt(255);

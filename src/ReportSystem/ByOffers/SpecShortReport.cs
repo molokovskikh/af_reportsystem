@@ -206,8 +206,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		{
 			ProfileHelper.Next("GetOffers for client: " + clientId);
 			var client = Session.Get<Client>((uint)clientId);
-			if (client == null) return;
-			if (client.Enabled == false) return;
+			if (client == null)
+				return;
+			if (client.Enabled == false)
+				return;
 			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
 
 			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();

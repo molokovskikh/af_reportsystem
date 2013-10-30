@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Common.Tools;
 using Inforoom.WindowsService;
 using log4net;
 using log4net.Config;
@@ -19,10 +20,12 @@ namespace ReportSystemBoot
 			try {
 				var releasePath = Settings.Default.ReleasePath;
 				var toPath = ".";
-				if (!Directory.Exists(releasePath)) Directory.CreateDirectory(releasePath);
+				if (!Directory.Exists(releasePath))
+					Directory.CreateDirectory(releasePath);
 				var files = Directory.GetFiles(releasePath).ToList();
 				var releaseFiles = files.Where(f => !f.Contains("ReportSystemBoot") && !f.Contains("log4net") && !f.Contains("ProcessPrivileges")).ToList();
-				if (releaseFiles.Count == 0) return;
+				if (releaseFiles.Count == 0)
+					return;
 				logger.Info("Обновление файлов...");
 				foreach (var file in releaseFiles) {
 					File.Copy(file, Path.Combine(toPath, Path.GetFileName(file)), true);

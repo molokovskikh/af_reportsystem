@@ -72,7 +72,7 @@ public partial class Reports_ReportPropertyValues : BasePage
 			inFilter = Request["inFilter"];
 		}
 
-		if(!String.IsNullOrEmpty(Request["inTypes"])) {
+		if (!String.IsNullOrEmpty(Request["inTypes"])) {
 			inTypes = Request["inTypes"];
 		}
 
@@ -176,6 +176,7 @@ WHERE
 	}
 
 	#region Component Designer generated code
+
 	private void InitializeComponent()
 	{
 		this.DS = new System.Data.DataSet();
@@ -283,7 +284,9 @@ WHERE
 		((System.ComponentModel.ISupportInitialize)(this.dtEnabledValues)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtList)).EndInit();
 	}
+
 	#endregion
+
 	protected void btnSearch_Click(object sender, EventArgs e)
 	{
 		ShowData();
@@ -492,7 +495,8 @@ and ?Enabled = 0;", MyCn, trans);
 
 	protected void dgvListValues_DataBound(object sender, EventArgs e)
 	{
-		if (dgvListValues.Rows.Count == 0) return;
+		if (dgvListValues.Rows.Count == 0)
+			return;
 		CheckBox cb = (CheckBox)dgvListValues.HeaderRow.Cells[0].FindControl("cbSet");
 		DataRow[] drs = ((DataView)dgvListValues.DataSource).ToTable().Select("Enabled = 1");
 		cb.Checked = (drs.Length == ((DataView)dgvListValues.DataSource).Count);

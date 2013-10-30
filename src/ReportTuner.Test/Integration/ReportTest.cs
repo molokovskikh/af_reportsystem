@@ -32,7 +32,7 @@ namespace ReportTuner.Test.Integration
 			MyDA = new MySqlDataAdapter();
 		}
 
-		DataTable FillClients(string proc, string filter, string id, string inTypes = null)
+		private DataTable FillClients(string proc, string filter, string id, string inTypes = null)
 		{
 			var dtProcResult = new DataTable();
 			string db = String.Empty;
@@ -51,7 +51,7 @@ namespace ReportTuner.Test.Integration
 				else
 					MyCmd.Parameters.AddWithValue("inID", Convert.ToInt64(id));
 				MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
-				if(String.IsNullOrEmpty(inTypes)) {
+				if (String.IsNullOrEmpty(inTypes)) {
 					MyCmd.Parameters.AddWithValue("inTypes", -1);
 				}
 				else {
@@ -174,7 +174,8 @@ namespace ReportTuner.Test.Integration
 				var report = reports.Select(r => {
 					var properties = ReportProperty.Queryable.Where(p => p.Report == r).ToList();
 					var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
-					if (prop != null) return r;
+					if (prop != null)
+						return r;
 					return null;
 				}).FirstOrDefault(r => r != null);
 				var reportProperties = report.Properties;
@@ -191,7 +192,8 @@ namespace ReportTuner.Test.Integration
 				var clientMask = client.MaskRegion;
 				var regMask = regionProperty.Values.Where(v => {
 					var reg = Convert.ToUInt32(v.Value);
-					if ((reg & clientMask) > 0) return false;
+					if ((reg & clientMask) > 0)
+						return false;
 					return true;
 				}).Sum(v => Convert.ToUInt32(v.Value));
 				var mask = clientMask + regMask;
@@ -227,7 +229,8 @@ namespace ReportTuner.Test.Integration
 					var clientCode = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
 					var clientProp = Client.TryFind(Convert.ToUInt32(clientCode.Value));
 					var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
-					if (prop != null && clientProp != null) return r;
+					if (prop != null && clientProp != null)
+						return r;
 					return null;
 				}).FirstOrDefault(r => r != null);
 				var reportProperties = report.Properties;
