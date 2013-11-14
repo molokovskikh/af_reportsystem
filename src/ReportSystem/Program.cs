@@ -142,8 +142,9 @@ and cr.generalreportcode = " + generalReportId;
 							_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
 						}
 						catch (Exception ex) {
-							var message = String.Format("Ошибка при запуске отчета {0}",
-								drReport[GeneralReportColumns.ShortName]);
+							var message = String.Format("Ошибка при запуске отчета {0} код отчета {1}",
+								drReport[GeneralReportColumns.ShortName],
+								drReport[GeneralReportColumns.GeneralReportCode]);
 							_log.Error(message, ex);
 
 							var reportEx = ex as ReportException;
