@@ -36,7 +36,6 @@ namespace ReportSystemBoot
 			}
 			catch (Exception e) {
 				logger.Info("Не удалось обновить файлы: ", e);
-				return;
 			}
 		}
 
@@ -44,32 +43,35 @@ namespace ReportSystemBoot
 		{
 			XmlConfigurator.Configure();
 			var logger = LogManager.GetLogger(typeof(Program));
-			var accessArgument = args.FirstOrDefault(a => a.StartsWith(AcceessKey));
-			var accessModified = accessArgument != null && Convert.ToBoolean(accessArgument.Substring(AcceessKey.Length));
-			if (!accessModified)
-				DeployFiles(logger);
-
-			var ass = Assembly.GetExecutingAssembly();
-			var location = ass.Location;
-			var bootAppName = Path.GetFileNameWithoutExtension(location);
-			var appName = bootAppName;
-#if DEBUG
-			location = @"D:\Projects\ReportSystem\src\ReportSystem\bin\Debug";
-#else
-			location = Path.GetDirectoryName(ass.Location);
-#endif
-			var arg = args.Aggregate(string.Empty, (current, s) => current + " " + s);
-			if (args.Length >= 1)
-				bootAppName += arg;
-			logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
+			string bootAppName = null;
+			int exitCode;
 			try {
+				var accessArgument = args.FirstOrDefault(a => a.StartsWith(AcceessKey));
+				var accessModified = accessArgument != null && Convert.ToBoolean(accessArgument.Substring(AcceessKey.Length));
+				if (!accessModified)
+					DeployFiles(logger);
+
+				var ass = Assembly.GetExecutingAssembly();
+				var location = ass.Location;
+				bootAppName = Path.GetFileNameWithoutExtension(location);
+				var appName = bootAppName;
+#if DEBUG
+				location = @"D:\Projects\ReportSystem\src\ReportSystem\bin\Debug";
+#else
+				location = Path.GetDirectoryName(ass.Location);
+#endif
+				var arg = args.Aggregate(string.Empty, (current, s) => current + " " + s);
+				if (args.Length >= 1)
+					bootAppName += arg;
+				logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
+
+				var user = "runer";
+				var password = "zcxvcb";
+				var domainname = "analit";
+
 				if (!accessModified) {
 					bootAppName += string.Format(" {0}true", AcceessKey);
-#if !DEBUG
-					ProcessStarter.StartProcessInteractivly(bootAppName, "runer", "zcxvcb", "analit");
-#else
-					ProcessStarter.StartProcessInteractivly(bootAppName, "Zolotarev", "*****", "analit");
-#endif
+					exitCode = ProcessStarter.StartProcessInteractivly(bootAppName, user, password, domainname);
 				}
 				else {
 					AppDomain domain = null;
@@ -81,7 +83,7 @@ namespace ReportSystemBoot
 							ConfigurationFile = "ReportSystem.exe.config"
 						};
 						domain = AppDomain.CreateDomain("freeReportDomain", null, setup);
-						return domain.ExecuteAssembly(Path.Combine(location, appName.Replace("Boot", ".exe")), args);
+						exitCode = domain.ExecuteAssembly(Path.Combine(location, appName.Replace("Boot", ".exe")), args);
 					}
 					finally {
 						if (domain != null)
@@ -92,7 +94,9 @@ namespace ReportSystemBoot
 			}
 			catch (Exception exception) {
 				logger.Error("Ошибка при запуске отчета : " + bootAppName, exception);
+				exitCode = 1;
 			}
+			return exitCode;
 		}
 	}
 }
