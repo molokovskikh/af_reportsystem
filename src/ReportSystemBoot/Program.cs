@@ -40,7 +40,7 @@ namespace ReportSystemBoot
 			}
 		}
 
-		private static void Main(string[] args)
+		private static int Main(string[] args)
 		{
 			XmlConfigurator.Configure();
 			var logger = LogManager.GetLogger(typeof(Program));
@@ -81,7 +81,7 @@ namespace ReportSystemBoot
 							ConfigurationFile = "ReportSystem.exe.config"
 						};
 						domain = AppDomain.CreateDomain("freeReportDomain", null, setup);
-						domain.ExecuteAssembly(Path.Combine(location, appName.Replace("Boot", ".exe")), args);
+						return domain.ExecuteAssembly(Path.Combine(location, appName.Replace("Boot", ".exe")), args);
 					}
 					finally {
 						if (domain != null)

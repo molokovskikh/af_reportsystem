@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 		}
 
 		[STAThread]
-		public static void Main(string[] args)
+		public static int Main(string[] args)
 		{
 			int generalReportId = 0;
 			try {
@@ -71,10 +71,12 @@ namespace Inforoom.ReportSystem
 					throw new Exception("Не указан код отчета для запуска в параметре gr.");
 
 				ProcessReport(generalReportId, manual, interval, dtFrom, dtTo);
+				return 0;
 			}
 			catch (Exception ex) {
 				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
 				Mailer.MailGlobalErr(ex.ToString());
+				return 1;
 			}
 		}
 
