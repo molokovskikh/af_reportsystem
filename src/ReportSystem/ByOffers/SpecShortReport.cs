@@ -306,7 +306,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_Clients = (List<ulong>)getReportParam("Clients");
 			//если не делать приведения nhibernate валится с ошибкой
 			//System.NotSupportedException : Don't currently support idents of type UInt64
-			var ids = _Clients.Cast<uint>().ToArray();
+			var ids = _Clients.Select(l => (uint)l).ToArray();
 			var clients = Session.Query<Client>().Where(c => ids.Contains(c.Id)).Where(c => c != null && c.Enabled).ToList();
 			_Clients = clients.Select(c => (ulong)c.Id).ToList();
 			if (_Clients.Count == 0)

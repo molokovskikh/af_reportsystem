@@ -8,29 +8,54 @@ import file from Db.bake
 import file from MySql.bake
 
 Global(
-	humanReadableName : "Генератор отчетов",
+	HumanReadableName : "Генератор отчетов",
 	Project : @ReportSystem,
 	Profile : @reportTypes,
 	SkipDefaultLib: true,
 	AdditionalAssemblies: ("ReportTuner", "Common.Web.Ui", "Common.Models/Common.Schedule", "Report.Data.Builder")
 )
 
+host = "fms.adc.analit.net"
+deployTo = "\\\\${host}\\Reports"
+releaseTo = "\\\\${host}\\Reports\\ReleasePath"
+project = "ReportSystem"
+projectBoot = "ReportSystemBoot"
+
+task @default, [@build]
+
+task @build, ["build:background", "build:exe"]
+
+task @deploy, ["deploy:pipeline"]
+
+task "deploy:app", ["deploy:background", "deploy:exe"]
+
 task @ready:
 	unless Configuration.IsDefined(@notInteractive):
 		Engine.Execute("LoadProject")
 
-task @DeployBackground, [@BuildBackground]:
-	Globals.Project = "Report.Data.Builder"
-	Globals.DeployTo = """\\fms\TopShelf\Services\""" + Globals.Project
-	Engine.Tasks.First({t| t.Name == "WebDeploy"}).Executed = false
-	Engine.Execute("WebDeploy")
+task "deploy:background", ["build:background"]:
+	return if Globals.Environment != @Production
 
-task @BuildBackground:
-	oldProject = Globals.Project
 	project = "Report.Data.Builder"
-	Globals.Project = project
-	Engine.Tasks.First({t| t.Name == "BuildApp"}).Executed = false
-	Engine.Execute("BuildApp")
-	Cp("src/$project/app.release.config", "output/$project/$project.config")
-	Rm("output/$project/$project.*.config")
-	Globals.Project = oldProject
+	deploy = """\\fms\TopShelf\Services\""" + project
+	XCopyDeploy(Globals, project, deploy)
+
+task "deploy:exe":
+	return if Globals.Environment != @Production
+
+	if Configuration.Maybe.force:
+		XCopyDeploy(Globals, "ReportSystem", deployTo)
+		XCopyDeploy(Globals, "ReportSystemBoot", deployTo)
+	else:
+		XCopyDeploy(Globals, "ReportSystem", releaseTo)
+
+task "build:background":
+	Build(Globals, "Report.Data.Builder")
+
+task "build:exe", ["clean:exe"]:
+	Build(Globals, projectBoot)
+	Build(Globals, project)
+
+task "clean:exe":
+	Clean(Globals, projectBoot)
+	Clean(Globals, project)
