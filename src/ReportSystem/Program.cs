@@ -88,7 +88,6 @@ namespace Inforoom.ReportSystem
 					using(var trx = session.BeginTransaction()) {
 						reportLog.GeneralReportCode = generalReportId;
 						reportLog.StartTime = DateTime.Now;
-						reportLog.EndError = true;
 						session.Save(reportLog);
 						trx.Commit();
 					}
@@ -105,13 +104,23 @@ namespace Inforoom.ReportSystem
 						report.LogSuccess();
 						_log.DebugFormat("Отчет {0} выполнился успешно", report.Id);
 						reportLog.EndTime = DateTime.Now;
-						reportLog.EndError = false;
 						trx.Commit();
 					}
 					result = true;
 				}
 				catch(Exception e) {
 					_log.Error(String.Format("Ошибка при запуске отчета {0}", report), e);
+
+					try {
+						using(var trx = session.BeginTransaction()) {
+							reportLog.EndError = true;
+							session.Save(reportLog);
+							trx.Commit();
+						}
+					}
+					catch(Exception ex) {
+						_log.Error("Не удалось запротоколировать ошибку", ex);
+					}
 
 					var reportEx = e as ReportException;
 					if (reportEx != null && reportEx.InnerException != null && report.Reports.Count > 1) {

@@ -63,7 +63,6 @@ from Documents.DocumentHeaders dh
 where 1 = 1");
 
 			ApplyFilters(sql.ToString(), "dh");
-			Console.Write(sql);
 
 			var selectTable = new DataTable();
 			e.DataAdapter.SelectCommand.CommandText = sql.ToString();
