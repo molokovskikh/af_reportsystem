@@ -113,7 +113,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(new FakeReport());
-			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today);
+			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -129,7 +129,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(fakeReport);
-			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today);
+			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -190,7 +190,7 @@ namespace ReportSystem.Test
 		{
 			FileHelper.InitDir("history");
 			report.Reports.Add(new FakeReport());
-			report.ProcessReports(new ReportExecuteLog { Id = 1 }, null, false, DateTime.Today, DateTime.Today);
+			report.ProcessReports(new ReportExecuteLog { Id = 1 }, null, false, DateTime.Today, DateTime.Today, false);
 
 			var files = Directory.GetFiles("history");
 			Assert.That(files.Length, Is.EqualTo(1), files.Implode());

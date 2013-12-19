@@ -118,7 +118,7 @@ namespace ReportSystem.Test
 
 			var ex = false;
 			try {
-				gr.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today);
+				gr.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today, false);
 			}
 			catch (ReportException e) {
 				Assert.That(e.Message, Is.EqualTo("Системная ошибка."));

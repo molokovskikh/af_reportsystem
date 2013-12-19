@@ -41,7 +41,7 @@ namespace Inforoom.ReportSystem
 		{
 			if (report != null) {
 				var subject = "Ошибка при запуске отчетa для ";
-				if (report != null && report.Payer != null) {
+				if (report.Payer != null) {
 					subject += report.Payer.Name;
 				}
 				Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, subject,

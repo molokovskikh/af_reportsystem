@@ -172,10 +172,11 @@ where GeneralReport = ?GeneralReport;";
 		}
 
 		//Производится построение отчетов
-		public void ProcessReports(ReportExecuteLog log, MySqlConnection connection, bool interval, DateTime begin, DateTime end)
+		public void ProcessReports(ReportExecuteLog log, MySqlConnection connection, bool interval, DateTime begin, DateTime end, bool load = true)
 		{
 			Connection = connection;
-			Load(interval, begin, end);
+			if (load)
+				Load(interval, begin, end);
 			try {
 				var files = BuildResultFile();
 				SendReport(files, log);
@@ -260,10 +261,10 @@ where GeneralReport = ?GeneralReport;";
 					bs.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
 					if (ex is ReportException) {
 						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), Payer.Name, Id, bs.ReportCode, bs.ReportCaption);
+						Mailer.MailReportErr(ex.ToString(), Payer != null ? Payer.Name : "", Id, bs.ReportCode, bs.ReportCaption);
 						continue; // выполняем следующий отчет
 					}
-					throw new ReportException(ex.Message, ex, bs.ReportCode, bs.ReportCaption, Payer.Name); // передаем наверх
+					throw new ReportException(ex.Message, ex, bs.ReportCode, bs.ReportCaption, Payer != null ? Payer.Name : ""); // передаем наверх
 				}
 			}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -159,6 +160,13 @@ namespace Inforoom.ReportSystem.Helpers
 					((Range)sheet.Columns[i + 1, Type.Missing]).AutoFit();
 				if (table.Columns[i].ExtendedProperties.ContainsKey("Color"))
 					sheet.get_Range(sheet.Cells[row, i + 1], sheet.Cells[table.Rows.Count + 1, i + 1]).Interior.Color = ColorTranslator.ToOle((Color)table.Columns[i].ExtendedProperties["Color"]);
+			}
+		}
+
+		public static IEnumerable<T> Cast<T>(this IEnumerator enumerator)
+		{
+			while (enumerator.MoveNext()) {
+				yield return (T)enumerator.Current;
 			}
 		}
 	}

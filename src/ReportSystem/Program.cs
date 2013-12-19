@@ -42,8 +42,8 @@ namespace Inforoom.ReportSystem
 					foreach (NHibernate.Cfg.Configuration cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
 						cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 					}
-					factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 				}
+				factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 
 				//Попытка получить код общего отчета в параметрах
 				var interval = false;
@@ -131,7 +131,10 @@ namespace Inforoom.ReportSystem
 					Mailer.MailGeneralReportErr(report, e);
 				}
 				finally {
-					if (report != null) {
+					//не уверен почему так но восстанавливаем состояние задачи только если отчет не выключен
+					//этого требует тест ProgramTest но логика мне не понятна
+					//подозрительно тк раньше это работало тк переменная была null и блок валился с исключением
+					if (report != null && report.Enabled) {
 						ScheduleHelper.SetTaskAction(report.Id, "/gr:" + report.Id);
 						ScheduleHelper.SetTaskEnableStatus(report.Id, report.Enabled, "GR");
 						var taskService = ScheduleHelper.GetService();

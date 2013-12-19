@@ -5,6 +5,7 @@ using System.Text;
 using Common.Schedule;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Model;
+using log4net.Config;
 using Microsoft.Win32.TaskScheduler;
 using NHibernate.Linq;
 using NUnit.Framework;
