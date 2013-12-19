@@ -78,7 +78,7 @@ namespace Inforoom.ReportSystem
 		[Property]
 		public virtual uint? ContactGroupId { get; set; }
 
-		// Проверка спика отчетов
+		// Проверка списка отчетов
 		private void CheckReports()
 		{
 			foreach (DataRow drGReport1 in _reports.Rows) // Проверяем чтобы не было
@@ -253,11 +253,11 @@ where GeneralReport = ?GeneralReport;";
 						});
 					}
 					bs.ReportToFile(_mainFileName);
-					bs.ToLog(Id); // логируем успешное выполнение отчета
+					bs.ToLog(Id); // протоколируем успешное выполнение отчета
 					emptyReport = false;
 				}
 				catch (Exception ex) {
-					bs.ToLog(Id, ex.ToString()); // логируем ошибку при выполнении отчета
+					bs.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
 					if (ex is ReportException) {
 						// уведомление об ошибке при формировании одного из подотчетов
 						Mailer.MailReportErr(ex.ToString(), Payer.Name, Id, bs.ReportCode, bs.ReportCaption);
@@ -448,7 +448,7 @@ where ReportType = ?ReportTypeCode;";
 							if (!result.Keys.Contains(key))
 								result.Add(key, filePath);
 							else
-								Logger.Error(string.Format("При формаровании отчета {0} не был добавлен файл {1} с описанием, так как файл с таким именем уже существует", Id, key));
+								Logger.Error(string.Format("При формировании отчета {0} не был добавлен файл {1} с описанием, так как файл с таким именем уже существует", Id, key));
 						}
 					}
 				}

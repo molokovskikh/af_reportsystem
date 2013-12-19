@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Common.Tools;
 using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
@@ -114,7 +115,7 @@ namespace Inforoom.ReportSystem
 			_groupingFieldText = _WithWithoutProperties ? "CatalogId" : "ProductId";
 			if (_regions != null)
 				if (_regions.Count != 0) {
-					_regionsWhere = " where Prices.RegionCode in " + ConcatWhereIn(_regions);
+					_regionsWhere = " where Prices.RegionCode in " + _regions.Implode();
 				}
 		}
 

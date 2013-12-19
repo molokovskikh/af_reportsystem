@@ -24,15 +24,15 @@ namespace Inforoom.ReportSystem
 	//Специальный отчет прайс-листов
 	public class SpecReport : ProviderReport
 	{
-		//1 - без учета производителя и с колчеством
-		//2 - без учета производителя и колчеством
-		//3 - с учетом производителя и без колчеством
-		//4 - с учетом производителя и с колчеством
+		//1 - без учета производителя и с количеством
+		//2 - без учета производителя и количеством
+		//3 - с учетом производителя и без количеством
+		//4 - с учетом производителя и с количеством
 		protected int _reportType;
 		protected bool _showPercents;
 		protected bool _reportIsFull;
 		protected bool _reportSortedByPrice;
-		//Расчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производится по продуктам (ProductId)
+		//Рассчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производится по продуктам (ProductId)
 		protected bool _calculateByCatalog;
 
 		protected int SourcePC, FirmCode;
@@ -52,7 +52,7 @@ namespace Inforoom.ReportSystem
 		protected bool _showCodeCr;
 
 		protected bool _codesWithoutProducer;
-		//количество столбцпв до начала блоков прайс листов
+		//количество столбцов до начала блоков прайс листов
 		private int firstColumnCount;
 		//количество столбцов в блоке прайс листа
 		private int priceBlockSize;
@@ -177,7 +177,7 @@ from
 				SqlCommandText += @",
   TmpSourceCodes SourcePrice
  )";
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
 				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = AllPrices.ProducerId";
@@ -263,7 +263,7 @@ right join farm.Core0 c0 on c0.productid = pr.id and c0.pricecode = ?SourcePrice
 left join farm.synonym s on s.SynonymCode = c0.SynonymCode
   left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 ";
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
 				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = AllPrices.ProducerId";
@@ -759,7 +759,7 @@ group by c.pricecode";
 						drsMin = dtCore.Select("CatalogCode = '" + drsCore[0]["CatalogCode"] + "' and PriceCode = "
 							+ drsCore[0]["PriceCode"].ToString() + " and Code = '" + drsCore[0]["Code"] + "'", "Cost asc");
 
-						//Если в Core предложений по данному SourcePC не существует, то прайс-лист асортиментный или не включен клиентом в обзор
+						//Если в Core предложений по данному SourcePC не существует, то прайс-лист ассортиментный или не включен клиентом в обзор
 						//В этом случае данные поля не заполняется и в сравнении такой прайс-лист не участвует
 						if ((drsMin.Length > 0)) {
 							foreach (DataRow dataRow in drsMin) {
@@ -1101,7 +1101,7 @@ from
   Core AllPrices,
   TmpSourceCodes SourcePrice
  )";
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
 				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";
@@ -1190,7 +1190,7 @@ from
   Core AllPrices,
   TmpSourceCodes SourcePrice
  )";
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
 				SqlCommandText += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";

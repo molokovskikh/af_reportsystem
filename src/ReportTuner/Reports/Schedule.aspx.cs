@@ -125,7 +125,7 @@ public partial class Reports_schedule : BasePage
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
 			else {
-				ErrorMassage.Text = String.Format("{1}, выполнение данного очета отложено {0}. {2}", description, prefix, startTime);
+				ErrorMassage.Text = String.Format("{1}, выполнение данного отчета отложено {0}. {2}", description, prefix, startTime);
 				ErrorMassage.BackColor = Color.Red;
 			}
 			btn_Mailing.Enabled = false;
@@ -139,7 +139,7 @@ public partial class Reports_schedule : BasePage
 				ErrorMassage.BackColor = Color.LightGreen;
 			}
 			else {
-				ErrorMassage.Text = string.Format("{1} {0}, выполнение данного очета отложено)", description, prefix);
+				ErrorMassage.Text = string.Format("{1} {0}, выполнение данного отчета отложено)", description, prefix);
 				ErrorMassage.BackColor = Color.Red;
 			}
 			btn_Mailing.Enabled = false;

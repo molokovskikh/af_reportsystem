@@ -31,7 +31,7 @@ namespace Inforoom.ReportSystem
 		CSV
 	}
 
-	//Содержит названия полей, используемых при создании общего очета
+	//Содержит названия полей, используемых при создании общего отчета
 	public sealed class BaseReportColumns
 	{
 		public const string colReportCode = "ReportCode";
@@ -215,8 +215,8 @@ namespace Inforoom.ReportSystem
 			var reportTable = GetReportTable();
 			if (IsEmpty(reportTable))
 				throw new Exception("В результате подготовки отчета получился пустой набор данных"
-					+ "\r\nэсли это отчет по заказам то возможно не были импортированы данные за выбраный период, нужно проверить ordersold"
-					+ "\r\nесли это отчет по динамики цен то возможно не были подготовленны данные"
+					+ "\r\nесли это отчет по заказам то возможно не были импортированы данные за выбранный период, нужно проверить ordersold"
+					+ "\r\nесли это отчет по динамики цен то возможно не были подготовлены данные"
 					+ "\r\nесли это отчет по предложениям то нужно проверить настройки отчета возможно в них ошибка");
 
 			var writer = GetWriter(Format);
@@ -253,7 +253,7 @@ namespace Inforoom.ReportSystem
 			if (!CheckEmptyData)
 				return false;
 
-			//если таблицы с данными нет то значит в отчете проиходит
+			//если таблицы с данными нет то значит в отчете происходит
 			//что то специальное
 			if (reportTable == null)
 				return false;

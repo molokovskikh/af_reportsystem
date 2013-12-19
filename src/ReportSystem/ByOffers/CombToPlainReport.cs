@@ -55,7 +55,7 @@ select
   replace( replace( replace(sfc.synonym, '\t', ''), '\r', ''), '\n', '') as sfcsynonym,
   -- упаковка
   replace( replace( replace(FarmCore.volume, '\t', ''), '\r', ''), '\n', '') as volume,
-  -- применчание
+  -- примечание
   replace( replace( replace(FarmCore.note, '\t', ''), '\r', ''), '\n', '') as note,
   -- срок годности
   FarmCore.period,

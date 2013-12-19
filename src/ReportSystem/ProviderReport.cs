@@ -95,17 +95,17 @@ namespace Inforoom.ReportSystem
 			}
 			var payerWhere = string.Empty;
 			if (PayerEqual.Count != 0) {
-				payerWhere += " AND pc.PayerId IN " + ConcatWhereIn(PayerEqual);
+				payerWhere += " AND pc.PayerId IN " + PayerEqual.Implode();
 			}
 			if (PayerNonEqual.Count != 0) {
-				payerWhere += " AND pc.PayerId NOT IN " + ConcatWhereIn(PayerNonEqual);
+				payerWhere += " AND pc.PayerId NOT IN " + PayerNonEqual.Implode();
 			}
 			var clientWhere = string.Empty;
 			if (Clients.Count != 0) {
-				clientWhere += " AND fc.Id IN " + ConcatWhereIn(Clients);
+				clientWhere += " AND fc.Id IN " + Clients.Implode();
 			}
 			if (ClientsNON.Count != 0) {
-				clientWhere += " AND fc.Id NOT IN " + ConcatWhereIn(ClientsNON);
+				clientWhere += " AND fc.Id NOT IN " + ClientsNON.Implode();
 			}
 			var clientIdWhere = string.Empty;
 			if (checkClientId != null) {
@@ -145,22 +145,6 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-
-		/// <summary>
-		/// Метод по списку ID формарует строку для вставки в запрос вида: where t.item in (id1, id2, id3...)
-		/// </summary>
-		/// <param name="items"></param>
-		/// <returns></returns>
-		public static string ConcatWhereIn(List<ulong> items)
-		{
-			var result = "(";
-			foreach (var item in items) {
-				result += (item + ", ");
-			}
-			result = result.Substring(0, result.Length - 2);
-			result += ")";
-			return result;
-		}
 
 		//Получили список действующих прайс-листов для интересующего клиента
 		protected void InvokeGetActivePrices()

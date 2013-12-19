@@ -141,7 +141,7 @@ where pd.IsLocal = 0", OrdersSchema));
 			ProfileHelper.Next("ExcelDiagrammProcessing");
 			var res = _dsReport.Tables["Results"];
 
-			//Выбираем диапазон, по которому будет строить диаграму
+			//Выбираем диапазон, по которому будет строить диаграмму
 			(ws.Range[ws.Cells[2 + FilterDescriptions.Count, 1], ws.Cells[res.Rows.Count, 2]]).Select();
 			Shape s;
 			s = ws.Shapes.AddChart(XlChartType.xlPie, 20, 40, 450, 230);

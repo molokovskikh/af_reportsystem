@@ -370,7 +370,7 @@ from
   Core AllPrices,
   TmpSourceCodes SourcePrice
  )";
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
 				sql += @"
   left join catalogs.Producers cfc on cfc.Id = FarmCore.codefirmcr";

@@ -31,7 +31,7 @@ namespace Inforoom.ReportSystem
 
 		protected int _reportType;
 		protected bool _showPercents;
-		//Расчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производится по продуктам (ProductId)
+		//Рассчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производится по продуктам (ProductId)
 		protected bool _calculateByCatalog;
 
 		protected string reportCaptionPreffix;
@@ -117,7 +117,7 @@ from
 	join Catalogs.CatalogNames cn on cn.Id = catalog.NameId
 	left join Catalogs.Mnn m on m.Id = cn.MnnId";
 
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
 				e.DataAdapter.SelectCommand.CommandText += @"
   left join catalogs.Producers on Producers.Id = Core.ProducerId ";
@@ -246,7 +246,7 @@ from
 	join Catalogs.CatalogNames cn on cn.Id = catalog.NameId
 	left join Catalogs.Mnn m on m.Id = cn.MnnId";
 
-			//Если отчет с учетом производителя, то пересекаем с таблицой Producers
+			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
 				e.DataAdapter.SelectCommand.CommandText += @"
   left join catalogs.Producers on Producers.Id = FarmCore.codefirmcr ";

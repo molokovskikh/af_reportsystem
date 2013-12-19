@@ -1,7 +1,7 @@
 using System.Reflection;
 
 [assembly: AssemblyTitle("ReportSystem")]
-[assembly: AssemblyDescription("Программа для подговтоки отчетов")]
+[assembly: AssemblyDescription("Программа для подготовки отчетов")]
 [assembly: AssemblyCompany("Inforoom")]
 [assembly: AssemblyProduct("ReportSystem")]
 [assembly: AssemblyCopyright("Copyright © Inforoom 2009")]

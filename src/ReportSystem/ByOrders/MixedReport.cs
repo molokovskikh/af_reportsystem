@@ -25,7 +25,7 @@ namespace Inforoom.ReportSystem
 		//Поставщик, по которому будет производиться отчет
 		protected int sourceFirmCode;
 
-		//Список постащиков-конкурентов в виде строки
+		//Список поставщиков-конкурентов в виде строки
 		protected List<List<ulong>> concurrentGroups = new List<List<ulong>>();
 
 		//Отображать поле Code из прайс-листа поставщика?
@@ -76,7 +76,7 @@ namespace Inforoom.ReportSystem
 			if (concurrentGroups.Count == 0)
 				throw new ReportException("Не установлен параметр \"Список конкурентов\".");
 
-			//Пытаемся найти список ограничений по постащику
+			//Пытаемся найти список ограничений по поставщику
 			var firmCodeField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCode");
 			if (firmCodeField != null && firmCodeField.equalValues != null) {
 				//Если в списке выбранных значений нет интересующего поставщика, то добавляем его туда
@@ -94,7 +94,7 @@ namespace Inforoom.ReportSystem
 			ProfileHelper.Next("BaseCheckAfterLoad");
 			base.CheckAfterLoadFields();
 			ProfileHelper.Next("CheckAfterLoad");
-			//Выбирем поле "Производитель", если в настройке отчета есть соответствующий параметр
+			//Выбираем поле "Производитель", если в настройке отчета есть соответствующий параметр
 			firmCrField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCr");
 
 			//Проверяем, что выбран один из параметров для отображения: Наименование, Полное Наименование, Продукт
@@ -374,7 +374,7 @@ and pd.IsLocal = 0
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?)8);
 			dc = res.Columns.Add("SourceFirmCodeRows", typeof(Int32));
-			dc.Caption = "Кол-во по постащику";
+			dc.Caption = "Кол-во по поставщику";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("SourceFirmCodeMinCost", typeof(Decimal));
@@ -394,7 +394,7 @@ and pd.IsLocal = 0
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("SourceFirmDistinctAddressId", typeof(Int32));
-			dc.Caption = "Кол-во адресов доставки, заказавших препарат, по постащику";
+			dc.Caption = "Кол-во адресов доставки, заказавших препарат, по поставщику";
 			dc.ExtendedProperties.Add("Color", groupColor);
 			dc.ExtendedProperties.Add("Width", (int?)4);
 			dc = res.Columns.Add("SourceSuppliersSoldPosition", typeof(Int32));
@@ -494,11 +494,11 @@ and pd.IsLocal = 0
 				freezeCount++;
 
 			//будь бдителен! перед тем как замораживать колонки нужно переместить окно к начальной колонке
-			//тк замораживаемая колонка заморожавается в позиции отностительно текущего окна
+			//тк замораживаемая колонка замораживается в позиции относительно текущего окна
 			//пример, есть таблица с четырьмя колонками
 			//1|2|3|4
 			//предположим я хочу заморозить колонки 1 и 2 что бы их значения были всегда видны
-			//если я буду замороживать колонку 2 когда окно будет в состоянии
+			//если я буду замораживать колонку 2 когда окно будет в состоянии
 			//------
 			//2|3|4|
 			//2|3|4|
@@ -514,7 +514,7 @@ and pd.IsLocal = 0
 			//------
 			//это делает код ниже
 			//почему окно может оказаться в таком положении? хз
-			//навеное одна из более ранних операций приводит его в такое состояние
+			//наверное одна из более ранних операций приводит его в такое состояние
 			//возможно это операция выделения
 			//всего скорее это стрельнет только на сервере если запускать под runer
 			//тк runer не ходит интерактивно у него не будет настройки разрешения
