@@ -14,6 +14,7 @@ using Common.Web.Ui.NHibernateExtentions;
 using ExecuteTemplate;
 using Inforoom.Common;
 using Inforoom.ReportSystem.Model;
+using NHibernate;
 using NHibernate.Mapping.Attributes;
 using log4net;
 using log4net.Config;
@@ -25,15 +26,7 @@ namespace Inforoom.ReportSystem
 	public class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
-		public static GeneralReport generalReport { get; private set; }
-		//Выбираем отчеты из базы
-		private static DataTable GetGeneralReports(ReportsExecuteArgs e)
-		{
-			e.DataAdapter.SelectCommand.CommandText = e.SQL;
-			var res = new DataTable();
-			e.DataAdapter.Fill(res);
-			return res;
-		}
+		private static ISessionFactory factory;
 
 		[STAThread]
 		public static int Main(string[] args)
@@ -49,6 +42,7 @@ namespace Inforoom.ReportSystem
 					foreach (NHibernate.Cfg.Configuration cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
 						cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 					}
+					factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 				}
 
 				//Попытка получить код общего отчета в параметрах
@@ -70,137 +64,73 @@ namespace Inforoom.ReportSystem
 				if (generalReportId == -1)
 					throw new Exception("Не указан код отчета для запуска в параметре gr.");
 
-				ProcessReport(generalReportId, manual, interval, dtFrom, dtTo);
-				return 0;
+				if (ProcessReport(generalReportId, manual, interval, dtFrom, dtTo))
+					return 0;
+				else
+					return 1;
 			}
 			catch (Exception ex) {
 				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
-				Mailer.MailGlobalErr(ex.ToString());
+				Mailer.MailGlobalErr(ex);
 				return 1;
 			}
 		}
 
-		public static void ProcessReport(int generalReportId, bool manual, bool interval, DateTime dtFrom, DateTime dtTo)
+		public static bool ProcessReport(int generalReportId, bool manual, bool interval, DateTime dtFrom, DateTime dtTo)
 		{
+			var result = false;
 			var reportLog = new ReportExecuteLog();
-			var errorCount = 0;
+			GeneralReport report = null;
+			using (var session = factory.OpenSession())
 			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				mc.Open();
 				try {
-					using (new ConnectionScope(mc)) {
-						ArHelper.WithSession(s => {
-							reportLog.GeneralReportCode = generalReportId;
-							reportLog.StartTime = DateTime.Now;
-							reportLog.EndTime = null;
-							s.Save(reportLog);
-						});
+					using(var trx = session.BeginTransaction()) {
+						reportLog.GeneralReportCode = generalReportId;
+						reportLog.StartTime = DateTime.Now;
+						reportLog.EndError = true;
+						session.Save(reportLog);
+						trx.Commit();
 					}
-					//Формируем запрос
-					var sqlSelectReports = @"SELECT
-cr.*,
-p.ShortName
-FROM    reports.general_reports cr,
-billing.payers p
-WHERE
-p.PayerId = cr.PayerId
-and cr.generalreportcode = " + generalReportId;
 
-					//Выбирает отчеты согласно фильтру
-					var dtGeneralReports = MethodTemplate.ExecuteMethod(new ReportsExecuteArgs(sqlSelectReports), GetGeneralReports, null, mc);
+					using(var trx = session.BeginTransaction()) {
+						report = session.Get<GeneralReport>((uint)generalReportId);
+						if (report == null)
+							throw new Exception(String.Format("Отчет с кодом {0} не существует.", generalReportId));
+						if (!report.Enabled && !manual)
+							throw new Exception("Невозможно выполнить отчет, т.к. отчет выключен.");
 
-					if (dtGeneralReports == null || dtGeneralReports.Rows.Count == 0)
-						throw new Exception(String.Format("Отчет с кодом {0} не существует.", generalReportId));
-
-					foreach (DataRow drReport in dtGeneralReports.Rows) {
-						if (!Convert.ToBoolean(drReport[GeneralReportColumns.Allow]) && !manual) {
-							Mailer.MailGeneralReportErr(
-								"Невозможно выполнить отчет, т.к. отчет выключен.",
-								(string)drReport[GeneralReportColumns.ShortName],
-								(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
-							continue;
-						}
-
-						try {
-							var propertiesLoader = new ReportPropertiesLoader();
-
-							//Создаем каждый отчет отдельно и пытаемся его сформировать
-							var gr = new GeneralReport(
-								(ulong)drReport[GeneralReportColumns.GeneralReportCode],
-								(bool)drReport[GeneralReportColumns.Allow],
-								ReadNullableUint32(drReport, GeneralReportColumns.FirmCode),
-								ReadNullableUint32(drReport, GeneralReportColumns.ContactGroupId),
-								drReport[GeneralReportColumns.EMailSubject].ToString(),
-								mc,
-								drReport[GeneralReportColumns.ReportFileName].ToString(),
-								drReport[GeneralReportColumns.ReportArchName].ToString(),
-								(ReportFormats)Enum.Parse(typeof(ReportFormats), drReport[GeneralReportColumns.Format].ToString()),
-								propertiesLoader, interval, dtFrom, dtTo, drReport[GeneralReportColumns.ShortName].ToString(),
-								Convert.ToBoolean(drReport[GeneralReportColumns.NoArchive]),
-								Convert.ToBoolean(drReport[GeneralReportColumns.SendDescriptionFile]));
-							generalReport = gr;
-							_log.DebugFormat("Запуск отчета {0}", gr.GeneralReportID);
-							gr.ProcessReports(reportLog);
-							gr.LogSuccess();
-							_log.DebugFormat("Отчет {0} выполнился успешно", gr.GeneralReportID);
-						}
-						catch (Exception ex) {
-							var message = String.Format("Ошибка при запуске отчета {0} код отчета {1}",
-								drReport[GeneralReportColumns.ShortName],
-								drReport[GeneralReportColumns.GeneralReportCode]);
-							_log.Error(message, ex);
-
-							var reportEx = ex as ReportException;
-							if (reportEx != null && reportEx.InnerException != null && generalReport.ReportsCount > 1) {
-								Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, (ulong)drReport[GeneralReportColumns.GeneralReportCode], reportEx.SubreportCode, reportEx.ReportCaption);
-								continue;
-							}
-							else {
-								//Это долно быть именно тут, порядок строк важен
-								errorCount++;
-							}
-
-							Mailer.MailGeneralReportErr(
-								ex.ToString(),
-								(string)drReport[GeneralReportColumns.ShortName],
-								(ulong)drReport[GeneralReportColumns.GeneralReportCode]);
-						}
+						_log.DebugFormat("Запуск отчета {0}", report.Id);
+						report.ProcessReports(reportLog, mc, interval, dtFrom, dtTo);
+						report.LogSuccess();
+						_log.DebugFormat("Отчет {0} выполнился успешно", report.Id);
+						reportLog.EndTime = DateTime.Now;
+						reportLog.EndError = false;
+						trx.Commit();
 					}
+					result = true;
+				}
+				catch(Exception e) {
+					_log.Error(String.Format("Ошибка при запуске отчета {0}", report), e);
+
+					var reportEx = e as ReportException;
+					if (reportEx != null && reportEx.InnerException != null && report.Reports.Count > 1) {
+						Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, report.Id, reportEx.SubreportCode, reportEx.ReportCaption);
+						result = true;
+					}
+
+					Mailer.MailGeneralReportErr(report, e);
 				}
 				finally {
-					using (new ConnectionScope(mc)) {
-						ArHelper.WithSession(s => {
-							reportLog = s.Get<ReportExecuteLog>(reportLog.Id);
-							if (reportLog != null) {
-								if (errorCount == 0)
-									reportLog.EndTime = DateTime.Now;
-								reportLog.EndError = errorCount > 0;
-								s.Save(reportLog);
-								s.Flush();
-							}
-						});
+					if (report != null) {
+						ScheduleHelper.SetTaskAction(report.Id, "/gr:" + report.Id);
+						ScheduleHelper.SetTaskEnableStatus(report.Id, report.Enabled, "GR");
+						var taskService = ScheduleHelper.GetService();
+						var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
+						ScheduleHelper.DeleteTask(reportsFolder, report.Id, "temp_");
 					}
-					ScheduleHelper.SetTaskAction(generalReport.GeneralReportID, "/gr:" + generalReport.GeneralReportID);
-					ScheduleHelper.SetTaskEnableStatus(generalReport.GeneralReportID, generalReport.Allow, "GR");
-					var taskService = ScheduleHelper.GetService();
-					var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-					ScheduleHelper.DeleteTask(reportsFolder, generalReport.GeneralReportID, "temp_");
 				}
-			}
-		}
-
-		private static uint? ReadNullableUint32(DataRow drReport, string name)
-		{
-			return (Convert.IsDBNull(drReport[name])) ? null : (uint?)Convert.ToUInt32(drReport[name]);
-		}
-
-		//Аргументы для выбора отчетов из базы
-		public class ReportsExecuteArgs : ExecuteArgs
-		{
-			public string SQL;
-
-			public ReportsExecuteArgs(string sql)
-			{
-				SQL = sql;
+				return result;
 			}
 		}
 	}

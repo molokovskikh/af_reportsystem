@@ -143,7 +143,7 @@ namespace ReportSystem.Test
 			properties.Tables[0].Rows.Add(row);
 		}
 
-		protected void BuildOrderReport(string file)
+		protected void BuildOrderReport(string file = null)
 		{
 			report.CheckEmptyData = false;
 			report.From = DateTime.Today.AddDays(-10);
@@ -162,6 +162,11 @@ namespace ReportSystem.Test
 		{
 			var fileName = "test.xls";
 			InitReport<T>(fileName);
+			return ReadReport(fileName);
+		}
+
+		protected ISheet ReadReport(string fileName = "test.xls")
+		{
 			BuildReport(fileName);
 
 			var book = Load(fileName);

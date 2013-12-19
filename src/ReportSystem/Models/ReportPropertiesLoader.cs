@@ -1,26 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
+using System.IO;
 using ExecuteTemplate;
 using MySql.Data.MySqlClient;
-using System.IO;
 
-namespace Inforoom.ReportSystem
+namespace Inforoom.ReportSystem.Model
 {
-	public class ReportPropertiesLoader : IReportPropertiesLoader
+	public class ReportPropertiesLoader
 	{
 		private ulong _reportCode;
-
-		private void SaveSettingsToFileAndThrowException(DataSet result)
-		{
-			int i = 1;
-			while (File.Exists("..\\" + _reportCode.ToString() + "(" + i.ToString() + ").xml"))
-				i++;
-			result.WriteXml("..\\" + _reportCode.ToString() + "(" + i.ToString() + ").xml");
-			throw new ReportException("Сервисная ошибка. Для тестовой остановки.");
-		}
 
 		public DataSet LoadProperties(MySqlConnection conn, ulong reportCode)
 		{

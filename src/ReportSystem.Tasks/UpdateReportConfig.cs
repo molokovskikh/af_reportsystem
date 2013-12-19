@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
 using Inforoom.ReportSystem.Filters;
+using Inforoom.ReportSystem.Model;
 using NHibernate;
 using NHibernate.Linq;
 using ReportTuner.Models;
@@ -24,36 +26,59 @@ namespace ReportSysmte.Tasks
 			var procedures = new Dictionary<string, string> {
 				{"Payer", "GetPayerCode"},
 				{"Mnn", null},
-				{"Region", "GetRegion"}
+				{"Region", "GetRegion"},
+				{"ProductName", "GetProductId"},
+				{"FullName", "GetFullCode"},
+				{"ShortName", "GetShortCode"},
+				{"FirmCr", "GetFirmCr"},
+				{"FirmCode", "GetFirmCode"},
+				{"ClientCode", "GetAllClientCode"},
+				{"Addresses", "GetFirmCode"},
 			};
 			var orderReport = new OrdersReport();
 			var rootType = typeof(OrdersReport);
 			//некоторые отчеты унаследованы от базового но на самом деле они не умеют использовать общие настройки
-			var configurableReports = new [] { typeof(RatingReport), typeof(MixedReport), typeof(PharmacyMixedReport), typeof(OrdersStatistics) };
+			var configurableReports = new [] {
+				typeof(RatingReport), typeof(MixedReport), typeof(PharmacyMixedReport), typeof(OrdersStatistics),
+				typeof(WaybillsStatReport)
+			};
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
 			foreach (var type in types) {
-				var reportType = session.Query<ReportType>().First(r => r.ReportClassName == type.FullName);
-				var notExists = orderReport.registredField.SelectMany(f => new [] {
+				var reportType = session.Query<ReportType>().FirstOrDefault(r => r.ReportClassName == type.FullName)
+					?? new ReportType(type);
+				var reportInstance = orderReport;
+				if (typeof(OrdersReport).IsAssignableFrom(type)
+					&& type.GetConstructor(new Type[0]) != null)
+					reportInstance = (OrdersReport)Activator.CreateInstance(type);
+				var notExists = reportInstance.registredField.SelectMany(f => new [] {
 					f.reportPropertyPreffix + FilterField.PositionSuffix,
 					f.reportPropertyPreffix + FilterField.NonEqualSuffix,
 					f.reportPropertyPreffix + FilterField.EqualSuffix,
 				}).Except(reportType.Properties.Select(p => p.PropertyName));
 				if (reportType.RestrictedFields.Any())
 					notExists = notExists.Intersect(reportType.RestrictedFields);
+
+				var prop = reportType.Properties.FirstOrDefault(p => p.PropertyName.Match("ByPreviousMonth"));
+				if (prop == null) {
+					reportType.AddProperty(new ReportTypeProperty("ByPreviousMonth", "BOOL", "За предыдущий месяц") {
+						Optional = false
+					});
+				}
+
 				foreach (var notExist in notExists) {
 					if (notExist.EndsWith(FilterField.PositionSuffix)) {
-						var field = orderReport.registredField.First(f => f.reportPropertyPreffix == notExist.Replace(FilterField.PositionSuffix, ""));
+						var field = reportInstance.registredField.First(f => f.reportPropertyPreffix == notExist.Replace(FilterField.PositionSuffix, ""));
 						reportType.AddProperty(new ReportTypeProperty(notExist, "INT", string.Format("Позиция \"{0}\" в отчете", field.outputCaption)) {
 							Optional = true,
 							DefaultValue = "0",
 						});
 					}
 					else if (notExist.EndsWith(FilterField.NonEqualSuffix)) {
-						AddListProperty(procedures, orderReport.registredField, reportType, notExist, FilterField.NonEqualSuffix, "Список исключений \"{0}\"");
+						AddListProperty(procedures, reportInstance.registredField, reportType, notExist, FilterField.NonEqualSuffix, "Список исключений \"{0}\"");
 					}
 					else {
-						AddListProperty(procedures, orderReport.registredField, reportType, notExist, FilterField.EqualSuffix, "Список значений \"{0}\"");
+						AddListProperty(procedures, reportInstance.registredField, reportType, notExist, FilterField.EqualSuffix, "Список значений \"{0}\"");
 					}
 				}
 

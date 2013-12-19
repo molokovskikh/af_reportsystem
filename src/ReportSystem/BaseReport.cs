@@ -23,7 +23,7 @@ using MySql.Data.MySqlClient;
 using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
-{ //Костыль т.к. не используем ActiveRecord модели, то пришлось копировать enum
+{
 	public enum ReportFormats
 	{
 		Excel,

@@ -63,7 +63,7 @@ namespace ReportSystem.Test
 		public void Setup()
 		{
 			report = new GeneralReport();
-			report.GeneralReportID = 1;
+			report.Id = 1;
 
 			var contacts = new DataTable();
 			contacts.Columns.Add("Contact");
@@ -113,7 +113,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(new FakeReport());
-			report.ProcessReports(new ReportExecuteLog());
+			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -129,7 +129,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(fakeReport);
-			report.ProcessReports(new ReportExecuteLog());
+			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -141,7 +141,7 @@ namespace ReportSystem.Test
 		public void Archive_files_for_report_type()
 		{
 			var report = new FakeGeneralReport();
-			report.GeneralReportID = 1;
+			report.Id = 1;
 			report.SendDescriptionFile = true;
 			report.Logger = LogManager.GetLogger(GetType());
 			MySqlConnection connection = null;
@@ -190,7 +190,7 @@ namespace ReportSystem.Test
 		{
 			FileHelper.InitDir("history");
 			report.Reports.Add(new FakeReport());
-			report.ProcessReports(new ReportExecuteLog { Id = 1 });
+			report.ProcessReports(new ReportExecuteLog { Id = 1 }, null, false, DateTime.Today, DateTime.Today);
 
 			var files = Directory.GetFiles("history");
 			Assert.That(files.Length, Is.EqualTo(1), files.Implode());

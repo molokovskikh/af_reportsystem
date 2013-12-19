@@ -4,6 +4,7 @@ using System.Linq;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Common.Tools;
+using Common.Web.Ui.Helpers;
 using Inforoom.ReportSystem.Filters;
 
 namespace ReportTuner.Models
@@ -14,6 +15,11 @@ namespace ReportTuner.Models
 		public ReportType()
 		{
 			Properties = new List<ReportTypeProperty>();
+		}
+
+		public ReportType(Type type)
+			: this(BindingHelper.GetDescription(type), type.FullName)
+		{
 		}
 
 		public ReportType(string name, string clazz)

@@ -71,7 +71,7 @@ namespace Inforoom.ReportSystem
 		{
 			selectedField = new List<FilterField>();
 			registredField = new List<FilterField>();
-			registredField.Add(new FilterField("p.Id", @"concat(cn.Name, cf.Form, ' ',
+			registredField.Add(new FilterField("p.Id", @"concat(cn.Name, ' ', cf.Form, ' ',
 			  (select
 				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
 									order by Properties.PropertyName, PropertyValues.Value
@@ -206,13 +206,15 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		protected string ApplyFilters(string selectCommand)
+		protected string ApplyFilters(string selectCommand, string alias = "oh")
 		{
 			FillFilterDescriptions();
 			selectCommand = ApplyUserFilters(selectCommand);
 
-			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime > '{0}')", dtFrom.ToString(MySqlConsts.MySQLDateFormat)));
-			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and (oh.WriteTime < '{0}')", dtTo.ToString(MySqlConsts.MySQLDateFormat)));
+			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and ({1}.WriteTime > '{0}')",
+				dtFrom.ToString(MySqlConsts.MySQLDateFormat), alias));
+			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and ({1}.WriteTime < '{0}')",
+				dtTo.ToString(MySqlConsts.MySQLDateFormat), alias));
 
 			return selectCommand;
 		}

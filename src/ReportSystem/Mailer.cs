@@ -2,6 +2,7 @@
 using System.Net.Mail;
 using Inforoom.ReportSystem.Properties;
 using log4net;
+using NHibernate.Properties;
 
 namespace Inforoom.ReportSystem
 {
@@ -24,11 +25,11 @@ namespace Inforoom.ReportSystem
 		}
 
 		//Сообщение о глобальной ошибке, возникшей в результате работы программы
-		public static void MailGlobalErr(string errDesc)
+		public static void MailGlobalErr(Exception ex)
 		{
 			try {
 				Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при запуске программы отчетов",
-					String.Format("Параметры запуска : {0}\r\nОшибка : {1}", String.Join("  ", Environment.GetCommandLineArgs()), errDesc));
+					String.Format("Параметры запуска : {0}\r\nОшибка : {1}", String.Join("  ", Environment.GetCommandLineArgs()), ex));
 			}
 			catch (Exception e) {
 				_log.Error("Ошибка при отправке уведомления", e);
@@ -36,10 +37,19 @@ namespace Inforoom.ReportSystem
 		}
 
 		//Сообщение об ошибке, возникшей в результате построения общего отчета
-		public static void MailGeneralReportErr(string errDesc, string shortName, ulong generalReportCode)
+		public static void MailGeneralReportErr(GeneralReport report, Exception ex)
 		{
-			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при запуске отчетa для " + shortName,
-				String.Format("Код отчета : {0}\r\nОшибка : {1}", generalReportCode, errDesc));
+			if (report != null) {
+				var subject = "Ошибка при запуске отчетa для ";
+				if (report != null && report.Payer != null) {
+					subject += report.Payer.Name;
+				}
+				Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, subject,
+					String.Format("Код отчета : {0}\r\nОшибка : {1}", report.Id, ex));
+			}
+			else {
+				MailGlobalErr(ex);
+			}
 		}
 
 		//Сообщение об ошибке, возникшей в результате построения одного из отчетов (листов)

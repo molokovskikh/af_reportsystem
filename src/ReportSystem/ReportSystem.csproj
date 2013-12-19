@@ -196,17 +196,20 @@
     <Compile Include="ByOrders\OrdersStatistics.cs" />
     <Compile Include="ByOrders\SupplierOrdersStatistics.cs" />
     <Compile Include="ByOrders\WaybillsReport.cs" />
+    <Compile Include="Models\Payer.cs" />
+    <Compile Include="Models\ReportPropertiesLoader.cs" />
+    <Compile Include="Models\Reports\WaybillsStatReport.cs" />
     <Compile Include="OptimizationRivalOrders.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\CsvHelper.cs" />
     <Compile Include="Helpers\ReadParameterHelper.cs" />
     <Compile Include="Mailer.cs" />
-    <Compile Include="Model\Markup.cs" />
-    <Compile Include="Model\Offer.cs" />
-    <Compile Include="Model\Price.cs" />
-    <Compile Include="Model\Region.cs" />
-    <Compile Include="Model\ReportExecuteLog.cs" />
-    <Compile Include="Model\ReportResultLog.cs" />
+    <Compile Include="Models\Markup.cs" />
+    <Compile Include="Models\Offer.cs" />
+    <Compile Include="Models\Price.cs" />
+    <Compile Include="Models\Region.cs" />
+    <Compile Include="Models\ReportExecuteLog.cs" />
+    <Compile Include="Models\ReportResultLog.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Writers\OptimizationEfficiencyExcludeOleExcelWriter.cs" />
     <Compile Include="Writers\CostDynamicWriter.cs" />
@@ -218,7 +221,6 @@
     <Compile Include="ByOffers\CombReport.cs" />
     <Compile Include="ByOffers\CombToPlainReport.cs" />
     <Compile Include="ByOrders\SupplierMarketShareByUser.cs" />
-    <Compile Include="DataLoaders\IDataLoader.cs" />
     <Compile Include="ByOffers\DefReport.cs" />
     <Compile Include="ByOffers\PharmacyOffersReport.cs" />
     <Compile Include="Helpers\UseExcel.cs">
@@ -249,7 +251,6 @@
     <Compile Include="BaseReport.cs" />
     <Compile Include="Helpers\ExcelHelper.cs" />
     <Compile Include="OptimizationEfficiency.cs" />
-    <Compile Include="PropertiesLoading\IReportPropertiesLoader.cs" />
     <Compile Include="Helpers\ProfileHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -261,7 +262,6 @@
     <Compile Include="FilterField.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PropertiesLoading\ReportPropertiesLoader.cs" />
     <Compile Include="ByOffers\SpecReport.cs" />
     <Compile Include="ByOffers\SpecShortReport.cs" />
     <Compile Include="Writers\OptimizationEfficiencyOleExcelWriter.cs" />
@@ -344,6 +344,7 @@
       <InProject>false</InProject>
     </StyleCopAdditionalAddinPaths>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

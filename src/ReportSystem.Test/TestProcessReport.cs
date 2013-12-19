@@ -80,7 +80,9 @@ namespace ReportSystem.Test
 		{
 			public FakeGeneralReport()
 			{
-				_payer = "Тестовый плательщик";
+				Payer = new Payer {
+					Name = "Тестовый плательщик"
+				};
 				Reports = new List<BaseReport>();
 			}
 
@@ -116,7 +118,7 @@ namespace ReportSystem.Test
 
 			var ex = false;
 			try {
-				gr.ProcessReports(new ReportExecuteLog());
+				gr.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today);
 			}
 			catch (ReportException e) {
 				Assert.That(e.Message, Is.EqualTo("Системная ошибка."));

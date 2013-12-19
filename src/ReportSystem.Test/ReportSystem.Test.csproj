@@ -139,6 +139,7 @@
     <Compile Include="TestProcessReport.cs" />
     <Compile Include="Troubleshoot.cs" />
     <Compile Include="WaybillsReportFixture.cs" />
+    <Compile Include="WaybillsStatReportFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

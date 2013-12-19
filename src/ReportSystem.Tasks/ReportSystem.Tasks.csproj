@@ -47,6 +47,10 @@
     <Compile Include="UpdateReportConfig.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common.Tools\Common.Tools\Common.Tools.csproj">
+      <Project>{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}</Project>
+      <Name>Common.Tools</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ReportSystem\ReportSystem.csproj">
       <Project>{BDC750F3-0940-43DB-9501-87A219530C35}</Project>
       <Name>ReportSystem</Name>

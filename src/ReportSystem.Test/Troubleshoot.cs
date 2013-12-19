@@ -3,6 +3,7 @@ using System.Data;
 using System.IO;
 using System.Reflection;
 using Inforoom.ReportSystem;
+using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Test.Support;

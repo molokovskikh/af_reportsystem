@@ -16,65 +16,67 @@ using Inforoom.ReportSystem.Properties;
 
 namespace Inforoom.ReportSystem
 {
-	//Содержит названия полей, используемых при создании общего очета
-	public sealed class GeneralReportColumns
-	{
-		public const string GeneralReportCode = "GeneralReportCode";
-		public const string FirmCode = "FirmCode";
-		public const string Allow = "Allow";
-		public const string ContactGroupId = "ContactGroupId";
-		public const string EMailSubject = "EMailSubject";
-		public const string ShortName = "ShortName";
-		public const string ReportFileName = "ReportFileName";
-		public const string ReportArchName = "ReportArchName";
-		public const string NoArchive = "NoArchive";
-		public const string SendDescriptionFile = "SendDescriptionFile";
-		public const string Temporary = "Temporary";
-		public const string Format = "Format";
-	}
-
-	/// <summary>
-	/// Summary description for GeneralReport.
-	/// </summary>
+	[ActiveRecord("general_reports", Schema = "reports")]
 	public class GeneralReport
 	{
-		public bool Testing;
-		public List<Mime> Messages = new List<Mime>();
-
-		public ulong GeneralReportID;
-		public bool Allow;
-		public uint? SupplierId;
-
-		private uint? _contactGroupId;
-		public string EMailSubject;
-
-		private string _reportFileName;
-		private string _reportArchName;
-
 		private string _directoryName;
 		private string _mainFileName;
 
-		private ReportFormats Format;
+		//таблица отчетов, которая существует в общем отчете
+		protected DataTable _reports;
 
-		public string _payer;
+		public bool Testing;
+		public List<Mime> Messages = new List<Mime>();
 
 		public ILog Logger;
 
 		public MySqlConnection Connection;
-		public bool NoArchive;
-		public bool SendDescriptionFile;
 
 		public IDictionary<string, string> FilesForReport;
-
-		//таблица отчетов, которая существует в общем отчете
-
-		protected DataTable _reports;
 
 		//таблица контактов, по которым надо отправить отчет
 		public DataTable Contacts;
 
 		public List<BaseReport> Reports = new List<BaseReport>();
-		public int ReportsCount { get; set; }
+
+		public GeneralReport() // конструктор для возможности тестирования
+		{
+			FilesForReport = new Dictionary<string, string>();
+			Logger = LogManager.GetLogger(GetType());
+		}
+
+		[PrimaryKey("GeneralReportCode")]
+		public virtual uint Id { get; set; }
+
+		[BelongsTo("PayerId")]
+		public virtual Payer Payer { get; set; }
+
+		[Property("FirmCode")]
+		public virtual uint? SupplierId { get; set; }
+
+		[Property("Allow")]
+		public virtual bool Enabled { get; set; }
+
+		[Property]
+		public virtual string ReportFileName { get; set; }
+
+		[Property]
+		public virtual string ReportArchName { get; set; }
+
+		[Property]
+		public virtual string EMailSubject { get; set; }
+
+		[Property]
+		public virtual bool NoArchive { get; set; }
+
+		[Property]
+		public virtual bool SendDescriptionFile { get; set; }
+
+		[Property(ColumnType = "NHibernate.Type.EnumStringType`1[[Inforoom.ReportSystem.ReportFormats, ReportSystem]], NHibernate")]
+		public virtual ReportFormats Format { get; set; }
+
+		[Property]
+		public virtual uint? ContactGroupId { get; set; }
 
 		// Проверка спика отчетов
 		private void CheckReports()
@@ -89,48 +91,13 @@ namespace Inforoom.ReportSystem
 							Convert.ToString(drGReport2[BaseReportColumns.colReportCaption])) {
 						throw new ReportException(
 							String.Format("В отчете {0} содержатся листы с одинаковым названием {1}.",
-								GeneralReportID, drGReport1[BaseReportColumns.colReportCaption]));
+								Id, drGReport1[BaseReportColumns.colReportCaption]));
 					}
 		}
 
-		public GeneralReport() // конструктор для возможности тестирования
+		private void Load(bool interval, DateTime dtFrom, DateTime dtTo)
 		{
-			FilesForReport = new Dictionary<string, string>();
-		}
-
-		public GeneralReport(bool noArchive) // конструктор для возможности тестирования
-		{
-			FilesForReport = new Dictionary<string, string>();
-			NoArchive = noArchive;
-		}
-
-		public GeneralReport(ulong id, bool allow, uint? supplierId, uint? contactGroupId,
-			string emailSubject,
-			MySqlConnection connection,
-			string reportFileName,
-			string reportArchName,
-			ReportFormats format,
-			IReportPropertiesLoader propertiesLoader,
-			bool interval,
-			DateTime dtFrom,
-			DateTime dtTo,
-			string payer,
-			bool noArchive,
-			bool sendDescriptionFile)
-		{
-			Logger = LogManager.GetLogger(GetType());
-			GeneralReportID = id;
-			Allow = allow;
-			SupplierId = supplierId;
-			Connection = connection;
-			_contactGroupId = contactGroupId;
-			EMailSubject = emailSubject;
-			_reportFileName = reportFileName;
-			_reportArchName = reportArchName;
-			_payer = payer;
-			NoArchive = noArchive;
-			SendDescriptionFile = sendDescriptionFile;
-			Format = format;
+			var loader = new ReportPropertiesLoader();
 
 			_reports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, Connection);
 
@@ -157,7 +124,7 @@ where
 	cg.Id = ?ContactGroupId
 and cg.Type = ?ContactGroupType
 and c.Type = ?ContactType";
-					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupId", _contactGroupId);
+					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupId", ContactGroupId);
 					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupType", 6);
 					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactType", 0);
 					DataTable res = new DataTable();
@@ -170,7 +137,7 @@ and c.Type = ?ContactType";
 					args.DataAdapter.SelectCommand.CommandText = @"
 select Mail FROM reports.Mailing_Addresses M
 where GeneralReport = ?GeneralReport;";
-					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReport", this.GeneralReportID);
+					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReport", Id);
 					var res = new DataTable();
 					args.DataAdapter.Fill(res);
 					return res;
@@ -187,7 +154,7 @@ where GeneralReport = ?GeneralReport;";
 								(ulong)drGReport[BaseReportColumns.colReportCode],
 								drGReport[BaseReportColumns.colReportCaption].ToString(), Connection,
 								Format,
-								propertiesLoader.LoadProperties(Connection, (ulong)drGReport[BaseReportColumns.colReportCode])
+								loader.LoadProperties(Connection, (ulong)drGReport[BaseReportColumns.colReportCode])
 							});
 						bs.Interval = interval;
 						bs.From = dtFrom;
@@ -199,15 +166,16 @@ where GeneralReport = ?GeneralReport;";
 							EMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
 					}
 				}
-				ReportsCount = Reports.Count;
 			}
 			else
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
 		}
 
 		//Производится построение отчетов
-		public void ProcessReports(ReportExecuteLog log)
+		public void ProcessReports(ReportExecuteLog log, MySqlConnection connection, bool interval, DateTime begin, DateTime end)
 		{
+			Connection = connection;
+			Load(interval, begin, end);
 			try {
 				var files = BuildResultFile();
 				SendReport(files, log);
@@ -222,7 +190,7 @@ where GeneralReport = ?GeneralReport;";
 		{
 			MySqlHelper.ExecuteScalar(Connection,
 				"update Reports.general_reports set LastSuccess = now() where GeneralReportCode = ?id",
-				new MySqlParameter("id", GeneralReportID));
+				new MySqlParameter("id", Id));
 		}
 
 		public void SendReport(string[] files, ReportExecuteLog log)
@@ -264,13 +232,13 @@ where GeneralReport = ?GeneralReport;";
 
 		public string[] BuildResultFile()
 		{
-			_directoryName = Path.GetTempPath() + "Rep" + GeneralReportID.ToString();
+			_directoryName = Path.GetTempPath() + "Rep" + Id;
 			if (Directory.Exists(_directoryName))
 				Directory.Delete(_directoryName, true);
 			Directory.CreateDirectory(_directoryName);
 
 			_mainFileName = _directoryName + "\\" +
-				((String.IsNullOrEmpty(_reportFileName)) ? ("Rep" + GeneralReportID.ToString() + ".xls") : _reportFileName);
+				((String.IsNullOrEmpty(ReportFileName)) ? ("Rep" + Id + ".xls") : ReportFileName);
 
 			bool emptyReport = true;
 			while (Reports.Count > 0) {
@@ -285,17 +253,17 @@ where GeneralReport = ?GeneralReport;";
 						});
 					}
 					bs.ReportToFile(_mainFileName);
-					bs.ToLog(GeneralReportID); // логируем успешное выполнение отчета
+					bs.ToLog(Id); // логируем успешное выполнение отчета
 					emptyReport = false;
 				}
 				catch (Exception ex) {
-					bs.ToLog(GeneralReportID, ex.ToString()); // логируем ошибку при выполнении отчета
+					bs.ToLog(Id, ex.ToString()); // логируем ошибку при выполнении отчета
 					if (ex is ReportException) {
 						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), _payer, GeneralReportID, bs.ReportCode, bs.ReportCaption);
+						Mailer.MailReportErr(ex.ToString(), Payer.Name, Id, bs.ReportCode, bs.ReportCaption);
 						continue; // выполняем следующий отчет
 					}
-					throw new ReportException(ex.Message, ex, bs.ReportCode, bs.ReportCaption, _payer); // передаем наверх
+					throw new ReportException(ex.Message, ex, bs.ReportCode, bs.ReportCaption, Payer.Name); // передаем наверх
 				}
 			}
 
@@ -366,7 +334,7 @@ where GeneralReport = ?GeneralReport;";
 (LogTime, GeneralReportCode, SMTPID, MessageID, EMail, ResultId)
 values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 			var parameters = e.DataAdapter.SelectCommand.Parameters;
-			parameters.AddWithValue("?GeneralReportCode", GeneralReportID);
+			parameters.AddWithValue("?GeneralReportCode", Id);
 			parameters.AddWithValue("?SMTPID", smtpId);
 			parameters.AddWithValue("?MessageID", messageId);
 			parameters.AddWithValue("?EMail", email);
@@ -413,7 +381,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 
 		private string ArchFile()
 		{
-			var resArchFileName = (String.IsNullOrEmpty(_reportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : _reportArchName;
+			var resArchFileName = (String.IsNullOrEmpty(ReportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : ReportArchName;
 
 			var archive = Path.Combine(_directoryName, resArchFileName);
 			WithTempArchive(_directoryName, f => File.Move(f, archive));
@@ -439,17 +407,16 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 		//Выбираем отчеты из базы
 		public DataTable GetReports(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			e.DataAdapter.SelectCommand.CommandText = @"
 select
   *
 from
   reports.Reports r,
   reports.reporttypes rt
 where
-	r.{0} = ?{0}
-and rt.ReportTypeCode = r.ReportTypeCode",
-				GeneralReportColumns.GeneralReportCode);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?" + GeneralReportColumns.GeneralReportCode, GeneralReportID);
+	r.GeneralReportCode = ?GeneralReportCode
+and rt.ReportTypeCode = r.ReportTypeCode";
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", Id);
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			return res;
@@ -462,7 +429,7 @@ and rt.ReportTypeCode = r.ReportTypeCode",
 SELECT * FROM reports.filessendwithreport f
 where f.Report = ?ReportCode
 and f.FileName is not null";
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", GeneralReportID);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", Id);
 			var res = new DataTable();
 			e.DataAdapter.Fill(res);
 			foreach (DataRow row in _reports.Rows) {
@@ -481,7 +448,7 @@ where ReportType = ?ReportTypeCode;";
 							if (!result.Keys.Contains(key))
 								result.Add(key, filePath);
 							else
-								Logger.Error(string.Format("При формаровании отчета {0} не был добавлен файл {1} с описанием, так как файл с таким именем уже существует", GeneralReportID, key));
+								Logger.Error(string.Format("При формаровании отчета {0} не был добавлен файл {1} с описанием, так как файл с таким именем уже существует", Id, key));
 						}
 					}
 				}
@@ -501,6 +468,11 @@ where ReportType = ?ReportTypeCode;";
 			if (t == null)
 				throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
 			return t;
+		}
+
+		public override string ToString()
+		{
+			return Id.ToString();
 		}
 	}
 }

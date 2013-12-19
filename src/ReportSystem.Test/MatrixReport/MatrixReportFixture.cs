@@ -16,18 +16,6 @@ using Test.Support.Suppliers;
 
 namespace ReportSystem.Test.MatrixReport
 {
-	public class MatrixReportForTest : Inforoom.ReportSystem.ByOffers.MatrixReport
-	{
-		public MatrixReportForTest(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) : base(reportCode, reportCaption, connection, format, dsProperties)
-		{
-		}
-
-		public DataSet Result
-		{
-			get { return _dsReport; }
-		}
-	}
-
 	[TestFixture]
 	public class MatrixReportFixture : BaseProfileFixture2
 	{
@@ -87,7 +75,7 @@ value
 			Reopen();
 
 			Property("ClientCode", clientId);
-			report = new MatrixReportForTest(clientId, "test", Conn, ReportFormats.Excel, properties);
+			report = new Inforoom.ReportSystem.ByOffers.MatrixReport(clientId, "test", Conn, ReportFormats.Excel, properties);
 			BuildOrderReport("Rep.xls");
 			var resuleSet = DataSetHelper.CreateDataSet("Rep.xls").Tables[0];
 			Assert.That(resuleSet.Rows[4][13], Is.StringContaining("Удаление предложения"));
