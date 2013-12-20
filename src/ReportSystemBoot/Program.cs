@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,90 +11,58 @@ using log4net.Config;
 
 namespace ReportSystemBoot
 {
-	internal class Program
+	public class Program
 	{
 		private const string AcceessKey = "/access:";
-
-		private static void DeployFiles(ILog logger)
-		{
-			try {
-				var releasePath = Settings.Default.ReleasePath;
-				var toPath = ".";
-				if (!Directory.Exists(releasePath))
-					Directory.CreateDirectory(releasePath);
-				var files = Directory.GetFiles(releasePath).ToList();
-				var releaseFiles = files.Where(f => !f.Contains("ReportSystemBoot") && !f.Contains("log4net") && !f.Contains("ProcessPrivileges")).ToList();
-				if (releaseFiles.Count == 0)
-					return;
-				logger.Info("Обновление файлов...");
-				foreach (var file in releaseFiles) {
-					File.Copy(file, Path.Combine(toPath, Path.GetFileName(file)), true);
-				}
-				foreach (var file in files) {
-					File.Delete(file);
-				}
-				logger.Info("Файлы обновлены");
-			}
-			catch (Exception e) {
-				logger.Info("Не удалось обновить файлы: ", e);
-			}
-		}
 
 		private static int Main(string[] args)
 		{
 			XmlConfigurator.Configure();
 			var logger = LogManager.GetLogger(typeof(Program));
-			string bootAppName = null;
+			string cmd = null;
 			int exitCode;
 			try {
-				var accessArgument = args.FirstOrDefault(a => a.StartsWith(AcceessKey));
-				var accessModified = accessArgument != null && Convert.ToBoolean(accessArgument.Substring(AcceessKey.Length));
-				if (!accessModified)
-					DeployFiles(logger);
+				var user = ConfigurationManager.AppSettings["user"];
+				var password = ConfigurationManager.AppSettings["password"];
+				var domainname = ConfigurationManager.AppSettings["domain"];
+				var bin = ConfigurationManager.AppSettings["bin"];
+				if (String.IsNullOrWhiteSpace(user))
+					throw new Exception("Не задано имя пользователя для интерактивного запуска");
+				if (String.IsNullOrWhiteSpace(bin))
+					throw new Exception("Не задан исполняемый фай");
 
-				var ass = Assembly.GetExecutingAssembly();
-				var location = ass.Location;
-				bootAppName = Path.GetFileNameWithoutExtension(location);
-				var appName = bootAppName;
-#if DEBUG
-				location = @"D:\Projects\ReportSystem\src\ReportSystem\bin\Debug";
-#else
-				location = Path.GetDirectoryName(ass.Location);
-#endif
-				var arg = args.Aggregate(string.Empty, (current, s) => current + " " + s);
+				cmd = Assembly.GetExecutingAssembly().Location;
 				if (args.Length >= 1)
-					bootAppName += arg;
-				logger.InfoFormat("Попытка запуска отчета: {0}", bootAppName);
+					cmd += " " + args.Implode(" ");
+				logger.InfoFormat("Попытка запуска отчета: {0}", cmd);
 
-				var user = "runer";
-				var password = "zcxvcb";
-				var domainname = "analit";
-
-				if (!accessModified) {
-					bootAppName += string.Format(" {0}true", AcceessKey);
-					exitCode = ProcessStarter.StartProcessInteractivly(bootAppName, user, password, domainname);
+				if (!args.Any(a => a.StartsWith(AcceessKey))) {
+					cmd += string.Format(" {0}true", AcceessKey);
+					exitCode = ProcessStarter.StartProcessInteractivly(cmd, user, password, domainname);
 				}
 				else {
 					AppDomain domain = null;
 					try {
+						if (!Path.IsPathRooted(bin))
+							bin = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, bin));
+						var config = bin + ".config";
 						var setup = new AppDomainSetup {
-							ApplicationBase = location,
+							ApplicationBase = Path.GetDirectoryName(bin),
 							ShadowCopyFiles = "true",
-							ShadowCopyDirectories = location,
-							ConfigurationFile = "ReportSystem.exe.config"
+							ConfigurationFile = config
 						};
 						domain = AppDomain.CreateDomain("freeReportDomain", null, setup);
-						exitCode = domain.ExecuteAssembly(Path.Combine(location, appName.Replace("Boot", ".exe")), args);
+						exitCode = domain.ExecuteAssembly(bin, args);
 					}
 					finally {
 						if (domain != null)
 							AppDomain.Unload(domain);
 					}
 				}
-				logger.InfoFormat("Отчет {0} отработал успешно", bootAppName);
+				logger.InfoFormat("Отчет {0} отработал успешно", cmd);
 			}
 			catch (Exception exception) {
-				logger.Error("Ошибка при запуске отчета : " + bootAppName, exception);
+				logger.Error("Ошибка при запуске отчета : " + cmd, exception);
 				exitCode = 1;
 			}
 			return exitCode;
