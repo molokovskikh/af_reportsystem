@@ -32,19 +32,19 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static List<String> GetSupplierNames(List<ulong> suppliers, ExecuteArgs e)
 		{
-			var command = @"select supps.Name as ShortName from Customers.suppliers supps where supps.Id in " + suppliers.Implode();
+			var command = String.Format("select supps.Name as ShortName from Customers.suppliers supps where supps.Id in ({0})", suppliers.Implode());
 			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
 
 		public static List<String> GetClientNames(List<ulong> _clients, ExecuteArgs e)
 		{
-			var command = @"select cl.FullName from Customers.Clients cl where cl.Id in " + _clients.Implode();
+			var command = String.Format("select cl.FullName from Customers.Clients cl where cl.Id in ({0})", _clients.Implode());
 			return GetNames(r => r["FullName"].ToString(), command, e);
 		}
 
 		public static List<String> GetPayerNames(List<ulong> _payers, ExecuteArgs e)
 		{
-			var command = @"SELECT p.ShortName FROM billing.payers p where p.PayerId in " + _payers.Implode();
+			var command = String.Format("SELECT p.ShortName FROM billing.payers p where p.PayerId in ({0})", _payers.Implode());
 			return GetNames(r => r["ShortName"].ToString(), command, e);
 		}
 
@@ -58,13 +58,13 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static List<String> GetCrNames(List<ulong> _produsers, ExecuteArgs e)
 		{
-			var command = @"SELECT P.Name FROM catalogs.Producers P where p.id in " + _produsers.Implode();
+			var command = String.Format("SELECT P.Name FROM catalogs.Producers P where p.id in ({0})", _produsers.Implode());
 			return GetNames(r => r["Name"].ToString(), command, e);
 		}
 
 		public static List<String> GetRegionNames(List<ulong> _regions, ExecuteArgs e)
 		{
-			var command = @"SELECT R.Region FROM farm.Regions R where R.RegionCode in " + _regions.Implode();
+			var command = String.Format("SELECT R.Region FROM farm.Regions R where R.RegionCode in ({0})", _regions.Implode());
 			return GetNames(r => r["Region"].ToString(), command, e);
 		}
 

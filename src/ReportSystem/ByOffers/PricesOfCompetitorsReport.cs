@@ -115,7 +115,7 @@ namespace Inforoom.ReportSystem
 			_groupingFieldText = _WithWithoutProperties ? "CatalogId" : "ProductId";
 			if (_regions != null)
 				if (_regions.Count != 0) {
-					_regionsWhere = " where Prices.RegionCode in " + _regions.Implode();
+					_regionsWhere = String.Format(" where Prices.RegionCode in ({0})", _regions.Implode());
 				}
 		}
 

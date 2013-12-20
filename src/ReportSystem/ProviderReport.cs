@@ -95,17 +95,17 @@ namespace Inforoom.ReportSystem
 			}
 			var payerWhere = string.Empty;
 			if (PayerEqual.Count != 0) {
-				payerWhere += " AND pc.PayerId IN " + PayerEqual.Implode();
+				payerWhere += String.Format(" AND pc.PayerId IN ({0})", PayerEqual.Implode());
 			}
 			if (PayerNonEqual.Count != 0) {
-				payerWhere += " AND pc.PayerId NOT IN " + PayerNonEqual.Implode();
+				payerWhere += String.Format(" AND pc.PayerId NOT IN ({0})", PayerNonEqual.Implode());
 			}
 			var clientWhere = string.Empty;
 			if (Clients.Count != 0) {
-				clientWhere += " AND fc.Id IN " + Clients.Implode();
+				clientWhere += String.Format(" AND fc.Id IN ({0})", Clients.Implode());
 			}
 			if (ClientsNON.Count != 0) {
-				clientWhere += " AND fc.Id NOT IN " + ClientsNON.Implode();
+				clientWhere += String.Format(" AND fc.Id NOT IN ({0})", ClientsNON.Implode());
 			}
 			var clientIdWhere = string.Empty;
 			if (checkClientId != null) {
