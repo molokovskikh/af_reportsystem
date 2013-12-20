@@ -43,11 +43,9 @@ task "deploy:background", ["build:background"]:
 task "deploy:exe":
 	return if Globals.Environment != @Production
 
+	XCopyDeploy(Globals, "ReportSystem", releaseTo)
 	if Configuration.Maybe.force:
-		XCopyDeploy(Globals, "ReportSystem", deployTo)
 		XCopyDeploy(Globals, "ReportSystemBoot", deployTo)
-	else:
-		XCopyDeploy(Globals, "ReportSystem", releaseTo)
 
 task "deploy:web", ["build:web"]:
 	XCopyDeploy(Globals, "ReportTuner")
