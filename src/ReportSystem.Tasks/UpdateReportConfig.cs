@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
@@ -34,6 +36,7 @@ namespace ReportSysmte.Tasks
 				{"FirmCode", "GetFirmCode"},
 				{"ClientCode", "GetAllClientCode"},
 				{"Addresses", "GetFirmCode"},
+				{"SupplierId", "GetFirmCode"}
 			};
 			var orderReport = new OrdersReport();
 			var rootType = typeof(OrdersReport);
@@ -59,11 +62,29 @@ namespace ReportSysmte.Tasks
 				if (reportType.RestrictedFields.Any())
 					notExists = notExists.Intersect(reportType.RestrictedFields);
 
-				var prop = reportType.Properties.FirstOrDefault(p => p.PropertyName.Match("ByPreviousMonth"));
-				if (prop == null) {
-					reportType.AddProperty(new ReportTypeProperty("ByPreviousMonth", "BOOL", "За предыдущий месяц") {
-						Optional = false
-					});
+				foreach (var typeProperty in type.GetProperties()) {
+					var attributes = typeProperty.GetCustomAttributes(typeof(DescriptionAttribute), true);
+					if (attributes.Length == 0)
+						continue;
+					var desc = ((DescriptionAttribute)attributes[0]).Description;
+					var prop = reportType.Properties.FirstOrDefault(p => p.PropertyName.Match(typeProperty.Name));
+					if (prop == null) {
+						var localType = "";
+						if (typeProperty.PropertyType == typeof(bool))
+							localType = "BOOL";
+						else if (typeProperty.PropertyType == typeof(int))
+							localType = "INT";
+						else
+							throw new Exception(String.Format("Не знаю как преобразовать тип {0} свойства {1} типа {2}",
+								typeProperty.PropertyType,
+								typeProperty.Name,
+								type));
+						reportType.AddProperty(new ReportTypeProperty(typeProperty.Name, localType, desc) {
+							Optional = false,
+							DefaultValue = "0",
+							SelectStoredProcedure = procedures.GetValueOrDefault(typeProperty.Name)
+						});
+					}
 				}
 
 				foreach (var notExist in notExists) {

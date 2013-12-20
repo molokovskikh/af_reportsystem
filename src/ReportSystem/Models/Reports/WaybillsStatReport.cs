@@ -22,6 +22,15 @@ namespace Inforoom.ReportSystem.Model
 			Init();
 		}
 
+		[Description("Показывать код поставщика")]
+		public bool ShowCode { get; set; }
+
+		[Description("Показывать код изготовителя")]
+		public bool ShowCodeCr { get; set; }
+
+		[Description("Поставщик")]
+		public int SupplierId { get; set; }
+
 		private void Init()
 		{
 			//накладные не связаны с прайс-листами
@@ -30,6 +39,8 @@ namespace Inforoom.ReportSystem.Model
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
+			var join = CalculateSupplierIds(e, SupplierId, ShowCode, ShowCodeCr);
+
 			var sql = new StringBuilder();
 			var selectCommand = BuildSelect();
 			if (firmCrPosition)
@@ -37,7 +48,12 @@ namespace Inforoom.ReportSystem.Model
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 			sql.AppendLine(selectCommand);
 
-			sql.AppendLine(@"
+			if (ShowCode)
+				sql.AppendLine("ProviderCodes.Code,");
+			if (ShowCodeCr)
+				sql.AppendLine("ProviderCodes.CodeCr,");
+
+			sql.AppendLine(String.Format(@"
 	Sum(db.SupplierCost * db.Quantity) as Cost,
 	Sum(db.Quantity) as PosOrder,
 	Min(db.SupplierCost) as MinCost,
@@ -60,7 +76,8 @@ from Documents.DocumentHeaders dh
 	join Customers.addresses ad on dh.AddressId = ad.Id
 	join billing.LegalEntities le on ad.LegalEntityId = le.Id
 	join billing.Payers on Payers.PayerId = le.PayerId
-where 1 = 1");
+	{0}
+where 1 = 1", join));
 
 			var commandText = ApplyFilters(sql.ToString(), "dh");
 			commandText = ApplyGroupAndSort(commandText, "Cost desc");
@@ -73,6 +90,17 @@ where 1 = 1");
 			var result = BuildResultTable(selectTable);
 
 			DataColumn dc;
+			if (ShowCode) {
+				dc = result.Columns.Add("Code", typeof(String));
+				dc.Caption = "Код";
+				dc.SetOrdinal(0);
+			}
+
+			if (ShowCodeCr) {
+				dc = result.Columns.Add("CodeCr", typeof(String));
+				dc.Caption = "Код изготовителя";
+				dc.SetOrdinal(1);
+			}
 			dc = result.Columns.Add("Cost", typeof(Decimal));
 			dc.Caption = "Сумма";
 

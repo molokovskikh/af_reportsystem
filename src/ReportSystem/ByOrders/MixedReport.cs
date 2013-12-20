@@ -107,103 +107,6 @@ namespace Inforoom.ReportSystem
 			nameField = nameFields[0];
 		}
 
-		private void FillProviderCodes(ExecuteArgs e)
-		{
-			ProfileHelper.Next("FillCodes");
-			var groupExpression = nameField.primaryField + ((firmCrField != null) ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", firmCrField.primaryField) : String.Empty);
-			var selectExpression = nameField.primaryField + ((firmCrField != null) ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", firmCrField.primaryField) : ", null ");
-
-			e.DataAdapter.SelectCommand.CommandText = @"
-drop temporary table IF EXISTS ProviderCodes;
-create temporary table ProviderCodes (" +
-				((showCode) ? "Code varchar(20), " : String.Empty) +
-					((showCodeCr) ? "CodeCr varchar(20), " : String.Empty) +
-						"CatalogCode int unsigned, codefirmcr int unsigned," +
-							((showCode) ? "key Code(Code), " : String.Empty) +
-								((showCodeCr) ? "key CodeCr(CodeCr), " : String.Empty) +
-									@"key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
-insert into ProviderCodes "
-										+
-										"select " +
-											((showCode) ? "group_concat(CoreCodes.Code), " : String.Empty) +
-												((showCodeCr) ? "CoreCodes.CodeCr, " : String.Empty) +
-													selectExpression +
-														@" from ((
-(
-select
-distinct " +
-															((showCode) ? "ol.Code, " : String.Empty) +
-																((showCodeCr) ? "ol.CodeCr, " : String.Empty) +
-																	String.Format(@"
-  ol.ProductId,
-  ol.CodeFirmCr
-from {0}.OrdersHead oh,
-  {0}.OrdersList ol,
-  usersettings.pricesdata pd
-where
-	ol.OrderID = oh.RowID
-	and ol.Junk = 0
-	and pd.PriceCode = oh.PriceCode
-and pd.IsLocal = 0
-and pd.Enabled = 1
-and exists (select
-  *
-from
-  usersettings.pricescosts pc1,
-  usersettings.priceitems pim1,
-  farm.formrules fr1
-where
-	pc1.PriceCode = pd.PriceCode
-and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc1.PriceCode and prd.BaseCost=pc1.CostCode limit 1)
-and pim1.Id = pc1.PriceItemId
-and fr1.Id = pim1.FormRuleId
-and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
-	and pd.FirmCode = ", OrdersSchema) + sourceFirmCode.ToString() +
-																		" and oh.WriteTime > '" + dtFrom.ToString(MySqlConsts.MySQLDateFormat) + "' " +
-																			" and oh.WriteTime < '" + dtTo.ToString(MySqlConsts.MySQLDateFormat) + "' " +
-																				@")
-union
-(
-select
-distinct " +
-																					((showCode) ? "core.Code, " : String.Empty) +
-																						((showCodeCr) ? "core.CodeCr, " : String.Empty) +
-																							@"
-  core.ProductId,
-  core.CodeFirmCr
-from
-  usersettings.Pricesdata pd,
-  farm.Core0 core
-where
-	pd.FirmCode = " + sourceFirmCode.ToString() + @"
-	and core.PriceCode = pd.PriceCode
-and pd.Enabled = 1
-and exists (select
-  *
-from
-  usersettings.pricescosts pc1,
-  usersettings.priceitems pim1,
-  farm.formrules fr1
-where
-	pc1.PriceCode = pd.PriceCode
-and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc1.PriceCode and prd.BaseCost=pc1.CostCode limit 1)
-and pim1.Id = pc1.PriceItemId
-and fr1.Id = pim1.FormRuleId
-and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
-)) CoreCodes)
-  join catalogs.products p on p.Id = CoreCodes.ProductId
-  join catalogs.catalog c on c.Id = p.CatalogId
-  join catalogs.catalognames cn on cn.id = c.NameId
-  left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
-group by " +
-				groupExpression;
-
-#if DEBUG
-			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-#endif
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
-		}
-
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
@@ -217,7 +120,7 @@ group by " +
 			}
 
 			if (showCode || showCodeCr)
-				FillProviderCodes(e);
+				CalculateSupplierIds(e, sourceFirmCode, showCode, showCodeCr);
 
 			ProfileHelper.Next("GenerateReport2");
 

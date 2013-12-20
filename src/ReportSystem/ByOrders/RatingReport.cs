@@ -30,17 +30,6 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public override void ReadReportParams()
-		{
-			base.ReadReportParams();
-
-			foreach (var property in GetType().GetProperties()) {
-				if (reportParamExists(property.Name)) {
-					property.SetValue(this, getReportParam(property.Name), null);
-				}
-			}
-		}
-
 		public override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("Processing1");

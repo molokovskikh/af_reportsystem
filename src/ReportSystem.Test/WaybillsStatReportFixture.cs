@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
 using Inforoom.ReportSystem.Helpers;
@@ -17,16 +18,20 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class WaybillsStatReportFixture : BaseProfileFixture2
 	{
-		[Test]
-		public void Build()
+		private TestSupplier supplier;
+		private TestProduct product1;
+		private TestProduct product2;
+
+		[SetUp]
+		public void Setup()
 		{
 			var client = TestClient.CreateNaked();
 			var address = client.Addresses[0];
-			var supplier = TestSupplier.CreateNaked();
+			supplier = TestSupplier.CreateNaked();
 
 			var waybill = new TestWaybill(new TestDocumentLog(supplier, address));
-			var product1 = session.Query<TestProduct>().First();
-			var product2 = session.Query<TestProduct>().Skip(1).First();
+			product1 = session.Query<TestProduct>().First();
+			product2 = session.Query<TestProduct>().Skip(1).First();
 			waybill.Lines.Add(new TestWaybillLine(waybill) {
 				Product = "Аксетин",
 				CatalogProduct = product1,
@@ -46,7 +51,11 @@ namespace ReportSystem.Test
 				SupplierCost = 70,
 			});
 			session.Save(waybill);
+		}
 
+		[Test]
+		public void Build()
+		{
 			Reopen();
 			Property("ProductNamePosition", 0);
 			Property("ByPreviousMonth", false);
@@ -63,6 +72,30 @@ namespace ReportSystem.Test
 			Assert.That(row.GetCell(9).NumericCellValue, Is.GreaterThan(0));
 			var row2 = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product2.CatalogProduct.Name));
 			Assert.IsNotNull(row2, "товар = {0}\r\n данные = {1}", product2.CatalogProduct.Name, ToText(sheet));
+		}
+
+		[Test]
+		public void Show_code()
+		{
+			var synonym = new TestProductSynonym(product1.CatalogProduct.Name, product1, supplier.Prices[0]);
+			session.Save(synonym);
+			var offer = new TestCore(synonym);
+			offer.Code = Generator.Random().First().ToString();
+			session.Save(offer);
+
+			Reopen();
+			Property("ProductNamePosition", 0);
+			Property("ByPreviousMonth", false);
+			Property("ShowCode", true);
+			Property("SupplierId", supplier.Id);
+			report = new WaybillsStatReport(1, "test", Conn, ReportFormats.Excel, properties);
+			report.From = DateTime.Today.AddDays(-10);
+			report.To = DateTime.Today;
+			report.Interval = true;
+			var sheet = ReadReport();
+			var row = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(1).StringCellValue.Contains(product1.CatalogProduct.Name));
+			Assert.IsNotNull(row, "товар = {0}\r\n данные = {1}", product1.CatalogProduct.Name, ToText(sheet));
+			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue);
 		}
 	}
 }
