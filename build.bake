@@ -23,11 +23,11 @@ projectBoot = "ReportSystemBoot"
 
 task @default, [@build]
 
-task @build, ["build:background", "build:exe"]
+task @build, ["build:web", "build:background", "build:exe"]
 
 task @deploy, ["deploy:pipeline"]
 
-task "deploy:app", ["deploy:background", "deploy:exe"]
+task "deploy:app", ["deploy:web", "deploy:background", "deploy:exe"]
 
 task @ready:
 	unless Configuration.IsDefined(@notInteractive):
@@ -48,6 +48,15 @@ task "deploy:exe":
 		XCopyDeploy(Globals, "ReportSystemBoot", deployTo)
 	else:
 		XCopyDeploy(Globals, "ReportSystem", releaseTo)
+
+task "deploy:web", ["build:web"]:
+	XCopyDeploy(Globals, "ReportTuner")
+
+task "build:web", ["clean:web"]:
+	BuildWeb(Globals, "ReportTuner")
+
+task "clean:web":
+	CleanWeb(Globals, "ReportTuner")
 
 task "build:background":
 	Build(Globals, "Report.Data.Builder")

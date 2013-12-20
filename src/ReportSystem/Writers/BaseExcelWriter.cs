@@ -20,6 +20,13 @@ namespace Inforoom.ReportSystem.Writers
 		public const int MaxListName = 26;
 		public int HeaderCollumnCount = 4;
 
+		public BaseExcelWriter()
+		{
+			Warnings = new List<string>();
+		}
+
+		public List<string> Warnings { get; set; }
+
 		public void DataTableToExcel(DataTable dtExport, string ExlFileName, ulong reportCode)
 		{
 			var resultTable = dtExport;
@@ -31,9 +38,7 @@ namespace Inforoom.ReportSystem.Writers
 				cut = true;
 			}
 			if (cut) {
-#if !DEBUG
-				Mailer.MailReportNotify("При формировании отчета произошло урезание количества столбцов из-за превышения допустимого количества в 256", Program.generalReport._payer, Program.generalReport.GeneralReportID, reportCode);
-#endif
+				Warnings.Add("При формировании отчета произошло урезание количества столбцов из-за превышения допустимого количества в 256");
 			}
 
 			DataTableToExcel(dtExport, ExlFileName, "rep" + reportCode);

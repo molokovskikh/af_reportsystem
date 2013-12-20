@@ -255,6 +255,9 @@ where GeneralReport = ?GeneralReport;";
 					}
 					bs.ReportToFile(_mainFileName);
 					bs.ToLog(Id); // протоколируем успешное выполнение отчета
+					foreach (var warning in bs.Warnings) {
+						Mailer.MailReportNotify(warning, Payer != null ? Payer.Name : "", Id, bs.ReportCode);
+					}
 					emptyReport = false;
 				}
 				catch (Exception ex) {

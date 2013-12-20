@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Castle.ActiveRecord;
 using Common.MySql;
@@ -99,6 +100,7 @@ namespace Inforoom.ReportSystem
 		public List<string> FilterDescriptions = new List<string>();
 
 		public List<ColumnGroupHeader> GroupHeaders = new List<ColumnGroupHeader>();
+		public List<string> Warnings = new List<string>();
 
 		protected BaseReport() // конструктор для возможности тестирования
 		{
@@ -224,6 +226,7 @@ namespace Inforoom.ReportSystem
 				// Новый механизм, выносим часть для выгрузки в файл в отдельный класс
 				var settings = GetSettings();
 				writer.WriteReportToFile(_dsReport, fileName, settings);
+				Warnings.AddRange(writer.Warnings);
 				return;
 			}
 

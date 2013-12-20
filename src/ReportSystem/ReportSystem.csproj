@@ -265,7 +265,6 @@
     <Compile Include="ByOffers\SpecReport.cs" />
     <Compile Include="ByOffers\SpecShortReport.cs" />
     <Compile Include="Writers\OptimizationEfficiencyOleExcelWriter.cs" />
-    <Compile Include="Writers\PharmacyMixedNativeWriter.cs" />
     <Compile Include="Writers\PharmacyMixedOleWriter.cs" />
   </ItemGroup>
   <ItemGroup>

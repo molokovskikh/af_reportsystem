@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using ExcelLibrary.SpreadSheet;
 using System.IO;
@@ -9,6 +10,13 @@ namespace Inforoom.ReportSystem.Writers
 {
 	public class OptimizationEfficiencyNativeExcelWriter : IWriter
 	{
+		public OptimizationEfficiencyNativeExcelWriter()
+		{
+			Warnings = new List<string>();
+		}
+
+		public List<string> Warnings { get; set; }
+
 		public void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
 			var optimizationSettins = (OptimizationEfficiencySettings)settings;
