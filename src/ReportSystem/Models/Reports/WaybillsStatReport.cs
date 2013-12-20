@@ -62,10 +62,11 @@ from Documents.DocumentHeaders dh
 	join billing.Payers on Payers.PayerId = le.PayerId
 where 1 = 1");
 
-			ApplyFilters(sql.ToString(), "dh");
+			var commandText = ApplyFilters(sql.ToString(), "dh");
+			commandText = ApplyGroupAndSort(commandText, "Cost desc");
 
 			var selectTable = new DataTable();
-			e.DataAdapter.SelectCommand.CommandText = sql.ToString();
+			e.DataAdapter.SelectCommand.CommandText = commandText;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 			e.DataAdapter.Fill(selectTable);
 

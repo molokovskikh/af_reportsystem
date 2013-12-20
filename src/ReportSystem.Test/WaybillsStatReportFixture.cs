@@ -25,10 +25,11 @@ namespace ReportSystem.Test
 			var supplier = TestSupplier.CreateNaked();
 
 			var waybill = new TestWaybill(new TestDocumentLog(supplier, address));
-			var product = session.Query<TestProduct>().First();
+			var product1 = session.Query<TestProduct>().First();
+			var product2 = session.Query<TestProduct>().Skip(1).First();
 			waybill.Lines.Add(new TestWaybillLine(waybill) {
 				Product = "Аксетин",
-				CatalogProduct = product,
+				CatalogProduct = product1,
 				Quantity = 10,
 				SerialNumber = "4563",
 				EAN13 = "5290931004832",
@@ -37,7 +38,7 @@ namespace ReportSystem.Test
 			});
 			waybill.Lines.Add(new TestWaybillLine(waybill) {
 				Product = "Аксетин",
-				CatalogProduct = product,
+				CatalogProduct = product2,
 				Quantity = 10,
 				SerialNumber = "4563",
 				EAN13 = "5290931004832",
@@ -54,12 +55,14 @@ namespace ReportSystem.Test
 			report.To = DateTime.Today;
 			report.Interval = true;
 			var sheet = ReadReport();
-			var row = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product.CatalogProduct.Name));
-			Assert.IsNotNull(row, "товар = {0}\r\n данные = {1}", product.CatalogProduct.Name, ToText(sheet));
+			var row = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product1.CatalogProduct.Name));
+			Assert.IsNotNull(row, "товар = {0}\r\n данные = {1}", product1.CatalogProduct.Name, ToText(sheet));
 			//Кол-во заявок по препарат
 			Assert.That(row.GetCell(8).NumericCellValue, Is.GreaterThan(0));
 			//Кол-во адресов доставки, заказавших препарат
 			Assert.That(row.GetCell(9).NumericCellValue, Is.GreaterThan(0));
+			var row2 = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product2.CatalogProduct.Name));
+			Assert.IsNotNull(row2, "товар = {0}\r\n данные = {1}", product2.CatalogProduct.Name, ToText(sheet));
 		}
 	}
 }
