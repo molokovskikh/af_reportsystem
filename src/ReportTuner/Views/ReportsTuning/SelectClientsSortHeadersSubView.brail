@@ -12,10 +12,10 @@
 			<%if -(i+1)!=sortOrder: %>
 				<th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${i+1}${command});" class="SortHeader">${item}</a></th>
 			<% else: %>
-				<th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${i+1}${command});" class="SortHeaderAsc">${item}</a>&nbsp;<img src="../Images/Descending.gif" /></th>
+				<th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${i+1}${command});" class="SortHeaderAsc">${item}</a>&nbsp;<img src="~/Assets/Images/Descending.gif" /></th>
 			<% end %>
 		<% else: %>
-		   <th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${-(i+1)}${command});" class="SortHeaderDesc">${item}</a>&nbsp;<img src="../Images/Ascending.gif" /></th>
+		   <th><a href="#" onclick="ReloadPageWithParams('sortOrder', ${-(i+1)}${command});" class="SortHeaderDesc">${item}</a>&nbsp;<img src="~/Assets/Images/Ascending.gif" /></th>
 		<% end %>
 	<%end %>
 <% end %>

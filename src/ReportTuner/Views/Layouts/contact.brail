@@ -8,9 +8,9 @@ if IsDefined("Title"):
 <% 
 end
 %>
-	<link href="../App_Themes/Main/Main.css" type="text/css" rel="stylesheet" />
-	<link href="../App_Themes/Main/Contacts.css" type="text/css" rel="stylesheet" />
-	<script type="text/javascript" src="../JavaScript/prototype.js"></script>
+	${app.Asset("Main.css")}
+	${app.Asset("Contacts.css")}
+	${app.Asset("prototype.js")}
 </head>
 <body>
 ${ChildOutput}

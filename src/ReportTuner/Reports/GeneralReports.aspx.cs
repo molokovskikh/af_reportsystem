@@ -668,11 +668,11 @@ select last_insert_id() as GRLastInsertID;
 		// Create the sorting image based on the sort direction.
 		Image sortImage = new Image();
 		if (SortAscending) {
-			sortImage.ImageUrl = "~/Images/Ascending.gif";
+			sortImage.ImageUrl = "~/Assets/Images/Ascending.gif";
 			sortImage.AlternateText = "По возрастанию";
 		}
 		else {
-			sortImage.ImageUrl = "~/Images/Descending.gif";
+			sortImage.ImageUrl = "~/Assets/Images/Descending.gif";
 			sortImage.AlternateText = "По убыванию";
 		}
 

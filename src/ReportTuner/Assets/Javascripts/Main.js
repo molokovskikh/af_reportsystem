@@ -16,7 +16,7 @@ if (havePrototype) {
         $$('.Paginator').each(function(table) {
             joinPaginator(table);
         });
-        
+
         $$(".ShowHiden").each(function(element) {
             element.onclick = function() { ShowHidden(element); }
         });
@@ -57,19 +57,19 @@ function processOneParam(param, paramName, paramValue) {
         return param;
 }
 
-function replaceUrlParam(url, paramName, paramValue) {    
+function replaceUrlParam(url, paramName, paramValue) {
     l = url.indexOf('?') + 1;
     if (l == 0)
         return url + '?' + paramName + '=' + paramValue;
     if (url.indexOf('&' + paramName) < 0 && url.indexOf('?' + paramName) < 0)
-        return url + '&' + paramName + '=' + paramValue;        
+        return url + '&' + paramName + '=' + paramValue;
     result = url.substr(0, l);
     query = url.substr(l, url.length - l);
     params = query.split('&');
     result += processOneParam(params[0], paramName, paramValue);
     for (i = 1; i < params.length; i++)
         result += ('&' + processOneParam(params[i], paramName, paramValue));
-    return result;    
+    return result;
 }
 
 function ReloadPageWithParams(orderParamName, paramValue, rowsCountParamName, rowsCountParamValue) {

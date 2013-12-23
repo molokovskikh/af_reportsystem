@@ -166,9 +166,8 @@
     <Content Include="Assets\Stylesheets\filter.css" />
     <Content Include="Assets\Stylesheets\Table.css" />
     <Content Include="Global.asax" />
-    <Content Include="JavaScript\Controls.js" />
-    <Content Include="JavaScript\jquery.validate.js" />
-    <Content Include="JavaScript\User.js" />
+    <Content Include="Assets\Javascripts\Controls.js" />
+    <Content Include="Assets\Javascripts\User.js" />
     <Content Include="Reports\base.aspx" />
     <Content Include="Reports\EnumValues.aspx" />
     <Content Include="Reports\error.aspx" />
@@ -369,15 +368,15 @@
   <ItemGroup>
     <Content Include="App_Themes\Main\Contacts.css" />
     <Content Include="App_Themes\Main\Main.skin" />
-    <Content Include="JavaScript\prototype.js" />
+    <Content Include="Assets\Javascripts\prototype.js" />
     <Content Include="Reports\Contacts.aspx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CSS\Main.css" />
-    <Content Include="Images\Ascending.gif" />
-    <Content Include="Images\Descending.gif" />
-    <Content Include="Images\edit.png" />
-    <Content Include="JavaScript\Main.js" />
+    <Content Include="Assets\Stylesheets\Main.css" />
+    <Content Include="Assets\Images\Ascending.gif" />
+    <Content Include="Assets\Images\Descending.gif" />
+    <Content Include="Assets\Images\edit.png" />
+    <Content Include="Assets\Javascripts\Main.js" />
     <Content Include="Reports\TemplateReports.aspx" />
     <Content Include="Reports\TemporaryReport.aspx" />
     <Content Include="Reports\TemporaryReportSchedule.aspx" />
@@ -388,7 +387,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Themes\MainWithHighLight\Main.skin" />
-    <Content Include="JavaScript\jquery-1.4.1.min.js" />
     <Content Include="Views\CopyReport\SelectReport.brail" />
     <None Include="Views\Layouts\MainLayout.brail" />
     <None Include="Views\ReportsTuning\FileForReportTypes.brail" />
@@ -438,6 +436,7 @@
       <InProject>false</InProject>
     </StyleCopAdditionalAddinPaths>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -50,7 +50,6 @@ public partial class Reports_Reports : BasePage
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
-		ClientScript.RegisterClientScriptBlock(GetType(), "UserScript", "<script type=\"text/javascript\" src='../JavaScript/User.js'></script>");
 		if ((Request["r"] == null)) {
 			Response.Redirect("GeneralReports.aspx");
 		}

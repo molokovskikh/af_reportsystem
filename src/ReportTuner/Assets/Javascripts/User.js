@@ -1,7 +1,7 @@
 ﻿$(function () {
-	$("#tbFilter").keypress(function (event) {
+	jQuery("#tbFilter").keypress(function (event) {
 		if (event.keyCode == 13) {
-			if ($.isFunction(window.__doPostBack))
+			if (jQuery.isFunction(window.__doPostBack))
 				__doPostBack('btnFilter', '');
 			else {
 				location.reload();

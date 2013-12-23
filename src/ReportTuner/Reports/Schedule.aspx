@@ -3,7 +3,6 @@
 <asp:Content runat="server" ID="ScheduleValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 
 	<script type="text/javascript">
-	$.noConflict();
 	jQuery(document).ready(function ($) {
 		$('#startDateDiv').datepicker({
 			defaultDate: $('#dtFrom').val(),

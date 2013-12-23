@@ -35,7 +35,7 @@
 						<asp:Label ID="lblFirmName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PayerShortName") %>'/>
 						<asp:LinkButton ID="linkEdit" runat="server" Visible="true" Style="float: right;" 
 							CommandName="editPayer" CommandArgument='<%# DataBinder.Eval(Container, "DataItem.GeneralReportCode") %>'>
-							<asp:Image ID="imgEdit" runat="server" AlternateText="Редактировать плательщика" ImageUrl="~/Images/edit.png" />
+							<asp:Image ID="imgEdit" runat="server" AlternateText="Редактировать плательщика" ImageUrl="~/Assets/Images/edit.png" />
 						</asp:LinkButton>
 						<asp:TextBox ID="tbSearch" runat="server" Width="79px" Visible="False"/>
 						<asp:Button ID="btnSearch" runat="server" Text="Найти" OnClick="btnSearch_Click" Visible="False" />

@@ -2,30 +2,37 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Настройка отчетов</title>
-    <script type="text/javascript" src="../JavaScript/prototype.js"></script>
-    <script type="text/javascript" src="../JavaScript/Main.js"></script>
-    <script type="text/javascript" src="../JavaScript/jquery-1.6.4.min.js"></script>
-    <script type="text/javascript" src="../JavaScript/jquery-ui-1.8.16.min.js"></script>
-    <script type="text/javascript" src="../JavaScript/jquery.ui.datepicker-ru.js"></script>
-    <script type="text/javascript" src="../JavaScript/jquery.validate.js"></script>
+	<title>Настройка отчетов</title>
+	<script type="text/javascript" src="../Assets/Javascripts/jquery-1.6.4.min.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-1.10.3.min.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-i18n.min.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/localization/messages_ru.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/Main.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/User.js"></script>
 
-    <link href="../CSS/Main.css" rel="Stylesheet" />
-    <link href="../CSS/jquery-ui-1.8.13.custom.css" rel="Stylesheet" />
+	<link href="../Assets/Stylesheets/Main.css" rel="Stylesheet" />
+	<link href="../Assets/Stylesheets/themes/base/jquery.ui.all.css" rel="Stylesheet" />
+	<script>
+		$(function () {
+			if (jQuery.datepicker)
+				jQuery.datepicker.setDefaults(jQuery.datepicker.regional['ru']);
+		});
+	</script>
 </head>
 <body>
-    <form id="form1" runat="server">
-    <div>
-        <asp:SiteMapPath ID="ReportSiteMapPath" runat="server" SiteMapProvider="ReportSiteMap" Font-Names="Verdana" Font-Size=Small>
-        <CurrentNodeStyle Font-Bold="True" />
-        </asp:SiteMapPath>        
-        <hr color="#DADAD0"/>
+	<form id="form1" runat="server">
+	<div>
+		<asp:SiteMapPath ID="ReportSiteMapPath" runat="server" SiteMapProvider="ReportSiteMap" Font-Names="Verdana" Font-Size=Small>
+		<CurrentNodeStyle Font-Bold="True" />
+		</asp:SiteMapPath>
+		<hr color="#DADAD0"/>
 
-        <asp:contentplaceholder id="ReportContentPlaceHolder" runat="server">
-        </asp:contentplaceholder>
-    </div>
-    </form>
+		<asp:contentplaceholder id="ReportContentPlaceHolder" runat="server">
+		</asp:contentplaceholder>
+	</div>
+	</form>
 </body>
 </html>
