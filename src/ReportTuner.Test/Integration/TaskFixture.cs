@@ -12,7 +12,6 @@ namespace ReportTuner.Test
 		[Test(Description = "Задача предназначена для генерации миграций")]
 		public void Test()
 		{
-			QueryCatcher.Catch();
 			var t = new UpdateReportConfig(session);
 			t.Execute();
 		}
