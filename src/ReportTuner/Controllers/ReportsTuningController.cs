@@ -150,9 +150,8 @@ namespace ReportTuner.Controllers
 	}
 
 	[Layout("MainLayout"),
-	 Helper(typeof(ViewHelper)),
-	 Helper(typeof(PaginatorHelper)),
-	 Helper(typeof(ReportAppHelper), "app")]
+		Helper(typeof(ViewHelper)),
+		Helper(typeof(PaginatorHelper))]
 	public class ReportsTuningController : BaseController
 	{
 		public void SelectClients(ulong? report, int? sortOrder, int? startPage, int? pageSize, int? rowsCount,

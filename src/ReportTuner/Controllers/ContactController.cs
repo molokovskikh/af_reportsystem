@@ -13,10 +13,7 @@ using System.Linq;
 
 namespace ReportTuner.Controllers
 {
-	[
-		Layout("contact"),
-		Helper(typeof(ApplicationHelper), "app")
-	]
+	[Layout("contact")]
 	public class ContactController : AbstractContactController
 	{
 		public override void AddPerson(uint contactGroupId,

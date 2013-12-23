@@ -45,9 +45,8 @@ namespace ReportTuner.Controllers
 	}
 
 	[Layout("MainLayout"),
-	Helper(typeof(ViewHelper)),
-	Helper(typeof(PaginatorHelper)),
-	Helper(typeof(ReportAppHelper), "app")]
+		Helper(typeof(ViewHelper)),
+		Helper(typeof(PaginatorHelper))]
 	public class CopyReportController : BaseController
 	{
 		public void SelectReport(ulong? rId, ulong? grId, [DataBind("filter")] GeneralReportsFilter filter)

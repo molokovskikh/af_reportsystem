@@ -190,8 +190,6 @@
     <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Controllers\ReportsTuningController.cs" />
-    <Compile Include="Helpers\AppHelper.cs" />
-    <Compile Include="Helpers\ReportAppHelper.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\PropertiesHelper.cs" />
     <Compile Include="Helpers\ReportHelper.cs" />
