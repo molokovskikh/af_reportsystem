@@ -2,18 +2,19 @@
 using System.Linq;
 using Castle.ActiveRecord;
 using Castle.MonoRail.Framework;
+using Common.Web.Ui.Controllers;
 using ReportTuner.Models;
 
 namespace ReportTuner.Controllers
 {
-	public class ReportsController : SmartDispatcherController
+	public class ReportsController : BaseController
 	{
 		//метод используется в административном интерфейсе при удалении плательщика
 		public void Delete(ulong[] ids)
 		{
 			foreach (var id in ids) {
 				try {
-					var report = ActiveRecordMediator<GeneralReport>.FindByPrimaryKey(id, false);
+					var report = DbSession.Get<GeneralReport>(id);
 					if (report == null)
 						continue;
 
@@ -23,7 +24,7 @@ namespace ReportTuner.Controllers
 						property.CleanupFiles();
 					}
 
-					ActiveRecordMediator.Delete(report);
+					DbSession.Delete(report);
 				}
 				catch (Exception e) {
 					Logger.Error("Ошибка при удалении отчета", e);

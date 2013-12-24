@@ -149,8 +149,7 @@ namespace ReportTuner.Controllers
 		}
 	}
 
-	[Layout("MainLayout"),
-		Helper(typeof(ViewHelper)),
+	[Helper(typeof(ViewHelper)),
 		Helper(typeof(PaginatorHelper))]
 	public class ReportsTuningController : BaseController
 	{

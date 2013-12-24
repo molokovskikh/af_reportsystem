@@ -1,0 +1,17 @@
+﻿﻿<!DOCTYPE html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<%if IsDefined("Title"):%>
+		<title>${Title}</title>
+	<% end %>
+	${app.Asset("jquery-1.6.4.min.js")}
+	${app.Asset("Application.js")}
+	${app.Asset("Contacts.css")}
+</head>
+<body>
+	<%OutputSubView('/SubViews/BreadCrumbs')%>
+	<hr/>
+	${ChildOutput}
+</body>
+</html>

@@ -10,15 +10,14 @@
 	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-i18n.min.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/jquery.validate.min.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/localization/messages_ru.js"></script>
-	<script type="text/javascript" src="../Assets/Javascripts/Main.js"></script>
-	<script type="text/javascript" src="../Assets/Javascripts/User.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/Application.js"></script>
 
 	<link href="../Assets/Stylesheets/Main.css" rel="Stylesheet" />
 	<link href="../Assets/Stylesheets/themes/base/jquery.ui.all.css" rel="Stylesheet" />
 	<script>
 		$(function () {
-			if (jQuery.datepicker)
-				jQuery.datepicker.setDefaults(jQuery.datepicker.regional['ru']);
+			if ($.datepicker)
+				$.datepicker.setDefaults($.datepicker.regional['ru']);
 		});
 	</script>
 </head>

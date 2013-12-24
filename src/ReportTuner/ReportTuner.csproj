@@ -162,12 +162,11 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Javascripts\Application.js" />
     <Content Include="Assets\Stylesheets\Common.css" />
     <Content Include="Assets\Stylesheets\filter.css" />
     <Content Include="Assets\Stylesheets\Table.css" />
     <Content Include="Global.asax" />
-    <Content Include="Assets\Javascripts\Controls.js" />
-    <Content Include="Assets\Javascripts\User.js" />
     <Content Include="Reports\base.aspx" />
     <Content Include="Reports\EnumValues.aspx" />
     <Content Include="Reports\error.aspx" />
@@ -366,9 +365,8 @@
     <Content Include="Reports\ReportMasterPage.master" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Themes\Main\Contacts.css" />
+    <Content Include="Assets\Stylesheets\Contacts.css" />
     <Content Include="App_Themes\Main\Main.skin" />
-    <Content Include="Assets\Javascripts\prototype.js" />
     <Content Include="Reports\Contacts.aspx" />
   </ItemGroup>
   <ItemGroup>
@@ -376,19 +374,16 @@
     <Content Include="Assets\Images\Ascending.gif" />
     <Content Include="Assets\Images\Descending.gif" />
     <Content Include="Assets\Images\edit.png" />
-    <Content Include="Assets\Javascripts\Main.js" />
     <Content Include="Reports\TemplateReports.aspx" />
     <Content Include="Reports\TemporaryReport.aspx" />
     <Content Include="Reports\TemporaryReportSchedule.aspx" />
     <Content Include="Views\Common\CloseWindow.brail">
     </Content>
-    <Content Include="Views\Layouts\contact.brail">
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Themes\MainWithHighLight\Main.skin" />
     <Content Include="Views\CopyReport\SelectReport.brail" />
-    <None Include="Views\Layouts\MainLayout.brail" />
+    <None Include="Views\Layouts\Application.brail" />
     <None Include="Views\ReportsTuning\FileForReportTypes.brail" />
     <None Include="Views\ReportsTuning\SelectAddresses.brail" />
     <None Include="Views\ReportsTuning\SelectClients.brail" />
