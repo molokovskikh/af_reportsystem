@@ -10,6 +10,7 @@ using Common.Schedule;
 using NUnit.Framework;
 using CassiniDev;
 using ReportTuner.Helpers;
+using Test.Support.Web;
 using Settings = WatiN.Core.Settings;
 
 namespace ReportTuner.Test
@@ -43,12 +44,7 @@ namespace ReportTuner.Test
 				ActiveRecordStarter.Initialize(new[] { Assembly.Load("Test.Support"), Assembly.Load("ReportTuner"), Assembly.Load("Common.Web.Ui") }, config);
 			}
 
-			var port = int.Parse(ConfigurationManager.AppSettings["webPort"]);
-			var webDir = ConfigurationManager.AppSettings["webDirectory"];
-			_webServer = new Server(port, "/", Path.GetFullPath(webDir));
-			_webServer.Start();
-			Settings.Instance.AutoMoveMousePointerToTopLeft = false;
-			Settings.Instance.MakeNewIeInstanceVisible = false;
+			_webServer = WatinSetup.StartServer();
 
 			using (var taskService = ScheduleHelper.GetService()) {
 				ScheduleHelper.CreateFolderIfNeeded(taskService);
