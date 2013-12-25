@@ -13,6 +13,9 @@ using Castle.MonoRail.Framework.Test;
 using Castle.MonoRail.TestSupport;
 using Common.Web.Ui.ActiveRecordExtentions;
 using Common.Web.Ui.Helpers;
+using Common.Web.Ui.Test.Controllers;
+using NHibernate;
+using NHibernate.Linq;
 using NUnit.Framework;
 using ReportTuner.Controllers;
 using ReportTuner.Models;
@@ -53,48 +56,31 @@ namespace ReportTuner.Test.Integration
 		}
 	}
 
-	public class ControllerFixture : BaseControllerTest
-	{
-		protected string referer;
-
-		protected override IMockResponse BuildResponse(UrlInfo info)
-		{
-			return new StubResponse(info,
-				new DefaultUrlBuilder(),
-				new StubServerUtility(),
-				new RouteMatch(),
-				referer);
-		}
-	}
-
 	[TestFixture]
 	public class ReportTuningControllerFixture : ControllerFixture
 	{
 		[Test]
-		public void Loaa_file_test()
+		public void Load_file_test()
 		{
-			referer = "http://ya.ru";
+			referer = "http://localhost";
+			var controller = new ReportsTuningController();
+			Prepare(controller);
+
 			var reportType = 0u;
-			using (var scope = new SessionScope()) {
-				ArHelper.WithSession(s => {
-					foreach (var fileType in s.QueryOver<FileForReportType>().List()) {
-						s.Delete(fileType);
-					}
-					reportType = s.QueryOver<ReportType>().List().First().Id;
-					var controller = new ReportsTuningController();
-					File.WriteAllText("test.txt", "1234567890");
-					var stream = File.OpenRead("test.txt");
-					var file = new TestHttpFile("testFileName.txt", "application/octet-stream", stream);
-					PrepareController(controller);
-					Request.Files.Add(reportType, file);
-					ConfigReader.LoadSettings(Global.Config);
-					controller.DbSession = s;
-					controller.SaveFilesForReportType();
-					scope.Flush();
-					var fileName = s.QueryOver<FileForReportType>().Where(f => f.File == "testFileName.txt").List().First().Id.ToString();
-					Assert.IsTrue(File.Exists(Path.Combine(Global.Config.SavedFilesReportTypePath, fileName)));
-				});
+			foreach (var fileType in session.QueryOver<FileForReportType>().List()) {
+				session.Delete(fileType);
 			}
+			reportType = session.Query<ReportType>().First().Id;
+			File.WriteAllText("test.txt", "1234567890");
+			var stream = File.OpenRead("test.txt");
+			var file = new TestHttpFile("testFileName.txt", "application/octet-stream", stream);
+			Request.Files.Add(reportType, file);
+			ConfigReader.LoadSettings(Global.Config);
+			controller.SaveFilesForReportType();
+			session.Flush();
+
+			var fileName = session.QueryOver<FileForReportType>().Where(f => f.File == "testFileName.txt").List().First().Id.ToString();
+			Assert.IsTrue(File.Exists(Path.Combine(Global.Config.SavedFilesReportTypePath, fileName)));
 		}
 	}
 }
