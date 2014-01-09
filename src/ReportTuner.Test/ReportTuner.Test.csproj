@@ -88,7 +88,7 @@
     <Reference Include="WatiN.Core">
       <HintPath>..\..\lib\WatiN.Core.dll</HintPath>
     </Reference>
-    <Reference Include="WatiN.CssSelectorExtensions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="WatiN.CssSelectorExtensions">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Watin.Css.0.2.0.0\lib\net40\WatiN.CssSelectorExtensions.dll</HintPath>
     </Reference>

@@ -28,7 +28,6 @@ namespace ReportSystem.Test
 				{ NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
 				{ NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
 				{ NHibernate.Cfg.Environment.ConnectionStringName, ConnectionStringName },
-				{ NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle" },
 				{ NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none" },
 				{ NHibernate.Cfg.Environment.FormatSql, "true" },
 				{ NHibernate.Cfg.Environment.UseSqlComments, "true" }

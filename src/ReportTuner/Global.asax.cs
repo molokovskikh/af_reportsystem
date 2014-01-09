@@ -120,7 +120,6 @@ namespace ReportTuner
 						{ NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
 						{ NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
 						{ NHibernate.Cfg.Environment.ConnectionStringName, connectionName },
-						{ NHibernate.Cfg.Environment.ProxyFactoryFactoryClass, "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle" },
 						{ NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none" },
 						{ NHibernate.Cfg.Environment.ShowSql, "true" },
 						{ NHibernate.Cfg.Environment.FormatSql, "true" },
