@@ -38,7 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CassiniDev-lib, Version=3.5.1.6, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="CassiniDev-lib" />
     <Reference Include="Castle.ActiveRecord">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Castle.ActiveRecord.dll</HintPath>
