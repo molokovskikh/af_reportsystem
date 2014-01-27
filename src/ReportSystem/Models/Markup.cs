@@ -58,6 +58,8 @@ namespace Inforoom.ReportSystem.Model
 
 		public static decimal RetailCost(decimal supplierCost, decimal producerCost, decimal nds, IEnumerable<Markup> markups)
 		{
+			if (producerCost == 0)
+				return 0;
 			var drugstoeMarkup = markups.FirstOrDefault(m => m.Type == MarkupType.Drugstore);
 			if (drugstoeMarkup == null)
 				return 0;

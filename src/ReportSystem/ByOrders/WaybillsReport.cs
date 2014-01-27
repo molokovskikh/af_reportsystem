@@ -95,7 +95,7 @@ drop temporary table if exists uniq_document_lines;
 			foreach (DataRow row in data.Rows) {
 				var resultRow = result.NewRow();
 
-				var producerCost = Convert.ToDecimal(row["ProducerCost"]);
+				var producerCost = row["ProducerCost"] is DBNull ? 0 : Convert.ToDecimal(row["ProducerCost"]);
 				var regionId = Convert.ToUInt64(row["RegionCode"]);
 				var supplierCost = Convert.ToDecimal(row["SupplierCost"]);
 				var nds = row["NDS"] is DBNull ? 10 : Convert.ToDecimal(row["NDS"]);

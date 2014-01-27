@@ -77,6 +77,7 @@ namespace ReportSystem.Test
 		public void Correct_retails_markup()
 		{
 			var markups = new[] { new Markup(MarkupType.Supplier, 20), new Markup(MarkupType.Drugstore, 20) };
+			Assert.AreEqual(0, Markup.RetailCost(215.40m, 0, 10, markups));
 			Assert.That(Markup.RetailCost(70, 50, 10, markups), Is.EqualTo(0));
 			Assert.That(Markup.RetailCost(65, 50, 10, markups), Is.EqualTo(72));
 			Assert.That(Markup.RetailCost(215.40m, 200.10m, 10, markups), Is.EqualTo(255));
