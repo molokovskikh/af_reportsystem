@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.MySql;
 using Common.Tools;
@@ -148,6 +149,22 @@ namespace Report.Data.Builder
 	public class CostCalculator
 	{
 		private ILog log = LogManager.GetLogger(typeof(CostCalculator));
+		private CancellationToken token;
+
+		public uint DebugProductId;
+		public uint DebugProducerId;
+		public uint DebugSupplierId;
+		public decimal CostThreshold;
+
+		public CostCalculator()
+		{
+			token = new CancellationToken();
+		}
+
+		public CostCalculator(CancellationToken token)
+		{
+			this.token = token;
+		}
 
 		public IEnumerable<uint> Clients()
 		{
@@ -213,6 +230,7 @@ where p.Actual = 1
 			watch.Start();
 
 			foreach (var item in data) {
+				token.ThrowIfCancellationRequested();
 				watch.Stop();
 
 				if (item.Item1.Count() == 0)
@@ -293,11 +311,6 @@ where p.Actual = 1
 			return result;
 		}
 
-		public uint DebugProductId;
-		public uint DebugProducerId;
-		public uint DebugSupplierId;
-		public decimal CostThreshold;
-
 		public int Save(DateTime date, Hashtable hash)
 		{
 			var header = "insert into Reports.AverageCosts(Date, SupplierId, RegionId, ProductId, ProducerId, Cost, Quantity) values ";
@@ -311,6 +324,7 @@ where p.Actual = 1
 				foreach (OfferId key in hash.Keys) {
 					var costs = ((Hashtable)hash[key]);
 					foreach (AggregateId aggregateId in costs.Keys) {
+						token.ThrowIfCancellationRequested();
 						var aggregates = (OfferAggregates)costs[aggregateId];
 						if (aggregates.Cost == 0)
 							continue;
