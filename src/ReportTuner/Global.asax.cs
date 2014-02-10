@@ -121,7 +121,6 @@ namespace ReportTuner
 						{ NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
 						{ NHibernate.Cfg.Environment.ConnectionStringName, connectionName },
 						{ NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none" },
-						{ NHibernate.Cfg.Environment.ShowSql, "true" },
 						{ NHibernate.Cfg.Environment.FormatSql, "true" },
 						{ NHibernate.Cfg.Environment.Isolation, "ReadCommitted" }
 					});
