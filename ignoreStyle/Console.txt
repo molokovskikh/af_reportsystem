@@ -11,3 +11,4 @@
 \src\Test.Support\Test.Support.Web\WatinSetup.cs
 \src\ReportTuner.Test\Integration\ReportsBatch.cs
 \src\ReportSystem.Tasks\UpdateReportConfig.cs
+\src\Report.Data.Builder\Program.cs
