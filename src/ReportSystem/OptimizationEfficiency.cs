@@ -82,7 +82,7 @@ select ol.OrderId, oh.writetime,
 	round(col.ResultCost - col.SelfCost, 2) absDiff, round((col.ResultCost / col.SelfCost - 1) * 100, 2) diff,
 	CASE WHEN col.ResultCost > col.SelfCost THEN (col.ResultCost - col.SelfCost)*ol.Quantity ELSE null END EkonomEffect
 from " +
-#if DEBUG
+#if true
 					@"orders.ordershead oh
 	join orders.orderslist ol on ol.orderid = oh.rowid " +
 #else
