@@ -7,7 +7,7 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class DefectureNewProfileFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore]
 		public void DefectureNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNew);
@@ -16,7 +16,7 @@ namespace ReportSystem.Test
 			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
 		}
 
-		[Test]
+		[Test, Ignore]
 		public void DefectureNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNewDifficult);

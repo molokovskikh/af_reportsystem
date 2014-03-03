@@ -21,7 +21,7 @@ namespace ReportSystem.Test
 		{
 			ScheduleHelper.SetTaskAction(1, "/gr:1 /manual:true");
 			session.CreateSQLQuery("delete from `logs`.reportexecutelogs; update  reports.general_reports set allow = 0;").ExecuteUpdate();
-			Close();
+			session.Transaction.Commit();
 			Program.Main(new[] { "/gr:1" });
 			var reportLogCount = session.Query<ReportExecuteLog>().Count();
 			Assert.AreEqual(reportLogCount, 1);
