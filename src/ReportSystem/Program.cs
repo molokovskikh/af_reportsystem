@@ -97,7 +97,7 @@ namespace Inforoom.ReportSystem
 						if (report == null)
 							throw new Exception(String.Format("Отчет с кодом {0} не существует.", generalReportId));
 						if (!report.Enabled && !manual)
-							throw new Exception("Невозможно выполнить отчет, т.к. отчет выключен.");
+							throw new ReportException("Невозможно выполнить отчет, т.к. отчет выключен.");
 
 						_log.DebugFormat("Запуск отчета {0}", report.Id);
 						report.ProcessReports(reportLog, mc, interval, dtFrom, dtTo);
