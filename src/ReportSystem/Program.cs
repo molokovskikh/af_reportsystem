@@ -14,6 +14,7 @@ using Common.Web.Ui.NHibernateExtentions;
 using ExecuteTemplate;
 using Inforoom.Common;
 using Inforoom.ReportSystem.Model;
+using NDesk.Options;
 using NHibernate;
 using NHibernate.Mapping.Attributes;
 using log4net;
@@ -34,32 +35,38 @@ namespace Inforoom.ReportSystem
 			int generalReportId = 0;
 			try {
 				XmlConfigurator.Configure();
+				var help = false;
+				var interval = false;
+				var dtFrom = new DateTime();
+				var dtTo = new DateTime();
+				var manual = false;
+
+				var options = new OptionSet {
+					{ "help", "Выводит справку", v => help = v != null },
+					{ "gr=", "Код отчета", v => generalReportId = int.Parse(v) },
+					{ "manual=", "Флаг ручного запуска, в случае ручного запуска не производится проверка сотояния отчета", v => manual = bool.Parse(v) },
+					{ "inter=", "Флаг сигнализирующей что отчет готовится за период", v => interval = bool.Parse(v) },
+					{ "dtFrom=", "Начало периода за который готовится отчет", v => dtTo = DateTime.Parse(v) },
+					{ "dtTo=", "Окончание периода за который готовится отчет", v => dtFrom = DateTime.Parse(v) },
+				};
+
+				options.Parse(args);
+				if (help) {
+					Win32.AttachConsole(Win32.ATTACH_PARENT_PROCESS);
+					options.WriteOptionDescriptions(Console.Out);
+					return 0;
+				}
+
 				ConnectionHelper.DefaultConnectionStringName = "Default";
 				With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
 				if (!ActiveRecordStarter.IsInitialized) {
 					ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(ReportExecuteLog).Assembly);
 
-					foreach (NHibernate.Cfg.Configuration cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
+					foreach (var cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
 						cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 					}
 				}
 				factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
-
-				//Попытка получить код общего отчета в параметрах
-				var interval = false;
-				var dtFrom = new DateTime();
-				var dtTo = new DateTime();
-				var manual = false;
-				generalReportId = Convert.ToInt32(CommandLineUtils.GetCode(@"/gr:", args));
-				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/manual:", args))) {
-					manual = Convert.ToBoolean(CommandLineUtils.GetStr(@"/manual:", args));
-				}
-
-				if (!string.IsNullOrEmpty(CommandLineUtils.GetStr(@"/inter:", args))) {
-					interval = Convert.ToBoolean(CommandLineUtils.GetStr(@"/inter:", args));
-					dtFrom = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtFrom:", args));
-					dtTo = Convert.ToDateTime(CommandLineUtils.GetStr(@"/dtTo:", args));
-				}
 
 				if (generalReportId == -1)
 					throw new Exception("Не указан код отчета для запуска в параметре gr.");
@@ -123,12 +130,13 @@ namespace Inforoom.ReportSystem
 					}
 
 					var reportEx = e as ReportException;
-					if (reportEx != null && reportEx.InnerException != null && report.Reports.Count > 1) {
-						Mailer.MailReportErr(reportEx.InnerException.ToString(), reportEx.Payer, report.Id, reportEx.SubreportCode, reportEx.ReportCaption);
+					if (reportEx != null) {
+						Mailer.MailReportErr(reportEx.ToString(), reportEx.Payer, report.Id, reportEx.SubreportCode, reportEx.ReportCaption);
 						result = true;
 					}
-
-					Mailer.MailGeneralReportErr(report, e);
+					else {
+						Mailer.MailGeneralReportErr(report, e);
+					}
 				}
 				finally {
 					//не уверен почему так но восстанавливаем состояние задачи только если отчет не выключен
