@@ -24,6 +24,20 @@ using With = Common.MySql.With;
 
 namespace Inforoom.ReportSystem
 {
+	public class AppArgs
+	{
+		public bool Interval;
+		public DateTime From;
+		public DateTime To;
+		public bool Manual;
+		public int ReportId;
+
+		public AppArgs()
+		{
+			ReportId = -1;
+		}
+	}
+
 	public class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
@@ -32,30 +46,12 @@ namespace Inforoom.ReportSystem
 		[STAThread]
 		public static int Main(string[] args)
 		{
-			int generalReportId = 0;
+			var appArgs = new AppArgs();
 			try {
 				XmlConfigurator.Configure();
-				var help = false;
-				var interval = false;
-				var dtFrom = new DateTime();
-				var dtTo = new DateTime();
-				var manual = false;
 
-				var options = new OptionSet {
-					{ "help", "Выводит справку", v => help = v != null },
-					{ "gr=", "Код отчета", v => generalReportId = int.Parse(v) },
-					{ "manual=", "Флаг ручного запуска, в случае ручного запуска не производится проверка сотояния отчета", v => manual = bool.Parse(v) },
-					{ "inter=", "Флаг сигнализирующей что отчет готовится за период", v => interval = bool.Parse(v) },
-					{ "dtFrom=", "Начало периода за который готовится отчет", v => dtTo = DateTime.Parse(v) },
-					{ "dtTo=", "Окончание периода за который готовится отчет", v => dtFrom = DateTime.Parse(v) },
-				};
-
-				options.Parse(args);
-				if (help) {
-					Win32.AttachConsole(Win32.ATTACH_PARENT_PROCESS);
-					options.WriteOptionDescriptions(Console.Out);
+				if (Parse(args, appArgs))
 					return 0;
-				}
 
 				ConnectionHelper.DefaultConnectionStringName = "Default";
 				With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
@@ -68,19 +64,40 @@ namespace Inforoom.ReportSystem
 				}
 				factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 
-				if (generalReportId == -1)
+				if (appArgs.ReportId == -1)
 					throw new Exception("Не указан код отчета для запуска в параметре gr.");
 
-				if (ProcessReport(generalReportId, manual, interval, dtFrom, dtTo))
+				if (ProcessReport(appArgs.ReportId, appArgs.Manual, appArgs.Interval, appArgs.From, appArgs.To))
 					return 0;
 				else
 					return 1;
 			}
 			catch (Exception ex) {
-				_log.Error(String.Format("Ошибка при запуске отчета {0}", generalReportId), ex);
+				_log.Error(String.Format("Ошибка при запуске отчета {0}", appArgs.ReportId), ex);
 				Mailer.MailGlobalErr(ex);
 				return 1;
 			}
+		}
+
+		public static bool Parse(string[] args, AppArgs appArgs)
+		{
+			var help = false;
+			var options = new OptionSet {
+				{ "help", "Выводит справку", v => help = v != null },
+				{ "gr=", "Код отчета", v => appArgs.ReportId = int.Parse(v) },
+				{ "manual=", "Флаг ручного запуска, в случае ручного запуска не производится проверка сотояния отчета", v => appArgs.Manual = bool.Parse(v) },
+				{ "inter=", "Флаг сигнализирующей что отчет готовится за период", v => appArgs.Interval = bool.Parse(v) },
+				{ "dtFrom=", "Начало периода за который готовится отчет", v => appArgs.From = DateTime.Parse(v) },
+				{ "dtTo=", "Окончание периода за который готовится отчет", v => appArgs.To = DateTime.Parse(v) },
+			};
+
+			options.Parse(args);
+			if (help) {
+				Win32.AttachConsole(Win32.ATTACH_PARENT_PROCESS);
+				options.WriteOptionDescriptions(Console.Out);
+				return true;
+			}
+			return false;
 		}
 
 		public static bool ProcessReport(int generalReportId, bool manual, bool interval, DateTime dtFrom, DateTime dtTo)
