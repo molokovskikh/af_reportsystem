@@ -13,7 +13,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNew);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNew);
-			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
+			DefecturePharmacie.TestReportResultOnPharmacie(report.GetReportTable());
 		}
 
 		[Test, Ignore]
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.DefectureNewDifficult);
 			var report = new DefReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.DefectureNewDifficult);
-			DefecturePharmacie.TestReportResultOnPharmacie(report.DSResult);
+			DefecturePharmacie.TestReportResultOnPharmacie(report.GetReportTable());
 		}
 	}
 }

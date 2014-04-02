@@ -1,44 +1,40 @@
 using System;
+using System.Diagnostics;
+using Common.Tools.Helpers;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using ExecuteTemplate;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Data;
 using System.Configuration;
+using Common.MySql;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace Inforoom.ReportSystem
 {
+	public enum DefReportType
+	{
+		//Отчет только по наименованию
+		ByName = 1,
+		//Отчет по наименованию и форме выпуска
+		ByNameAndForm = 2,
+		//по наименованию и форме выпуска с учетом производителя
+		ByNameAndFormAndFirmCr = 3,
+		//по продуктам
+		ByProduct = 4,
+		//по продуктам с учетом производителя
+		ByProductAndFirmCr = 5
+	}
+
 	//Дефектурный отчет
 	public class DefReport : ProviderReport
 	{
-		protected enum DefReportType
-		{
-			//Отчет только по наименованию
-			ByName = 1,
-			//Отчет по наименованию и форме выпуска
-			ByNameAndForm = 2,
-			//по наименованию и форме выпуска с учетом производителя
-			ByNameAndFormAndFirmCr = 3,
-			//по продуктам
-			ByProduct = 4,
-			//по продуктам с учетом производителя
-			ByProductAndFirmCr = 5
-		}
-
 		protected DefReportType _reportType;
 		protected int _priceCode;
 
 		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
-		}
-
-		/// <summary>
-		/// Получаем таблицу результатов для проверки в тестах
-		/// </summary>
-		public DataTable DSResult
-		{
-			get { return _dsReport.Tables["Results"]; }
 		}
 
 		public override void ReadReportParams()
@@ -57,27 +53,15 @@ namespace Inforoom.ReportSystem
 
 		private void ProcessWeigth(ExecuteArgs e)
 		{
-			var SourcePC = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-						@"
-select
-  pricesdata.FirmCode
-from
-  usersettings.pricesdata
-where
-	pricesdata.PriceCode = ?PriceCode;",
-					new MySqlParameter("?PriceCode", _priceCode)));
-			ProfileHelper.Next("GetOffers");
 			GetWeightCostOffers(e);
-			ProfileHelper.Next("Processing");
 			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 
-			string SelectCommandText = String.Empty;
+			var selectCommandText = String.Empty;
 
 			switch (_reportType) {
 				case DefReportType.ByName: {
-					SelectCommandText = @"
+					selectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   NameId int Unsigned,
@@ -123,7 +107,7 @@ order by CatalogNames.Name;";
 				}
 
 				case DefReportType.ByNameAndForm: {
-					SelectCommandText = @"
+					selectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   CatalogId int Unsigned,
@@ -166,7 +150,7 @@ order by CatalogNames.Name, CatalogForms.Form;";
 				}
 
 				case DefReportType.ByNameAndFormAndFirmCr: {
-					SelectCommandText = @"
+					selectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   CatalogId int Unsigned,
@@ -180,7 +164,8 @@ from
   Catalogs.Products
 where
 	c.PriceCode <> ?SourcePC
-and Products.Id = c.ProductId;
+	and Products.Id = c.ProductId
+	and c.ProducerId is not null;
 
 
 drop temporary table IF EXISTS OtherByPrice;
@@ -193,31 +178,27 @@ CREATE temporary table OtherByPrice (
 INSERT INTO OtherByPrice
 select distinct Products.CatalogId, c.ProducerId as CodeFirmCr, '' as Code
 from
-  (
-  Core c
-  inner join Catalogs.Products on c.ProductId = Products.Id
-  )
-  left join SummaryByPrices st on st.CatalogId = Products.CatalogId and st.CodeFirmCr = c.ProducerId
+	Core c
+	inner join Catalogs.Products on c.ProductId = Products.Id
+	left join SummaryByPrices st on st.CatalogId = Products.CatalogId and st.CodeFirmCr = c.ProducerId
 where
 	c.PriceCode=?SourcePC
-and st.CatalogId is NULL;
+	and c.ProducerId is not null
+	and st.CatalogId is NULL;
 
 select distinct OtherByPrice.Code, CatalogNames.Name, CatalogForms.Form, Producers.Name as FirmCr
-from
- (
-  OtherByPrice
-  inner join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
-  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
-  inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
- )
-  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+from OtherByPrice
+	join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
+	join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+	join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
+	join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
 					break;
 				}
 
 				case DefReportType.ByProduct: {
-					SelectCommandText = String.Format(@"
+					selectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   ProductId int Unsigned,
@@ -264,7 +245,7 @@ order by CatalogNames.Name, FullForm;
 				}
 
 				case DefReportType.ByProductAndFirmCr: {
-					SelectCommandText = String.Format(@"
+					selectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   ProductId int Unsigned,
@@ -273,12 +254,9 @@ CREATE temporary table SummaryByPrices (
   key CodeFirmCr(CodeFirmCr)) engine=MEMORY PACK_KEYS = 0;
 INSERT INTO SummaryByPrices
 select distinct c.ProductId, c.ProducerId as CodeFirmCr
-from
-  Core c,
-  catalogs.products FarmCore
-where
-	c.PriceCode <> ?SourcePC
-and FarmCore.Id = c.ProductId;
+from Core c
+where c.PriceCode <> ?SourcePC
+	c.ProducerId is not null;
 
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice (
@@ -290,14 +268,13 @@ CREATE temporary table OtherByPrice (
 INSERT INTO OtherByPrice
 select distinct c.ProductId, c.ProducerId as CodeFirmCr, '' as Code
 from
-  (
-  Core c
-  inner join catalogs.products on products.id = c.ProductId
-  )
-  left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = c.ProducerId
+	Core c
+	join catalogs.products on products.id = c.ProductId
+	left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = c.ProducerId
 where
-	c.PriceCode=?SourcePC
-and st.ProductId is NULL;
+	c.PriceCode = ?SourcePC
+	and c.ProducerId is not null
+	and st.ProductId is NULL;
 
 select
   distinct
@@ -306,22 +283,31 @@ select
   CatalogForms.Form as FullForm,
   Producers.Name as FirmCr
 from
- (
-  OtherByPrice
-  inner join catalogs.products on OtherByPrice.ProductId = products.Id
-  inner join catalogs.catalog on products.CatalogId = catalog.Id
-  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
-  inner join catalogs.CatalogForms on CatalogForms.Id = catalog.FormId
- )
-  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+	OtherByPrice
+	join catalogs.products on OtherByPrice.ProductId = products.Id
+	join catalogs.catalog on products.CatalogId = catalog.Id
+	join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+	join catalogs.CatalogForms on CatalogForms.Id = catalog.FormId
+	join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm, Producers.Name;
 ");
 					break;
 				}
 			}
-			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+
+			var sourcePc = Convert.ToInt32(
+					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+						@"
+select
+  pricesdata.FirmCode
+from
+  usersettings.pricesdata
+where
+	pricesdata.PriceCode = ?PriceCode;",
+					new MySqlParameter("?PriceCode", _priceCode)));
+			e.DataAdapter.SelectCommand.CommandText = selectCommandText;
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", sourcePc);
 			e.DataAdapter.Fill(_dsReport, "Results");
 			ProfileHelper.End();
 		}
@@ -334,10 +320,10 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 			if (_priceCode == 0)
 				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");
 
-			var CustomerFirmName = GetSupplierName(_priceCode);
+			var customerFirmName = GetSupplierName(_priceCode);
 
 			//Проверка актуальности прайс-листа
-			int ActualPrice = Convert.ToInt32(
+			var actualPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
 					@"
@@ -362,31 +348,29 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				ProcessWeigth(e);
 				return;
 			}
-			ProfileHelper.Next("GetOffers");
-			//Выбираем
+
 			GetOffers(_SupplierNoise);
-			ProfileHelper.Next("Processing");
-			int EnabledPrice = Convert.ToInt32(
+			var enabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
 					e.DataAdapter.SelectCommand.Connection,
 					"select PriceCode from ActivePrices where PriceCode = ?PriceCode",
 					new MySqlParameter("?PriceCode", _priceCode)));
-			if (EnabledPrice == 0 && !_byBaseCosts) {
-				string ClientShortName = Convert.ToString(
+			if (enabledPrice == 0 && !_byBaseCosts) {
+				var clientShortName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
 						e.DataAdapter.SelectCommand.Connection,
 						@"select Name from Customers.Clients where Id = ?FirmCode",
 						new MySqlParameter("?FirmCode", _clientCode)));
-				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", ClientShortName, _clientCode, CustomerFirmName, _priceCode));
+				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", clientShortName, _clientCode, customerFirmName, _priceCode));
 			}
 
 			e.DataAdapter.SelectCommand.Parameters.Clear();
 
-			string SelectCommandText = String.Empty;
+			var selectCommandText = String.Empty;
 
 			switch (_reportType) {
 				case DefReportType.ByName: {
-					SelectCommandText = @"
+					selectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   NameId int Unsigned,
@@ -433,7 +417,7 @@ order by CatalogNames.Name;";
 				}
 
 				case DefReportType.ByNameAndForm: {
-					SelectCommandText = @"
+					selectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   CatalogId int Unsigned,
@@ -479,7 +463,7 @@ order by CatalogNames.Name, CatalogForms.Form;";
 				}
 
 				case DefReportType.ByNameAndFormAndFirmCr: {
-					SelectCommandText = @"
+					selectCommandText = @"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   CatalogId int Unsigned,
@@ -495,9 +479,10 @@ from
   Catalogs.Products
 where
 	apt.PriceCode <> ?SourcePC
-and apt.PriceCode=c.PriceCode
-and Products.Id = c.ProductId
-and FarmCore.Id = c.Id;
+	and apt.PriceCode = c.PriceCode
+	and Products.Id = c.ProductId
+	and FarmCore.Id = c.Id
+	and FarmCore.CodeFirmCr is not null;
 
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice (
@@ -509,32 +494,29 @@ CREATE temporary table OtherByPrice (
 INSERT INTO OtherByPrice
 select distinct Products.CatalogId, FarmCore.CodeFirmCr, FarmCore.Code
 from
-  (
-  Core c
-  inner join farm.Core0 FarmCore on c.Id = FarmCore.Id
-  inner join Catalogs.Products on c.ProductId = Products.Id
-  )
-  left join SummaryByPrices st on st.CatalogId = Products.CatalogId and st.CodeFirmCr = FarmCore.CodeFirmCr
+	Core c
+	inner join farm.Core0 FarmCore on c.Id = FarmCore.Id
+	inner join Catalogs.Products on c.ProductId = Products.Id
+	left join SummaryByPrices st on st.CatalogId = Products.CatalogId and st.CodeFirmCr = FarmCore.CodeFirmCr
 where
 	c.PriceCode=?SourcePC
-and st.CatalogId is NULL;
+	and FarmCore.CodeFirmCr is not null
+	and st.CatalogId is NULL;
 
 select distinct OtherByPrice.Code, CatalogNames.Name, CatalogForms.Form, Producers.Name as FirmCr
 from
- (
-  OtherByPrice
-  inner join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
-  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
-  inner join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
- )
-  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+	OtherByPrice
+	join catalogs.catalog on OtherByPrice.CatalogId = catalog.Id
+	join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+	join catalogs.CatalogForms on catalog.FormId = CatalogForms.Id
+	join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, CatalogForms.Form, Producers.Name;";
 					break;
 				}
 
 				case DefReportType.ByProduct: {
-					SelectCommandText = String.Format(@"
+					selectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   ProductId int Unsigned,
@@ -582,7 +564,7 @@ order by CatalogNames.Name, FullForm;
 				}
 
 				case DefReportType.ByProductAndFirmCr: {
-					SelectCommandText = String.Format(@"
+					selectCommandText = String.Format(@"
 drop temporary table IF EXISTS SummaryByPrices;
 CREATE temporary table SummaryByPrices (
   ProductId int Unsigned,
@@ -597,8 +579,9 @@ from
   farm.Core0 FarmCore
 where
 	apt.PriceCode <> ?SourcePC
-and apt.PriceCode=c.PriceCode
-and FarmCore.Id = c.Id;
+	and apt.PriceCode=c.PriceCode
+	and FarmCore.Id = c.Id
+	and FarmCore.CodeFirmCr is not null;
 
 drop temporary table IF EXISTS OtherByPrice;
 CREATE temporary table OtherByPrice (
@@ -610,14 +593,13 @@ CREATE temporary table OtherByPrice (
 INSERT INTO OtherByPrice
 select distinct c.ProductId, FarmCore.CodeFirmCr, FarmCore.Code
 from
-  (
   Core c
   inner join farm.Core0 FarmCore on FarmCore.Id = c.Id
-  )
   left join SummaryByPrices st on st.ProductId = c.ProductId and st.CodeFirmCr = FarmCore.CodeFirmCr
 where
 	c.PriceCode=?SourcePC
-and st.ProductId is NULL;
+	FarmCore.CodeFirmCr is not null
+	and st.ProductId is NULL;
 
 select
   distinct
@@ -626,23 +608,21 @@ select
   {0} as FullForm,
   Producers.Name as FirmCr
 from
- (
-  OtherByPrice
-  inner join catalogs.products on OtherByPrice.ProductId = products.Id
-  inner join catalogs.catalog on products.CatalogId = catalog.Id
-  inner join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
- )
-  left join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
+	OtherByPrice
+	join catalogs.products on OtherByPrice.ProductId = products.Id
+	join catalogs.catalog on products.CatalogId = catalog.Id
+	join catalogs.CatalogNames on catalog.NameId = CatalogNames.Id
+	join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm, Producers.Name;
 ", GetFullFormSubquery("OtherByPrice.ProductId"));
 					break;
 				}
 			}
-			e.DataAdapter.SelectCommand.CommandText = SelectCommandText;
+
+			e.DataAdapter.SelectCommand.CommandText = selectCommandText;
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
 			e.DataAdapter.Fill(_dsReport, "Results");
-			ProfileHelper.End();
 		}
 
 		public override DataTable GetReportTable()
@@ -650,7 +630,7 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 			return _dsReport.Tables["Results"].DefaultView.ToTable();
 		}
 
-		protected void FormatExcel(string FileName)
+		protected override void FormatExcel(string FileName)
 		{
 			MSExcel.Application exApp = new MSExcel.ApplicationClass();
 			try {

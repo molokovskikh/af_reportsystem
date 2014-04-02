@@ -92,11 +92,7 @@ namespace ReportSystem.Test
 
 		protected void BuildReport(string file = null, Type reportType = null, bool checkEmptyData = false)
 		{
-			Conn = (MySqlConnection)session.Connection;
-			session.Flush();
-			session.Transaction.Commit();
-			if (reportType != null && report == null)
-				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
+			ProcessReport(reportType, checkEmptyData);
 
 			if (file == null)
 				file = "test.xls";
@@ -104,12 +100,22 @@ namespace ReportSystem.Test
 			if (File.Exists(file))
 				File.Delete(file);
 			ProfileHelper.Start();
+			report.ReportToFile(Path.GetFullPath(file));
+			ProfileHelper.Stop();
+		}
+
+		public void ProcessReport(Type reportType = null, bool checkEmptyData = false)
+		{
+			Conn = (MySqlConnection)session.Connection;
+			session.Flush();
+			session.Transaction.Commit();
+			if (reportType != null && report == null)
+				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
+
 			report.Session = session;
 			report.CheckEmptyData = checkEmptyData;
 			report.ReadReportParams();
 			report.ProcessReport();
-			report.ReportToFile(Path.GetFullPath(file));
-			ProfileHelper.Stop();
 		}
 
 		public void AddProperty(DataSet properties, string name, object value)
