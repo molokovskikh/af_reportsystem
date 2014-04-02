@@ -342,7 +342,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 					new MySqlParameter("?SourcePC", _priceCode)));
 #if !DEBUG
 			if (actualPrice == 0)
-				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, _priceCode));
+				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", customerFirmName, _priceCode));
 #endif
 			if(_byWeightCosts) {
 				ProcessWeigth(e);
