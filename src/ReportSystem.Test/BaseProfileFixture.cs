@@ -32,6 +32,8 @@ namespace ReportSystem.Test
 		[SetUp]
 		public void Start()
 		{
+			report = null;
+			_fileName = null;
 			i = 1;
 			ProfileHelper.Start();
 			properties = new DataSet();
