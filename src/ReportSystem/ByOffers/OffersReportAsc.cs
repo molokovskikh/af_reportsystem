@@ -176,6 +176,17 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			Transform();
 		}
 
+		protected override void InvokeGetActivePrices()
+		{
+			base.InvokeGetActivePrices();
+
+			args.DataAdapter.SelectCommand.CommandText = @"delete ap
+from Usersettings.ActivePrices ap
+	join Customers.Suppliers s on s.Id = ap.FirmCode
+where s.Name like '%катрен%'";
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+		}
+
 		protected void GetSourceCodes(ExecuteArgs e)
 		{
 			var enabledPrice = Convert.ToInt32(
