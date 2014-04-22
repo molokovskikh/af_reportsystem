@@ -202,6 +202,17 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 			_dsReport.Tables.Add(dtNewRes);
 		}
 
+		protected override void InvokeGetActivePrices()
+		{
+			base.InvokeGetActivePrices();
+
+			args.DataAdapter.SelectCommand.CommandText = @"delete ap
+from Usersettings.ActivePrices ap
+	join Customers.Suppliers s on s.Id = ap.FirmCode
+where s.Name like '%катрен%'";
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+		}
+
 		protected void GetOffersByClient(int clientId)
 		{
 			ProfileHelper.Next("GetOffers for client: " + clientId);
