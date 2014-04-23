@@ -147,7 +147,7 @@ namespace Inforoom.ReportSystem
 
 
 		//Получили список действующих прайс-листов для интересующего клиента
-		protected virtual void InvokeGetActivePrices()
+		protected void InvokeGetActivePrices()
 		{
 			ExecuteArgs e = args;
 			//удаление временных таблиц
