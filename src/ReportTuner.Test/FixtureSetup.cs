@@ -54,6 +54,7 @@ namespace ReportTuner.Test
 		public void TeardownFixture()
 		{
 			_webServer.ShutDown();
+			WatinFixture2.GlobalCleanup();
 		}
 	}
 }
