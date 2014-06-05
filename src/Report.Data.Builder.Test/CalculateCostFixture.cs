@@ -42,7 +42,6 @@ namespace Report.Data.Builder.Test
 		[Test]
 		public void Calculate_average_costs()
 		{
-			BasicConfigurator.Configure();
 			var result = calculator.Calculate(calculator.Offers(ratings, 2));
 			Assert.That(result.Count, Is.GreaterThan(0));
 		}
