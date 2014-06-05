@@ -9,6 +9,7 @@ namespace Report.Data.Builder.Test
 		[SetUp]
 		public void Setup()
 		{
+			global::Test.Support.Setup.Initialize();
 			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
 		}
 	}

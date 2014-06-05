@@ -2,12 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Common.Tools;
+using log4net.Config;
 using NUnit.Framework;
+using Test.Support;
+using Test.Support.Suppliers;
 
 namespace Report.Data.Builder.Test
 {
 	[TestFixture]
-	public class CalculateCostFixture
+	public class CalculateCostFixture : IntegrationFixture
 	{
 		private CostCalculator calculator;
 		private ClientRating[] ratings;
@@ -15,6 +19,18 @@ namespace Report.Data.Builder.Test
 		[SetUp]
 		public void Setup()
 		{
+			var supplier = TestSupplier.CreateNaked(session);
+			supplier.CreateSampleCore(session);
+			supplier.Prices[0].Core.Where(c => c.Producer != null)
+				.Each(c => TestAssortment.CheckAndCreate(session, c.Product, c.Producer));
+			var client = TestClient.CreateNaked(session);
+			var order = new TestOrder(client.Users[0], supplier.Prices[0]);
+			order.Processed = false;
+			order.WriteTime = DateTime.Today.AddDays(-1);
+			order.AddItem(supplier.Prices[0].Core[0], 1);
+			session.Save(order);
+			session.Transaction.Commit();
+
 			calculator = new CostCalculator();
 
 			ratings = RatingCalculator
@@ -26,6 +42,7 @@ namespace Report.Data.Builder.Test
 		[Test]
 		public void Calculate_average_costs()
 		{
+			BasicConfigurator.Configure();
 			var result = calculator.Calculate(calculator.Offers(ratings, 2));
 			Assert.That(result.Count, Is.GreaterThan(0));
 		}

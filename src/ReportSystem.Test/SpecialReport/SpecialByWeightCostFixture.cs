@@ -66,11 +66,12 @@ namespace ReportSystem.Test.SpecialReport
 
 			var offer = supplier.Prices[0].Core[0];
 			var product = offer.Product;
-			session.CreateSQLQuery("insert into Reports.AverageCosts(Date, SupplierId, RegionId, ProductId, ProducerId, Cost, Quantity) values (:date, :supplierId, :regionId, :productId, null, 100, 1);")
+			session.CreateSQLQuery("insert into Reports.AverageCosts(Date, SupplierId, RegionId, ProductId, ProducerId, Cost, Quantity) values (:date, :supplierId, :regionId, :productId, producerId, 100, 1);")
 				.SetParameter("supplierId", supplier.Id)
 				.SetParameter("regionId", supplier.HomeRegion.Id)
 				.SetParameter("date", dateTime)
 				.SetParameter("productId", product.Id)
+				.SetParameter("producerId", offer.Producer.Id)
 				.ExecuteUpdate();
 
 			var fileName = "temp.xls";

@@ -36,10 +36,9 @@ namespace ReportSystem.Test.MatrixReport
 
 			var client = TestClient.CreateNaked();
 
-			var core = new TestCore() {
+			var core = new TestCore(price.AddProductSynonym(product.FullName, product)) {
 				Price = price,
 				Producer = producer,
-				Product = product,
 				Quantity = "2",
 				Code = "2",
 				Period = ""
