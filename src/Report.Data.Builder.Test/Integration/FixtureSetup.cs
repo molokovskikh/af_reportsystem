@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
@@ -6,7 +7,7 @@ using Common.Web.Ui.Models.Jobs;
 using NHibernate.Cfg;
 using NUnit.Framework;
 
-namespace Report.Data.Builder.Test.ActiveRecord
+namespace Report.Data.Builder.Test.Integration
 {
 	[SetUpFixture]
 	public class FixtureSetup
@@ -14,6 +15,8 @@ namespace Report.Data.Builder.Test.ActiveRecord
 		[SetUp]
 		public void Setup()
 		{
+			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
+
 			var config = new InPlaceConfigurationSource();
 			config.PluralizeTableNames = true;
 			config.Add(typeof(ActiveRecordBase),
@@ -27,7 +30,7 @@ namespace Report.Data.Builder.Test.ActiveRecord
 					{ Environment.FormatSql, "true" },
 					{ Environment.UseSqlComments, "true" }
 				});
-			ActiveRecordStarter.Initialize(new[] { typeof(Job).Assembly }, config);
+			ActiveRecordStarter.Initialize(new[] { typeof(Job).Assembly, Assembly.Load("Test.Support") }, config);
 		}
 	}
 }

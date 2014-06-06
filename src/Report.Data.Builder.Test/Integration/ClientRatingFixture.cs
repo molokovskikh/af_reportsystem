@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Policy;
 using Common.Tools.Calendar;
 using NUnit.Framework;
 
-namespace Report.Data.Builder.Test
+namespace Report.Data.Builder.Test.Integration
 {
 	[TestFixture]
 	public class ClientRatingFixture

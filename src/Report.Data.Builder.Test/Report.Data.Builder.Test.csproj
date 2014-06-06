@@ -52,13 +52,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveRecord\FixtureSetup.cs" />
-    <Compile Include="ActiveRecord\JobFixture.cs" />
-    <Compile Include="CalculateCostFixture.cs" />
-    <Compile Include="FixtureSetup.cs" />
-    <Compile Include="JobFixture.cs" />
-    <Compile Include="ActiveRecord\JobRunnerFixture.cs" />
-    <Compile Include="ClientRatingFixture.cs" />
+    <Compile Include="Integration\FixtureSetup.cs" />
+    <Compile Include="Integration\JobFixture.cs" />
+    <Compile Include="Integration\CalculateCostFixture.cs" />
+    <Compile Include="Unit\JobFixture.cs" />
+    <Compile Include="Integration\JobRunnerFixture.cs" />
+    <Compile Include="Integration\ClientRatingFixture.cs" />
     <Compile Include="Unit\CalculateCostFixture.cs" />
   </ItemGroup>
   <ItemGroup>

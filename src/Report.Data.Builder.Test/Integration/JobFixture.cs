@@ -4,7 +4,7 @@ using Common.Web.Ui.Models.Jobs;
 using NUnit.Framework;
 using Test.Support;
 
-namespace Report.Data.Builder.Test.ActiveRecord
+namespace Report.Data.Builder.Test.Integration
 {
 	[TestFixture]
 	public class JobFixture : IntegrationFixture

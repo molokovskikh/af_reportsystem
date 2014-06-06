@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Common.Tools.Calendar;
 using Common.Web.Ui.Models.Jobs;
 using NUnit.Framework;
 
-namespace Report.Data.Builder.Test
+namespace Report.Data.Builder.Test.Unit
 {
 	[TestFixture]
 	public class JobFixture

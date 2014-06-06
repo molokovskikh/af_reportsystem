@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Common.Tools;
-using log4net.Config;
 using NUnit.Framework;
 using Test.Support;
 using Test.Support.Suppliers;
 
-namespace Report.Data.Builder.Test
+namespace Report.Data.Builder.Test.Integration
 {
 	[TestFixture]
 	public class CalculateCostFixture : IntegrationFixture

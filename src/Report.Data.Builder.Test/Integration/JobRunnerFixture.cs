@@ -7,9 +7,8 @@ using NHibernate.Linq;
 using NUnit.Framework;
 using Rhino.Mocks;
 using Test.Support;
-using Test.Support.log4net;
 
-namespace Report.Data.Builder.Test.ActiveRecord
+namespace Report.Data.Builder.Test.Integration
 {
 	[TestFixture]
 	public class JobRunnerFixture : IntegrationFixture
