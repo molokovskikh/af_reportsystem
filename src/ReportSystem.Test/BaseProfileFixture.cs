@@ -195,7 +195,7 @@ namespace ReportSystem.Test
 				writer.Write("|");
 				for(var j = row.FirstCellNum; j < row.LastCellNum; j++) {
 					var cell = row.GetCell(j);
-					if (cell.CellType == CellType.NUMERIC) {
+					if (cell.CellType == CellType.Numeric) {
 						writer.Write(cell.NumericCellValue);
 					}
 					else {
