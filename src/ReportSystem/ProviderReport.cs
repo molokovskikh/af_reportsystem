@@ -149,7 +149,7 @@ namespace Inforoom.ReportSystem
 		//Получили список действующих прайс-листов для интересующего клиента
 		protected void InvokeGetActivePrices()
 		{
-			ExecuteArgs e = args;
+			var e = args;
 			//удаление временных таблиц
 			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
@@ -159,11 +159,11 @@ namespace Inforoom.ReportSystem
 
 			GetBareActivePrices();
 
+			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			List<ulong> allowedFirms = null;
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
 				allowedFirms = (List<ulong>)_reportParams["FirmCodeEqual"];
 			if (allowedFirms != null && allowedFirms.Count > 0) {
-				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode not in ({0})", allowedFirms.Implode());
 				e.DataAdapter.SelectCommand.ExecuteNonQuery();
 			}
@@ -171,7 +171,6 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("IgnoredSuppliers")) {
 				var suppliers = (List<ulong>)_reportParams["IgnoredSuppliers"];
 				if (suppliers != null && suppliers.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode in ({0})", suppliers.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
@@ -180,7 +179,6 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("PriceCodeValues")) {
 				var PriceCodeValues = (List<ulong>)_reportParams["PriceCodeValues"];
 				if (PriceCodeValues != null && PriceCodeValues.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
@@ -189,7 +187,6 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("PriceCodeEqual")) {
 				var PriceCodeValues = (List<ulong>)_reportParams["PriceCodeEqual"];
 				if (PriceCodeValues != null && PriceCodeValues.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
@@ -198,7 +195,6 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey("PriceCodeNonValues")) {
 				var PriceCodeNonValues = (List<ulong>)_reportParams["PriceCodeNonValues"];
 				if (PriceCodeNonValues != null && PriceCodeNonValues.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode in ({0})", PriceCodeNonValues.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
@@ -208,25 +204,25 @@ namespace Inforoom.ReportSystem
 			if (!_byBaseCosts && _reportParams.ContainsKey("RegionClientEqual")) {
 				var RegionClientEqual = (List<ulong>)_reportParams["RegionClientEqual"];
 				if (RegionClientEqual != null && RegionClientEqual.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where RegionCode not in ({0})", RegionClientEqual.Implode());
 					e.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
 			//Добавляем в таблицу ActivePrices поле FirmName и заполняем его также, как раньше для отчетов
-			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-
 			e.DataAdapter.SelectCommand.CommandText = @"
+delete ap from ActivePrices ap
+	join Usersettings.PricesData pd on pd.PriceCode = ap.PriceCode
+where pd.IsLocal = 1;
+
 alter table ActivePrices add column FirmName varchar(100);
 update
-  ActivePrices, Customers.suppliers, farm.regions
+	ActivePrices, Customers.suppliers, farm.regions
 set
-  FirmName = concat(suppliers.Name, '(', ActivePrices.PriceName, ') - ', regions.Region)
+	FirmName = concat(suppliers.Name, '(', ActivePrices.PriceName, ') - ', regions.Region)
 where
 	activeprices.FirmCode = suppliers.Id
 and regions.RegionCode = activeprices.RegionCode";
-
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 
