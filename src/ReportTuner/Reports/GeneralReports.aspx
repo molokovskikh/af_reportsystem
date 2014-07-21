@@ -2,43 +2,43 @@
 
 <asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 	<div align="center">
-		<strong style="font-size:small;">Настройка отчетов</strong><br/><br/>
+		<strong style="font-size:small;">РќР°СЃС‚СЂРѕР№РєР° РѕС‚С‡РµС‚РѕРІ</strong><br/><br/>
 		<asp:Label ID="lblMessage" runat="server" Text="" /><br/><br/>
-		<asp:Label ID="lblFilter" runat="server" Text="Фильтр:" />
-		<asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin" 
-			ontextchanged="btnFilter_Click" ToolTip="e-mail адреса можно задавать через запятую"/>
-		<asp:Button ID="btnFilter" runat="server" Text="Фильтровать" 
+		<asp:Label ID="lblFilter" runat="server" Text="Р¤РёР»СЊС‚СЂ:" />
+		<asp:TextBox ID="tbFilter" runat="server" SkinID="paramTextBoxSkin"
+			ontextchanged="btnFilter_Click" ToolTip="e-mail Р°РґСЂРµСЃР° РјРѕР¶РЅРѕ Р·Р°РґР°РІР°С‚СЊ С‡РµСЂРµР· Р·Р°РїСЏС‚СѓСЋ"/>
+		<asp:Button ID="btnFilter" runat="server" Text="Р¤РёР»СЊС‚СЂРѕРІР°С‚СЊ"
 			onclick="btnFilter_Click" />
 			<br/><br/>
 		<br/>
 		<asp:GridView ID="dgvReports" runat="server" AutoGenerateColumns="False"  CssClass="DocumentDataTable HighLightCurrentRow"
-			OnRowCommand="dgvReports_RowCommand" OnRowDeleting="dgvReports_RowDeleting" 
-			OnRowDataBound="dgvReports_RowDataBound" style="table-layout:fixed;" 
-			AllowSorting="true" onrowcreated="dgvReports_RowCreated" 
-			onsorting="dgvReports_Sorting" DataKeyNames="GeneralReportCode">	
+			OnRowCommand="dgvReports_RowCommand" OnRowDeleting="dgvReports_RowDeleting"
+			OnRowDataBound="dgvReports_RowDataBound" style="table-layout:fixed;"
+			AllowSorting="true" onrowcreated="dgvReports_RowCreated"
+			onsorting="dgvReports_Sorting" DataKeyNames="GeneralReportCode">
 			<Columns>
-				<asp:BoundField DataField="GeneralReportCode" HeaderText="Код" 
+				<asp:BoundField DataField="GeneralReportCode" HeaderText="РљРѕРґ"
 					ItemStyle-Width="3%" HeaderStyle-Width="3%" SortExpression="GeneralReportCode">
 <HeaderStyle Width="3%"></HeaderStyle>
 
 <ItemStyle Width="3%"></ItemStyle>
 				</asp:BoundField>
-				
-				<asp:TemplateField HeaderText="Биллинг код"  SortExpression="PayerID" HeaderStyle-Width="5%">
+
+				<asp:TemplateField HeaderText="Р‘РёР»Р»РёРЅРі РєРѕРґ"  SortExpression="PayerID" HeaderStyle-Width="5%">
 					<ItemTemplate>
 						<a href='<%# String.Format("http://stat.analit.net/adm/Billing/edit.rails?BillingCode={0}", DataBinder.Eval(Container.DataItem, "PayerID")) %>'> <%# DataBinder.Eval(Container.DataItem, "PayerID") %></a>
 					</ItemTemplate>
 				</asp:TemplateField>
-				
-				<asp:TemplateField HeaderText="Плательщик" ItemStyle-Width="10%" HeaderStyle-Width="10%" ItemStyle-Wrap="true" SortExpression="PayerShortName">
+
+				<asp:TemplateField HeaderText="РџР»Р°С‚РµР»СЊС‰РёРє" ItemStyle-Width="10%" HeaderStyle-Width="10%" ItemStyle-Wrap="true" SortExpression="PayerShortName">
 					<ItemTemplate>
 						<asp:Label ID="lblFirmName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PayerShortName") %>'/>
-						<asp:LinkButton ID="linkEdit" runat="server" Visible="true" Style="float: right;" 
+						<asp:LinkButton ID="linkEdit" runat="server" Visible="true" Style="float: right;"
 							CommandName="editPayer" CommandArgument='<%# DataBinder.Eval(Container, "DataItem.GeneralReportCode") %>'>
-							<asp:Image ID="imgEdit" runat="server" AlternateText="Редактировать плательщика" ImageUrl="~/Assets/Images/edit.png" />
+							<asp:Image ID="imgEdit" runat="server" AlternateText="Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РїР»Р°С‚РµР»СЊС‰РёРєР°" ImageUrl="~/Assets/Images/edit.png" />
 						</asp:LinkButton>
 						<asp:TextBox ID="tbSearch" runat="server" Width="79px" Visible="False"/>
-						<asp:Button ID="btnSearch" runat="server" Text="Найти" OnClick="btnSearch_Click" Visible="False" />
+						<asp:Button ID="btnSearch" runat="server" Text="РќР°Р№С‚Рё" OnClick="btnSearch_Click" Visible="False" />
 						<asp:DropDownList ID="ddlNames" runat="server" Visible="False">
 						</asp:DropDownList>
 					</ItemTemplate>
@@ -47,7 +47,7 @@
 
 <ItemStyle Wrap="True" Width="10%"></ItemStyle>
 				</asp:TemplateField>
-				<asp:TemplateField HeaderText="Включен" ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="Allow">
+				<asp:TemplateField HeaderText="Р’РєР»СЋС‡РµРЅ" ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="Allow">
 					<ItemTemplate>
 						<asp:CheckBox ID="chbAllow" runat="server" Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Allow")) %>' />
 					</ItemTemplate>
@@ -57,7 +57,7 @@
 <ItemStyle Width="5%"></ItemStyle>
 				</asp:TemplateField>
 
-				<asp:TemplateField HeaderText="Публичный" ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="Allow">
+				<asp:TemplateField HeaderText="РџСѓР±Р»РёС‡РЅС‹Р№" ItemStyle-Width="5%" HeaderStyle-Width="5%" SortExpression="Allow">
 					<ItemTemplate>
 						<asp:CheckBox ID="chbPublic" runat="server" Visible='<%# DataBinder.Eval(Container.DataItem, "PayerID") != DBNull.Value && Convert.ToInt32(DataBinder.Eval(Container.DataItem, "PayerID")) == 921 %>' Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Public")) %>' />
 					</ItemTemplate>
@@ -67,7 +67,7 @@
 <ItemStyle Width="5%"></ItemStyle>
 				</asp:TemplateField>
 
-				<asp:TemplateField HeaderText="Примечание" SortExpression="Comment" ItemStyle-Width="45%" HeaderStyle-Width="45%">
+				<asp:TemplateField HeaderText="РџСЂРёРјРµС‡Р°РЅРёРµ" SortExpression="Comment" ItemStyle-Width="45%" HeaderStyle-Width="45%">
 					<ItemTemplate>
 						<asp:TextBox ID="tbComment" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.Comment") %>'></asp:TextBox><br/>
 					</ItemTemplate>
@@ -76,25 +76,25 @@
 
 <ItemStyle Width="45%"></ItemStyle>
 				</asp:TemplateField>
-				<asp:HyperLinkField HeaderText="Рассылки" Text="..." 
-					DataNavigateUrlFields="GeneralReportCode" 
-					DataNavigateUrlFormatString="Contacts.aspx?GeneralReport={0}" 
+				<asp:HyperLinkField HeaderText="Р Р°СЃСЃС‹Р»РєРё" Text="..."
+					DataNavigateUrlFields="GeneralReportCode"
+					DataNavigateUrlFormatString="Contacts.aspx?GeneralReport={0}"
 					ItemStyle-Width="5%" HeaderStyle-Width="5%">
 <HeaderStyle Width="5%"></HeaderStyle>
 
 <ItemStyle Width="5%"></ItemStyle>
 				</asp:HyperLinkField>
-				<asp:HyperLinkField HeaderText="Отчеты" Text="..." 
-					DataNavigateUrlFields="GeneralReportCode" 
-					DataNavigateUrlFormatString="Reports.aspx?r={0}" ItemStyle-Width="5%" 
+				<asp:HyperLinkField HeaderText="РћС‚С‡РµС‚С‹" Text="..."
+					DataNavigateUrlFields="GeneralReportCode"
+					DataNavigateUrlFormatString="Reports.aspx?r={0}" ItemStyle-Width="5%"
 					HeaderStyle-Width="5%">
 <HeaderStyle Width="5%"></HeaderStyle>
 
 <ItemStyle Width="5%"></ItemStyle>
 				</asp:HyperLinkField>
-				<asp:HyperLinkField HeaderText="Расписание" Text="..."
-					DataNavigateUrlFields="GeneralReportCode"                     
-					DataNavigateUrlFormatString="Schedule.aspx?r={0}" ItemStyle-Width="6%" 
+				<asp:HyperLinkField HeaderText="Р Р°СЃРїРёСЃР°РЅРёРµ" Text="..."
+					DataNavigateUrlFields="GeneralReportCode"
+					DataNavigateUrlFormatString="Schedule.aspx?r={0}" ItemStyle-Width="6%"
 					HeaderStyle-Width="6%">
 <HeaderStyle Width="6%"></HeaderStyle>
 
@@ -102,11 +102,11 @@
 				</asp:HyperLinkField>
 				<asp:TemplateField ItemStyle-Width="7%" HeaderStyle-Width="7%">
 					<HeaderTemplate>
-						<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
+						<asp:Button ID="btnAdd" runat="server" Text="Р”РѕР±Р°РІРёС‚СЊ" CommandName="Add" />
 					</HeaderTemplate>
 					<ItemTemplate>
-						<asp:Button ID="btApplyCopy" runat="server" Text="Применить" OnClick="btnApply_Click" Visible="false"/>
-						<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
+						<asp:Button ID="btApplyCopy" runat="server" Text="РџСЂРёРјРµРЅРёС‚СЊ" OnClick="btnApply_Click" Visible="false"/>
+						<asp:Button ID="btnDelete" runat="server" Text="РЈРґР°Р»РёС‚СЊ" CommandName="Delete" />
 					</ItemTemplate>
 
 <HeaderStyle Width="7%"></HeaderStyle>
@@ -115,10 +115,10 @@
 				</asp:TemplateField>
 			</Columns>
 			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить отчет"/>
+				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Р”РѕР±Р°РІРёС‚СЊ РѕС‚С‡РµС‚"/>
 			</EmptyDataTemplate>
 		</asp:GridView>
 		<a name="addedPage"></a>
-		<asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" />
+		<asp:Button ID="btnApply" runat="server" Text="РџСЂРёРјРµРЅРёС‚СЊ" OnClick="btnApply_Click" />
 	</div>
 </asp:Content>

@@ -2,24 +2,24 @@
 
 <asp:Content runat="server" ID="ReportTypePropertiesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>
-            <strong style="font-size:small;">Настройка параметров отчета&nbsp;"<asp:Label ID="lblReportName" runat="server" Font-Bold="True"></asp:Label>"</strong><br />
+            <strong style="font-size:small;">РќР°СЃС‚СЂРѕР№РєР° РїР°СЂР°РјРµС‚СЂРѕРІ РѕС‚С‡РµС‚Р°&nbsp;"<asp:Label ID="lblReportName" runat="server" Font-Bold="True"></asp:Label>"</strong><br />
             <asp:GridView ID="dgvProperties" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvProperties_RowCommand" OnRowDataBound="dgvProperties_RowDataBound" OnRowDeleting="dgvProperties_RowDeleting">
                 <Columns>
                     <asp:BoundField DataField="PID" Visible="False" />
                     <asp:BoundField DataField="PRTCode" Visible="False" />
-                    <asp:TemplateField HeaderText="Наименование">
+                    <asp:TemplateField HeaderText="РќР°РёРјРµРЅРѕРІР°РЅРёРµ">
                         <ItemTemplate>
                             <asp:Label ID="lblName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PName") %>'></asp:Label><asp:TextBox ID="tbName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PName") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rtbName" runat="server" ControlToValidate="tbName"
-                                ErrorMessage='Поле "Наименование" должно быть заполнено' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
+                                ErrorMessage='РџРѕР»Рµ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
-                    <asp:TemplateField HeaderText="Отображаемое наименование">
+                    <asp:TemplateField HeaderText="РћС‚РѕР±СЂР°Р¶Р°РµРјРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ">
                         <ItemTemplate>
                             <asp:Label ID="lblDisplayName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PDisplayName") %>'></asp:Label><asp:TextBox ID="tbDisplayName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PDisplayName") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rtbDisplayName" runat="server" ControlToValidate="tbDisplayName"
-                                ErrorMessage='Поле "Отображаемое наименование" должно быть заполнено' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
+                                ErrorMessage='РџРѕР»Рµ "РћС‚РѕР±СЂР°Р¶Р°РµРјРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
-                    <asp:TemplateField HeaderText="Тип">
+                    <asp:TemplateField HeaderText="РўРёРї">
                         <ItemTemplate>
                             <asp:Label ID="lblType" runat="server" Text="Label"></asp:Label><asp:DropDownList ID="ddlType" runat="server" AutoPostBack="True" OnSelectedIndexChanged="ddlType_SelectedIndexChanged">
                             </asp:DropDownList><asp:DropDownList ID="ddlEnum" runat="server">
@@ -27,38 +27,38 @@
                                 Text=">>" Width="22px" />
                         </ItemTemplate>
                     </asp:TemplateField>
-                    <asp:TemplateField HeaderText="Значение по умолчанию">
+                    <asp:TemplateField HeaderText="Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ">
                         <ItemTemplate>
                             <asp:TextBox ID="tbDefault" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PDefaultValue") %>'></asp:TextBox><asp:RequiredFieldValidator
-                                ID="rfvDefault" runat="server" ControlToValidate="tbDefault" ErrorMessage='Поле "Значение по умолчанию" должно быть заполнено' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
+                                ID="rfvDefault" runat="server" ControlToValidate="tbDefault" ErrorMessage='РџРѕР»Рµ "Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgReport">*</asp:RequiredFieldValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
                     <asp:BoundField DataField="PEnumID" Visible="False" />
-                    <asp:TemplateField HeaderText="Опциональный">
+                    <asp:TemplateField HeaderText="РћРїС†РёРѕРЅР°Р»СЊРЅС‹Р№">
                         <ItemTemplate>
                             <asp:Label ID="lblOptional" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.POptional") %>'></asp:Label><asp:CheckBox ID="chbOptional" runat="server" Checked=<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.POptional")) %> />
                         </ItemTemplate>
                     </asp:TemplateField>
-                    <asp:TemplateField HeaderText="Хранимая процедура">
+                    <asp:TemplateField HeaderText="РҐСЂР°РЅРёРјР°СЏ РїСЂРѕС†РµРґСѓСЂР°">
                         <ItemTemplate>
                             <asp:TextBox ID="tbProc" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.PStoredProc") %>'></asp:TextBox><asp:CustomValidator
-                                ID="cvProc" runat="server" ControlToValidate="tbProc" ErrorMessage="Процедуры с указанным именем не существует"
+                                ID="cvProc" runat="server" ControlToValidate="tbProc" ErrorMessage="РџСЂРѕС†РµРґСѓСЂС‹ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"
                                 OnServerValidate="cvProc_ServerValidate">*</asp:CustomValidator>
                         </ItemTemplate>
                     </asp:TemplateField>
                 <asp:TemplateField>
 				<HeaderTemplate>
-					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
+					<asp:Button ID="btnAdd" runat="server" Text="Р”РѕР±Р°РІРёС‚СЊ" CommandName="Add" />
 				</HeaderTemplate>
 				<ItemTemplate>
-					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
+					<asp:Button ID="btnDelete" runat="server" Text="РЈРґР°Р»РёС‚СЊ" CommandName="Delete" />
 				</ItemTemplate>
                 </asp:TemplateField>
             </Columns>
 			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить параметр" />
+				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Р”РѕР±Р°РІРёС‚СЊ РїР°СЂР°РјРµС‚СЂ" />
 			</EmptyDataTemplate>
             </asp:GridView>
-            <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgReport" />
+            <asp:Button ID="btnApply" runat="server" Text="РџСЂРёРјРµРЅРёС‚СЊ" OnClick="btnApply_Click" ValidationGroup="vgReport" />
     </div>
 </asp:Content>

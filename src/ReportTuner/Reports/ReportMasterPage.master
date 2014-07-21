@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-	<title>Настройка отчетов</title>
-	<script type="text/javascript" src="../Assets/Javascripts/jquery-1.6.4.min.js"></script>
-	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-1.10.3.min.js"></script>
+	<title>РќР°СЃС‚СЂРѕР№РєР° РѕС‚С‡РµС‚РѕРІ</title>
+	<script type="text/javascript" src="../Assets/Javascripts/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-1.10.4.min.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-i18n.min.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/jquery.validate.min.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/localization/messages_ru.js"></script>

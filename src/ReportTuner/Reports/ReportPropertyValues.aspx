@@ -2,37 +2,37 @@
 
 <asp:Content runat="server" ID="ReportPropertyValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align="center">
-            <strong style="font-size:small;">Редактирование значений списка "<asp:Label ID="lblListName" runat="server" Text="Label"/>" отчета "<asp:Label ID="lblReportCaption" runat="server" Text="Label"/>" типа отчета "<asp:Label ID="lblReportType" runat="server" Text="Label"/>"</strong><br/>
+            <strong style="font-size:small;">Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р·РЅР°С‡РµРЅРёР№ СЃРїРёСЃРєР° "<asp:Label ID="lblListName" runat="server" Text="Label"/>" РѕС‚С‡РµС‚Р° "<asp:Label ID="lblReportCaption" runat="server" Text="Label"/>" С‚РёРїР° РѕС‚С‡РµС‚Р° "<asp:Label ID="lblReportType" runat="server" Text="Label"/>"</strong><br/>
         <asp:TextBox ID="tbSearch" runat="server" OnTextChanged="tbSearch_TextChanged"></asp:TextBox>
-        <asp:Button ID="btnSearch" runat="server" OnClick="btnSearch_Click" Text="Найти" /><br />
+        <asp:Button ID="btnSearch" runat="server" OnClick="btnSearch_Click" Text="РќР°Р№С‚Рё" /><br />
         &nbsp; &nbsp;&nbsp;
-        <asp:Label ID="Label1" runat="server" Text="На странице:"></asp:Label><asp:DropDownList
+        <asp:Label ID="Label1" runat="server" Text="РќР° СЃС‚СЂР°РЅРёС†Рµ:"></asp:Label><asp:DropDownList
             ID="ddlPages" runat="server" AutoPostBack="True" OnSelectedIndexChanged="ddlPages_SelectedIndexChanged">
             <asp:ListItem>10</asp:ListItem>
             <asp:ListItem>20</asp:ListItem>
             <asp:ListItem>50</asp:ListItem>
             <asp:ListItem>100</asp:ListItem>
         </asp:DropDownList>
-        <asp:CheckBox ID="chbShowEnabled" runat="server" AutoPostBack="True" Text="Только включенные" OnCheckedChanged="chbShowEnabled_CheckedChanged" /><br />
+        <asp:CheckBox ID="chbShowEnabled" runat="server" AutoPostBack="True" Text="РўРѕР»СЊРєРѕ РІРєР»СЋС‡РµРЅРЅС‹Рµ" OnCheckedChanged="chbShowEnabled_CheckedChanged" /><br />
 		<div style="width: 600px;" align="right">
-        <asp:GridView ID="dgvListValues" runat="server" AutoGenerateColumns="False" 
-				AllowPaging="True" OnPageIndexChanging="dgvListValues_PageIndexChanging" 
+        <asp:GridView ID="dgvListValues" runat="server" AutoGenerateColumns="False"
+				AllowPaging="True" OnPageIndexChanging="dgvListValues_PageIndexChanging"
 				OnDataBound="dgvListValues_DataBound" ViewStateMode="Enabled">
             <Columns>
-                <asp:TemplateField HeaderText="Включено" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right">
+                <asp:TemplateField HeaderText="Р’РєР»СЋС‡РµРЅРѕ" ItemStyle-HorizontalAlign="Right" HeaderStyle-HorizontalAlign="Right">
                     <HeaderTemplate>
-                        <asp:CheckBox ID="cbSet" runat="server" Text="Все включено" AutoPostBack="True" OnCheckedChanged="cbSet_CheckedChanged" TextAlign="Left" />
+                        <asp:CheckBox ID="cbSet" runat="server" Text="Р’СЃРµ РІРєР»СЋС‡РµРЅРѕ" AutoPostBack="True" OnCheckedChanged="cbSet_CheckedChanged" TextAlign="Left" />
                     </HeaderTemplate>
                     <ItemTemplate>
                         <asp:CheckBox ID="chbEnabled" runat="server" Checked='<%# Convert.ToBoolean(DataBinder.Eval(Container, "DataItem.Enabled")) %>'/>
                         <input type="hidden" runat="server" id="RowID" value='<%# DataBinder.Eval(Container, "DataItem.ID") %>' />
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:BoundField HeaderText="Значение" DataField="DisplayValue" ItemStyle-HorizontalAlign="Left" />
+                <asp:BoundField HeaderText="Р—РЅР°С‡РµРЅРёРµ" DataField="DisplayValue" ItemStyle-HorizontalAlign="Left" />
             </Columns>
-        </asp:GridView> 
-		</div>   
-        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" 
+        </asp:GridView>
+		</div>
+        <asp:Button ID="btnApply" runat="server" Text="РџСЂРёРјРµРЅРёС‚СЊ" OnClick="btnApply_Click"
 				style="height: 26px" />&nbsp;
     </div>
 </asp:Content>

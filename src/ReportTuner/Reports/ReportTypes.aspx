@@ -2,49 +2,49 @@
 
 <asp:Content runat="server" ID="ReportTypesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>
-        <strong style="font-size:small;">Типы отчетов&nbsp;</strong><br/>
+        <strong style="font-size:small;">РўРёРїС‹ РѕС‚С‡РµС‚РѕРІ&nbsp;</strong><br/>
         <asp:GridView ID="dgvReportTypes" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvReportTypes_RowCommand" OnRowDeleting="dgvReportTypes_RowDeleting" OnRowDataBound="dgvReportTypes_RowDataBound">
             <Columns>
-                <asp:BoundField DataField="RTCode" HeaderText="Код" Visible="False" />
-                <asp:TemplateField HeaderText="Наименование отчета">
+                <asp:BoundField DataField="RTCode" HeaderText="РљРѕРґ" Visible="False" />
+                <asp:TemplateField HeaderText="РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕС‚С‡РµС‚Р°">
                     <ItemTemplate>
                         <asp:TextBox ID="tbName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RTName") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvName" runat="server" ControlToValidate="tbName"
-                            ErrorMessage='Поле "Наименование отчета" должно быть заполнено' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
+                            ErrorMessage='РџРѕР»Рµ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕС‚С‡РµС‚Р°" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:TemplateField HeaderText="Префикс файла">
+                <asp:TemplateField HeaderText="РџСЂРµС„РёРєСЃ С„Р°Р№Р»Р°">
                     <ItemTemplate>
                         <asp:TextBox ID="tbPrefix" runat="server" Width="79px" Text='<%# DataBinder.Eval(Container, "DataItem.RTPrefix") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvPrefix" runat="server" ControlToValidate="tbPrefix"
-                            ErrorMessage='Поле "Префикс файла" должно быть заполнено' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
+                            ErrorMessage='РџРѕР»Рµ "РџСЂРµС„РёРєСЃ С„Р°Р№Р»Р°" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:TemplateField HeaderText="Альтернативная тема письма">
+                <asp:TemplateField HeaderText="РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅР°СЏ С‚РµРјР° РїРёСЃСЊРјР°">
                     <ItemTemplate>
                         <asp:TextBox ID="tbSubject" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RTSubject") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvSubject" runat="server" ControlToValidate="tbSubject"
-                            ErrorMessage='Поле "Альтернативная тема письма" должно быть заполнено' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
+                            ErrorMessage='РџРѕР»Рµ "РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅР°СЏ С‚РµРјР° РїРёСЃСЊРјР°" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:TemplateField HeaderText="C# класс">
+                <asp:TemplateField HeaderText="C# РєР»Р°СЃСЃ">
                     <ItemTemplate>
                         <asp:TextBox ID="tbClass" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.RTClass") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvClass" runat="server" ControlToValidate="tbClass"
-                            ErrorMessage='Поле "C# класс" должно быть заполнено' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
+                            ErrorMessage='РџРѕР»Рµ "C# РєР»Р°СЃСЃ" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgRepType">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
                 <asp:HyperLinkField DataNavigateUrlFields="RTCode" DataNavigateUrlFormatString="ReportTypeProperties.aspx?rtc={0}"
-                    HeaderText="Параметры" Text="..." />
+                    HeaderText="РџР°СЂР°РјРµС‚СЂС‹" Text="..." />
                 <asp:TemplateField>
 				<HeaderTemplate>
-					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
+					<asp:Button ID="btnAdd" runat="server" Text="Р”РѕР±Р°РІРёС‚СЊ" CommandName="Add" />
 				</HeaderTemplate>
 				<ItemTemplate>
-					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
+					<asp:Button ID="btnDelete" runat="server" Text="РЈРґР°Р»РёС‚СЊ" CommandName="Delete" />
 				</ItemTemplate>
                 </asp:TemplateField>
             </Columns>
 			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить тип отчета" />
+				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Р”РѕР±Р°РІРёС‚СЊ С‚РёРї РѕС‚С‡РµС‚Р°" />
 			</EmptyDataTemplate>
         </asp:GridView>
-        <asp:Button ID="btnApply" runat="server" OnClick="btnApply_Click" Text="Применить" ValidationGroup="vgRepType" />
+        <asp:Button ID="btnApply" runat="server" OnClick="btnApply_Click" Text="РџСЂРёРјРµРЅРёС‚СЊ" ValidationGroup="vgRepType" />
     </div>
 </asp:Content>

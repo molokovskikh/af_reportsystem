@@ -2,30 +2,30 @@
 
 <asp:Content runat="server" ID="ReportPropertyEnumsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>
-            <strong style="font-size:small;">Список типов</strong><br/>
+            <strong style="font-size:small;">РЎРїРёСЃРѕРє С‚РёРїРѕРІ</strong><br/>
         <asp:GridView ID="dgvEnums" runat="server" AutoGenerateColumns="False" OnRowCommand="dgvEnums_RowCommand" OnRowDeleting="dgvEnums_RowDeleting" OnRowDataBound="dgvEnums_RowDataBound">
             <Columns>
-                <asp:BoundField DataField="eID" HeaderText="Код" Visible="False" />
-                <asp:TemplateField HeaderText="Наименование">
+                <asp:BoundField DataField="eID" HeaderText="РљРѕРґ" Visible="False" />
+                <asp:TemplateField HeaderText="РќР°РёРјРµРЅРѕРІР°РЅРёРµ">
                     <ItemTemplate>
                         <asp:TextBox ID="tbEnumName" runat="server" Text='<%# DataBinder.Eval(Container, "DataItem.eName") %>'></asp:TextBox><asp:RequiredFieldValidator ID="rfvEnumName" runat="server" ControlToValidate="tbEnumName"
-                            ErrorMessage='Поле "Наименование" должно быть заполнено' ValidationGroup="vgTypes">*</asp:RequiredFieldValidator>
+                            ErrorMessage='РџРѕР»Рµ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ" РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅРѕ' ValidationGroup="vgTypes">*</asp:RequiredFieldValidator>
                     </ItemTemplate>
                 </asp:TemplateField>
-                <asp:HyperLinkField HeaderText="Список значений" Text="..." DataNavigateUrlFields="eID" DataNavigateUrlFormatString="EnumValues.aspx?e={0}" />
+                <asp:HyperLinkField HeaderText="РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№" Text="..." DataNavigateUrlFields="eID" DataNavigateUrlFormatString="EnumValues.aspx?e={0}" />
                 <asp:TemplateField>
 				<HeaderTemplate>
-					<asp:Button ID="btnAdd" runat="server" Text="Добавить" CommandName="Add" />
+					<asp:Button ID="btnAdd" runat="server" Text="Р”РѕР±Р°РІРёС‚СЊ" CommandName="Add" />
 				</HeaderTemplate>
 				<ItemTemplate>
-					<asp:Button ID="btnDelete" runat="server" Text="Удалить" CommandName="Delete" />
+					<asp:Button ID="btnDelete" runat="server" Text="РЈРґР°Р»РёС‚СЊ" CommandName="Delete" />
 				</ItemTemplate>
                 </asp:TemplateField>
             </Columns>
   			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить тип" />
+				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Р”РѕР±Р°РІРёС‚СЊ С‚РёРї" />
 			</EmptyDataTemplate>
         </asp:GridView>
-        <asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgTypes" />
+        <asp:Button ID="btnApply" runat="server" Text="РџСЂРёРјРµРЅРёС‚СЊ" OnClick="btnApply_Click" ValidationGroup="vgTypes" />
     </div>
 </asp:Content>

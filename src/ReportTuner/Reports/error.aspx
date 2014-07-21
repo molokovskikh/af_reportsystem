@@ -4,19 +4,19 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
-    <title>Ошибка в интерфейсе настройки отчетов</title>
+    <title>РћС€РёР±РєР° РІ РёРЅС‚РµСЂС„РµР№СЃРµ РЅР°СЃС‚СЂРѕР№РєРё РѕС‚С‡РµС‚РѕРІ</title>
     <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
 </head>
 <body bgcolor="#ffffff">
     <form id="Form1" method="post" runat="server">
 		<div style="width:100%; text-align:center;">
 			<h3 style="color: red">
-			Ошибка в интерфейсе настройки отчетов
+			РћС€РёР±РєР° РІ РёРЅС‚РµСЂС„РµР№СЃРµ РЅР°СЃС‚СЂРѕР№РєРё РѕС‚С‡РµС‚РѕРІ
 			</h3>
 			<p>
-			Сообщение об ошибке было отправленно разработчикам. Повторите ваши действия.
+			РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ Р±С‹Р»Рѕ РѕС‚РїСЂР°РІР»РµРЅРЅРѕ СЂР°Р·СЂР°Р±РѕС‚С‡РёРєР°Рј. РџРѕРІС‚РѕСЂРёС‚Рµ РІР°С€Рё РґРµР№СЃС‚РІРёСЏ.
 			</p>
-			<asp:Button ID="BackButton" runat="server" Text="Вернуться на страницу" OnClick="BackButton_Click" />
+			<asp:Button ID="BackButton" runat="server" Text="Р’РµСЂРЅСѓС‚СЊСЃСЏ РЅР° СЃС‚СЂР°РЅРёС†Сѓ" OnClick="BackButton_Click" />
         </div>
     </form>
 </body>
