@@ -189,6 +189,10 @@ limit 1);
 
 call Customers.GetPrices(@UserId);
 
+delete p from Usersettings.Prices p
+	join Usersettings.PricesData pd on pd.PriceCode = p.PriceCode
+where pd.IsLocal = 1;
+
 select c0.ProductId, c0.CodeFirmCr, p.RegionCode, p.FirmCode, {0} as Cost, c0.Quantity, c0.Junk, c0.Id as CoreId, c0.Code, c0.CodeCr, c0.PriceCode
 from Usersettings.Prices p
 	join farm.core0 c0 on c0.PriceCode = p.PriceCode

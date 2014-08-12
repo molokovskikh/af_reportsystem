@@ -13,11 +13,12 @@ namespace Report.Data.Builder.Test.Integration
 	{
 		private CostCalculator calculator;
 		private ClientRating[] ratings;
+		private TestSupplier supplier;
 
 		[SetUp]
 		public void Setup()
 		{
-			var supplier = TestSupplier.CreateNaked(session);
+			supplier = TestSupplier.CreateNaked(session);
 			supplier.CreateSampleCore(session);
 			supplier.Prices[0].Core.Where(c => c.Producer != null)
 				.Each(c => TestAssortment.CheckAndCreate(session, c.Product, c.Producer));
@@ -27,6 +28,7 @@ namespace Report.Data.Builder.Test.Integration
 			order.WriteTime = DateTime.Today.AddDays(-1);
 			order.AddItem(supplier.Prices[0].Core[0], 1);
 			session.Save(order);
+			supplier.Maintain();
 			session.Transaction.Commit();
 
 			calculator = new CostCalculator();
@@ -78,6 +80,17 @@ namespace Report.Data.Builder.Test.Integration
 			var clientId = ratings.First().ClientId;
 			var offers = calculator.GetOffers(clientId);
 			Assert.That(offers.Length, Is.GreaterThan(0));
+		}
+
+		[Test]
+		public void Remove_local_prices()
+		{
+			supplier.Prices[0].IsLocal = true;
+			session.Save(supplier.Prices[0]);
+			session.Flush();
+			var clientId = ratings.First().ClientId;
+			var offers = calculator.GetOffers(clientId);
+			Assert.AreEqual(0, offers.Count(o => o.PriceId == supplier.Prices[0].Id));
 		}
 	}
 }
