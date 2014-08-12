@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_ReportTypeProperties" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="ReportTypeProperties.aspx.cs" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_ReportTypeProperties" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="ReportTypeProperties.aspx.cs" %>
 
 <asp:Content runat="server" ID="ReportTypePropertiesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>

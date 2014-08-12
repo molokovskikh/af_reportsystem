@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_GeneralReports" Theme="MainWithHighLight" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="GeneralReports.aspx.cs" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_GeneralReports" Theme="MainWithHighLight" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="GeneralReports.aspx.cs" %>
 
 <asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 	<div align="center">

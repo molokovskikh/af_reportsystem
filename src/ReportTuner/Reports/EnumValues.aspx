@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_EnumValues" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="EnumValues.aspx.cs" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_EnumValues" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="EnumValues.aspx.cs" %>
 
 <asp:Content runat="server" ID="ReportEnumValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>
