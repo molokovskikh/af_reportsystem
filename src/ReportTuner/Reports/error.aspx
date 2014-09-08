@@ -5,7 +5,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
     <title>Ошибка в интерфейсе настройки отчетов</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
 </head>
 <body bgcolor="#ffffff">
     <form id="Form1" method="post" runat="server">
