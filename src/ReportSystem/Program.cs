@@ -10,6 +10,7 @@ using Common.MySql;
 using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
+using Common.Web.Ui.Models;
 using Common.Web.Ui.NHibernateExtentions;
 using ExecuteTemplate;
 using Inforoom.Common;
@@ -56,8 +57,10 @@ namespace Inforoom.ReportSystem
 				ConnectionHelper.DefaultConnectionStringName = "Default";
 				With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
 				if (!ActiveRecordStarter.IsInitialized) {
-					ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(), typeof(ReportExecuteLog).Assembly);
+					ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(),
+						typeof(ReportExecuteLog).Assembly, typeof(ContactGroup).Assembly);
 
+					HbmSerializer.Default.HbmAutoImport = false;
 					foreach (var cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
 						cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 					}

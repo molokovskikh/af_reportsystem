@@ -4,7 +4,7 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
-using Inforoom.ReportSystem.Model;
+using Common.Web.Ui.Models;
 using NHibernate.Cfg;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
@@ -24,13 +24,13 @@ namespace ReportSystem.Test
 			ConnectionString = ConnectionHelper.GetConnectionString();
 
 			var nhibernateParams = new Dictionary<string, string> {
-				{ NHibernate.Cfg.Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },
-				{ NHibernate.Cfg.Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
-				{ NHibernate.Cfg.Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
-				{ NHibernate.Cfg.Environment.ConnectionStringName, ConnectionStringName },
-				{ NHibernate.Cfg.Environment.Hbm2ddlKeyWords, "none" },
-				{ NHibernate.Cfg.Environment.FormatSql, "true" },
-				{ NHibernate.Cfg.Environment.UseSqlComments, "true" }
+				{ Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },
+				{ Environment.ConnectionDriver, "NHibernate.Driver.MySqlDataDriver" },
+				{ Environment.ConnectionProvider, "NHibernate.Connection.DriverConnectionProvider" },
+				{ Environment.ConnectionStringName, ConnectionStringName },
+				{ Environment.Hbm2ddlKeyWords, "none" },
+				{ Environment.FormatSql, "true" },
+				{ Environment.UseSqlComments, "true" }
 			};
 
 			if (!ActiveRecordStarter.IsInitialized) {
@@ -38,9 +38,15 @@ namespace ReportSystem.Test
 				config.PluralizeTableNames = true;
 				config.Add(typeof(ActiveRecordBase), nhibernateParams);
 
-				ActiveRecordStarter.Initialize(new[] { typeof(Region).Assembly, Assembly.Load("Test.Support") }, config);
+				ActiveRecordStarter.Initialize(new[] {
+						Assembly.Load("ReportSystem"),
+						typeof(ContactGroup).Assembly,
+						Assembly.Load("Test.Support")
+					},
+					config);
 
-				foreach (Configuration cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
+				HbmSerializer.Default.HbmAutoImport = false;
+				foreach (var cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
 					cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 				}
 			}

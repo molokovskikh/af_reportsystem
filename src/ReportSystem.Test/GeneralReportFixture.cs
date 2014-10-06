@@ -65,11 +65,8 @@ namespace ReportSystem.Test
 			report = new GeneralReport();
 			report.Id = 1;
 
-			var contacts = new DataTable();
-			contacts.Columns.Add("Contact");
-			contacts.Rows.Add("kvasovtest@analit.net");
 			report.EMailSubject = "test";
-			report.Contacts = contacts;
+			report.Contacts = new[] { "kvasovtest@analit.net" };
 			report.Testing = true;
 		}
 

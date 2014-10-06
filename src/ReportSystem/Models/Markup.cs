@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Castle.ActiveRecord;
+using Common.Web.Ui.Models;
 
 namespace Inforoom.ReportSystem.Model
 {

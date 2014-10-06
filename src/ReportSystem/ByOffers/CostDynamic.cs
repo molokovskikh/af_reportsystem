@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using Common.MySql;
 using Common.Tools.Calendar;
+using Common.Web.Ui.Models;
 using ExecuteTemplate;
 using Common.Tools;
 using Inforoom.ReportSystem.Model;

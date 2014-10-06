@@ -3,6 +3,7 @@ using System.Data;
 using System.Linq;
 using Castle.ActiveRecord;
 using Common.Web.Ui.ActiveRecordExtentions;
+using Common.Web.Ui.Models;
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem.Model;
 using log4net;
@@ -19,6 +20,8 @@ namespace Inforoom.ReportSystem
 	[ActiveRecord("general_reports", Schema = "reports")]
 	public class GeneralReport
 	{
+		public string[] Contacts = new string[0];
+
 		private string _directoryName;
 		private string _mainFileName;
 
@@ -35,8 +38,6 @@ namespace Inforoom.ReportSystem
 		public IDictionary<string, string> FilesForReport;
 
 		//таблица контактов, по которым надо отправить отчет
-		public DataTable Contacts;
-
 		public List<BaseReport> Reports = new List<BaseReport>();
 
 		public GeneralReport() // конструктор для возможности тестирования
@@ -75,8 +76,11 @@ namespace Inforoom.ReportSystem
 		[Property(ColumnType = "NHibernate.Type.EnumStringType`1[[Inforoom.ReportSystem.ReportFormats, ReportSystem]], NHibernate")]
 		public virtual ReportFormats Format { get; set; }
 
-		[Property]
-		public virtual uint? ContactGroupId { get; set; }
+		[BelongsTo("ContactGroupId")]
+		public virtual ContactGroup ContactGroup { get; set; }
+
+		[BelongsTo("PublicSubscriptionsId")]
+		public virtual ContactGroup PublicSubscriptions { get; set; }
 
 		// Проверка списка отчетов
 		private void CheckReports()
@@ -103,35 +107,20 @@ namespace Inforoom.ReportSystem
 
 			FilesForReport = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, Connection);
 
-			if (!interval)
-				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
-					args.DataAdapter.SelectCommand.CommandText = @"
-select lower(c.contactText)
-from
-  contacts.contact_groups cg
-  join contacts.contacts c on cg.Id = c.ContactOwnerId
-where
-	cg.Id = ?ContactGroupId
-and cg.Type = ?ContactGroupType
-and c.Type = ?ContactType
-union
-select lower(c.contactText)
-from
-  contacts.contact_groups cg
-  join contacts.persons p on cg.id = p.ContactGroupId
-  join contacts.contacts c on p.Id = c.ContactOwnerId
-where
-	cg.Id = ?ContactGroupId
-and cg.Type = ?ContactGroupType
-and c.Type = ?ContactType";
-					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupId", ContactGroupId);
-					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactGroupType", 6);
-					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ContactType", 0);
-					DataTable res = new DataTable();
-					args.DataAdapter.Fill(res);
-					return res;
-				},
-					null, Connection);
+			if (!interval) {
+				if (ContactGroup != null) {
+					Contacts = Contacts.Concat(ContactGroup.Contacts
+						.Concat(ContactGroup.Persons.SelectMany(p => p.Contacts))
+						.Where(c => c.Type == ContactType.Email).Select(c => c.ContactText))
+						.ToArray();
+				}
+				if (PublicSubscriptions != null) {
+					Contacts = Contacts.Concat(PublicSubscriptions.Contacts
+						.Concat(ContactGroup.Persons.SelectMany(p => p.Contacts))
+						.Where(c => c.Type == ContactType.Email).Select(c => c.ContactText))
+						.ToArray();
+				}
+			}
 			else {
 				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
 					args.DataAdapter.SelectCommand.CommandText = @"
@@ -141,7 +130,7 @@ where GeneralReport = ?GeneralReport;";
 					var res = new DataTable();
 					args.DataAdapter.Fill(res);
 					return res;
-				}, null, Connection);
+				}, null, Connection).AsEnumerable().Select(r => r[0].ToString()).ToArray();
 			}
 			if ((_reports != null) && (_reports.Rows.Count > 0)) {
 				CheckReports(); // Проверяем отчеты, если что-то не нравится выдаем исключение
@@ -196,7 +185,7 @@ where GeneralReport = ?GeneralReport;";
 
 		public void SendReport(string[] files, ReportExecuteLog log)
 		{
-			var mails = Contacts.AsEnumerable().Select(r => r[0].ToString()).ToArray();
+			var mails = Contacts;
 #if TESTING
 			mails = new[] { Settings.Default.ErrorReportMail };
 #endif
