@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_PropertyEnums" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="PropertyEnums.aspx.cs" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_PropertyEnums" Theme="Main" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="PropertyEnums.aspx.cs" %>
 
 <asp:Content runat="server" ID="ReportPropertyEnumsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
     <div align=center>
