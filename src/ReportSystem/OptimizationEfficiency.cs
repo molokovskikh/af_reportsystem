@@ -50,11 +50,11 @@ where s.Id=?supplier;";
 		public static string GetCostOptimizationConcurents(ExecuteArgs e, int supplierId)
 		{
 			var command = e.DataAdapter.SelectCommand;
-			command.CommandText = @"select Name from
+			command.CommandText = @"select s.Name from
 usersettings.costoptimizationrules cr
 join userSettings.CostOptimizationConcurrents cc on cr.Id=cc.RuleId
 join customers.Suppliers s on s.Id=cc.SupplierId
-where cr.SupplierId=?supplier order by Name;";
+where cr.SupplierId=?supplier order by s.Name;";
 			command.Parameters.Clear();
 			command.Parameters.AddWithValue("?supplier", supplierId);
 			var suppliers = new List<string>();
