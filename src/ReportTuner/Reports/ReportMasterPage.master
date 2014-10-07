@@ -6,14 +6,14 @@
 <head runat="server">
 	<title>Настройка отчетов</title>
 	<script type="text/javascript" src="../Assets/Javascripts/jquery-2.1.0.min.js"></script>
-	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-1.10.4.min.js"></script>
+	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui.min-1.11.1.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/jquery-ui-i18n.min.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/jquery.validate.min.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/localization/messages_ru.js"></script>
 	<script type="text/javascript" src="../Assets/Javascripts/Application.js"></script>
 
 	<link href="../Assets/Stylesheets/Main.css" rel="Stylesheet" />
-	<link href="../Assets/Stylesheets/themes/base/jquery.ui.all.css" rel="Stylesheet" />
+	<link href="../Assets/Stylesheets/themes/base/all.css" rel="Stylesheet" />
 	<script>
 		$(function () {
 			if ($.datepicker)
