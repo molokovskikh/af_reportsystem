@@ -1,4 +1,4 @@
-﻿<div> <a href="../../Reports/base.aspx">Настройка отчетов</a></div> <br />
+﻿<div> <a href="${siteroot}/Reports/base.aspx">Настройка отчетов</a></div> <br />
 <form action="SaveFilesForReportType" method=post enctype="multipart/form-data">
 	<table class="HighLightCurrentRow DocumentDataTable BorderRow">
 		<thead>
