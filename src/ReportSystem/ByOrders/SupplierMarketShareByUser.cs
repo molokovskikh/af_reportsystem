@@ -91,7 +91,8 @@ namespace Inforoom.ReportSystem.ByOrders
 				new[] {
 					new Column("Empty", string.Empty, "''", false),
 					new Column("ClientName", "Клиент", "c.Name"),
-					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))")
+					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))"),
+					new Column("SuppliersCount", "Кол-во поставщиков", "''")
 				}),
 			new Grouping("oh.AddressId",
 				new[] {
@@ -99,12 +100,14 @@ namespace Inforoom.ReportSystem.ByOrders
 from reports.TempIntersection TI
 where oh.AddressId = TI.AddressId)", false),
 					new Column("ClientName", "Клиент", "c.Name"),
-					new Column("AddressName", "Адрес", "a.Address")
+					new Column("AddressName", "Адрес", "a.Address"),
+					new Column("SuppliersCount", "Кол-во поставщиков", "''")
 				}),
 			new Grouping("oh.ClientCode",
 				new[] {
 					new Column("Empty", string.Empty, "''", false),
 					new Column("ClientName", "Клиент", "c.Name"),
+					new Column("SuppliersCount", "Кол-во поставщиков", "''")
 				}),
 			new Grouping("a.LegalEntityId",
 				new[] {
@@ -216,14 +219,41 @@ group by i.LegalEntityId, i.SupplierClientId";
 				connection.Execute(supplierDeliveryIdSql, new { supplierId = _supplierId });
 			}
 
+			var userIds = connection.Read<uint>(String.Format(@"
+select oh.UserId
+from Orders.OrdersHead oh
+where oh.WriteTime > ?begin
+	and oh.WriteTime < ?end
+	and oh.RegionCode in ({0})
+group by oh.UserId", _regions.Implode()), new { begin = _period.Begin, end = _period.End })
+				.ToArray();
+
+			connection.Execute(@"
+create temporary table Reports.UserPricesStat(
+	UserId int unsigned not null,
+	Count int unsigned not null,
+	primary key (UserId)
+) engine=memory;");
+			foreach (var userId in userIds) {
+				connection.Execute(@"
+call Customers.GetActivePrices(?userId);
+insert into Reports.UserPricesStat(UserId, Count)
+select ?userId, count(*)
+from Usersettings.ActivePrices;
+drop temporary table IF EXISTS Usersettings.ActivePrices;", new { userId });
+			}
+
+			connection.Fill("select * from Reports.UserPricesStat").WriteXml(Console.Out);
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select {2},
-sum(ol.Cost * ol.Quantity) as TotalSum,
-sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
+	sum(ol.Cost * ol.Quantity) as TotalSum,
+	sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum,
+	group_concat(us.Count) as SuppliersCount
 from Orders.OrdersHead oh
 	join Orders.OrdersList ol on ol.OrderId = oh.RowId
 	join Customers.Clients c on c.Id = oh.ClientCode
 		join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
+			join Reports.UserPricesStat us on us.UserId = u.Id
 	join Customers.Addresses a on a.Id = oh.AddressId
 		join Billing.LegalEntities le on le.Id = a.LegalEntityId
 	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
@@ -247,7 +277,10 @@ order by {3}", _regions.Implode(), _grouping.Group,
 #endif
 			e.DataAdapter.Fill(_dsReport, "data");
 
-			connection.Execute("drop temporary table if exists reports.TempIntersection");
+			connection.Execute(@"
+drop temporary table if exists reports.TempIntersection;
+drop temporary table if exists reports.UserPricesStat;
+");
 
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");
@@ -257,6 +290,7 @@ order by {3}", _regions.Implode(), _grouping.Group,
 			}
 			result.Columns.Add("Share", typeof(string));
 			result.Columns.Add("SupplierSum", typeof(string));
+			result.Columns.Add("SuppliersCount", typeof(string));
 
 			var supplier = Session.Get<Supplier>(_supplierId);
 			var regions = _regions
@@ -271,9 +305,11 @@ order by {3}", _regions.Implode(), _grouping.Group,
 
 			result.Columns["SupplierSum"].Caption = string.Format("Сумма по '{0}'", supplier.Name);
 			result.Columns["Share"].Caption = string.Format("Доля '{0}', %", supplier.Name);
+			result.Columns["SuppliersCount"].Caption = "Кол-во поставщиков";
 			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
 				SetTotalSum(row, resultRow);
+				resultRow["SuppliersCount"] = row["SuppliersCount"];
 				foreach (var column in _grouping.Columns) {
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];

@@ -4,8 +4,10 @@ using System.Data;
 using System.Linq;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
+using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using NHibernate.Linq;
+using NPOI.SS.UserModel;
 using NUnit.Framework;
 using Test.Support;
 using Test.Support.Suppliers;
@@ -82,6 +84,10 @@ namespace ReportSystem.Test
 			var report = ReadReport<SupplierMarketShareByUser>();
 			var result = ToText(report);
 			Assert.That(result, Is.StringContaining(intersection.SupplierClientId));
+			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
+			var reportRow = report.GetRowEnumerator().Cast<IRow>()
+				.First(r => r.GetCell(0).StringCellValue == intersection.SupplierClientId);
+			Assert.That(Convert.ToUInt32(reportRow.GetCell(4).StringCellValue), Is.GreaterThan(0));
 		}
 
 		[Test]
