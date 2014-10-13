@@ -92,7 +92,6 @@ namespace Inforoom.ReportSystem.ByOrders
 					new Column("Empty", string.Empty, "''", false),
 					new Column("ClientName", "Клиент", "c.Name"),
 					new Column("UserName", "Пользователь", "ifnull(u.Name, CAST(u.Id AS CHAR))"),
-					new Column("SuppliersCount", "Кол-во поставщиков", "''")
 				}),
 			new Grouping("oh.AddressId",
 				new[] {
@@ -101,13 +100,11 @@ from reports.TempIntersection TI
 where oh.AddressId = TI.AddressId)", false),
 					new Column("ClientName", "Клиент", "c.Name"),
 					new Column("AddressName", "Адрес", "a.Address"),
-					new Column("SuppliersCount", "Кол-во поставщиков", "''")
 				}),
 			new Grouping("oh.ClientCode",
 				new[] {
 					new Column("Empty", string.Empty, "''", false),
 					new Column("ClientName", "Клиент", "c.Name"),
-					new Column("SuppliersCount", "Кол-во поставщиков", "''")
 				}),
 			new Grouping("a.LegalEntityId",
 				new[] {
