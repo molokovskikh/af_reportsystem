@@ -85,6 +85,7 @@ namespace ReportSystem.Test
 			var result = ToText(report);
 			Assert.That(result, Is.StringContaining(intersection.SupplierClientId));
 			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
+			//проверяем что в колонке Кол-во поставщиков есть данные
 			var reportRow = report.GetRowEnumerator().Cast<IRow>()
 				.First(r => r.GetCell(0).StringCellValue == intersection.SupplierClientId);
 			Assert.That(Convert.ToUInt32(reportRow.GetCell(4).StringCellValue), Is.GreaterThan(0));

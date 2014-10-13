@@ -243,7 +243,6 @@ from Usersettings.ActivePrices;
 drop temporary table IF EXISTS Usersettings.ActivePrices;", new { userId });
 			}
 
-			connection.Fill("select * from Reports.UserPricesStat").WriteXml(Console.Out);
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select {2},
 	sum(ol.Cost * ol.Quantity) as TotalSum,
