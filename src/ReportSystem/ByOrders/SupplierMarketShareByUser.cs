@@ -244,7 +244,7 @@ drop temporary table IF EXISTS Usersettings.ActivePrices;", new { userId });
 select {2},
 	sum(ol.Cost * ol.Quantity) as TotalSum,
 	sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum,
-	group_concat(distinct us.UserId, us.Count) as SuppliersCount
+	group_concat(distinct us.Count) as SuppliersCount
 from Orders.OrdersHead oh
 	join Orders.OrdersList ol on ol.OrderId = oh.RowId
 	join Customers.Clients c on c.Id = oh.ClientCode
