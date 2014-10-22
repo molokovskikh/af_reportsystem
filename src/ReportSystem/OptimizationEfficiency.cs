@@ -94,17 +94,19 @@ from " +
 	join logs.CostOptimizationLogs col on
 		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and ol.Cost = col.ResultCost and
 		(col.ClientId = ?clientId or ?clientId = 0) and col.SupplierId = pd.FirmCode and oh.UserId = col.UserId
-and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where SupplierId = ?supplierId and oh.UserId = UserId and LoggedOn < oh.writetime)
+		and col.LoggedOn in (select max(LoggedOn) from logs.CostOptimizationLogs where SupplierId = ?supplierId and oh.UserId = UserId and LoggedOn < oh.writetime)
 	join farm.Synonym s on s.SynonymCode = ol.SynonymCode
 	join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
-	join usersettings.CostOptimizationClients coc on coc.ClientId = oh.ClientCode
-	join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
 	left join Customers.Users u on u.Id = oh.UserId
 	left join Customers.Clients fc on fc.Id = u.ClientId
 	left join Customers.Clients cl on cl.Id = oh.ClientCode
-left join Customers.Addresses adr on adr.Id = oh.AddressId
-where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 and pd.IsLocal = 0
-	and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)";
+	left join Customers.Addresses adr on adr.Id = oh.AddressId
+where (oh.clientcode = ?clientId or ?clientId = 0)
+	and pd.FirmCode = ?supplierId
+	and ol.Junk = 0
+	and pd.IsLocal = 0
+	and Date(oh.writetime) >= Date(?beginDate)
+	and Date(oh.writetime) <= Date(?endDate)";
 #if DEBUG
 			command.CommandText += @"
 group by ol.RowId
@@ -113,10 +115,6 @@ order by oh.writetime, ol.RowId;";
 			command.CommandText += @"
 			group by ol.OrderId, ol.ProductId, ol.CodeFirmCr
 			order by oh.writetime, ol.OrderId, ol.ProductId, ol.CodeFirmCr";
-#endif
-
-#if DEBUG
-			Debug.WriteLine(command.CommandText);
 #endif
 
 			_endDate = DateTime.Today;
@@ -137,26 +135,11 @@ order by oh.writetime, ol.RowId;";
 			command.Parameters.AddWithValue("?endDate", _endDate);
 			command.Parameters.AddWithValue("?clientId", _clientId);
 			command.Parameters.AddWithValue("?supplierId", _supplierId);
-			command.ExecuteNonQuery();
+#if DEBUG
+			ProfileHelper.WriteLine(command);
+#endif
 
-			/*		command.CommandText =  На случай показа позиций заказанных у других поставщиков
-@"select oh.writetime, ol.Code, ol.CodeCr, s.Synonym, sfc.Synonym as Firm, ol.Quantity, ol.Cost, col.ResultCost OurFirmCost,
-	ol.Cost * ol.Quantity LostSumm
-from orders.ordershead oh
-  join orders.orderslist ol on ol.orderid = oh.rowid
-  join usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
-  left join usersettings.includeregulation ir on ir.IncludeClientCode = oh.clientcode
-  join logs.CostOptimizationLogs col on
-		oh.writetime > col.LoggedOn and col.ProductId = ol.ProductId and col.ResultCost < col.SelfCost and
-		(col.ClientId = ?clientId or ?clientId = 0 or col.ClientId = ir.PrimaryClientCode) and col.ProducerId = ol.CodeFirmCr
-  join farm.Synonym s on s.SynonymCode = ol.SynonymCode
-  join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
-  join usersettings.CostOptimizationClients cl on cl.ClientId = oh.ClientCode
-where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode <> ?supplierId and ol.Junk = 0
-  and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate)
-group by ol.RowId
-order by oh.writetime, ol.RowId;";
-			e.DataAdapter.Fill(_dsReport, "LostOrders");*/
+			command.ExecuteNonQuery();
 
 			command.CommandText =
 				@"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ
@@ -193,10 +176,16 @@ where (oh.clientcode = ?clientId or ?clientId = 0) and ol.Junk = 0
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
 			e.DataAdapter.Fill(_dsReport, "CommonConcurents");
 
-			command.CommandText =
-				@"select Count, round(100 * DiffSumm/SelfSumm, 2) Summ from
-(select count(*) Count, ifnull(round(sum(absDiff * Quantity), 2), 0) DiffSumm, ifnull(round(sum(SelfCost * Quantity), 2), 1) SelfSumm from CostOptimization
-where diff > 0) t;";
+			command.CommandText = @"
+select Count,
+	round(100 * DiffSumm/SelfSumm, 2) Summ
+from (
+	select count(*) Count,
+		ifnull(round(sum(absDiff * Quantity), 2), 0) DiffSumm,
+		ifnull(round(sum(SelfCost * Quantity), 2), 1) SelfSumm
+	from CostOptimization
+	where diff > 0
+) t;";
 			e.DataAdapter.Fill(_dsReport, "OverPrice");
 
 			command.CommandText =

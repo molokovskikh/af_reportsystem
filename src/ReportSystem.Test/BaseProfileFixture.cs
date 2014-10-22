@@ -192,6 +192,8 @@ namespace ReportSystem.Test
 			var writer = new StringWriter();
 			for(var i = sheet.FirstRowNum; i <= sheet.LastRowNum; i++) {
 				var row = sheet.GetRow(i);
+				if (row == null)
+					continue;
 				writer.Write("|");
 				for(var j = row.FirstCellNum; j < row.LastCellNum; j++) {
 					var cell = row.GetCell(j);
