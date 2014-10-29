@@ -1,0 +1,51 @@
+﻿.header {
+    text-align: center;
+}
+.reportsList {
+    text-align: center;
+    margin-top: 10px;
+}
+.reportsList table {
+    margin: 0 auto;
+    width: 100%;
+    border-collapse: collapse;
+}
+.reportsList table thead {
+    background-color: lightgray;
+}
+.reportsList table td {
+    border: 1px solid darkgrey;
+}
+.selectGroup {
+    margin-top: 10px;
+    width: 500px;
+    background-color: darkgrey;
+    padding: 5px;
+}
+.selectGroup input[type='submit']{
+    width: 120px
+}
+.selectGroup input[type='text']{
+    width: 372px
+}
+.selectGroup select{
+    width: 375px
+}
+.contactGroup {
+    margin: 10px auto;
+}
+.contactGroup table {
+    width: 500px;
+    border-collapse: collapse;
+    padding: 5px;
+}
+.contactGroup table thead {
+    background-color: lightgray;
+}
+.contactGroup table td {
+    border: 1px solid darkgrey;
+}
+.edit {
+    margin-top: 10px;
+    text-align: center;
+}

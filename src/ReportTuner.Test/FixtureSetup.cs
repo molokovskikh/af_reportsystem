@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +8,7 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
 using Common.Schedule;
+using Common.Web.Ui.Models;
 using NUnit.Framework;
 using CassiniDev;
 using ReportTuner.Helpers;
@@ -25,6 +27,16 @@ namespace ReportTuner.Test
 		[SetUp]
 		public void SetupFixture()
 		{
+			var holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			var session = holder.CreateSession(typeof(ActiveRecordBase));
+			var ownerId = uint.Parse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"]);
+			if (session.Get<ContactGroupOwner>(ownerId) == null) {
+				session.CreateSQLQuery(String
+					.Format("Insert into contacts.contact_group_owners (Id) VALUES({0})", ownerId)).UniqueResult();
+			}
+			holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			holder.ReleaseSession(session);
+
 			var connectionStringName = ConnectionHelper.GetConnectionName();
 			ConnectionString = ConnectionHelper.GetConnectionString();
 			if (!ActiveRecordStarter.IsInitialized) {
