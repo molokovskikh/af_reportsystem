@@ -144,6 +144,15 @@ namespace Inforoom.ReportSystem
 				"Следующие адреса доставки исключены из отчета") {
 					whereList = "and ad.ClientId = cl.Id"
 				});
+			registredField.Add(new FilterField {
+				primaryField = "ol.Code",
+				viewField = "ol.Code as SupplierProductCode",
+				outputField = "SupplierProductCode",
+				reportPropertyPreffix = "SupplierProductCode",
+				outputCaption = "Оригинальный код товара",
+				equalValuesCaption = "В отчет включены следующие оригинальные коды",
+				nonEqualValuesCaption = "Следующие оригинальные коды исключены из отчета"
+			});
 		}
 
 		public override void ReadReportParams()

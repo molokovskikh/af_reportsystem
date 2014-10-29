@@ -71,12 +71,15 @@ namespace ReportTuner.Models
 		{
 			get
 			{
-				if (ReportClassName == "Inforoom.ReportSystem.ByOrders.OrdersStatistics")
-					return new[] {
-						"Region" + FilterField.NonEqualSuffix,
-						"Region" + FilterField.EqualSuffix,
-					};
-				return Enumerable.Empty<string>();
+				var result = new List<string>();
+				if (ReportClassName == "Inforoom.ReportSystem.ByOrders.OrdersStatistics") {
+					result.Add("Region" + FilterField.NonEqualSuffix);
+					result.Add("Region" + FilterField.EqualSuffix);
+				}
+
+				//оригинальный код товара поддерживает только выборку, фильтрация не реализована
+				result.Add("SupplierProductCodePosition");
+				return result;
 			}
 		}
 

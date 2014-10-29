@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Data;
 using System.Collections.Generic;
+using Common.Tools;
 
 namespace Inforoom.ReportSystem.Filters
 {
@@ -49,6 +50,10 @@ namespace Inforoom.ReportSystem.Filters
 		public bool Nullable;
 
 
+		public FilterField()
+		{
+		}
+
 		public FilterField(string PrimaryField, string ViewField, string OutputField, string Preffix, string OutputCaption, string TableList, int DefaultPosition, string EqualValuesCaption, string NonEqualValuesCaption) :
 			this(PrimaryField, ViewField, OutputField, Preffix, OutputCaption, TableList, DefaultPosition, EqualValuesCaption, NonEqualValuesCaption, null)
 		{
@@ -95,31 +100,22 @@ namespace Inforoom.ReportSystem.Filters
 			return fieldIsSelected;
 		}
 
-		private string GetAllValues(List<ulong> ValuesList)
-		{
-			string Res = "( " + ValuesList[0].ToString();
-			for (int i = 1; i < ValuesList.Count; i++)
-				Res = String.Concat(Res, ", ", ValuesList[i].ToString());
-			Res = String.Concat(Res, ")");
-			return Res;
-		}
-
 		public string GetNamesSql(List<ulong> ids)
 		{
-			return String.Format("select {0} from {1} where ({2} in {3}) {4} order by {5}",
-				viewField, tableList, primaryField, GetAllValues(ids), whereList, outputField);
+			return String.Format("select {0} from {1} where ({2} in ({3})) {4} order by {5}",
+				viewField, tableList, primaryField, ids.Implode(), whereList, outputField);
 		}
 
 		public string GetEqualValues()
 		{
-			return String.Format("({0} in {1})", primaryField, GetAllValues(equalValues));
+			return String.Format("({0} in ({1}))", primaryField, equalValues.Implode());
 		}
 
 		public string GetNonEqualValues()
 		{
 			if (Nullable)
-				return String.Format("({0} is null or {0} not in {1})", primaryField, GetAllValues(nonEqualValues));
-			return String.Format("({0} not in {1})", primaryField, GetAllValues(nonEqualValues));
+				return String.Format("({0} is null or {0} not in ({1}))", primaryField, nonEqualValues.Implode());
+			return String.Format("({0} not in ({1}))", primaryField, nonEqualValues.Implode());
 		}
 	}
 }

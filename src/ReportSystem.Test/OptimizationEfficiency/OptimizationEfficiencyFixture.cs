@@ -115,9 +115,6 @@ values (:loggedOn, :clientId, :productId, :producerId, :selfCost, :resultCost, :
 			Property("ReportInterval", 5);
 			Property("FirmCode", supplier.Id);
 			var sheet = ReadReport<OptimizationEfficiency>();
-			var result = ToText(sheet);
-			Console.Write(result);
-
 			var row = sheet.GetRow(9);
 			//количество
 			Assert.AreEqual(10, row.GetCell(9).NumericCellValue);
