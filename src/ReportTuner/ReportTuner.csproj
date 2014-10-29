@@ -22,9 +22,11 @@
     <RootNamespace>ReportTuner</RootNamespace>
     <AssemblyName>ReportTuner</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileUpgradeFlags></FileUpgradeFlags>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
     <OldToolsVersion>4.0</OldToolsVersion>
-    <UpgradeBackupLocation></UpgradeBackupLocation>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
     <TargetFrameworkProfile />
     <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
@@ -62,10 +64,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AjaxControlToolkit">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\AjaxControlToolkit.dll</HintPath>
-    </Reference>
     <Reference Include="Boo.Lang">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Boo.Lang.dll</HintPath>
@@ -136,10 +134,6 @@
     <Reference Include="NHibernate">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.Castle">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\NHibernate.ByteCode.Castle.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -375,7 +369,8 @@
     <Content Include="Reports\TemplateReports.aspx" />
     <Content Include="Reports\TemporaryReport.aspx" />
     <Content Include="Reports\TemporaryReportSchedule.aspx" />
-    <Content Include="Views\Common\CloseWindow.brail"></Content>
+    <Content Include="Views\Common\CloseWindow.brail">
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Themes\MainWithHighLight\Main.skin" />
@@ -446,10 +441,12 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>56638</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl></IISUrl>
+          <IISUrl>
+          </IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
-          <CustomServerUrl></CustomServerUrl>
+          <CustomServerUrl>
+          </CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
