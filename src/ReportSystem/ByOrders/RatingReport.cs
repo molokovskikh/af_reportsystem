@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Data;
+using Inforoom.ReportSystem.Filters;
 using Inforoom.ReportSystem.Helpers;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
@@ -25,9 +26,26 @@ namespace Inforoom.ReportSystem
 			get { return _dsReport.Tables["Results"]; }
 		}
 
+		public RatingReport()
+		{
+			Init();
+		}
+
 		public RatingReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
 			: base(reportCode, reportCaption, conn, format, dsProperties)
 		{
+			Init();
+		}
+
+		private void Init()
+		{
+			registredField.Add(new FilterField {
+				primaryField = "ol.SynonymCode",
+				viewField = "if(s.SynonymCode is not null, s.Synonym, sa.Synonym) as SupplierProductName",
+				outputField = "SupplierProductName",
+				reportPropertyPreffix = "SupplierProductName",
+				outputCaption = "Оригинальное наименование товара",
+			});
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -63,6 +81,8 @@ from {0}.OrdersHead oh
   join Customers.addresses ad on oh.AddressId = ad.Id
   join billing.LegalEntities le on ad.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
+  left join Farm.Synonym s on s.SynonymCode = ol.SynonymCode
+  left join Farm.SynonymArchive sa on sa.SynonymCode = ol.SynonymCode
 where pd.IsLocal = 0", OrdersSchema));
 
 			selectCommand = ApplyFilters(selectCommand);

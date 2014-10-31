@@ -150,8 +150,6 @@ namespace Inforoom.ReportSystem
 				outputField = "SupplierProductCode",
 				reportPropertyPreffix = "SupplierProductCode",
 				outputCaption = "Оригинальный код товара",
-				equalValuesCaption = "В отчет включены следующие оригинальные коды",
-				nonEqualValuesCaption = "Следующие оригинальные коды исключены из отчета"
 			});
 		}
 
@@ -299,7 +297,10 @@ create temporary table MixedData ENGINE=MEMORY
 		{
 			var res = new DataTable();
 			foreach (var rf in selectedField.Where(f => f.visible)) {
-				var dc = res.Columns.Add(rf.outputField, selectTable.Columns[rf.outputField].DataType);
+				var dataColumn = selectTable.Columns[rf.outputField];
+				if (dataColumn == null)
+					throw new Exception(String.Format("Не удалось найти колонку {0}", rf.outputField));
+				var dc = res.Columns.Add(rf.outputField, dataColumn.DataType);
 				dc.Caption = rf.outputCaption;
 				if (rf.width.HasValue)
 					dc.ExtendedProperties.Add("Width", rf.width);

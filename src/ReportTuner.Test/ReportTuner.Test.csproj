@@ -13,7 +13,8 @@
     <AssemblyName>ReportTuner.Test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags></FileUpgradeFlags>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
     <TargetFrameworkProfile />
@@ -140,10 +141,6 @@
     <ProjectReference Include="..\ReportTuner\ReportTuner.csproj">
       <Project>{4D9B03C7-734B-410F-9C4A-FF9A44591036}</Project>
       <Name>ReportTuner</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ReportSystem.Tasks\ReportSystem.Tasks.csproj">
-      <Project>{5004F914-6ACA-4D21-9038-7AACD6F57B94}</Project>
-      <Name>ReportSystem.Tasks</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test.Support\Test.Support.Web\Test.Support.Web.csproj">
       <Project>{12258B1D-35E8-45BA-9C1E-5F7B8ACD7D37}</Project>

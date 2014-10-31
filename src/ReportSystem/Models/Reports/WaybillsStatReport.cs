@@ -35,6 +35,7 @@ namespace Inforoom.ReportSystem.Model
 		{
 			//накладные не связаны с прайс-листами
 			registredField.Remove(registredField.First(f => f.primaryField == "pd.PriceCode"));
+			registredField.Remove(registredField.First(f => f.primaryField == "ol.Code"));
 		}
 
 		public override void GenerateReport(ExecuteArgs e)

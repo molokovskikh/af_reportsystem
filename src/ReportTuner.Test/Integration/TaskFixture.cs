@@ -1,6 +1,6 @@
 using System;
 using NUnit.Framework;
-using ReportSysmte.Tasks;
+using ReportTuner.Models;
 using Test.Support;
 using Test.Support.log4net;
 

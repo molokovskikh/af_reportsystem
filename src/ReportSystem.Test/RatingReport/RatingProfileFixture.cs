@@ -85,18 +85,26 @@ namespace ReportSystem.Test
 			var code = new string(Guid.NewGuid().ToString().Take(20).ToArray());
 			var supplier = TestSupplier.CreateNaked(session);
 			var client = TestClient.CreateNaked(session);
-			var order = new TestOrder(client.Users[0], supplier.Prices[0]) {
+			var price = supplier.Prices[0];
+			var order = new TestOrder(client.Users[0], price) {
 				WriteTime = DateTime.Now.AddDays(-5)
 			};
-			var item = order.AddItem(TestProduct.RandomProducts(session).First(), 10, 456);
+			var product = TestProduct.RandomProducts(session).First();
+			var productSynonym = price.AddProductSynonym(product.Name, product);
+			session.Save(productSynonym);
+			var item = order.AddItem(product, 10, 456);
+			item.SynonymCode = productSynonym.Id;
 			item.Code = code;
 			session.Save(order);
 			Property("ReportInterval", 5);
 			Property("SupplierProductCodePosition", 0);
+			Property("SupplierProductNamePosition", 1);
 			Property("FirmCodeEqual", new List<ulong> { supplier.Id });
 			var sheet = ReadReport<RatingReport>();
 			Assert.AreEqual("Оригинальный код товара", sheet.GetRow(2).GetCell(0).StringCellValue);
 			Assert.AreEqual(code, sheet.GetRow(3).GetCell(0).StringCellValue);
+			Assert.AreEqual("Оригинальное наименование товара", sheet.GetRow(2).GetCell(1).StringCellValue);
+			Assert.AreEqual(productSynonym.Name, sheet.GetRow(3).GetCell(1).StringCellValue);
 		}
 	}
 }

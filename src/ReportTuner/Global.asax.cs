@@ -1,29 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Web;
-using System.Text;
 using System.Reflection;
 using Castle.ActiveRecord;
+using Castle.ActiveRecord.Framework;
 using Castle.ActiveRecord.Framework.Config;
-using Castle.MonoRail.Framework;
-using Castle.MonoRail.Framework.Configuration;
-using Castle.MonoRail.Framework.Container;
-using Castle.MonoRail.Framework.Internal;
 using Castle.MonoRail.Framework.Routing;
-using Castle.MonoRail.Framework.Services;
-using Castle.MonoRail.Framework.Views.Aspx;
-using Castle.MonoRail.Views.Brail;
 using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.Helpers;
 using Common.Web.Ui.MonoRailExtentions;
-using log4net;
-using log4net.Config;
 using ReportTuner.Models;
-using Microsoft.Win32.TaskScheduler;
-using ReportTuner.Helpers;
 using Common.MySql;
 
 namespace ReportTuner
@@ -41,7 +29,7 @@ namespace ReportTuner
 		public double ReportHistoryStorageInterval { get; set; }
 	}
 
-	public class Global : WebApplication, IMonoRailConfigurationEvents
+	public class Global : WebApplication
 	{
 		public static Config Config = new Config();
 
@@ -65,7 +53,7 @@ namespace ReportTuner
 
 			Initialize();
 
-			RoutingModuleEx.Engine.Add(new RedirectRoute("/", @"Reports/GeneralReports.aspx"));
+			RoutingModuleEx.Engine.Add(new RedirectRoute("/", "Reports/GeneralReports.aspx"));
 
 			RoutingModuleEx.Engine.Add(
 				new BugRoute(
@@ -95,19 +83,33 @@ namespace ReportTuner
 			ScheduleHelper.CreateFolderIfNeeded(taskService);
 #endif
 
-			//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
-			ulong _TemplateReportId;
-			if (ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out _TemplateReportId)) {
-				try {
-					GeneralReport.Find(_TemplateReportId);
+			var factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
+			using (var session = factory.OpenSession())
+			using (var trx = session.BeginTransaction()) {
+				//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
+				ulong templateReportId;
+				if (ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out templateReportId)) {
+					try {
+						session.Load<GeneralReport>(templateReportId);
+					}
+					catch (NotFoundException exp) {
+						throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
+					}
 				}
-				catch (NotFoundException exp) {
-					throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
+				else
+					throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
+
+				try
+				{
+					new UpdateReportConfig(session).Execute();
+					trx.Commit();
+				}
+				catch(Exception ex) {
+					Log.Error("Ошибка при обновлении конфигурации отчетов", ex);
 				}
 			}
-			else
-				throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
 		}
+
 		private void ActiveRecordInitialize(string connectionName, Assembly[] assemblies)
 		{
 			if (!ActiveRecordStarter.IsInitialized) {
@@ -142,41 +144,10 @@ namespace ReportTuner
 		private void Session_Start(object sender, EventArgs e)
 		{
 			//Это имя пользователя добавляем для того, чтобы корректно редактировались контакты
-			string UserName = HttpContext.Current.User.Identity.Name;
-			if (UserName.StartsWith("ANALIT\\", StringComparison.OrdinalIgnoreCase))
-				UserName = UserName.Substring(7);
-			Session["UserName"] = UserName;
-		}
-
-
-		private void Session_End(object sender, EventArgs e)
-		{
-			//Проходим по всем объектам в сессии и если объект поддерживает интефейс IDisposable, то вызываем Dispose()
-			for (int i = 0; i < Session.Count; i++)
-				if (Session[i] is IDisposable)
-					((IDisposable)Session[i]).Dispose();
-			//Очищаем коллекцию
-			Session.Clear();
-			//Производим сборку мусора
-			GC.Collect();
-		}
-
-		public new void Configure(IMonoRailConfiguration configuration)
-		{
-			configuration.ControllersConfig.AddAssembly("ReportTuner");
-			configuration.ControllersConfig.AddAssembly("Common.Web.Ui");
-			configuration.ViewComponentsConfig.Assemblies = new[] {
-				"ReportTuner",
-				"Common.Web.Ui"
-			};
-			configuration.ViewEngineConfig.ViewPathRoot = "Views";
-			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(BooViewEngine), false));
-			configuration.ViewEngineConfig.ViewEngines.Add(new ViewEngineInfo(typeof(WebFormsViewEngine), false));
-			configuration.ViewEngineConfig.AssemblySources.Add(new AssemblySourceInfo("Common.Web.Ui", "Common.Web.Ui.Views"));
-			configuration.ViewEngineConfig.VirtualPathRoot = configuration.ViewEngineConfig.ViewPathRoot;
-			configuration.ViewEngineConfig.ViewPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configuration.ViewEngineConfig.ViewPathRoot);
-
-			base.Configure(configuration);
+			var userName = HttpContext.Current.User.Identity.Name;
+			if (userName.StartsWith("ANALIT\\", StringComparison.OrdinalIgnoreCase))
+				userName = userName.Substring(7);
+			Session["UserName"] = userName;
 		}
 	}
 }

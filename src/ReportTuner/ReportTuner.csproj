@@ -205,6 +205,7 @@
     <Compile Include="Models\ReportTunerModel.cs" />
     <Compile Include="Models\ReportType.cs" />
     <Compile Include="Models\ReportTypeProperty.cs" />
+    <Compile Include="Models\UpdateReportConfig.cs" />
     <Compile Include="Reports\Contacts.aspx.cs">
       <DependentUpon>Contacts.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

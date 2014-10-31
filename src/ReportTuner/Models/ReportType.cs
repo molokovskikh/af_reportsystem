@@ -5,7 +5,9 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Common.Tools;
 using Common.Web.Ui.Helpers;
+using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Filters;
+using Microsoft.SqlServer.Server;
 
 namespace ReportTuner.Models
 {
@@ -71,15 +73,22 @@ namespace ReportTuner.Models
 		{
 			get
 			{
-				var result = new List<string>();
 				if (ReportClassName == "Inforoom.ReportSystem.ByOrders.OrdersStatistics") {
-					result.Add("Region" + FilterField.NonEqualSuffix);
-					result.Add("Region" + FilterField.EqualSuffix);
+					yield return "Region" + FilterField.NonEqualSuffix;
+					yield return "Region" + FilterField.EqualSuffix;
 				}
+			}
+		}
 
+		public virtual IEnumerable<string> BlockedFields
+		{
+			get
+			{
 				//оригинальный код товара поддерживает только выборку, фильтрация не реализована
-				result.Add("SupplierProductCodePosition");
-				return result;
+				yield return "SupplierProductCode" + FilterField.NonEqualSuffix;
+				yield return "SupplierProductCode" + FilterField.EqualSuffix;
+				yield return "SupplierProductName" + FilterField.NonEqualSuffix;
+				yield return "SupplierProductName" + FilterField.EqualSuffix;
 			}
 		}
 
