@@ -45,6 +45,15 @@ namespace Inforoom.ReportSystem
 				outputField = "SupplierProductName",
 				reportPropertyPreffix = "SupplierProductName",
 				outputCaption = "Оригинальное наименование товара",
+				position = 9
+			});
+			registredField.Add(new FilterField {
+				primaryField = "ol.SynonymFirmCrCode",
+				viewField = "sfc.Synonym as SupplierProducerName",
+				outputField = "SupplierProducerName",
+				reportPropertyPreffix = "SupplierProducerName",
+				outputCaption = "Оригинальное наименование производителя",
+				position = 10
 			});
 		}
 
@@ -81,8 +90,9 @@ from {0}.OrdersHead oh
   join Customers.addresses ad on oh.AddressId = ad.Id
   join billing.LegalEntities le on ad.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
-  left join Farm.Synonym s on s.SynonymCode = ol.SynonymCode
-  left join Farm.SynonymArchive sa on sa.SynonymCode = ol.SynonymCode
+  left join Farm.Synonym as s on s.SynonymCode = ol.SynonymCode
+  left join Farm.SynonymArchive as sa on sa.SynonymCode = ol.SynonymCode
+  left join Farm.SynonymFirmCr as sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
 where pd.IsLocal = 0", OrdersSchema));
 
 			selectCommand = ApplyFilters(selectCommand);

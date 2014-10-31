@@ -89,6 +89,8 @@ namespace ReportTuner.Models
 				yield return "SupplierProductCode" + FilterField.EqualSuffix;
 				yield return "SupplierProductName" + FilterField.NonEqualSuffix;
 				yield return "SupplierProductName" + FilterField.EqualSuffix;
+				yield return "SupplierProducerName" + FilterField.NonEqualSuffix;
+				yield return "SupplierProducerName" + FilterField.EqualSuffix;
 			}
 		}
 

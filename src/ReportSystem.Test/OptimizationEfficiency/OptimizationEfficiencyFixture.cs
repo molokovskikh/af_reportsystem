@@ -87,8 +87,8 @@ namespace ReportSystem.Test
 			var product = session.Query<TestProduct>().First();
 			var producer = session.Query<TestProducer>().First();
 			var supplier = TestSupplier.CreateNaked(session);
-			var productSynonym = supplier.Prices[0].AddProductSynonym(product.FullName, product);
-			var producerSynonym = supplier.Prices[0].AddProducerSynonym(producer.Name, producer);
+			var productSynonym = supplier.Prices[0].AddProductSynonym(product);
+			var producerSynonym = supplier.Prices[0].AddProducerSynonym(producer);
 			var client = TestClient.CreateNaked(session);
 
 			var order = new TestOrder(client.Users[0], supplier.Prices[0]);

@@ -150,6 +150,7 @@ namespace Inforoom.ReportSystem
 				outputField = "SupplierProductCode",
 				reportPropertyPreffix = "SupplierProductCode",
 				outputCaption = "Оригинальный код товара",
+				position = 8
 			});
 		}
 

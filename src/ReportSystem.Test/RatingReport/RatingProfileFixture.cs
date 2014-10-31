@@ -89,10 +89,9 @@ namespace ReportSystem.Test
 			var order = new TestOrder(client.Users[0], price) {
 				WriteTime = DateTime.Now.AddDays(-5)
 			};
-			var product = TestProduct.RandomProducts(session).First();
-			var productSynonym = price.AddProductSynonym(product.Name, product);
+			var productSynonym = price.AddProductSynonym(TestProduct.Random(session).First());
 			session.Save(productSynonym);
-			var item = order.AddItem(product, 10, 456);
+			var item = order.AddItem(TestProduct.RandomProducts(session).First(), 10, 456);
 			item.SynonymCode = productSynonym.Id;
 			item.Code = code;
 			session.Save(order);
@@ -105,6 +104,35 @@ namespace ReportSystem.Test
 			Assert.AreEqual(code, sheet.GetRow(3).GetCell(0).StringCellValue);
 			Assert.AreEqual("Оригинальное наименование товара", sheet.GetRow(2).GetCell(1).StringCellValue);
 			Assert.AreEqual(productSynonym.Name, sheet.GetRow(3).GetCell(1).StringCellValue);
+		}
+
+		[Test]
+		public void Group_by_supplier_product_and_supplier_producer()
+		{
+			var supplier = TestSupplier.CreateNaked(session);
+			var client = TestClient.CreateNaked(session);
+			var price = supplier.Prices[0];
+			var order = new TestOrder(client.Users[0], price) {
+				WriteTime = DateTime.Now.AddDays(-5)
+			};
+			var productSynonym = price.AddProductSynonym(TestProduct.Random(session).First());
+			session.Save(productSynonym);
+			var producerSynonym = price.AddProducerSynonym(TestProducer.Random(session).First());
+			session.Save(productSynonym);
+			var item = order.AddItem(TestProduct.RandomProducts(session).First(), 10, 456);
+			item.SynonymCode = productSynonym.Id;
+			item.SynonymFirmCrCode = producerSynonym.Id;
+			session.Save(order);
+
+			Property("ReportInterval", 5);
+			Property("SupplierProductNamePosition", 0);
+			Property("SupplierProducerNamePosition", 1);
+			Property("FirmCodeEqual", new List<ulong> { supplier.Id });
+			var sheet = ReadReport<RatingReport>();
+			Assert.AreEqual("Оригинальное наименование товара", sheet.GetRow(2).GetCell(0).StringCellValue);
+			Assert.AreEqual(productSynonym.Name, sheet.GetRow(3).GetCell(0).StringCellValue);
+			Assert.AreEqual("Оригинальное наименование производителя", sheet.GetRow(2).GetCell(1).StringCellValue);
+			Assert.AreEqual(producerSynonym.Name, sheet.GetRow(3).GetCell(1).StringCellValue);
 		}
 	}
 }
