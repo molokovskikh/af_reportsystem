@@ -108,18 +108,7 @@ namespace Inforoom.ReportSystem
 			FilesForReport = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, Connection);
 
 			if (!interval) {
-				if (ContactGroup != null) {
-					Contacts = Contacts.Concat(ContactGroup.Contacts
-						.Concat(ContactGroup.Persons.SelectMany(p => p.Contacts))
-						.Where(c => c.Type == ContactType.Email).Select(c => c.ContactText))
-						.ToArray();
-				}
-				if (PublicSubscriptions != null) {
-					Contacts = Contacts.Concat(PublicSubscriptions.Contacts
-						.Concat(ContactGroup.Persons.SelectMany(p => p.Contacts))
-						.Where(c => c.Type == ContactType.Email).Select(c => c.ContactText))
-						.ToArray();
-				}
+				CollectContacts();
 			}
 			else {
 				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
@@ -158,6 +147,24 @@ where GeneralReport = ?GeneralReport;";
 			}
 			else
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
+		}
+
+		public void CollectContacts()
+		{
+			var contacts = new string[0];
+			if (ContactGroup != null) {
+				contacts = contacts.Concat(ContactGroup.Contacts
+					.Concat(ContactGroup.Persons.SelectMany(p => p.Contacts))
+					.Where(c => c.Type == ContactType.Email).Select(c => c.ContactText))
+					.ToArray();
+			}
+			if (PublicSubscriptions != null) {
+				contacts = contacts.Concat(PublicSubscriptions.Contacts
+					.Concat(PublicSubscriptions.Persons.SelectMany(p => p.Contacts))
+					.Where(c => c.Type == ContactType.Email).Select(c => c.ContactText))
+					.ToArray();
+			}
+			Contacts = contacts.Distinct(StringComparer.InvariantCultureIgnoreCase).ToArray();
 		}
 
 		//Производится построение отчетов
