@@ -7,7 +7,6 @@ using System.Linq;
 using Castle.ActiveRecord;
 using Common.MySql;
 using Common.Tools;
-using Common.Web.Ui.Models;
 using ExecuteTemplate;
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem;
@@ -17,7 +16,6 @@ using NHibernate.AdoNet;
 using NUnit.Framework;
 using Test.Support;
 using log4net;
-using ContactType = Common.Web.Ui.Models.ContactType;
 
 namespace ReportSystem.Test
 {
@@ -203,20 +201,6 @@ namespace ReportSystem.Test
 				report.Connection = connection;
 				report.LogSuccess();
 			}
-		}
-
-		[Test]
-		public void Collect_contacts()
-		{
-			//моделируем ситуацию если не задана группа рассылки а есть только публичные контакты
-			var report = new GeneralReport {
-				PublicSubscriptions = new ContactGroup {
-					Contacts = { new Contact(ContactType.Email, "test@analit.net") }
-				}
-			};
-			var contacts = report.CollectContacts();
-			Assert.AreEqual(contacts[0], "test@analit.net");
-			Assert.AreEqual(1, contacts.Length);
 		}
 
 		private static string[] LsZip(string result)
