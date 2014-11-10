@@ -400,20 +400,7 @@ where
 	ol.OrderID = oh.RowID
 	and ol.Junk = 0
 	and pd.PriceCode = oh.PriceCode
-and pd.IsLocal = 0
-and pd.Enabled = 1
-and exists (select
-  *
-from
-  usersettings.pricescosts pc1,
-  usersettings.priceitems pim1,
-  farm.formrules fr1
-where
-	pc1.PriceCode = pd.PriceCode
-and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc1.PriceCode and prd.BaseCost=pc1.CostCode limit 1)
-and pim1.Id = pc1.PriceItemId
-and fr1.Id = pim1.FormRuleId
-and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
+	and pd.IsLocal = 0
 	and pd.FirmCode = ", OrdersSchema) + supplierId +
 				" and oh.WriteTime > '" + dtFrom.ToString(MySqlConsts.MySQLDateFormat) + "' " +
 				" and oh.WriteTime < '" + dtTo.ToString(MySqlConsts.MySQLDateFormat) + "' " +
