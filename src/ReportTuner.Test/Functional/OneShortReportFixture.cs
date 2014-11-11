@@ -25,7 +25,7 @@ namespace ReportTuner.Test.Functional
 			var row2 = (TableRow)row.NextSibling;
 			var cells = row2.OwnTableCells;
 			var cell = cells[0];
-			browser.GoTo("http://localhost:53759/Reports/schedule.aspx?r=" + cell.Text);
+			Open("Reports/schedule.aspx?r=" + cell.Text);
 
 			browser.Button(Find.ByValue("Выполнить")).Click();
 			Assert.That(browser.Text, Is.StringContaining("Успешно запущен разовый отчет"));
