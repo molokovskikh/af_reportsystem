@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Castle.ActiveRecord;
 using System.Linq;
+using Common.Web.Ui.Models;
 
 namespace ReportTuner.Models
 {
@@ -21,6 +22,10 @@ namespace ReportTuner.Models
 
 		[Property]
 		public virtual string ShortName { get; set; }
+
+
+		[BelongsTo("ContactGroupOwnerId")]
+		public virtual ContactGroupOwner ContactGroupOwner { get; set; }
 
 		[HasAndBelongsToMany(typeof(Client), Schema = "Billing", Table = "PayerClients",
 			ColumnKey = "PayerID", ColumnRef = "ClientID")]

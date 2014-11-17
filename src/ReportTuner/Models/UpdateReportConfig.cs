@@ -41,7 +41,7 @@ namespace ReportTuner.Models
 			var orderReport = new OrdersReport();
 			var rootType = typeof(OrdersReport);
 			//некоторые отчеты унаследованы от базового но на самом деле они не умеют использовать общие настройки
-			var configurableReports = new [] {
+			var configurableReports = new[] {
 				typeof(RatingReport), typeof(MixedReport), typeof(PharmacyMixedReport), typeof(OrdersStatistics),
 				typeof(WaybillsStatReport)
 			};
@@ -54,7 +54,7 @@ namespace ReportTuner.Models
 				if (typeof(OrdersReport).IsAssignableFrom(type)
 					&& type.GetConstructor(new Type[0]) != null)
 					reportInstance = (OrdersReport)Activator.CreateInstance(type);
-				var notExists = reportInstance.registredField.SelectMany(f => new [] {
+				var notExists = reportInstance.registredField.SelectMany(f => new[] {
 					f.reportPropertyPreffix + FilterField.PositionSuffix,
 					f.reportPropertyPreffix + FilterField.NonEqualSuffix,
 					f.reportPropertyPreffix + FilterField.EqualSuffix,
