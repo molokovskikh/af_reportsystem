@@ -138,7 +138,6 @@ namespace Inforoom.ReportSystem
 					continue; // возможно, клиент был заблокирован во время подготовки отчета
 				}
 				_clientCode = Convert.ToInt32(client);
-				base.GenerateReport(e);
 				InvokeGetActivePrices();
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
 				string withWithoutPropertiesText;

@@ -314,8 +314,6 @@ where
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			base.GenerateReport(e);
-
 			ProfileHelper.Next("PreGetOffers");
 			if (_priceCode == 0)
 				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");

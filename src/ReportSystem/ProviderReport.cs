@@ -40,10 +40,6 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
-		{
-		}
-
 		public override void ReadReportParams()
 		{
 			if (_reportParams.ContainsKey("SupplierNoise"))
@@ -570,7 +566,7 @@ and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || 
 		{
 			string customerFirmName;
 			var drPrice = MySqlHelper.ExecuteDataset(
-				_conn,
+				Connection,
 				@"
 select
   concat(suppliers.Name, '(', pricesdata.PriceName, ') - ', regions.Region) as FirmName,

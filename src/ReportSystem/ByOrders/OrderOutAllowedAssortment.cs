@@ -98,7 +98,7 @@ order by O.WriteTime", OrdersSchema);
 
 			result.Rows.Add("Заказ вне разрешенного ассортимента");
 			result.Rows[0][2] = "Сформирован :" + DateTime.Now.ToString();
-			var headParameterCommand = _conn.CreateCommand();
+			var headParameterCommand = Connection.CreateCommand();
 			var shPCommand = "select CL.Name from Customers.Clients CL where CL.ID = " + _clientId.ToString();
 			headParameterCommand.CommandText = shPCommand;
 			var headParameterReader = headParameterCommand.ExecuteReader();

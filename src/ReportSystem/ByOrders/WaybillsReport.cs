@@ -66,7 +66,7 @@ from Documents.DocumentBodies db
 ;
 drop temporary table if exists uniq_document_lines;
 ";
-			var adapter = new MySqlDataAdapter(sql, _conn);
+			var adapter = new MySqlDataAdapter(sql, Connection);
 			var parameters = adapter.SelectCommand.Parameters;
 			parameters.AddWithValue("begin", dtFrom);
 			parameters.AddWithValue("end", dtTo);

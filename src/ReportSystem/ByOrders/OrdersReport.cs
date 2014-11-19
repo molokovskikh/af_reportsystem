@@ -156,12 +156,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
-			foreach (var property in GetType().GetProperties()) {
-				if (reportParamExists(property.Name)) {
-					property.SetValue(this, getReportParam(property.Name), null);
-				}
-			}
-
+			base.ReadReportParams();
 			if (Interval) {
 				dtFrom = From;
 				dtTo = To;

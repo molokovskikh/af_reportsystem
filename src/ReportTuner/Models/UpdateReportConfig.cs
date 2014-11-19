@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Common.Tools;
 using Inforoom.ReportSystem;
+using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.ByOrders;
 using Inforoom.ReportSystem.Filters;
 using Inforoom.ReportSystem.Model;
@@ -36,32 +37,66 @@ namespace ReportTuner.Models
 				{"FirmCode", "GetFirmCode"},
 				{"ClientCode", "GetAllClientCode"},
 				{"Addresses", "GetFirmCode"},
-				{"SupplierId", "GetFirmCode"}
+				{"SupplierId", "GetFirmCode"},
+				{"UserId", "GetUser"}
 			};
-			var orderReport = new OrdersReport();
-			var rootType = typeof(OrdersReport);
-			//некоторые отчеты унаследованы от базового но на самом деле они не умеют использовать общие настройки
+			var rootType = typeof(BaseReport);
+			//РЅРµРєРѕС‚РѕСЂС‹Рµ РѕС‚С‡РµС‚С‹ СѓРЅР°СЃР»РµРґРѕРІР°РЅС‹ РѕС‚ Р±Р°Р·РѕРІРѕРіРѕ РЅРѕ РЅР° СЃР°РјРѕРј РґРµР»Рµ РѕРЅРё РЅРµ СѓРјРµСЋС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕР±С‰РёРµ РЅР°СЃС‚СЂРѕР№РєРё
 			var configurableReports = new[] {
-				typeof(RatingReport), typeof(MixedReport), typeof(PharmacyMixedReport), typeof(OrdersStatistics),
-				typeof(WaybillsStatReport)
+				typeof(RatingReport),
+				typeof(MixedReport),
+				typeof(PharmacyMixedReport),
+				typeof(OrdersStatistics),
+				typeof(WaybillsStatReport),
+				typeof(OffersExport)
 			};
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
 			foreach (var type in types) {
 				var reportType = session.Query<ReportType>().FirstOrDefault(r => r.ReportClassName == type.FullName)
 					?? new ReportType(type);
-				var reportInstance = orderReport;
-				if (typeof(OrdersReport).IsAssignableFrom(type)
-					&& type.GetConstructor(new Type[0]) != null)
-					reportInstance = (OrdersReport)Activator.CreateInstance(type);
-				var notExists = reportInstance.registredField.SelectMany(f => new[] {
-					f.reportPropertyPreffix + FilterField.PositionSuffix,
-					f.reportPropertyPreffix + FilterField.NonEqualSuffix,
-					f.reportPropertyPreffix + FilterField.EqualSuffix,
-				}).Except(reportType.Properties.Select(p => p.PropertyName));
-				if (reportType.RestrictedFields.Any())
-					notExists = notExists.Intersect(reportType.RestrictedFields);
-				notExists = notExists.Except(reportType.BlockedFields);
+
+				if (typeof(OrdersReport).IsAssignableFrom(type)) {
+					var reportInstance = new OrdersReport();;
+					if (type.GetConstructor(new Type[0]) != null)
+						reportInstance = (OrdersReport)Activator.CreateInstance(type);
+					var notExists = reportInstance.registredField.SelectMany(f => new[] {
+						f.reportPropertyPreffix + FilterField.PositionSuffix,
+						f.reportPropertyPreffix + FilterField.NonEqualSuffix,
+						f.reportPropertyPreffix + FilterField.EqualSuffix,
+					}).Except(reportType.Properties.Select(p => p.PropertyName));
+					if (reportType.RestrictedFields.Any())
+						notExists = notExists.Intersect(reportType.RestrictedFields);
+					notExists = notExists.Except(reportType.BlockedFields);
+					foreach (var notExist in notExists) {
+						if (notExist.EndsWith(FilterField.PositionSuffix)) {
+							var field = reportInstance.registredField
+								.First(f => f.reportPropertyPreffix == notExist.Replace(FilterField.PositionSuffix, ""));
+							var property = new ReportTypeProperty(notExist, "INT", string.Format("РџРѕР·РёС†РёСЏ \"{0}\" РІ РѕС‚С‡РµС‚Рµ", field.outputCaption)) {
+								Optional = true,
+								DefaultValue = "0",
+							};
+							log.WarnFormat("Р”РѕР±Р°РІРёР» РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ '{0}' РґР»СЏ РѕС‚С‡РµС‚Р° '{1}'",
+								property.DisplayName,
+								reportType.ReportTypeName);
+							reportType.AddProperty(property);
+						}
+						else if (notExist.EndsWith(FilterField.NonEqualSuffix)) {
+							var property = AddListProperty(procedures, reportInstance.registredField, reportType, notExist,
+								FilterField.NonEqualSuffix, "РЎРїРёСЃРѕРє РёСЃРєР»СЋС‡РµРЅРёР№ \"{0}\"");
+							log.WarnFormat("Р”РѕР±Р°РІРёР» РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ '{0}' РґР»СЏ РѕС‚С‡РµС‚Р° '{1}'",
+								property.DisplayName,
+								reportType.ReportTypeName);
+						}
+						else {
+							var property = AddListProperty(procedures, reportInstance.registredField, reportType, notExist,
+								FilterField.EqualSuffix, "РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ \"{0}\"");
+							log.WarnFormat("Р”РѕР±Р°РІРёР» РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ '{0}' РґР»СЏ РѕС‚С‡РµС‚Р° {1}",
+								property.DisplayName,
+								reportType.ReportTypeName);
+						}
+					}
+				}
 
 				foreach (var typeProperty in type.GetProperties()) {
 					var attributes = typeProperty.GetCustomAttributes(typeof(DescriptionAttribute), true);
@@ -73,10 +108,10 @@ namespace ReportTuner.Models
 						var localType = "";
 						if (typeProperty.PropertyType == typeof(bool))
 							localType = "BOOL";
-						else if (typeProperty.PropertyType == typeof(int))
+						else if (typeProperty.PropertyType == typeof(int) || typeProperty.PropertyType == typeof(uint))
 							localType = "INT";
 						else
-							throw new Exception(String.Format("Не знаю как преобразовать тип {0} свойства {1} типа {2}",
+							throw new Exception(String.Format("РќРµ Р·РЅР°СЋ РєР°Рє РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ С‚РёРї {0} СЃРІРѕР№СЃС‚РІР° {1} С‚РёРїР° {2}",
 								typeProperty.PropertyType,
 								typeProperty.Name,
 								type));
@@ -88,42 +123,17 @@ namespace ReportTuner.Models
 					}
 				}
 
-				foreach (var notExist in notExists) {
-					if (notExist.EndsWith(FilterField.PositionSuffix)) {
-						var field = reportInstance.registredField.First(f => f.reportPropertyPreffix == notExist.Replace(FilterField.PositionSuffix, ""));
-						var property = new ReportTypeProperty(notExist, "INT", string.Format("Позиция \"{0}\" в отчете", field.outputCaption)) {
-							Optional = true,
-							DefaultValue = "0",
-						};
-						log.WarnFormat("Добавил опциональный параметр '{0}' для отчета '{1}'",
-							property.DisplayName,
-							reportType.ReportTypeName);
-						reportType.AddProperty(property);
-					}
-					else if (notExist.EndsWith(FilterField.NonEqualSuffix)) {
-						var property = AddListProperty(procedures, reportInstance.registredField, reportType, notExist, FilterField.NonEqualSuffix, "Список исключений \"{0}\"");
-						log.WarnFormat("Добавил опциональный параметр '{0}' для отчета '{1}'",
-							property.DisplayName,
-							reportType.ReportTypeName);
-					}
-					else {
-						var property = AddListProperty(procedures, reportInstance.registredField, reportType, notExist, FilterField.EqualSuffix, "Список значений \"{0}\"");
-						log.WarnFormat("Добавил опциональный параметр '{0}' для отчета {1}",
-							property.DisplayName,
-							reportType.ReportTypeName);
-					}
-				}
-
 				session.Save(reportType);
 			}
 		}
 
-		private static ReportTypeProperty AddListProperty(Dictionary<string, string> procedures, List<FilterField> fields, ReportType reportType, string property, string sufix, string label)
+		private static ReportTypeProperty AddListProperty(Dictionary<string, string> procedures,
+			List<FilterField> fields, ReportType reportType, string property, string sufix, string label)
 		{
 			var prefix = property.Replace(sufix, "");
 			var field = fields.First(f => f.reportPropertyPreffix == prefix);
 			if (!procedures.ContainsKey(prefix))
-				throw new Exception(String.Format("Не задана процедура {0}", prefix));
+				throw new Exception(String.Format("РќРµ Р·Р°РґР°РЅР° РїСЂРѕС†РµРґСѓСЂР° {0}", prefix));
 			var reportTypeProperty = new ReportTypeProperty(property, "LIST", string.Format(label, field.outputCaption)) {
 				Optional = true,
 				DefaultValue = "0",

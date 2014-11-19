@@ -232,8 +232,6 @@ into @OffersSynonymCode;
 
 		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
 		{
-			base.GenerateReport(e);
-
 			CheckPriceCode(e);
 
 			ProfileHelper.Next("GetOffers");

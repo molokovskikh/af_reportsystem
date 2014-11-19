@@ -469,7 +469,6 @@ where regionCode = ?region and PriceCode = ?price;";
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			base.GenerateReport(e);
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
 				throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");

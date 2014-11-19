@@ -182,9 +182,9 @@ namespace ReportSystem.Test
 			return sheet;
 		}
 
-		protected void InitReport<T>(string fileName)
+		protected void InitReport<T>(string fileName, ReportFormats format = ReportFormats.Excel)
 		{
-			report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, ReportFormats.Excel, properties);
+			report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, format, properties);
 		}
 
 		public string ToText(ISheet sheet)

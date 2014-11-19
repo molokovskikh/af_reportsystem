@@ -72,7 +72,7 @@ namespace Inforoom.ReportSystem
 		//Формат файла отчета
 		protected ReportFormats Format;
 
-		protected MySqlConnection _conn;
+		protected MySqlConnection Connection;
 
 		protected Dictionary<string, object> _reportParams = new Dictionary<string, object>();
 
@@ -115,7 +115,7 @@ namespace Inforoom.ReportSystem
 			ReportCaption = reportCaption;
 			Format = format;
 			_dsReport = new DataSet();
-			_conn = connection;
+			Connection = connection;
 
 			dtReportProperties = dsProperties.Tables["ReportProperties"];
 			dtReportPropertyValues = dsProperties.Tables["ReportPropertyValues"];
@@ -196,12 +196,34 @@ namespace Inforoom.ReportSystem
 
 		public abstract void GenerateReport(ExecuteArgs e);
 
-		public abstract void ReadReportParams();
+		public virtual void ReadReportParams()
+		{
+			foreach (var property in GetType().GetProperties()) {
+				if (reportParamExists(property.Name)) {
+					var value = getReportParam(property.Name);
+					if (value == null)
+						continue;
+					if (!property.PropertyType.IsAssignableFrom(value.GetType()))
+						value = Convert.ChangeType(value, property.PropertyType);
+					property.SetValue(this, value, null);
+				}
+			}
+			foreach (var field in GetType().GetFields()) {
+				if (reportParamExists(field.Name)) {
+					var value = getReportParam(field.Name);
+					if (value == null)
+						continue;
+					if (!field.FieldType.IsAssignableFrom(value.GetType()))
+						value = Convert.ChangeType(value, field.FieldType);
+					field.SetValue(this, value);
+				}
+			}
+		}
 
 		public void ProcessReport()
 		{
 			_dtStart = DateTime.Now;
-			MethodTemplate.ExecuteMethod(new ExecuteArgs(), ProcessReportExec, false, _conn);
+			MethodTemplate.ExecuteMethod(new ExecuteArgs(), ProcessReportExec, false, Connection);
 		}
 
 		protected bool ProcessReportExec(ExecuteArgs e)

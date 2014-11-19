@@ -152,8 +152,6 @@ order by Core.Cost DESC";
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			base.GenerateReport(e);
-
 			// Если отчет строится по взвешенным ценам, то используем другой источник данных
 			// Вместо идентификатора прайса используем идентификатор поставщика
 			if(_byWeightCosts) {

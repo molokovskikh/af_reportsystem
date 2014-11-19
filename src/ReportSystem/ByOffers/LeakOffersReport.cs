@@ -30,7 +30,6 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			base.GenerateReport(e);
 			GetOffers(_SupplierNoise);
 
 			e.DataAdapter.SelectCommand.CommandText = @"

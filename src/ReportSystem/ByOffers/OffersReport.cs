@@ -43,8 +43,6 @@ namespace Inforoom.ReportSystem
 
 		public override void GenerateReport(ExecuteArgs e)
 		{
-			base.GenerateReport(e);
-
 			ProfileHelper.Next("PreGetOffers");
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
