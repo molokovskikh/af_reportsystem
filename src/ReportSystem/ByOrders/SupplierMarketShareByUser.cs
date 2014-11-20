@@ -262,7 +262,7 @@ order by {3}", _regions.Implode(), _grouping.Group,
 
 			connection.Execute(@"
 drop temporary table if exists reports.TempIntersection;
-drop temporary table if exists reports.UserPricesStat;
+drop temporary table if exists reports.UserStat;
 ");
 
 			var data = _dsReport.Tables["data"];
