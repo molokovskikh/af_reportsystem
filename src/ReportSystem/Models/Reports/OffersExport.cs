@@ -1,7 +1,10 @@
 using System.ComponentModel;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
+using Common.Models;
+using Common.Models.Helpers;
 using Common.MySql;
 using Common.Tools;
 using MySql.Data.MySqlClient;
@@ -43,6 +46,7 @@ select
 	s.Synonym Name,
 	scr.Synonym Producer,
 	c.Cost,
+	c0.Code,
 	c0.Exp,
 	c0.EAN13,
 	c0.Quantity,

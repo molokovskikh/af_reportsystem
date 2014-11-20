@@ -5,7 +5,7 @@ using Castle.ActiveRecord.Framework;
 namespace Inforoom.ReportSystem.Model
 {
 	[ActiveRecord("ReportsResLogs", Schema = "Logs", Mutable = false)]
-	public class ReportResultLog : ActiveRecordLinqBase<ReportResultLog>
+	public class ReportResultLog
 	{
 		[PrimaryKey]
 		public uint Id { get; set; }
@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem.Model
 					StopTime = stopTime,
 					ErrorMessage = errorMessage
 				};
-				log.Create();
+				ActiveRecordMediator.Save(log);
 				scope.VoteCommit();
 				return log;
 			}

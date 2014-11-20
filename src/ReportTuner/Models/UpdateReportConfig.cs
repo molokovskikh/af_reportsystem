@@ -8,6 +8,7 @@ using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.ByOrders;
 using Inforoom.ReportSystem.Filters;
 using Inforoom.ReportSystem.Model;
+using Inforoom.ReportSystem.Models.Reports;
 using log4net;
 using NHibernate;
 using NHibernate.Linq;

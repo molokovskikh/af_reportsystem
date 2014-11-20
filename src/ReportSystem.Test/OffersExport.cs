@@ -3,6 +3,7 @@ using System.IO;
 using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOffers;
+using Inforoom.ReportSystem.Models.Reports;
 using NUnit.Framework;
 using Test.Support;
 using Test.Support.Suppliers;
@@ -24,6 +25,8 @@ namespace ReportSystem.Test
 			InitReport<OffersExport>("test", ReportFormats.DBF);
 			BuildReport("tmp/test.dbf");
 			Assert.IsTrue(File.Exists("tmp/test.dbf"));
+			var data = Dbf.Load("tmp/test.dbf");
+			Assert.IsTrue(data.Columns.Contains("Code"));
 		}
 	}
 }

@@ -110,7 +110,6 @@ namespace ReportSystem.Test
 		{
 			Conn = (MySqlConnection)session.Connection;
 			session.Flush();
-			session.Transaction.Commit();
 			if (reportType != null && report == null)
 				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
 

@@ -192,7 +192,6 @@
   <ItemGroup>
     <Compile Include="ByOffers\CostDynamic.cs" />
     <Compile Include="ByOffers\MatrixReport.cs" />
-    <Compile Include="ByOffers\OffersExport.cs" />
     <Compile Include="ByOffers\OffersReportAsc.cs" />
     <Compile Include="ByOffers\PriceCollectionForClientReport.cs" />
     <Compile Include="ByOffers\PricesOfCompetitorsReport.cs" />
@@ -201,6 +200,7 @@
     <Compile Include="ByOrders\SupplierOrdersStatistics.cs" />
     <Compile Include="ByOrders\WaybillsReport.cs" />
     <Compile Include="Models\Payer.cs" />
+    <Compile Include="Models\Reports\OffersExport.cs" />
     <Compile Include="Models\Reports\WaybillsStatReport.cs" />
     <Compile Include="OptimizationRivalOrders.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />

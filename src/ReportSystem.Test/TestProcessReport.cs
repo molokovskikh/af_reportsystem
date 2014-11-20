@@ -4,16 +4,16 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using Castle.ActiveRecord;
-using Castle.ActiveRecord.Framework.Config;
-
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Model;
+using NHibernate.Linq;
 using NUnit.Framework;
+using Test.Support;
 
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	internal class TestProcessReport
+	internal class TestProcessReport : IntegrationFixture
 	{
 		public class FakeEmptyReport : BaseReport
 		{
@@ -128,16 +128,14 @@ namespace ReportSystem.Test
 				ex = true;
 			}
 			Assert.That(ex, Is.True);
-			using (new SessionScope()) {
-				// Проверяем записи в логах
-				var logs = ReportResultLog.Queryable.Where(l => l.StartTime >= dtStart).OrderBy(l => l.StartTime).ToList();
-				Assert.That(logs.Count, Is.EqualTo(5));
-				Assert.That(logs[0].ErrorMessage, Is.Null);
-				Assert.That(logs[1].ErrorMessage, Is.StringContaining("Ошибка при формировании отчета."));
-				Assert.That(logs[2].ErrorMessage, Is.StringContaining("Ошибка при формировании отчета."));
-				Assert.That(logs[3].ErrorMessage, Is.Null);
-				Assert.That(logs[4].ErrorMessage, Is.StringContaining("Системная ошибка."));
-			}
+			// Проверяем записи в логах
+			var logs = session.Query<ReportResultLog>().Where(l => l.StartTime >= dtStart).OrderBy(l => l.StartTime).ToList();
+			Assert.That(logs.Count, Is.EqualTo(5));
+			Assert.That(logs[0].ErrorMessage, Is.Null);
+			Assert.That(logs[1].ErrorMessage, Is.StringContaining("Ошибка при формировании отчета."));
+			Assert.That(logs[2].ErrorMessage, Is.StringContaining("Ошибка при формировании отчета."));
+			Assert.That(logs[3].ErrorMessage, Is.Null);
+			Assert.That(logs[4].ErrorMessage, Is.StringContaining("Системная ошибка."));
 		}
 	}
 }
