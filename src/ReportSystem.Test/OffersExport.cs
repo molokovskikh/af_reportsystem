@@ -27,6 +27,7 @@ namespace ReportSystem.Test
 			Assert.IsTrue(File.Exists("tmp/test.dbf"));
 			var data = Dbf.Load("tmp/test.dbf");
 			Assert.IsTrue(data.Columns.Contains("Code"));
+			Assert.IsTrue(data.Columns.Contains("CodeCr"));
 		}
 	}
 }

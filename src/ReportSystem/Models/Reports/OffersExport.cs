@@ -47,6 +47,7 @@ select
 	scr.Synonym Producer,
 	c.Cost,
 	c0.Code,
+	c0.CodeCr,
 	c0.Exp,
 	c0.EAN13,
 	c0.Quantity,
