@@ -25,9 +25,9 @@ namespace ReportSystem.Test
 		[SetUp]
 		public void Setup()
 		{
-			var client = TestClient.CreateNaked();
+			var client = TestClient.CreateNaked(session);
 			var address = client.Addresses[0];
-			supplier = TestSupplier.CreateNaked();
+			supplier = TestSupplier.CreateNaked(session);
 
 			var waybill = new TestWaybill(new TestDocumentLog(supplier, address));
 			product1 = session.Query<TestProduct>().First();
@@ -56,7 +56,6 @@ namespace ReportSystem.Test
 		[Test]
 		public void Build()
 		{
-			Reopen();
 			Property("ProductNamePosition", 0);
 			Property("ByPreviousMonth", false);
 			report = new WaybillsStatReport(1, "test", Conn, ReportFormats.Excel, properties);
@@ -83,7 +82,6 @@ namespace ReportSystem.Test
 			offer.Code = Generator.Random().First().ToString();
 			session.Save(offer);
 
-			Reopen();
 			Property("ProductNamePosition", 0);
 			Property("ByPreviousMonth", false);
 			Property("ShowCode", true);

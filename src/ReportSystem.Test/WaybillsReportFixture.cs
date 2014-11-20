@@ -21,9 +21,9 @@ namespace ReportSystem.Test
 		public void Build()
 		{
 			int orgId = 0;
-			var client = TestClient.CreateNaked();
+			var client = TestClient.CreateNaked(session);
 			var address = client.Addresses[0];
-			var supplier = TestSupplier.CreateNaked();
+			var supplier = TestSupplier.CreateNaked(session);
 
 			orgId = (int)address.LegalEntity.Id;
 			var waybill = new TestWaybill(new TestDocumentLog(supplier, address));
@@ -47,8 +47,6 @@ namespace ReportSystem.Test
 			session.CreateSQLQuery("update Customers.Suppliers set VendorId = 15 where id = :id")
 				.SetParameter("id", supplier.Id)
 				.ExecuteUpdate();
-
-			Reopen();
 
 			Property("ByPreviousMonth", false);
 			Property("OrgId", orgId);
@@ -81,13 +79,6 @@ namespace ReportSystem.Test
 			Assert.That(Markup.RetailCost(70, 50, 10, markups), Is.EqualTo(0));
 			Assert.That(Markup.RetailCost(65, 50, 10, markups), Is.EqualTo(72));
 			Assert.That(Markup.RetailCost(215.40m, 200.10m, 10, markups), Is.EqualTo(255));
-		}
-
-		protected void Init(Action<ISession> action)
-		{
-			using (new SessionScope()) {
-				ArHelper.WithSession(action);
-			}
 		}
 	}
 }

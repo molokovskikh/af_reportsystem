@@ -29,7 +29,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Region_filter()
 		{
-			var supplier = TestSupplier.CreateNaked();
+			var supplier = TestSupplier.CreateNaked(session);
 			supplier.AddRegion(session.Load<TestRegion>(512ul));
 
 			var client = TestClient.CreateNaked(512, 512);
@@ -52,8 +52,8 @@ namespace ReportSystem.Test
 		[Test]
 		public void FreeOrdersTest()
 		{
-			var supplier = TestSupplier.CreateNaked();
-			var client = TestClient.CreateNaked();
+			var supplier = TestSupplier.CreateNaked(session);
+			var client = TestClient.CreateNaked(session);
 			var product = new TestProduct("Тестовый продукт");
 			session.Save(product);
 

@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Common.Models.BuyingMatrix;
 using Common.Tools;
 using ExcelLibrary;
 using Inforoom.ReportSystem;
-using Inforoom.ReportSystem.Helpers;
-using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Test.Support;
 using Test.Support.Suppliers;
@@ -24,7 +16,7 @@ namespace ReportSystem.Test.MatrixReport
 		{
 			var producerName = Generator.Name();
 			var clientId = 0u;
-			var supplier = TestSupplier.CreateNaked();
+			var supplier = TestSupplier.CreateNaked(session);
 			var producer = new TestProducer(producerName);
 			session.Save(producer);
 			var product = new TestProduct("testProduct");
@@ -34,7 +26,7 @@ namespace ReportSystem.Test.MatrixReport
 			price.AgencyEnabled = true;
 			session.Save(price);
 
-			var client = TestClient.CreateNaked();
+			var client = TestClient.CreateNaked(session);
 
 			var core = new TestCore(price.AddProductSynonym(product)) {
 				Price = price,
@@ -70,8 +62,6 @@ value
 ({0}, {1}, {2})", price.Id, product.Id, matrix.Id))
 				.ExecuteUpdate();
 			clientId = client.Id;
-
-			Reopen();
 
 			Property("ClientCode", clientId);
 			report = new Inforoom.ReportSystem.ByOffers.MatrixReport(clientId, "test", Conn, ReportFormats.Excel, properties);
