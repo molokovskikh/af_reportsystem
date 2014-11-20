@@ -27,6 +27,16 @@ namespace ReportTuner.Test
 		[SetUp]
 		public void SetupFixture()
 		{
+			var holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			var session = holder.CreateSession(typeof(ActiveRecordBase));
+			var ownerId = uint.Parse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"]);
+			if (session.Get<ContactGroupOwner>(ownerId) == null) {
+				session.CreateSQLQuery(String
+					.Format("Insert into contacts.contact_group_owners (Id) VALUES({0})", ownerId)).UniqueResult();
+			}
+			holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			holder.ReleaseSession(session);
+
 			var connectionStringName = ConnectionHelper.GetConnectionName();
 			ConnectionString = ConnectionHelper.GetConnectionString();
 			if (!ActiveRecordStarter.IsInitialized) {
@@ -43,18 +53,6 @@ namespace ReportTuner.Test
 						{ NHibernate.Cfg.Environment.UseSqlComments, "true" }
 					});
 				ActiveRecordStarter.Initialize(new[] { Assembly.Load("Test.Support"), Assembly.Load("ReportTuner"), Assembly.Load("Common.Web.Ui") }, config);
-			}
-
-			using (new SessionScope()) {
-				var holder = ActiveRecordMediator.GetSessionFactoryHolder();
-				var session = holder.CreateSession(typeof(ActiveRecordBase));
-				var ownerId = uint.Parse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"]);
-				if (session.Get<ContactGroupOwner>(ownerId) == null) {
-					session.CreateSQLQuery(String
-						.Format("Insert into contacts.contact_group_owners (Id) VALUES({0})", ownerId)).UniqueResult();
-				}
-				holder = ActiveRecordMediator.GetSessionFactoryHolder();
-				holder.ReleaseSession(session);
 			}
 
 			_webServer = WatinSetup.StartServer();
