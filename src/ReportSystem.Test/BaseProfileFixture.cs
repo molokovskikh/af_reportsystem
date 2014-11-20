@@ -46,16 +46,15 @@ namespace ReportSystem.Test
 			values.Columns.Add("ReportPropertyID");
 			values.Columns.Add("Value");
 
-			Conn = new MySqlConnection(ConfigurationManager.ConnectionStrings[FixtureSetup.ConnectionStringName].ConnectionString);
-			Conn.Open();
+			Conn = (MySqlConnection)session.Connection;
 		}
 
 		[TearDown]
 		public void Stop()
 		{
 			Conn.Dispose();
-			if (File.Exists(_fileName))
-				File.Delete(_fileName);
+			//if (File.Exists(_fileName))
+			//	File.Delete(_fileName);
 			ProfileHelper.End();
 		}
 
@@ -108,10 +107,10 @@ namespace ReportSystem.Test
 
 		public void ProcessReport(Type reportType = null, bool checkEmptyData = false)
 		{
-			Conn = (MySqlConnection)session.Connection;
 			session.Flush();
-			if (reportType != null && report == null)
+			if (reportType != null && report == null) {
 				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
+			}
 
 			report.Session = session;
 			report.CheckEmptyData = checkEmptyData;
@@ -211,8 +210,8 @@ namespace ReportSystem.Test
 
 		protected TestOrder MakeOrder()
 		{
-			var supplier = TestSupplier.CreateNaked();
-			var client = TestClient.CreateNaked();
+			var supplier = TestSupplier.CreateNaked(session);
+			var client = TestClient.CreateNaked(session);
 			return MakeOrder(client, supplier);
 		}
 

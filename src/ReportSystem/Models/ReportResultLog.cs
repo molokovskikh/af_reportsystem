@@ -27,7 +27,8 @@ namespace Inforoom.ReportSystem.Model
 
 		public static ReportResultLog Log(ulong generalReportCode, ulong reportCode, DateTime startTime, DateTime stopTime, string errorMessage)
 		{
-			using (var scope = new TransactionScope(OnDispose.Rollback)) {
+			using (var session = Program.Factory.OpenSession())
+			using (var trx = session.BeginTransaction()) {
 				var log = new ReportResultLog {
 					GeneralReportCode = generalReportCode,
 					ReportCode = reportCode,
@@ -35,8 +36,8 @@ namespace Inforoom.ReportSystem.Model
 					StopTime = stopTime,
 					ErrorMessage = errorMessage
 				};
-				ActiveRecordMediator.Save(log);
-				scope.VoteCommit();
+				session.Save(log);
+				trx.Commit();
 				return log;
 			}
 		}

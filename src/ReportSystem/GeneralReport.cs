@@ -36,7 +36,7 @@ namespace Inforoom.ReportSystem
 
 		public MySqlConnection Connection;
 
-		public IDictionary<string, string> FilesForReport;
+		public IDictionary<string, string> FilesForReport = new Dictionary<string, string>();
 
 		//таблица контактов, по которым надо отправить отчет
 		public List<BaseReport> Reports = new List<BaseReport>();

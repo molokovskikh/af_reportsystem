@@ -70,6 +70,7 @@ namespace ReportSystem.Test
 			report.EMailSubject = "test";
 			report.Contacts = new[] { "kvasovtest@analit.net" };
 			report.Testing = true;
+			report.Connection = (MySqlConnection)session.Connection;
 		}
 
 		[Test]
@@ -112,7 +113,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(new FakeReport());
-			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today, false);
+			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -128,7 +129,7 @@ namespace ReportSystem.Test
 
 			report.NoArchive = true;
 			report.Reports.Add(fakeReport);
-			report.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today, false);
+			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
 			var message = report.Messages[0];
@@ -139,15 +140,14 @@ namespace ReportSystem.Test
 		[Test, Description("Проверяет, что файлы, которые указаны для типа отчета добвалены к отчету")]
 		public void Archive_files_for_report_type()
 		{
-			var report = new FakeGeneralReport();
-			report.Id = 1;
-			report.SendDescriptionFile = true;
-			report.Logger = LogManager.GetLogger(GetType());
-			MySqlConnection connection = null;
-			object reportTypeCode = null;
+			var connection = (MySqlConnection)session.Connection;
 			try {
-				connection = new MySqlConnection(ConnectionHelper.GetConnectionString());
-				connection.Open();
+				var report = new FakeGeneralReport();
+				report.Id = 1;
+				report.SendDescriptionFile = true;
+				report.Connection = connection;
+				object reportTypeCode = null;
+
 				new MySqlCommand("update reports.general_reports r set r.SendDescriptionFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
 				new MySqlCommand("update reports.reports r set r.Enabled = true where generalreportcode = 1", connection).ExecuteNonQuery();
 				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
@@ -172,8 +172,6 @@ namespace ReportSystem.Test
 			}
 			finally {
 				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
-				if (connection != null)
-					connection.Close();
 			}
 		}
 
@@ -189,7 +187,7 @@ namespace ReportSystem.Test
 		{
 			FileHelper.InitDir("history");
 			report.Reports.Add(new FakeReport());
-			report.ProcessReports(new ReportExecuteLog { Id = 1 }, null, false, DateTime.Today, DateTime.Today, false);
+			report.ProcessReports(new ReportExecuteLog { Id = 1 }, (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			var files = Directory.GetFiles("history");
 			Assert.That(files.Length, Is.EqualTo(1), files.Implode());
@@ -198,11 +196,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Log_success()
 		{
-			using (var connection = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
-				connection.Open();
-				report.Connection = connection;
-				report.LogSuccess();
-			}
+			report.LogSuccess();
 		}
 
 		[Test]
@@ -246,8 +240,6 @@ namespace ReportSystem.Test
 		private void AddFile()
 		{
 			File.WriteAllBytes("description.xls", new byte[0]);
-
-			report.FilesForReport = new Dictionary<string, string>();
 			report.FilesForReport.Add("description.xls", "description.xls");
 		}
 	}

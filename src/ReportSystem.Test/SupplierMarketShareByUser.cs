@@ -17,13 +17,19 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class SupplierMarketShareByUserFixture : BaseProfileFixture2
 	{
+		private TestSupplier supplier;
+		private TestOrder order;
+
 		[SetUp]
 		public void Setup()
 		{
-			Property("SupplierId", 5);
+			order = MakeOrder();
+			supplier = order.Price.Supplier;
+			session.Save(order);
+			Property("SupplierId", supplier.Id);
 			Property("Begin", DateTime.Now.AddDays(-10));
-			Property("End", DateTime.Now);
-			Property("Regions", new List<long> { 1, 2, 4 });
+			Property("End", DateTime.Now.AddDays(1));
+			Property("Regions", new List<long> { (long)order.RegionCode });
 			Property("ByPreviousMonth", false);
 			Property("ReportInterval", 12);
 		}
@@ -67,27 +73,22 @@ namespace ReportSystem.Test
 		[Test]
 		public void Calculate_supplier_client_id()
 		{
-			var order = MakeOrder();
-			session.Save(order);
 			var intersection = session.Query<TestIntersection>()
 				.First(i => i.Price == order.Price && i.Client == order.Client);
 			intersection.SupplierClientId = Guid.NewGuid().ToString();
 			session.Save(intersection);
 
-			var data = properties.Tables[0];
-			var row = data.AsEnumerable().First(r => r["PropertyName"].Equals("SupplierId"));
-			data.Rows.Remove(row);
-
-			Property("SupplierId", order.Price.Supplier.Id);
 			Property("Type", 3);
 
 			var report = ReadReport<SupplierMarketShareByUser>();
 			var result = ToText(report);
 			Assert.That(result, Is.StringContaining(intersection.SupplierClientId));
 			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
+			Assert.That(result, Is.StringContaining("Кол-во сессий отправки заказов"));
+			Assert.That(result, Is.StringContaining("Самая поздняя заявка"));
 			//проверяем что в колонке Кол-во поставщиков есть данные
 			var reportRow = report.GetRowEnumerator().Cast<IRow>()
-				.First(r => r.GetCell(0).StringCellValue == intersection.SupplierClientId);
+				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
 			Assert.That(Convert.ToUInt32(reportRow.GetCell(4).StringCellValue), Is.GreaterThan(0));
 		}
 

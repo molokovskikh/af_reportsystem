@@ -5,6 +5,7 @@ using Castle.ActiveRecord.Framework;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
 using Common.Web.Ui.Models;
+using Inforoom.ReportSystem;
 using NHibernate.Cfg;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
@@ -22,6 +23,8 @@ namespace ReportSystem.Test
 		{
 			ConnectionStringName = ConnectionHelper.GetConnectionName();
 			ConnectionString = ConnectionHelper.GetConnectionString();
+			//в тестах не может быть блокировок
+			With.DefaultMaxRepeatCount = 0;
 
 			var nhibernateParams = new Dictionary<string, string> {
 				{ Environment.Dialect, "NHibernate.Dialect.MySQLDialect" },
@@ -49,6 +52,7 @@ namespace ReportSystem.Test
 				foreach (var cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
 					cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 				}
+				Program.Factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 			}
 		}
 	}

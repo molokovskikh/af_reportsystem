@@ -42,7 +42,7 @@ namespace Inforoom.ReportSystem
 	public class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
-		private static ISessionFactory factory;
+		public static ISessionFactory Factory;
 
 		[STAThread]
 		public static int Main(string[] args)
@@ -65,7 +65,7 @@ namespace Inforoom.ReportSystem
 						cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 					}
 				}
-				factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
+				Factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 
 				if (appArgs.ReportId == -1)
 					throw new Exception("Не указан код отчета для запуска в параметре gr.");
@@ -108,7 +108,7 @@ namespace Inforoom.ReportSystem
 			var result = false;
 			var reportLog = new ReportExecuteLog();
 			GeneralReport report = null;
-			using (var session = factory.OpenSession())
+			using (var session = Factory.OpenSession())
 			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				mc.Open();
 				try {

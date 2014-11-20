@@ -83,10 +83,9 @@ namespace Inforoom.ReportSystem.ByOrders
 	public class SupplierMarketShareByUser : OrdersReport
 	{
 		private uint _supplierId;
-		private Period _period;
 		private List<ulong> _regions;
 
-		private Grouping[] groupings = new[] {
+		private Grouping[] groupings = {
 			new Grouping("oh.UserId",
 				new[] {
 					new Column("Empty", string.Empty, "''", false),
@@ -132,21 +131,8 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 		{
 			base.ReadReportParams();
 			_supplierId = Convert.ToUInt32(getReportParam("SupplierId"));
-			_period = new Period(dtFrom, dtTo);
 			_regions = (List<ulong>)getReportParam("Regions");
 			_grouping = groupings[Convert.ToInt32(getReportParam("Type"))];
-		}
-
-		protected override IWriter GetWriter(ReportFormats format)
-		{
-			if (format == ReportFormats.Excel)
-				return new SupplierShareByUserExcelWriter();
-			return null;
-		}
-
-		protected override BaseReportSettings GetSettings()
-		{
-			return new BaseReportSettings(ReportCode, ReportCaption);
 		}
 
 		public override void GenerateReport(ExecuteArgs e)
@@ -222,34 +208,35 @@ from Orders.OrdersHead oh
 where oh.WriteTime > ?begin
 	and oh.WriteTime < ?end
 	and oh.RegionCode in ({0})
-group by oh.UserId", _regions.Implode()), new { begin = _period.Begin, end = _period.End })
+group by oh.UserId", _regions.Implode()), new { begin = dtFrom, end = dtTo })
 				.ToArray();
 
 			connection.Execute(@"
-create temporary table Reports.UserPricesStat(
+create temporary table Reports.UserStat(
 	UserId int unsigned not null,
-	Count int unsigned not null,
+	OrderSendRequestCount int unsigned not null,
 	primary key (UserId)
 ) engine=memory;");
-			foreach (var userId in userIds) {
-				connection.Execute(@"
-call Customers.GetActivePrices(?userId);
-insert into Reports.UserPricesStat(UserId, Count)
-select ?userId, count(*)
-from Usersettings.ActivePrices;
-drop temporary table IF EXISTS Usersettings.ActivePrices;", new { userId });
-			}
+			if (userIds.Length > 0)
+				connection.Execute(String.Format(@"
+insert into Reports.UserStat(UserId, OrderSendRequestCount)
+select l.UserId, count(*)
+from Logs.AnalitfUpdates l
+where l.UserId in ({0}) and l.UpdateType in (4, 11)
+group by l.UserId", userIds.Implode()));
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select {2},
 	sum(ol.Cost * ol.Quantity) as TotalSum,
 	sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum,
-	group_concat(distinct us.Count) as SuppliersCount
+	count(distinct pd.FirmCode) as SuppliersCount,
+	sum(ifnull(us.OrderSendRequestCount, 0)) as OrderSendRequestCount,
+	time(min(oh.WriteTime)) as LastOrder
 from Orders.OrdersHead oh
 	join Orders.OrdersList ol on ol.OrderId = oh.RowId
 	join Customers.Clients c on c.Id = oh.ClientCode
 		join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
-			join Reports.UserPricesStat us on us.UserId = u.Id
+			left join Reports.UserStat us on us.UserId = u.Id
 	join Customers.Addresses a on a.Id = oh.AddressId
 		join Billing.LegalEntities le on le.Id = a.LegalEntityId
 	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
@@ -265,8 +252,8 @@ order by {3}", _regions.Implode(), _grouping.Group,
 				_grouping.Join);
 
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", dtFrom);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", dtTo);
 
 #if DEBUG
 			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
@@ -287,31 +274,39 @@ drop temporary table if exists reports.UserPricesStat;
 			result.Columns.Add("Share", typeof(string));
 			result.Columns.Add("SupplierSum", typeof(string));
 			result.Columns.Add("SuppliersCount", typeof(string));
+			result.Columns.Add("OrderSendRequestCount", typeof(string));
+			result.Columns.Add("LastOrder", typeof(string));
 
 			var supplier = Session.Get<Supplier>(_supplierId);
 			var regions = _regions
 				.Select(id => Region.Find(Convert.ToUInt64(id)));
 
-			result.Rows.Add("Поставщик: " + supplier.Name);
-			result.Rows.Add("Период: c " + _period.Begin.Date + " по " + _period.End.Date);
-			result.Rows.Add("Регионы: " + regions.Implode(r => r.Name));
-			result.Rows.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
+			FilterDescriptions.Add("Поставщик: " + supplier.Name);
+			FilterDescriptions.Add("Регионы: " + regions.Implode(r => r.Name));
+			FilterDescriptions.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
 				" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
-			result.Rows.Add("");
+			FilterDescriptions.Add("");
 
 			result.Columns["SupplierSum"].Caption = string.Format("Сумма по '{0}'", supplier.Name);
 			result.Columns["Share"].Caption = string.Format("Доля '{0}', %", supplier.Name);
 			result.Columns["SuppliersCount"].Caption = "Кол-во поставщиков";
+			result.Columns["OrderSendRequestCount"].Caption = "Кол-во сессий отправки заказов";
+			result.Columns["LastOrder"].Caption = "Самая поздняя заявка";
 			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
 				SetTotalSum(row, resultRow);
 				resultRow["SuppliersCount"] = row["SuppliersCount"];
+				resultRow["LastOrder"] = row["LastOrder"];
+				resultRow["OrderSendRequestCount"] = row["OrderSendRequestCount"];
 				foreach (var column in _grouping.Columns) {
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];
 				}
 				result.Rows.Add(resultRow);
 			}
+			var emptyRowCount = EmptyRowCount;
+			for (var i = 0; i < emptyRowCount; i++)
+				result.Rows.InsertAt(result.NewRow(), 0);
 		}
 
 		public void SetTotalSum(DataRow dataRow, DataRow resultRow)
