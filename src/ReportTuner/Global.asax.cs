@@ -99,7 +99,8 @@ namespace ReportTuner
 				else
 					throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
 
-				try {
+				try
+				{
 					new UpdateReportConfig(session).Execute();
 					trx.Commit();
 				}
