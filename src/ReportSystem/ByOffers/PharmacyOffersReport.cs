@@ -219,18 +219,18 @@ into @OffersSynonymCode;
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_clientCode = (int)getReportParam("ClientCode");
-			_includeProducer = Convert.ToBoolean(getReportParam("IncludeProducer"));
-			_includeQuantity = Convert.ToBoolean(getReportParam("IncludeQuantity"));
-			if (reportParamExists("CostDiffThreshold"))
-				_costDiffThreshold = Convert.ToDecimal(getReportParam("CostDiffThreshold"));
-			if (reportParamExists("ReportIsFull"))
-				_reportIsFull = Convert.ToBoolean(getReportParam("ReportIsFull"));
-			if (reportParamExists("PriceCode"))
-				_priceCode = (int)getReportParam("PriceCode");
+			_clientCode = (int)GetReportParam("ClientCode");
+			_includeProducer = Convert.ToBoolean(GetReportParam("IncludeProducer"));
+			_includeQuantity = Convert.ToBoolean(GetReportParam("IncludeQuantity"));
+			if (ReportParamExists("CostDiffThreshold"))
+				_costDiffThreshold = Convert.ToDecimal(GetReportParam("CostDiffThreshold"));
+			if (ReportParamExists("ReportIsFull"))
+				_reportIsFull = Convert.ToBoolean(GetReportParam("ReportIsFull"));
+			if (ReportParamExists("PriceCode"))
+				_priceCode = (int)GetReportParam("PriceCode");
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			CheckPriceCode(e);
 

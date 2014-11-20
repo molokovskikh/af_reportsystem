@@ -130,12 +130,12 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_supplierId = Convert.ToUInt32(getReportParam("SupplierId"));
-			_regions = (List<ulong>)getReportParam("Regions");
-			_grouping = groupings[Convert.ToInt32(getReportParam("Type"))];
+			_supplierId = Convert.ToUInt32(GetReportParam("SupplierId"));
+			_regions = (List<ulong>)GetReportParam("Regions");
+			_grouping = groupings[Convert.ToInt32(GetReportParam("Type"))];
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			var connection = e.DataAdapter.SelectCommand.Connection;
 			var supplierDeliveryIdSql = @"DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;

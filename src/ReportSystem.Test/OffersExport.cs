@@ -4,6 +4,7 @@ using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.Models.Reports;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Test.Support;
 using Test.Support.Suppliers;

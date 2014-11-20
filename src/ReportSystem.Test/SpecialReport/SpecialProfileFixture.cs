@@ -29,7 +29,7 @@ namespace ReportSystem.Test
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialCount);
 			var report = new SpecReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialCount);
-			ProductQuantityTest(report.DSResult, Convert.ToUInt32(report.getReportParam("PriceCode")));
+			ProductQuantityTest(report.DSResult, Convert.ToUInt32(report.GetReportParam("PriceCode")));
 		}
 
 		[Test]

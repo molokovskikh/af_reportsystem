@@ -24,7 +24,7 @@ namespace ReportSystem.Test.ProviderReport
 		{
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			GetOffers();
 			var dataSet = MySqlHelper.ExecuteDataset(
@@ -55,7 +55,7 @@ from
 		{
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 		}
 	}
@@ -71,7 +71,7 @@ from
 			return GetClientsNamesFromSQL(equalValues);
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 		}
 	}

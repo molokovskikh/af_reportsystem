@@ -34,8 +34,8 @@ namespace Inforoom.ReportSystem
 		{
 			base.ReadReportParams();
 
-			if (reportParamExists("AddressRivals"))
-				AddressRivals = (List<ulong>)getReportParam("AddressRivals");
+			if (ReportParamExists("AddressRivals"))
+				AddressRivals = (List<ulong>)GetReportParam("AddressRivals");
 		}
 
 		public string ReadAddress(List<ulong> ids)
@@ -44,7 +44,7 @@ namespace Inforoom.ReportSystem
 			return ReadNames(field, ids);
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
 			var _clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)sourceFirmCode }));

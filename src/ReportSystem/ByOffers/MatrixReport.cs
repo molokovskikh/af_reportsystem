@@ -55,7 +55,7 @@ namespace Inforoom.ReportSystem.ByOffers
 			{ "OriginalProducerName", 40 }
 		};
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			var rules = Session.Get<OrderRules>((uint)_clientCode);
 			_client = Session.Get<Client>((uint)_clientCode);
@@ -249,7 +249,7 @@ AT.PriceDate as PriceDate,
 		public override void ReadReportParams()
 		{
 			if (_reportParams.ContainsKey("ClientCode")) {
-				_clientCode = Convert.ToInt32(getReportParam("ClientCode"));
+				_clientCode = Convert.ToInt32(GetReportParam("ClientCode"));
 			}
 		}
 	}

@@ -25,17 +25,17 @@ namespace Inforoom.ReportSystem.ByOrders
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			sourceFirmCode = (int)getReportParam("SourceFirmCode"); // поставщик
-			reportType = (int)getReportParam("ReportType");
+			sourceFirmCode = (int)GetReportParam("SourceFirmCode"); // поставщик
+			reportType = (int)GetReportParam("ReportType");
 			if (_reportParams.ContainsKey("RegionEqual")) {
-				regions = (List<ulong>)getReportParam("RegionEqual");
+				regions = (List<ulong>)GetReportParam("RegionEqual");
 				if (regions.Contains(0))
 					regions.Clear(); // все регионы
 				regionsString = String.Join(", ", regions.ConvertAll(value => value.ToString()).ToArray());
 			}
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			FilterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
 			if (!String.IsNullOrEmpty(regionsString))

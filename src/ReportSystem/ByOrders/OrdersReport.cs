@@ -202,7 +202,7 @@ namespace Inforoom.ReportSystem
 
 		public virtual void CheckAfterLoadFields()
 		{
-			firmCrPosition = reportParamExists("FirmCrPosition");
+			firmCrPosition = ReportParamExists("FirmCrPosition");
 
 			var mnn = selectedField.FirstOrDefault(f => f.reportPropertyPreffix == "Mnn");
 			var names = selectedField.Where(f => nameFields.Contains(f.reportPropertyPreffix));
@@ -211,7 +211,7 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 		}
 

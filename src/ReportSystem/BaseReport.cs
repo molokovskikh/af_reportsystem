@@ -5,15 +5,11 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Castle.ActiveRecord;
 using Common.MySql;
 using Common.Tools;
-using Common.Web.Ui.ActiveRecordExtentions;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
-using Inforoom.ReportSystem.Properties;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
 using Microsoft.Office.Interop.Excel;
@@ -197,13 +193,13 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		public abstract void GenerateReport(ExecuteArgs e);
+		protected abstract void GenerateReport(ExecuteArgs e);
 
 		public virtual void ReadReportParams()
 		{
 			foreach (var property in GetType().GetProperties()) {
-				if (reportParamExists(property.Name)) {
-					var value = getReportParam(property.Name);
+				if (ReportParamExists(property.Name)) {
+					var value = GetReportParam(property.Name);
 					if (value == null)
 						continue;
 					if (!property.PropertyType.IsAssignableFrom(value.GetType()))
@@ -212,8 +208,8 @@ namespace Inforoom.ReportSystem
 				}
 			}
 			foreach (var field in GetType().GetFields()) {
-				if (reportParamExists(field.Name)) {
-					var value = getReportParam(field.Name);
+				if (ReportParamExists(field.Name)) {
+					var value = GetReportParam(field.Name);
 					if (value == null)
 						continue;
 					if (!field.FieldType.IsAssignableFrom(value.GetType()))
@@ -415,9 +411,9 @@ namespace Inforoom.ReportSystem
 			return _dsReport.Tables["Results"];
 		}
 
-		protected string GetValuesFromSQL(string SQL)
+		protected string GetValuesFromSQL(string sql)
 		{
-			args.DataAdapter.SelectCommand.CommandText = SQL;
+			args.DataAdapter.SelectCommand.CommandText = sql;
 			args.DataAdapter.SelectCommand.Parameters.Clear();
 			var dtValues = new DataTable();
 			args.DataAdapter.Fill(dtValues);
@@ -425,17 +421,17 @@ namespace Inforoom.ReportSystem
 			return (from DataRow dr in dtValues.Rows select dr[0]).Implode();
 		}
 
-		public object getReportParam(string ParamName)
+		public object GetReportParam(string paramName)
 		{
-			if (_reportParams.ContainsKey(ParamName))
-				return _reportParams[ParamName];
+			if (_reportParams.ContainsKey(paramName))
+				return _reportParams[paramName];
 			else
-				throw new ReportException(String.Format("Параметр '{0}' не найден.", ParamName));
+				throw new ReportException(String.Format("Параметр '{0}' не найден.", paramName));
 		}
 
-		public bool reportParamExists(string ParamName)
+		public bool ReportParamExists(string paramName)
 		{
-			return _reportParams.ContainsKey(ParamName);
+			return _reportParams.ContainsKey(paramName);
 		}
 
 		protected virtual IWriter GetWriter(ReportFormats format)
@@ -459,16 +455,6 @@ namespace Inforoom.ReportSystem
 )
 ",
 				productIdAlias);
-		}
-
-		public string GetProductNameSubquery(string productIdAlias)
-		{
-			return QueryParts.GetFullFormSubquery(productIdAlias, true);
-		}
-
-		public string GetFullFormSubquery(string productIdAlias)
-		{
-			return QueryParts.GetFullFormSubquery(productIdAlias, false);
 		}
 
 		protected string GetClientsNamesFromSQL(List<ulong> equalValues)

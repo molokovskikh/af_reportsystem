@@ -49,10 +49,10 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_reportType = (int)getReportParam("ReportType");
-			_showPercents = (bool)getReportParam("ShowPercents");
-			_clientCode = (int)getReportParam("ClientCode");
-			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
+			_reportType = (int)GetReportParam("ReportType");
+			_showPercents = (bool)GetReportParam("ShowPercents");
+			_clientCode = (int)GetReportParam("ClientCode");
+			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
 		}
 
 		private void ByWeightProcessing(ExecuteArgs e)
@@ -150,7 +150,7 @@ order by Core.Cost DESC";
 			Calculate();
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			// Если отчет строится по взвешенным ценам, то используем другой источник данных
 			// Вместо идентификатора прайса используем идентификатор поставщика

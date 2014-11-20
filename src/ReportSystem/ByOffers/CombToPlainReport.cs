@@ -31,10 +31,10 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_clientCode = (int)getReportParam("ClientCode");
+			_clientCode = (int)GetReportParam("ClientCode");
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			//Выбираем
 			GetOffers(_SupplierNoise);

@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Common.MySql;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
@@ -12,6 +13,7 @@ using MySql.Data.MySqlClient;
 
 using System.Data;
 using System.Configuration;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace Inforoom.ReportSystem
 {
@@ -43,26 +45,26 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			if (_reportParams.ContainsKey("SupplierNoise"))
-				_SupplierNoise = (int)getReportParam("SupplierNoise");
+				_SupplierNoise = (int)GetReportParam("SupplierNoise");
 
-			_byWeightCosts = reportParamExists("ByWeightCosts") ? (bool)getReportParam("ByWeightCosts") : false;
+			_byWeightCosts = ReportParamExists("ByWeightCosts") ? (bool)GetReportParam("ByWeightCosts") : false;
 			if (_byWeightCosts) {
-				_regions = (List<ulong>)getReportParam("RegionEqual");
+				_regions = (List<ulong>)GetReportParam("RegionEqual");
 			}
 			// если отчет строится по базовым ценам, определяем список прайсов и регионов
-			_byBaseCosts = reportParamExists("ByBaseCosts") ? (bool)getReportParam("ByBaseCosts") : false;
+			_byBaseCosts = ReportParamExists("ByBaseCosts") ? (bool)GetReportParam("ByBaseCosts") : false;
 			if (_byBaseCosts) {
-				if(reportParamExists("PriceCodeEqual"))
-					_prices = (List<ulong>)getReportParam("PriceCodeEqual");
+				if(ReportParamExists("PriceCodeEqual"))
+					_prices = (List<ulong>)GetReportParam("PriceCodeEqual");
 				else {
 					_prices = null;
 				}
-				_regions = (List<ulong>)getReportParam("RegionEqual");
+				_regions = (List<ulong>)GetReportParam("RegionEqual");
 			}
 
 			if (_reportParams.ContainsKey("UserCode")) {
-				if (!String.IsNullOrEmpty(getReportParam("UserCode").ToString()))
-					_userCode = (int)getReportParam("UserCode");
+				if (!String.IsNullOrEmpty(GetReportParam("UserCode").ToString()))
+					_userCode = (int)GetReportParam("UserCode");
 			}
 		}
 
@@ -465,7 +467,7 @@ select * from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceR
 			if (byCatalog)
 				withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetCatalogProductNameSubquery("p.id"));
 			else
-				withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetProductNameSubquery("p.id"));
+				withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", QueryParts.GetFullFormSubquery("p.id", true));
 
 			var firmcr = withProducers ? " and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0) " : string.Empty;
 			var producerId = withProducers ? " ifnull(c00.CodeFirmCr, 0) " : " 0 ";

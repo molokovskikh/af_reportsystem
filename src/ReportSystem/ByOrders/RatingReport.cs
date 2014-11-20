@@ -57,7 +57,7 @@ namespace Inforoom.ReportSystem
 			});
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("Processing1");
 
@@ -107,7 +107,7 @@ where pd.IsLocal = 0", OrdersSchema));
 				selectCommand = String.Concat(selectCommand, Environment.NewLine +
 					String.Format("and exists (select * from farm.Core0 cr where cr.ProductId = p.Id and cr.pricecode in ({0}))",
 						String.Join(",", ProductFromPriceEqual.ToArray())));
-				if(reportParamExists("FirmCrPosition")) {
+				if(ReportParamExists("FirmCrPosition")) {
 					selectCommand = String.Concat(selectCommand, Environment.NewLine +
 						String.Format("and exists (select * from farm.Core0 cr join farm.synonymfirmcr fcr on cr.SynonymFirmCrCode=fcr.SynonymFirmCrCode" +
 							" where fcr.CodeFirmCr = cfc.Id and cr.pricecode in ({0}))",

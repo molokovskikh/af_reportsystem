@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Common.MySql;
 using Common.Tools;
 
 using Inforoom.ReportSystem.Helpers;
@@ -77,15 +78,15 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			priceForCorel = (int)getReportParam("PriceCode");
-			_ProducerAccount = (bool)getReportParam("ProducerAccount");
-			_AllAssortment = (bool)getReportParam("AllAssortment");
-			_WithWithoutProperties = (bool)getReportParam("WithWithoutProperties");
-			_showCodeCr = (bool)getReportParam("ShowCodeCr");
+			priceForCorel = (int)GetReportParam("PriceCode");
+			_ProducerAccount = (bool)GetReportParam("ProducerAccount");
+			_AllAssortment = (bool)GetReportParam("AllAssortment");
+			_WithWithoutProperties = (bool)GetReportParam("WithWithoutProperties");
+			_showCodeCr = (bool)GetReportParam("ShowCodeCr");
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
-				_suppliers = (List<ulong>)getReportParam("FirmCodeEqual");
+				_suppliers = (List<ulong>)GetReportParam("FirmCodeEqual");
 			if (_reportParams.ContainsKey("IgnoredSuppliers"))
-				_suppliers = (List<ulong>)getReportParam("IgnoredSuppliers");
+				_suppliers = (List<ulong>)GetReportParam("IgnoredSuppliers");
 
 			_RegionEqual = new List<ulong>();
 			_RegionNonEqual = new List<ulong>();
@@ -94,23 +95,23 @@ namespace Inforoom.ReportSystem
 			_Clients = new List<ulong>();
 			_ClientsNON = new List<ulong>();
 			if (_reportParams.ContainsKey("RegionEqual")) {
-				_RegionEqual = (List<ulong>)getReportParam("RegionEqual");
+				_RegionEqual = (List<ulong>)GetReportParam("RegionEqual");
 				regionNotInprefix = " IN ";
 				_regions = _RegionEqual;
 			}
 			if (_reportParams.ContainsKey("RegionNonEqual")) {
-				_RegionNonEqual = (List<ulong>)getReportParam("RegionNonEqual");
+				_RegionNonEqual = (List<ulong>)GetReportParam("RegionNonEqual");
 				regionNotInprefix = " NOT IN ";
 				_regions = _RegionNonEqual;
 			}
 			if (_reportParams.ContainsKey("PayerEqual"))
-				_PayerEqual = (List<ulong>)getReportParam("PayerEqual");
+				_PayerEqual = (List<ulong>)GetReportParam("PayerEqual");
 			if (_reportParams.ContainsKey("PayerNonEqual"))
-				_PayerNonEqual = (List<ulong>)getReportParam("PayerNonEqual");
+				_PayerNonEqual = (List<ulong>)GetReportParam("PayerNonEqual");
 			if (_reportParams.ContainsKey("Clients"))
-				_Clients = (List<ulong>)getReportParam("Clients");
+				_Clients = (List<ulong>)GetReportParam("Clients");
 			if (_reportParams.ContainsKey("ClientsNON"))
-				_ClientsNON = (List<ulong>)getReportParam("ClientsNON");
+				_ClientsNON = (List<ulong>)GetReportParam("ClientsNON");
 
 			_groupingFieldText = _WithWithoutProperties ? "CatalogId" : "ProductId";
 			if (_regions != null)
@@ -119,7 +120,7 @@ namespace Inforoom.ReportSystem
 				}
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("Начало формирования запроса");
 			ex = e;
@@ -144,7 +145,7 @@ namespace Inforoom.ReportSystem
 				if (_WithWithoutProperties)
 					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetCatalogProductNameSubquery("p.id"));
 				else
-					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", GetProductNameSubquery("p.id"));
+					withWithoutPropertiesText = String.Format(@" if(C0.SynonymCode is not null, S.Synonym, {0}) ", QueryParts.GetFullFormSubquery("p.id", true));
 				var firmcr = _ProducerAccount ? "and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0)" : string.Empty;
 
 				var JunkWhere = _regionsWhere.Length == 0 ? " WHERE c00.Junk = 0 " : " AND c00.Junk = 0 ";

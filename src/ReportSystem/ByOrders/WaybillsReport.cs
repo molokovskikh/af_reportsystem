@@ -30,10 +30,10 @@ namespace Inforoom.ReportSystem.ByOrders
 		{
 			base.ReadReportParams();
 
-			orgId = (int)getReportParam("OrgId");
+			orgId = (int)GetReportParam("OrgId");
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			var sql = @"
 drop temporary table if exists uniq_document_lines;

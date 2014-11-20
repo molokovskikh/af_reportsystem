@@ -40,15 +40,15 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			var tmpReportType = (int)getReportParam("ReportType");
+			var tmpReportType = (int)GetReportParam("ReportType");
 			var v = Enum.GetValues(typeof(DefReportType));
 			if (((int)v.GetValue(0) <= tmpReportType) && (tmpReportType <= (int)v.GetValue(v.Length - 1)))
 				_reportType = (DefReportType)tmpReportType;
 			else
 				throw new ArgumentOutOfRangeException("ReportType", tmpReportType, "Значение параметра не входит в область допустимых значений.");
 
-			_priceCode = (int)getReportParam("PriceCode");
-			_clientCode = (int)getReportParam("ClientCode");
+			_priceCode = (int)GetReportParam("PriceCode");
+			_clientCode = (int)GetReportParam("ClientCode");
 		}
 
 		private void ProcessWeigth(ExecuteArgs e)
@@ -312,7 +312,7 @@ where
 			ProfileHelper.End();
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("PreGetOffers");
 			if (_priceCode == 0)
@@ -557,7 +557,7 @@ from
  )
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm;
-", GetFullFormSubquery("OtherByPrice.ProductId"));
+", QueryParts.GetFullFormSubquery("OtherByPrice.ProductId", false));
 					break;
 				}
 
@@ -613,7 +613,7 @@ from
 	join Catalogs.Producers on Producers.Id = OtherByPrice.CodeFirmCr
 where catalog.Pharmacie = 1
 order by CatalogNames.Name, FullForm, Producers.Name;
-", GetFullFormSubquery("OtherByPrice.ProductId"));
+", QueryParts.GetFullFormSubquery("OtherByPrice.ProductId", false));
 					break;
 				}
 			}

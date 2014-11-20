@@ -27,13 +27,13 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_supplierId = (int)getReportParam("FirmCode");
-			_Clients = (List<ulong>)getReportParam("Clients");
+			_supplierId = (int)GetReportParam("FirmCode");
+			_Clients = (List<ulong>)GetReportParam("Clients");
 			if (_Clients.Count == 0)
 				throw new ReportException("Не установлен параметр \"Список аптек\".");
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			foreach (var client in _Clients) {
 				_clientCode = Convert.ToInt32(client);

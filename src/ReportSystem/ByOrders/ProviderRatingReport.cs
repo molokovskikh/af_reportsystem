@@ -30,7 +30,7 @@ namespace Inforoom.ReportSystem
 		{
 			base.ReadReportParams();
 
-			providerCount = (int)getReportParam(providerCountProperty);
+			providerCount = (int)GetReportParam(providerCountProperty);
 			if (providerCount <= 0)
 				throw new ReportException(String.Format("Некорректно задан параметр 'Кол-во поставщиков': {0}", providerCount));
 		}
@@ -46,7 +46,7 @@ namespace Inforoom.ReportSystem
 			provideNameField.visible = true;
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("Processing1");
 			var selectCommand = BuildSelect();

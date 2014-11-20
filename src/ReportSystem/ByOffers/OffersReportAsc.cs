@@ -6,12 +6,13 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-
+using Common.MySql;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using Microsoft.Office.Interop.Excel;
 using DataTable = System.Data.DataTable;
 using MSExcel = Microsoft.Office.Interop.Excel;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace Inforoom.ReportSystem
 {
@@ -35,16 +36,16 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadBaseReportParams();
-			_reportType = (int)getReportParam("ReportType");
+			_reportType = (int)GetReportParam("ReportType");
 			if (!_byBaseCosts && !_byWeightCosts)
-				_clientCode = (int)getReportParam("ClientCode");
-			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
-			_priceCode = (int)getReportParam("PriceCode");
-			_reportIsFull = (bool)getReportParam("ReportIsFull");
-			_maxCostCount = (int)getReportParam("MaxCostCount");
+				_clientCode = (int)GetReportParam("ClientCode");
+			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
+			_priceCode = (int)GetReportParam("PriceCode");
+			_reportIsFull = (bool)GetReportParam("ReportIsFull");
+			_maxCostCount = (int)GetReportParam("MaxCostCount");
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("PreGetOffers");
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
@@ -335,7 +336,7 @@ select
 			if (_calculateByCatalog)
 				sql += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
 			else
-				sql += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("AllPrices.ProductId"));
+				sql += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", QueryParts.GetFullFormSubquery("AllPrices.ProductId", true));
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
 			if (_reportType <= 2)
 				sql += @"

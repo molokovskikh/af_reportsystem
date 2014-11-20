@@ -86,10 +86,7 @@ namespace ReportSystem.Test
 			report.From = DateTime.Today;
 			report.To = DateTime.Today.AddDays(1);
 			report.ReadReportParams();
-
-			report.GenerateReport(new ExecuteArgs {
-				DataAdapter = new MySqlDataAdapter("", (MySqlConnection)session.Connection)
-			});
+			report.ProcessReport();
 			return report.GetReportTable();
 		}
 	}

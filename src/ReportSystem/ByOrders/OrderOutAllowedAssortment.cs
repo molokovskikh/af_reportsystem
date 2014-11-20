@@ -24,7 +24,7 @@ namespace Inforoom.ReportSystem.ByOrders
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_clientId = Convert.ToUInt32(getReportParam("ClientCode"));
+			_clientId = Convert.ToUInt32(GetReportParam("ClientCode"));
 			_period = new Period(dtFrom, dtTo);
 		}
 
@@ -40,7 +40,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			return new BaseReportSettings(ReportCode, ReportCaption);
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 SELECT O.WriteTime,

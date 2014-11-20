@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem.Models.Reports
 			DbfSupported = true;
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			Connection.Execute("call Customers.GetOffers(?userId);", new { userId = UserId });
 			data = Connection.Fill(@"

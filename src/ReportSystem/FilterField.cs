@@ -81,19 +81,19 @@ namespace Inforoom.ReportSystem.Filters
 			bool fieldIsSelected = false;
 
 			//Если Position существует, то тогда параметр должен отображаться в заголовке отчета и по этому параметру будет группировка
-			if (Parent.reportParamExists(reportPropertyPreffix + PositionSuffix)) {
-				position = (int)Parent.getReportParam(reportPropertyPreffix + PositionSuffix);
+			if (Parent.ReportParamExists(reportPropertyPreffix + PositionSuffix)) {
+				position = (int)Parent.GetReportParam(reportPropertyPreffix + PositionSuffix);
 				visible = true;
 				fieldIsSelected = true;
 			}
 
-			if (Parent.reportParamExists(reportPropertyPreffix + EqualSuffix)) {
-				equalValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + EqualSuffix);
+			if (Parent.ReportParamExists(reportPropertyPreffix + EqualSuffix)) {
+				equalValues = (List<ulong>)Parent.GetReportParam(reportPropertyPreffix + EqualSuffix);
 				fieldIsSelected = true;
 			}
 
-			if (Parent.reportParamExists(reportPropertyPreffix + NonEqualSuffix)) {
-				nonEqualValues = (List<ulong>)Parent.getReportParam(reportPropertyPreffix + NonEqualSuffix);
+			if (Parent.ReportParamExists(reportPropertyPreffix + NonEqualSuffix)) {
+				nonEqualValues = (List<ulong>)Parent.GetReportParam(reportPropertyPreffix + NonEqualSuffix);
 				fieldIsSelected = true;
 			}
 

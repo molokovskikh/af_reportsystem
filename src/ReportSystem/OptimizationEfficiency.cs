@@ -65,7 +65,7 @@ where cr.SupplierId=?supplier order by s.Name;";
 			return suppliers.Implode();
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			_suppliersConcurent = GetCostOptimizationConcurents(e, _supplierId);
 			_supplierName = GetSupplierName(e, _supplierId);
@@ -285,10 +285,10 @@ where diff > 0";
 			if (_reportParams.ContainsKey("ClientCode"))
 				_clientId = (int)_reportParams["ClientCode"];
 
-			_supplierId = (int)getReportParam("FirmCode");
+			_supplierId = (int)GetReportParam("FirmCode");
 
-			_reportInterval = (int)getReportParam("ReportInterval");
-			_byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
+			_reportInterval = (int)GetReportParam("ReportInterval");
+			_byPreviousMonth = (bool)GetReportParam("ByPreviousMonth");
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)

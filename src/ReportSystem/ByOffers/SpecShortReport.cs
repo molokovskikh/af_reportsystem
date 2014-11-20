@@ -82,7 +82,7 @@ namespace Inforoom.ReportSystem
 			_hash = new Hashtable();
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			NewGeneratereport(e);
 
@@ -293,17 +293,17 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 		public override void ReadReportParams()
 		{
 			if (_reportParams.ContainsKey("SupplierNoise"))
-				_SupplierNoise = (int)getReportParam("SupplierNoise");
-			_reportType = (int)getReportParam("ReportType");
-			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
-			_priceCode = (int)getReportParam("PriceCode");
-			_reportIsFull = (bool)getReportParam("ReportIsFull");
-			if (reportParamExists("ShowCodeCr")) // показывать код изготовителя
+				_SupplierNoise = (int)GetReportParam("SupplierNoise");
+			_reportType = (int)GetReportParam("ReportType");
+			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
+			_priceCode = (int)GetReportParam("PriceCode");
+			_reportIsFull = (bool)GetReportParam("ReportIsFull");
+			if (ReportParamExists("ShowCodeCr")) // показывать код изготовителя
 				_showCodeCr = (bool)_reportParams["ShowCodeCr"];
 			else
 				_showCodeCr = false;
 
-			_Clients = (List<ulong>)getReportParam("Clients");
+			_Clients = (List<ulong>)GetReportParam("Clients");
 			//если не делать приведения nhibernate валится с ошибкой
 			//System.NotSupportedException : Don't currently support idents of type UInt64
 			var ids = _Clients.Select(l => (uint)l).ToArray();
@@ -313,12 +313,12 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				throw new ReportException("Не установлен параметр \"Список аптек\".");
 
 			if (_reportParams.ContainsKey("WithoutAssortmentPrice"))
-				WithoutAssortmentPrice = (bool)getReportParam("WithoutAssortmentPrice");
+				WithoutAssortmentPrice = (bool)GetReportParam("WithoutAssortmentPrice");
 			if (WithoutAssortmentPrice)
 				_reportIsFull = true;
 
 			if (_reportParams.ContainsKey("CodesWithoutProducer")) // Выставление кодов без учета изготовителя
-				_codesWithoutProducer = (bool)getReportParam("CodesWithoutProducer");
+				_codesWithoutProducer = (bool)GetReportParam("CodesWithoutProducer");
 		}
 
 		protected override void Calculate()

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Common.MySql;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
@@ -18,6 +19,7 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Configuration;
 using DataTable = System.Data.DataTable;
+using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace Inforoom.ReportSystem
 {
@@ -81,14 +83,14 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_reportType = (int)getReportParam("ReportType");
-			_showPercents = (bool)getReportParam("ShowPercents");
-			_reportIsFull = (bool)getReportParam("ReportIsFull");
-			_reportSortedByPrice = (bool)getReportParam("ReportSortedByPrice");
+			_reportType = (int)GetReportParam("ReportType");
+			_showPercents = (bool)GetReportParam("ShowPercents");
+			_reportIsFull = (bool)GetReportParam("ReportIsFull");
+			_reportSortedByPrice = (bool)GetReportParam("ReportSortedByPrice");
 			if (!_byBaseCosts)
-				_clientCode = (int)getReportParam("ClientCode");
-			_calculateByCatalog = (bool)getReportParam("CalculateByCatalog");
-			_priceCode = (int)getReportParam("PriceCode");
+				_clientCode = (int)GetReportParam("ClientCode");
+			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
+			_priceCode = (int)GetReportParam("PriceCode");
 			_selfPrice = _priceCode;
 		}
 
@@ -222,7 +224,7 @@ select
   SourcePrice.Code,
   ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode,
   c0.Id as CoreCode, ";
-			SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("c0.ProductId"));
+			SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", QueryParts.GetFullFormSubquery("c0.ProductId", true));
 
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
 			if (_reportType <= 2)
@@ -467,7 +469,7 @@ where regionCode = ?region and PriceCode = ?price;";
 			return int.Parse(count.ToString()) > 0;
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 			if (_priceCode == 0)
@@ -1060,7 +1062,7 @@ select
 			if (_calculateByCatalog)
 				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
 			else
-				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("FarmCore.ProductId"));
+				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", QueryParts.GetFullFormSubquery("FarmCore.ProductId", true));
 			SqlCommandText += @"
   min(AllPrices.cost) As MinCost, -- здесь должна быть минимальная цена
   avg(AllPrices.cost) As AvgCost, -- здесь должна быть средняя цена
@@ -1153,7 +1155,7 @@ select
 			if (_calculateByCatalog)
 				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetCatalogProductNameSubquery("AllPrices.ProductId"));
 			else
-				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", GetProductNameSubquery("FarmCore.ProductId"));
+				SqlCommandText += String.Format(" ifnull(s.Synonym, {0}) as FullName, ", QueryParts.GetFullFormSubquery("FarmCore.ProductId", true));
 
 			//Если отчет без учета производителя, то код не учитываем и выводим "-"
 			if (_reportType <= 2)

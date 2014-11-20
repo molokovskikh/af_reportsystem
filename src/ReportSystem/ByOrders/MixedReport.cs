@@ -57,10 +57,10 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			showCode = reportParamExists(showCodeProperty) && (bool)getReportParam(showCodeProperty); // показывать код поставщика
-			showCodeCr = reportParamExists(showCodeCrProperty) && (bool)getReportParam(showCodeCrProperty); // показывать код изготовителя
+			showCode = ReportParamExists(showCodeProperty) && (bool)GetReportParam(showCodeProperty); // показывать код поставщика
+			showCodeCr = ReportParamExists(showCodeCrProperty) && (bool)GetReportParam(showCodeCrProperty); // показывать код изготовителя
 
-			sourceFirmCode = (int)getReportParam(sourceFirmCodeProperty); // поставщик
+			sourceFirmCode = (int)GetReportParam(sourceFirmCodeProperty); // поставщик
 			if (sourceFirmCode == 0)
 				throw new ReportException("Не установлен параметр \"Поставщик\".");
 
@@ -107,7 +107,7 @@ namespace Inforoom.ReportSystem
 			nameField = nameFields[0];
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
 			_supplierName = String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode));

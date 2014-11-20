@@ -38,7 +38,7 @@ namespace Inforoom.ReportSystem.Model
 			registredField.Remove(registredField.First(f => f.primaryField == "ol.Code"));
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			var join = CalculateSupplierIds(e, SupplierId, ShowCode, ShowCodeCr);
 

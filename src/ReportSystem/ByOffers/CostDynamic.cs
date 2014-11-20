@@ -123,7 +123,7 @@ namespace Inforoom.ReportSystem.ByOffers
 		{
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			command = args.DataAdapter.SelectCommand;
 			if (regions.Length == 0) {
@@ -445,15 +445,15 @@ and a.Date = ?date
 		public override void ReadReportParams()
 		{
 			date = DateTime.Today.AddDays(-1);
-			if (reportParamExists("date"))
-				date = (DateTime)getReportParam("date");
+			if (ReportParamExists("date"))
+				date = (DateTime)GetReportParam("date");
 
 			if (From != DateTime.MinValue)
 				date = From;
 
-			someDate = (DateTime)getReportParam("someDate");
-			regions = ((List<ulong>)getReportParam("regions")).ToArray();
-			suppliers = ((List<ulong>)getReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
+			someDate = (DateTime)GetReportParam("someDate");
+			regions = ((List<ulong>)GetReportParam("regions")).ToArray();
+			suppliers = ((List<ulong>)GetReportParam("suppliers")).Select(Convert.ToUInt32).ToArray();
 
 			LoadFilters();
 		}

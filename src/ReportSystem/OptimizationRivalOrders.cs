@@ -28,7 +28,7 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport(ExecuteArgs e)
 		{
 			_suppliersConcurent = OptimizationEfficiency.GetCostOptimizationConcurents(e, _supplierId);
 			_supplierName = OptimizationEfficiency.GetSupplierName(e, _supplierId);
@@ -183,9 +183,9 @@ order by oh.writetime, ol.RowId;";
 		{
 			if (_reportParams.ContainsKey("ClientCode"))
 				_clientId = (int)_reportParams["ClientCode"];
-			_supplierId = (int)getReportParam("FirmCode");
-			_reportInterval = (int)getReportParam("ReportInterval");
-			_byPreviousMonth = (bool)getReportParam("ByPreviousMonth");
+			_supplierId = (int)GetReportParam("FirmCode");
+			_reportInterval = (int)GetReportParam("ReportInterval");
+			_byPreviousMonth = (bool)GetReportParam("ByPreviousMonth");
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
