@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using Inforoom.ReportSystem.Writers;
 using Inforoom.ReportSystem.ReportSettings;
-using ExecuteTemplate;
+
 
 namespace Inforoom.ReportSystem
 {

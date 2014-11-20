@@ -12,7 +12,7 @@ using Inforoom.ReportSystem.Helpers;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using Inforoom.ReportSystem.Filters;
-using ExecuteTemplate;
+
 using System.Data;
 using DataTable = System.Data.DataTable;
 using MSExcel = Microsoft.Office.Interop.Excel;

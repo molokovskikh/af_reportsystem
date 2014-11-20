@@ -11,7 +11,6 @@ using Castle.ActiveRecord;
 using Common.MySql;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
-using ExecuteTemplate;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
 using Inforoom.ReportSystem.Properties;
@@ -25,6 +24,11 @@ using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
+	public class ExecuteArgs
+	{
+		public MySqlDataAdapter DataAdapter { get; set; }
+	}
+
 	public enum ReportFormats
 	{
 		Excel,
@@ -36,7 +40,6 @@ namespace Inforoom.ReportSystem
 	public sealed class BaseReportColumns
 	{
 		public const string colReportCode = "ReportCode";
-		//public const string colSendFile = "SendFile";
 		public const string colGeneralReportCode = "GeneralReportCode";
 		public const string colReportCaption = "ReportCaption";
 		public const string colReportTypeCode = "ReportTypeCode";
@@ -223,15 +226,13 @@ namespace Inforoom.ReportSystem
 		public void ProcessReport()
 		{
 			_dtStart = DateTime.Now;
-			MethodTemplate.ExecuteMethod(new ExecuteArgs(), ProcessReportExec, false, Connection);
-		}
-
-		protected bool ProcessReportExec(ExecuteArgs e)
-		{
-			args = e;
-			_dsReport.Clear();
-			GenerateReport(e);
-			return true;
+			With.DeadlockWraper(() => {
+				args = new ExecuteArgs {
+					DataAdapter = new MySqlDataAdapter("", Connection)
+				};
+				_dsReport.Clear();
+				GenerateReport(args);
+			});
 		}
 
 		public virtual void ReportToFile(string fileName)

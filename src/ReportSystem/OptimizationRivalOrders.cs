@@ -28,7 +28,7 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
+		public override void GenerateReport(ExecuteArgs e)
 		{
 			_suppliersConcurent = OptimizationEfficiency.GetCostOptimizationConcurents(e, _supplierId);
 			_supplierName = OptimizationEfficiency.GetSupplierName(e, _supplierId);

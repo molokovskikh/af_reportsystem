@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
-using ExecuteTemplate;
+
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Model;
 using NUnit.Framework;

@@ -11,6 +11,7 @@ using Inforoom.ReportSystem.Helpers;
 
 namespace ReportSystem.Test
 {
+	[Obsolete("Устаревший код не использовать")]
 	public enum ReportsTypes
 	{
 		Contacts,
@@ -93,6 +94,7 @@ namespace ReportSystem.Test
 		RatingFullWithProductByPrice
 	}
 
+	[Obsolete("Устаревший код не использовать")]
 	public static class TestHelper
 	{
 		public static System.Data.DataSet LoadProperties(ReportsTypes type)

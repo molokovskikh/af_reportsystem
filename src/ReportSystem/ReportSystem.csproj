@@ -201,7 +201,6 @@
     <Compile Include="ByOrders\SupplierOrdersStatistics.cs" />
     <Compile Include="ByOrders\WaybillsReport.cs" />
     <Compile Include="Models\Payer.cs" />
-    <Compile Include="Models\ReportPropertiesLoader.cs" />
     <Compile Include="Models\Reports\WaybillsStatReport.cs" />
     <Compile Include="OptimizationRivalOrders.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
@@ -329,10 +328,6 @@
     <ProjectReference Include="..\Common.Web.Ui\Common.Web.Ui\Common.Web.Ui.csproj">
       <Project>{95E2C313-46FA-4B4B-9EFF-3228662908F4}</Project>
       <Name>Common.Web.Ui</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExecuteTemplate\ExecuteTemplate\ExecuteTemplate.csproj">
-      <Project>{046F74A6-68A8-4E5E-A9AB-7332B631CFB1}</Project>
-      <Name>ExecuteTemplate</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

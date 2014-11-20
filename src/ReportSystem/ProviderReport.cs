@@ -9,7 +9,7 @@ using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
-using ExecuteTemplate;
+
 using System.Data;
 using System.Configuration;
 

@@ -9,7 +9,6 @@ using Castle.ActiveRecord.Framework.Config;
 using Common.Models;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
-using ExecuteTemplate;
 using Inforoom.ReportSystem;
 using MySql.Data.MySqlClient;
 using NHibernate.Linq;

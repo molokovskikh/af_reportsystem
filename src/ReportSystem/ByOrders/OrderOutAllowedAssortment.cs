@@ -4,7 +4,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using Common.Tools;
-using ExecuteTemplate;
+
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;

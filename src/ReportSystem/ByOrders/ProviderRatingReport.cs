@@ -6,7 +6,7 @@ using Inforoom.ReportSystem.Helpers;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
-using ExecuteTemplate;
+
 using DataTable = System.Data.DataTable;
 using LegendEntries = Microsoft.Office.Interop.Excel.LegendEntries;
 using LegendEntry = Microsoft.Office.Interop.Excel.LegendEntry;

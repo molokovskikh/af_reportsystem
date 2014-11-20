@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using ExecuteTemplate;
+
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
@@ -230,7 +230,7 @@ into @OffersSynonymCode;
 				_priceCode = (int)getReportParam("PriceCode");
 		}
 
-		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
+		public override void GenerateReport(ExecuteArgs e)
 		{
 			CheckPriceCode(e);
 

@@ -8,7 +8,7 @@ using Common.Models;
 using Common.MySql;
 using Common.Tools;
 using Common.Web.Ui.Models;
-using ExecuteTemplate;
+
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
 using Inforoom.ReportSystem.ReportSettings;

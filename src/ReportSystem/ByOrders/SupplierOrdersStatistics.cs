@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using ExecuteTemplate;
+
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Common.Tools;
 using Common.Tools.Calendar;
-using ExecuteTemplate;
+
 using MySql.Data.MySqlClient;
 using System.Data;
 using ExcelLibrary.SpreadSheet;
@@ -65,7 +65,7 @@ where cr.SupplierId=?supplier order by s.Name;";
 			return suppliers.Implode();
 		}
 
-		public override void GenerateReport(ExecuteTemplate.ExecuteArgs e)
+		public override void GenerateReport(ExecuteArgs e)
 		{
 			_suppliersConcurent = GetCostOptimizationConcurents(e, _supplierId);
 			_supplierName = GetSupplierName(e, _supplierId);

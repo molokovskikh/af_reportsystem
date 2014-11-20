@@ -10,10 +10,11 @@ using log4net;
 using LumiSoft.Net.SMTP.Client;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-using ExecuteTemplate;
+
 using System.IO;
 using LumiSoft.Net.Mime;
 using Inforoom.ReportSystem.Properties;
+using Common.MySql;
 
 namespace Inforoom.ReportSystem
 {
@@ -101,25 +102,18 @@ namespace Inforoom.ReportSystem
 
 		private void Load(bool interval, DateTime dtFrom, DateTime dtTo)
 		{
-			var loader = new ReportPropertiesLoader();
-
-			_reports = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetReports, null, Connection);
-
-			FilesForReport = MethodTemplate.ExecuteMethod(new ExecuteArgs(), GetFilesForReports, null, Connection);
+			_reports = GetReports();
+			FilesForReport = GetFilesForReports();
 
 			if (!interval) {
 				CollectContacts();
 			}
 			else {
-				Contacts = MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
-					args.DataAdapter.SelectCommand.CommandText = @"
+				Contacts = Connection.Fill(@"
 select Mail FROM reports.Mailing_Addresses M
-where GeneralReport = ?GeneralReport;";
-					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReport", Id);
-					var res = new DataTable();
-					args.DataAdapter.Fill(res);
-					return res;
-				}, null, Connection).AsEnumerable().Select(r => r[0].ToString()).ToArray();
+where GeneralReport = ?GeneralReport;", new { GeneralReport = Id })
+					.AsEnumerable().Select(r => r[0].ToString())
+					.ToArray();
 			}
 			if ((_reports != null) && (_reports.Rows.Count > 0)) {
 				CheckReports(); // Проверяем отчеты, если что-то не нравится выдаем исключение
@@ -132,7 +126,7 @@ where GeneralReport = ?GeneralReport;";
 								(ulong)drGReport[BaseReportColumns.colReportCode],
 								drGReport[BaseReportColumns.colReportCaption].ToString(), Connection,
 								Format,
-								loader.LoadProperties(Connection, (ulong)drGReport[BaseReportColumns.colReportCode])
+								LoadProperties(Connection, (ulong)drGReport[BaseReportColumns.colReportCode])
 							});
 						bs.Interval = interval;
 						bs.From = dtFrom;
@@ -147,6 +141,45 @@ where GeneralReport = ?GeneralReport;";
 			}
 			else
 				throw new ReportException("У комбинированного отчета нет дочерних отчетов.");
+		}
+
+		public static DataSet LoadProperties(MySqlConnection conn, ulong reportCode)
+		{
+			var reportcode = reportCode;
+			var ds = new DataSet();
+
+			var adapter = new MySqlDataAdapter("", conn);
+			adapter.SelectCommand.CommandText = String.Format(@"
+select
+  *
+from
+  reports.Report_Properties rp,
+  reports.report_type_properties rtp
+where
+    rp.{0} = ?{0}
+and rtp.ID = rp.PropertyID", BaseReportColumns.colReportCode);
+			adapter.SelectCommand.Parameters.Clear();
+			adapter.SelectCommand.Parameters.AddWithValue("?" + BaseReportColumns.colReportCode, reportcode);
+			DataTable res = new DataTable("ReportProperties");
+			adapter.Fill(res);
+			ds.Tables.Add(res);
+
+			adapter.SelectCommand.CommandText = String.Format(@"
+select
+  rpv.*
+from
+  reports.Report_Properties rp,
+  reports.report_property_values rpv
+where
+    rp.{0} = ?{0}
+and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
+			adapter.SelectCommand.Parameters.Clear();
+			adapter.SelectCommand.Parameters.AddWithValue("?" + BaseReportColumns.colReportCode, reportcode);
+			res = new DataTable("ReportPropertyValues");
+			adapter.Fill(res);
+			ds.Tables.Add(res);
+
+			return ds;
 		}
 
 		public void CollectContacts()
@@ -185,7 +218,7 @@ where GeneralReport = ?GeneralReport;";
 
 		public void LogSuccess()
 		{
-			MySqlHelper.ExecuteScalar(Connection,
+			MySql.Data.MySqlClient.MySqlHelper.ExecuteScalar(Connection,
 				"update Reports.general_reports set LastSuccess = now() where GeneralReportCode = ?id",
 				new MySqlParameter("id", Id));
 		}
@@ -199,13 +232,8 @@ where GeneralReport = ?GeneralReport;";
 			foreach (var mail in mails)
 				MailWithAttach(log, mail, files);
 
-			//Написать удаление записей из таблицы !!
-			MethodTemplate.ExecuteMethod(new ExecuteArgs(), delegate(ExecuteArgs args) {
-				args.DataAdapter.SelectCommand.CommandText =
-					"delete FROM reports.Mailing_Addresses";
-				args.DataAdapter.SelectCommand.ExecuteNonQuery();
-				return new DataTable();
-			}, null, Connection);
+			Connection.Execute("delete FROM reports.Mailing_Addresses where GeneralReport = ?GeneralReport",
+				new { GeneralReport = Id });
 		}
 
 		private void Clean()
@@ -312,9 +340,7 @@ where GeneralReport = ?GeneralReport;";
 			}
 			else {
 				var smtpId = SmtpClientEx.QuickSendSmartHostSMTPID(Settings.Default.SMTPHost, null, null, message);
-				MethodTemplate.ExecuteMethod(new ExecuteArgs(),
-					e => ProcessLog(e, smtpId, message.MainEntity.MessageID, address, log),
-					0, Connection, true, false, null);
+				ProcessLog(smtpId, message.MainEntity.MessageID, address, log);
 			}
 		}
 
@@ -328,19 +354,19 @@ where GeneralReport = ?GeneralReport;";
 			entity.DataFromFile(file);
 		}
 
-		private int ProcessLog(ExecuteArgs e, int? smtpId, string messageId, string email, ReportExecuteLog log)
+		private void ProcessLog(int? smtpId, string messageId, string email, ReportExecuteLog log)
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"insert into logs.reportslogs
+			var adapter = new MySqlDataAdapter("", Connection);
+			adapter.SelectCommand.CommandText = @"insert into logs.reportslogs
 (LogTime, GeneralReportCode, SMTPID, MessageID, EMail, ResultId)
 values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
-			var parameters = e.DataAdapter.SelectCommand.Parameters;
+			var parameters = adapter.SelectCommand.Parameters;
 			parameters.AddWithValue("?GeneralReportCode", Id);
 			parameters.AddWithValue("?SMTPID", smtpId);
 			parameters.AddWithValue("?MessageID", messageId);
 			parameters.AddWithValue("?EMail", email);
 			parameters.AddWithValue("?ResultId", log.Id);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
-			return 0;
+			adapter.SelectCommand.ExecuteNonQuery();
 		}
 
 		private string GetResDirPath()
@@ -405,9 +431,9 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 		}
 
 		//Выбираем отчеты из базы
-		public DataTable GetReports(ExecuteArgs e)
+		public DataTable GetReports()
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"
+			return Connection.Fill(@"
 select
   *
 from
@@ -415,32 +441,21 @@ from
   reports.reporttypes rt
 where
 	r.GeneralReportCode = ?GeneralReportCode
-and rt.ReportTypeCode = r.ReportTypeCode";
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?GeneralReportCode", Id);
-			var res = new DataTable();
-			e.DataAdapter.Fill(res);
-			return res;
+and rt.ReportTypeCode = r.ReportTypeCode", new { GeneralReportCode = Id });
 		}
 
-		public IDictionary<string, string> GetFilesForReports(ExecuteArgs e)
+		public IDictionary<string, string> GetFilesForReports()
 		{
 			var result = new Dictionary<string, string>();
-			e.DataAdapter.SelectCommand.CommandText = @"
+			var res = Connection.Fill(@"
 SELECT * FROM reports.filessendwithreport f
 where f.Report = ?ReportCode
-and f.FileName is not null";
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportCode", Id);
-			var res = new DataTable();
-			e.DataAdapter.Fill(res);
+and f.FileName is not null", new { ReportCode = Id });
 			foreach (DataRow row in _reports.Rows) {
 				if (SendDescriptionFile && Convert.ToBoolean(row["Enabled"])) {
 					var reportCode = row[BaseReportColumns.colReportTypeCode];
-					e.DataAdapter.SelectCommand.Parameters.Clear();
-					e.DataAdapter.SelectCommand.CommandText = @"SELECT * FROM reports.fileforreporttypes f
-where ReportType = ?ReportTypeCode;";
-					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ReportTypeCode", reportCode);
-					var dtFiles = new DataTable();
-					e.DataAdapter.Fill(dtFiles);
+					var dtFiles = Connection.Fill(@"SELECT * FROM reports.fileforreporttypes f
+where ReportType = ?ReportTypeCode;", new { ReportTypeCode = reportCode });
 					if (dtFiles.Rows.Count > 0) {
 						var filePath = Path.Combine(Settings.Default.SavedFilesReportTypePath, dtFiles.Rows[0]["Id"].ToString());
 						if (File.Exists(filePath)) {

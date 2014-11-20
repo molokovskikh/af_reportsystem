@@ -227,6 +227,7 @@ namespace ReportSystem.Test
 		}
 	}
 
+	[Obsolete("Используй BaseProfileFixture2")]
 	public class BaseProfileFixture
 	{
 		protected MySqlConnection Conn;

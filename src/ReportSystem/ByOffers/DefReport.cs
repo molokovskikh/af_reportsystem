@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Common.Tools.Helpers;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
-using ExecuteTemplate;
+
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Data;
 using System.Configuration;

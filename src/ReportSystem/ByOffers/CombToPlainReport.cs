@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Inforoom.ReportSystem.Properties;
 using MySql.Data.MySqlClient;
-using ExecuteTemplate;
+
 using System.Data;
 
 namespace Inforoom.ReportSystem

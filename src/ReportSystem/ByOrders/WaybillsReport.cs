@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using ExecuteTemplate;
+
 using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using NHibernate;

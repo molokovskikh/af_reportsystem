@@ -9,7 +9,7 @@ using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using Inforoom.ReportSystem.Filters;
-using ExecuteTemplate;
+
 using System.Collections.Generic;
 using System.Drawing;
 

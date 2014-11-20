@@ -41,12 +41,11 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 			using (var connection = new MySqlConnection(FixtureSetup.ConnectionString)) {
 				foreach (DataRow drGReport in res.Rows) {
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled])) {
-						var loader = new ReportPropertiesLoader();
 
 						//Создаем отчеты и добавляем их в список отчетов
 						var reportcode = (ulong)drGReport[BaseReportColumns.colReportCode];
 						Console.WriteLine("Отчет {0}", reportcode);
-						var prop = loader.LoadProperties(connection, reportcode);
+						var prop = GeneralReport.LoadProperties(connection, reportcode);
 						var bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] {

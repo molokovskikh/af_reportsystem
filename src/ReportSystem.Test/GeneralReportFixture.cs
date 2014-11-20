@@ -8,7 +8,7 @@ using Castle.ActiveRecord;
 using Common.MySql;
 using Common.Tools;
 using Common.Web.Ui.Models;
-using ExecuteTemplate;
+
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Model;
@@ -151,7 +151,7 @@ namespace ReportSystem.Test
 				new MySqlCommand("update reports.general_reports r set r.SendDescriptionFile = true where generalreportcode = 1", connection).ExecuteNonQuery();
 				new MySqlCommand("update reports.reports r set r.Enabled = true where generalreportcode = 1", connection).ExecuteNonQuery();
 				new MySqlCommand("delete from reports.filessendwithreport;delete from reports.fileforreporttypes;", connection).ExecuteNonQuery();
-				report.DataTable = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetReports, null, connection);
+				report.DataTable = report.GetReports();
 				foreach (DataRow row in report.DataTable.Rows) {
 					reportTypeCode = row[BaseReportColumns.colReportTypeCode];
 					new MySqlCommand(string.Format("insert into reports.fileforreporttypes (File, ReportType) value ('testFile{0}', {0})", reportTypeCode), connection).ExecuteNonQuery();
@@ -163,7 +163,7 @@ namespace ReportSystem.Test
 					create.Close();
 				}
 				Assert.IsNotNull(reportTypeCode);
-				var additionalFiles = MethodTemplate.ExecuteMethod(new ExecuteArgs(), report.GetFilesForReports, null, connection);
+				var additionalFiles = report.GetFilesForReports();
 				Assert.That(additionalFiles.Count, Is.GreaterThan(0));
 				Assert.That(additionalFiles.Count, Is.EqualTo(filesNames.Count()));
 				foreach (var file in files) {
