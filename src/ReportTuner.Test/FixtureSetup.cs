@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +7,6 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
 using Common.Schedule;
-using Common.Web.Ui.Models;
 using NUnit.Framework;
 using CassiniDev;
 using ReportTuner.Helpers;
@@ -43,18 +41,6 @@ namespace ReportTuner.Test
 						{ NHibernate.Cfg.Environment.UseSqlComments, "true" }
 					});
 				ActiveRecordStarter.Initialize(new[] { Assembly.Load("Test.Support"), Assembly.Load("ReportTuner"), Assembly.Load("Common.Web.Ui") }, config);
-			}
-
-			using (new SessionScope()) {
-				var holder = ActiveRecordMediator.GetSessionFactoryHolder();
-				var session = holder.CreateSession(typeof(ActiveRecordBase));
-				var ownerId = uint.Parse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"]);
-				if (session.Get<ContactGroupOwner>(ownerId) == null) {
-					session.CreateSQLQuery(String
-						.Format("Insert into contacts.contact_group_owners (Id) VALUES({0})", ownerId)).UniqueResult();
-				}
-				holder = ActiveRecordMediator.GetSessionFactoryHolder();
-				holder.ReleaseSession(session);
 			}
 
 			_webServer = WatinSetup.StartServer();

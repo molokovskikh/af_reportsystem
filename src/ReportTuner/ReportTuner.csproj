@@ -160,7 +160,6 @@
   <ItemGroup>
     <Content Include="Assets\Javascripts\Application.js" />
     <Content Include="Assets\Stylesheets\Common.css" />
-    <Content Include="Assets\Stylesheets\ContactsController.css" />
     <Content Include="Assets\Stylesheets\filter.css" />
     <Content Include="Assets\Stylesheets\Table.css" />
     <Content Include="Global.asax" />
@@ -181,7 +180,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ContactController.cs" />
-    <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\CopyReportController.cs" />
     <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
@@ -204,11 +202,17 @@
     <Compile Include="Models\ReportLog.cs" />
     <Compile Include="Models\ReportProperty.cs" />
     <Compile Include="Models\ReportPropertyValue.cs" />
-    <Compile Include="Models\ReportSubscriptionContact.cs" />
     <Compile Include="Models\ReportTunerModel.cs" />
     <Compile Include="Models\ReportType.cs" />
     <Compile Include="Models\ReportTypeProperty.cs" />
     <Compile Include="Models\UpdateReportConfig.cs" />
+    <Compile Include="Reports\Contacts.aspx.cs">
+      <DependentUpon>Contacts.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports\Contacts.aspx.designer.cs">
+      <DependentUpon>Contacts.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -360,6 +364,7 @@
   <ItemGroup>
     <Content Include="Assets\Stylesheets\Contacts.css" />
     <Content Include="App_Themes\Main\Main.skin" />
+    <Content Include="Reports\Contacts.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Stylesheets\Main.css" />
@@ -375,9 +380,6 @@
   <ItemGroup>
     <Content Include="App_Themes\MainWithHighLight\Main.skin" />
     <Content Include="Views\CopyReport\SelectReport.brail" />
-    <Content Include="Views\Contacts\Show.brail" />
-    <Content Include="Views\Contacts\EditGroupName.brail" />
-    <Content Include="Views\Contacts\NewGroup.brail" />
     <None Include="Views\Layouts\Application.brail" />
     <None Include="Views\ReportsTuning\FileForReportTypes.brail" />
     <None Include="Views\ReportsTuning\SelectAddresses.brail" />
