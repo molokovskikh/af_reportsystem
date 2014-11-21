@@ -222,8 +222,11 @@ create temporary table Reports.UserStat(
 insert into Reports.UserStat(UserId, OrderSendRequestCount)
 select l.UserId, count(*)
 from Logs.AnalitfUpdates l
-where l.UserId in ({0}) and l.UpdateType in (4, 11)
-group by l.UserId", userIds.Implode()));
+where l.UserId in ({0})
+	and l.UpdateType in (4, 11)
+	and l.RequestTime > ?begin
+	and l.RequestTime < ?end
+group by l.UserId", userIds.Implode()), new { begin = dtFrom, end = dtTo });
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select {2},
