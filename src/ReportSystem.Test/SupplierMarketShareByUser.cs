@@ -10,6 +10,7 @@ using NHibernate.Linq;
 using NPOI.SS.UserModel;
 using NUnit.Framework;
 using Test.Support;
+using Test.Support.Logs;
 using Test.Support.Suppliers;
 
 namespace ReportSystem.Test
@@ -78,6 +79,10 @@ namespace ReportSystem.Test
 			intersection.SupplierClientId = Guid.NewGuid().ToString();
 			session.Save(intersection);
 
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.SendOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1)
+			});
+
 			Property("Type", 3);
 
 			var report = ReadReport<SupplierMarketShareByUser>();
@@ -86,10 +91,18 @@ namespace ReportSystem.Test
 			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
 			Assert.That(result, Is.StringContaining("Кол-во сессий отправки заказов"));
 			Assert.That(result, Is.StringContaining("Самая поздняя заявка"));
+			var rows = report.GetRowEnumerator().Cast<IRow>().ToArray();
+			//проверяем что индексы которые используются ниже не изменились
+			var header = rows[4];
+			Assert.AreEqual("Кол-во поставщиков", header.GetCell(4).StringCellValue);
+			Assert.AreEqual("Кол-во сессий отправки заказов", header.GetCell(5).StringCellValue);
+			Assert.AreEqual("Самая поздняя заявка", header.GetCell(6).StringCellValue);
 			//проверяем что в колонке Кол-во поставщиков есть данные
-			var reportRow = report.GetRowEnumerator().Cast<IRow>()
+			var reportRow = rows
 				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
 			Assert.That(Convert.ToUInt32(reportRow.GetCell(4).StringCellValue), Is.GreaterThan(0));
+			Assert.AreEqual("1", reportRow.GetCell(5).StringCellValue);
+			Assert.AreEqual(order.WriteTime.ToString("T"), reportRow.GetCell(6).StringCellValue);
 		}
 
 		[Test]

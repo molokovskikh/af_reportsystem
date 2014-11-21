@@ -212,14 +212,15 @@ group by oh.UserId", _regions.Implode()), new { begin = dtFrom, end = dtTo })
 				.ToArray();
 
 			connection.Execute(@"
+drop temporary table if exists Reports.UserStat;
 create temporary table Reports.UserStat(
 	UserId int unsigned not null,
-	OrderSendRequestCount int unsigned not null,
+	RequestCount int unsigned not null,
 	primary key (UserId)
 ) engine=memory;");
 			if (userIds.Length > 0)
 				connection.Execute(String.Format(@"
-insert into Reports.UserStat(UserId, OrderSendRequestCount)
+insert into Reports.UserStat(UserId, RequestCount)
 select l.UserId, count(*)
 from Logs.AnalitfUpdates l
 where l.UserId in ({0})
@@ -229,30 +230,83 @@ where l.UserId in ({0})
 group by l.UserId", userIds.Implode()), new { begin = dtFrom, end = dtTo });
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
-select {2},
+drop temporary table if exists Reports.KeyToUser;
+create temporary table Reports.KeyToUser(
+	GroupKey int unsigned not null,
+	UserId int unsigned not null,
+	primary key(GroupKey, UserId)
+) engine=memory;
+
+insert into Reports.KeyToUser(GroupKey, UserId)
+select {1}, UserId
+from Orders.OrdersHead oh
+	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+	join Customers.Clients c on c.Id = oh.ClientCode
+	join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
+	join Customers.Addresses a on a.Id = oh.AddressId
+		join Billing.LegalEntities le on le.Id = a.LegalEntityId
+where oh.WriteTime > ?begin
+	and oh.WriteTime < ?end
+	and oh.RegionCode in ({0})
+	and pd.IsLocal = 0
+group by {1}, UserId;
+
+drop temporary table if exists Reports.KeyToCount;
+create temporary table Reports.KeyToCount(
+	GroupKey int unsigned not null,
+	RequestCount int unsigned not null,
+	primary key(GroupKey)
+) engine=memory;
+
+insert into Reports.KeyToCount(GroupKey, RequestCount)
+select k.GroupKey, sum(s.RequestCount)
+from Reports.KeyToUser k
+	join Reports.UserStat s on s.UserId = k.UserId
+group by k.GroupKey;
+
+drop temporary table if exists Reports.PreResult;
+create temporary table Reports.PreResult(
+	GroupKey int unsigned not null,
+	{6},
+	TotalSum decimal(12, 2),
+	SupplierSum decimal(12, 2),
+	SuppliersCount int unsigned,
+	LastOrder time,
+	primary key(GroupKey)
+) engine=memory;
+
+insert into Reports.PreResult(GroupKey, {5}, TotalSum, SupplierSum, SuppliersCount, LastOrder)
+select {1} as GroupKey,
+	{2},
 	sum(ol.Cost * ol.Quantity) as TotalSum,
 	sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum,
 	count(distinct pd.FirmCode) as SuppliersCount,
-	sum(ifnull(us.OrderSendRequestCount, 0)) as OrderSendRequestCount,
 	time(min(oh.WriteTime)) as LastOrder
 from Orders.OrdersHead oh
 	join Orders.OrdersList ol on ol.OrderId = oh.RowId
 	join Customers.Clients c on c.Id = oh.ClientCode
-		join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
-			left join Reports.UserStat us on us.UserId = u.Id
+	join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
 	join Customers.Addresses a on a.Id = oh.AddressId
 		join Billing.LegalEntities le on le.Id = a.LegalEntityId
 	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
 	{4}
 where oh.WriteTime > ?begin
-and oh.WriteTime < ?end
-and oh.RegionCode in ({0})
-and pd.IsLocal = 0
+	and oh.WriteTime < ?end
+	and oh.RegionCode in ({0})
+	and pd.IsLocal = 0
 group by {1}
-order by {3}", _regions.Implode(), _grouping.Group,
+order by {3};
+
+select r.*, k.RequestCount as OrderSendRequestCount
+from Reports.PreResult r
+left join Reports.KeyToCount k on k.GroupKey = r.GroupKey;",
+				_regions.Implode(),
+				_grouping.Group,
 				_grouping.Columns.Implode(c => String.Format("{0} as {1}", c.Sql, c.Name)),
 				_grouping.Columns.Where(c => c.Order).Implode(c => c.Name),
-				_grouping.Join);
+				_grouping.Join,
+				_grouping.Columns.Implode(c => c.Name),
+				_grouping.Columns.Implode(c => String.Format("{0} varchar(255)", c.Name)));
 
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
 			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", dtFrom);
@@ -264,8 +318,12 @@ order by {3}", _regions.Implode(), _grouping.Group,
 			e.DataAdapter.Fill(_dsReport, "data");
 
 			connection.Execute(@"
+
 drop temporary table if exists reports.TempIntersection;
 drop temporary table if exists reports.UserStat;
+drop temporary table if exists Reports.KeyToCount;
+drop temporary table if exists Reports.KeyToUser;
+drop temporary table if exists Reports.PreResult;
 ");
 
 			var data = _dsReport.Tables["data"];
