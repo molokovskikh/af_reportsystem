@@ -96,10 +96,12 @@
   <ItemGroup>
     <Compile Include="FixtureSetup.cs" />
     <Compile Include="Functional\ContactFixture.cs" />
+    <Compile Include="Functional\ContactsFixture.cs" />
     <Compile Include="Functional\CopyReportFixture.cs" />
     <Compile Include="Functional\MnnPropertyFixture.cs" />
     <Compile Include="Functional\OneShortReportFixture.cs" />
     <Compile Include="Functional\ReportsTuningFixture.cs" />
+    <Compile Include="Integration\Controllers\ContactsControllerFixture.cs" />
     <Compile Include="Integration\CopyReportControllerFixture.cs" />
     <Compile Include="Integration\GeneralReportFixture.cs" />
     <Compile Include="Integration\ReportControllerFixture.cs" />

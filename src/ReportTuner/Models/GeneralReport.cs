@@ -56,6 +56,9 @@ namespace ReportTuner.Models
 		[BelongsTo(Column = "ContactGroupId", Cascade = CascadeEnum.Delete)]
 		public virtual ContactGroup ContactGroup { get; set; }
 
+		[BelongsTo("PublicSubscriptionsId")]
+		public virtual ContactGroup PublicSubscriptions { get; set; }
+
 		[Property]
 		public virtual bool Temporary { get; set; }
 

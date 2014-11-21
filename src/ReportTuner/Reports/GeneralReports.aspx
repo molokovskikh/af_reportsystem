@@ -78,7 +78,7 @@
 				</asp:TemplateField>
 				<asp:HyperLinkField HeaderText="Рассылки" Text="..."
 					DataNavigateUrlFields="GeneralReportCode"
-					DataNavigateUrlFormatString="Contacts.aspx?GeneralReport={0}"
+					DataNavigateUrlFormatString="~/Contacts/Show?reportId={0}"
 					ItemStyle-Width="5%" HeaderStyle-Width="5%">
 <HeaderStyle Width="5%"></HeaderStyle>
 

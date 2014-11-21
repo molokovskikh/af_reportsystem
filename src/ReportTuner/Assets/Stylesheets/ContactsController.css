@@ -1,0 +1,87 @@
+﻿body {
+    font-family: Verdana;
+    font-size: 8pt;
+}
+.header {
+    text-align: center;
+    font-size: 9pt;
+}
+td.colcode {
+    width: 5%;
+}
+td.collink {
+    width: 15%;
+}
+.reportsList {
+    text-align: center;
+    margin-top: 10px;
+}
+.reportsList table {
+    margin: 0 auto;
+    width: 100%;
+    border-collapse: collapse;
+}
+.reportsList table thead {
+    background-color: #EBEBEB;
+    font-weight: bold;
+}
+.reportsList table td {
+    border: 1px solid darkgrey;
+}
+.reportsList tbody tr:nth-child(even){
+    background-color: #EEF8FF;
+}
+.selectGroup {
+    width: 80%;
+    margin: 10px auto;
+    display: block;
+}
+.selectGroupHeader {
+    display: block;
+    font-weight: bold;
+}
+.selectGroupBody {
+    display: block;
+}
+.selectGroupBody  form{
+    width: 100%;
+}
+.selectGroup input[type='submit']{
+    width: 120px
+}
+.selectGroup input[type='text']{
+    width: 372px
+}
+.selectGroup select{
+    width: 375px
+}
+.contactGroup {
+    margin: 10px auto;
+    width: 80%;
+    text-align: center;
+}
+.contactGroup table {
+    width: 100%;
+    border-collapse: collapse;
+    padding: 5px;
+}
+.contactGroup table thead {
+    background-color: #EBEBEB;
+}
+.contactGroup table td {
+    border: 1px solid darkgrey;
+}
+.contactGroup tbody tr:nth-child(even){
+    background-color: #EEF8FF;
+}
+.nameGroup {
+    float: left;
+}
+.edit {
+    margin-top: 10px;
+    text-align: center;
+}
+.current{
+    background-color: lightgray !important;
+    font-weight: bold;
+}
