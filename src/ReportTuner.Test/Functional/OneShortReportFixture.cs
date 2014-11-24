@@ -1,16 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using Common.Schedule;
 using Microsoft.Win32.TaskScheduler;
 using NUnit.Framework;
-using ReportTuner.Helpers;
 using ReportTuner.Models;
 using WatiN.Core;
 using System.Diagnostics;
 using Test.Support.Web;
-using WatiN.Core.Native.Windows;
 
 namespace ReportTuner.Test.Functional
 {
@@ -132,12 +129,12 @@ namespace ReportTuner.Test.Functional
 			var report = session.Get<GeneralReport>((ulong)1);
 			report.Files.Clear();
 			session.Save(report);
-
 			Open("Reports/Reports.aspx?r=1");
 			Click("Добавить файл");
 			session.Refresh(report);
 			Assert.That(report.Files.Count, Is.EqualTo(1));
 			AssertText("Выбор файла");
+			FlushAndCommit();
 			browser.Button(Find.ByClass("deleteFileButton")).Click();
 			Assert.That(browser.Text, !Is.StringContaining("Выбор файла"));
 			session.Refresh(report);

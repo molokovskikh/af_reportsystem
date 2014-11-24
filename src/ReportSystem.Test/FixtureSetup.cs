@@ -42,10 +42,10 @@ namespace ReportSystem.Test
 				config.Add(typeof(ActiveRecordBase), nhibernateParams);
 
 				ActiveRecordStarter.Initialize(new[] {
-						Assembly.Load("ReportSystem"),
-						typeof(ContactGroup).Assembly,
-						Assembly.Load("Test.Support")
-					},
+					Assembly.Load("ReportSystem"),
+					typeof(ContactGroup).Assembly,
+					Assembly.Load("Test.Support")
+				},
 					config);
 
 				HbmSerializer.Default.HbmAutoImport = false;

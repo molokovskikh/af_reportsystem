@@ -1,0 +1,118 @@
+﻿<% component Bubble, {
+	"breadcrumbs" : [("Редактирование отчетов", "../Reports/GeneralReports.aspx"), ("Настройка рассылок", "")],
+	"pageTitle":"Настройка рассылок", "Title":"Настройка рассылок"}
+%>
+${app.Asset("ContactsController.css")}
+<div class='header'>
+	<b>Настройка рассылки для отчета</b> !{currentReport.EMailSubject}
+</div>
+<div class='reportsList'>
+	Отчеты, использующие текущую рассылку
+	<table>
+		<thead>
+			<tr>
+				<td class="colcode">Код</td>
+				<td class="collink">Настройка рассылки</td>
+				<td>Тема письма</td>
+			</tr>
+		</thead>
+		<tbody>
+			<% for i, item in enumerate(reports): %>
+				<% if (currentReport.Id == item.Id): %>
+					<tr class="current">
+				<% else:%>
+					<tr>
+				<% end %>
+					<td>!{item.Id}</td>
+					<td>${app.LinkTo("...", @Contacts, @Show, {@reportId: item.Id})}</td>
+					<td>!{item.EMailSubject}</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+
+<div class='selectGroup'>
+	<div class="selectGroupHeader">Выбор имеющейся рассылки:</div>
+	<div class="selectGroupBody">
+		${FormHelper.FormTag("", {@method : @get, @class : @filter})}
+			${FormHelper.HiddenField("reportId", currentReport.Id)}
+			${FormHelper.TextFieldValue("filterValue", filterValue, {@size : 45}) }
+			${FormHelper.Submit("Найти")}
+		${FormHelper.EndFormTag()}
+		<% if filterValue :%>
+			${FormHelper.FormTag("SelectGroup", {@method : @get, @class : @selectgroup})}
+				${FormHelper.HiddenField("reportId", currentReport.Id)}
+				${FormHelper.Select("contactGroupId", Groups, {@id: @ContactType, @value : 'Key', @text : 'value'})}
+				${FormHelper.Submit("Выбрать")}
+			${FormHelper.EndFormTag()}
+		<% end %>
+	</div>
+	${app.LinkTo("Создать новую рассылку", @Contacts, @NewGroup, {@reportId : currentReport.Id})}
+</div>
+
+<%if currentReport.ContactGroup :%>
+	<div class='contactGroup'>
+		<div class='nameGroup'>
+			<b>Текущая рассылка</b>
+			!{currentReport.ContactGroup.Name}
+			(${app.LinkTo("Редактировать имя", @Contacts, @EditGroupName, {@contactGroupId: currentReport.ContactGroup.Id, @reportId : currentReport.Id})},
+			&nbsp${app.LinkTo("Редактировать содержимое", @Contact, @EditContactGroup, {@contactGroupId: currentReport.ContactGroup.Id, @attributes: {@target: "_blank"}})})
+		</div>
+		<table>
+			<thead>
+				<tr>
+					<td>Email</td>
+					<td>Комментарий</td>
+					<td></td>
+				</tr>
+			</thead>
+			<tbody>
+				<% for i, item in enumerate(currentReport.ContactGroup.Contacts): %>
+					<tr>
+						<td>!{item.ContactText}</td>
+						<td>!{item.Comment}</td>
+						<td>
+							${FormHelper.FormTag("DeletePublicSubscriptions", {@method : @get})}
+								${FormHelper.HiddenField("contactId", item.Id)}
+								${FormHelper.Submit("Отписать")}
+							${FormHelper.EndFormTag()}
+						</td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+<% end %>
+<%if currentReport.PublicSubscriptions :%>
+<div class='contactGroup'>
+	<div class='nameGroup'>
+		<b>Самостоятельная подписка на отчет</b>
+	</div>
+	<table>
+		<thead>
+			<tr>
+				<td>Email</td>
+				<td>Комментарий</td>
+				<td>Плательщик</td>
+				<td></td>
+			</tr>
+		</thead>
+		<tbody>
+			<% for i, item in enumerate(PublicGroupContacts): %>
+				<tr>
+					<td>!{item.ContactText}</td>
+					<td>!{item.Comment}</td>
+					<td>!{item.Payer}</td>
+					<td>
+						${FormHelper.FormTag("DeletePublicSubscriptions", {@method : @get})}
+							${FormHelper.HiddenField("contactId", item.Id)}
+							${FormHelper.Submit("Отписать")}
+						${FormHelper.EndFormTag()}
+					</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+<% end %>
