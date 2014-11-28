@@ -43,6 +43,7 @@ select
 	c0.Id,
 	c0.PriceCode SupplierId,
 	sup.Name Supplier,
+	DATE_FORMAT(ap.PriceDate, '%m/%d/%Y %H:%i:%s') as PriceDate,
 	s.Synonym Name,
 	scr.Synonym Producer,
 	c.Cost,
@@ -56,6 +57,7 @@ select
 	c0.RequestRatio as RequestRt,
 	c0.Junk
 from UserSettings.Core c
+	join Usersettings.ActivePrices ap on ap.PriceCode = c.PriceCode and ap.RegionCode = c.RegionCode
 	join Farm.Core0 c0 on c.Id = c0.Id
 	join Farm.Synonym S on s.SynonymCode = c0.SynonymCode
 	left join Farm.SynonymFirmCr scr on scr.SynonymFirmCrCode = c0.SynonymFirmCrCode
