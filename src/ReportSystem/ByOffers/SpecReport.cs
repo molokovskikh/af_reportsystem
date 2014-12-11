@@ -1302,7 +1302,9 @@ where SourcePrice.codefirmcr=FarmCore.codefirmcr or SourcePrice.codefirmcr is nu
 				((Range)wb.Application.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
 				//Замораживаем некоторые колонки и столбцы
-				ExcelHelper.SafeFreeze(ws, "L4", Missing.Value);
+				ws.Activate();
+				ws.Application.ActiveWindow.SplitColumn = 11;
+				ws.Application.ActiveWindow.FreezePanes = true;
 
 				//Объединяем несколько ячеек, чтобы в них написать текст
 				ws.Range["A1:K2", Missing.Value].Select();
