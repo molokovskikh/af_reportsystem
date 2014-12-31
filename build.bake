@@ -15,7 +15,7 @@ releaseTo = "\\\\${host}\\Reports\\ReleasePath"
 project = "ReportSystem"
 projectBoot = "ReportSystemBoot"
 
-task @default, [@build]
+task @default, ["assembly:info:generate", @build]
 
 task @build, ["build:web", "build:service", "build:exe"]
 

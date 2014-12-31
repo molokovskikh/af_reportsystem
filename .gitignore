@@ -24,3 +24,4 @@ UpgradeLog.htm
 _UpgradeReport_Files/
 src/*.properties
 *.gen.*
+AssemblyInfo.cs
