@@ -78,6 +78,9 @@ namespace Inforoom.ReportSystem
 		[Property(ColumnType = "NHibernate.Type.EnumStringType`1[[Inforoom.ReportSystem.ReportFormats, ReportSystem]], NHibernate")]
 		public virtual ReportFormats Format { get; set; }
 
+		[Property]
+		public virtual bool MailPerFile { get; set; }
+
 		[BelongsTo("ContactGroupId")]
 		public virtual ContactGroup ContactGroup { get; set; }
 
@@ -231,8 +234,16 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 #if TESTING
 			mails = new[] { Settings.Default.ErrorReportMail };
 #endif
-			foreach (var mail in mails)
-				MailWithAttach(log, mail, files);
+			if (MailPerFile) {
+				foreach (var file in files) {
+					foreach (var mail in mails)
+						MailWithAttach(log, mail, new [] { file });
+				}
+			}
+			else {
+				foreach (var mail in mails)
+					MailWithAttach(log, mail, files);
+			}
 
 			Connection.Execute("delete FROM reports.Mailing_Addresses where GeneralReport = ?GeneralReport",
 				new { GeneralReport = Id });

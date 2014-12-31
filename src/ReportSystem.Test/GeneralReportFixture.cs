@@ -41,7 +41,7 @@ namespace ReportSystem.Test
 		public override void ReportToFile(string fileName)
 		{
 			if (!String.IsNullOrEmpty(OverideDefaultFilename))
-				fileName = OverideDefaultFilename;
+				fileName = Path.Combine(Path.GetDirectoryName(fileName), OverideDefaultFilename);
 
 			File.WriteAllBytes(fileName, new byte[0]);
 		}
@@ -71,6 +71,7 @@ namespace ReportSystem.Test
 			report.Contacts = new[] { "kvasovtest@analit.net" };
 			report.Testing = true;
 			report.Connection = (MySqlConnection)session.Connection;
+			FileHelper.InitDir("History");
 		}
 
 		[Test]
@@ -122,10 +123,22 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void Mail_per_file()
+		{
+			report.NoArchive = true;
+			report.MailPerFile = true;
+			report.Reports.Add(new FakeReport { OverideDefaultFilename = "1.dbf" });
+			report.Reports.Add(new FakeReport { OverideDefaultFilename = "2.dbf" });
+			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
+
+			Assert.That(report.Messages.Count, Is.EqualTo(2));
+		}
+
+		[Test]
 		public void Send_all_report_files_if_not_archive_option_set()
 		{
 			var fakeReport = new FakeReport();
-			fakeReport.OverideDefaultFilename = Path.Combine(Path.GetTempPath(), "Rep1", "1.csv");
+			fakeReport.OverideDefaultFilename = "1.csv";
 
 			report.NoArchive = true;
 			report.Reports.Add(fakeReport);

@@ -30,7 +30,7 @@ namespace Inforoom.ReportSystem.Models.Reports
 		[Description("Пользователь")]
 		public uint UserId { get; set; }
 
-		[Description("Сохранять каждый прайс-лист в свой файл, работает только при экспорте в формате dbf, файлы будут называться <код прайса>.dbf")]
+		[Description("Сохранять каждый прайс-лист в свой файл, работает только при экспорте в формате dbf, файлы будут называться <код поставщика>.dbf")]
 		public bool SplitByPrice { get; set; }
 
 		private void Init()
@@ -72,7 +72,7 @@ from UserSettings.Core c
 		protected override void DataTableToDbf(DataTable dtExport, string fileName)
 		{
 			if (SplitByPrice) {
-				var groups = data.AsEnumerable().GroupBy(r => r["SupplierId"]);
+				var groups = data.AsEnumerable().GroupBy(r => r["RlSpplrId"]);
 				foreach (var price in groups) {
 					var table = price.CopyToDataTable();
 					var filename = Path.Combine(Path.GetDirectoryName(fileName), price.Key + ".dbf");

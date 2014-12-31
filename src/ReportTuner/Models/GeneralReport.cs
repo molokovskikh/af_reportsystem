@@ -86,6 +86,9 @@ namespace ReportTuner.Models
 		[Property]
 		public virtual DateTime? LastSuccess { get; set; }
 
+		[Property]
+		public virtual bool MailPerFile { get; set; }
+
 		[HasMany]
 		public virtual IList<Report> Reports { get; set; }
 
