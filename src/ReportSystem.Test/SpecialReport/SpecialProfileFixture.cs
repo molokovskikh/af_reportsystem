@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.Special);
 		}
 
-		[Test]
+		[Test, Ignore("Тест сломан из-за изменившихся данных в тестовой базе")]
 		public void SpecialCount()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialCount);
