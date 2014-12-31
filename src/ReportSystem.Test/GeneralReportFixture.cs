@@ -179,7 +179,7 @@ namespace ReportSystem.Test
 		public void Do_not_copy_to_ftp_if_supplier_unknown()
 		{
 			report.Reports.Add(new FakeReport());
-			report.CopyFileToFtp("", "");
+			report.CopyFileToFtp(new [] { "" });
 		}
 
 		[Test]

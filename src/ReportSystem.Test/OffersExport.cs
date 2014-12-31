@@ -14,15 +14,21 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class OffersExportFixture : BaseProfileFixture2
 	{
+		private TestSupplier supplier;
+
+		[SetUp]
+		public void Setup()
+		{
+			FileHelper.InitDir("tmp");
+			supplier = TestSupplier.CreateNaked(session);
+			supplier.CreateSampleCore(session);
+			var client = TestClient.CreateNaked(session);
+			Property("UserId", client.Users[0].Id);
+		}
+
 		[Test]
 		public void Build()
 		{
-			FileHelper.InitDir("tmp");
-			var supplier = TestSupplier.CreateNaked(session);
-			supplier.CreateSampleCore(session);
-			var client = TestClient.CreateNaked(session);
-
-			Property("UserId", client.Users[0].Id);
 			InitReport<OffersExport>("test", ReportFormats.DBF);
 			BuildReport("tmp/test.dbf");
 			Assert.IsTrue(File.Exists("tmp/test.dbf"));
@@ -30,6 +36,23 @@ namespace ReportSystem.Test
 			Assert.IsTrue(data.Columns.Contains("Code"));
 			Assert.IsTrue(data.Columns.Contains("CodeCr"));
 			Assert.IsTrue(data.Columns.Contains("PriceDate"));
+			Assert.IsTrue(data.Columns.Contains("RlSpplrId"));
+		}
+
+		[Test]
+		public void Split_by_price()
+		{
+			Property("SplitByPrice", true);
+			InitReport<OffersExport>("test", ReportFormats.DBF);
+			BuildReport("tmp/test.dbf");
+			Assert.IsFalse(File.Exists("tmp/test.dbf"));
+			var resultFile = String.Format("tmp/{0}.dbf", supplier.Prices[0].Id);
+			Assert.IsTrue(File.Exists(resultFile), Directory.GetFiles("tmp").Implode());
+			var data = Dbf.Load(resultFile);
+			Assert.IsTrue(data.Columns.Contains("Code"));
+			Assert.IsTrue(data.Columns.Contains("CodeCr"));
+			Assert.IsTrue(data.Columns.Contains("PriceDate"));
+			Assert.IsTrue(data.Columns.Contains("RlSpplrId"));
 		}
 	}
 }

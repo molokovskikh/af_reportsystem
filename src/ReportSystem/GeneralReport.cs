@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using Castle.ActiveRecord;
+using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
 using Common.Web.Ui.Models;
 using ICSharpCode.SharpZipLib.Zip;
@@ -208,6 +209,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 				Load(interval, begin, end);
 			try {
 				var files = BuildResultFile();
+				SafeCopyFileToFtp(files);
 				SendReport(files, log);
 				Historify(files, log);
 			}
@@ -257,13 +259,10 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 
 		public string[] BuildResultFile()
 		{
-			_directoryName = Path.GetTempPath() + "Rep" + Id;
-			if (Directory.Exists(_directoryName))
-				Directory.Delete(_directoryName, true);
-			Directory.CreateDirectory(_directoryName);
-
-			_mainFileName = _directoryName + "\\" +
-				((String.IsNullOrEmpty(ReportFileName)) ? ("Rep" + Id + ".xls") : ReportFileName);
+			_directoryName = Path.Combine(Path.GetTempPath(), "Rep" + Id);
+			FileHelper.InitDir(_directoryName);
+			_mainFileName = Path.Combine(_directoryName,
+				String.IsNullOrEmpty(ReportFileName) ? "Rep" + Id + ".xls" : ReportFileName);
 
 			bool emptyReport = true;
 			while (Reports.Count > 0) {
@@ -304,12 +303,12 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			if (emptyReport)
 				throw new ReportException("Отчет пуст.");
 
-			if (NoArchive) {
-				SafeCopyFileToFtp(_mainFileName, Path.GetFileName(_mainFileName));
-				return Directory.GetFiles(Path.GetDirectoryName(_mainFileName));
+			var files = Directory.GetFiles(_directoryName);
+			if (!NoArchive) {
+				files = new [] { ArchFile() };
 			}
 
-			return new[] { ArchFile() };
+			return files;
 		}
 
 		private void MailWithAttach(ReportExecuteLog log, string address, string[] files)
@@ -369,40 +368,28 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 			adapter.SelectCommand.ExecuteNonQuery();
 		}
 
-		private string GetResDirPath()
-		{
-			if (SupplierId == null)
-				return null;
-			return Settings.Default.FTPOptBoxPath + SupplierId.Value.ToString("000") + "\\Reports\\";
-		}
-
-		private string PrepareFtpDirectory()
-		{
-			var resDirPath = GetResDirPath();
-
-			if (!String.IsNullOrEmpty(resDirPath)) {
-				if (!(Directory.Exists(resDirPath)))
-					Directory.CreateDirectory(resDirPath);
-			}
-
-			return resDirPath;
-		}
-
-		private void SafeCopyFileToFtp(string fromfile, string toFile)
+		private void SafeCopyFileToFtp(string[] files)
 		{
 			try {
-				CopyFileToFtp(fromfile, toFile);
+				CopyFileToFtp(files);
 			}
 			catch (Exception ex) {
 				Logger.Error("Ошибка при копировании архива с отчетом", ex);
 			}
 		}
 
-		public void CopyFileToFtp(string fromfile, string toFile)
+		public void CopyFileToFtp(string[] files)
 		{
-			var resDirPath = PrepareFtpDirectory();
-			if (!String.IsNullOrEmpty(resDirPath))
-				File.Copy(fromfile, Path.Combine(resDirPath, toFile), true);
+			if (SupplierId == null)
+				return;
+
+			var dir = Path.Combine(Settings.Default.FTPOptBoxPath, SupplierId.Value.ToString("000"), "Reports");
+			if (!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+
+			foreach (var file in files) {
+				File.Copy(file, Path.Combine(dir, Path.GetFileName(file)), true);
+			}
 		}
 
 		private string ArchFile()
@@ -411,8 +398,6 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 
 			var archive = Path.Combine(_directoryName, resArchFileName);
 			WithTempArchive(_directoryName, f => File.Move(f, archive));
-
-			SafeCopyFileToFtp(archive, resArchFileName);
 
 			return archive;
 		}

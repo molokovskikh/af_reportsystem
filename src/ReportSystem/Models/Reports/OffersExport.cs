@@ -11,7 +11,7 @@ using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.Models.Reports
 {
-	[Description("������� �����������")]
+	[Description("Экспорт предложений")]
 	public class OffersExport : BaseReport
 	{
 		private DataTable data;
@@ -27,8 +27,11 @@ namespace Inforoom.ReportSystem.Models.Reports
 			Init();
 		}
 
-		[Description("������������")]
+		[Description("Пользователь")]
 		public uint UserId { get; set; }
+
+		[Description("Сохранять каждый прайс-лист в свой файл, работает только при экспорте в формате dbf, файлы будут называться <код прайса>.dbf")]
+		public bool SplitByPrice { get; set; }
 
 		private void Init()
 		{
@@ -55,7 +58,8 @@ select
 	c0.Volume,
 	c0.MinOrderCount as MinOrdCnt,
 	c0.RequestRatio as RequestRt,
-	c0.Junk
+	c0.Junk,
+	sup.Id as RlSpplrId
 from UserSettings.Core c
 	join Usersettings.ActivePrices ap on ap.PriceCode = c.PriceCode and ap.RegionCode = c.RegionCode
 	join Farm.Core0 c0 on c.Id = c0.Id
@@ -67,8 +71,19 @@ from UserSettings.Core c
 
 		protected override void DataTableToDbf(DataTable dtExport, string fileName)
 		{
-			using (var writer = new StreamWriter(fileName, false, Encoding.GetEncoding(866)))
-				Dbf2.SaveAsDbf4(dtExport, writer);
+			if (SplitByPrice) {
+				var groups = data.AsEnumerable().GroupBy(r => r["SupplierId"]);
+				foreach (var price in groups) {
+					var table = price.CopyToDataTable();
+					var filename = Path.Combine(Path.GetDirectoryName(fileName), price.Key + ".dbf");
+					using (var writer = new StreamWriter(filename, false, Encoding.GetEncoding(866)))
+						Dbf2.SaveAsDbf4(table, writer);
+				}
+			}
+			else {
+				using (var writer = new StreamWriter(fileName, false, Encoding.GetEncoding(866)))
+					Dbf2.SaveAsDbf4(dtExport, writer);
+			}
 		}
 
 		public override DataTable GetReportTable()
