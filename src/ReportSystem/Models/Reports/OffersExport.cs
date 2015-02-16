@@ -40,7 +40,9 @@ namespace Inforoom.ReportSystem.Models.Reports
 
 		protected override void GenerateReport(ExecuteArgs e)
 		{
-			Connection.Execute("call Customers.GetOffers(?userId);", new { userId = UserId });
+			Connection.Execute(@"
+drop temporary table if exists activeprices;
+call Customers.GetOffers(?userId);", new { userId = UserId });
 			data = Connection.Fill(@"
 select
 	c0.Id,
@@ -66,7 +68,9 @@ from UserSettings.Core c
 	join Farm.Synonym S on s.SynonymCode = c0.SynonymCode
 	left join Farm.SynonymFirmCr scr on scr.SynonymFirmCrCode = c0.SynonymFirmCrCode
 	join Usersettings.PricesData pd on pd.PriceCode=c0.PriceCode
-	join Customers.Suppliers sup on sup.Id = pd.FirmCode;");
+	join Customers.Suppliers sup on sup.Id = pd.FirmCode;
+
+drop temporary table if exists activeprices;");
 		}
 
 		protected override void DataTableToDbf(DataTable dtExport, string fileName)

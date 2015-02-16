@@ -47,7 +47,7 @@ namespace ReportSystem.Test
 			BuildReport("tmp/test.dbf");
 			Assert.IsFalse(File.Exists("tmp/test.dbf"));
 			var resultFile = String.Format("tmp/{0}.dbf", supplier.Id);
-			Assert.IsTrue(File.Exists(resultFile), Directory.GetFiles("tmp").Implode());
+			Assert.IsTrue(File.Exists(resultFile), "должен быть {0} есть {1}", resultFile, Directory.GetFiles("tmp").Implode());
 			var data = Dbf.Load(resultFile);
 			Assert.IsTrue(data.Columns.Contains("Code"));
 			Assert.IsTrue(data.Columns.Contains("CodeCr"));
