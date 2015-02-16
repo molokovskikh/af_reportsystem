@@ -22,7 +22,7 @@ namespace Inforoom.ReportSystem
 				throw new ReportException("Не установлен параметр IntoOutfilePath в конфигурационном файле.");
 
 			var name = "ind_r_" + ReportCode.ToString() + ".txt";
-			_exportFilename = Path.Combine(Settings.Default.IntoOutfilePath, name);
+			_exportFilename = Path.Combine(Settings.Default.IntoOutfilePath, name).Replace('\\', '/');
 			_filename = Path.Combine(Settings.Default.DBDumpPath, name);
 			if (File.Exists(_filename))
 				File.Delete(_filename);
@@ -40,6 +40,25 @@ namespace Inforoom.ReportSystem
 			GetOffers(_SupplierNoise);
 
 			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+drop temporary table if exists Usersettings.MaxProducerCosts;
+create temporary table Usersettings.MaxProducerCosts(
+	ProductId int unsigned not null,
+	ProducerId int unsigned,
+	Cost decimal(19, 2) not null,
+	key(ProductId, ProducerId)
+) engine=memory;
+
+insert into Usersettings.MaxProducerCosts(ProductId, ProducerId, Cost)
+select c0.ProductId, c0.CodeFirmCr, max(cc.Cost)
+from Farm.Core0 c0
+	join Farm.CoreCosts cc on cc.Core_Id = c0.Id
+	join Catalogs.Products p on p.Id = c0.ProductId
+		join Catalogs.Catalog c on c.Id = p.CatalogId
+	join Farm.Synonym s on s.SynonymCode = c0.SynonymCode
+	left join Farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
+where c0.PriceCode = ?priceId and cc.PC_CostCode = ?costId
+group by c0.ProductId, c0.CodeFirmCr;
+
 select
   -- наименование
   replace( replace( replace(catalognames.name, '\t', ''), '\r', ''), '\n', '') as name,
@@ -90,7 +109,10 @@ select
   -- МНН
   mnn.Mnn,
   -- Производитель
-  producers.Name
+  producers.Name,
+  catalog.VitallyImportant,
+  catalog.MandatoryList,
+  m.Cost
 INTO OUTFILE '{0}'
 FIELDS TERMINATED BY '{1}'
 LINES TERMINATED BY '\n'
@@ -108,8 +130,9 @@ from
   usersettings.regionaldata rd,
   Customers.suppliers supps,
   usersettings.pricesdata pd)
-left join catalogs.mnn on mnn.Id = catalognames.mnnid
-left join catalogs.producers on producers.id = FarmCore.CodeFirmCr
+  left join catalogs.mnn on mnn.Id = catalognames.mnnid
+  left join catalogs.producers on producers.id = FarmCore.CodeFirmCr
+  left join Usersettings.MaxProducerCosts m on m.ProductId = FarmCore.ProductId and m.ProducerId = FarmCore.CodeFirmCr
 where
 	FarmCore.Id = Core.Id
 and s.synonymcode = FarmCore.synonymcode
@@ -124,13 +147,17 @@ and pd.PriceCode = ActivePrices.PriceCode
 and products.id = Core.ProductId
 and catalog.id = products.catalogid
 and catalognames.id = catalog.nameid
-and catalogforms.id = catalog.formid
+and catalogforms.id = catalog.formid;
+
+drop temporary table if exists Usersettings.MaxProducerCosts;
 ",
 				_exportFilename,
 				(char)9);
 #if DEBUG
 			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
 #endif
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("priceId", 4863);
+			e.DataAdapter.SelectCommand.Parameters.AddWithValue("costId", 8148);
 			e.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 

@@ -94,6 +94,7 @@
     <Compile Include="CombineReport\CombineByWeightCostsFixture.cs" />
     <Compile Include="CombineReport\CombineNewProfilleFixture.cs" />
     <Compile Include="CombineReport\CombineProfileFixture.cs" />
+    <Compile Include="CombToPlainReportFixture.cs" />
     <Compile Include="CostDynamicFixture.cs" />
     <Compile Include="DefectureReport\DefectureByWeightCostsFixture.cs" />
     <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
@@ -103,7 +104,6 @@
     <Compile Include="FixtureSetup.cs" />
     <Compile Include="GeneralReportFixture.cs" />
     <Compile Include="Helpers\DataRowAdapter.cs" />
-    <Compile Include="IndividualReport\IndividualProfileFixture.cs" />
     <Compile Include="LeakOffersReportFixture.cs" />
     <Compile Include="MatrixReport\MatrixReportFixture.cs" />
     <Compile Include="MinCostByPriceReport\DbfMinCostByPriceNewProfileFixture.cs" />
