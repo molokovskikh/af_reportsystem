@@ -58,7 +58,7 @@ namespace ReportTuner.Models
 					?? new ReportType(type);
 
 				if (typeof(OrdersReport).IsAssignableFrom(type)) {
-					var reportInstance = new OrdersReport();;
+					var reportInstance = new OrdersReport();
 					if (type.GetConstructor(new Type[0]) != null)
 						reportInstance = (OrdersReport)Activator.CreateInstance(type);
 					var notExists = reportInstance.registredField.SelectMany(f => new[] {

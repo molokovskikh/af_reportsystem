@@ -237,7 +237,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			if (MailPerFile) {
 				foreach (var file in files) {
 					foreach (var mail in mails)
-						MailWithAttach(log, mail, new [] { file });
+						MailWithAttach(log, mail, new[] { file });
 				}
 			}
 			else {
@@ -316,7 +316,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 
 			var files = Directory.GetFiles(_directoryName);
 			if (!NoArchive) {
-				files = new [] { ArchFile() };
+				files = new[] { ArchFile() };
 			}
 
 			return files;
