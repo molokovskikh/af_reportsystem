@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Properties;
 using NUnit.Framework;
@@ -13,6 +14,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Build()
 		{
+			FileHelper.InitDir("tmp");
 			if (String.Equals(Environment.MachineName, "devsrv", StringComparison.OrdinalIgnoreCase)) {
 				Settings.Default.IntoOutfilePath = @"\\devsrv\public";
 				Settings.Default.DBDumpPath = @"\\devsrv\public";
