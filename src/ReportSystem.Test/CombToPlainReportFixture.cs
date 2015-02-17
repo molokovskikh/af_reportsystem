@@ -13,7 +13,11 @@ namespace ReportSystem.Test
 		[Test]
 		public void Build()
 		{
-			if (!String.Equals(Environment.MachineName, "devsrv", StringComparison.OrdinalIgnoreCase)) {
+			if (String.Equals(Environment.MachineName, "devsrv", StringComparison.OrdinalIgnoreCase)) {
+				Settings.Default.IntoOutfilePath = @"\\devsrv\public";
+				Settings.Default.DBDumpPath = @"\\devsrv\public";
+			}
+			else {
 				Settings.Default.IntoOutfilePath = Path.GetFullPath(".");
 				Settings.Default.DBDumpPath = Path.GetFullPath(".");
 			}
