@@ -23,7 +23,7 @@ namespace Inforoom.ReportSystem
 
 			var name = "ind_r_" + ReportCode.ToString() + ".txt";
 			_exportFilename = Path.Combine(Settings.Default.IntoOutfilePath, name).Replace('\\', '/');
-			_filename = Path.Combine(Settings.Default.DBDumpPath, name);
+			_filename = Path.Combine(Settings.Default.DBDumpPath, name).Replace('\\', '/');
 			if (File.Exists(_filename))
 				File.Delete(_filename);
 		}
