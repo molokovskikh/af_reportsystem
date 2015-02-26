@@ -32,11 +32,11 @@ namespace ReportSystem.Test
 			var supplier = TestSupplier.CreateNaked(session);
 			supplier.AddRegion(session.Load<TestRegion>(512ul));
 
-			var client = TestClient.CreateNaked(512, 512);
+			var client = TestClient.CreateNaked(session, 512, 512);
 			var order = MakeOrder(client, supplier);
 			session.Save(order);
 
-			var client1 = TestClient.CreateNaked();
+			var client1 = TestClient.CreateNaked(session);
 			var order1 = MakeOrder(client1, supplier);
 			session.Save(order1);
 

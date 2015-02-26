@@ -71,6 +71,7 @@ namespace ReportSystem.Test
 				.Skip(4)
 				.Implode(Environment.NewLine);
 			Assert.That(tableText, Is.Not.StringContaining(mnn1.Mnn));
+			Assert.That(text, Is.StringContaining("Сумма по поставщику"));
 		}
 
 		[Test]
@@ -93,6 +94,31 @@ namespace ReportSystem.Test
 			Assert.That(report.selectedField.Implode(f => f.reportPropertyPreffix), Is.EqualTo("FirmCr"));
 		}
 
+		[Test]
+		public void Build_order_without_rivals_and_suppliers()
+		{
+			supplier = TestSupplier.CreateNaked(session);
+			client = TestClient.CreateNaked(session);
+			order = new TestOrder(client.Users[0], supplier.Prices[0]);
+			var product = session.Query<TestProduct>().First(p => p.CatalogProduct.CatalogName.Mnn != null);
+			order.WriteTime = order.WriteTime.AddDays(-1);
+			order.AddItem(product, 10, 897.23f);
+			session.Save(order);
+
+			Property("ProductNamePosition", 0);
+			Property("MnnPosition", 1);
+
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 1);
+			Property("HideSupplierStat", true);
+			Property("SourceFirmCode", (int)supplier.Id);
+
+			var sheet = ReadReport<MixedReport>();
+			var text = ToText(sheet);
+			Assert.That(text, Is.Not.StringContaining("Сумма по поставщику"));
+			Console.WriteLine(text);
+		}
+
 		private static string MakeColumns(string decl)
 		{
 			var report = new OrdersReport();
@@ -110,9 +136,9 @@ namespace ReportSystem.Test
 
 		private void DefaultConf()
 		{
-			rival = TestSupplier.CreateNaked();
-			supplier = TestSupplier.CreateNaked();
-			client = TestClient.CreateNaked();
+			rival = TestSupplier.CreateNaked(session);
+			supplier = TestSupplier.CreateNaked(session);
+			client = TestClient.CreateNaked(session);
 			order = new TestOrder(client.Users[0], supplier.Prices[0]);
 			var product = session.Query<TestProduct>().First(p => p.CatalogProduct.CatalogName.Mnn != null);
 			order.WriteTime = order.WriteTime.AddDays(-1);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOffers;
@@ -18,7 +19,7 @@ namespace ReportTuner.Models
 	public class UpdateReportConfig
 	{
 		private ISession session;
-		private ILog log = LogManager.GetLogger(typeof(UpdateReportConfig));
+		private static ILog log = LogManager.GetLogger(typeof(UpdateReportConfig));
 
 		public UpdateReportConfig(ISession session)
 		{
@@ -99,32 +100,51 @@ namespace ReportTuner.Models
 					}
 				}
 
-				foreach (var typeProperty in type.GetProperties()) {
-					var attributes = typeProperty.GetCustomAttributes(typeof(DescriptionAttribute), true);
-					if (attributes.Length == 0)
-						continue;
-					var desc = ((DescriptionAttribute)attributes[0]).Description;
-					var prop = reportType.Properties.FirstOrDefault(p => p.PropertyName.Match(typeProperty.Name));
-					if (prop == null) {
-						var localType = "";
-						if (typeProperty.PropertyType == typeof(bool))
-							localType = "BOOL";
-						else if (typeProperty.PropertyType == typeof(int) || typeProperty.PropertyType == typeof(uint))
-							localType = "INT";
-						else
-							throw new Exception(String.Format("Не знаю как преобразовать тип {0} свойства {1} типа {2}",
-								typeProperty.PropertyType,
-								typeProperty.Name,
-								type));
-						reportType.AddProperty(new ReportTypeProperty(typeProperty.Name, localType, desc) {
-							Optional = false,
-							DefaultValue = "0",
-							SelectStoredProcedure = procedures.GetValueOrDefault(typeProperty.Name)
-						});
-					}
+				type.GetProperties().Each(t => {
+					CheckProperty(t.Name, t.PropertyType, t, reportType, procedures);
+				});
+				var blacklist = new string[0];
+				if (type == typeof(PharmacyMixedReport)) {
+					blacklist = new[] { "HideSupplierStat" };
 				}
 
+				type.GetFields().Where(f => !blacklist.Contains(f.Name)).Each(f => {
+					CheckProperty(f.Name, f.FieldType, f, reportType, procedures);
+				});
+
 				session.Save(reportType);
+			}
+		}
+
+		private static void CheckProperty(string name, Type type, ICustomAttributeProvider typeProperty,
+			ReportType reportType, Dictionary<string, string> procedures)
+		{
+			var attributes = typeProperty.GetCustomAttributes(typeof(DescriptionAttribute), true);
+			if (attributes.Length == 0)
+				return;
+			var desc = ((DescriptionAttribute)attributes[0]).Description;
+
+			var prop = reportType.Properties.FirstOrDefault(p => p.PropertyName.Match(name));
+			if (prop == null) {
+				var localType = "";
+				if (type == typeof(bool))
+					localType = "BOOL";
+				else if (type == typeof(int) || type == typeof(uint))
+					localType = "INT";
+				else
+					throw new Exception(String.Format("Не знаю как преобразовать тип {0} свойства {1} типа {2}",
+						type,
+						name,
+						type));
+				var reportTypeProperty = new ReportTypeProperty(name, localType, desc) {
+					Optional = false,
+					DefaultValue = "0",
+					SelectStoredProcedure = procedures.GetValueOrDefault(name)
+				};
+				reportType.AddProperty(reportTypeProperty);
+				log.WarnFormat("Добавил параметр '{0}' для отчета {1}",
+					reportTypeProperty.DisplayName,
+					reportType.ReportTypeName);
 			}
 		}
 

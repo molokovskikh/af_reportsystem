@@ -61,7 +61,7 @@ namespace ReportSystem.Test.SpecialReport
 		public void Build_data_for_interval()
 		{
 			var dateTime = DateTime.Today.AddDays(-2);
-			var supplier = TestSupplier.CreateNaked();
+			var supplier = TestSupplier.CreateNaked(session);
 			supplier.CreateSampleCore();
 
 			var offer = supplier.Prices[0].Core[0];

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Web;
 using System.Reflection;
@@ -11,6 +12,7 @@ using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.Helpers;
 using Common.Web.Ui.MonoRailExtentions;
+using NHibernate;
 using ReportTuner.Models;
 using Common.MySql;
 
@@ -88,12 +90,18 @@ namespace ReportTuner
 			using (var trx = session.BeginTransaction()) {
 				//Проверяем существование шаблонного отчета в базе, если нет, то приложение не запускаем
 				ulong templateReportId;
-				if (ulong.TryParse(System.Configuration.ConfigurationManager.AppSettings["TemplateReportId"], out templateReportId)) {
+				if (ulong.TryParse(ConfigurationManager.AppSettings["TemplateReportId"], out templateReportId)) {
 					try {
 						session.Load<GeneralReport>(templateReportId);
 					}
-					catch (NotFoundException exp) {
+					catch (ObjectNotFoundException) {
+#if DEBUG
+						var r = new GeneralReport();
+						session.Save(r);
+						ConfigurationManager.AppSettings["TemplateReportId"] = r.Id.ToString();
+#else
 						throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", exp);
+#endif
 					}
 				}
 				else

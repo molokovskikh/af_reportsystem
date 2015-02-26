@@ -23,7 +23,7 @@ namespace Inforoom.ReportSystem
 
 		private ulong GetClientRegionMask(ExecuteArgs e)
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"select OrderRegionMask from usersettings.RetClientsSet where ClientCode=" + sourceFirmCode;
+			e.DataAdapter.SelectCommand.CommandText = @"select OrderRegionMask from usersettings.RetClientsSet where ClientCode=" + SourceFirmCode;
 			return Convert.ToUInt64(e.DataAdapter.SelectCommand.ExecuteScalar());
 		}
 
@@ -47,7 +47,7 @@ namespace Inforoom.ReportSystem
 		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			var _clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)sourceFirmCode }));
+			var _clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)SourceFirmCode }));
 			FilterDescriptions.Add(_clientName);
 			var concurentClientNames = String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0]));
 			FilterDescriptions.Add(concurentClientNames);
@@ -90,7 +90,7 @@ Min(ol.cost) as AllMinCost,
 Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
-Count(distinct oh.AddressId) as AllDistinctAddressId ", sourceFirmCode, rivalFilter));
+Count(distinct oh.AddressId) as AllDistinctAddressId ", SourceFirmCode, rivalFilter));
 			selectCommand += String.Format(@"from {0}.OrdersHead oh
   join {0}.OrdersList ol on ol.OrderID = oh.RowID
   join catalogs.products p on p.Id = ol.ProductId
