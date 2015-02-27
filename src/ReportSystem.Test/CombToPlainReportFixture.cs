@@ -23,6 +23,7 @@ namespace ReportSystem.Test
 				Settings.Default.IntoOutfilePath = Path.GetFullPath(".");
 				Settings.Default.DBDumpPath = Path.GetFullPath(".");
 			}
+			File.Delete(Path.Combine(Settings.Default.IntoOutfilePath, "ind_r_1.txt"));
 			var client = TestClient.CreateNaked(session);
 			Property("ClientCode", client.Id);
 			InitReport<CombToPlainReport>("test", ReportFormats.DBF);
