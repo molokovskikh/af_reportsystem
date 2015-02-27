@@ -102,7 +102,7 @@ namespace ReportSystem.Test
 				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
 			Assert.That(Convert.ToUInt32(reportRow.GetCell(4).StringCellValue), Is.GreaterThan(0));
 			Assert.AreEqual("1", reportRow.GetCell(5).StringCellValue);
-			Assert.AreEqual(order.WriteTime.ToString("T"), reportRow.GetCell(6).StringCellValue);
+			Assert.AreEqual(order.WriteTime.ToString("h:mm:ss"), reportRow.GetCell(6).StringCellValue);
 		}
 
 		[Test]

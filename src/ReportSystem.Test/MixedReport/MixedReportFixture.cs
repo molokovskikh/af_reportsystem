@@ -33,9 +33,7 @@ namespace ReportSystem.Test
 			return haveMnn;
 		}
 
-		private bool HaveMnn(ISheet sheet,
-			TestProduct product,
-			int cell = 1)
+		private bool HaveMnn(ISheet sheet, TestProduct product, int cell = 1)
 		{
 			return HaveMnn(sheet, product.CatalogProduct.CatalogName.Mnn.Mnn, cell);
 		}
@@ -116,7 +114,6 @@ namespace ReportSystem.Test
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
 			Assert.That(text, Is.Not.StringContaining("Сумма по поставщику"));
-			Console.WriteLine(text);
 		}
 
 		private static string MakeColumns(string decl)
