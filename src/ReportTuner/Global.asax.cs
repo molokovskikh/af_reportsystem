@@ -94,13 +94,13 @@ namespace ReportTuner
 					try {
 						session.Load<GeneralReport>(templateReportId);
 					}
-					catch (ObjectNotFoundException e) {
+					catch (ObjectNotFoundException ex) {
 #if DEBUG
 						var r = new GeneralReport();
 						session.Save(r);
 						ConfigurationManager.AppSettings["TemplateReportId"] = r.Id.ToString();
 #else
-						throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", e);
+						throw new ReportTunerException("В файле Web.Config параметр TemplateReportId указывает на несуществующую запись.", ex);
 #endif
 					}
 				}
