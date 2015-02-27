@@ -18,12 +18,13 @@ namespace ReportSystem.Test
 			if (String.Equals(Environment.MachineName, "devsrv", StringComparison.OrdinalIgnoreCase)) {
 				Settings.Default.IntoOutfilePath = @"\\devsrv\public";
 				Settings.Default.DBDumpPath = @"\\devsrv\public";
+				File.Delete("C:\\public\\ind_r_1.txt");
 			}
 			else {
 				Settings.Default.IntoOutfilePath = Path.GetFullPath(".");
 				Settings.Default.DBDumpPath = Path.GetFullPath(".");
+				File.Delete("ind_r_1.tx");
 			}
-			File.Delete(Path.Combine(Settings.Default.IntoOutfilePath, "ind_r_1.txt"));
 			var client = TestClient.CreateNaked(session);
 			Property("ClientCode", client.Id);
 			InitReport<CombToPlainReport>("test", ReportFormats.DBF);
