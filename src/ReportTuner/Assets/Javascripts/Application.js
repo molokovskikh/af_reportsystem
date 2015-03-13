@@ -1,4 +1,47 @@
-﻿function MarkNotselected() {
+﻿
+function SetCookie(name, value, options) {
+	if (value == null) {
+		this.setCookie(name, "", { expires: -1 });
+		return;
+	}
+	options = options || {};
+	if (!options.path)
+		options.path = '/';
+
+	var expires = options.expires;
+
+	if (typeof expires == "number" && expires) {
+		var d = new Date();
+		d.setTime(d.getTime() + expires * 1000);
+		expires = options.expires = d;
+	}
+	if (expires && expires.toUTCString) {
+		options.expires = expires.toUTCString();
+	}
+
+	var updatedCookie = name + "=" + value;
+
+	for (var propName in options) {
+		updatedCookie += "; " + propName;
+		var propValue = options[propName];
+		if (propValue !== true) {
+			updatedCookie += "=" + propValue;
+		}
+	}
+	document.cookie = updatedCookie;
+}
+
+function GetCookie(name, eraseFlag) {
+	var matches = document.cookie.match(new RegExp(
+		"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+	));
+	var ret = matches ? (matches[1]) : undefined;
+	if (eraseFlag)
+		this.setCookie(name, null);
+	return ret;
+}
+
+function MarkNotselected() {
 	var nsChecked = $(this).attr('checked');
 	$('.nsCheckBox').attr('checked', nsChecked);
 }

@@ -260,6 +260,12 @@ limit 15;";
 				}
 				else if (tl[i] is MonthlyTrigger) {
 					var dr = DS.Tables[dtScheduleMonth.TableName].NewRow();
+					//очищаем таблицу от значений по умолчанию
+					for (var k = 1; k <= 31; k++)
+						dr["d" + k] = 0;
+					for (var k = 1; k <= 12; k++)
+						dr["m" + k] = 0;
+
 					var trigger = ((MonthlyTrigger)tl[i]);
 					dr[MSStartHour.ColumnName] = trigger.StartBoundary.Hour;
 					dr[MSStartMinute.ColumnName] = trigger.StartBoundary.Minute;
@@ -536,10 +542,11 @@ limit 15;";
 
 		var columnsForAdd = new List<DataColumn>();
 		for (var i = 1; i <= 12; i++) {
-			columnsForAdd.Add(new DataColumn("m" + i, typeof(byte)) { DefaultValue = ((byte)0) });
+			columnsForAdd.Add(new DataColumn("m" + i, typeof(byte)) { DefaultValue = ((byte)1) });
 		}
 		for (var i = 1; i <= 31; i++) {
-			columnsForAdd.Add(new DataColumn("d" + i, typeof(byte)) { DefaultValue = ((byte)0) });
+			var val = i == 1 ? 1 : 0;
+			columnsForAdd.Add(new DataColumn("d" + i, typeof(byte)) { DefaultValue = ((byte)val)});
 		}
 
 		dtScheduleMonth.Columns.AddRange(new[] { MSStartHour, MSStartMinute });
