@@ -48,8 +48,7 @@ namespace ReportTuner.Test
 			var holder = ActiveRecordMediator.GetSessionFactoryHolder();
 			var session = holder.CreateSession(typeof(ActiveRecordBase));
 			var ownerId = uint.Parse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"]);
-			if (session.Get<ContactGroupOwner>(ownerId) == null)
-			{
+			if (session.Get<ContactGroupOwner>(ownerId) == null) {
 				session.CreateSQLQuery(String
 					.Format("Insert into contacts.contact_group_owners (Id) VALUES({0})", ownerId)).UniqueResult();
 			}

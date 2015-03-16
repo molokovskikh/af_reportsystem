@@ -3,20 +3,34 @@
 <asp:Content runat="server" ID="ScheduleValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 
 	<script type="text/javascript">
-	jQuery(document).ready(function ($) {
-		$('#startDateDiv').datepicker({
-			defaultDate: $('#dtFrom').val(),
-			changeMonth: true,
-			changeYear: true,
-			onSelect: function (dateText, inst) { $('#dtFrom').val(dateText); }
-		});
+		jQuery(document).ready(function ($) {
+			var reportScheduleFromDate = GetCookie("ReportScheduleFromDate");
+			var reportScheduleToDate = GetCookie("ReportScheduleToDate");
+			console.log("Checking cookie dates: ", reportScheduleFromDate, reportScheduleToDate);
+			if (reportScheduleFromDate && reportScheduleToDate) {
+				$('#dtFrom').val(reportScheduleFromDate);
+				$('#dtTo').val(reportScheduleToDate);
+			}
 
-		$('#endDateDiv').datepicker({
-			defaultDate: $('#dtTo').val(),
-			changeMonth: true,
-			changeYear: true,
-			onSelect: function (dateText, inst) { $('#dtTo').val(dateText); }
-		});
+			$('#startDateDiv').datepicker({
+				defaultDate: $('#dtFrom').val(),
+				changeMonth: true,
+				changeYear: true,
+				onSelect: function (dateText, inst) {
+					$('#dtFrom').val(dateText);
+					SetCookie("ReportScheduleFromDate", dateText);
+				}
+			});
+
+			$('#endDateDiv').datepicker({
+				defaultDate: $('#dtTo').val(),
+				changeMonth: true,
+				changeYear: true,
+				onSelect: function(dateText, inst) {
+					$('#dtTo').val(dateText);
+					SetCookie("ReportScheduleToDate", dateText);
+				}
+			});
 	});
 </script>
 	<div align="center"><strong><font size ="2">
@@ -165,7 +179,7 @@
 				</asp:TemplateField>
 			</Columns>
 			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить расписание" />
+				<asp:Button ID="btnAdd" runat="server" CommandName="Add" Text="Добавить еженедельное расписание" />
 			</EmptyDataTemplate>
 		</asp:GridView>
 
@@ -249,7 +263,7 @@
 				</asp:TemplateField>
 			</Columns>
 			<EmptyDataTemplate>
-				<asp:Button ID="btnAdd"  CssClass="addMonthItem" runat="server" CommandName="Add" Text="Добавить расписание" />
+				<asp:Button ID="btnAdd"  CssClass="addMonthItem" runat="server" CommandName="Add" Text="Добавить ежемесячное расписание" />
 			</EmptyDataTemplate>
 		</asp:GridView>
 
