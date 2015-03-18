@@ -61,6 +61,9 @@ public partial class Reports_schedule : BasePage
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
+		if ((Request.UrlReferrer == null || !Request.UrlReferrer.LocalPath.Contains("Schedule.aspx")) && Session["StartTaskTime"] != null)
+			Session.Remove("StartTaskTime");
+
 		if (Request["r"] == null)
 			Response.Redirect("GeneralReports.aspx");
 
@@ -87,6 +90,7 @@ public partial class Reports_schedule : BasePage
 		var userName = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
 
 		ErrorMassage.Text = string.Empty;
+		ErrorMassage.CssClass = "error";
 
 		var description = tempTaskState == TaskState.Running ? string.Format("(запустил: {0})", tempTaskDescription) : string.Empty;
 
@@ -159,6 +163,7 @@ public partial class Reports_schedule : BasePage
 					ErrorMassage.Text = "";
 			}
 		}
+		
 		if ((tempTaskState == TaskState.Disabled && currentTask.State != TaskState.Running && currentTask.State != TaskState.Queued) ||
 			(currentTask.State == TaskState.Disabled && tempTaskState != TaskState.Running && tempTaskState != TaskState.Queued)) {
 			if (Session["StartTaskTime"] != null) {

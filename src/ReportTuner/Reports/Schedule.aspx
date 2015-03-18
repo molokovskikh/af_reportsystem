@@ -31,7 +31,42 @@
 					SetCookie("ReportScheduleToDate", dateText);
 				}
 			});
-	});
+
+			//проверим-ка мы состояние страницы
+			//запрос отправляется на ту же самую страницу до тех пор, пока в коде ответа в том месте где лежит сообщение
+			//мы не увидим, что нас ожидал успех - тогда мы его отображаем и расслабляемся.
+			var busy = false;
+			var interval = setInterval(function () {
+				var msg = $(".error").html();
+				//отправляем 1 запрос за раз только в том случае, если на странице начался запуск отчета, о чем нам скажет сообщение
+				if (msg != "" && !busy) {
+					console.log("Обновляем данные");
+					busy = true;
+					$.ajax({
+						url: document.location.href,
+					}).done(function (responseText) {
+						//Находим отображаемое сообщение
+						var regex = /<span id.*class="error".*>(.*)<\/span>/;
+						var matches = regex.exec(responseText);
+						console.log(matches);
+						if (matches != null) {
+							var newDiv = $(matches[0]);
+							//Отображаем обновленное сообщение
+							$(".error").html(newDiv.html());
+							$(".error").attr("style", newDiv.attr("style"));
+							//Если операция выполнена, то расслабляемся и останавливаем выполнение
+							if (newDiv.html().indexOf("Операция выполнена") >= 0) {
+								clearInterval(interval);
+								$("#ctl00_ReportContentPlaceHolder_btnExecute").removeAttr('disabled');
+								$("#ctl00_ReportContentPlaceHolder_btn_Mailing").removeAttr('disabled');
+							} 
+						}
+						//Можно отправлять следующий запрос
+						busy = false;
+					});
+				}
+			},500);
+		});
 </script>
 	<div align="center"><strong><font size ="2">
 Задание для отчета "<asp:Label ID="lblReportComment" runat="server" Text="Label"/>" для плательщика "<asp:Label ID="lblClient" runat="server" Text="Label"/>"<br /><br />
