@@ -249,12 +249,17 @@ namespace Inforoom.ReportSystem
 				return;
 			}
 
-			if (Format == ReportFormats.DBF && DbfSupported) {
+			if (Format == ReportFormats.DBF) {
+				if(!DbfSupported)
+					throw new ReportException("Подотчет не может готовиться в формате DBF.");
 				// Формируем DBF
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
 				DataTableToDbf(reportTable, fileName);
 			}
-			else if (Format == ReportFormats.CSV && DbfSupported) {
+			else if (Format == ReportFormats.CSV) {
+				if (!DbfSupported)
+					throw new ReportException("Подотчет не может готовиться в формате CSV.");
+				//Формируем CSV
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".csv");
 				CsvHelper.Save(reportTable, fileName);
 			}
