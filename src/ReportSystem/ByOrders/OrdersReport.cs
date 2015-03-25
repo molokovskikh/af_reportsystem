@@ -367,24 +367,24 @@ create temporary table MixedData ENGINE=MEMORY
 			e.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS ProviderCodes;
 create temporary table ProviderCodes (" +
-				((showCode) ? "Code varchar(20), " : String.Empty) +
-				((showCodeCr) ? "CodeCr varchar(20), " : String.Empty) +
+				(showCode ? "Code varchar(20), " : String.Empty) +
+				(showCodeCr ? "CodeCr varchar(20), " : String.Empty) +
 				"CatalogCode int unsigned, codefirmcr int unsigned," +
-				((showCode) ? "key Code(Code), " : String.Empty) +
-				((showCodeCr) ? "key CodeCr(CodeCr), " : String.Empty) +
+				(showCode ? "key Code(Code), " : String.Empty) +
+				(showCodeCr ? "key CodeCr(CodeCr), " : String.Empty) +
 				@"key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
 insert into ProviderCodes "
 				+
 				"select " +
-				((showCode) ? "group_concat(CoreCodes.Code), " : String.Empty) +
-				((showCodeCr) ? "CoreCodes.CodeCr, " : String.Empty) +
+				(showCode ? "group_concat(CoreCodes.Code), " : String.Empty) +
+				(showCodeCr ? "CoreCodes.CodeCr, " : String.Empty) +
 				selectExpression +
 				@" from ((
 (
 select
 distinct " +
-				((showCode) ? "ol.Code, " : String.Empty) +
-				((showCodeCr) ? "ol.CodeCr, " : String.Empty) +
+				(showCode ? "ol.Code, " : String.Empty) +
+				(showCodeCr ? "ol.CodeCr, " : String.Empty) +
 				String.Format(@"
   ol.ProductId,
   ol.CodeFirmCr
@@ -404,8 +404,8 @@ union
 (
 select
 distinct " +
-				((showCode) ? "core.Code, " : String.Empty) +
-				((showCodeCr) ? "core.CodeCr, " : String.Empty) +
+				(showCode ? "core.Code, " : String.Empty) +
+				(showCodeCr ? "core.CodeCr, " : String.Empty) +
 				@"
   core.ProductId,
   core.CodeFirmCr
