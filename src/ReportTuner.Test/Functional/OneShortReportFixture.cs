@@ -46,7 +46,7 @@ namespace ReportTuner.Test.Functional
 			try {
 				WaitForText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
 			}
-			catch(TimeoutException e) {
+			catch(WatiN.Core.Exceptions.TimeoutException e) {
 				throw new Exception(String.Format("Не удалось дождаться запуска страницы, текст страницы {0}", browser.Text), e);
 			}
 		}
