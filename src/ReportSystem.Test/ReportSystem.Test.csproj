@@ -134,6 +134,7 @@
     <Compile Include="SpecialReport\SpecialNewProfileFixture.cs" />
     <Compile Include="SpecialReport\SpecialProfileFixture.cs" />
     <Compile Include="SpecialReport\SpecialReportFilterFixture.cs" />
+    <Compile Include="SpecialReport\SpecialReportFixture2.cs" />
     <Compile Include="SupplierMarketShareByUser.cs" />
     <Compile Include="SupplierOrdersStatistics\SupplierOrdersStatisticsProfileFixture.cs" />
     <Compile Include="SuppliersRatingReport\SuppliersRatingProfileFixture.cs" />
