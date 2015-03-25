@@ -91,7 +91,7 @@ namespace ReportSystem.Test
 			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
 			Assert.That(result, Is.StringContaining("Кол-во сессий отправки заказов"));
 			Assert.That(result, Is.StringContaining("Самая поздняя заявка"));
-			var rows = report.GetRowEnumerator().Cast<IRow>().ToArray();
+			var rows = report.Rows().ToArray();
 			//проверяем что индексы которые используются ниже не изменились
 			var header = rows[4];
 			Assert.AreEqual("Кол-во поставщиков", header.GetCell(4).StringCellValue);

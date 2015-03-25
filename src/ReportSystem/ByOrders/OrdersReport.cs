@@ -373,14 +373,13 @@ create temporary table ProviderCodes (" +
 				(showCode ? "key Code(Code), " : String.Empty) +
 				(showCodeCr ? "key CodeCr(CodeCr), " : String.Empty) +
 				@"key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
-insert into ProviderCodes "
-				+
-				"select " +
-				(showCode ? "group_concat(CoreCodes.Code), " : String.Empty) +
+insert into ProviderCodes
+select " +
+				(showCode ? "group_concat(distinct CoreCodes.Code), " : String.Empty) +
 				(showCodeCr ? "CoreCodes.CodeCr, " : String.Empty) +
 				selectExpression +
-				@" from ((
-(
+				@"
+from (((
 select
 distinct " +
 				(showCode ? "ol.Code, " : String.Empty) +

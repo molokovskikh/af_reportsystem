@@ -8,6 +8,7 @@ using Inforoom.ReportSystem;
 using System.Data;
 using System.IO;
 using Inforoom.ReportSystem.Helpers;
+using NPOI.SS.UserModel;
 
 namespace ReportSystem.Test
 {
@@ -139,6 +140,11 @@ namespace ReportSystem.Test
 			report.ProcessReport();
 			report.ReportToFile(TestHelper.GetFileName(type));
 			ProfileHelper.Stop();
+		}
+
+		public static IEnumerable<IRow> Rows(this ISheet sheet)
+		{
+			return sheet.GetRowEnumerator().Cast<IRow>();
 		}
 	}
 }

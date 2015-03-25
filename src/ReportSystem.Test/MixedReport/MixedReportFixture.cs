@@ -116,6 +116,36 @@ namespace ReportSystem.Test
 			Assert.That(text, Is.Not.StringContaining("Сумма по поставщику"));
 		}
 
+		[Test]
+		public void Remove_duplicate_codes()
+		{
+			supplier = TestSupplier.CreateNaked(session);
+			supplier.CreateSampleCore(session);
+			client = TestClient.CreateNaked(session);
+			order = new TestOrder(client.Users[0], supplier.Prices[0]);
+			order.WriteTime = order.WriteTime.AddDays(-1);
+			var offer = supplier.Prices[0].Core[0];
+			order.AddItem(offer, 10);
+			session.Save(order);
+
+			Property("ProductNamePosition", 0);
+			Property("MnnPosition", 1);
+
+			Property("ByPreviousMonth", false);
+			Property("ShowCode", true);
+			Property("ReportInterval", 1);
+			Property("SourceFirmCode", (int)supplier.Id);
+
+			var sheet = ReadReport<MixedReport>();
+			var row = sheet.Rows().FirstOrDefault(r => {
+				var cell = r.GetCell(2);
+				if (cell == null)
+					return false;
+				return cell.StringCellValue.Contains(offer.Product.Name);
+			});
+			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue);
+		}
+
 		private static string MakeColumns(string decl)
 		{
 			var report = new OrdersReport();

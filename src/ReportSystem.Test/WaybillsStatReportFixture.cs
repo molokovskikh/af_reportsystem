@@ -63,13 +63,13 @@ namespace ReportSystem.Test
 			report.To = DateTime.Today;
 			report.Interval = true;
 			var sheet = ReadReport();
-			var row = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product1.CatalogProduct.Name));
+			var row = sheet.Rows().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product1.CatalogProduct.Name));
 			Assert.IsNotNull(row, "товар = {0}\r\n данные = {1}", product1.CatalogProduct.Name, ToText(sheet));
 			//Кол-во заявок по препарат
 			Assert.That(row.GetCell(8).NumericCellValue, Is.GreaterThan(0));
 			//Кол-во адресов доставки, заказавших препарат
 			Assert.That(row.GetCell(9).NumericCellValue, Is.GreaterThan(0));
-			var row2 = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product2.CatalogProduct.Name));
+			var row2 = sheet.Rows().FirstOrDefault(r => r.GetCell(0).StringCellValue.Contains(product2.CatalogProduct.Name));
 			Assert.IsNotNull(row2, "товар = {0}\r\n данные = {1}", product2.CatalogProduct.Name, ToText(sheet));
 		}
 
@@ -91,7 +91,7 @@ namespace ReportSystem.Test
 			report.To = DateTime.Today;
 			report.Interval = true;
 			var sheet = ReadReport();
-			var row = sheet.GetRowEnumerator().Cast<IRow>().FirstOrDefault(r => r.GetCell(1).StringCellValue.Contains(product1.CatalogProduct.Name));
+			var row = sheet.Rows().FirstOrDefault(r => r.GetCell(1).StringCellValue.Contains(product1.CatalogProduct.Name));
 			Assert.IsNotNull(row, "товар = {0}\r\n данные = {1}", product1.CatalogProduct.Name, ToText(sheet));
 			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue);
 		}
