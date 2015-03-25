@@ -43,7 +43,12 @@ namespace ReportTuner.Test.Functional
 		{
 			Open("Reports/schedule.aspx?r=1");
 			Click("Выполнить задание");
-			WaitForText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
+			try {
+				WaitForText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
+			}
+			catch(TimeoutException e) {
+				throw new Exception(String.Format("Не удалось дождаться запуска страницы, текст страницы {0}", browser.Text), e);
+			}
 		}
 
 		[Test]
