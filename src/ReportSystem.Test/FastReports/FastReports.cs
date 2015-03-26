@@ -78,7 +78,7 @@ namespace ReportSystem.Test.FastReports
 			BuildReport();
 		}
 
-		[Test]
+		[Test, Ignore("Временно, необходимо сменить клиента, т.к. этот отключен")]
 		public void Build_full_report_with_pricelist()
 		{
 			Property("IncludeQuantity", 1);
