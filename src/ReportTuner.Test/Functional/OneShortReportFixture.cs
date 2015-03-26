@@ -71,6 +71,7 @@ namespace ReportTuner.Test.Functional
 			Open("/Reports/schedule.aspx?r=1");
 
 			browser.Button(Find.ByClass("addMonthItem")).Click();
+			//Чекбоксы должны быть выбраны по-умолчанию, но на всякий случай оставляю код
 			//browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			//browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			browser.Button(Find.ByValue("Применить")).Click();
