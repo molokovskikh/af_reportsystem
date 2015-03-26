@@ -71,7 +71,7 @@ public partial class Reports_schedule : BasePage
 
 		taskService = ScheduleHelper.GetService();
 		reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-		currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
+		currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, _generalReport.Id, _generalReport.Comment, "GR");
 		currentTaskDefinition = currentTask.Definition;
 
 		tempTask = ScheduleHelper.FindTaskNullable(reportsFolder, _generalReport.Id, "temp_");
@@ -734,7 +734,7 @@ limit 15;";
 	private void RunSelfTaskAndUpdateAction()
 	{
 		string user = HttpContext.Current.User.Identity.Name.Replace(@"ANALIT\", string.Empty);
-		var thisTask = ScheduleHelper.GetTask(taskService, reportsFolder, Convert.ToUInt64(_generalReport.Id), user, "temp_");
+		var thisTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, Convert.ToUInt64(_generalReport.Id), user, "temp_");
 
 		var newAction = new ExecAction(ScheduleHelper.ScheduleAppPath,
 			"/gr:" + _generalReport.Id +

@@ -43,7 +43,7 @@ namespace ReportTuner.Reports
 
 				_generalReport = GeneralReport.Find(Convert.ToUInt64(Request["TemporaryId"]));
 				_taskService = ScheduleHelper.GetService();
-				_currentTask = ScheduleHelper.GetTask(
+				_currentTask = ScheduleHelper.GetTaskOrCreate(
 					_taskService,
 					ScheduleHelper.GetReportsFolder(_taskService),
 					_generalReport.Id,

@@ -559,7 +559,7 @@ select last_insert_id() as GRLastInsertID;
 			using (var helper = new ScheduleHelper()) {
 				foreach (var id in updatedReports) {
 					var report = DbSession.Get<GeneralReport>(id);
-					helper.GetTask(id, report.Comment);
+					helper.GetTaskOrCreate(id, report.Comment);
 					ScheduleHelper.SetTaskComment(id, report.Comment, "GR");
 					ScheduleHelper.SetTaskEnableStatus(id, report.Allow, "GR");
 				}

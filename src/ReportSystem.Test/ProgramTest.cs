@@ -28,7 +28,7 @@ namespace ReportSystem.Test
 
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 1, "", "GR");
+			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, 1, "", "GR");
 			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Is.StringContaining("manual:true"));
 		}
 	}

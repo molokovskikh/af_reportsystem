@@ -45,7 +45,7 @@ namespace ReportTuner.Models
 
 		public static Task CreateTemporaryTaskForRunFromInterface(TaskService service, TaskFolder folder, Task source, string action)
 		{
-			var task = ScheduleHelper.GetTask(service, folder, Convert.ToUInt64(1), "tempTask1", "temp");
+			var task = ScheduleHelper.GetTaskOrCreate(service, folder, Convert.ToUInt64(1), "tempTask1", "temp");
 			var sourceDefinition = source.Definition;
 			sourceDefinition.Triggers.Clear();
 			ScheduleHelper.UpdateTaskDefinition(service, folder, Convert.ToUInt64(1), sourceDefinition, "temp");

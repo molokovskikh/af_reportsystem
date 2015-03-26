@@ -61,7 +61,7 @@ namespace ReportTuner.Test.Functional
 
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 50, "", "GR");
+			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, 50, "", "GR");
 			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Is.StringContaining("manual:true"));
 		}
 
@@ -82,7 +82,7 @@ namespace ReportTuner.Test.Functional
 
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-			var currentTask = ScheduleHelper.GetTask(taskService, reportsFolder, 1, "", "GR");
+			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, 1, "", "GR");
 			Assert.That(currentTask.Definition.Settings.RestartCount == 3);
 			Assert.That(currentTask.Definition.Settings.RestartInterval == new TimeSpan(0, 15, 0));
 			Assert.That(currentTask.Definition.Settings.StartWhenAvailable);

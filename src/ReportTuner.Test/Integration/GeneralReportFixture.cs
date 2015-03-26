@@ -43,7 +43,7 @@ namespace ReportTuner.Test.Integration
 			session.Save(report);
 
 			var helper = new ScheduleHelper();
-			helper.GetTask(report.Id, report.Comment);
+			helper.GetTaskOrCreate(report.Id, report.Comment);
 
 			var reportPage = new Reports_GeneralReports {
 				DbSession = session
@@ -57,7 +57,7 @@ namespace ReportTuner.Test.Integration
 				new List<ulong> {
 					report.Id
 				});
-			var task = helper.GetTask(report.Id, report.Comment);
+			var task = helper.GetTaskOrCreate(report.Id, report.Comment);
 			Assert.AreEqual(task.Definition.RegistrationInfo.Description, comment);
 		}
 
