@@ -38,7 +38,7 @@ namespace ReportTuner.Test.Functional
 			Assert.That(finded, Is.True);
 		}
 
-		[Test, Ignore("Временно, необходимо сменить клиента, т.к. этот отключен")]
+		[Test]
 		public void Task_shedule_base_test()
 		{
 			Open("Reports/schedule.aspx?r=1");
