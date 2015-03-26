@@ -18,7 +18,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.Combine);
 		}
 
-		[Test,Ignore("Временно, необходимо сменить клиента, т.к. этот отключен")]
+		[Test, Ignore("Временно, необходимо сменить клиента, т.к. этот отключен")]
 		public void CombineCount()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.CombineCount);
