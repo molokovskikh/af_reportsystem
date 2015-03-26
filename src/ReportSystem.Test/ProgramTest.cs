@@ -19,16 +19,17 @@ namespace ReportSystem.Test
 		[Test]
 		public void Base_test()
 		{
+			var helper = new ScheduleHelper();
+			helper.GetTaskOrCreate(1);
 			ScheduleHelper.SetTaskAction(1, "/gr:1 /manual:true");
+
 			session.CreateSQLQuery("delete from `logs`.reportexecutelogs; update  reports.general_reports set allow = 0;").ExecuteUpdate();
 			session.Transaction.Commit();
 			Program.Main(new[] { "/gr:1" });
 			var reportLogCount = session.Query<ReportExecuteLog>().Count();
 			Assert.AreEqual(reportLogCount, 1);
 
-			var taskService = ScheduleHelper.GetService();
-			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, 1, "", "GR");
+			var currentTask = helper.FindTaskNullable(1);
 			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Is.StringContaining("manual:true"));
 		}
 	}
