@@ -18,7 +18,7 @@ namespace ReportTuner.Test.Integration.Models
 			ScheduleHelper.DeleteTask(folder, 100, "GR");
 			ScheduleHelper.DeleteTask(folder, 1, "temp");
 
-			var task = ScheduleHelper.GetTaskOrCreate(service, folder, Convert.ToUInt64(100), "", "GR");
+			var task = ScheduleHelper.GetTaskOrCreate(service, folder, 100, "", "GR");
 			ScheduleHelper.SetTaskEnableStatus(100, true, "GR");
 			var definition = task.Definition;
 			var trigger = new WeeklyTrigger {
