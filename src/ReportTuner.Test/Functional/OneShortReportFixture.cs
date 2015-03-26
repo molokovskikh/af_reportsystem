@@ -38,7 +38,7 @@ namespace ReportTuner.Test.Functional
 			Assert.That(finded, Is.True);
 		}
 
-		[Test, Ignore("Временно, необходимо сменить клиента, т.к. этот отключен")]
+		[Test, Ignore("Временно, неизвестная причина - ошибка в common")]
 		public void Task_shedule_base_test()
 		{
 			Open("Reports/schedule.aspx?r=1");
@@ -71,6 +71,7 @@ namespace ReportTuner.Test.Functional
 			Open("/Reports/schedule.aspx?r=1");
 
 			browser.Button(Find.ByClass("addMonthItem")).Click();
+			//Чекбоксы должны быть выбраны по-умолчанию, но на всякий случай оставляю код
 			//browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			//browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			browser.Button(Find.ByValue("Применить")).Click();
