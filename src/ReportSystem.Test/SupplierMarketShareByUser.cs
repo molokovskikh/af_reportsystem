@@ -91,7 +91,7 @@ namespace ReportSystem.Test
 			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
 			Assert.That(result, Is.StringContaining("Кол-во сессий отправки заказов"));
 			Assert.That(result, Is.StringContaining("Самая поздняя заявка"));
-			var rows = report.GetRowEnumerator().Cast<IRow>().ToArray();
+			var rows = report.Rows().ToArray();
 			//проверяем что индексы которые используются ниже не изменились
 			var header = rows[4];
 			Assert.AreEqual("Кол-во поставщиков", header.GetCell(4).StringCellValue);
@@ -102,7 +102,7 @@ namespace ReportSystem.Test
 				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
 			Assert.That(Convert.ToUInt32(reportRow.GetCell(4).StringCellValue), Is.GreaterThan(0));
 			Assert.AreEqual("1", reportRow.GetCell(5).StringCellValue);
-			Assert.AreEqual(order.WriteTime.ToString("hh:mm:ss"), reportRow.GetCell(6).StringCellValue);
+			Assert.AreEqual(order.WriteTime.ToString("HH:mm:ss"), reportRow.GetCell(6).StringCellValue);
 		}
 
 		[Test]
