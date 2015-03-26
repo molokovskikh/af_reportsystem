@@ -29,7 +29,7 @@ namespace ReportSystem.Test
 			var reportLogCount = session.Query<ReportExecuteLog>().Count();
 			Assert.AreEqual(reportLogCount, 1);
 
-			var currentTask = helper.FindTaskNullable(1);
+			var currentTask = helper.FindTask(1);
 			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Is.StringContaining("manual:true"));
 		}
 	}
