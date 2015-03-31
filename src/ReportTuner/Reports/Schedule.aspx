@@ -37,9 +37,10 @@
 			//мы не увидим, что нас ожидал успех - тогда мы его отображаем и расслабляемся.
 			var busy = false;
 			var interval = setInterval(function () {
+				console.log("interval")
 				var msg = $(".error").html();
 				//отправляем 1 запрос за раз только в том случае, если на странице начался запуск отчета, о чем нам скажет сообщение
-				if (msg != "" && !busy) {
+				if (msg != "" && !busy && msg.indexOf("Операция выполнена") == -1) {
 					console.log("Обновляем данные");
 					busy = true;
 					$.ajax({
@@ -55,11 +56,18 @@
 							$(".error").html(newDiv.html());
 							$(".error").attr("style", newDiv.attr("style"));
 							//Если операция выполнена, то расслабляемся и останавливаем выполнение
-							if (newDiv.html().indexOf("Операция выполнена") >= 0) {
+							if (newDiv.html() == "" || newDiv.html().indexOf("Операция выполнена") >= 0) {
+								console.log("Операция выполнена");
 								clearInterval(interval);
 								$("#ctl00_ReportContentPlaceHolder_btnExecute").removeAttr('disabled');
 								$("#ctl00_ReportContentPlaceHolder_btn_Mailing").removeAttr('disabled');
 							} 
+						} else {
+							console.log("Сбой");
+							clearInterval(interval);
+							$("#ctl00_ReportContentPlaceHolder_btnExecute").removeAttr('disabled');
+							$("#ctl00_ReportContentPlaceHolder_btn_Mailing").removeAttr('disabled');
+							$(".error").html("");
 						}
 						//Можно отправлять следующий запрос
 						busy = false;
