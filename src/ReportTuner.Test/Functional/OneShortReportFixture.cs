@@ -38,7 +38,7 @@ namespace ReportTuner.Test.Functional
 			Assert.That(finded, Is.True);
 		}
 
-		[Test, Ignore("Временно, неизвестная причина - ошибка в common")]
+		[Test]
 		public void Task_shedule_base_test()
 		{
 			Open("Reports/schedule.aspx?r=1");
