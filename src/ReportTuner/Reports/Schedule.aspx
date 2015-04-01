@@ -59,14 +59,14 @@
 							if (newDiv.html() == "" || newDiv.html().indexOf("Операция выполнена") >= 0) {
 								console.log("Операция выполнена");
 								clearInterval(interval);
-								$("#ctl00_ReportContentPlaceHolder_btnExecute").removeAttr('disabled');
-								$("#ctl00_ReportContentPlaceHolder_btn_Mailing").removeAttr('disabled');
+								$(".executeMailing").removeAttr('disabled');
+								$(".execute").removeAttr('disabled');
 							} 
 						} else {
 							console.log("Сбой");
 							clearInterval(interval);
-							$("#ctl00_ReportContentPlaceHolder_btnExecute").removeAttr('disabled');
-							$("#ctl00_ReportContentPlaceHolder_btn_Mailing").removeAttr('disabled');
+							$(".executeMailing").removeAttr('disabled');
+							$(".execute").removeAttr('disabled');
 							$(".error").html("");
 						}
 						//Можно отправлять следующий запрос
@@ -150,7 +150,7 @@
 						<br />
 						<br />
 						<br />
-						<asp:Button ID="btn_Mailing" runat="server" Text="Выполнить" ValidationGroup="vgPassword" OnClick="btnExecute_mailing" Width="200px" />
+						<asp:Button ID="btn_Mailing" CssClass="executeMailing" runat="server" Text="Выполнить" ValidationGroup="vgPassword" OnClick="btnExecute_mailing" Width="200px" />
 						<asp:Button ID="send_created_report" runat="server" Text="Выслать готовый" ValidationGroup="vgPassword" OnClick="btnExecute_sendReady" Width="200px" />
 
 				</td>
@@ -162,7 +162,7 @@
 	<br />
 	<br />
 			<center><b><font size ="2"><label id="Label6" >Задать расписание для отчета</label></font></b> <br /> <br />
-				<asp:Button ID="btnExecute" runat="server" Text="Выполнить задание"
+				<asp:Button ID="btnExecute" runat="server" CssClass="execute" Text="Выполнить задание"
 			ValidationGroup="vgPassword" OnClick="btnExecute_Click" style="height: 26px" /></center>
 
 	<div align="center" id="sheduleSettings">
