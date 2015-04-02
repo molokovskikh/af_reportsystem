@@ -40,36 +40,44 @@
 				console.log("interval")
 				var msg = $(".error").html();
 				//отправляем 1 запрос за раз только в том случае, если на странице начался запуск отчета, о чем нам скажет сообщение
-				if (msg != "" && !busy && msg.indexOf("Операция выполнена") == -1) {
+				//хотя иногда там уже сразу написано "Операция выполнена", тогда ничего и делать не надо.
+				if (msg != "" && !busy) {
 					console.log("Обновляем данные");
 					busy = true;
 					$.ajax({
 						url: document.location.href,
 					}).done(function (responseText) {
 						//Находим отображаемое сообщение
-						var regex = /<span id.*class="error".*>(.*)<\/span>/;
+						var regex = /(<form>[\s\S]*<\/form>)/g;
 						var matches = regex.exec(responseText);
 						console.log(matches);
 						if (matches != null) {
-							var newDiv = $(matches[0]);
+							var newbody = $(matches[0]);
+							console.log(newbody.get(0));
 							//Отображаем обновленное сообщение
-							$(".error").html(newDiv.html());
-							$(".error").attr("style", newDiv.attr("style"));
+							$(".error").html(newbody.find(".error").html());
+							$(".error").attr("style", newbody.find(".error").attr("style"));
 							//Если операция выполнена, то расслабляемся и останавливаем выполнение
-							if (newDiv.html() == "" || newDiv.html().indexOf("Операция выполнена") >= 0) {
+							if (newbody.html() == "" || newbody.find(".error").html().indexOf("Операция выполнена") >= 0) {
 								console.log("Операция выполнена");
 								clearInterval(interval);
 								$(".executeMailing").removeAttr('disabled');
 								$(".execute").removeAttr('disabled');
-							} 
+
+								//Обновляем статистику
+								$(".reportSendStatistic").parent().html(newbody.find(".reportSendStatistic").html());
+								$(".reportRunStatistic").parent().html(newbody.find(".reportRunStatistic").html());
+							}
 						} else {
+							//Иногда просто раз - и все: на новой странице нет никакого дополнительного сообщения. Что в этом случае делать непонятно.
 							console.log("Сбой");
+							console.log(responseText);
 							clearInterval(interval);
 							$(".executeMailing").removeAttr('disabled');
 							$(".execute").removeAttr('disabled');
 							$(".error").html("");
 						}
-						//Можно отправлять следующий запрос
+					}).always(function() {
 						busy = false;
 					});
 				}
@@ -318,7 +326,7 @@
 		</asp:GridView>
 		<br/>
 		<div align="center" class="midleWidth">
-		<asp:GridView ID="startLogs" runat="server"
+		<asp:GridView ID="startLogs" runat="server" CssClass="reportRunStatistic"
 			Caption="Статистика запусков отчета" AutoGenerateColumns="False"  EmptyDataText="Нет данных">
 			<Columns>
 				<asp:BoundField DataField="StartTime" HeaderText="Время запуска" />
@@ -328,7 +336,7 @@
 		</div>
 		<br/>
 		<div align="center" class="midleWidth">
-		<asp:GridView ID="gvLogs" runat="server"
+		<asp:GridView ID="gvLogs" runat="server" CssClass="reportSendStatistic"
 			Caption="Статистика отсылки отчета" AutoGenerateColumns="False"  EmptyDataText="Нет данных">
 			<Columns>
 				<asp:BoundField DataField="LogTime" HeaderText="Дата" />
