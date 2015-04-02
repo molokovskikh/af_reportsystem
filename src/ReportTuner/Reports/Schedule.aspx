@@ -48,7 +48,7 @@
 						url: document.location.href,
 					}).done(function (responseText) {
 						//Находим отображаемое сообщение
-						var regex = /(<form>[\s\S]*<\/form>)/g;
+						var regex = /(<form[\s\S]*<\/form>)/g;
 						var matches = regex.exec(responseText);
 						console.log(matches);
 						if (matches != null) {
@@ -65,8 +65,12 @@
 								$(".execute").removeAttr('disabled');
 
 								//Обновляем статистику
-								$(".reportSendStatistic").parent().html(newbody.find(".reportSendStatistic").html());
-								$(".reportRunStatistic").parent().html(newbody.find(".reportRunStatistic").html());
+								var reportSend = newbody.find(".reportSendStatistic").html();
+								if (reportSend)
+									$(".reportSendStatistic").parent().html(reportSend);
+								var reportRun = newbody.find(".reportRunStatistic").html();
+								if(reportRun)
+									$(".reportRunStatistic").parent().html(reportRun);
 							}
 						} else {
 							//Иногда просто раз - и все: на новой странице нет никакого дополнительного сообщения. Что в этом случае делать непонятно.

@@ -9,7 +9,7 @@
 <body bgcolor="#ffffff">
     <form id="Form1" method="post" runat="server">
 		<div style="width:100%; text-align:center;">
-			<h3 style="color: red">
+			<h3 class="error" style="color: red">
 			Ошибка в интерфейсе настройки отчетов
 			</h3>
 			<p>
