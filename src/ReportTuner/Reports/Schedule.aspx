@@ -3,7 +3,11 @@
 <asp:Content runat="server" ID="ScheduleValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 
 	<script type="text/javascript">
+		//	window.console = { log: function (smg) { alert(smg) } }
+
+		
 		jQuery(document).ready(function ($) {
+
 			var reportScheduleFromDate = GetCookie("ReportScheduleFromDate");
 			var reportScheduleToDate = GetCookie("ReportScheduleToDate");
 			console.log("Checking cookie dates: ", reportScheduleFromDate, reportScheduleToDate);
@@ -32,62 +36,42 @@
 				}
 			});
 
-			//проверим-ка мы состояние страницы
-			//запрос отправляется на ту же самую страницу до тех пор, пока в коде ответа в том месте где лежит сообщение
-			//мы не увидим, что нас ожидал успех - тогда мы его отображаем и расслабляемся.
-			var busy = false;
-			var interval = setInterval(function () {
-				console.log("interval")
-				var msg = $(".error").html();
-				//отправляем 1 запрос за раз только в том случае, если на странице начался запуск отчета, о чем нам скажет сообщение
-				//хотя иногда там уже сразу написано "Операция выполнена", тогда ничего и делать не надо.
-				if (msg != "" && !busy) {
-					console.log("Обновляем данные");
-					busy = true;
-					$.ajax({
-						url: document.location.href,
-					}).done(function (responseText) {
-						//Находим отображаемое сообщение
-						var regex = /(<form[\s\S]*<\/form>)/g;
-						var matches = regex.exec(responseText);
-						console.log(matches);
-						if (matches != null) {
-							var newbody = $(matches[0]);
-							console.log(newbody.get(0));
-							//Отображаем обновленное сообщение
-							$(".error").html(newbody.find(".error").html());
-							$(".error").attr("style", newbody.find(".error").attr("style"));
-							//Если операция выполнена, то расслабляемся и останавливаем выполнение
-							if (newbody.html() == "" || newbody.find(".error").html().indexOf("Операция выполнена") >= 0) {
-								console.log("Операция выполнена");
-								clearInterval(interval);
-								$(".executeMailing").removeAttr('disabled');
-								$(".execute").removeAttr('disabled');
+			//Фикс бесконечных айфреймов
+			if (document.location.href.indexOf("iframe=true") > 0)
+				$("iframe").remove();
+			$("iframe").attr("src", document.location.href + "&iframe=true");
 
-								//Обновляем статистику
-								var reportSend = newbody.find(".reportSendStatistic").html();
-								if (reportSend)
-									$(".reportSendStatistic").parent().html(reportSend);
-								var reportRun = newbody.find(".reportRunStatistic").html();
-								if(reportRun)
-									$(".reportRunStatistic").parent().html(reportRun);
-							}
-						} else {
-							//Иногда просто раз - и все: на новой странице нет никакого дополнительного сообщения. Что в этом случае делать непонятно.
-							console.log("Сбой");
-							console.log(responseText);
-							clearInterval(interval);
-							$(".executeMailing").removeAttr('disabled');
-							$(".execute").removeAttr('disabled');
-							$(".error").html("");
-						}
-					}).always(function() {
-						busy = false;
-					});
+			//Обновляем айфрейм
+			var refresh =  function () {
+				var newbody = $("iframe").contents();
+				if (newbody.find(".error").html() === undefined)
+					return;
+				//Отображаем обновленное сообщение
+				$(".error").html(newbody.find(".error").html());
+				$(".error").attr("style", newbody.find(".error").attr("style"));
+				//Если операция выполнена, то расслабляемся и останавливаем выполнение
+				//console.log(newbody.find(".error").html());
+				if (newbody.find(".error").html() == "" || newbody.find(".error").html().indexOf("Операция выполнена") >= 0) {
+					console.log("Операция выполнена");
+					$(".executeMailing").removeAttr('disabled');
+					$(".execute").removeAttr('disabled');
+					//Обновляем статистику
+					var reportSend = newbody.find(".reportSendStatistic");
+					if (reportSend)
+						$(".reportSendStatistic").parent().html(reportSend.parent().html());
+					var reportRun = newbody.find(".reportRunStatistic");
+					if (reportRun)
+						$(".reportRunStatistic").parent().html(reportRun).parent().html();
+					clearInterval(int);
+					return;
 				}
-			},500);
+				setTimeout(function () { $("iframe").get(0).contentDocument.location.reload(true); }, 500);
+			};
+			var int = setInterval(refresh,100);
+
 		});
-</script>
+	</script>
+	
 	<div align="center"><strong><font size ="2">
 Задание для отчета "<asp:Label ID="lblReportComment" runat="server" Text="Label"/>" для плательщика "<asp:Label ID="lblClient" runat="server" Text="Label"/>"<br /><br />
 <asp:Label ID="ErrorMassage" runat="server" Text=""/>
@@ -352,4 +336,5 @@
 		<br/>
 		<asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgPassword" />
 	</div>
+	<iframe style="width:1px; height: 1px" src=""></iframe>
 </asp:Content>
