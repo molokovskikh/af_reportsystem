@@ -50,11 +50,14 @@
 				$(".error").html(newbody.find(".error").html());
 				$(".error").attr("style", newbody.find(".error").attr("style"));
 				//Если операция выполнена, то расслабляемся и останавливаем выполнение
-				//console.log(newbody.find(".error").html());
+				console.log(newbody.find(".error").html());
 				if (newbody.find(".error").html() == "" || newbody.find(".error").html().indexOf("Операция выполнена") >= 0) {
 					console.log("Операция выполнена");
 					$(".executeMailing").removeAttr('disabled');
 					$(".execute").removeAttr('disabled');
+					$(".execute").val('Выполнить задание');
+					if (newbody.find(".error").html() == "")
+						$(".error").html("Операция завершилась");
 					//Обновляем статистику
 					var reportSend = newbody.find(".reportSendStatistic");
 					if (reportSend)
