@@ -44,18 +44,26 @@
 		<tr bgcolor="#eef8ff">
 			<td align="right">
 				<asp:Label ID="noArchiveText" runat="server" Text="Не архивировать:" SkinID="paramLabelSkin"></asp:Label>
-		  </td>
-		  <td>
-			<asp:CheckBox runat="server" ID="NoArchive"/>
-		  </td>
+			</td>
+			<td>
+				<asp:CheckBox runat="server" ID="NoArchive"/>
+			</td>
+		</tr>
+		<tr bgcolor="#eef8ff">
+			<td align="right">
+				<asp:Label runat="server" Text="Отправлять каждый файл отдельным письмом:" SkinID="paramLabelSkin" />
+			</td>
+			<td>
+				<asp:CheckBox runat="server" ID="MailPerFile" ClientIDMode="Static"/>
+			</td>
 		</tr>
 		<tr bgcolor="#eef8ff">
 			<td align="right">
 				<asp:Label ID="SendDescriptionFileLabel" runat="server" Text="Вложить в письмо файлы с описанием:" SkinID="paramLabelSkin"></asp:Label>
 			</td>
-		<td>
-			<asp:CheckBox runat="server" ID="SendDescriptionFile" ClientIDMode="Static"/>
-		</td>
+			<td>
+				<asp:CheckBox runat="server" ID="SendDescriptionFile" ClientIDMode="Static"/>
+			</td>
 		</tr>
 		<tr>
 			<td colspan="2" class="topPadding">Вложить в письмо с отчетом файлы:</td>

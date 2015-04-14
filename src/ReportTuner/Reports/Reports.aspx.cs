@@ -75,11 +75,12 @@ public partial class Reports_Reports : BasePage
 		if (MyCn.State != ConnectionState.Open)
 			MyCn.Open();
 
-		GeneralReport report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
+		var report = DbSession.Load<GeneralReport>(Convert.ToUInt64(Request["r"]));
 		tbEMailSubject.Text = report.EMailSubject;
 		tbReportFileName.Text = report.ReportFileName;
 		tbReportArchName.Text = report.ReportArchName;
 		NoArchive.Checked = report.NoArchive;
+		MailPerFile.Checked = report.MailPerFile;
 		SendDescriptionFile.Checked = report.SendDescriptionFile;
 
 		ReportFormatDD.SelectedValue = report.Format;
@@ -418,16 +419,15 @@ SET
 			MyCn.Close();
 		}
 
-		using (new TransactionScope()) {
-			var report = GeneralReport.Find(Convert.ToUInt64(Request["r"]));
-			report.EMailSubject = tbEMailSubject.Text;
-			report.ReportFileName = tbReportFileName.Text;
-			report.ReportArchName = tbReportArchName.Text;
-			report.NoArchive = NoArchive.Checked;
-			report.SendDescriptionFile = SendDescriptionFile.Checked;
-			report.Format = ReportFormatDD.Text;
-			report.Save();
-		}
+		var report = DbSession.Load<GeneralReport>(Convert.ToUInt64(Request["r"]));
+		report.EMailSubject = tbEMailSubject.Text;
+		report.ReportFileName = tbReportFileName.Text;
+		report.ReportArchName = tbReportArchName.Text;
+		report.NoArchive = NoArchive.Checked;
+		report.MailPerFile = MailPerFile.Checked;
+		report.SendDescriptionFile = SendDescriptionFile.Checked;
+		report.Format = ReportFormatDD.Text;
+		DbSession.Save(report);
 
 		foreach (GridViewRow dr in fileGridView.Rows) {
 			var idField = ((HiddenField)dr.FindControl("Id")).Value;
