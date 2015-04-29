@@ -702,6 +702,10 @@ select last_insert_id() as GRLastInsertID;
 			MyCmd.CommandText = String.Format(@"
 select distinct gr.GeneralReportCode from reports.general_reports gr
 inner join contacts.contacts c on gr.ContactGroupId = c.ContactOwnerId and c.Type = 0
+and ( {0} )
+union
+select distinct gr.GeneralReportCode from reports.general_reports gr
+inner join contacts.contacts c on gr.PublicSubscriptionsId = c.ContactOwnerId and c.Type = 0
 and ( {0} );
 ", String.Join(" or ", condition.ToArray()));
 			var count = 0;
