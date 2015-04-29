@@ -184,7 +184,7 @@ public partial class Reports_schedule : BasePage
 
 			dtFrom.Value = DateTime.Now.AddDays(-7).ToShortDateString();
 			dtTo.Value = DateTime.Now.ToShortDateString();
-			mail_Text.Text = GetMailingAdresses().Select(a => a[0].ToString()).Implode(", \r");
+			mail_Text.Text = GetMailingAdresses();
 
 			try {
 				lblClient.Text = _generalReport.Payer.Id + " - " + _generalReport.Payer.ShortName;
@@ -782,45 +782,28 @@ limit 15;";
 		}
 	}
 
-
-	private List<object[]> GetMailingAdresses()
+	/// <summary>
+	/// Получение списка имейлов от рассылки, через запятую.
+	/// Находит как имейлы из текущей рассылки, так и самостоятельные подписки.
+	/// </summary>
+	/// <returns>Имейлы через запятую или пустую строку</returns>
+	private string GetMailingAdresses()
 	{
-		var sqlSelectReports = ObjectFromQuery(new[] { new MySqlParameter("?GeneralReportID", _generalReport.Id) },
-			@"
-SELECT    ContactGroupId
-FROM    reports.general_reports cr,
-		billing.payers p
-WHERE
-	 p.PayerId = cr.PayerId
-and cr.generalreportcode = ?GeneralReportID");
-		if (sqlSelectReports.Count > 0) {
-			var emails = ObjectFromQuery(new[] {
-				new MySqlParameter("?ContactGroupId", sqlSelectReports[0][0]),
-				new MySqlParameter("?ContactGroupType", 6),
-				new MySqlParameter("?ContactType", 0.ToString())
-			},
-				@"
-select lower(c.contactText)
-from
-  contacts.contact_groups cg
-  join contacts.contacts c on cg.Id = c.ContactOwnerId
-where
-	cg.Id = ?ContactGroupId
-and cg.Type = ?ContactGroupType
-and c.Type = ?ContactType
-union
-select lower(c.contactText)
-from
-  contacts.contact_groups cg
-  join contacts.persons p on cg.id = p.ContactGroupId
-  join contacts.contacts c on p.Id = c.ContactOwnerId
-where
-	cg.Id = ?ContactGroupId
-and cg.Type = ?ContactGroupType
-and c.Type = ?ContactType");
-			return emails;
-		}
-		return null;
+		var emails = new List<string>();
+		var query = @"SELECT C.ContactText FROM reports.general_reports AS GR
+				JOIN contacts.contacts AS C ON GR.ContactGroupId = C.ContactOwnerId
+				WHERE gr.GeneralReportCode = ?reportId
+				UNION
+				SELECT C.ContactText FROM reports.general_reports AS GR
+				JOIN contacts.contacts AS C ON GR.PublicSubscriptionsId = C.ContactOwnerId
+				WHERE  GR.GeneralReportCode = ?reportId";
+		var param = new MySqlParameter("?reportId", _generalReport.Id);
+		var data = ObjectFromQuery(new[] { param }, query);
+
+		if (data.Count > 0)
+			emails = data.Select(i => i[0] as string).ToList();
+
+		return emails.Implode(",");
 	}
 
 	protected void chbAllow_CheckedChanged(object sender, EventArgs e)
