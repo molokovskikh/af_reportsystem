@@ -52,7 +52,7 @@ namespace ReportSystem.Test
 		[TearDown]
 		public void Stop()
 		{
-			//File.Delete(_fileName);
+			File.Delete(_fileName);
 			ProfileHelper.End();
 		}
 
