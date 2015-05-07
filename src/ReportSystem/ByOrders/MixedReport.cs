@@ -51,14 +51,14 @@ namespace Inforoom.ReportSystem
 
 		public MixedReport()
 		{
-			HideJunk = true;
+			HideJunk = false;
 		}
 
 		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			SupportProductNameOptimization = true;
-			HideJunk = true;
+			HideJunk = false;
 		}
 
 		public override void ReadReportParams()
