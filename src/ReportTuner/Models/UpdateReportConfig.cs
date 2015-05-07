@@ -101,7 +101,7 @@ namespace ReportTuner.Models
 				}
 
 				type.GetProperties().Each(t => {
-					CheckProperty(t.Name, t.PropertyType, t, reportType, procedures);
+					CheckProperty(type, t.Name, t.PropertyType, t, reportType, procedures);
 				});
 				var blacklist = new string[0];
 				if (type == typeof(PharmacyMixedReport)) {
@@ -109,26 +109,28 @@ namespace ReportTuner.Models
 				}
 
 				type.GetFields().Where(f => !blacklist.Contains(f.Name)).Each(f => {
-					CheckProperty(f.Name, f.FieldType, f, reportType, procedures);
+					CheckProperty(type, f.Name, f.FieldType, f, reportType, procedures);
 				});
 
 				session.Save(reportType);
 			}
 		}
 
-		private static void CheckProperty(string name, Type type, ICustomAttributeProvider typeProperty,
-			ReportType reportType, Dictionary<string, string> procedures)
+		private static void CheckProperty(Type reportType, string name, Type type, ICustomAttributeProvider typeProperty,
+			ReportType reportTypeModel, Dictionary<string, string> procedures)
 		{
 			var attributes = typeProperty.GetCustomAttributes(typeof(DescriptionAttribute), true);
 			if (attributes.Length == 0)
 				return;
 			var desc = ((DescriptionAttribute)attributes[0]).Description;
 
-			var prop = reportType.Properties.FirstOrDefault(p => p.PropertyName.Match(name));
+			var prop = reportTypeModel.Properties.FirstOrDefault(p => p.PropertyName.Match(name));
 			if (prop == null) {
 				var localType = "";
-				if (type == typeof(bool))
+				var defaultValue = "0";
+				if (type == typeof(bool)) {
 					localType = "BOOL";
+				}
 				else if (type == typeof(int) || type == typeof(uint))
 					localType = "INT";
 				else
@@ -136,15 +138,28 @@ namespace ReportTuner.Models
 						type,
 						name,
 						type));
+				try {
+					var report = Activator.CreateInstance(reportType);
+					var field = typeProperty as FieldInfo;
+					if (field != null) {
+						defaultValue = Convert.ToInt32(field.GetValue(report)).ToString();
+					}
+					var property = typeProperty as PropertyInfo;
+					if (property != null)
+						defaultValue = Convert.ToInt32(property.GetValue(report, null)).ToString();
+				}
+				catch (Exception e) {
+					//не реализовано используем значение по умолчанию
+				}
 				var reportTypeProperty = new ReportTypeProperty(name, localType, desc) {
 					Optional = false,
-					DefaultValue = "0",
+					DefaultValue = defaultValue,
 					SelectStoredProcedure = procedures.GetValueOrDefault(name)
 				};
-				reportType.AddProperty(reportTypeProperty);
+				reportTypeModel.AddProperty(reportTypeProperty);
 				log.WarnFormat("Добавил параметр '{0}' для отчета {1}",
 					reportTypeProperty.DisplayName,
-					reportType.ReportTypeName);
+					reportTypeModel.ReportTypeName);
 			}
 		}
 

@@ -10,25 +10,31 @@ using System.Collections.Generic;
 using Inforoom.ReportSystem.Writers;
 using Inforoom.ReportSystem.ReportSettings;
 
-
 namespace Inforoom.ReportSystem
 {
 	public class PharmacyMixedReport : MixedReport
 	{
+		public PharmacyMixedReport()
+		{
+			AddressesEqual = new List<ulong>();
+			AddressRivals = new List<ulong>();
+		}
+
 		public PharmacyMixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
+			AddressesEqual = new List<ulong>();
 			AddressRivals = new List<ulong>();
 		}
+
+		public List<ulong> AddressRivals { get; set; }
+		public List<ulong> AddressesEqual { get; set; }
 
 		private ulong GetClientRegionMask(ExecuteArgs e)
 		{
 			e.DataAdapter.SelectCommand.CommandText = @"select OrderRegionMask from usersettings.RetClientsSet where ClientCode=" + SourceFirmCode;
 			return Convert.ToUInt64(e.DataAdapter.SelectCommand.ExecuteScalar());
 		}
-
-		public List<ulong> AddressRivals { get; set; }
-		public List<ulong> AddressesEqual { get; set; }
 
 		public override void ReadReportParams()
 		{
@@ -47,8 +53,8 @@ namespace Inforoom.ReportSystem
 		protected override void GenerateReport(ExecuteArgs e)
 		{
 			ProfileHelper.Next("GenerateReport");
-			var _clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)SourceFirmCode }));
-			FilterDescriptions.Add(_clientName);
+			var clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)SourceFirmCode }));
+			FilterDescriptions.Add(clientName);
 			var concurentClientNames = String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0]));
 			FilterDescriptions.Add(concurentClientNames);
 			if (AddressRivals.Count > 0)
@@ -67,6 +73,12 @@ namespace Inforoom.ReportSystem
 			if (firmCrPosition)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
+
+			var filter = "";
+			if (HideJunk) {
+				filter = " and ol.Junk = 0 ";
+				FilterDescriptions.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
+			}
 
 			selectCommand = String.Concat(selectCommand, String.Format(@"
 sum(if(oh.ClientCode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
@@ -109,18 +121,17 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", SourceFirmCode, rivalFil
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
 where
-ol.Junk = 0
-and pd.IsLocal = 0
-and (oh.RegionCode & "
-				+ regionMask + @") > 0", OrdersSchema);
+pd.IsLocal = 0
+{1}
+and (oh.RegionCode & " + regionMask + @") > 0", OrdersSchema, filter);
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
 
 			if (firmCrPosition) {
 				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
-				var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
-				selectCommand = selectCommand.Replace(groupPart, new_groupPart);
+				var newGroupPart = groupPart.Replace("cfc.Id", "cfc_id");
+				selectCommand = selectCommand.Replace(groupPart, newGroupPart);
 			}
 
 			if (includeProductName)
@@ -159,7 +170,7 @@ and (oh.RegionCode & "
 
 			ProfileHelper.Next("GenerateReport3");
 
-			GroupHeaders.Add(new ColumnGroupHeader(_clientName,
+			GroupHeaders.Add(new ColumnGroupHeader(clientName,
 				"SourceFirmCodeSum",
 				"SourceFirmDistinctOrderId"));
 			GroupHeaders.Add(new ColumnGroupHeader(
