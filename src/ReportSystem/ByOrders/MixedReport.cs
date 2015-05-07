@@ -20,6 +20,9 @@ namespace Inforoom.ReportSystem
 	{
 		[Description("Скрыть статистику поставщика")]
 		public bool HideSupplierStat;
+
+		[Description("Исключить сроковые товары")]
+		public bool HideJunk;
 		//Поставщик, по которому будет производиться отчет
 		public int SourceFirmCode;
 		//Отображать поле Code из прайс-листа поставщика?
@@ -46,10 +49,16 @@ namespace Inforoom.ReportSystem
 			get { return _dsReport.Tables["Results"]; }
 		}
 
+		public MixedReport()
+		{
+			HideJunk = true;
+		}
+
 		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
 			SupportProductNameOptimization = true;
+			HideJunk = true;
 		}
 
 		public override void ReadReportParams()
@@ -127,6 +136,11 @@ namespace Inforoom.ReportSystem
 				selectCommand += " ProviderCodes.CodeCr, ";
 
 			var concurrentSqlBlock = new StringBuilder();
+			var filter = "";
+			if (HideJunk) {
+				filter = " and ol.Junk = 0 ";
+				FilterDescriptions.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
+			}
 
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				concurrentSqlBlock.AppendFormat(@"
@@ -181,11 +195,10 @@ from {0}.OrdersHead oh
   join billing.payers on payers.PayerId = le.PayerId", OrdersSchema) +
 				((ShowCode || ShowCode) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
 					((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", firmCrField.primaryField) : String.Empty)) : String.Empty) +
-						@"
-where
-ol.Junk = 0
-and pd.IsLocal = 0
-";
+						String.Format(@"
+where pd.IsLocal = 0
+	{0}
+", filter);
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
