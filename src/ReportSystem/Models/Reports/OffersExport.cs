@@ -30,7 +30,7 @@ namespace Inforoom.ReportSystem.Models.Reports
 		[Description("Пользователь")]
 		public uint UserId { get; set; }
 
-		[Description("Сохранять каждый прайс-лист в свой файл, работает только при экспорте в формате dbf, файлы будут называться <код поставщика>.dbf")]
+		[Description("Разбивать предложения поставщиков по файлам, работает только при экспорте в формате dbf, файлы будут называться <код поставщика>.dbf")]
 		public bool SplitByPrice { get; set; }
 
 		private void Init()
