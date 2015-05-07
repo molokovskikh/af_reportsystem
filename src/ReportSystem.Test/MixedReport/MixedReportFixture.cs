@@ -66,7 +66,7 @@ namespace ReportSystem.Test
 			Assert.IsTrue(HaveMnn(sheet, String.Format("Следующие МНН исключены из отчета: {0}", mnn1.Mnn), 0));
 			Assert.IsTrue(HaveMnn(sheet, product));
 			var tableText = text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-				.Skip(4)
+				.Skip(5)
 				.Implode(Environment.NewLine);
 			Assert.That(tableText, Is.Not.StringContaining(mnn1.Mnn));
 			Assert.That(text, Is.StringContaining("Сумма по поставщику"));
