@@ -145,7 +145,6 @@ namespace ReportSystem.Test
 				return cell.StringCellValue.Contains(offer.Product.Name);
 			});
 			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue);
-			Assert.That(text, Is.StringContaining("Из отчета исключены уцененные товары и товары с ограниченным сроком годност"));
 		}
 
 		[Test]
