@@ -63,17 +63,6 @@ where
 	pricesdata.PriceCode = ?PriceCode;",
 					new MySqlParameter("?PriceCode", _priceCode)));
 
-			SourcePriceType = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
-					@"
-select
-	p.PriceType
-from
-	usersettings.pricesdata p
-where
-	p.PriceCode = ?PriceCode;",
-					new MySqlParameter("?PriceCode", _priceCode)));
-
 			// Если отчет строится по взвешенным ценам, то используем другой источник данных
 			// Вместо идентификатора прайса используем идентификатор поставщика
 			if(_byWeightCosts) {
