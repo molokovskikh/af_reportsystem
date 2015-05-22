@@ -48,7 +48,6 @@ namespace Inforoom.ReportSystem
 		protected string regionNotInprefix;
 		protected List<ulong> _clients;
 		protected List<ulong> _regions;
-		protected List<ulong> _suppliers;
 		protected List<ulong> _RegionEqual;
 		protected List<ulong> _RegionNonEqual;
 		protected List<ulong> _PayerEqual;
@@ -67,8 +66,6 @@ namespace Inforoom.ReportSystem
 		protected string _suppliersNames = "";
 		protected string _regionsWhere = string.Empty;
 
-		public ExecuteArgs ex;
-
 		public PricesOfCompetitorsReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
 			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
 		{
@@ -83,11 +80,6 @@ namespace Inforoom.ReportSystem
 			_AllAssortment = (bool)GetReportParam("AllAssortment");
 			_WithWithoutProperties = (bool)GetReportParam("WithWithoutProperties");
 			_showCodeCr = (bool)GetReportParam("ShowCodeCr");
-			if (_reportParams.ContainsKey("FirmCodeEqual"))
-				_suppliers = (List<ulong>)GetReportParam("FirmCodeEqual");
-			if (_reportParams.ContainsKey("IgnoredSuppliers"))
-				_suppliers = (List<ulong>)GetReportParam("IgnoredSuppliers");
-
 			_RegionEqual = new List<ulong>();
 			_RegionNonEqual = new List<ulong>();
 			_PayerEqual = new List<ulong>();
@@ -120,12 +112,11 @@ namespace Inforoom.ReportSystem
 				}
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			ProfileHelper.Next("Начало формирования запроса");
-			ex = e;
 			_clients = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual,
-				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, null, e);
+				_PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, null);
 
 			var hash = new Hashtable();
 			var data = new List<ReportData>();
@@ -133,13 +124,15 @@ namespace Inforoom.ReportSystem
 
 			foreach (var client in _clients) {
 				// проверка клиента на доступность
-				var cl = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual, _PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, client, e);
+				var cl = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual, _PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, client);
 				if (cl == null || cl.Count == 0) {
 					clientsCount--;
 					continue; // возможно, клиент был заблокирован во время подготовки отчета
 				}
 				_clientCode = Convert.ToInt32(client);
 				InvokeGetActivePrices();
+				//todo нужно ли для всех?
+				CheckSupplierCount();
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
 				string withWithoutPropertiesText;
 				if (_WithWithoutProperties)
@@ -149,7 +142,7 @@ namespace Inforoom.ReportSystem
 				var firmcr = _ProducerAccount ? "and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0)" : string.Empty;
 
 				var JunkWhere = _regionsWhere.Length == 0 ? " WHERE c00.Junk = 0 " : " AND c00.Junk = 0 ";
-				e.DataAdapter.SelectCommand.CommandText =
+				args.DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
 select c00.ProductId, p.CatalogId, c00.CodeFirmCr, c0.Code, c0.CodeCr,
@@ -174,11 +167,11 @@ from Usersettings.ActivePrices Prices
 ", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere, firmcr);
 
 #if DEBUG
-				Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+				Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
 #endif
 
 				var offers = new DataTable();
-				e.DataAdapter.Fill(offers);
+				args.DataAdapter.Fill(offers);
 				NoisingCostInDataTable(offers, "Cost", "FirmCode", _SupplierNoise);
 				foreach (var group in Group(offers)) {
 					var offer = group.First();
@@ -295,7 +288,7 @@ from Usersettings.ActivePrices Prices
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new PricesOfCompetitorsWriter(_reportParams, ex, ReportCaption);
+				return new PricesOfCompetitorsWriter(_reportParams, args, ReportCaption);
 			return null;
 		}
 

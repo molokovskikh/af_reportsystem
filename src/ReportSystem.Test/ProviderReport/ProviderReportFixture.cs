@@ -24,11 +24,11 @@ namespace ReportSystem.Test.ProviderReport
 		{
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			GetOffers();
 			var dataSet = MySqlHelper.ExecuteDataset(
-				e.DataAdapter.SelectCommand.Connection,
+				args.DataAdapter.SelectCommand.Connection,
 				@"
 select
 	*
@@ -55,7 +55,7 @@ from
 		{
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 		}
 	}
@@ -71,7 +71,7 @@ from
 			return GetClientsNamesFromSQL(equalValues);
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 		}
 	}

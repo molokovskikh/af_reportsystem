@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Data;
 using Common.Tools;
 using Common.Tools.Calendar;
-
-using MySql.Data.MySqlClient;
-using System.Data;
-using ExcelLibrary.SpreadSheet;
-using System.IO;
 using Inforoom.ReportSystem.Helpers;
-using Inforoom.ReportSystem.Writers;
 using Inforoom.ReportSystem.ReportSettings;
+using Inforoom.ReportSystem.Writers;
+using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem
 {
@@ -65,11 +61,11 @@ where cr.SupplierId=?supplier order by s.Name;";
 			return suppliers.Implode();
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
-			_suppliersConcurent = GetCostOptimizationConcurents(e, _supplierId);
-			_supplierName = GetSupplierName(e, _supplierId);
-			var command = e.DataAdapter.SelectCommand;
+			_suppliersConcurent = GetCostOptimizationConcurents(args, _supplierId);
+			_supplierName = GetSupplierName(args, _supplierId);
+			var command = args.DataAdapter.SelectCommand;
 
 			command.CommandText =
 				@"drop temporary table IF EXISTS CostOptimization;
@@ -156,7 +152,7 @@ from " +
 	join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 and pd.IsLocal = 0
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
-			e.DataAdapter.Fill(_dsReport, "Common");
+			args.DataAdapter.Fill(_dsReport, "Common");
 
 			command.CommandText =
 				@"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ
@@ -174,7 +170,7 @@ from " +
 join usersettings.costoptimizationconcurrents cos on cos.RuleId = coc.RuleId and pd.FirmCode = cos.SupplierId
 where (oh.clientcode = ?clientId or ?clientId = 0) and ol.Junk = 0
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
-			e.DataAdapter.Fill(_dsReport, "CommonConcurents");
+			args.DataAdapter.Fill(_dsReport, "CommonConcurents");
 
 			command.CommandText = @"
 select Count,
@@ -186,17 +182,17 @@ from (
 	from CostOptimization
 	where diff > 0
 ) t;";
-			e.DataAdapter.Fill(_dsReport, "OverPrice");
+			args.DataAdapter.Fill(_dsReport, "OverPrice");
 
 			command.CommandText =
 				@"select ifnull(round(sum(Quantity * (ResultCost - SelfCost)), 2), 0)
 from CostOptimization
 where diff > 0";
-			e.DataAdapter.Fill(_dsReport, "Money");
+			args.DataAdapter.Fill(_dsReport, "Money");
 
 			command.CommandText =
 				@"select * from CostOptimization order by WriteTime;";
-			e.DataAdapter.Fill(_dsReport, "Temp");
+			args.DataAdapter.Fill(_dsReport, "Temp");
 
 			if (_clientId != 0) {
 				command.CommandText =
@@ -204,7 +200,7 @@ where diff > 0";
 	from Customers.Clients cl
 		 join farm.Regions reg on reg.RegionCode = cl.RegionCode
 	where Id = ?clientId";
-				e.DataAdapter.Fill(_dsReport, "Client");
+				args.DataAdapter.Fill(_dsReport, "Client");
 			}
 			_optimizedCount = _dsReport.Tables["Temp"].Rows.Count;
 
@@ -257,26 +253,6 @@ where diff > 0";
 				dtRes.Rows.Add(newRow);
 			}
 
-			/*   На случай показа позиций заказанных у других поставщиков
-			for (int i = 0; i < 7; i++)
-				dtRes.Rows.Add(dtRes.NewRow());
-
-			foreach (DataRow row in _dsReport.Tables["LostOrders"].Rows)
-			{
-				var newRow = dtRes.NewRow();
-				newRow["writetime"] = row["writetime"];
-				newRow["Code"] = row["Code"];
-				newRow["CodeCr"] = row["CodeCr"];
-				newRow["Synonym"] = row["Synonym"];
-				newRow["Firm"] = row["Firm"];
-				newRow["Quantity"] = row["Quantity"];
-				newRow["SelfCost"] = row["Cost"];
-				newRow["ResultCost"] = row["OurFirmCost"];
-				newRow["absDiff"] = row["LostSumm"];
-
-				dtRes.Rows.Add(newRow);
-			}*/
-
 			_dsReport.Tables.Add(dtRes);
 		}
 
@@ -295,7 +271,6 @@ where diff > 0";
 		{
 			if (format != ReportFormats.Excel)
 				return null;
-			//return new OptimizationEfficiencyNativeExcelWriter();
 			return new OptimizationEfficiencyOleExcelWriter();
 		}
 

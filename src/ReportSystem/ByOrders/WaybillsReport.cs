@@ -33,7 +33,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			orgId = (int)GetReportParam("OrgId");
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			var sql = @"
 drop temporary table if exists uniq_document_lines;

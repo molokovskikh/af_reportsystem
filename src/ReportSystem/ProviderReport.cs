@@ -70,7 +70,7 @@ namespace Inforoom.ReportSystem
 
 		public virtual List<ulong> GetClientWithSetFilter(List<ulong> RegionEqual, List<ulong> RegionNonEqual,
 			List<ulong> PayerEqual, List<ulong> PayerNonEqual,
-			List<ulong> Clients, List<ulong> ClientsNON, ulong? checkClientId, ExecuteArgs e)
+			List<ulong> Clients, List<ulong> ClientsNON, ulong? checkClientId)
 		{
 			var regionalWhere = "(";
 			if (RegionEqual.Count != 0) {
@@ -112,16 +112,16 @@ namespace Inforoom.ReportSystem
 			var where = string.Empty;
 			if ((regionalWhere != string.Empty) || (payerWhere != string.Empty) || (clientWhere != string.Empty) || (clientIdWhere != string.Empty))
 				where = regionalWhere + payerWhere + clientWhere + clientIdWhere;
-			e.DataAdapter.SelectCommand.CommandText =
+			args.DataAdapter.SelectCommand.CommandText =
 				string.Format(@"SELECT distinct fc.Id FROM Customers.Clients fc
 							join billing.PayerClients pc on fc.Id = pc.ClientId
 							join usersettings.RetClientsSet RCS on fc.id = RCS.ClientCode
 							WHERE RCS.ServiceClient = 0 and RCS.InvisibleOnFirm = 0 and fc.Status = 1 {0}", where);
 
 #if DEBUG
-			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
 #endif
-			var reader = e.DataAdapter.SelectCommand.ExecuteReader();
+			var reader = args.DataAdapter.SelectCommand.ExecuteReader();
 			var result = new List<ulong>();
 			while (reader.Read()) {
 				result.Add(Convert.ToUInt64(reader["Id"].ToString()));
@@ -147,54 +147,53 @@ namespace Inforoom.ReportSystem
 		//Получили список действующих прайс-листов для интересующего клиента
 		protected void InvokeGetActivePrices()
 		{
-			var e = args;
 			//удаление временных таблиц
-			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			args.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
 
 			if (_byBaseCosts)
-				GetRegionsPrices(e); // заполняем временную таблицу для передачи списка ПЛ и регионов в хранимую процедуру
+				GetRegionsPrices(); // заполняем временную таблицу для передачи списка ПЛ и регионов в хранимую процедуру
 
 			GetBareActivePrices();
 
-			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
 			List<ulong> allowedFirms = null;
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
 				allowedFirms = (List<ulong>)_reportParams["FirmCodeEqual"];
 			if (allowedFirms != null && allowedFirms.Count > 0) {
-				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode not in ({0})", allowedFirms.Implode());
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				args.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode not in ({0})", allowedFirms.Implode());
+				args.DataAdapter.SelectCommand.ExecuteNonQuery();
 			}
 
 			if (_reportParams.ContainsKey("IgnoredSuppliers")) {
 				var suppliers = (List<ulong>)_reportParams["IgnoredSuppliers"];
 				if (suppliers != null && suppliers.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode in ({0})", suppliers.Implode());
-					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					args.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.ActivePrices where FirmCode in ({0})", suppliers.Implode());
+					args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
 			if (_reportParams.ContainsKey("PriceCodeValues")) {
 				var PriceCodeValues = (List<ulong>)_reportParams["PriceCodeValues"];
 				if (PriceCodeValues != null && PriceCodeValues.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
-					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					args.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
+					args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
 			if (_reportParams.ContainsKey("PriceCodeEqual")) {
 				var PriceCodeValues = (List<ulong>)_reportParams["PriceCodeEqual"];
 				if (PriceCodeValues != null && PriceCodeValues.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
-					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					args.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode not in ({0})", PriceCodeValues.Implode());
+					args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
 			if (_reportParams.ContainsKey("PriceCodeNonValues")) {
 				var PriceCodeNonValues = (List<ulong>)_reportParams["PriceCodeNonValues"];
 				if (PriceCodeNonValues != null && PriceCodeNonValues.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode in ({0})", PriceCodeNonValues.Implode());
-					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					args.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where PriceCode in ({0})", PriceCodeNonValues.Implode());
+					args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
@@ -202,13 +201,13 @@ namespace Inforoom.ReportSystem
 			if (!_byBaseCosts && _reportParams.ContainsKey("RegionClientEqual")) {
 				var RegionClientEqual = (List<ulong>)_reportParams["RegionClientEqual"];
 				if (RegionClientEqual != null && RegionClientEqual.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where RegionCode not in ({0})", RegionClientEqual.Implode());
-					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					args.DataAdapter.SelectCommand.CommandText = String.Format("delete from ActivePrices where RegionCode not in ({0})", RegionClientEqual.Implode());
+					args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				}
 			}
 
 			//Добавляем в таблицу ActivePrices поле FirmName и заполняем его также, как раньше для отчетов
-			e.DataAdapter.SelectCommand.CommandText = @"
+			args.DataAdapter.SelectCommand.CommandText = @"
 delete ap from ActivePrices ap
 	join Usersettings.PricesData pd on pd.PriceCode = ap.PriceCode
 where pd.IsLocal = 1;
@@ -221,7 +220,7 @@ set
 where
 	activeprices.FirmCode = suppliers.Id
 and regions.RegionCode = activeprices.RegionCode";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 
 		private void GetBareActivePrices()
@@ -314,19 +313,19 @@ and regions.RegionCode = activeprices.RegionCode";
 		/// </summary>
 		/// <param name="e"></param>
 		/// <returns></returns>
-		private void GetRegionsPrices(ExecuteArgs e)
+		private void GetRegionsPrices()
 		{
 			if(_prices == null) {
 				decimal regionMask = 0;
 				if (_regions != null)
 					regionMask = _regions.Sum(r => Convert.ToDecimal(r));
-				e.DataAdapter.SelectCommand.CommandText = "reports.GetPricesByRegionMaskByTypes";
-				e.DataAdapter.SelectCommand.CommandType = CommandType.StoredProcedure;
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?inID", regionMask);
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?inTypes", "1,2");
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?inFilter", null);
+				args.DataAdapter.SelectCommand.CommandText = "reports.GetPricesByRegionMaskByTypes";
+				args.DataAdapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?inID", regionMask);
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?inTypes", "1,2");
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?inFilter", null);
 				DataTable prices = new DataTable();
-				e.DataAdapter.Fill(prices);
+				args.DataAdapter.Fill(prices);
 				_prices = new List<ulong>();
 				foreach (DataRow row in prices.Rows) {
 					ulong priceCode;
@@ -338,67 +337,67 @@ and regions.RegionCode = activeprices.RegionCode";
 				if(_selfPrice > 0 && !_prices.Contains((ulong)_selfPrice))
 					_prices.Add((ulong)_selfPrice);
 			}
-			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			e.DataAdapter.SelectCommand.CommandText = @"
+			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			args.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS usersettings.TmpPricesRegions;
 CREATE temporary table usersettings.TmpPricesRegions(
   PriceCode int(32) unsigned,
   RegionCode bigint unsigned
   ) engine=MEMORY;";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
-			e.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			args.DataAdapter.SelectCommand.Parameters.Clear();
 
 			foreach (var price in _prices) {
 				foreach (var region in _regions) {
-					e.DataAdapter.SelectCommand.CommandText = @"
+					args.DataAdapter.SelectCommand.CommandText = @"
 INSERT INTO usersettings.TmpPricesRegions(PriceCode, RegionCode) VALUES(?pricecode, ?regioncode);";
-					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?pricecode", price);
-					e.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
-					e.DataAdapter.SelectCommand.ExecuteNonQuery();
-					e.DataAdapter.SelectCommand.Parameters.Clear();
+					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?pricecode", price);
+					args.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
+					args.DataAdapter.SelectCommand.ExecuteNonQuery();
+					args.DataAdapter.SelectCommand.Parameters.Clear();
 				}
 			}
 		}
 
-		private void GetRegions(ExecuteArgs e)
+		private void GetRegions()
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"
+			args.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS usersettings.TmpRegions;
 CREATE temporary table usersettings.TmpRegions(
   RegionCode bigint unsigned
   ) engine=MEMORY;";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
-			e.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			args.DataAdapter.SelectCommand.Parameters.Clear();
 			foreach (var region in _regions) {
-				e.DataAdapter.SelectCommand.CommandText = @"
+				args.DataAdapter.SelectCommand.CommandText = @"
 INSERT INTO usersettings.TmpRegions(RegionCode) VALUES(?regioncode);";
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
-				ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
-				e.DataAdapter.SelectCommand.Parameters.Clear();
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
+				args.DataAdapter.SelectCommand.ExecuteNonQuery();
+				ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+				args.DataAdapter.SelectCommand.Parameters.Clear();
 			}
 		}
 
-		public static string GetSuppliers(ExecuteArgs e)
+		public string GetSuppliers()
 		{
 			var suppliers = new List<string>();
 
-			e.DataAdapter.SelectCommand.CommandText = @"
+			args.DataAdapter.SelectCommand.CommandText = @"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from Core cor
 	join usersettings.PricesData pd on pd.PriceCode = cor.PriceCode
 	join Customers.suppliers supps on supps.Id = pd.FirmCode
 group by supps.Id
 order by supps.Name";
-			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
 				while (reader.Read())
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
 			return suppliers.Distinct().Implode();
 		}
 
-		public string GetIgnoredSuppliers(ExecuteArgs e)
+		public string GetIgnoredSuppliers()
 		{
 			if (!_reportParams.ContainsKey("IgnoredSuppliers"))
 				return null;
@@ -409,14 +408,14 @@ order by supps.Name";
 
 			var suppliers = new List<string>();
 
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from usersettings.PricesData pd
 	join Customers.suppliers supps on supps.Id = pd.FirmCode
 where pd.PriceCode in ({0})
 group by supps.Id
 order by supps.Name", supplierIds.Implode());
-			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
 				while (reader.Read())
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
@@ -425,12 +424,11 @@ order by supps.Name", supplierIds.Implode());
 
 		public virtual List<Offer> GetOffers(int clientId, uint sourcePriceCode, uint? noiseSupplierId, bool allAssortment, bool byCatalog, bool withProducers)
 		{
-			_clientCode = Convert.ToInt32(clientId);
-
+			_clientCode = clientId;
 			InvokeGetActivePrices();
 
 			var assortmentSupplierId = Convert.ToUInt32(
-				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+				MySqlHelper.ExecuteScalar(Connection,
 					@"
 select FirmCode
 	from usersettings.pricesdata
@@ -439,7 +437,7 @@ where pricesdata.PriceCode = ?PriceCode
 					new MySqlParameter("?PriceCode", sourcePriceCode)));
 			//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
 			var SourceRegionCode = Convert.ToUInt64(
-				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+				MySqlHelper.ExecuteScalar(Connection,
 					@"
 select RegionCode
 	from Customers.Clients
@@ -447,13 +445,13 @@ where Id = ?ClientCode",
 					new MySqlParameter("?ClientCode", _clientCode)));
 
 			var enabledCost = MySqlHelper.ExecuteScalar(
-				args.DataAdapter.SelectCommand.Connection,
+				Connection,
 				"select CostCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
 				new MySqlParameter("?SourcePC", sourcePriceCode),
 				new MySqlParameter("?SourceRegionCode", SourceRegionCode));
 			if (enabledCost != null)
 				MySqlHelper.ExecuteNonQuery(
-					args.DataAdapter.SelectCommand.Connection,
+					Connection,
 					@"
 drop temporary table IF EXISTS Usersettings.SourcePrice;
 create temporary table Usersettings.SourcePrice engine=MEMORY
@@ -564,7 +562,13 @@ and (c00.Junk = 0 or c0.Id = c00.Id)".Format(SourceRegionCode, allAssortment || 
 			return result;
 		}
 
+		[Obsolete("Для обратной совместимости")]
 		protected string GetSupplierName(int priceId)
+		{
+			return GetSupplierName((uint)priceId);
+		}
+
+		protected string GetSupplierName(uint priceId)
 		{
 			string customerFirmName;
 			var drPrice = MySqlHelper.ExecuteDataset(
@@ -593,11 +597,11 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 		}
 
 
-		protected void GetWeightCostOffers(ExecuteArgs e, int? noise = null, int? userId = null)
+		protected void GetWeightCostOffers(int? noise = null, int? userId = null)
 		{
-			GetRegions(e);
-			e.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			GetRegions();
+			args.DataAdapter.SelectCommand.CommandText = "drop temporary table IF EXISTS Prices, ActivePrices, Core, MinCosts";
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
 			var selectCommand = args.DataAdapter.SelectCommand;
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?UserIdParam", userId);
@@ -614,18 +618,18 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 			if (_reportParams.ContainsKey("FirmCodeEqual"))
 				allowedFirms = (List<ulong>)_reportParams["FirmCodeEqual"];
 			if (allowedFirms != null && allowedFirms.Count > 0) {
-				e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-				e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode not in ({0})", allowedFirms.Implode());
-				e.DataAdapter.SelectCommand.ExecuteNonQuery();
+				args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+				args.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode not in ({0})", allowedFirms.Implode());
+				args.DataAdapter.SelectCommand.ExecuteNonQuery();
 				ProfileHelper.WriteLine(selectCommand);
 			}
 
 			if (_reportParams.ContainsKey("IgnoredSuppliers")) {
 				var suppliers = (List<ulong>)_reportParams["IgnoredSuppliers"];
 				if (suppliers != null && suppliers.Count > 0) {
-					e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-					e.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode in ({0})", suppliers.Implode());
-					e.DataAdapter.SelectCommand.ExecuteNonQuery();
+					args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+					args.DataAdapter.SelectCommand.CommandText = String.Format("delete from usersettings.Core where PriceCode in ({0})", suppliers.Implode());
+					args.DataAdapter.SelectCommand.ExecuteNonQuery();
 					ProfileHelper.WriteLine(selectCommand);
 				}
 			}
@@ -637,6 +641,47 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 				return From;
 			}
 			return DateTime.Today.AddDays(-1);
+		}
+
+		protected void CheckSupplierCount()
+		{
+			if (_reportParams.ContainsKey("FirmCodeEqual")) {
+				var count = Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count();
+				if (count < 3)
+					throw new ReportException(String.Format("Фактическое количество прайс листов меньше трех, получено прайс-листов {0}", count));
+			}
+		}
+
+		[Obsolete("для обратной совместимости")]
+		protected void CheckPriceActual(int priceId)
+		{
+			CheckPriceActual((uint)priceId);
+		}
+
+		protected void CheckPriceActual(uint priceId)
+		{
+			var supplierName = GetSupplierName(priceId);
+			var actualPrice = Convert.ToInt32(
+				MySqlHelper.ExecuteScalar(
+					Connection,
+					@"
+select
+  pc.PriceCode
+from
+  usersettings.pricescosts pc,
+  usersettings.priceitems pim,
+  farm.formrules fr
+where
+	pc.PriceCode = ?SourcePC
+and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc.PriceCode and prd.BaseCost=pc.CostCode limit 1)
+and pim.Id = pc.PriceItemId
+and fr.Id = pim.FormRuleId
+and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
+					new MySqlParameter("?SourcePC", priceId)));
+#if !DEBUG
+			if (actualPrice == 0)
+				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", supplierName, priceId));
+#endif
 		}
 	}
 }

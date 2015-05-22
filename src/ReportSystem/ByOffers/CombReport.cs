@@ -55,25 +55,25 @@ namespace Inforoom.ReportSystem
 			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
 		}
 
-		private void ByWeightProcessing(ExecuteArgs e)
+		private void ByWeightProcessing()
 		{
-			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			e.DataAdapter.SelectCommand.CommandText = "select ";
-			e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
+			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			args.DataAdapter.SelectCommand.CommandText = "select ";
+			args.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
   Core.Cost as Cost,
   concat(suppliers.Name, ' - ', regions.Region) as FirmName,
   Core.Quantity,
   Core.RegionCode,
   Core.PriceCode, ";
 			if (_reportType > 2) {
-				e.DataAdapter.SelectCommand.CommandText += "Core.ProducerId";
+				args.DataAdapter.SelectCommand.CommandText += "Core.ProducerId";
 			}
 			else {
-				e.DataAdapter.SelectCommand.CommandText += "0";
+				args.DataAdapter.SelectCommand.CommandText += "0";
 			}
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 As Cfc,
   0 as Junk
 from
@@ -92,23 +92,23 @@ and catalogforms.id = catalog.FormId
 and suppliers.Id = Core.PriceCode
 and Regions.RegionCode = Core.RegionCode
 order by CatalogCode, Cfc DESC";
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-			e.DataAdapter.Fill(_dsReport, "Core");
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			args.DataAdapter.Fill(_dsReport, "Core");
 
-			e.DataAdapter.SelectCommand.CommandText = "select  ";
-			e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
+			args.DataAdapter.SelectCommand.CommandText = "select  ";
+			args.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
   min(Core.Cost) as MinCost,
   avg(Core.Cost) as AvgCost,
   max(Core.Cost) as MaxCost, ";
 			if (_reportType > 2) {
-				e.DataAdapter.SelectCommand.CommandText += "Core.ProducerId as Cfc, left(Producers.Name, 250) as FirmCr, ";
+				args.DataAdapter.SelectCommand.CommandText += "Core.ProducerId as Cfc, left(Producers.Name, 250) as FirmCr, ";
 			}
 			else {
-				e.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
+				args.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
 			}
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 	m.Mnn
 from
 	(Core,
@@ -119,21 +119,21 @@ from
 
 			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
-				e.DataAdapter.SelectCommand.CommandText += @"
+				args.DataAdapter.SelectCommand.CommandText += @"
   left join catalogs.Producers on Producers.Id = Core.ProducerId ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 where
 	Products.id = core.productid
 and catalog.id = Products.catalogid
 ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 group by CatalogCode, Cfc
 order by 2, 5";
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-			e.DataAdapter.Fill(_dsReport, "Catalog");
-			e.DataAdapter.SelectCommand.CommandText = @"
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			args.DataAdapter.Fill(_dsReport, "Catalog");
+			args.DataAdapter.SelectCommand.CommandText = @"
 select
  distinct Core.PriceCode, Core.RegionCode, '' as PriceDate, concat(suppliers.Name, ' - ', regions.Region) as FirmName
 from
@@ -142,51 +142,51 @@ where
 Core.PriceCode = suppliers.Id
 and regions.RegionCode = Core.RegionCode
 order by Core.Cost DESC";
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-			e.DataAdapter.Fill(_dsReport, "Prices");
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			args.DataAdapter.Fill(_dsReport, "Prices");
 
 			ProfileHelper.Next("Calculate");
 
 			Calculate();
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			// Если отчет строится по взвешенным ценам, то используем другой источник данных
 			// Вместо идентификатора прайса используем идентификатор поставщика
 			if(_byWeightCosts) {
 				ProfileHelper.Next("GetOffers");
-				GetWeightCostOffers(e);
+				GetWeightCostOffers();
 				ProfileHelper.Next("Processing1");
-				ByWeightProcessing(e);
+				ByWeightProcessing();
 				ProfileHelper.End();
 				return;
 			}
 
 			ProfileHelper.Next("Get Offers");
 			GetOffers(_SupplierNoise);
-			GroupActivePrices(e);
+			GroupActivePrices();
 			ProfileHelper.Next("Processing1");
-			e.DataAdapter.SelectCommand.CommandText = "select ";
+			args.DataAdapter.SelectCommand.CommandText = "select ";
 
 			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
+				args.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
 			else
-				e.DataAdapter.SelectCommand.CommandText += "products.Id as CatalogCode, ";
+				args.DataAdapter.SelectCommand.CommandText += "products.Id as CatalogCode, ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
   Core.Cost as Cost,
   ActivePrices.FirmName,
   FarmCore.Quantity,
   Core.RegionCode,
   Core.PriceCode, ";
 			if (_reportType > 2) {
-				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr";
+				args.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr";
 			}
 			else {
-				e.DataAdapter.SelectCommand.CommandText += "0";
+				args.DataAdapter.SelectCommand.CommandText += "0";
 			}
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 As Cfc,
   FarmCore.Junk
 from
@@ -206,14 +206,14 @@ and catalogforms.id = catalog.FormId
 and Core.pricecode = ActivePrices.pricecode
 and Core.RegionCode = ActivePrices.RegionCode
 order by CatalogCode, Cfc, PositionCount DESC";
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-			e.DataAdapter.Fill(_dsReport, "Core");
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			args.DataAdapter.Fill(_dsReport, "Core");
 
-			e.DataAdapter.SelectCommand.CommandText = "select  ";
+			args.DataAdapter.SelectCommand.CommandText = "select  ";
 			if (_calculateByCatalog)
-				e.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
+				args.DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
 			else
-				e.DataAdapter.SelectCommand.CommandText += @"products.Id as CatalogCode, (select left(cast(concat(cn.Name, ' ', cf.Form, ' ', ifnull(group_concat(distinct pv.Value ORDER BY prop.PropertyName, pv.Value SEPARATOR ', '), '')) as CHAR), 250)
+				args.DataAdapter.SelectCommand.CommandText += @"products.Id as CatalogCode, (select left(cast(concat(cn.Name, ' ', cf.Form, ' ', ifnull(group_concat(distinct pv.Value ORDER BY prop.PropertyName, pv.Value SEPARATOR ', '), '')) as CHAR), 250)
 	from catalogs.Products as p
 	join Catalogs.Catalog as c on p.catalogid = c.id
 	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
@@ -223,17 +223,17 @@ order by CatalogCode, Cfc, PositionCount DESC";
 	LEFT JOIN Catalogs.Properties prop on prop.Id = pv.PropertyId
 where p.id = core.productid) as Name, ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
   min(Core.Cost) as MinCost,
   avg(Core.Cost) as AvgCost,
   max(Core.Cost) as MaxCost, ";
 			if (_reportType > 2) {
-				e.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(Producers.Name, 250) as FirmCr, ";
+				args.DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(Producers.Name, 250) as FirmCr, ";
 			}
 			else {
-				e.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
+				args.DataAdapter.SelectCommand.CommandText += "0 As Cfc, '-' as FirmCr, ";
 			}
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 	m.Mnn
 from
 	(Core,
@@ -246,10 +246,10 @@ from
 
 			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
 			if (_reportType > 2)
-				e.DataAdapter.SelectCommand.CommandText += @"
+				args.DataAdapter.SelectCommand.CommandText += @"
   left join catalogs.Producers on Producers.Id = FarmCore.codefirmcr ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 where
 	FarmCore.id = Core.Id
 and products.id = core.productid
@@ -258,14 +258,14 @@ and catalog.id = products.catalogid
 and Core.pricecode = ActivePrices.pricecode
 and Core.RegionCode = ActivePrices.RegionCode ";
 
-			e.DataAdapter.SelectCommand.CommandText += @"
+			args.DataAdapter.SelectCommand.CommandText += @"
 group by CatalogCode, Cfc
 order by 2, 5";
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-			e.DataAdapter.Fill(_dsReport, "Catalog");
-			e.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, PriceDate, FirmName from ActivePrices order by PositionCount DESC";
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand.CommandText);
-			e.DataAdapter.Fill(_dsReport, "Prices");
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			args.DataAdapter.Fill(_dsReport, "Catalog");
+			args.DataAdapter.SelectCommand.CommandText = @"select PriceCode, RegionCode, PriceDate, FirmName from ActivePrices order by PositionCount DESC";
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			args.DataAdapter.Fill(_dsReport, "Prices");
 
 			ProfileHelper.Next("Calculate");
 
@@ -486,9 +486,9 @@ order by 2, 5";
 			}
 		}
 
-		private void GroupActivePrices(ExecuteArgs e)
+		private void GroupActivePrices()
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"
+			args.DataAdapter.SelectCommand.CommandText = @"
 DROP TEMPORARY TABLE IF EXISTS Usersettings.TempActivePrices;
 create temporary table
 Usersettings.TempActivePrices
@@ -532,7 +532,7 @@ delete from Usersettings.ActivePrices;
 
 insert into Usersettings.ActivePrices
 select * from TempActivePrices;";
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 	}
 }

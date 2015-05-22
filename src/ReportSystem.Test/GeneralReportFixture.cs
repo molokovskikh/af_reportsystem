@@ -30,7 +30,7 @@ namespace ReportSystem.Test
 			_dsReport = new DataSet();
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 		}
 

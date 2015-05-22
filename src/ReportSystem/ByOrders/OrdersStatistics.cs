@@ -27,7 +27,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			FilterDescriptions.Insert(0, String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			ProfileHelper.Next(String.Format("CalculateOrders: dtFrom={0}, dtTo={1}", dtFrom.ToString(), dtTo.ToString()));
 			FillFilterDescriptions();
@@ -74,13 +74,13 @@ order by supps.Name, supps.Payer, rg.Region;";
 			dtNewRes.Columns["Region"].Caption = "Регион";
 			dtNewRes.Columns["OrdersSum"].Caption = "Сумма заказов";
 			dtNewRes.Columns["RowCount"].Caption = "Количество записей";
-			var selectCommand = e.DataAdapter.SelectCommand;
+			var selectCommand = args.DataAdapter.SelectCommand;
 			selectCommand.Parameters.Clear();
 			selectCommand.Parameters.AddWithValue("?StartDate", dtFrom);
 			selectCommand.Parameters.AddWithValue("?EndDate", dtTo);
 			selectCommand.CommandText = sql;
-			e.DataAdapter.Fill(dtNewRes);
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
+			args.DataAdapter.Fill(dtNewRes);
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (string t in FilterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);

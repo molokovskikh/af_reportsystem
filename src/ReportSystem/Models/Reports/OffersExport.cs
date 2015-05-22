@@ -38,7 +38,7 @@ namespace Inforoom.ReportSystem.Models.Reports
 			DbfSupported = true;
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			Connection.Execute(@"
 drop temporary table if exists activeprices;

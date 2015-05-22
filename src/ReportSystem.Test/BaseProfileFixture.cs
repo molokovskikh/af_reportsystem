@@ -307,7 +307,10 @@ namespace ReportSystem.Test
 			ProfileHelper.Start();
 			report.CheckEmptyData = checkEmptyData;
 			report.ReadReportParams();
-			report.ProcessReport();
+			ArHelper.WithSession(s => {
+				report.Session = s;
+				report.ProcessReport();
+			});
 			report.ReportToFile(Path.GetFullPath(file));
 			ProfileHelper.Stop();
 		}

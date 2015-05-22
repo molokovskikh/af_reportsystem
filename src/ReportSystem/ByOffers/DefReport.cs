@@ -51,11 +51,11 @@ namespace Inforoom.ReportSystem
 			_clientCode = (int)GetReportParam("ClientCode");
 		}
 
-		private void ProcessWeigth(ExecuteArgs e)
+		private void ProcessWeigth()
 		{
-			GetWeightCostOffers(e);
-			e.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
+			GetWeightCostOffers();
+			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			args.DataAdapter.SelectCommand.Parameters.Clear();
 
 			var selectCommandText = String.Empty;
 
@@ -297,7 +297,7 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 			}
 
 			var sourcePc = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(e.DataAdapter.SelectCommand.Connection,
+					MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
 						@"
 select
   pricesdata.FirmCode
@@ -306,63 +306,42 @@ from
 where
 	pricesdata.PriceCode = ?PriceCode;",
 					new MySqlParameter("?PriceCode", _priceCode)));
-			e.DataAdapter.SelectCommand.CommandText = selectCommandText;
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", sourcePc);
-			e.DataAdapter.Fill(_dsReport, "Results");
+			args.DataAdapter.SelectCommand.CommandText = selectCommandText;
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", sourcePc);
+			args.DataAdapter.Fill(_dsReport, "Results");
 			ProfileHelper.End();
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			ProfileHelper.Next("PreGetOffers");
 			if (_priceCode == 0)
 				throw new ReportException("В отчете не установлен параметр \"Прайс-лист\".");
 
 			var customerFirmName = GetSupplierName(_priceCode);
+			CheckPriceActual(_priceCode);
 
-			//Проверка актуальности прайс-листа
-			var actualPrice = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(
-					e.DataAdapter.SelectCommand.Connection,
-					@"
-select distinct
-  pc.PriceCode
-from
-  usersettings.pricescosts pc,
-  usersettings.priceitems pim,
-  farm.formrules fr
-where
-	pc.PriceCode = ?SourcePC
-and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc.PriceCode and prd.BaseCost=pc.CostCode limit 1)
-and pim.Id = pc.PriceItemId
-and fr.Id = pim.FormRuleId
-and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
-					new MySqlParameter("?SourcePC", _priceCode)));
-#if !DEBUG
-			if (actualPrice == 0)
-				throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", customerFirmName, _priceCode));
-#endif
 			if(_byWeightCosts) {
-				ProcessWeigth(e);
+				ProcessWeigth();
 				return;
 			}
 
 			GetOffers(_SupplierNoise);
 			var enabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
-					e.DataAdapter.SelectCommand.Connection,
+					args.DataAdapter.SelectCommand.Connection,
 					"select PriceCode from ActivePrices where PriceCode = ?PriceCode",
 					new MySqlParameter("?PriceCode", _priceCode)));
 			if (enabledPrice == 0 && !_byBaseCosts) {
 				var clientShortName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
-						e.DataAdapter.SelectCommand.Connection,
+						args.DataAdapter.SelectCommand.Connection,
 						@"select Name from Customers.Clients where Id = ?FirmCode",
 						new MySqlParameter("?FirmCode", _clientCode)));
 				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", clientShortName, _clientCode, customerFirmName, _priceCode));
 			}
 
-			e.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.SelectCommand.Parameters.Clear();
 
 			var selectCommandText = String.Empty;
 
@@ -618,9 +597,9 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 				}
 			}
 
-			e.DataAdapter.SelectCommand.CommandText = selectCommandText;
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
-			e.DataAdapter.Fill(_dsReport, "Results");
+			args.DataAdapter.SelectCommand.CommandText = selectCommandText;
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
+			args.DataAdapter.Fill(_dsReport, "Results");
 		}
 
 		public override DataTable GetReportTable()

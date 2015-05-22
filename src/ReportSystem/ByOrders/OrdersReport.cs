@@ -211,7 +211,7 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 		}
 
@@ -342,7 +342,7 @@ create temporary table MixedData ENGINE=MEMORY
 			destination.EndLoadData();
 		}
 
-		protected string CalculateSupplierIds(ExecuteArgs e, int supplierId, bool showCode, bool showCodeCr)
+		protected string CalculateSupplierIds(int supplierId, bool showCode, bool showCodeCr)
 		{
 			if (!showCode && !showCodeCr)
 				return "";
@@ -364,7 +364,7 @@ create temporary table MixedData ENGINE=MEMORY
 			var groupExpression = productField.primaryField + (producerField != null ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", producerField.primaryField) : String.Empty);
 			var selectExpression = productField.primaryField + (producerField != null ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", producerField.primaryField) : ", null ");
 
-			e.DataAdapter.SelectCommand.CommandText = @"
+			args.DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS ProviderCodes;
 create temporary table ProviderCodes (" +
 				(showCode ? "Code varchar(20), " : String.Empty) +
@@ -436,11 +436,45 @@ group by " +
 				groupExpression;
 
 #if DEBUG
-			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
 #endif
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
 			return " left join ProviderCodes on ProviderCodes.CatalogCode = " + productField.primaryField +
 				(producerField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", producerField.primaryField) : String.Empty);
+		}
+
+		protected void CheckSuppliersCount(string filter)
+		{
+			if (_reportParams.ContainsKey("FirmCodeEqual")) {
+				var sql = String.Format(@"
+select pd.FirmCode
+from {0}.OrdersHead oh
+	join {0}.OrdersList ol on ol.OrderID = oh.RowID
+	join catalogs.products p on p.Id = ol.ProductId
+	join catalogs.catalog c on c.Id = p.CatalogId
+	join catalogs.catalognames cn on cn.id = c.NameId
+	join catalogs.catalogforms cf on cf.Id = c.FormId
+	left join catalogs.mnn m on cn.MnnId = m.Id
+	left join catalogs.Producers cfc on cfc.Id = ol.CodeFirmCr
+	left join Customers.Clients cl on cl.Id = oh.ClientCode
+	join customers.addresses ad on ad.Id = oh.AddressId
+	join farm.regions rg on rg.RegionCode = oh.RegionCode
+	join usersettings.pricesdata pd on pd.PriceCode = oh.PriceCode
+	join Customers.suppliers prov on prov.Id = pd.FirmCode
+	join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
+	join Customers.addresses adr on oh.AddressId = adr.Id
+	join billing.LegalEntities le on adr.LegalEntityId = le.Id
+	join billing.payers on payers.PayerId = le.PayerId
+where
+	pd.IsLocal = 0
+	{1}", OrdersSchema, filter);
+				ApplyFilters(sql);
+				sql += " group by pd.FirmCode";
+				var count = Connection.Read(sql).Count();
+				if (count < 3) {
+					throw new ReportException(String.Format("Фактическое количество прайс листов меньше трех, получено прайс-листов {0}", count));
+				}
+			}
 		}
 	}
 }

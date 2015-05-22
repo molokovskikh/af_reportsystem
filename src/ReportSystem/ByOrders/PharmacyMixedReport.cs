@@ -7,6 +7,8 @@ using System.Drawing;
 using System.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Common.MySql;
 using Inforoom.ReportSystem.Writers;
 using Inforoom.ReportSystem.ReportSettings;
 
@@ -30,10 +32,10 @@ namespace Inforoom.ReportSystem
 		public List<ulong> AddressRivals { get; set; }
 		public List<ulong> AddressesEqual { get; set; }
 
-		private ulong GetClientRegionMask(ExecuteArgs e)
+		private ulong GetClientRegionMask()
 		{
-			e.DataAdapter.SelectCommand.CommandText = @"select OrderRegionMask from usersettings.RetClientsSet where ClientCode=" + SourceFirmCode;
-			return Convert.ToUInt64(e.DataAdapter.SelectCommand.ExecuteScalar());
+			args.DataAdapter.SelectCommand.CommandText = @"select OrderRegionMask from usersettings.RetClientsSet where ClientCode=" + SourceFirmCode;
+			return Convert.ToUInt64(args.DataAdapter.SelectCommand.ExecuteScalar());
 		}
 
 		public override void ReadReportParams()
@@ -50,7 +52,7 @@ namespace Inforoom.ReportSystem
 			return ReadNames(field, ids);
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			ProfileHelper.Next("GenerateReport");
 			var clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)SourceFirmCode }));
@@ -62,7 +64,7 @@ namespace Inforoom.ReportSystem
 
 			ProfileHelper.Next("GenerateReport2");
 
-			var regionMask = GetClientRegionMask(e);
+			var regionMask = GetClientRegionMask();
 			var selectCommand = BuildSelect();
 
 			var rivalFilter = String.Format("oh.ClientCode in ({0})", concurrentGroups[0].Implode());
@@ -74,11 +76,13 @@ namespace Inforoom.ReportSystem
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
-			var filter = "";
+			var filter = " and (oh.RegionCode & " + regionMask + @") > 0 ";
 			if (HideJunk) {
 				filter = " and ol.Junk = 0 ";
 				FilterDescriptions.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
 			}
+
+			CheckSuppliersCount(filter);
 
 			selectCommand = String.Concat(selectCommand, String.Format(@"
 sum(if(oh.ClientCode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
@@ -122,8 +126,7 @@ Count(distinct oh.AddressId) as AllDistinctAddressId ", SourceFirmCode, rivalFil
   join billing.payers on payers.PayerId = le.PayerId
 where
 pd.IsLocal = 0
-{1}
-and (oh.RegionCode & " + regionMask + @") > 0", OrdersSchema, filter);
+{1} ", OrdersSchema, filter);
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
@@ -164,9 +167,9 @@ and (oh.RegionCode & " + regionMask + @") > 0", OrdersSchema, filter);
 #endif
 
 			var selectTable = new DataTable();
-			e.DataAdapter.SelectCommand.CommandText = selectCommand;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(selectTable);
+			args.DataAdapter.SelectCommand.CommandText = selectCommand;
+			args.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");
 

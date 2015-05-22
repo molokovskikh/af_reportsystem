@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 				_dsReport = new DataSet();
 			}
 
-			protected override void GenerateReport(ExecuteArgs e)
+			protected override void GenerateReport()
 			{
 			}
 
@@ -42,7 +42,7 @@ namespace ReportSystem.Test
 			{
 			}
 
-			protected override void GenerateReport(ExecuteArgs e)
+			protected override void GenerateReport()
 			{
 				Thread.Sleep(1000);
 			}
@@ -54,9 +54,9 @@ namespace ReportSystem.Test
 
 		public class FakeReportWithReportException : FakeReport
 		{
-			protected override void GenerateReport(ExecuteArgs e)
+			protected override void GenerateReport()
 			{
-				base.GenerateReport(null);
+				base.GenerateReport();
 				throw new ReportException("Ошибка при формировании отчета.");
 			}
 		}
@@ -69,9 +69,9 @@ namespace ReportSystem.Test
 				ReportCaption = "FakeReportWithException";
 			}
 
-			protected override void GenerateReport(ExecuteArgs e)
+			protected override void GenerateReport()
 			{
-				base.GenerateReport(null);
+				base.GenerateReport();
 				throw new Exception("Системная ошибка.");
 			}
 		}

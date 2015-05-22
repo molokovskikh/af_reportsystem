@@ -28,11 +28,11 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
-			_suppliersConcurent = OptimizationEfficiency.GetCostOptimizationConcurents(e, _supplierId);
-			_supplierName = OptimizationEfficiency.GetSupplierName(e, _supplierId);
-			var command = e.DataAdapter.SelectCommand;
+			_suppliersConcurent = OptimizationEfficiency.GetCostOptimizationConcurents(args, _supplierId);
+			_supplierName = OptimizationEfficiency.GetSupplierName(args, _supplierId);
+			var command = args.DataAdapter.SelectCommand;
 
 			command.CommandText =
 				@"drop temporary table IF EXISTS CostOptimization;
@@ -105,19 +105,19 @@ order by oh.writetime, ol.RowId;";
 
 			command.CommandText =
 				@"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ from CostOptimization ol";
-			e.DataAdapter.Fill(_dsReport, "Common");
+			args.DataAdapter.Fill(_dsReport, "Common");
 
 			command.CommandText =
 				@"select ifnull(round(avg(diff), 2), 0) Summ, ifnull(round(avg(absDiff), 2), 0) SummAbs from CostOptimization;";
-			e.DataAdapter.Fill(_dsReport, "AvgDiff");
+			args.DataAdapter.Fill(_dsReport, "AvgDiff");
 
 			command.CommandText =
 				@"select ifnull(sum(SelfCost*Quantity), 0) Summ from CostOptimization;";
-			e.DataAdapter.Fill(_dsReport, "OrderVolume");
+			args.DataAdapter.Fill(_dsReport, "OrderVolume");
 
 			command.CommandText =
 				@"select * from CostOptimization order by WriteTime;";
-			e.DataAdapter.Fill(_dsReport, "Temp");
+			args.DataAdapter.Fill(_dsReport, "Temp");
 
 			if (_clientId != 0) {
 				command.CommandText =
@@ -125,7 +125,7 @@ order by oh.writetime, ol.RowId;";
 	from Customers.Clients cl
 		 join farm.Regions reg on reg.RegionCode = cl.RegionCode
 	where Id = ?clientId";
-				e.DataAdapter.Fill(_dsReport, "Client");
+				args.DataAdapter.Fill(_dsReport, "Client");
 			}
 			_optimizedCount = _dsReport.Tables["Temp"].Rows.Count;
 

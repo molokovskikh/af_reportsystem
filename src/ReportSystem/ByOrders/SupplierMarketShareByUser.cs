@@ -135,9 +135,9 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 			_grouping = groupings[Convert.ToInt32(GetReportParam("Type"))];
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
-			var connection = e.DataAdapter.SelectCommand.Connection;
+			var connection = args.DataAdapter.SelectCommand.Connection;
 			var supplierDeliveryIdSql = @"DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;
 CREATE TEMPORARY TABLE reports.TempIntersection (
 	AddressId INT unsigned,
@@ -229,7 +229,7 @@ where l.UserId in ({0})
 	and l.RequestTime < ?end
 group by l.UserId", userIds.Implode()), new { begin = dtFrom, end = dtTo });
 
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
 drop temporary table if exists Reports.KeyToUser;
 create temporary table Reports.KeyToUser(
 	GroupKey int unsigned not null,
@@ -308,14 +308,14 @@ left join Reports.KeyToCount k on k.GroupKey = r.GroupKey;",
 				_grouping.Columns.Implode(c => c.Name),
 				_grouping.Columns.Implode(c => String.Format("{0} varchar(255)", c.Name)));
 
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", dtFrom);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", dtTo);
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", dtFrom);
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", dtTo);
 
 #if DEBUG
-			ProfileHelper.WriteLine(e.DataAdapter.SelectCommand);
+			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
 #endif
-			e.DataAdapter.Fill(_dsReport, "data");
+			args.DataAdapter.Fill(_dsReport, "data");
 
 			connection.Execute(@"
 

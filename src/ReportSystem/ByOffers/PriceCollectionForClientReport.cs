@@ -33,7 +33,7 @@ namespace Inforoom.ReportSystem
 				throw new ReportException("Не установлен параметр \"Список аптек\".");
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			foreach (var client in _Clients) {
 				_clientCode = Convert.ToInt32(client);
@@ -42,19 +42,19 @@ namespace Inforoom.ReportSystem
 
 				string clientName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
-						e.DataAdapter.SelectCommand.Connection,
+						args.DataAdapter.SelectCommand.Connection,
 						@"select FullName from Customers.Clients where Id = ?ClientCode",
 						new MySqlParameter("?ClientCode", _clientCode)));
 
 				var prices = new List<uint>(); // прайсы, для которых будем брать синонимы
-				e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+				args.DataAdapter.SelectCommand.CommandText = String.Format(@"
 select ifnull(pd.ParentSynonym, pd.PriceCode) from usersettings.pricesdata pd where pd.FirmCode = {0};", _supplierId);
-				using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+				using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
 					while (reader.Read())
 						prices.Add(Convert.ToUInt32(reader[0]));
 				}
 
-				e.DataAdapter.SelectCommand.CommandText = string.Format(@"
+				args.DataAdapter.SelectCommand.CommandText = string.Format(@"
 SELECT
 	AP.PriceDate,
 	if(s.SynonymCode is not null, s.Synonym, OrigSyn.Synonym) ProductName,
@@ -81,7 +81,7 @@ group by Core.Id;",
 					clientName,
 					prices.Distinct().Implode());
 #if DEBUG
-				Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+				Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
 #endif
 				using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
 					foreach (var row in reader.Cast<IDataRecord>()) {

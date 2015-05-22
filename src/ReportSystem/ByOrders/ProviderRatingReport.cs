@@ -46,7 +46,7 @@ namespace Inforoom.ReportSystem
 			provideNameField.visible = true;
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			ProfileHelper.Next("Processing1");
 			var selectCommand = BuildSelect();
@@ -79,9 +79,9 @@ where pd.IsLocal = 0", OrdersSchema));
 #endif
 
 			var selectTable = new DataTable();
-			e.DataAdapter.SelectCommand.CommandText = selectCommand;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(selectTable);
+			args.DataAdapter.SelectCommand.CommandText = selectCommand;
+			args.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("Processing2");
 

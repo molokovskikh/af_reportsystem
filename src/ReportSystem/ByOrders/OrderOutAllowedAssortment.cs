@@ -40,9 +40,9 @@ namespace Inforoom.ReportSystem.ByOrders
 			return new BaseReportSettings(ReportCode, ReportCaption);
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
 SELECT O.WriteTime,
 CL.Name as ClientName,
 U.Name as UserName,
@@ -76,13 +76,13 @@ order by O.WriteTime", OrdersSchema);
 
 // Если написать and BM.ID is NOT null and то будут выводится совпадающие позиции
 // сейчас выводятся несовпадающие
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCode", _clientId);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCode", _clientId);
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
 #if DEBUG
-			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
 #endif
-			e.DataAdapter.Fill(_dsReport, "data");
+			args.DataAdapter.Fill(_dsReport, "data");
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");
 			result.Columns.Add("MatrixCode");

@@ -193,7 +193,7 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		protected abstract void GenerateReport(ExecuteArgs e);
+		protected abstract void GenerateReport();
 
 		public virtual void ReadReportParams()
 		{
@@ -227,7 +227,7 @@ namespace Inforoom.ReportSystem
 					DataAdapter = new MySqlDataAdapter("", Connection)
 				};
 				_dsReport.Clear();
-				GenerateReport(args);
+				GenerateReport();
 			});
 		}
 

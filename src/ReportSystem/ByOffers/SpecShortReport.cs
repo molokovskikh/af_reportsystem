@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
+using System.Data;
 using System.Linq;
 using Common.Models;
-using Common.Tools;
-
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
-using System.Data;
 using NHibernate.Linq;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using Offer = Inforoom.ReportSystem.Model.Offer;
+using Common.MySql;
 
 namespace Inforoom.ReportSystem
 {
@@ -82,18 +80,18 @@ namespace Inforoom.ReportSystem
 			_hash = new Hashtable();
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
-			NewGeneratereport(e);
+			NewGeneratereport();
 
-			_suppliers = GetShortSuppliers(e);
-			_ignoredSuppliers = GetIgnoredSuppliers(e);
+			_suppliers = GetShortSuppliers();
+			_ignoredSuppliers = GetIgnoredSuppliers();
 
 			if (_Clients.Count > 1)
 				_clientsNames = GetClientsNamesFromSQL(_Clients);
 		}
 
-		public void NewGeneratereport(ExecuteArgs e)
+		public void NewGeneratereport()
 		{
 			ProfileHelper.Next("PreGetOffers");
 			if (WithoutAssortmentPrice) {
@@ -108,29 +106,7 @@ namespace Inforoom.ReportSystem
 
 				SourcePC = _priceCode;
 				CustomerFirmName = GetSupplierName(_priceCode);
-
-				//Проверка актуальности прайс-листа
-				int ActualPrice = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(
-						e.DataAdapter.SelectCommand.Connection,
-						@"
-select distinct
-  pc.PriceCode
-from
-  usersettings.pricescosts pc,
-  usersettings.priceitems pim,
-  farm.formrules fr
-where
-	pc.PriceCode = ?SourcePC
-and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc.PriceCode and prd.BaseCost=pc.CostCode limit 1)
-and pim.Id = pc.PriceItemId
-and fr.Id = pim.FormRuleId
-and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
-						new MySqlParameter("?SourcePC", SourcePC)));
-#if !DEBUG
-				if (ActualPrice == 0)
-					throw new ReportException(String.Format("Прайс-лист {0} ({1}) не является актуальным.", CustomerFirmName, SourcePC));
-#endif
+				CheckPriceActual(SourcePC);
 			}
 
 			foreach (var client in _Clients)
@@ -210,7 +186,10 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				return;
 			if (client.Enabled == false)
 				return;
-			var offers = GetOffers(clientId, Convert.ToUInt32(SourcePC), _SupplierNoise.HasValue ? (uint?)Convert.ToUInt32(_SupplierNoise.Value) : null, _reportIsFull, _calculateByCatalog, _reportType > 2);
+			var offers = GetOffers(clientId, SourcePC, (uint?)_SupplierNoise, _reportIsFull, _calculateByCatalog, _reportType > 2);
+			//todo нужно ли проверять для каждого?
+			//если задано ограничение по поставщикам в результирующем наборе должно быть как минимум 3 поставщика
+			CheckSupplierCount();
 
 			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();
 			if (_reportType > 2 && _codesWithoutProducer) {
@@ -296,7 +275,7 @@ and (to_days(now())-to_days(pim.PriceDate)) < fr.MaxOld",
 				_SupplierNoise = (int)GetReportParam("SupplierNoise");
 			_reportType = (int)GetReportParam("ReportType");
 			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
-			_priceCode = (int)GetReportParam("PriceCode");
+			_priceCode = Convert.ToUInt32(GetReportParam("PriceCode"));
 			_reportIsFull = (bool)GetReportParam("ReportIsFull");
 			if (ReportParamExists("ShowCodeCr")) // показывать код изготовителя
 				_showCodeCr = (bool)_reportParams["ShowCodeCr"];

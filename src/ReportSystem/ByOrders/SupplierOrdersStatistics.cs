@@ -35,7 +35,7 @@ namespace Inforoom.ReportSystem.ByOrders
 			}
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			FilterDescriptions.Add(String.Format("Выбранный поставщик : {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + sourceFirmCode)));
 			if (!String.IsNullOrEmpty(regionsString))
@@ -118,9 +118,9 @@ where
 			dtNewRes.Columns["Region"].Caption = "Регион";
 			dtNewRes.Columns["Summa"].Caption = "Сумма";
 
-			e.DataAdapter.SelectCommand.CommandText = selectCommand;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(dtNewRes);
+			args.DataAdapter.SelectCommand.CommandText = selectCommand;
+			args.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (var t in FilterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);

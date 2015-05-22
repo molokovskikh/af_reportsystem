@@ -38,9 +38,9 @@ namespace Inforoom.ReportSystem.Model
 			registredField.Remove(registredField.First(f => f.primaryField == "ol.Code"));
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
-			var join = CalculateSupplierIds(e, SupplierId, ShowCode, ShowCodeCr);
+			var join = CalculateSupplierIds(SupplierId, ShowCode, ShowCodeCr);
 
 			var sql = new StringBuilder();
 			var selectCommand = BuildSelect();
@@ -84,9 +84,9 @@ where 1 = 1", join));
 			commandText = ApplyGroupAndSort(commandText, "Cost desc");
 
 			var selectTable = new DataTable();
-			e.DataAdapter.SelectCommand.CommandText = commandText;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(selectTable);
+			args.DataAdapter.SelectCommand.CommandText = commandText;
+			args.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.Fill(selectTable);
 
 			var result = BuildResultTable(selectTable);
 

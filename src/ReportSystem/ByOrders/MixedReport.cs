@@ -107,7 +107,7 @@ namespace Inforoom.ReportSystem
 			nameField = nameFields[0];
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			ProfileHelper.Next("GenerateReport");
 			_supplierName = String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + SourceFirmCode));
@@ -120,7 +120,7 @@ namespace Inforoom.ReportSystem
 			}
 
 			if (ShowCode || ShowCode)
-				CalculateSupplierIds(e, SourceFirmCode, ShowCode, ShowCode);
+				CalculateSupplierIds(SourceFirmCode, ShowCode, ShowCode);
 
 			ProfileHelper.Next("GenerateReport2");
 
@@ -141,6 +141,8 @@ namespace Inforoom.ReportSystem
 				filter = " and ol.Junk = 0 ";
 				FilterDescriptions.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
 			}
+
+			CheckSuppliersCount(filter);
 
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				concurrentSqlBlock.AppendFormat(@"
@@ -239,9 +241,9 @@ where pd.IsLocal = 0
 #endif
 
 			var selectTable = new DataTable();
-			e.DataAdapter.SelectCommand.CommandText = selectCommand;
-			e.DataAdapter.SelectCommand.Parameters.Clear();
-			e.DataAdapter.Fill(selectTable);
+			args.DataAdapter.SelectCommand.CommandText = selectCommand;
+			args.DataAdapter.SelectCommand.Parameters.Clear();
+			args.DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");
 

@@ -123,7 +123,7 @@ namespace Inforoom.ReportSystem.ByOffers
 		{
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			command = args.DataAdapter.SelectCommand;
 			if (regions.Length == 0) {

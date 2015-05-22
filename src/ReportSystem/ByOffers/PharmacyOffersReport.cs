@@ -230,9 +230,9 @@ into @OffersSynonymCode;
 				_priceCode = (int)GetReportParam("PriceCode");
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
-			CheckPriceCode(e);
+			CheckPriceCode();
 
 			ProfileHelper.Next("GetOffers");
 			GetOffers(_SupplierNoise);
@@ -241,14 +241,14 @@ into @OffersSynonymCode;
 
 			if (_priceCode.HasValue) {
 				if (_reportIsFull)
-					e.DataAdapter.SelectCommand.CommandText =
+					args.DataAdapter.SelectCommand.CommandText =
 						headersql +
 							String.Format(sqlSetParams, _priceCode) +
 							sqlFullOffers +
 							footersqlByPrice +
 							footersql;
 				else
-					e.DataAdapter.SelectCommand.CommandText =
+					args.DataAdapter.SelectCommand.CommandText =
 						headersql +
 							String.Format(sqlSetParams, _priceCode) +
 							sqlByPriceCode +
@@ -256,15 +256,15 @@ into @OffersSynonymCode;
 							footersql;
 			}
 			else
-				e.DataAdapter.SelectCommand.CommandText = headersql + sqlWithoutPriceCode + footersql;
+				args.DataAdapter.SelectCommand.CommandText = headersql + sqlWithoutPriceCode + footersql;
 
 			if (_includeProducer)
-				e.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, ec.ProducerName, Cost;";
+				args.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, ec.ProducerName, Cost;";
 			else
-				e.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, Cost;";
+				args.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, Cost;";
 
 			DataTable resultTable;
-			using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
 				ProfileHelper.Next("ProcessData");
 				resultTable = FormReportTable(reader);
 			}
@@ -273,10 +273,10 @@ into @OffersSynonymCode;
 			_dsReport.Tables.Add(resultTable);
 		}
 
-		private void CheckPriceCode(ExecuteArgs e)
+		private void CheckPriceCode()
 		{
 			if (_priceCode.HasValue) {
-				e.DataAdapter.SelectCommand.CommandText = @"
+				args.DataAdapter.SelectCommand.CommandText = @"
 select
   pd.PriceCode,
   pd.PriceName,
@@ -288,7 +288,7 @@ from
   left join farm.Core0 c on c.PriceCode = pd.PriceCode
 where
   pd.PriceCode = " + _priceCode;
-				using (var reader = e.DataAdapter.SelectCommand.ExecuteReader()) {
+				using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
 					if (reader.Read() && !reader.IsDBNull(0)) {
 						var priceName = reader.GetString("PriceName");
 						var shortName = reader.GetString("ShortName");

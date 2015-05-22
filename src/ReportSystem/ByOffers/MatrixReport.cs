@@ -55,7 +55,7 @@ namespace Inforoom.ReportSystem.ByOffers
 			{ "OriginalProducerName", 40 }
 		};
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			var rules = Session.Get<OrderRules>((uint)_clientCode);
 			_client = Session.Get<Client>((uint)_clientCode);
@@ -95,12 +95,12 @@ AT.FirmName as  FirmName,
 AT.PriceDate as PriceDate,
 {1}
 ", sql.Alias, matrixPatr.Select);
-			e.DataAdapter.SelectCommand.CommandText = selectPart + sql.Select + Environment.NewLine + fromQueryPart;
+			args.DataAdapter.SelectCommand.CommandText = selectPart + sql.Select + Environment.NewLine + fromQueryPart;
 			if (rules.OfferMatrix.HasValue)
-				e.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
+				args.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
 
 			var result = new DataTable("Results");
-			e.DataAdapter.Fill(result);
+			args.DataAdapter.Fill(result);
 			foreach (DataRow row in result.Rows) {
 				row.SetAdded();
 			}

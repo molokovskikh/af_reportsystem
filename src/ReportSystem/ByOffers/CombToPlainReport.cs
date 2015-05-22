@@ -34,12 +34,12 @@ namespace Inforoom.ReportSystem
 			_clientCode = (int)GetReportParam("ClientCode");
 		}
 
-		protected override void GenerateReport(ExecuteArgs e)
+		protected override void GenerateReport()
 		{
 			//Выбираем
 			GetOffers(_SupplierNoise);
 
-			e.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
 drop temporary table if exists Usersettings.MaxProducerCosts;
 create temporary table Usersettings.MaxProducerCosts(
 	ProductId int unsigned not null,
@@ -154,11 +154,11 @@ drop temporary table if exists Usersettings.MaxProducerCosts;
 				_exportFilename,
 				(char)9);
 #if DEBUG
-			Debug.WriteLine(e.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
 #endif
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("priceId", 4863);
-			e.DataAdapter.SelectCommand.Parameters.AddWithValue("costId", 8148);
-			e.DataAdapter.SelectCommand.ExecuteNonQuery();
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("priceId", 4863);
+			args.DataAdapter.SelectCommand.Parameters.AddWithValue("costId", 8148);
+			args.DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 
 		public override void ReportToFile(string FileName)
