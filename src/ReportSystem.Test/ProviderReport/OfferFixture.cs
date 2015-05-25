@@ -64,7 +64,7 @@ namespace ReportSystem.Test.ProviderReport
 			_row["PriceId"] = 8u;
 			_row["RegionId"] = 9ul;
 			_row["Quantity"] = "4";
-			_row["Cost"] = Convert.ToSingle(_random.NextDouble() * _random.Next(30));
+			_row["Cost"] = Convert.ToSingle((_random.NextDouble() + 0.01) * _random.Next(30));
 
 			_row["AssortmentCoreId"] = 10ul;
 			_row["AssortmentCode"] = "test code";
@@ -72,7 +72,7 @@ namespace ReportSystem.Test.ProviderReport
 			_row["AssortmentPriceId"] = 12u;
 			_row["AssortmentRegionId"] = 14ul;
 			_row["AssortmentQuantity"] = "7";
-			_row["AssortmentCost"] = Convert.ToSingle(_random.NextDouble() * _random.Next(30));
+			_row["AssortmentCost"] = Convert.ToSingle((_random.NextDouble() + 0.01) * _random.Next(30));
 		}
 
 		[Test]
