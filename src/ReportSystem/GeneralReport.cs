@@ -276,32 +276,30 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 				String.IsNullOrEmpty(ReportFileName) ? "Rep" + Id + ".xls" : ReportFileName);
 
 			bool emptyReport = true;
-			while (Reports.Count > 0) {
-				var bs = Reports.First();
+			foreach (var report in Reports) {
 				try {
-					Reports.Remove(bs);
 					using (new SessionScope()) {
 						ArHelper.WithSession(s => {
-							bs.Session = s;
-							bs.ReadReportParams();
-							bs.ProcessReport();
+							report.Session = s;
+							report.ReadReportParams();
+							report.ProcessReport();
 						});
 					}
-					bs.ReportToFile(_mainFileName);
-					bs.ToLog(Id); // протоколируем успешное выполнение отчета
-					foreach (var warning in bs.Warnings) {
-						Mailer.MailReportNotify(warning, Payer != null ? Payer.Name : "", Id, bs.ReportCode);
+					report.ReportToFile(_mainFileName);
+					report.ToLog(Id); // протоколируем успешное выполнение отчета
+					foreach (var warning in report.Warnings) {
+						Mailer.MailReportNotify(warning, Payer != null ? Payer.Name : "", Id, report.ReportCode);
 					}
 					emptyReport = false;
 				}
 				catch (Exception ex) {
-					bs.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
+					report.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
 					if (ex is ReportException) {
 						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), Payer != null ? Payer.Name : "", Id, bs.ReportCode, bs.ReportCaption);
+						Mailer.MailReportErr(ex.ToString(), Payer != null ? Payer.Name : "", Id, report.ReportCode, report.ReportCaption);
 						continue; // выполняем следующий отчет
 					}
-					throw new ReportException(ex.Message, ex, bs.ReportCode, bs.ReportCaption, Payer != null ? Payer.Name : ""); // передаем наверх
+					throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer != null ? Payer.Name : ""); // передаем наверх
 				}
 			}
 
