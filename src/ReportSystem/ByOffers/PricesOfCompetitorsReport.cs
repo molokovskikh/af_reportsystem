@@ -132,7 +132,8 @@ namespace Inforoom.ReportSystem
 				_clientCode = Convert.ToInt32(client);
 				InvokeGetActivePrices();
 				//todo нужно ли для всех?
-				CheckSupplierCount();
+				CheckSupplierCount(String.Format("Для клиента {0} получено фактическое количество прайс листов меньше трех", client)
+					+ ", получено прайс-листов {0}");
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
 				string withWithoutPropertiesText;
 				if (_WithWithoutProperties)
