@@ -64,7 +64,7 @@ namespace Inforoom.ReportSystem
 			_sourcePriceCode = _priceCode;
 			_customerFirmName = GetSupplierName(_priceCode);
 
-			CheckPriceActual(_sourcePriceCode);
+			CheckPriceActual((uint)_sourcePriceCode);
 			GetOffers(_SupplierNoise);
 			CheckSupplierCount();
 

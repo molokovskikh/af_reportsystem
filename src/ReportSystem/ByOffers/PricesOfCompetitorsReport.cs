@@ -122,6 +122,8 @@ namespace Inforoom.ReportSystem
 			var data = new List<ReportData>();
 			var clientsCount = _clients.Count;
 
+			var checkSuppliersCount = _reportParams.ContainsKey("FirmCodeEqual");
+			var maxSuppliersCount = 0;
 			foreach (var client in _clients) {
 				// проверка клиента на доступность
 				var cl = GetClientWithSetFilter(_RegionEqual, _RegionNonEqual, _PayerEqual, _PayerNonEqual, _Clients, _ClientsNON, client);
@@ -131,9 +133,11 @@ namespace Inforoom.ReportSystem
 				}
 				_clientCode = Convert.ToInt32(client);
 				InvokeGetActivePrices();
-				//todo нужно ли для всех?
-				CheckSupplierCount(String.Format("Для клиента {0} получено фактическое количество прайс листов меньше трех", client)
-					+ ", получено прайс-листов {0}");
+				if (checkSuppliersCount) {
+					maxSuppliersCount = Math.Max(maxSuppliersCount,
+						Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count());
+				}
+
 				var joinText = _AllAssortment ? "Left JOIN" : "JOIN";
 				string withWithoutPropertiesText;
 				if (_WithWithoutProperties)
@@ -183,7 +187,11 @@ from Usersettings.ActivePrices Prices
 #if DEBUG
 				Console.WriteLine("Код клиента: " + _clientCode + " Строк в таблице: " + data.Count);
 #endif
-			}
+			}//foreach (var client in _clients)
+			//if (checkSuppliersCount && maxSuppliersCount < 3) {
+			//	throw new ReportException(String.Format("Фактическое количество прайс" +
+			//		" листов меньше трех, получено прайс-листов {0}", maxSuppliersCount));
+			//}
 			ProfileHelper.SpendedTime(string.Format("По {0}ти клиентам запрос выполнен за ", clientsCount));
 
 			var dtRes = new DataTable("Results");
