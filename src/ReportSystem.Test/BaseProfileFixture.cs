@@ -16,6 +16,7 @@ using NPOI.SS.UserModel;
 using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.Configuration;
+using System.Diagnostics;
 using Test.Support;
 using Test.Support.Suppliers;
 
@@ -115,7 +116,6 @@ namespace ReportSystem.Test
 			report.CheckEmptyData = checkEmptyData;
 			report.ReadReportParams();
 			report.ProcessReport();
-			report.ReportToFile("test.xls");
 		}
 
 		public void AddProperty(DataSet properties, string name, object value)

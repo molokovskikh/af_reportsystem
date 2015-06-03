@@ -53,7 +53,7 @@ namespace ReportSystem.Test
 			Property("ShowCodeCr", false);
 			Property("PriceCodeValues", new List<long> { supplier1.Prices[0].Id, supplier2.Prices[0].Id });
 			Property("Clients", new List<long> { client.Id });
-			ProcessReport(typeof(PricesOfCompetitorsReport));
+			BuildReport(reportType: typeof(PricesOfCompetitorsReport));
 		}
 	}
 }
