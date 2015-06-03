@@ -37,5 +37,23 @@ namespace ReportSystem.Test
 			//Для клиента ... получено фактическое количество прайс листов меньше трех, получено прайс-листов 1
 			ProcessReport(typeof(PricesOfCompetitorsReport));
 		}
+
+		[Test]
+		public void Prices_filter()
+		{
+			var supplier1 = TestSupplier.CreateNaked(session);
+			var supplier2 = TestSupplier.CreateNaked(session);
+			var client = TestClient.CreateNaked(session);
+
+			Property("PriceCode", supplier1.Prices[0].Id);
+			Property("ProducerAccount", false);
+			Property("AllAssortment", false);
+			Property("WithWithoutProperties", false);
+			Property("ShowCodeC", false);
+			Property("ShowCodeCr", false);
+			Property("PriceCodeValues", new List<long> { supplier1.Prices[0].Id, supplier2.Prices[0].Id });
+			Property("Clients", new List<long> { client.Id });
+			ProcessReport(typeof(PricesOfCompetitorsReport));
+		}
 	}
 }

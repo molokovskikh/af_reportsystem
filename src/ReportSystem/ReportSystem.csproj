@@ -216,7 +216,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Writers\OptimizationEfficiencyExcludeOleExcelWriter.cs" />
     <Compile Include="Writers\CostDynamicWriter.cs" />
-    <Compile Include="Writers\SupplierExcelWriter.cs" />
+    <Compile Include="Writers\PricesOfCompetitorsWriter.cs" />
     <Content Include="App.ico" />
     <Compile Include="ByOffers\CombReport.cs" />
     <Compile Include="ByOffers\CombToPlainReport.cs" />

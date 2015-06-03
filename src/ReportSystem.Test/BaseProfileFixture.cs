@@ -115,6 +115,7 @@ namespace ReportSystem.Test
 			report.CheckEmptyData = checkEmptyData;
 			report.ReadReportParams();
 			report.ProcessReport();
+			report.ReportToFile("test.xls");
 		}
 
 		public void AddProperty(DataSet properties, string name, object value)

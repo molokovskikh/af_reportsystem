@@ -188,10 +188,10 @@ from Usersettings.ActivePrices Prices
 				Console.WriteLine("Код клиента: " + _clientCode + " Строк в таблице: " + data.Count);
 #endif
 			}//foreach (var client in _clients)
-			//if (checkSuppliersCount && maxSuppliersCount < 3) {
-			//	throw new ReportException(String.Format("Фактическое количество прайс" +
-			//		" листов меньше трех, получено прайс-листов {0}", maxSuppliersCount));
-			//}
+			if (checkSuppliersCount && maxSuppliersCount < 3) {
+				throw new ReportException(String.Format("Фактическое количество прайс" +
+					" листов меньше трех, получено прайс-листов {0}", maxSuppliersCount));
+			}
 			ProfileHelper.SpendedTime(string.Format("По {0}ти клиентам запрос выполнен за ", clientsCount));
 
 			var dtRes = new DataTable("Results");
@@ -297,7 +297,7 @@ from Usersettings.ActivePrices Prices
 		protected override IWriter GetWriter(ReportFormats format)
 		{
 			if (format == ReportFormats.Excel)
-				return new PricesOfCompetitorsWriter(_reportParams, args, ReportCaption);
+				return new PricesOfCompetitorsWriter(Connection, _reportParams, ReportCaption);
 			return null;
 		}
 
