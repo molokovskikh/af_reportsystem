@@ -44,10 +44,10 @@ namespace ReportTuner
 		private void Application_Start(object sender, EventArgs e)
 		{
 			ConfigReader.LoadSettings(Config);
-			ConnectionHelper.DefaultConnectionStringName = "Default";
-			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
+			ConnectionHelper.DefaultConnectionStringName = "db";
+			With.DefaultConnectionStringName = "db";
 			ActiveRecordInitialize(
-				ConnectionHelper.GetConnectionName(),
+				ConnectionHelper.DefaultConnectionStringName,
 				new[] {
 					Assembly.Load("ReportTuner"),
 					Assembly.Load("Common.Web.Ui")

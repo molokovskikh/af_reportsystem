@@ -68,8 +68,8 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public SpecReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public SpecReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{
 			reportCaptionPreffix = "Специальный отчет";
 		}

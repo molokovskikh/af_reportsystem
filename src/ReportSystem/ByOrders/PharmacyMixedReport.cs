@@ -14,6 +14,7 @@ using Inforoom.ReportSystem.ReportSettings;
 
 namespace Inforoom.ReportSystem
 {
+	//Смешанный для аптеки
 	public class PharmacyMixedReport : MixedReport
 	{
 		public PharmacyMixedReport()

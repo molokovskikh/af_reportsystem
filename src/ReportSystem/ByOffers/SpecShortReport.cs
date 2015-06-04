@@ -61,6 +61,7 @@ namespace Inforoom.ReportSystem
 		}
 	}
 
+	//Отчет по минимальным ценам по прайсу
 	public class SpecShortReport : SpecReport
 	{
 		protected List<SpecShortReportData> _reportData;
@@ -72,8 +73,8 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public SpecShortReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public SpecShortReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+			: base(reportCode, reportCaption, connection, format, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 			_reportData = new List<SpecShortReportData>();
@@ -108,9 +109,15 @@ namespace Inforoom.ReportSystem
 				CustomerFirmName = GetSupplierName(_priceCode);
 				CheckPriceActual(SourcePC);
 			}
-
+			var maxSuppliersCount = -1;
 			foreach (var client in _Clients)
-				GetOffersByClient(Convert.ToInt32(client));
+				maxSuppliersCount = Math.Max(maxSuppliersCount, GetOffersByClient(Convert.ToInt32(client)));
+
+			//-1 значит что не выбрали совсем ничего
+			if (_reportParams.ContainsKey("FirmCodeEqual") && maxSuppliersCount >= 0 && maxSuppliersCount < 3) {
+				throw new ReportException(String.Format("Фактическое количество прайс" +
+					" листов меньше трех, получено прайс-листов {0}", maxSuppliersCount));
+			}
 
 			ProfileHelper.Next("Calculate");
 			GetResultTable();
@@ -178,18 +185,18 @@ namespace Inforoom.ReportSystem
 			_dsReport.Tables.Add(dtNewRes);
 		}
 
-		protected void GetOffersByClient(int clientId)
+		//возвращает информацию о количестве поставщиков
+		protected int GetOffersByClient(int clientId)
 		{
+			var suppliersCount = -1;
 			ProfileHelper.Next("GetOffers for client: " + clientId);
 			var client = Session.Get<Client>((uint)clientId);
 			if (client == null)
-				return;
+				return suppliersCount;
 			if (client.Enabled == false)
-				return;
+				return suppliersCount;
 			var offers = GetOffers(clientId, SourcePC, (uint?)_SupplierNoise, _reportIsFull, _calculateByCatalog, _reportType > 2);
-			//todo нужно ли проверять для каждого?
-			//если задано ограничение по поставщикам в результирующем наборе должно быть как минимум 3 поставщика
-			CheckSupplierCount();
+			suppliersCount = Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count();
 
 			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();
 			if (_reportType > 2 && _codesWithoutProducer) {
@@ -241,6 +248,7 @@ namespace Inforoom.ReportSystem
 				var orderedByAssortment = group.OrderBy(o => o.AssortmentCost);
 				item.AssortmentUpdateMinCost(orderedByAssortment.First());
 			}
+			return suppliersCount;
 		}
 
 		private object GetKey(Offer offer)
