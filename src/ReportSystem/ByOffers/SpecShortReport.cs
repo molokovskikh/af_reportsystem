@@ -186,7 +186,7 @@ namespace Inforoom.ReportSystem
 		}
 
 		//возвращает информацию о количестве поставщиков
-		protected int GetOffersByClient(int clientId)
+		public int GetOffersByClient(int clientId)
 		{
 			var suppliersCount = -1;
 			ProfileHelper.Next("GetOffers for client: " + clientId);
@@ -196,7 +196,9 @@ namespace Inforoom.ReportSystem
 			if (client.Enabled == false)
 				return suppliersCount;
 			var offers = GetOffers(clientId, SourcePC, (uint?)_SupplierNoise, _reportIsFull, _calculateByCatalog, _reportType > 2);
-			suppliersCount = Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count();
+			//для тестов
+			if (Connection != null)
+				suppliersCount = Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count();
 
 			var assortmentMap = new Dictionary<uint, IGrouping<uint, Offer>>();
 			if (_reportType > 2 && _codesWithoutProducer) {

@@ -71,7 +71,7 @@ namespace Inforoom.ReportSystem
 		//Формат файла отчета
 		protected ReportFormats Format;
 
-		protected MySqlConnection Connection;
+		public MySqlConnection Connection;
 
 		protected Dictionary<string, object> _reportParams = new Dictionary<string, object>();
 

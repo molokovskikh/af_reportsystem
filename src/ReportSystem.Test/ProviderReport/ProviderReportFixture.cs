@@ -115,28 +115,19 @@ from
 
 			return result;
 		}
-
-		public void GetOffersByClient(int clientId)
-		{
-			base.GetOffersByClient(clientId);
-		}
 	}
 
 	[TestFixture]
-	public class ProviderReportFixture : BaseProfileFixture
+	public class ProviderReportFixture : BaseProfileFixture2
 	{
 		[Test]
 		public void GetOffersByClientIfCodesWithoutProducerTest()
 		{
 			var report = new SpecShortReportFake();
 			report.ReadReportParams();
-			using (new SessionScope()) {
-				ArHelper.WithSession(s => {
-					var client = s.Query<Client>().First();
-					report.Session = s;
-					report.GetOffersByClient((int)client.Id);
-				});
-			}
+			var client = session.Query<Client>().First();
+			report.Session = session;
+			report.GetOffersByClient((int)client.Id);
 			Assert.That(report.ReportData.Count, Is.EqualTo(10));
 
 			Assert.That(report.ReportData[0].Code, Is.EqualTo("2"));
