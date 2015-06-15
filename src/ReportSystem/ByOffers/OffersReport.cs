@@ -53,7 +53,7 @@ namespace Inforoom.ReportSystem
 			if (_byBaseCosts) {
 				// Отчет готовится по базовым ценам
 				//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
-				_sourceRegionCode = Session.Load<PriceList>((uint)_priceCode).Supplier.HomeRegion;
+				_sourceRegionCode = Session.Load<PriceList>((uint)_priceCode).Supplier.HomeRegion.Id;
 			}
 			else {
 				//отчет готовится по клиенту

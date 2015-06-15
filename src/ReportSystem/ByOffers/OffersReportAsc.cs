@@ -54,7 +54,7 @@ namespace Inforoom.ReportSystem
 			// Вместо идентификатора прайса используем идентификатор поставщика
 			if(_byWeightCosts) {
 				ProfileHelper.Next("PreGetOffers");
-				SourceRegionCode = price.Supplier.HomeRegion;
+				SourceRegionCode = price.Supplier.HomeRegion.Id;
 				SourcePC = price.Supplier.Id;
 
 				ProfileHelper.Next("GetOffers");
@@ -76,7 +76,7 @@ namespace Inforoom.ReportSystem
 				if (_byBaseCosts) {
 					// Отчет готовится по базовым ценам
 					//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
-					_sourceRegionCode = Session.Load<PriceList>(_priceCode).Supplier.HomeRegion;
+					_sourceRegionCode = Session.Load<PriceList>(_priceCode).Supplier.HomeRegion.Id;
 				}
 				else {
 					// отчет готовится по клиенту

@@ -340,7 +340,7 @@ drop temporary table if exists Reports.PreResult;
 
 			var supplier = Session.Get<Supplier>(_supplierId);
 			var regions = _regions
-				.Select(id => Region.Find(Convert.ToUInt64(id)));
+				.Select(id => Session.Load<global::Common.Models.Region>(Convert.ToUInt64(id)));
 
 			FilterDescriptions.Add("Поставщик: " + supplier.Name);
 			FilterDescriptions.Add("Регионы: " + regions.Implode(r => r.Name));
