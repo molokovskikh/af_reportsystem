@@ -54,8 +54,8 @@ namespace Inforoom.ReportSystem
 				if (Parse(args, appArgs))
 					return 0;
 
-				ConnectionHelper.DefaultConnectionStringName = "Default";
-				With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
+				ConnectionHelper.DefaultConnectionStringName = "local";
+				With.DefaultConnectionStringName = "local";
 				if (!ActiveRecordStarter.IsInitialized) {
 					ActiveRecordInitialize.Init(ConnectionHelper.GetConnectionName(),
 						typeof(ReportExecuteLog).Assembly, typeof(ContactGroup).Assembly);
