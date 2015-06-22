@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
-using Castle.ActiveRecord;
-using Common.MySql;
 using Common.Tools;
 using Common.Web.Ui.Models;
-
 using ICSharpCode.SharpZipLib.Zip;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
-using NHibernate.AdoNet;
 using NUnit.Framework;
 using Test.Support;
-using log4net;
 using ContactType = Common.Web.Ui.Models.ContactType;
 
 namespace ReportSystem.Test
@@ -79,7 +73,7 @@ namespace ReportSystem.Test
 		{
 			AddFile();
 
-			report.Reports.Add(new FakeReport());
+			report.Reports.Enqueue(new FakeReport());
 			var file = report.BuildResultFile()[0];
 
 			var files = LsZip(file);
@@ -97,7 +91,7 @@ namespace ReportSystem.Test
 			var id = session.CreateSQLQuery("select LAST_INSERT_ID();").UniqueResult();
 			File.WriteAllBytes(id.ToString(), new byte[0]);
 
-			report.Reports.Add(new FakeReport());
+			report.Reports.Enqueue(new FakeReport());
 			report.FilesForReport = new Dictionary<string, string> { { "123.txt", id.ToString() } };
 
 			var result = report.BuildResultFile()[0];
@@ -113,7 +107,7 @@ namespace ReportSystem.Test
 			AddFile();
 
 			report.NoArchive = true;
-			report.Reports.Add(new FakeReport());
+			report.Reports.Enqueue(new FakeReport());
 			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
@@ -127,8 +121,8 @@ namespace ReportSystem.Test
 		{
 			report.NoArchive = true;
 			report.MailPerFile = true;
-			report.Reports.Add(new FakeReport { OverideDefaultFilename = "1.dbf" });
-			report.Reports.Add(new FakeReport { OverideDefaultFilename = "2.dbf" });
+			report.Reports.Enqueue(new FakeReport { OverideDefaultFilename = "1.dbf" });
+			report.Reports.Enqueue(new FakeReport { OverideDefaultFilename = "2.dbf" });
 			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(2));
@@ -141,7 +135,7 @@ namespace ReportSystem.Test
 			fakeReport.OverideDefaultFilename = "1.csv";
 
 			report.NoArchive = true;
-			report.Reports.Add(fakeReport);
+			report.Reports.Enqueue(fakeReport);
 			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(1));
@@ -191,7 +185,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Do_not_copy_to_ftp_if_supplier_unknown()
 		{
-			report.Reports.Add(new FakeReport());
+			report.Reports.Enqueue(new FakeReport());
 			report.CopyFileToFtp(new[] { "" });
 		}
 
@@ -199,7 +193,7 @@ namespace ReportSystem.Test
 		public void Save_report_file()
 		{
 			FileHelper.InitDir("history");
-			report.Reports.Add(new FakeReport());
+			report.Reports.Enqueue(new FakeReport());
 			report.ProcessReports(new ReportExecuteLog { Id = 1 }, (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			var files = Directory.GetFiles("history");
@@ -240,6 +234,30 @@ namespace ReportSystem.Test
 			report.CollectContacts();
 			var contacts = report.Contacts.Implode();
 			Assert.AreEqual(contacts, "test1@analit.net, test@analit.net");
+		}
+
+		[Test]
+		public void TestArchBase()
+		{
+			var gr = new GeneralReport();
+			gr.NoArchive = true;
+			gr.Reports.Enqueue(new FakeReport());
+			var file = gr.BuildResultFile()[0];
+			Assert.That(Path.GetExtension(file), Is.EqualTo(".xls"));
+			gr = new GeneralReport();
+			gr.Reports.Enqueue(new FakeReport());
+			file = gr.BuildResultFile()[0];
+			Assert.That(Path.GetExtension(file), Is.EqualTo(".zip"));
+		}
+
+		[Test]
+		public void Release_report_references()
+		{
+			var report = new GeneralReport();
+			report.NoArchive = true;
+			report.Reports.Enqueue(new FakeReport());
+			report.BuildResultFile();
+			Assert.AreEqual(0, report.Reports.Count);
 		}
 
 		private static string[] LsZip(string result)

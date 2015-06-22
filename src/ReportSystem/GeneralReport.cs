@@ -40,7 +40,7 @@ namespace Inforoom.ReportSystem
 		public IDictionary<string, string> FilesForReport = new Dictionary<string, string>();
 
 		//таблица контактов, по которым надо отправить отчет
-		public List<BaseReport> Reports = new List<BaseReport>();
+		public Queue<BaseReport> Reports = new Queue<BaseReport>();
 
 		public GeneralReport() // конструктор для возможности тестирования
 		{
@@ -135,7 +135,7 @@ where GeneralReport = ?GeneralReport;", new { GeneralReport = Id })
 						bs.Interval = interval;
 						bs.From = dtFrom;
 						bs.To = dtTo;
-						Reports.Add(bs);
+						Reports.Enqueue(bs);
 
 						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
 						if (String.IsNullOrEmpty(EMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
@@ -275,8 +275,10 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			_mainFileName = Path.Combine(_directoryName,
 				String.IsNullOrEmpty(ReportFileName) ? "Rep" + Id + ".xls" : ReportFileName);
 
+			//будь бдителен очередь используется тк после обработки память занятую отчетом нужно освободить
 			bool emptyReport = true;
-			foreach (var report in Reports) {
+			while (Reports.Count > 0) {
+				var report = Reports.Dequeue();
 				try {
 					using (new SessionScope()) {
 						ArHelper.WithSession(s => {

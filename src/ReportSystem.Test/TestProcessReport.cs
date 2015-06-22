@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using Castle.ActiveRecord;
+using Common.Tools;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Model;
 using NHibernate.Linq;
@@ -83,19 +84,6 @@ namespace ReportSystem.Test
 				Payer = new Payer {
 					Name = "Тестовый плательщик"
 				};
-				Reports = new List<BaseReport>();
-			}
-
-			public void Add(FakeReport report)
-			{
-				Reports.Add(report);
-			}
-
-			public void AddRange(FakeReport[] reports)
-			{
-				foreach (var fakeReport in reports) {
-					Reports.Add(fakeReport);
-				}
 			}
 		}
 
@@ -111,10 +99,11 @@ namespace ReportSystem.Test
 		{
 			var dtStart = DateTime.Now;
 			var gr = new FakeGeneralReport();
-			gr.AddRange(new[] {
+			var reports = new[] {
 				new FakeReport(), new FakeReportWithReportException(), new FakeReportWithReportException(),
 				new FakeReport(), new FakeReportWithException(), new FakeReport()
-			});
+			};
+			reports.Each(x => gr.Reports.Enqueue(x));
 
 			var ex = false;
 			try {
