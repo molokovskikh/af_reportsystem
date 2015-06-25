@@ -49,8 +49,10 @@
 			
 			
 			//Обнуляем счетчик, если пользователь что-то еще ввел
-			$(".payerName").on("keydown", function() {
+			$(".payerName").on("keyup", function() {
 				console.log("Имя платильщика изменилось");
+				if ($(this).val().length < 3)
+					return;
 				payerNameElement = this;
 				renewPayersList();
 			});
