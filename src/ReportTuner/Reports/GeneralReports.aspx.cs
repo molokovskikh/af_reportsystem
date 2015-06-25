@@ -263,9 +263,7 @@ Order by gr.GeneralReportCode
 			DataControlFieldCell cell = (DataControlFieldCell)((Control)e.CommandSource).Parent;
 			((TextBox)cell.FindControl("tbSearch")).Visible = true;
 			((TextBox)cell.FindControl("tbSearch")).Focus();
-			((Button)cell.FindControl("btnSearch")).Visible = true;
 			((Button)cell.FindControl("btApplyCopy")).Visible = true;
-			((DropDownList)cell.FindControl("ddlNames")).Visible = true;
 			((LinkButton)cell.FindControl("linkEdit")).Visible = false;
 
 			FillDDL(((Label)cell.FindControl("lblFirmName")).Text);
@@ -336,9 +334,9 @@ Order by p.ShortName
 				if (!changedRow[Comment.ColumnName].Equals(((TextBox)dr.FindControl("tbComment")).Text))
 					changedRow[Comment.ColumnName] = ((TextBox)dr.FindControl("tbComment")).Text;
 
-				DropDownList names = (DropDownList)dr.FindControl("ddlNames");
-				if (names.Visible && !String.IsNullOrEmpty(names.SelectedValue))
-					changedRow[GRPayerID.ColumnName] = Convert.ToInt64(names.SelectedValue);
+				var names = (HiddenField)dr.FindControl("ddlNames");
+				if (!String.IsNullOrEmpty(names.Value))
+					changedRow[GRPayerID.ColumnName] = Convert.ToInt64(names.Value);
 			}
 		}
 	}
@@ -367,8 +365,6 @@ Order by p.ShortName
 			if (((Label)e.Row.FindControl("lblFirmName")).Text != "") {
 				((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
 				((Button)e.Row.FindControl("btApplyCopy")).Visible = false;
-				((Button)e.Row.FindControl("btnSearch")).Visible = false;
-				((DropDownList)e.Row.FindControl("ddlNames")).Visible = false;
 				((Label)e.Row.FindControl("lblFirmName")).Visible = true;
 				((LinkButton)e.Row.FindControl("linkEdit")).Visible = true;
 				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = true;
@@ -376,13 +372,10 @@ Order by p.ShortName
 			else {
 				((TextBox)e.Row.FindControl("tbSearch")).Visible = true;
 				((TextBox)e.Row.FindControl("tbSearch")).Focus();
-				((Button)e.Row.FindControl("btnSearch")).Visible = true;
 				((Button)e.Row.FindControl("btApplyCopy")).Visible = true;
 				((LinkButton)e.Row.FindControl("linkEdit")).Visible = false;
 
 
-				DropDownList ddlReports = (DropDownList)e.Row.FindControl("ddlNames");
-				ddlReports.Visible = true;
 				//Делаем недоступными столбцы
 				//"Рассылки"
 				e.Row.Cells[(int)GeneralReportFields.Delivery].Enabled = false;

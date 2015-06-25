@@ -1,6 +1,62 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="Reports_GeneralReports" Theme="MainWithHighLight" MasterPageFile="~/Reports/ReportMasterPage.master" Codebehind="GeneralReports.aspx.cs" %>
 
 <asp:Content runat="server" ID="ReportGeneralReportsContent" ContentPlaceHolderID="ReportContentPlaceHolder">
+	<script>
+		$(document).ready(function () {
+			var payerNameElement = null;
+			var lastRequest = null;
+			var renewPayersList = function () {
+				if (lastRequest)
+					lastRequest.abort();
+				console.log("Отсылаем запрос для поиска имен плательщиков");
+				var name = $(payerNameElement).val();
+				if (!name)
+					return;
+				var parent = $(payerNameElement).parent();
+				lastRequest =$.ajax({
+					url: "../ReportsTuning/FindPayers?name=" + name,
+					type: 'POST',
+					dataType: "json",
+					success: function (data) {
+						var obj = JSON.parse(data);
+						var str = "";
+						console.log(obj);
+						$(parent).find(".payersList").html("");
+						for (var i = 0; i < obj.payers.length; i++) {
+							var id = obj.payers[i].Id;
+							var name = obj.payers[i].Name;
+							str += "<div style='cursor: pointer' data='" + id + "'>" + name + "</div>";
+							if(obj.payers.length == 1)
+								$(parent).find("input[type='hidden']").val(id);
+						}
+						$(parent).find(".payersList").html(str);
+						$(parent).find(".payersList div").on("click",function (index, value) {
+							console.log($(this));
+							var data = $(this).attr("data");
+							$(parent).find("input[type='hidden']").val(data);
+							$(payerNameElement).val($(this).html());
+							$(parent).find(".payersList").hide();
+						});
+						$(parent).find(".payersList").show();
+					},
+					error: function (event) {
+						if (event.statusText == "abort")
+							return;
+						$(parent).find(".payersList").hide();
+					}
+				});
+			}
+			
+			
+			//Обнуляем счетчик, если пользователь что-то еще ввел
+			$(".payerName").on("keydown", function() {
+				console.log("Имя платильщика изменилось");
+				payerNameElement = this;
+				renewPayersList();
+			});
+			
+		});
+	</script>
 	<div align="center">
 		<strong style="font-size:small;">Настройка отчетов</strong><br/><br/>
 		<asp:Label ID="lblMessage" runat="server" Text="" /><br/><br/>
@@ -37,10 +93,26 @@
 							CommandName="editPayer" CommandArgument='<%# DataBinder.Eval(Container, "DataItem.GeneralReportCode") %>'>
 							<asp:Image ID="imgEdit" runat="server" AlternateText="Редактировать плательщика" ImageUrl="~/Assets/Images/edit.png" />
 						</asp:LinkButton>
-						<asp:TextBox ID="tbSearch" runat="server" Width="79px" Visible="False"/>
+						<div style="position:relative">
+						<asp:TextBox ID="tbSearch" autocomplete="off" CssClass="payerName" runat="server" Width="79px" Visible="False"/>
+						<style>
+							.payersList {
+								left:15px;
+								 overflow-y: scroll;
+								 max-height: 149px;
+								 display:none;
+								 background: white none repeat scroll 0 0;
+								 border: 1px solid black;
+								 min-width: 151px;
+								 position: absolute;
+							}
+							.payersList div:hover { background-color: gainsboro; }
+						</style>
+						<div class="payersList" ></div>
 						<asp:Button ID="btnSearch" runat="server" Text="Найти" OnClick="btnSearch_Click" Visible="False" />
-						<asp:DropDownList ID="ddlNames" runat="server" Visible="False">
-						</asp:DropDownList>
+						<asp:HiddenField ID="ddlNames" runat="server" Visible="True">
+						</asp:HiddenField>
+						</div>
 					</ItemTemplate>
 
 <HeaderStyle Width="10%"></HeaderStyle>
