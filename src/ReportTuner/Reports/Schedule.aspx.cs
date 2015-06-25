@@ -803,7 +803,7 @@ limit 15;";
 		if (data.Count > 0)
 			emails = data.Select(i => i[0] as string).ToList();
 
-		return emails.Implode(",");
+		return emails.Implode(",\n");
 	}
 
 	protected void chbAllow_CheckedChanged(object sender, EventArgs e)

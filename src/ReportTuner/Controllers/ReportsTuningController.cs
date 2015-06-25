@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Script.Serialization;
 using Castle.MonoRail.Framework;
 using Common.Web.Ui.Controllers;
 using Common.Web.Ui.Helpers;
@@ -275,6 +276,16 @@ namespace ReportTuner.Controllers
 				File.Delete(file.FillPath);
 			DbSession.Delete(file);
 			CancelView();
+		}
+
+		[return: JSONReturnBinder]
+		public string FindPayers(string name)
+		{
+			var payers = DbSession.Query<Payer>().Where(i => i.ShortName.Contains(name)).OrderBy(i => i.ShortName).ToList();
+			var data = payers.Select(i => new { Id = i.Id, Name = i.ShortName });
+			var result = new { payers = data };
+			var json = new JavaScriptSerializer().Serialize(result);
+			return json;
 		}
 	}
 }
