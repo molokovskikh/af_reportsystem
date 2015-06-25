@@ -14,7 +14,7 @@
 					return;
 				var parent = $(payerNameElement).parent();
 				lastRequest =$.ajax({
-					url: "../ReportsTuning/FindPayers?name=" + name,
+					url: "../ReportsTuning/FindPayers?name=" + encodeURIComponent(name),
 					type: 'POST',
 					dataType: "json",
 					success: function (data) {
