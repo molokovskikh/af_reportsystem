@@ -50,7 +50,24 @@ ${app.Asset("ContactsController.css")}
 	</div>
 	${app.LinkTo("Создать новую рассылку", @Contacts, @NewGroup, {@reportId : currentReport.Id})}
 </div>
-
+<div class='selectGroup'>
+<div class="selectGroupHeader">Добавить самостоятельные подписки из имеющегося отчета:</div>
+	<div>(Введите номер или комментарий к отчету)</div>
+	<div class="selectGroupBody">
+		${FormHelper.FormTag("FindReportsByNameOrId", {@method : @get, @class : @filter})}
+			${FormHelper.HiddenField("reportId", currentReport.Id)}
+			${FormHelper.TextFieldValue("searchText", searchText, {@size : 45}) }
+			${FormHelper.Submit("Найти")}
+		${FormHelper.EndFormTag()}
+		<% if searchText :%>
+		${FormHelper.FormTag("CopyOwnContactsFromReport", {@method : @get, @class : @selectgroup})}
+				${FormHelper.HiddenField("reportId", currentReport.Id)}
+				${FormHelper.Select("donorReportId", foundedReports, { @value : 'Id', @text : 'Comment'})}
+				${FormHelper.Submit("Выбрать")}
+			${FormHelper.EndFormTag()}
+		<% end %>
+	</div>
+</div>
 <%if currentReport.ContactGroup :%>
 	<div class='contactGroup'>
 		<div class='nameGroup'>

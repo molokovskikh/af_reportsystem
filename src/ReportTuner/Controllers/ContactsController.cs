@@ -1,5 +1,8 @@
-﻿using System.Configuration;
+﻿using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
+using Boo.Lang;
+using Common.MySql;
 using Common.Web.Ui.Controllers;
 using Common.Web.Ui.Models;
 using Common.Web.Ui.NHibernateExtentions;
@@ -12,6 +15,7 @@ namespace ReportTuner.Controllers
 	{
 		public void Show(ulong reportId, string filterValue = null)
 		{
+			PropertyBag["searchText"] = PropertyBag["searchText"] ?? "";
 			var report = DbSession.Load<GeneralReport>(reportId);
 			PropertyBag["currentReport"] = report;
 			PropertyBag["reports"] = DbSession.Query<GeneralReport>()
@@ -21,10 +25,13 @@ namespace ReportTuner.Controllers
 			if (filterValue == null)
 				filterValue = "";
 			PropertyBag["filterValue"] = filterValue;
-			PropertyBag["Groups"] = DbSession.Query<ContactGroup>().Where(cg => cg.Type == ContactGroupType.Reports
-				&& cg.ContactGroupOwner == DbSession.Load<ContactGroupOwner>(ownerId)
-				&& cg.Name.Contains(filterValue)).Select(cg => new { Key = cg.Id, value = cg.Name})
+			var owner = DbSession.Load<ContactGroupOwner>(ownerId);
+			var groups = DbSession.Query<ContactGroup>()
+				.Where(cg => cg.Type == ContactGroupType.Reports && cg.ContactGroupOwner == owner && cg.Name.Contains(filterValue))
+				.Select(cg => new { Key = cg.Id, value = cg.Name})
 				.OrderBy(c => c.value);
+			PropertyBag["Groups"] = groups;
+
 			if (report.PublicSubscriptions != null)
 				PropertyBag["PublicGroupContacts"] = report.PublicSubscriptions.Contacts
 					.Select(c => new {
@@ -69,6 +76,11 @@ namespace ReportTuner.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Выбор рассылки для отчета. Рассылкой является группа контактов
+		/// </summary>
+		/// <param name="contactGroupId">Идентификатор группы контактов</param>
+		/// <param name="reportId">Идентификатор генерального отчета</param>
 		public void SelectGroup(uint contactGroupId, ulong reportId)
 		{
 			var report = DbSession.Load<GeneralReport>(reportId);
@@ -98,6 +110,56 @@ namespace ReportTuner.Controllers
 			var payer = DbSession.Query<Payer>()
 				.FirstOrDefault(p => p.ContactGroupOwner == ((ContactGroup)contact.ContactOwner).ContactGroupOwner);
 			return payer != null ? payer.ShortName : "";
+		}
+
+		/// <summary>
+		/// Отображение списка отчетов, при поиске отчетов по названию, чтобы скопировать самостоятельные подписки
+		/// </summary>
+		/// <param name="reportId"></param>
+		/// <param name="searchText">Комментарий отчета или его идентификатор</param>
+		public void FindReportsByNameOrId(uint reportId, string searchText)
+		{
+			PropertyBag["searchText"] = searchText;
+			uint id;
+			uint.TryParse(searchText, out id);
+			var reports = DbSession.Query<GeneralReport>().Where(i => i.Comment.Contains(searchText) || i.Id == id).OrderBy(i => i.Comment).ToList();
+			PropertyBag["foundedReports"] = reports;
+			Show(reportId);
+			RenderView("Show");
+		}
+
+		/// <summary>
+		/// Копирование самостоятельных подписчиков из одного отчета в другой.
+		/// Копирование является расширяющим. То есть отчету добавляются подписки, но не удаляются старые.
+		/// </summary>
+		/// <param name="reportId">Идентификатор отчета, куда надо добавить подписки</param>
+		/// <param name="donorReportId">Идентификатор отчета, откуда надо взять подписки</param>
+		public void CopyOwnContactsFromReport(ulong reportId, ulong donorReportId)
+		{
+			var report = DbSession.Load<GeneralReport>(reportId);
+			var donor = DbSession.Load<GeneralReport>(donorReportId);
+
+			//Если у отчета еще нет группы контактов, то ее необходимо создать
+			if (report.PublicSubscriptions == null) {
+				var ownerId = uint.Parse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"]);
+				var contactGroup = new ContactGroup(ContactGroupType.Reports);
+				var owner = DbSession.Load<ContactGroupOwner>(ownerId);
+				contactGroup.ContactGroupOwner = owner;
+				report.PublicSubscriptions = contactGroup;
+				DbSession.Save(contactGroup);
+				DbSession.Save(report);
+			}
+
+			var errorFlag = donor.PublicSubscriptions == null || donor.PublicSubscriptions.Contacts.Count == 0;
+			if (!errorFlag) {
+				//Если все в порядке, импортируем подписчиков
+				foreach (var contact in donor.PublicSubscriptions.Contacts)
+					report.PublicSubscriptions.AddContact(contact.Type, contact.ContactText);
+				DbSession.Save(report);
+			}
+			else
+				Error("У указанного отчета нет публичных подписчиков");
+			RedirectToAction("Show", new {reportId});
 		}
 	}
 }
