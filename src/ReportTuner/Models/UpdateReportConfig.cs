@@ -50,7 +50,7 @@ namespace ReportTuner.Models
 				typeof(PharmacyMixedReport),
 				typeof(OrdersStatistics),
 				typeof(WaybillsStatReport),
-				typeof(OffersExport)
+				typeof(OffersExport),
 			};
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
@@ -100,20 +100,23 @@ namespace ReportTuner.Models
 					}
 				}
 
-				type.GetProperties().Each(t => {
-					CheckProperty(type, t.Name, t.PropertyType, t, reportType, procedures);
-				});
-				var blacklist = new string[0];
-				if (type == typeof(PharmacyMixedReport)) {
-					blacklist = new[] { "HideSupplierStat" };
-				}
-
-				type.GetFields().Where(f => !blacklist.Contains(f.Name)).Each(f => {
-					CheckProperty(type, f.Name, f.FieldType, f, reportType, procedures);
-				});
+				CheckProperties(type, procedures);
 
 				session.Save(reportType);
 			}
+			CheckProperties(typeof(SupplierMarketShareByUser), procedures);
+		}
+
+		private void CheckProperties(Type type, Dictionary<string, string> procedures, ReportType reportType = null)
+		{
+			reportType = reportType ?? session.Query<ReportType>().FirstOrDefault(r => r.ReportClassName == type.FullName);
+			type.GetProperties().Each(t => { CheckProperty(type, t.Name, t.PropertyType, t, reportType, procedures); });
+			var blacklist = new string[0];
+			if (type == typeof(PharmacyMixedReport)) {
+				blacklist = new[] { "HideSupplierStat" };
+			}
+			type.GetFields().Where(f => !blacklist.Contains(f.Name))
+				.Each(f => CheckProperty(type, f.Name, f.FieldType, f, reportType, procedures));
 		}
 
 		private static void CheckProperty(Type reportType, string name, Type type, ICustomAttributeProvider typeProperty,

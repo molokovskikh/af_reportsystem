@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
@@ -126,6 +127,9 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 		public SupplierMarketShareByUser()
 		{
 		}
+
+		[Description("Показывать колонку \"Сумма по всем поставщикам\"")]
+		public bool ShowAllSum { get; set; }
 
 		public override void ReadReportParams()
 		{
@@ -334,6 +338,8 @@ drop temporary table if exists Reports.PreResult;
 			}
 			result.Columns.Add("Share", typeof(string));
 			result.Columns.Add("SupplierSum", typeof(string));
+			if (ShowAllSum)
+				result.Columns.Add("TotalSum", typeof(string));
 			result.Columns.Add("SuppliersCount", typeof(string));
 			result.Columns.Add("OrderSendRequestCount", typeof(string));
 			result.Columns.Add("LastOrder", typeof(string));
@@ -349,6 +355,8 @@ drop temporary table if exists Reports.PreResult;
 			FilterDescriptions.Add("");
 
 			result.Columns["SupplierSum"].Caption = string.Format("Сумма по '{0}'", supplier.Name);
+			if (ShowAllSum)
+				result.Columns["TotalSum"].Caption = "Сумма по всем поставщикам";
 			result.Columns["Share"].Caption = string.Format("Доля '{0}', %", supplier.Name);
 			result.Columns["SuppliersCount"].Caption = "Кол-во поставщиков";
 			result.Columns["OrderSendRequestCount"].Caption = "Кол-во сессий отправки заказов";
@@ -359,6 +367,7 @@ drop temporary table if exists Reports.PreResult;
 				resultRow["SuppliersCount"] = row["SuppliersCount"];
 				resultRow["LastOrder"] = row["LastOrder"];
 				resultRow["OrderSendRequestCount"] = row["OrderSendRequestCount"];
+				resultRow["TotalSum"] = row["TotalSum"];
 				foreach (var column in _grouping.Columns) {
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];

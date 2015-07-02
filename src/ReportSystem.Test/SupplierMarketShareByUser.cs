@@ -106,6 +106,21 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void Show_total_sum()
+		{
+			Property("ShowAllSum", true);
+			Property("Type", 2);
+
+			var report = ReadReport<SupplierMarketShareByUser>();
+			var result = ToText(report);
+			Assert.That(result, Is.StringContaining("Сумма по всем поставщикам"));
+			var rows = report.Rows().ToArray();
+			var header = rows[4];
+			Assert.AreEqual("Сумма по всем поставщикам", header.GetCell(4).StringCellValue);
+			Assert.That(Convert.ToDecimal(rows[5].GetCell(4).StringCellValue), Is.GreaterThan(0));
+		}
+
+		[Test]
 		public void SetTotalSumTest()
 		{
 			var testReport = new SupplierMarketShareByUser();

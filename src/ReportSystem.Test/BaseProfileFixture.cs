@@ -53,8 +53,8 @@ namespace ReportSystem.Test
 		[TearDown]
 		public void Stop()
 		{
-			if (File.Exists(_fileName))
-				File.Delete(_fileName);
+			//if (File.Exists(_fileName))
+			//	File.Delete(_fileName);
 			ProfileHelper.End();
 		}
 
