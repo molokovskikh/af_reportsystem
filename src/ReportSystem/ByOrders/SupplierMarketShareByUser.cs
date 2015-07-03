@@ -367,7 +367,8 @@ drop temporary table if exists Reports.PreResult;
 				resultRow["SuppliersCount"] = row["SuppliersCount"];
 				resultRow["LastOrder"] = row["LastOrder"];
 				resultRow["OrderSendRequestCount"] = row["OrderSendRequestCount"];
-				resultRow["TotalSum"] = row["TotalSum"];
+				if (ShowAllSum)
+					resultRow["TotalSum"] = row["TotalSum"];
 				foreach (var column in _grouping.Columns) {
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];
