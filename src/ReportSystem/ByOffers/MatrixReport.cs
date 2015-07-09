@@ -1,22 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using Common.Models;
-using Common.Models.BuyingMatrix;
 using Common.Models.Helpers;
-using Common.Tools;
-
-using Inforoom.ReportSystem.Helpers;
-using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
-using NHibernate.Linq;
-using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem.ByOffers
 {
@@ -68,8 +57,8 @@ namespace Inforoom.ReportSystem.ByOffers
 			sql.Having = Regex.Replace(sql.Having.Trim(), @"[\d$]", "0");
 			var matrixPatr = GetPartsData(rules);
 
-			var fromQueryPart = SqlQueryBuilderHelper.GetFromPartForCoreTable(sql, false);
-			fromQueryPart = string.Format(fromQueryPart,  string.Format(@"
+			var query = SqlQueryBuilderHelper.GetFromPartForCoreTable(sql, false);
+			query.Join(string.Format(@"
 left join farm.Core0 core01 on core01.ProductId = {0}.ProductId and core01.PriceCode = {0}.PriceId and if({0}.ProducerId is not null, {0}.ProducerId = core01.CodeFirmCr, 1)
 left join farm.Synonym syn on syn.SynonymCode = core01.SynonymCode
 left join farm.Synonymfirmcr synCr on synCr.SynonymFirmCrCode = core01.SynonymFirmCrCode
@@ -79,8 +68,7 @@ left join farm.Synonymfirmcr origSynCr on origSynCr.SynonymFirmCrCode = Core.Syn
 {1}
 ", sql.Alias, matrixPatr.Join));
 
-			var selectPart = string.Format(@"
-select
+			query.Select(String.Format(@"
 	{0}.ProductId as ProductId,
 	{0}.ProducerId as ProducerId,
 	syn.Synonym as ProductSynonym,
@@ -92,10 +80,10 @@ Core.CodeCr as OriginalCodeCr,
 origSyn.Synonym as OriginalName,
 origSynCr.Synonym as OriginalProducerName,
 AT.FirmName as  FirmName,
-AT.PriceDate as PriceDate,
-{1}
-", sql.Alias, matrixPatr.Select);
-			args.DataAdapter.SelectCommand.CommandText = selectPart + sql.Select + Environment.NewLine + fromQueryPart;
+AT.PriceDate as PriceDate", sql.Alias));
+			query.Select(matrixPatr.Select);
+			query.Select(sql.Select.Trim(','));
+			args.DataAdapter.SelectCommand.CommandText = query.ToSql();
 			if (rules.OfferMatrix.HasValue)
 				args.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
 
