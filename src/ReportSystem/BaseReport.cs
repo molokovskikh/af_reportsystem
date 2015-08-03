@@ -254,20 +254,25 @@ namespace Inforoom.ReportSystem
 					throw new ReportException("Подотчет не может готовиться в формате DBF.");
 				// Формируем DBF
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
+				ProfileHelper.Next("DataTableToDbf");
 				DataTableToDbf(reportTable, fileName);
 			}
 			else if (Format == ReportFormats.CSV) {
 				if (!DbfSupported)
 					throw new ReportException("Подотчет не может готовиться в формате CSV.");
 				//Формируем CSV
+				ProfileHelper.Next("CsvHelper.Save");
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".csv");
 				CsvHelper.Save(reportTable, fileName);
 			}
 			else {
 				// Формируем Excel
+				ProfileHelper.Next("DataTableToExcel");
 				DataTableToExcel(reportTable, fileName);
-				if (File.Exists(fileName))
+				if (File.Exists(fileName)) {
+					ProfileHelper.Next("FormatExcel");
 					FormatExcel(fileName);
+				}
 			}
 		}
 
@@ -296,13 +301,11 @@ namespace Inforoom.ReportSystem
 
 		protected virtual void DataTableToExcel(DataTable dtExport, string exlFileName)
 		{
-			ProfileHelper.Next("DataTableToExcel");
 			new BaseExcelWriter().DataTableToExcel(dtExport, exlFileName, ReportCode);
 		}
 
 		protected virtual void FormatExcel(string fileName)
 		{
-			ProfileHelper.Next("FormatExcel");
 			Application exApp = new ApplicationClass();
 			try {
 				exApp.DisplayAlerts = false;
