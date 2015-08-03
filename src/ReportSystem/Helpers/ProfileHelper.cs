@@ -59,13 +59,14 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void SpendedTime(string operation)
 		{
+			var op = currentOperation;
 			if (IsProfiling) {
-				var duration = DateTime.Now.Subtract(currentOperation.startedOn);
+				var duration = DateTime.Now.Subtract(op.startedOn);
 				Console.WriteLine(operation + duration.TotalMilliseconds + " milliseconds.");
 				currentOperation = null;
 			}
 			if (log.IsDebugEnabled) {
-				var duration = DateTime.Now.Subtract(currentOperation.startedOn);
+				var duration = DateTime.Now.Subtract(op.startedOn);
 				log.Debug(operation + duration.TotalMilliseconds + " milliseconds.");
 				currentOperation = null;
 			}
@@ -73,16 +74,17 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void End()
 		{
-			if (currentOperation == null)
+			var operation = currentOperation;
+			if (operation == null)
 				return;
 			if (IsProfiling) {
-				var duration = DateTime.Now.Subtract(currentOperation.startedOn);
-				Console.WriteLine(currentOperation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
+				var duration = DateTime.Now.Subtract(operation.startedOn);
+				Console.WriteLine(operation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
 				currentOperation = null;
 			}
 			if (log.IsDebugEnabled) {
-				var duration = DateTime.Now.Subtract(currentOperation.startedOn);
-				log.Debug(currentOperation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
+				var duration = DateTime.Now.Subtract(operation.startedOn);
+				log.Debug(operation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
 				currentOperation = null;
 			}
 		}
