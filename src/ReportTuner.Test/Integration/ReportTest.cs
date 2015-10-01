@@ -11,146 +11,88 @@ using Test.Support;
 using ReportTuner.Models;
 using System;
 using System.Data;
+using Common.MySql;
+using Common.Web.Ui.Test.Controllers;
 using MySql.Data.MySqlClient;
+using NHibernate;
 using Test.Support.Suppliers;
 using Test.Support.log4net;
 
 namespace ReportTuner.Test.Integration
 {
 	[TestFixture]
-	internal class ReportTest : BaseControllerTest
+	internal class ReportTest : ControllerFixture
 	{
-		private MySqlConnection MyCn;
-		private MySqlCommand MyCmd;
-		private MySqlDataAdapter MyDA;
-
-		[SetUp]
-		public void Setup()
+		private DataTable FillClients(string proc, string filter, string id)
 		{
-			MyCn = new MySqlConnection(FixtureSetup.ConnectionString);
-			MyCmd = new MySqlCommand();
-			MyDA = new MySqlDataAdapter();
-		}
-
-		private DataTable FillClients(string proc, string filter, string id, string inTypes = null)
-		{
-			var dtProcResult = new DataTable();
-			string db = String.Empty;
-			try {
-				if (MyCn.State != ConnectionState.Open)
-					MyCn.Open();
-				db = MyCn.Database;
-				MyCn.ChangeDatabase("reports");
-				MyCmd.Connection = MyCn;
-				MyDA.SelectCommand = MyCmd;
-				MyCmd.Parameters.Clear();
-				MyCmd.Parameters.AddWithValue("inFilter", filter);
-				MyCmd.Parameters["inFilter"].Direction = ParameterDirection.Input;
-				if (id == String.Empty)
-					MyCmd.Parameters.AddWithValue("inID", DBNull.Value);
-				else
-					MyCmd.Parameters.AddWithValue("inID", Convert.ToInt64(id));
-				MyCmd.Parameters["inID"].Direction = ParameterDirection.Input;
-				if (String.IsNullOrEmpty(inTypes)) {
-					MyCmd.Parameters.AddWithValue("inTypes", -1);
-				}
-				else {
-					MyCmd.Parameters.AddWithValue("inTypes", inTypes);
-				}
-				MyCmd.Parameters["inTypes"].Direction = ParameterDirection.Input;
-				MyCmd.CommandText = proc;
-				MyCmd.CommandType = CommandType.StoredProcedure;
-				MyDA.Fill(dtProcResult);
-			}
-			finally {
-				if (db != String.Empty)
-					MyCn.ChangeDatabase(db);
-				MyCmd.CommandType = CommandType.Text;
-				MyCn.Close();
-			}
-			return dtProcResult;
+			return ((MySqlConnection)session.Connection).Fill($"call Reports.{proc}(?, ?)", new {
+				inFilter = filter,
+				inID = id == String.Empty ? null : id,
+			});
 		}
 
 		[Test]
 		public void TestRecipientsList()
 		{
-			TestClient client1;
-			TestClient client2;
-			ulong reportId;
+			var payer = new TestPayer();
+			session.Save(payer);
 
-			using (new SessionScope()) {
-				var payer = new TestPayer();
-				payer.SaveAndFlush();
+			var contactGroupOwner = new TestContactGroupOwner();
+			contactGroupOwner.SaveAndFlush();
 
-				var contactGroupOwner = new TestContactGroupOwner();
-				contactGroupOwner.SaveAndFlush();
+			var client1 = TestClient.CreateNaked(session);
+			var client2 = TestClient.CreateNaked(session);
 
-				client1 = TestClient.Create();
-				client2 = TestClient.Create();
+			client1.Payers.Add(payer);
+			client2.Payers.Add(payer);
 
-				client1.Payers.Add(payer);
-				client2.Payers.Add(payer);
+			session.CreateSQLQuery(@"INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid1, :payerid);
+										INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid2, :payerid);")
+				.SetParameter("clientid1", client1.Id).SetParameter("clientid2", client2.Id).SetParameter("payerid", payer.Id).ExecuteUpdate();
 
-				var session = ActiveRecordMediator.GetSessionFactoryHolder().CreateSession(typeof(ActiveRecordBase));
-				try {
-					session.CreateSQLQuery(@"INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid1, :payerid);
-											 INSERT INTO Billing.PayerClients(ClientId, PayerId) VALUES(:clientid2, :payerid);")
-						.SetParameter("clientid1", client1.Id).SetParameter("clientid2", client2.Id).SetParameter("payerid", payer.Id).ExecuteUpdate();
-				}
-				finally {
-					ActiveRecordMediator.GetSessionFactoryHolder().ReleaseSession(session);
-				}
+			var repPayer = Payer.Find(payer.Id);
 
-				var repPayer = Payer.Find(payer.Id);
-
-				var new_report = new GeneralReport() { Format = "Excel", Payer = repPayer, Comment = "Тестовый отчет" };
-				new_report.SaveAndFlush();
-				reportId = new_report.Id;
-			}
-			using (new SessionScope()) {
-				var report = GeneralReport.Find(Convert.ToUInt64(reportId));
-				Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));
-				Assert.That(report.Payer.Clients[0].ShortName, Is.EqualTo(client1.Name));
-				Assert.That(report.Payer.Clients[1].ShortName, Is.EqualTo(client2.Name));
-			}
+			var new_report = new GeneralReport() { Format = "Excel", Payer = repPayer, Comment = "Тестовый отчет" };
+			new_report.SaveAndFlush();
+			var reportId = new_report.Id;
+			var report = GeneralReport.Find(Convert.ToUInt64(reportId));
+			Assert.That(report.Payer.AllClients.Count, Is.EqualTo(2));
+			Assert.That(report.Payer.Clients[0].ShortName, Is.EqualTo(client1.Name));
+			Assert.That(report.Payer.Clients[1].ShortName, Is.EqualTo(client2.Name));
 		}
 
 		[Test]
 		public void TestClientsListInCombineReport()
 		{
-			TestSupplier supplier;
-			TestClient client;
 			var dt = DateTime.Now.ToString();
 
-			using (new SessionScope()) {
-				var payer = new TestPayer();
-				payer.SaveAndFlush();
+			var payer = new TestPayer();
+			session.Save(payer);
 
-				var contactGroupOwner = new TestContactGroupOwner();
-				contactGroupOwner.SaveAndFlush();
+			var contactGroupOwner = new TestContactGroupOwner();
+			contactGroupOwner.SaveAndFlush();
 
-				supplier = new TestSupplier {
-					Disabled = false,
-					Type = ServiceType.Drugstore,
-					Name = "тестовый поставщик" + dt,
-					FullName = "тестовый поставщик" + dt,
-					Payer = payer,
-					ContactGroupOwner = contactGroupOwner
-				};
-				supplier.SaveAndFlush();
+			var supplier = new TestSupplier {
+				Disabled = false,
+				Type = ServiceType.Drugstore,
+				Name = "тестовый поставщик" + dt,
+				FullName = "тестовый поставщик" + dt,
+				Payer = payer,
+				ContactGroupOwner = contactGroupOwner
+			};
+			supplier.SaveAndFlush();
 
-				client = new TestClient {
-					Status = ClientStatus.On,
-					Type = ServiceType.Drugstore,
-					Name = "тестовый клиент" + dt,
-					FullName = "тестовый клиент" + dt,
-					RegionCode = 1UL,
-					MaskRegion = 1UL,
-					ContactGroupOwner = contactGroupOwner,
-					Users = new List<TestUser>()
-				};
-				client.SaveAndFlush();
-			}
+			var client = new TestClient {
+				Status = ClientStatus.On,
+				Type = ServiceType.Drugstore,
+				Name = "тестовый клиент" + dt,
+				FullName = "тестовый клиент" + dt,
+				RegionCode = 1UL,
+				MaskRegion = 1UL,
+				ContactGroupOwner = contactGroupOwner,
+				Users = new List<TestUser>()
+			};
+			client.SaveAndFlush();
 
 			var result1 = FillClients("GetClientCodeWithNewUsers", "", client.Id.ToString());
 			var result2 = FillClients("GetClientCodeWithNewUsers", "", supplier.Id.ToString());
@@ -169,144 +111,135 @@ namespace ReportTuner.Test.Integration
 		[Test]
 		public void Region_mask_for_PharmacyMixedReport()
 		{
-			using (new SessionScope()) {
-				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("PharmacyMixedReport") && r.Enabled).ToList();
-				var report = reports.Select(r => {
-					var properties = ReportProperty.Queryable.Where(p => p.Report == r).ToList();
-					var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
-					if (prop != null)
-						return r;
-					return null;
-				}).FirstOrDefault(r => r != null);
-				var reportProperties = report.Properties;
-				var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "SourceFirmCode");
-				var regionProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
-				var clientid = Convert.ToUInt32(clientProperty.Value);
-				var client = Client.TryFind(clientid);
-				if (client == null) {
-					var tc = TestClient.Create();
-					clientProperty.Value = tc.Id.ToString();
-					clientProperty.Save();
-					client = Client.TryFind(tc.Id);
-				}
-				var clientMask = client.MaskRegion;
-				var regMask = regionProperty.Values.Where(v => {
-					var reg = Convert.ToUInt32(v.Value);
-					if ((reg & clientMask) > 0)
-						return false;
-					return true;
-				}).Sum(v => Convert.ToUInt32(v.Value));
-				var mask = clientMask + regMask;
-
-				var dtNonOptionalParams = new DataTable();
-				dtNonOptionalParams.Columns.AddRange(new[] {
-					new DataColumn() { ColumnName = "PID", DataType = typeof(long) },
-					new DataColumn() { ColumnName = "PPropertyName", DataType = typeof(string) },
-					new DataColumn() { ColumnName = "PPropertyValue", DataType = typeof(string) }
-				});
-				DataRow dr = dtNonOptionalParams.NewRow();
-				dr["PID"] = clientProperty.Id;
-				dr["PPropertyName"] = "SourceFirmCode";
-				dr["PPropertyValue"] = client.Id;
-				dtNonOptionalParams.Rows.Add(dr);
-
-				var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, null);
-				var res = propertyHelper.GetRelativeValue(regionProperty);
-
-				Assert.That(res, Is.Not.Null);
-				Assert.That(res.Length, Is.GreaterThan(0));
-				Assert.That(res, Is.EqualTo(String.Format("inID={0}", mask)));
+			var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("PharmacyMixedReport") && r.Enabled).ToList();
+			var report = reports.Select(r => {
+				var properties = ReportProperty.Queryable.Where(p => p.Report == r).ToList();
+				var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
+				if (prop != null)
+					return r;
+				return null;
+			}).FirstOrDefault(r => r != null);
+			var reportProperties = report.Properties;
+			var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "SourceFirmCode");
+			var regionProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "RegionEqual");
+			var clientid = Convert.ToUInt32(clientProperty.Value);
+			var client = Client.TryFind(clientid);
+			if (client == null) {
+				var tc = TestClient.Create();
+				clientProperty.Value = tc.Id.ToString();
+				clientProperty.Save();
+				client = Client.TryFind(tc.Id);
 			}
+			var clientMask = client.MaskRegion;
+			var regMask = regionProperty.Values.Where(v => {
+				var reg = Convert.ToUInt32(v.Value);
+				if ((reg & clientMask) > 0)
+					return false;
+				return true;
+			}).Sum(v => Convert.ToUInt32(v.Value));
+			var mask = clientMask + regMask;
+
+			var dtNonOptionalParams = new DataTable();
+			dtNonOptionalParams.Columns.AddRange(new[] {
+				new DataColumn() { ColumnName = "PID", DataType = typeof(long) },
+				new DataColumn() { ColumnName = "PPropertyName", DataType = typeof(string) },
+				new DataColumn() { ColumnName = "PPropertyValue", DataType = typeof(string) }
+			});
+			DataRow dr = dtNonOptionalParams.NewRow();
+			dr["PID"] = clientProperty.Id;
+			dr["PPropertyName"] = "SourceFirmCode";
+			dr["PPropertyValue"] = client.Id;
+			dtNonOptionalParams.Rows.Add(dr);
+
+			var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, null);
+			var res = propertyHelper.GetRelativeValue(regionProperty);
+
+			Assert.That(res, Is.Not.Null);
+			Assert.That(res.Length, Is.GreaterThan(0));
+			Assert.That(res, Is.EqualTo(String.Format("inID={0}", mask)));
 		}
 
 		[Test]
 		public void test_userId_SpecReport()
 		{
-			using (new SessionScope()) {
-				var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("SpecReport") && r.Enabled).ToList();
-				var report = reports.Select(r => {
-					var properties = r.Properties;
-					var clientCode = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
-					var clientProp = Client.TryFind(Convert.ToUInt32(clientCode.Value));
-					var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
-					if (prop != null && clientProp != null)
-						return r;
-					return null;
-				}).FirstOrDefault(r => r != null);
-				var reportProperties = report.Properties;
-				var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
-				var firmCodeProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
-				var clientid = Convert.ToUInt32(clientProperty.Value);
-				var client = Client.TryFind(clientid);
-				var user = client.Users.FirstOrDefault();
+			var reports = Report.Queryable.Where(r => r.ReportType.ReportClassName.Contains("SpecReport") && r.Enabled).ToList();
+			var report = reports.Select(r => {
+				var properties = r.Properties;
+				var clientCode = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
+				var clientProp = Client.TryFind(Convert.ToUInt32(clientCode.Value));
+				var prop = properties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
+				if (prop != null && clientProp != null)
+					return r;
+				return null;
+			}).FirstOrDefault(r => r != null);
+			var reportProperties = report.Properties;
+			var clientProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "ClientCode");
+			var firmCodeProperty = reportProperties.FirstOrDefault(p => p.PropertyType.PropertyName == "FirmCodeEqual");
+			var clientid = Convert.ToUInt32(clientProperty.Value);
+			var client = Client.TryFind(clientid);
+			var user = client.Users.FirstOrDefault();
 
-				var dtNonOptionalParams = new DataTable();
-				dtNonOptionalParams.Columns.AddRange(new[] {
-					new DataColumn() { ColumnName = "PID", DataType = typeof(long) },
-					new DataColumn() { ColumnName = "PPropertyName", DataType = typeof(string) },
-					new DataColumn() { ColumnName = "PPropertyValue", DataType = typeof(string) }
-				});
-				DataRow dr = dtNonOptionalParams.NewRow();
-				dr["PID"] = clientProperty.Id;
-				dr["PPropertyName"] = "ClientCode";
-				dr["PPropertyValue"] = client.Id;
-				dtNonOptionalParams.Rows.Add(dr);
+			var dtNonOptionalParams = new DataTable();
+			dtNonOptionalParams.Columns.AddRange(new[] {
+				new DataColumn() { ColumnName = "PID", DataType = typeof(long) },
+				new DataColumn() { ColumnName = "PPropertyName", DataType = typeof(string) },
+				new DataColumn() { ColumnName = "PPropertyValue", DataType = typeof(string) }
+			});
+			DataRow dr = dtNonOptionalParams.NewRow();
+			dr["PID"] = clientProperty.Id;
+			dr["PPropertyName"] = "ClientCode";
+			dr["PPropertyValue"] = client.Id;
+			dtNonOptionalParams.Rows.Add(dr);
 
-				var dtOptionalParams = new DataTable();
-				dtOptionalParams.Columns.AddRange(new[] {
-					new DataColumn() { ColumnName = "OPID", DataType = typeof(long) },
-					new DataColumn() { ColumnName = "OPPropertyName", DataType = typeof(string) },
-					new DataColumn() { ColumnName = "OPPropertyValue", DataType = typeof(string) }
-				});
-				dr = dtOptionalParams.NewRow();
-				dr["OPID"] = firmCodeProperty.Id;
-				dr["OPPropertyName"] = "FirmCodeEqual";
-				dr["OPPropertyValue"] = firmCodeProperty.Value;
-				dtOptionalParams.Rows.Add(dr);
+			var dtOptionalParams = new DataTable();
+			dtOptionalParams.Columns.AddRange(new[] {
+				new DataColumn() { ColumnName = "OPID", DataType = typeof(long) },
+				new DataColumn() { ColumnName = "OPPropertyName", DataType = typeof(string) },
+				new DataColumn() { ColumnName = "OPPropertyValue", DataType = typeof(string) }
+			});
+			dr = dtOptionalParams.NewRow();
+			dr["OPID"] = firmCodeProperty.Id;
+			dr["OPPropertyName"] = "FirmCodeEqual";
+			dr["OPPropertyValue"] = firmCodeProperty.Value;
+			dtOptionalParams.Rows.Add(dr);
 
-				var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, dtOptionalParams);
-				var res = propertyHelper.GetRelativeValue(firmCodeProperty);
+			var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, dtOptionalParams);
+			var res = propertyHelper.GetRelativeValue(firmCodeProperty);
 
-				Assert.That(res, Is.Not.Null);
-				Assert.That(res.Length, Is.GreaterThan(0));
-				Assert.That(res, Is.EqualTo(String.Format("userId={0}", user.Id)));
-			}
+			Assert.That(res, Is.Not.Null);
+			Assert.That(res.Length, Is.GreaterThan(0));
+			Assert.That(res, Is.EqualTo(String.Format("userId={0}", user.Id)));
 		}
 
 		[Test]
 		public void AddressTest()
 		{
 			var controller = new ReportsTuningController();
-			PrepareController(controller);
-			using (new SessionScope()) {
-				var sessionHolder = ActiveRecordMediator.GetSessionFactoryHolder();
-				var DbSession = sessionHolder.CreateSession(typeof(ActiveRecordBase));
-				controller.DbSession = DbSession;
-				var reportType = DbSession.Query<ReportType>().First(rt => rt.ReportTypeFilePrefix == "Mixed");
-				var report = DbSession.Query<Report>().First(r => r.ReportType == reportType);
-				var propertyType = DbSession.Query<ReportTypeProperty>().First(rpt => rpt.ReportType == reportType && rpt.PropertyName == "AddressesEqual");
-				var reportProperty = new ReportProperty {
-					Value = "1",
-					Report = report,
-					PropertyType = propertyType
-				};
-				reportProperty.Save();
-				var value = new ReportPropertyValue {
-					ReportPropertyId = reportProperty.Id,
-					Value = "0"
-				};
-				value.Save();
-				reportProperty.Values = new List<ReportPropertyValue> { value };
-				reportProperty.Save();
-				var filter = new AddressesFilter {
-					Report = report.Id,
-					GeneralReport = 1u,
-					ReportPropertyValue = reportProperty.Id
-				};
-				controller.SelectAddresses(filter);
-				Assert.IsNotNull(controller.PropertyBag["addresses"]);
-				sessionHolder.ReleaseSession(controller.DbSession);
-			}
+			Prepare(controller);
+			controller.DbSession = session;
+			var reportType = session.Query<ReportType>().First(rt => rt.ReportTypeFilePrefix == "Mixed");
+			var report = session.Query<Report>().First(r => r.ReportType == reportType);
+			var propertyType = session.Query<ReportTypeProperty>().First(rpt => rpt.ReportType == reportType && rpt.PropertyName == "AddressesEqual");
+			var reportProperty = new ReportProperty {
+				Value = "1",
+				Report = report,
+				PropertyType = propertyType
+			};
+			reportProperty.Save();
+			var value = new ReportPropertyValue {
+				ReportPropertyId = reportProperty.Id,
+				Value = "0"
+			};
+			value.Save();
+			reportProperty.Values = new List<ReportPropertyValue> { value };
+			reportProperty.Save();
+			var filter = new AddressesFilter {
+				Report = report.Id,
+				GeneralReport = 1u,
+				ReportPropertyValue = reportProperty.Id
+			};
+			controller.SelectAddresses(filter);
+			Assert.IsNotNull(controller.PropertyBag["addresses"]);
 		}
 	}
 }

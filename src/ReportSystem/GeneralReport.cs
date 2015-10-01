@@ -24,7 +24,6 @@ namespace Inforoom.ReportSystem
 	{
 		public string[] Contacts = new string[0];
 
-		private string _directoryName;
 		private string _mainFileName;
 
 		//таблица отчетов, которая существует в общем отчете
@@ -41,6 +40,7 @@ namespace Inforoom.ReportSystem
 
 		//таблица контактов, по которым надо отправить отчет
 		public Queue<BaseReport> Reports = new Queue<BaseReport>();
+		public string WorkDir;
 
 		public GeneralReport() // конструктор для возможности тестирования
 		{
@@ -211,7 +211,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			if (load)
 				Load(interval, begin, end);
 			try {
-				var files = BuildResultFile();
+				var files = ArchFile(BuildResultFile());
 				SafeCopyFileToFtp(files);
 				SendReport(files, log);
 				Historify(files, log);
@@ -251,8 +251,8 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 
 		private void Clean()
 		{
-			if (Directory.Exists(_directoryName))
-				Directory.Delete(_directoryName, true);
+			if (Directory.Exists(WorkDir))
+				Directory.Delete(WorkDir, true);
 		}
 
 		private void Historify(string[] files, ReportExecuteLog log)
@@ -264,15 +264,15 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			}
 			else {
 				var historyFile = Path.Combine(Settings.Default.HistoryPath, log.Id + ".zip");
-				WithTempArchive(_directoryName, f => File.Copy(f, historyFile));
+				WithTempArchive(WorkDir, f => File.Copy(f, historyFile));
 			}
 		}
 
 		public string[] BuildResultFile()
 		{
-			_directoryName = Path.Combine(Path.GetTempPath(), "Rep" + Id);
-			FileHelper.InitDir(_directoryName);
-			_mainFileName = Path.Combine(_directoryName,
+			WorkDir = Path.Combine(Path.GetTempPath(), "Rep" + Id);
+			FileHelper.InitDir(WorkDir);
+			_mainFileName = Path.Combine(WorkDir,
 				String.IsNullOrEmpty(ReportFileName) ? "Rep" + Id + ".xls" : ReportFileName);
 
 			//будь бдителен очередь используется тк после обработки память занятую отчетом нужно освободить
@@ -308,18 +308,13 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			foreach (var file in FilesForReport.Keys) {
 				var source = FilesForReport[file];
 				if (File.Exists(source))
-					File.Copy(source, Path.Combine(_directoryName, file), true);
+					File.Copy(source, Path.Combine(WorkDir, file), true);
 			}
 
 			if (emptyReport)
 				throw new ReportException("Отчет пуст.");
 
-			var files = Directory.GetFiles(_directoryName);
-			if (!NoArchive) {
-				files = new[] { ArchFile() };
-			}
-
-			return files;
+			return Directory.GetFiles(WorkDir);
 		}
 
 		private void MailWithAttach(ReportExecuteLog log, string address, string[] files)
@@ -403,14 +398,31 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 			}
 		}
 
-		private string ArchFile()
+		public string[] ArchFile(string[] files)
 		{
-			var resArchFileName = (String.IsNullOrEmpty(ReportArchName)) ? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip") : ReportArchName;
+			if (NoArchive)
+				return files;
 
-			var archive = Path.Combine(_directoryName, resArchFileName);
-			WithTempArchive(_directoryName, f => File.Move(f, archive));
-
-			return archive;
+			if (MailPerFile) {
+				var result = new List<string>();
+				foreach (var file in files) {
+					var zipName = Path.ChangeExtension(file, ".zip");
+					result.Add(zipName);
+					using (var zip = ZipFile.Create(zipName)) {
+						zip.BeginUpdate();
+						zip.Add(file);
+						zip.CommitUpdate();
+					}
+				}
+				return result.ToArray();
+			} else {
+				var archive = (String.IsNullOrEmpty(ReportArchName))
+					? Path.ChangeExtension(Path.GetFileName(_mainFileName), ".zip")
+					: ReportArchName;
+				archive = Path.Combine(WorkDir, archive);
+				WithTempArchive(WorkDir, f => File.Move(f, archive));
+				return new[] { archive };
+			}
 		}
 
 		public static void WithTempArchive(string dir, Action<string> action)

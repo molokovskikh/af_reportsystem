@@ -260,6 +260,22 @@ namespace ReportSystem.Test
 			Assert.AreEqual(0, report.Reports.Count);
 		}
 
+		[Test]
+		public void Arhive_per_file()
+		{
+			var files = new[] {
+				"tmp/1.dbf", "tmp/2.dbf"
+			};
+			FileHelper.InitDir("tmp");
+			FileHelper.Touch(files);
+			var report = new GeneralReport();
+			report.ReportArchName = "test.zip";
+			report.WorkDir = "tmp";
+			report.MailPerFile = true;
+			var result = report.ArchFile(files);
+			Assert.AreEqual("tmp/1.zip, tmp/2.zip", result.Implode());
+		}
+
 		private static string[] LsZip(string result)
 		{
 			using (var zip = new ZipFile(result)) {
