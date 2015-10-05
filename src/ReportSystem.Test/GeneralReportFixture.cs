@@ -274,6 +274,7 @@ namespace ReportSystem.Test
 			report.MailPerFile = true;
 			var result = report.ArchFile(files);
 			Assert.AreEqual("tmp/1.zip, tmp/2.zip", result.Implode());
+			Assert.AreEqual("1.dbf", LsZip("tmp/1.zip").Implode());
 		}
 
 		private static string[] LsZip(string result)

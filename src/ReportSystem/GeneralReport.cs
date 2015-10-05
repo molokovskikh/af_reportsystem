@@ -410,7 +410,7 @@ values (NOW(), ?GeneralReportCode, ?SMTPID, ?MessageID, ?EMail, ?ResultId)";
 					result.Add(zipName);
 					using (var zip = ZipFile.Create(zipName)) {
 						zip.BeginUpdate();
-						zip.Add(file);
+						zip.Add(file, Path.GetFileName(file));
 						zip.CommitUpdate();
 					}
 				}
