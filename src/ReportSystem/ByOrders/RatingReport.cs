@@ -62,7 +62,7 @@ namespace Inforoom.ReportSystem
 			ProfileHelper.Next("Processing1");
 
 			var selectCommand = BuildSelect();
-			if (firmCrPosition)
+			if (IncludeProducerName)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
@@ -117,7 +117,7 @@ where pd.IsLocal = 0", OrdersSchema));
 
 			//Применяем группировку и сортировку
 			selectCommand = ApplyGroupAndSort(selectCommand, "Cost desc");
-			if (firmCrPosition) {
+			if (IncludeProducerName) {
 				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
 				var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
 				selectCommand = selectCommand.Replace(groupPart, new_groupPart);

@@ -42,9 +42,9 @@ namespace Inforoom.ReportSystem
 		protected DateTime dtTo;
 
 		protected bool SupportProductNameOptimization;
-		protected bool includeProductName;
+		protected bool IncludeProductName; // есть ли параметр Позиция "Наименования продукта" в отчете
 		protected bool isProductName = true;
-		protected bool firmCrPosition; // есть ли параметр "Позиция производителя"
+		protected bool IncludeProducerName; // есть ли параметр "Позиция производителя"
 		protected string OrdersSchema = "Orders";
 
 		private string[] nameFields = new[] { "FullName", "ShortName", "ProductName" };
@@ -202,7 +202,7 @@ namespace Inforoom.ReportSystem
 
 		public virtual void CheckAfterLoadFields()
 		{
-			firmCrPosition = ReportParamExists("FirmCrPosition");
+			IncludeProducerName = ReportParamExists("FirmCrPosition");
 
 			var mnn = selectedField.FirstOrDefault(f => f.reportPropertyPreffix == "Mnn");
 			var names = selectedField.Where(f => nameFields.Contains(f.reportPropertyPreffix));
@@ -263,7 +263,7 @@ namespace Inforoom.ReportSystem
 						rf.reportPropertyPreffix == "FullName")) {
 						rf.primaryField = "ol.Productid";
 						rf.viewField = "ol.Productid as pid";
-						includeProductName = true;
+						IncludeProductName = true;
 						if (rf.reportPropertyPreffix == "FullName") {
 							rf.primaryField = "p.CatalogId";
 							rf.viewField = "p.CatalogId as pid";
@@ -271,7 +271,7 @@ namespace Inforoom.ReportSystem
 						}
 					}
 
-				if (includeProductName)
+				if (IncludeProductName)
 					selectCommand = @"
 drop temporary table IF EXISTS MixedData;
 create temporary table MixedData ENGINE=MEMORY
