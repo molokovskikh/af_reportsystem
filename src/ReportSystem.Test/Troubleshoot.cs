@@ -23,8 +23,8 @@ namespace ReportSystem.Test
 		[Test]
 		public void Troubleshoot_general_report()
 		{
-			uint id = 1101;
-			var dataAdapter = new MySqlDataAdapter("", FixtureSetup.ConnectionString);
+			uint id = 1671;
+			var dataAdapter = new MySqlDataAdapter("", "server=testsql.analit.net;user=system;password=newpass;default command timeout=0;");
 			dataAdapter.SelectCommand.CommandText = @"
 select
   *
@@ -38,7 +38,8 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 			var res = new DataTable();
 			dataAdapter.Fill(res);
 
-			using (var connection = new MySqlConnection(FixtureSetup.ConnectionString)) {
+			using (var connection = new MySqlConnection("server=testsql.analit.net;user=system;password=newpass;database=usersettings;default command timeout=0;")) {
+				connection.Open();
 				foreach (DataRow drGReport in res.Rows) {
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled])) {
 						//Создаем отчеты и добавляем их в список отчетов

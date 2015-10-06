@@ -44,7 +44,7 @@ namespace Inforoom.ReportSystem.Model
 
 			var sql = new StringBuilder();
 			var selectCommand = BuildSelect();
-			if (firmCrPosition)
+			if (IncludeProducerName)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 			sql.AppendLine(selectCommand);

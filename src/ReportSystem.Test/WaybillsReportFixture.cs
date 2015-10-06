@@ -44,16 +44,12 @@ namespace ReportSystem.Test
 				SupplierCost = 70,
 			});
 			session.Save(waybill);
-			session.CreateSQLQuery("update Customers.Suppliers set VendorId = 15 where id = :id")
-				.SetParameter("id", supplier.Id)
-				.ExecuteUpdate();
-
 			Property("ByPreviousMonth", false);
 			Property("OrgId", orgId);
 			report = new WaybillsReport(1, "test", Conn, ReportFormats.CSV, properties);
 			BuildOrderReport("test");
 			var result = File.ReadAllText("test.csv");
-			var data = String.Format("DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;{0};{1};\"4563\";10.00;61.60;70.00;76.80;0.00;15;;\r\n", DateTime.Now.Year, DateTime.Now.Month);
+			var data = String.Format("DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;{0};{1};\"4563\";10.00;61.60;70.00;76.80;0.00;{2};;\r\n", DateTime.Now.Year, DateTime.Now.Month, supplier.Id);
 			Assert.That(result, Is.EqualTo(data));
 		}
 

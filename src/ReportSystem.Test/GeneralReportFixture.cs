@@ -74,7 +74,7 @@ namespace ReportSystem.Test
 			AddFile();
 
 			report.Reports.Enqueue(new FakeReport());
-			var file = report.BuildResultFile()[0];
+			var file = report.ArchFile(report.BuildResultFile())[0];
 
 			var files = LsZip(file);
 			Assert.That(files.Count(), Is.EqualTo(2));
@@ -94,7 +94,7 @@ namespace ReportSystem.Test
 			report.Reports.Enqueue(new FakeReport());
 			report.FilesForReport = new Dictionary<string, string> { { "123.txt", id.ToString() } };
 
-			var result = report.BuildResultFile()[0];
+			var result = report.ArchFile(report.BuildResultFile())[0];
 			var files = LsZip(result);
 			Assert.That(files.Count(), Is.EqualTo(2));
 			Assert.That(files[1], Is.EqualTo("Rep1.xls"));
@@ -242,11 +242,11 @@ namespace ReportSystem.Test
 			var gr = new GeneralReport();
 			gr.NoArchive = true;
 			gr.Reports.Enqueue(new FakeReport());
-			var file = gr.BuildResultFile()[0];
+			var file = gr.ArchFile(gr.BuildResultFile())[0];
 			Assert.That(Path.GetExtension(file), Is.EqualTo(".xls"));
 			gr = new GeneralReport();
 			gr.Reports.Enqueue(new FakeReport());
-			file = gr.BuildResultFile()[0];
+			file = gr.ArchFile(gr.BuildResultFile())[0];
 			Assert.That(Path.GetExtension(file), Is.EqualTo(".zip"));
 		}
 
@@ -258,6 +258,23 @@ namespace ReportSystem.Test
 			report.Reports.Enqueue(new FakeReport());
 			report.BuildResultFile();
 			Assert.AreEqual(0, report.Reports.Count);
+		}
+
+		[Test]
+		public void Arhive_per_file()
+		{
+			var files = new[] {
+				"tmp/1.dbf", "tmp/2.dbf"
+			};
+			FileHelper.InitDir("tmp");
+			FileHelper.Touch(files);
+			var report = new GeneralReport();
+			report.ReportArchName = "test.zip";
+			report.WorkDir = "tmp";
+			report.MailPerFile = true;
+			var result = report.ArchFile(files);
+			Assert.AreEqual("tmp/1.zip, tmp/2.zip", result.Implode());
+			Assert.AreEqual("1.dbf", LsZip("tmp/1.zip").Implode());
 		}
 
 		private static string[] LsZip(string result)

@@ -15,7 +15,9 @@ releaseTo = "\\\\${host}\\Reports\\ReleasePath"
 project = "ReportSystem"
 projectBoot = "ReportSystemBoot"
 
-task @default, ["assembly:info:generate", @build]
+task @setup, ["assembly:info:generate", "packages:install", "packages:fix"]
+
+task @default, [@build]
 
 task @build, ["build:web", "build:service", "build:exe"]
 
@@ -33,7 +35,7 @@ task "deploy:service", ["build:service"]:
 	project = "Report.Data.Builder"
 	DeployService(Globals, project, "fms")
 
-task "deploy:exe":
+task "deploy:exe", ["build:exe"]:
 	return if Globals.Environment != @Production
 
 	XCopyDeploy(Globals, "ReportSystem", releaseTo)
@@ -43,7 +45,7 @@ task "deploy:exe":
 task "deploy:web", ["build:web"]:
 	XCopyDeploy(Globals, "ReportTuner")
 
-task "build:web", ["clean:web"]:
+task "build:web", ["setup", "clean:web"]:
 	_, output, _ = GetBuildConfig(Globals, "ReportTuner")
 	BuildWeb(Globals, "ReportTuner")
 	#reportsystem использует jet, jet существует только 32-битный
@@ -55,10 +57,10 @@ task "build:web", ["clean:web"]:
 task "clean:web":
 	CleanWeb(Globals, "ReportTuner")
 
-task "build:service":
+task "build:service", ["setup"]:
 	Build(Globals, "Report.Data.Builder")
 
-task "build:exe", ["clean:exe"]:
+task "build:exe", ["setup", "clean:exe"]:
 	Build(Globals, projectBoot)
 	Build(Globals, project)
 

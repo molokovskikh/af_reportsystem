@@ -126,9 +126,11 @@ namespace Inforoom.ReportSystem
 
 			var selectCommand = BuildSelect();
 
-			if (firmCrPosition)
+			//max(cfc.Name) - судя по реализации mysql игнорирует null для min или max, если cfc.Name еслть значение отличное от null
+			//мы долны выбрать его а не null
+			if (IncludeProducerName)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
-					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
+					.Replace("cfc.Name", "if(c.Pharmacie = 1, max(cfc.Name), 'Нелекарственный ассортимент')");
 
 			if (ShowCode)
 				selectCommand += " ProviderCodes.Code, ";
@@ -196,22 +198,27 @@ from {0}.OrdersHead oh
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId", OrdersSchema) +
 				((ShowCode || ShowCode) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
-					((firmCrField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", firmCrField.primaryField) : String.Empty)) : String.Empty) +
-						String.Format(@"
+					((firmCrField != null ?
+						$" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({firmCrField.primaryField}, 0), 0)"
+						: String.Empty)) : String.Empty) +
+				$@"
 where pd.IsLocal = 0
-	{0}
-", filter);
+	{filter}
+";
 
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
 
-			if (firmCrPosition) {
+			if (IncludeProducerName && IncludeProductName && ShowCode && ShowCodeCr) {
+				var groupBy = "group by if(ol.Code is null or ol.Code = '', concat(ol.ProductId, '\t', ifnull(cfc_id, 0)), concat(ProviderCodes.Code, '\t', ifnull(ProviderCodes.CodeCr, '')))";
+				selectCommand = selectCommand.Replace(selectCommand.Substring(selectCommand.IndexOf("group by")), groupBy);
+			}
+			else if (IncludeProducerName) {
 				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
-				var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
-				selectCommand = selectCommand.Replace(groupPart, new_groupPart);
+				selectCommand = selectCommand.Replace(groupPart, groupPart.Replace("cfc.Id", "cfc_id"));
 			}
 
-			if (includeProductName)
+			if (IncludeProductName)
 				if (isProductName)
 					selectCommand += @"; select
 				(select concat(c.name, ' ',

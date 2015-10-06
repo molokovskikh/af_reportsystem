@@ -73,7 +73,7 @@ namespace Inforoom.ReportSystem
 			if (AddressRivals.Count > 0)
 				rivalFilter += String.Format(" and oh.AddressId in ({0})", AddressRivals.Implode());
 
-			if (firmCrPosition)
+			if (IncludeProducerName)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, cfc.Name, 'Нелекарственный ассортимент')");
 
@@ -132,13 +132,13 @@ pd.IsLocal = 0
 			selectCommand = ApplyFilters(selectCommand);
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
 
-			if (firmCrPosition) {
+			if (IncludeProducerName) {
 				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
 				var newGroupPart = groupPart.Replace("cfc.Id", "cfc_id");
 				selectCommand = selectCommand.Replace(groupPart, newGroupPart);
 			}
 
-			if (includeProductName)
+			if (IncludeProductName)
 				if (isProductName)
 					selectCommand += @"; select
 				(select concat(c.name, ' ',

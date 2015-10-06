@@ -163,8 +163,8 @@ namespace ReportSystem.Test
 			Property("ProductNamePosition", 0);
 			Property("MnnPosition", 1);
 
-			Property("ByPreviousMonth", false);
 			Property("ShowCode", true);
+			Property("ByPreviousMonth", false);
 			Property("ReportInterval", 1);
 			Property("SourceFirmCode", (int)supplier.Id);
 
@@ -174,6 +174,44 @@ namespace ReportSystem.Test
 			var text = ToText(sheet);
 			Assert.That(text, Is.StringContaining(offer.Code));
 			Assert.That(text, Is.Not.StringContaining("Из отчета исключены уцененные товары и товары с ограниченным сроком годност"));
+		}
+
+		[Test]
+		public void Group_by_code()
+		{
+			supplier = TestSupplier.CreateNaked(session);
+			supplier.CreateSampleCore(session);
+			client = TestClient.CreateNaked(session);
+			order = new TestOrder(client.Users[0], supplier.Prices[0]);
+			order.WriteTime = order.WriteTime.AddDays(-1);
+			var offer = supplier.Prices[0].Core[0];
+			offer.Code = "code-1";
+			offer.CodeCr = "code-cr-1";
+			var item = order.AddItem(offer, 10);
+			Assert.IsNotNull(item.CodeFirmCr);
+
+			item = order.AddItem(offer, 5);
+			item.CodeFirmCr = null;
+
+			session.Save(order);
+
+			Property("ShowCode", true);
+			Property("ShowCodeCr", true);
+			Property("ProductNamePosition", 0);
+			Property("FirmCrPosition", 1);
+
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 1);
+			Property("SourceFirmCode", (int)supplier.Id);
+
+			var sheet = ReadReport<MixedReport>();
+			var text = ToText(sheet);
+			Console.WriteLine(text);
+			Assert.That(text, Is.StringContaining("|code-1|code-cr-1|"));
+			var rowCount = sheet.Rows().Count(x => x.Cells[0].StringCellValue == "code-1"
+				&& x.Cells[1].StringCellValue == "code-cr-1");
+
+			Assert.AreEqual(1, rowCount, text, "строки должны быть сгруппированы по Code, CodeCr");
 		}
 
 		private static string MakeColumns(string decl)
