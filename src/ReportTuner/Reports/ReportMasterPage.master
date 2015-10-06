@@ -22,6 +22,9 @@
 	</script>
 </head>
 <body>
+<div style="padding-bottom: 20px; font-weight: bold;">
+    <a href="http://test.analit.net/ReportsControlPanel/" style="color:green">Перейти в новый интерфейс контроля отчетов</a>
+</div>
 	<form id="form1" runat="server">
 	<div>
 		<asp:SiteMapPath ID="ReportSiteMapPath" runat="server" SiteMapProvider="ReportSiteMap" Font-Names="Verdana" Font-Size=Small>
