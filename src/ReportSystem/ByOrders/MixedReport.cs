@@ -119,8 +119,8 @@ namespace Inforoom.ReportSystem
 					i + 1));
 			}
 
-			if (ShowCode || ShowCode)
-				CalculateSupplierIds(SourceFirmCode, ShowCode, ShowCode);
+			if (ShowCode || ShowCodeCr)
+				CalculateSupplierIds(SourceFirmCode, ShowCode, ShowCodeCr);
 
 			ProfileHelper.Next("GenerateReport2");
 
@@ -134,7 +134,7 @@ namespace Inforoom.ReportSystem
 
 			if (ShowCode)
 				selectCommand += " ProviderCodes.Code, ";
-			if (ShowCode)
+			if (ShowCodeCr)
 				selectCommand += " ProviderCodes.CodeCr, ";
 
 			var concurrentSqlBlock = new StringBuilder();
@@ -197,7 +197,7 @@ from {0}.OrdersHead oh
   join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId", OrdersSchema) +
-				((ShowCode || ShowCode) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
+				((ShowCode || ShowCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
 					((firmCrField != null ?
 						$" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({firmCrField.primaryField}, 0), 0)"
 						: String.Empty)) : String.Empty) +
@@ -280,7 +280,7 @@ where pd.IsLocal = 0
 				dc.SetOrdinal(0);
 			}
 
-			if (ShowCode) {
+			if (ShowCodeCr) {
 				dc = res.Columns.Add("CodeCr", typeof(String));
 				dc.Caption = "Код изготовителя";
 				dc.SetOrdinal(1);
@@ -410,7 +410,7 @@ where pd.IsLocal = 0
 			int freezeCount = selectedField.FindAll(x => x.visible).Count;
 			if (ShowCode)
 				freezeCount++;
-			if (ShowCode)
+			if (ShowCodeCr)
 				freezeCount++;
 
 			var begin = ws.Cells[2 + FilterDescriptions.Count, freezeCount + 1];

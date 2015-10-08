@@ -206,12 +206,22 @@ namespace ReportSystem.Test
 
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
-			Console.WriteLine(text);
 			Assert.That(text, Is.StringContaining("|code-1|code-cr-1|"));
 			var rowCount = sheet.Rows().Count(x => x.Cells[0].StringCellValue == "code-1"
 				&& x.Cells[1].StringCellValue == "code-cr-1");
 
 			Assert.AreEqual(1, rowCount, text, "строки должны быть сгруппированы по Code, CodeCr");
+		}
+
+		[Test]
+		public void Do_now_showcr_code()
+		{
+			DefaultConf();
+			Property("ShowCode", true);
+			Property("ShowCodeCr", false);
+			var sheet = ReadReport<MixedReport>();
+			var text = ToText(sheet);
+			Assert.That(text, Is.Not.Contains("Код изготовителя"));
 		}
 
 		private static string MakeColumns(string decl)
