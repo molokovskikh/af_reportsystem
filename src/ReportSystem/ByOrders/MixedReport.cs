@@ -210,7 +210,7 @@ where pd.IsLocal = 0
 			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
 
 			if (IncludeProducerName && IncludeProductName && ShowCode && ShowCodeCr) {
-				var groupBy = "group by if(ol.Code is null or ol.Code = '', concat(ol.ProductId, '\t', ifnull(cfc_id, 0)), concat(ProviderCodes.Code, '\t', ifnull(ProviderCodes.CodeCr, '')))";
+				var groupBy = "group by if(ProviderCodes.Code is null or ProviderCodes.CodeCr = '', concat(ol.ProductId, '\t', ifnull(cfc_id, 0)), concat(ProviderCodes.Code, '\t', ifnull(ProviderCodes.CodeCr, '')))";
 				selectCommand = selectCommand.Replace(selectCommand.Substring(selectCommand.IndexOf("group by")), groupBy);
 			}
 			else if (IncludeProducerName) {
