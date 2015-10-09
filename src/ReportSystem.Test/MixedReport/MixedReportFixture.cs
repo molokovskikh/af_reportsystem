@@ -138,13 +138,19 @@ namespace ReportSystem.Test
 
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
+			var row = FindRowByProduct(sheet, offer.Product);
+			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue, text);
+		}
+
+		private static IRow FindRowByProduct(ISheet sheet, TestProduct product)
+		{
 			var row = sheet.Rows().FirstOrDefault(r => {
 				var cell = r.GetCell(1);
 				if (cell == null)
 					return false;
-				return cell.StringCellValue.Contains(offer.Product.Name);
+				return cell.StringCellValue.Contains(product.Name);
 			});
-			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue, text);
+			return row;
 		}
 
 		[Test]
@@ -217,11 +223,27 @@ namespace ReportSystem.Test
 		public void Do_now_showcr_code()
 		{
 			DefaultConf();
+
+			order = new TestOrder(client.Users[0], supplier.Prices[0]);
+			var product = session.Query<TestProduct>().First(p => p.CatalogProduct.CatalogName.Mnn != null);
+			order.WriteTime = order.WriteTime.AddDays(-1);
+			order.AddItem(product, 15, 901.25f);
+			session.Save(order);
+
 			Property("ShowCode", true);
 			Property("ShowCodeCr", false);
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
 			Assert.That(text, Is.Not.Contains("Код изготовителя"));
+			var item = order.Items[0];
+			var sum = session.Query<TestOrderItem>()
+				.Where(x => x.Product == item.Product && x.CodeFirmCr == item.CodeFirmCr
+					&& x.Order.WriteTime > DateTime.Today.AddDays(-1))
+				.ToArray()
+				.Sum(x => x.Quantity * (decimal)x.Cost);
+			var row = FindRowByProduct(sheet, item.Product);
+			//Сумма по всем
+			Assert.AreEqual(sum, row.GetCell(19).NumericCellValue);
 		}
 
 		private static string MakeColumns(string decl)

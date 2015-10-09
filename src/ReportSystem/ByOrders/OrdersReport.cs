@@ -375,7 +375,7 @@ create temporary table ProviderCodes (" +
 				@"key CatalogCode(CatalogCode), key CodeFirmCr(CodeFirmCr)) engine=MEMORY;
 insert into ProviderCodes
 select " +
-				(showCode ? "group_concat(distinct CoreCodes.Code), " : String.Empty) +
+				(showCode ? "group_concat(distinct CoreCodes.Code order by CoreCodes.Code), " : String.Empty) +
 				(showCodeCr ? "CoreCodes.CodeCr, " : String.Empty) +
 				selectExpression +
 				@"
