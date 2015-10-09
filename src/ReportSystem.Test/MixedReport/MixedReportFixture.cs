@@ -139,12 +139,12 @@ namespace ReportSystem.Test
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
 			var row = sheet.Rows().FirstOrDefault(r => {
-				var cell = r.GetCell(2);
+				var cell = r.GetCell(1);
 				if (cell == null)
 					return false;
 				return cell.StringCellValue.Contains(offer.Product.Name);
 			});
-			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue);
+			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue, text);
 		}
 
 		[Test]
