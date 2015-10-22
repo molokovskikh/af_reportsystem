@@ -167,7 +167,7 @@ namespace ReportTuner.Models
 			}
 
 			var message = new MailMessage();
-			message.From = new MailAddress("report@analit.net", "АК Инфорум");
+			message.From = new MailAddress("report@analit.net", "АналитФармация");
 			foreach (var mail in mails) {
 				message.To.Add(mail);
 			}

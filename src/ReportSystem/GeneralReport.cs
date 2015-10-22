@@ -322,7 +322,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			var message = new Mime();
 			var mainEntry = message.MainEntity;
 
-			mainEntry.From = new AddressList { new MailboxAddress("АК Инфорум", "report@analit.net") };
+			mainEntry.From = new AddressList { new MailboxAddress("АналитФармация", "report@analit.net") };
 
 			mainEntry.To = new AddressList();
 			mainEntry.To.Parse(address);
