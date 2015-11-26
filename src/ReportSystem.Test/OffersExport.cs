@@ -37,6 +37,7 @@ namespace ReportSystem.Test
 			Assert.IsTrue(data.Columns.Contains("CodeCr"));
 			Assert.IsTrue(data.Columns.Contains("PriceDate"));
 			Assert.IsTrue(data.Columns.Contains("RlSpplrId"));
+			Assert.IsTrue(data.Columns.Contains("EAN13"));
 		}
 
 		[Test]

@@ -61,7 +61,18 @@ select
 	c0.MinOrderCount as MinOrdCnt,
 	c0.RequestRatio as RequestRt,
 	c0.Junk,
-	sup.Id as RlSpplrId
+	sup.Id as RlSpplrId,
+	c0.Note,
+	c0.Period,
+	c0.Doc,
+	c0.VitallyImportant as VitalImp,
+	c0.RegistryCost as RegCost,
+	c0.OrderCost as MinOrdSum,
+	c0.ProducerCost as ProdCost,
+	c0.Nds,
+	c0.EAN13,
+	c0.CodeOKP,
+	c0.Series
 from UserSettings.Core c
 	join Usersettings.ActivePrices ap on ap.PriceCode = c.PriceCode and ap.RegionCode = c.RegionCode
 	join Farm.Core0 c0 on c.Id = c0.Id
