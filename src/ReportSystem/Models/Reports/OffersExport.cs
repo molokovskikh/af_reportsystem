@@ -70,7 +70,6 @@ select
 	c0.OrderCost as MinOrdSum,
 	c0.ProducerCost as ProdCost,
 	c0.Nds,
-	c0.EAN13,
 	c0.CodeOKP,
 	c0.Series
 from UserSettings.Core c
