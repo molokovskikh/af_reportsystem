@@ -96,10 +96,8 @@
     <Compile Include="CombToPlainReportFixture.cs" />
     <Compile Include="CostDynamicFixture.cs" />
     <Compile Include="DefectureReport\DefectureByWeightCostsFixture.cs" />
-    <Compile Include="DefectureReport\DefectureNewProfileFixture.cs" />
     <Compile Include="DefectureReport\DefecturePharmacieTest.cs" />
     <Compile Include="DefectureReport\DefectureProfileFixture.cs" />
-    <Compile Include="FastReports\FastReports.cs" />
     <Compile Include="FixtureSetup.cs" />
     <Compile Include="GeneralReportFixture.cs" />
     <Compile Include="Helpers\DataRowAdapter.cs" />
