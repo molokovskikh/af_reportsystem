@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NHibernate.Mapping;
 using NUnit.Framework;
 
 namespace Report.Data.Builder.Test.Unit
@@ -296,6 +297,36 @@ namespace Report.Data.Builder.Test.Unit
 			var costs = (Hashtable)averageCosts[offerId];
 			var aggregates = ((OfferAggregates)costs[new AggregateId(1, 1)]);
 			Assert.That(aggregates.Quantity, Is.EqualTo(250));
+		}
+
+		[Test]
+		public void Skip_client_without_rating()
+		{
+			var list = new List<Tuple<IEnumerable<ClientRating>, IEnumerable<Offer>>> {
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(2, 1, 0),
+					},
+					new List<Offer> {
+						new Offer(new OfferId(2, 1), 1, 1, 150, false),
+						new Offer(new OfferId(3, 2), 1, 1, 150, false),
+						new Offer(new OfferId(3, 2), 1, 1, 150, false)
+					}),
+				Tuple.Create<IEnumerable<ClientRating>, IEnumerable<Offer>>(
+					new List<ClientRating> {
+						new ClientRating(3, 2, 0.5m),
+					},
+					new List<Offer> {
+						new Offer(new OfferId(3, 2), 1, 1, 150, false),
+						new Offer(new OfferId(3, 2), 1, 1, 150, false)
+					})
+			};
+
+			var averageCosts = _calculator.Calculate(list);
+			var costs = (Hashtable)averageCosts[new OfferId(3, 2)];
+			var aggregates = ((OfferAggregates)costs[new AggregateId(1, 1)]);
+			Assert.That(aggregates.Cost, Is.EqualTo(150));
+
 		}
 	}
 }

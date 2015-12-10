@@ -58,13 +58,13 @@ namespace Report.Data.Builder.Test.Integration
 		{
 			var result = new Hashtable();
 			var offerId = new OfferId(1, 1);
-			var aggregator = new OfferAggregates {
+			var aggregator = new OfferAggregates(1) {
 				Cost = 0,
 				Quantity = 1
 			};
 			var costs = new Hashtable();
 			costs[new AggregateId(0, 0)] = aggregator;
-			aggregator = new OfferAggregates {
+			aggregator = new OfferAggregates(1) {
 				Cost = 2,
 				Quantity = 1
 			};

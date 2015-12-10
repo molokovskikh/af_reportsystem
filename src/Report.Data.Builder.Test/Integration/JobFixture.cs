@@ -17,12 +17,11 @@ namespace Report.Data.Builder.Test.Integration
 				NextRun = DateTime.Now,
 				RunInterval = new TimeSpan(1, 1, 0, 0),
 			};
-			ActiveRecordMediator.Save(job);
+			session.Save(job);
+			session.Flush();
+			session.Clear();
 
-			scope.Dispose();
-			scope = new SessionScope();
-
-			var loadedJob = ActiveRecordMediator<Job>.FindByPrimaryKey(job.Id);
+			var loadedJob = session.Load<Job>(job.Id);
 			Assert.That(job, Is.Not.EqualTo(loadedJob));
 			Assert.That(loadedJob.RunInterval, Is.EqualTo(job.RunInterval));
 		}

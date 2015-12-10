@@ -41,55 +41,78 @@ namespace Report.Data.Builder
 
 	public class OfferAggregates
 	{
+		private Dictionary<uint, uint> quantityPerPrice = new Dictionary<uint, uint>();
+		private decimal lastCost;
+		private uint offerCount;
+		private uint? lastClientForRatingId;
+		private decimal sumClientRating;
+		private uint? lastClientId;
+
 		public decimal Cost;
 		public uint Quantity;
-		public uint? LastClientId;
-		public decimal LastCost;
-		public uint OfferCount;
-		public uint? LastClientForRatingId;
-		public decimal SumClientRating;
-		public Dictionary<uint, uint> QuantityPerPrice = new Dictionary<uint, uint>();
 
-		public OfferAggregates()
+		public OfferAggregates(uint client)
 		{
-			LastClientForRatingId = null;
-			LastClientId = null;
+			lastClientForRatingId = null;
+			lastClientId = client;
+		}
+
+		public void Collect(Offer offer, decimal regionRating, uint client)
+		{
+			if (lastClientId != client) {
+				CalculateQuantity();
+
+				if (offerCount > 0)
+					Cost += lastCost / offerCount;
+
+				lastClientId = client;
+				lastCost = 0;
+				offerCount = 0;
+			}
+
+			//ученка не влияет на индекс цен но учитывается в остатках
+			if (!offer.Junk) {
+				lastCost = lastCost + offer.Cost * regionRating;
+				offerCount++;
+				if (lastClientForRatingId != client) {
+					sumClientRating += regionRating;
+					lastClientForRatingId = client;
+				}
+			}
+
+			if (quantityPerPrice.ContainsKey(offer.PriceId)) {
+				quantityPerPrice[offer.PriceId] += offer.Quantity;
+			} else {
+				quantityPerPrice.Add(offer.PriceId, offer.Quantity);
+			}
 		}
 
 		public void Calculate()
 		{
 			CalculateQuantity();
 
-			if (LastClientId != null
-				&& OfferCount > 0)
-				Cost += LastCost / OfferCount;
+			if (lastClientId != null && offerCount > 0)
+				Cost += lastCost / offerCount;
 
-			if (SumClientRating < 1 && SumClientRating > 0)
-				Cost *= 1 / SumClientRating;
+			if (sumClientRating < 1 && sumClientRating > 0)
+				Cost *= 1 / sumClientRating;
 		}
 
-		public void CalculateQuantity()
+		private void CalculateQuantity()
 		{
-			if (QuantityPerPrice.Count == 0)
+			if (quantityPerPrice.Count == 0)
 				return;
 
-			var max = QuantityPerPrice.Select(p => p.Value).DefaultIfEmpty().Max();
+			var max = quantityPerPrice.Select(p => p.Value).DefaultIfEmpty().Max();
 			if (max > Quantity)
 				Quantity = max;
 
-			QuantityPerPrice.Clear();
+			quantityPerPrice.Clear();
 		}
 
-		public void StartNewClientAggregation(uint client)
+		public override string ToString()
 		{
-			CalculateQuantity();
-
-			if (OfferCount > 0) {
-				Cost += LastCost / OfferCount;
-				LastClientId = client;
-				LastCost = 0;
-				OfferCount = 0;
-			}
+			return $"Cost = {Cost}, Rating = {sumClientRating}, LastCost = {lastCost}, OfferCount = {offerCount}";
 		}
 	}
 
@@ -172,7 +195,7 @@ namespace Report.Data.Builder
 select c.Id
 from Customers.Clients c
 join Usersettings.RetClientsSet rcs on rcs.ClientCode = c.Id
-where rcs.InvisibleOnFirm = 0
+where rcs.InvisibleOnFirm = 0 and rcs.ServiceClient = 0
 ";
 			return Db.Read<uint>(sql);
 		}
@@ -247,7 +270,6 @@ where p.Actual = 1
 				if (log.IsDebugEnabled)
 					log.DebugFormat("Начал вычисление средних цен для клиента {0}", client);
 				var rating = item.Item1.ToDictionary(r => r.RegionId, r => r.Value);
-
 				foreach (var offer in item.Item2) {
 					var costs = (Hashtable)result[offer.Id];
 					if (costs == null) {
@@ -257,12 +279,8 @@ where p.Actual = 1
 					var aggregateId = new AggregateId(offer.ProductId, offer.ProducerId);
 					var aggregates = (OfferAggregates)costs[aggregateId];
 					if (aggregates == null) {
-						aggregates = new OfferAggregates();
-						aggregates.LastClientId = client;
+						aggregates = new OfferAggregates(client);
 						costs[aggregateId] = aggregates;
-					}
-					else if(aggregates.LastClientId != client) {
-						aggregates.StartNewClientAggregation(client);
 					}
 
 					if (!rating.ContainsKey(offer.Id.RegionId))
@@ -273,21 +291,7 @@ where p.Actual = 1
 						continue;
 
 					var regionRating = rating[offer.Id.RegionId];
-					if (!offer.Junk) {
-						aggregates.LastCost = aggregates.LastCost + offer.Cost * regionRating;
-						aggregates.OfferCount++;
-						if(aggregates.LastClientForRatingId != client) {
-							aggregates.SumClientRating += regionRating;
-							aggregates.LastClientForRatingId = client;
-						}
-					}
-
-					if (aggregates.QuantityPerPrice.ContainsKey(offer.PriceId)) {
-						aggregates.QuantityPerPrice[offer.PriceId] += offer.Quantity;
-					}
-					else {
-						aggregates.QuantityPerPrice.Add(offer.PriceId, offer.Quantity);
-					}
+					aggregates.Collect(offer, regionRating, client);
 
 #if DEBUG
 					if (offer.ProductId == DebugProductId && offer.ProducerId == DebugProducerId && offer.Id.SupplierId == DebugSupplierId)
@@ -308,6 +312,10 @@ where p.Actual = 1
 				foreach (AggregateId assortmentId in costs.Keys) {
 					var aggregates = (OfferAggregates)costs[assortmentId];
 					aggregates.Calculate();
+#if DEBUG
+					if (assortmentId.ProductId == DebugProductId && assortmentId.ProducerId == DebugProducerId && key.SupplierId == DebugSupplierId)
+						Console.WriteLine("Average cost = {0}", aggregates);
+#endif
 				}
 			}
 			if (log.IsDebugEnabled)
