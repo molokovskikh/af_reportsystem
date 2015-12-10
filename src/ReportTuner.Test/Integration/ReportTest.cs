@@ -125,7 +125,7 @@ namespace ReportTuner.Test.Integration
 			var clientid = Convert.ToUInt32(clientProperty.Value);
 			var client = Client.TryFind(clientid);
 			if (client == null) {
-				var tc = TestClient.Create();
+				var tc = TestClient.CreateNaked(session);
 				clientProperty.Value = tc.Id.ToString();
 				clientProperty.Save();
 				client = Client.TryFind(tc.Id);

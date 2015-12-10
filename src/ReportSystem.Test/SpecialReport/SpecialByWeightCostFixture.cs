@@ -62,7 +62,7 @@ namespace ReportSystem.Test.SpecialReport
 		{
 			var dateTime = DateTime.Today.AddDays(-2);
 			var supplier = TestSupplier.CreateNaked(session);
-			supplier.CreateSampleCore();
+			supplier.CreateSampleCore(session);
 
 			var offer = supplier.Prices[0].Core[0];
 			var product = offer.Product;

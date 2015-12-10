@@ -28,7 +28,7 @@ namespace Report.Data.Builder.Test.Integration
 			order.WriteTime = DateTime.Today.AddDays(-1);
 			order.AddItem(supplier.Prices[0].Core[0], 1);
 			session.Save(order);
-			supplier.Maintain();
+			supplier.Maintain(session);
 			session.Transaction.Commit();
 
 			calculator = new CostCalculator();

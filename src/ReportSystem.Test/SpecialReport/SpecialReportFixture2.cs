@@ -18,7 +18,7 @@ namespace ReportSystem.Test.SpecialReport
 			//а текущая интеграционная среда имитирует реальную, чуть более чем никак.
 			var dateTime = DateTime.Today.AddDays(-2);
 			var supplier = TestSupplier.CreateNaked(session);
-			supplier.CreateSampleCore();
+			supplier.CreateSampleCore(session);
 			var fileName = "temp.xls";
 			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> {
