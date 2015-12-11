@@ -145,18 +145,18 @@ namespace ReportTuner.Test.Integration
 				new DataColumn() { ColumnName = "PPropertyName", DataType = typeof(string) },
 				new DataColumn() { ColumnName = "PPropertyValue", DataType = typeof(string) }
 			});
-			DataRow dr = dtNonOptionalParams.NewRow();
+			var dr = dtNonOptionalParams.NewRow();
 			dr["PID"] = clientProperty.Id;
 			dr["PPropertyName"] = "SourceFirmCode";
 			dr["PPropertyValue"] = client.Id;
 			dtNonOptionalParams.Rows.Add(dr);
 
 			var propertyHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, null);
+			session.Flush();
+			session.Transaction.Commit();
 			var res = propertyHelper.GetRelativeValue(regionProperty);
 
-			Assert.That(res, Is.Not.Null);
-			Assert.That(res.Length, Is.GreaterThan(0));
-			Assert.That(res, Is.EqualTo(String.Format("inID={0}", mask)));
+			Assert.That(res, Is.EqualTo($"inID={mask}"));
 		}
 
 		[Test]
