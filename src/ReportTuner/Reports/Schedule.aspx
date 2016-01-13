@@ -5,7 +5,7 @@
 	<script type="text/javascript">
 		//	window.console = { log: function (smg) { alert(smg) } }
 
-		
+
 		jQuery(document).ready(function ($) {
 
 			var reportScheduleFromDate = GetCookie("ReportScheduleFromDate");
@@ -74,27 +74,40 @@
 
 		});
 	</script>
-	
+
 	<div align="center"><strong><font size ="2">
 Задание для отчета "<asp:Label ID="lblReportComment" runat="server" Text="Label"/>" для плательщика "<asp:Label ID="lblClient" runat="server" Text="Label"/>"<br /><br />
 <asp:Label ID="ErrorMassage" runat="server" Text=""/>
 </font></strong></div>
-	<div><font size ="2">
-	<table width="100%">
-		<tr bgcolor="#eef8ff"><td>
-			<asp:Label ID="Label2" runat="server" Text="Выполнить:" SkinID="scheduleLabelSkin"></asp:Label>
-			<asp:Label ID="lblWork" runat="server" Text="Label"></asp:Label>
-		</td></tr>
-		<tr bgcolor="#f6f6f6"><td>
-			<asp:Label ID="Label1" runat="server" Text="Рабочая папка:" SkinID="scheduleLabelSkin"></asp:Label>
-			<asp:Label ID="lblFolder" runat="server" Text="Label"></asp:Label>
-		</td></tr>
-		<tr bgcolor="#eef8ff"><td>
-			<asp:CheckBox ID="chbAllow" runat="server" Text="Разрешено"
-				oncheckedchanged="chbAllow_CheckedChanged" />
-		</td></tr>
-	</table>
-	</font>
+	<div>
+		<font size ="2">
+			<table width="100%">
+				<tr bgcolor="#eef8ff">
+					<td>
+					<asp:Label ID="Label2" runat="server" Text="Выполнить:" SkinID="scheduleLabelSkin"></asp:Label>
+					<asp:Label ID="lblWork" runat="server" Text="Label"></asp:Label>
+				</td>
+				</tr>
+				<tr bgcolor="#f6f6f6">
+					<td>
+						<asp:Label ID="Label1" runat="server" Text="Рабочая папка:" SkinID="scheduleLabelSkin"></asp:Label>
+						<asp:Label ID="lblFolder" runat="server" Text="Label"></asp:Label>
+					</td>
+				</tr>
+				<tr bgcolor="#eef8ff">
+					<td>
+						<asp:CheckBox ID="chbAllow" runat="server" Text="Разрешено"
+							oncheckedchanged="chbAllow_CheckedChanged" />
+					</td>
+				</tr>
+				<tr bgcolor="#f6f6f6">
+					<td>
+						<asp:Label runat="server" Text="Отчет будет выложен на ftp:" SkinID="scheduleLabelSkin"/>
+						<asp:Label ID="FtpPath" runat="server" Text="Label" />
+					</td>
+				</tr>
+			</table>
+		</font>
 <br />
 		<br />
 		<br />

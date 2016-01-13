@@ -163,7 +163,7 @@ public partial class Reports_schedule : BasePage
 					ErrorMassage.Text = "";
 			}
 		}
-		
+
 		if ((tempTaskState == TaskState.Disabled && currentTask.State != TaskState.Running && currentTask.State != TaskState.Queued) ||
 			(currentTask.State == TaskState.Disabled && tempTaskState != TaskState.Running && tempTaskState != TaskState.Queued)) {
 			if (Session["StartTaskTime"] != null) {
@@ -243,6 +243,12 @@ limit 15;";
 			chbAllow.Checked = currentTask.Enabled;
 			lblWork.Text = ((ExecAction)currentTask.Definition.Actions[0]).Path + " " + ((ExecAction)currentTask.Definition.Actions[0]).Arguments;
 			lblFolder.Text = ((ExecAction)currentTask.Definition.Actions[0]).WorkingDirectory;
+			if (_generalReport.FirmCode != null) {
+				var ftpId = _generalReport.FirmCode.ToString().PadLeft(3, '0');
+				FtpPath.Text = $"ftp://ftp.analit.net/OptBox/{ftpId}/Reports/";
+			} else {
+				FtpPath.Text = "";
+			}
 			var tl = currentTask.Definition.Triggers;
 
 			for (int i = 0; i < tl.Count; i++) {
