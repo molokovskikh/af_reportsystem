@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using Inforoom.ReportSystem.Properties;
@@ -39,7 +39,7 @@ namespace Inforoom.ReportSystem
 			//Выбираем
 			GetOffers(_SupplierNoise);
 
-			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			DataAdapter.SelectCommand.CommandText = String.Format(@"
 drop temporary table if exists Usersettings.MaxProducerCosts;
 create temporary table Usersettings.MaxProducerCosts(
 	ProductId int unsigned not null,
@@ -154,14 +154,14 @@ drop temporary table if exists Usersettings.MaxProducerCosts;
 				_exportFilename,
 				(char)9);
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("priceId", 4863);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("costId", 8148);
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("priceId", 4863);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("costId", 8148);
+			DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 
-		public override void ReportToFile(string FileName)
+		public override void Write(string FileName)
 		{
 			int CopyErrorCount = 0;
 			bool CopySucces = false;

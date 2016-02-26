@@ -84,9 +84,9 @@ where 1 = 1", join));
 			commandText = ApplyGroupAndSort(commandText, "Cost desc");
 
 			var selectTable = new DataTable();
-			args.DataAdapter.SelectCommand.CommandText = commandText;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.Fill(selectTable);
+			DataAdapter.SelectCommand.CommandText = commandText;
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.Fill(selectTable);
 
 			var result = BuildResultTable(selectTable);
 

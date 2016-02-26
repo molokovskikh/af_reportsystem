@@ -28,7 +28,7 @@ namespace ReportSystem.Test.ProviderReport
 		{
 			GetOffers();
 			var dataSet = MySqlHelper.ExecuteDataset(
-				args.DataAdapter.SelectCommand.Connection,
+				DataAdapter.SelectCommand.Connection,
 				@"
 select
 	*

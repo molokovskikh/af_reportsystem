@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Troubleshoot_general_report()
 		{
-			uint id = 1671;
+			uint id = 111;
 			var dataAdapter = new MySqlDataAdapter("", "server=testsql.analit.net;user=system;password=newpass;default command timeout=0;");
 			dataAdapter.SelectCommand.CommandText = @"
 select
@@ -57,7 +57,7 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 						bs.Session = session;
 						bs.ReadReportParams();
 						bs.ProcessReport();
-						bs.ReportToFile(Path.GetFullPath("test.xls"));
+						bs.Write(Path.GetFullPath("test.xls"));
 					}
 				}
 			}

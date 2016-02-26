@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using ExcelLibrary.SpreadSheet;
 using System.Data;
+using System.IO;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.Types;
 using Borders = ExcelLibrary.SpreadSheet.Borders;
@@ -203,6 +204,47 @@ namespace Inforoom.ReportSystem.Helpers
 			//Замораживаем некоторые колонки и столбцы
 			ws.Range[begin, end].Select();
 			ws.Application.ActiveWindow.FreezePanes = true;
+		}
+
+		public static void Workbook(string file, Action<Workbook> action)
+		{
+			Application exApp = new ApplicationClass();
+			try {
+				exApp.DisplayAlerts = false;
+				file = Path.GetFullPath(file);
+				var workbook = exApp.Workbooks.Open(file);
+				_Worksheet worksheet;
+				try {
+					try {
+						action(workbook);
+					}
+					finally {
+						workbook.SaveAs(file, FileFormat: 56);
+					}
+				}
+				finally {
+					worksheet = null;
+					workbook = null;
+					try {
+						exApp.Workbooks.Close();
+					}
+					catch {
+					}
+				}
+			}
+			finally {
+				try {
+					exApp.Quit();
+				}
+				catch {
+				}
+				exApp = null;
+			}
+		}
+
+		public static string GetSheetName(string value)
+		{
+			return value.Substring(0, (value.Length < BaseReport.MaxListName) ? value.Length : BaseReport.MaxListName);
 		}
 	}
 }

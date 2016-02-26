@@ -125,7 +125,7 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		protected override void GenerateReport()
 		{
-			command = args.DataAdapter.SelectCommand;
+			command = DataAdapter.SelectCommand;
 			if (regions.Length == 0) {
 				command.CommandText = String.Format(@"
 select oh.RegionCode
@@ -136,7 +136,7 @@ group by oh.RegionCode", OrdersSchema);
 				command.Parameters.AddWithValue("begin", date);
 				command.Parameters.AddWithValue("end", date.AddDays(1));
 				var regionTable = new DataTable();
-				args.DataAdapter.Fill(regionTable);
+				DataAdapter.Fill(regionTable);
 				regions = regionTable.AsEnumerable().Select(r => Convert.ToUInt64(r["RegionCode"])).ToArray();
 			}
 
@@ -153,7 +153,7 @@ group by pd.FirmCode", OrdersSchema, regions.Implode());
 				command.Parameters.AddWithValue("begin", date);
 				command.Parameters.AddWithValue("end", date.AddDays(1));
 				var supplierIdTable = new DataTable();
-				args.DataAdapter.Fill(supplierIdTable);
+				DataAdapter.Fill(supplierIdTable);
 				suppliers = supplierIdTable.AsEnumerable().Select(r => Convert.ToUInt32(r["FirmCode"])).ToArray();
 			}
 
@@ -175,7 +175,7 @@ group by pd.FirmCode", OrdersSchema, regions.Implode());
 from Customers.Suppliers
 where id in ({0})", suppliers.Implode());
 			var supplierTable = new DataTable();
-			args.DataAdapter.Fill(supplierTable);
+			DataAdapter.Fill(supplierTable);
 
 			var results = CreateResultTable(settings.Dates);
 
@@ -266,7 +266,7 @@ group by a.Id", OrdersSchema);
 			command.Parameters.AddWithValue("begin", begin);
 			command.Parameters.AddWithValue("end", end);
 			var quantityTable = new DataTable();
-			args.DataAdapter.Fill(quantityTable);
+			DataAdapter.Fill(quantityTable);
 			var quantities = new Hashtable();
 
 			foreach (DataRow row in quantityTable.Rows) {
@@ -314,7 +314,7 @@ group by a.Id", OrdersSchema);
 
 		private decimal GetMarketValue(ulong[] regions, DateTime date)
 		{
-			var command = args.DataAdapter.SelectCommand;
+			var command = DataAdapter.SelectCommand;
 			command.CommandText = String.Format(@"
 select sum(ol.Cost * ol.Quantity) as total
 from {1}.OrdersHead oh
@@ -343,7 +343,7 @@ and oh.RegionCode in ({0})
 			command.Parameters.AddWithValue("begin", date.Date);
 			command.Parameters.AddWithValue("end", date.Date.AddDays(1));
 			var table = new DataTable();
-			args.DataAdapter.Fill(table);
+			DataAdapter.Fill(table);
 			var value = table.Rows[0][0];
 			if (value == DBNull.Value)
 				return 0;
@@ -352,7 +352,7 @@ and oh.RegionCode in ({0})
 
 		private DataTable GetMarketShare(uint[] suppliers, ulong[] regions, DateTime date)
 		{
-			var command = args.DataAdapter.SelectCommand;
+			var command = DataAdapter.SelectCommand;
 			command.CommandText = String.Format(@"
 select sum(ol.Cost * ol.Quantity) as total, pd.FirmCode as SupplierId
 from {2}.OrdersHead oh
@@ -382,7 +382,7 @@ and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
 			command.Parameters.AddWithValue("begin", date.Date);
 			command.Parameters.AddWithValue("end", date.Date.AddDays(1));
 			var table = new DataTable();
-			args.DataAdapter.Fill(table);
+			DataAdapter.Fill(table);
 			return table;
 		}
 
@@ -390,7 +390,7 @@ and pd.FirmCode in ({0}) and oh.RegionCode in ({1})
 		{
 			decimal result = 0;
 
-			var command = args.DataAdapter.SelectCommand;
+			var command = DataAdapter.SelectCommand;
 			command.CommandText = @"
 select a.ProductId, a.ProducerId, a.Cost
 from Reports.AverageCosts a
@@ -406,7 +406,7 @@ and a.Date = ?date
 			command.Parameters.AddWithValue("date", date);
 			command.Parameters.AddWithValue("toDate", toDate);
 			var table = new DataTable();
-			args.DataAdapter.Fill(table);
+			DataAdapter.Fill(table);
 			foreach (DataRow row in table.Rows) {
 				var quantiry = quantities[row["ProductId"] + "|" + row["ProducerId"]];
 				if (quantiry == null)

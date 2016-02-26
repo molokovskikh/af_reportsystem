@@ -27,9 +27,9 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public static string GetSupplierName(ExecuteArgs e, int supplierId)
+		public static string GetSupplierName(MySqlDataAdapter adapter, int supplierId)
 		{
-			var command = e.DataAdapter.SelectCommand;
+			var command = adapter.SelectCommand;
 			command.CommandText = @"select Name from
 customers.Suppliers s
 where s.Id=?supplier;";
@@ -43,9 +43,9 @@ where s.Id=?supplier;";
 			return result;
 		}
 
-		public static string GetCostOptimizationConcurents(ExecuteArgs e, int supplierId)
+		public static string GetCostOptimizationConcurents(MySqlDataAdapter adapter, int supplierId)
 		{
-			var command = e.DataAdapter.SelectCommand;
+			var command = adapter.SelectCommand;
 			command.CommandText = @"select s.Name from
 usersettings.costoptimizationrules cr
 join userSettings.CostOptimizationConcurrents cc on cr.Id=cc.RuleId
@@ -63,9 +63,9 @@ where cr.SupplierId=?supplier order by s.Name;";
 
 		protected override void GenerateReport()
 		{
-			_suppliersConcurent = GetCostOptimizationConcurents(args, _supplierId);
-			_supplierName = GetSupplierName(args, _supplierId);
-			var command = args.DataAdapter.SelectCommand;
+			_suppliersConcurent = GetCostOptimizationConcurents(DataAdapter, _supplierId);
+			_supplierName = GetSupplierName(DataAdapter, _supplierId);
+			var command = DataAdapter.SelectCommand;
 
 			command.CommandText =
 				@"drop temporary table IF EXISTS CostOptimization;
@@ -152,7 +152,7 @@ from " +
 	join usersettings.CostOptimizationRules cor on cor.Id = coc.RuleId and cor.SupplierId = ?supplierId
 where (oh.clientcode = ?clientId or ?clientId = 0) and pd.FirmCode = ?supplierId and ol.Junk = 0 and pd.IsLocal = 0
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
-			args.DataAdapter.Fill(_dsReport, "Common");
+			DataAdapter.Fill(_dsReport, "Common");
 
 			command.CommandText =
 				@"select count(*), ifnull(sum(ol.Cost*ol.Quantity), 0) Summ
@@ -170,7 +170,7 @@ from " +
 join usersettings.costoptimizationconcurrents cos on cos.RuleId = coc.RuleId and pd.FirmCode = cos.SupplierId
 where (oh.clientcode = ?clientId or ?clientId = 0) and ol.Junk = 0
 and Date(oh.writetime) >= Date(?beginDate) and Date(oh.writetime) <= Date(?endDate);";
-			args.DataAdapter.Fill(_dsReport, "CommonConcurents");
+			DataAdapter.Fill(_dsReport, "CommonConcurents");
 
 			command.CommandText = @"
 select Count,
@@ -182,17 +182,17 @@ from (
 	from CostOptimization
 	where diff > 0
 ) t;";
-			args.DataAdapter.Fill(_dsReport, "OverPrice");
+			DataAdapter.Fill(_dsReport, "OverPrice");
 
 			command.CommandText =
 				@"select ifnull(round(sum(Quantity * (ResultCost - SelfCost)), 2), 0)
 from CostOptimization
 where diff > 0";
-			args.DataAdapter.Fill(_dsReport, "Money");
+			DataAdapter.Fill(_dsReport, "Money");
 
 			command.CommandText =
 				@"select * from CostOptimization order by WriteTime;";
-			args.DataAdapter.Fill(_dsReport, "Temp");
+			DataAdapter.Fill(_dsReport, "Temp");
 
 			if (_clientId != 0) {
 				command.CommandText =
@@ -200,7 +200,7 @@ where diff > 0";
 	from Customers.Clients cl
 		 join farm.Regions reg on reg.RegionCode = cl.RegionCode
 	where Id = ?clientId";
-				args.DataAdapter.Fill(_dsReport, "Client");
+				DataAdapter.Fill(_dsReport, "Client");
 			}
 			_optimizedCount = _dsReport.Tables["Temp"].Rows.Count;
 

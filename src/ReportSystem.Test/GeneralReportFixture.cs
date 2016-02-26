@@ -32,7 +32,7 @@ namespace ReportSystem.Test
 		{
 		}
 
-		public override void ReportToFile(string fileName)
+		public override void Write(string fileName)
 		{
 			if (!String.IsNullOrEmpty(OverideDefaultFilename))
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), OverideDefaultFilename);

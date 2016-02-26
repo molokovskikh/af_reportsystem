@@ -104,7 +104,7 @@ namespace Inforoom.ReportSystem
 		{
 			var suppliers = new List<string>();
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select
 	concat(supps.Name, '(', group_concat(distinct pd.PriceName order by pd.PriceName separator ', '), ')')
 from
@@ -113,7 +113,7 @@ from
 	join Customers.suppliers supps on supps.Id = pd.FirmCode
 group by supps.Id
 order by supps.Name";
-			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
+			using (var reader = DataAdapter.SelectCommand.ExecuteReader()) {
 				while (reader.Read())
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
@@ -208,11 +208,11 @@ and SourcePrice.CatalogCode=AllPrices.CatalogCode and (SourcePrice.codefirmcr=Al
 group by AllPrices.CatalogCode, Cfc";
 			SqlCommandText += @"
 order by FullName, FirmCr";
-			args.DataAdapter.SelectCommand.CommandText = SqlCommandText;
-			args.DataAdapter.Fill(_dsReport, "MinCatalog");
+			DataAdapter.SelectCommand.CommandText = SqlCommandText;
+			DataAdapter.Fill(_dsReport, "MinCatalog");
 
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 			var cnt = _dsReport.Tables["MinCatalog"].Rows.Count;
 #endif
 		}
@@ -300,13 +300,13 @@ order by CoreCode";
 			else
 				SqlCommandText += @"
 order by FullName, FirmCr";
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
-			args.DataAdapter.SelectCommand.CommandText = SqlCommandText;
-			args.DataAdapter.Fill(_dsReport, "Catalog");
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
+			DataAdapter.SelectCommand.CommandText = SqlCommandText;
+			DataAdapter.Fill(_dsReport, "Catalog");
 
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
 #endif
 		}
@@ -314,17 +314,17 @@ order by FullName, FirmCr";
 		public void GetWeightCostSource()
 		{
 			//Добавляем к таблице Core поле CatalogCode и заполняем его
-			args.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
-			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
+			DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 
-			args.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
+			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;
 CREATE temporary table TmpSourceCodes(
   ID bigint unsigned,
@@ -339,7 +339,7 @@ CREATE temporary table TmpSourceCodes(
   key CodeFirmCr(CodeFirmCr)
 ) engine = MEMORY PACK_KEYS = 0;";
 
-			args.DataAdapter.SelectCommand.CommandText += @"
+			DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes
 Select
   Core.ID,
@@ -349,8 +349,8 @@ Select
 where PriceCode=?SourcePrice and cp.CatalogId = Core.ProductId) as Code,
   Core.Cost,";
 
-			args.DataAdapter.SelectCommand.CommandText += "Core.ProductId, ";
-			args.DataAdapter.SelectCommand.CommandText += @"
+			DataAdapter.SelectCommand.CommandText += "Core.ProductId, ";
+			DataAdapter.SelectCommand.CommandText += @"
 Core.ProducerId
 FROM
   Core
@@ -358,17 +358,17 @@ WHERE
 Core.PriceCode = ?SourcePC
 and Core.RegionCode = ?SourceRegionCode;";
 
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
+			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 #if DEBUG
-			args.DataAdapter.SelectCommand.CommandText = @"select * from TmpSourceCodes";
-			args.DataAdapter.Fill(_dsReport, "TmpSourceCodes");
+			DataAdapter.SelectCommand.CommandText = @"select * from TmpSourceCodes";
+			DataAdapter.Fill(_dsReport, "TmpSourceCodes");
 #endif
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS CoreCopy;
 create temporary table CoreCopy engine memory
 select * from core;
@@ -386,9 +386,9 @@ select
 from
   Core;";
 
-			args.DataAdapter.Fill(_dsReport, "AllCoreT");
+			DataAdapter.Fill(_dsReport, "AllCoreT");
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select
  distinct Core.PriceCode, Core.RegionCode, '' as PriceDate, concat(suppliers.Name, ' - ', regions.Region) as FirmName, st.Position
 from
@@ -411,23 +411,23 @@ and regions.RegionCode = Core.RegionCode
 order by st.Position DESC";
 
 
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
-			args.DataAdapter.Fill(_dsReport, "Prices");
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			DataAdapter.Fill(_dsReport, "Prices");
 		}
 
 		public void AddSourcePriceToWeightCore()
 		{
-			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			DataAdapter.SelectCommand.CommandType = CommandType.Text;
 
-			args.DataAdapter.SelectCommand.CommandText = @"alter table Core add column CoreNew int unsigned DEFAULT 0;";
-			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			DataAdapter.SelectCommand.CommandText = @"alter table Core add column CoreNew int unsigned DEFAULT 0;";
+			DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 set @cnt= (select max(Id) from usersettings.Core);
 insert into usersettings.Core
 select distinct ?SourcePC, ?SourceRegionCode, c.ProductId,
@@ -449,12 +449,12 @@ left JOIN usersettings.PricesRegionalData prd ON prd.pricecode = pd.pricecode AN
 where
 c.PriceCode = ?SourcePrice;";
 
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
+			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 		}
 
 		public bool IsExistsPriceInCore(uint priceCode, ulong region)
@@ -464,14 +464,14 @@ c.PriceCode = ?SourcePrice;";
 
 		public bool IsExistsPriceInCore(int priceCode, ulong region)
 		{
-			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			DataAdapter.SelectCommand.CommandText = @"
 select count(*) from usersettings.Core
 where regionCode = ?region and PriceCode = ?price;";
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?region", region);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?price", priceCode);
-			var count = args.DataAdapter.SelectCommand.ExecuteScalar();
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?region", region);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?price", priceCode);
+			var count = DataAdapter.SelectCommand.ExecuteScalar();
 			return int.Parse(count.ToString()) > 0;
 		}
 
@@ -487,7 +487,7 @@ where regionCode = ?region and PriceCode = ?price;";
 
 			CheckPriceActual(_priceCode);
 			SourcePriceType = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+				MySqlHelper.ExecuteScalar(DataAdapter.SelectCommand.Connection,
 					@"
 select
   pricesdata.PriceType
@@ -502,7 +502,7 @@ where
 			if(_byWeightCosts) {
 				ProfileHelper.Next("PreGetOffers");
 				SourceRegionCode = Convert.ToUInt64(
-					MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+					MySqlHelper.ExecuteScalar(DataAdapter.SelectCommand.Connection,
 						@"select s.HomeRegion
 	from usersettings.PricesData pd
 	inner join Customers.suppliers s on pd.FirmCode = s.Id
@@ -532,7 +532,7 @@ where
 				// Отчет готовится по базовым ценам
 				//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
 				SourceRegionCode = Convert.ToUInt64(
-					MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+					MySqlHelper.ExecuteScalar(DataAdapter.SelectCommand.Connection,
 						@"select s.HomeRegion
 	from usersettings.PricesData pd
 	inner join Customers.suppliers s on pd.FirmCode = s.Id
@@ -576,7 +576,7 @@ where Id = ?ClientCode",
 
 		private void AddSourcePriceToCore()
 		{
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 INSERT
 INTO	Usersettings.Core
 SELECT distinct
@@ -600,22 +600,22 @@ where
 
 Delete from Usersettings.Core where Cost < 0.01;";
 
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePrice", _priceCode);
+			DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 
 		private void DoCoreCheck()
 		{
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select c.PriceCode
 from Usersettings.Core c
 left join farm.core0 c0 on c.Id = c0.Id
 where c0.Id is null
 group by c.pricecode";
 			var data = new DataTable();
-			args.DataAdapter.Fill(data);
+			DataAdapter.Fill(data);
 			if (data.Rows.Count > 0) {
 				Logger.DebugFormat("Отчет {1}, Прайс листы {0} обновились для них не будет предложений",
 					data.Rows.Cast<DataRow>().Select(r => Convert.ToUInt32(r["PriceCode"])).Implode(),
@@ -872,38 +872,38 @@ group by c.pricecode";
 		{
 			var EnabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
-					args.DataAdapter.SelectCommand.Connection,
+					DataAdapter.SelectCommand.Connection,
 					"select PriceCode from ActivePrices where PriceCode = ?SourcePC and RegionCode = ?SourceRegionCode",
 					new MySqlParameter("?SourcePC", SourcePC),
 					new MySqlParameter("?SourceRegionCode", SourceRegionCode)));
 			if (EnabledPrice == 0 && _byBaseCosts) {
 				EnabledPrice = Convert.ToInt32(
 					MySqlHelper.ExecuteScalar(
-						args.DataAdapter.SelectCommand.Connection,
+						DataAdapter.SelectCommand.Connection,
 						"select PriceCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
 						new MySqlParameter("?SourcePC", SourcePC)));
 				if (EnabledPrice != 0) {
 					SourceRegionCode = Convert.ToUInt64(
 						MySqlHelper.ExecuteScalar(
-							args.DataAdapter.SelectCommand.Connection,
+							DataAdapter.SelectCommand.Connection,
 							"select RegionCode from ActivePrices where PriceCode = ?SourcePC limit 1;",
 							new MySqlParameter("?SourcePC", SourcePC)));
 				}
 			}
 
 			//Добавляем к таблице Core поле CatalogCode и заполняем его
-			args.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 			if (_calculateByCatalog)
-				args.DataAdapter.SelectCommand.CommandText = "update Core, catalogs.products set Core.CatalogCode = products.CatalogId where products.Id = Core.ProductId;";
+				DataAdapter.SelectCommand.CommandText = "update Core, catalogs.products set Core.CatalogCode = products.CatalogId where products.Id = Core.ProductId;";
 			else
-				args.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+				DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
+			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;
 CREATE temporary table TmpSourceCodes(
   ID bigint unsigned,
@@ -924,7 +924,7 @@ CREATE temporary table TmpSourceCodes(
 
 			if (EnabledPrice == 0) {
 				//Если прайс-лист не включен клиентом или прайс-лист ассортиментный, то добавляем его в таблицу источников TmpSourceCodes, но с ценами NULL
-				args.DataAdapter.SelectCommand.CommandText += @"
+				DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes
 Select
   FarmCore.ID,
@@ -933,10 +933,10 @@ Select
   FarmCore.Code,
   NULL,";
 				if (_calculateByCatalog)
-					args.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
+					DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
 				else
-					args.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
-				args.DataAdapter.SelectCommand.CommandText += @"
+					DataAdapter.SelectCommand.CommandText += "Products.Id, ";
+				DataAdapter.SelectCommand.CommandText += @"
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
@@ -951,7 +951,7 @@ WHERE
 and products.id = FarmCore.ProductId;";
 			}
 			else {
-				args.DataAdapter.SelectCommand.CommandText += @"
+				DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes
 Select
   Core.ID,
@@ -960,10 +960,10 @@ Select
   FarmCore.Code,
   Core.Cost,";
 				if (_calculateByCatalog)
-					args.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
+					DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
 				else
-					args.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
-				args.DataAdapter.SelectCommand.CommandText += @"
+					DataAdapter.SelectCommand.CommandText += "Products.Id, ";
+				DataAdapter.SelectCommand.CommandText += @"
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
@@ -978,18 +978,18 @@ and products.id = Core.ProductId
 and Core.RegionCode = ?SourceRegionCode;";
 			}
 
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			DataAdapter.SelectCommand.ExecuteNonQuery();
 
 #if DEBUG
-			args.DataAdapter.SelectCommand.CommandText = "select * from TmpSourceCodes";
-			args.DataAdapter.Fill(_dsReport, "TmpSourceCodes");
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			DataAdapter.SelectCommand.CommandText = "select * from TmpSourceCodes";
+			DataAdapter.Fill(_dsReport, "TmpSourceCodes");
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select
   Core.Id,
   Core.CatalogCode,
@@ -1007,13 +1007,13 @@ where
   FarmCore.Id = core.id";
 
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
 
 			//todo: изменить заполнение в другую таблицу
-			args.DataAdapter.Fill(_dsReport, "AllCoreT");
+			DataAdapter.Fill(_dsReport, "AllCoreT");
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select
   ActivePrices.PriceCode, ActivePrices.RegionCode, ActivePrices.PriceDate, ActivePrices.FirmName
 from
@@ -1021,13 +1021,13 @@ from
 where
   (ActivePrices.PriceCode <> ?SourcePC or ActivePrices.RegionCode <> ?SourceRegionCode)
 order by ActivePrices.PositionCount DESC";
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
-			args.DataAdapter.Fill(_dsReport, "Prices");
+			DataAdapter.Fill(_dsReport, "Prices");
 		}
 
 		protected void GetMinPrice()
@@ -1114,11 +1114,11 @@ order by SourcePrice.ID";
 			else
 				SqlCommandText += @"
 order by FullName, FirmCr";
-			args.DataAdapter.SelectCommand.CommandText = SqlCommandText;
-			args.DataAdapter.Fill(_dsReport, "MinCatalog");
+			DataAdapter.SelectCommand.CommandText = SqlCommandText;
+			DataAdapter.Fill(_dsReport, "MinCatalog");
 
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 			var cnt = _dsReport.Tables["MinCatalog"].Rows.Count;
 #endif
 		}
@@ -1203,11 +1203,11 @@ order by SourcePrice.ID";
 			else
 				SqlCommandText += @"
 order by FullName, FirmCr";
-			args.DataAdapter.SelectCommand.CommandText = SqlCommandText;
-			args.DataAdapter.Fill(_dsReport, "Catalog");
+			DataAdapter.SelectCommand.CommandText = SqlCommandText;
+			DataAdapter.Fill(_dsReport, "Catalog");
 
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
 #endif
 		}
@@ -1240,10 +1240,10 @@ where SourcePrice.codefirmcr=FarmCore.codefirmcr or SourcePrice.codefirmcr is nu
 
 		protected override void FormatExcel(string fileName)
 		{
-			UseExcel.Workbook(fileName, wb => {
+			ExcelHelper.Workbook(fileName, wb => {
 				var ws = (_Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
 
-				ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
+				ws.Name = GetSheetName();
 				ws.Activate();
 
 				var result = _dsReport.Tables["Results"];

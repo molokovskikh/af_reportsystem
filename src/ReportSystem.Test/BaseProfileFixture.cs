@@ -102,7 +102,7 @@ namespace ReportSystem.Test
 			if (File.Exists(file))
 				File.Delete(file);
 			ProfileHelper.Start();
-			report.ReportToFile(Path.GetFullPath(file));
+			report.Write(Path.GetFullPath(file));
 			ProfileHelper.Stop();
 		}
 
@@ -313,7 +313,7 @@ namespace ReportSystem.Test
 				report.Session = s;
 				report.ProcessReport();
 			});
-			report.ReportToFile(Path.GetFullPath(file));
+			report.Write(Path.GetFullPath(file));
 			ProfileHelper.Stop();
 		}
 

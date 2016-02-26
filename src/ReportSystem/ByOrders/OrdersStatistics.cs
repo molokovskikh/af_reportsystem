@@ -24,12 +24,12 @@ namespace Inforoom.ReportSystem.ByOrders
 			base.ReadReportParams();
 
 			FilterDescriptions.Remove(FilterDescriptions.First(d => d.StartsWith("Период дат")));
-			FilterDescriptions.Insert(0, String.Format("Период дат: {0} - {1} (включительно)", dtFrom.ToString("dd.MM.yyyy"), dtTo.Date.AddDays(-1).ToString("dd.MM.yyyy")));
+			FilterDescriptions.Insert(0, String.Format("Период дат: {0} - {1} (включительно)", Begin.ToString("dd.MM.yyyy"), End.Date.AddDays(-1).ToString("dd.MM.yyyy")));
 		}
 
 		protected override void GenerateReport()
 		{
-			ProfileHelper.Next(String.Format("CalculateOrders: dtFrom={0}, dtTo={1}", dtFrom.ToString(), dtTo.ToString()));
+			ProfileHelper.Next(String.Format("CalculateOrders: dtFrom={0}, dtTo={1}", Begin.ToString(), End.ToString()));
 			FillFilterDescriptions();
 			var sql = @"
 SELECT
@@ -74,13 +74,13 @@ order by supps.Name, supps.Payer, rg.Region;";
 			dtNewRes.Columns["Region"].Caption = "Регион";
 			dtNewRes.Columns["OrdersSum"].Caption = "Сумма заказов";
 			dtNewRes.Columns["RowCount"].Caption = "Количество записей";
-			var selectCommand = args.DataAdapter.SelectCommand;
+			var selectCommand = DataAdapter.SelectCommand;
 			selectCommand.Parameters.Clear();
-			selectCommand.Parameters.AddWithValue("?StartDate", dtFrom);
-			selectCommand.Parameters.AddWithValue("?EndDate", dtTo);
+			selectCommand.Parameters.AddWithValue("?StartDate", Begin);
+			selectCommand.Parameters.AddWithValue("?EndDate", End);
 			selectCommand.CommandText = sql;
-			args.DataAdapter.Fill(dtNewRes);
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			DataAdapter.Fill(dtNewRes);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (string t in FilterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);

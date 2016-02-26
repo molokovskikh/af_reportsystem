@@ -114,6 +114,7 @@
     <Compile Include="OffersReport\OffersReportAscFixture.cs" />
     <Compile Include="OffersReport\OffersReportFixture.cs" />
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
+    <Compile Include="OrderDetailsFixture.cs" />
     <Compile Include="OrderOutAllowedAssortmentFixture.cs" />
     <Compile Include="OrdersReportFixture.cs" />
     <Compile Include="OrdersStatistics\OrdersStatisticsFixture.cs" />

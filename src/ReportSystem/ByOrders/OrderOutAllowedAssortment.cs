@@ -25,7 +25,7 @@ namespace Inforoom.ReportSystem.ByOrders
 		{
 			base.ReadReportParams();
 			_clientId = Convert.ToUInt32(GetReportParam("ClientCode"));
-			_period = new Period(dtFrom, dtTo);
+			_period = new Period(Begin, End);
 		}
 
 		protected override IWriter GetWriter(ReportFormats format)
@@ -42,7 +42,7 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		protected override void GenerateReport()
 		{
-			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			DataAdapter.SelectCommand.CommandText = String.Format(@"
 SELECT O.WriteTime,
 CL.Name as ClientName,
 U.Name as UserName,
@@ -76,13 +76,13 @@ order by O.WriteTime", OrdersSchema);
 
 // Если написать and BM.ID is NOT null and то будут выводится совпадающие позиции
 // сейчас выводятся несовпадающие
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCode", _clientId);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?ClientCode", _clientId);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", _period.Begin);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?end", _period.End);
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
-			args.DataAdapter.Fill(_dsReport, "data");
+			DataAdapter.Fill(_dsReport, "data");
 			var data = _dsReport.Tables["data"];
 			var result = _dsReport.Tables.Add("Results");
 			result.Columns.Add("MatrixCode");

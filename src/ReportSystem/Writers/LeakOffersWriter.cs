@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Linq;
 using Inforoom.ReportSystem.Helpers;
@@ -20,7 +20,7 @@ namespace Inforoom.ReportSystem.Writers
 
 		private void MakePretty(DataSet data, string file, BaseReportSettings settings)
 		{
-			UseExcel.Workbook(file, b => {
+			ExcelHelper.Workbook(file, b => {
 				foreach (DataRow row in data.Tables["Prices"].Rows) {
 					var sheet = b.Worksheets.Cast<_Worksheet>().FirstOrDefault(s => s.Name == row["PriceCode"].ToString());
 					if (sheet == null)

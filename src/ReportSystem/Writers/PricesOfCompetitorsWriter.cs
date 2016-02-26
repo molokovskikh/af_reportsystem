@@ -114,7 +114,7 @@ namespace Inforoom.ReportSystem.Writers
 
 			DataTableToExcel(result, fileName, settings.ReportCode);
 
-			UseExcel.Workbook(fileName, b => {
+			ExcelHelper.Workbook(fileName, b => {
 				var ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
 				ws.Name = _reportCaption.Substring(0, (_reportCaption.Length < MaxListName) ? _reportCaption.Length : MaxListName);
 				ws.Activate();
@@ -173,7 +173,7 @@ namespace Inforoom.ReportSystem.Writers
 		public override void WriteReportToFile(DataSet reportData, string fileName, BaseReportSettings settings)
 		{
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
-			UseExcel.Workbook(fileName, b => {
+			ExcelHelper.Workbook(fileName, b => {
 				var ws = (MSExcel._Worksheet)b.Worksheets["rep" + settings.ReportCode.ToString()];
 				FormatExcelFile(ws, reportData.Tables["Results"], settings.ReportCaption, CountDownRows);
 			});

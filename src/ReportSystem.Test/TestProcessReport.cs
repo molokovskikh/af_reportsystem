@@ -48,7 +48,7 @@ namespace ReportSystem.Test
 				Thread.Sleep(1000);
 			}
 
-			public override void ReportToFile(string fileName)
+			public override void Write(string fileName)
 			{
 			}
 		}
@@ -91,7 +91,7 @@ namespace ReportSystem.Test
 		public void Skip_empty_check_if_result_table_not_exists()
 		{
 			var report = new FakeEmptyReport();
-			report.ReportToFile("test.xls");
+			report.Write("test.xls");
 		}
 
 		[Test, Description("Тестирует обработку различных типов исключений в процессе работы отчетов")]

@@ -129,7 +129,7 @@ namespace ReportSystem.Test
 					report.ProcessReport();
 				});
 			}
-			report.ReportToFile(TestHelper.EnsureDeletion(type));
+			report.Write(TestHelper.EnsureDeletion(type));
 			ProfileHelper.Stop();
 		}
 
@@ -138,7 +138,7 @@ namespace ReportSystem.Test
 			ProfileHelper.Start();
 			report.CheckEmptyData = false;
 			report.ProcessReport();
-			report.ReportToFile(TestHelper.GetFileName(type));
+			report.Write(TestHelper.GetFileName(type));
 			ProfileHelper.Stop();
 		}
 

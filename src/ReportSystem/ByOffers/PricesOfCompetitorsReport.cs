@@ -147,7 +147,7 @@ namespace Inforoom.ReportSystem
 				var firmcr = _ProducerAccount ? "and ifnull(C0.CodeFirmCr,0) = ifnull(c00.CodeFirmCr,0)" : string.Empty;
 
 				var JunkWhere = _regionsWhere.Length == 0 ? " WHERE c00.Junk = 0 " : " AND c00.Junk = 0 ";
-				args.DataAdapter.SelectCommand.CommandText =
+				DataAdapter.SelectCommand.CommandText =
 					string.Format(
 						@"
 select c00.ProductId, p.CatalogId, c00.CodeFirmCr, c0.Code, c0.CodeCr,
@@ -172,11 +172,11 @@ from Usersettings.ActivePrices Prices
 ", priceForCorel, joinText, withWithoutPropertiesText, _regionsWhere, JunkWhere, firmcr);
 
 #if DEBUG
-				Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+				Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
 
 				var offers = new DataTable();
-				args.DataAdapter.Fill(offers);
+				DataAdapter.Fill(offers);
 				NoisingCostInDataTable(offers, "Cost", "FirmCode", _SupplierNoise);
 				foreach (var group in Group(offers)) {
 					var offer = group.First();

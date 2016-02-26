@@ -20,11 +20,6 @@ using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
-	public class ExecuteArgs
-	{
-		public MySqlDataAdapter DataAdapter { get; set; }
-	}
-
 	public enum ReportFormats
 	{
 		Excel,
@@ -71,11 +66,10 @@ namespace Inforoom.ReportSystem
 		//Формат файла отчета
 		protected ReportFormats Format;
 
+		protected MySqlDataAdapter DataAdapter;
 		public MySqlConnection Connection;
 
 		protected Dictionary<string, object> _reportParams = new Dictionary<string, object>();
-
-		protected ExecuteArgs args;
 
 		protected ILog Logger;
 
@@ -223,16 +217,16 @@ namespace Inforoom.ReportSystem
 		{
 			_dtStart = DateTime.Now;
 			With.DeadlockWraper(() => {
-				args = new ExecuteArgs {
-					DataAdapter = new MySqlDataAdapter("", Connection)
-				};
+				DataAdapter = new MySqlDataAdapter("", Connection);
 				_dsReport.Clear();
 				GenerateReport();
 			});
 		}
 
-		public virtual void ReportToFile(string fileName)
+		public virtual void Write(string fileName)
 		{
+			ReadReportParams();
+			ProcessReport();
 			var reportTable = GetReportTable();
 			if (IsEmpty(reportTable))
 				throw new Exception("В результате подготовки отчета получился пустой набор данных"
@@ -317,7 +311,7 @@ namespace Inforoom.ReportSystem
 					ws = (_Worksheet)wb.Worksheets["rep" + ReportCode];
 
 					try {
-						ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
+						ws.Name = GetSheetName();
 
 						var res = _dsReport.Tables["Results"];
 						var tableBegin = 1 + FilterDescriptions.Count;
@@ -421,10 +415,10 @@ namespace Inforoom.ReportSystem
 
 		protected string GetValuesFromSQL(string sql)
 		{
-			args.DataAdapter.SelectCommand.CommandText = sql;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.CommandText = sql;
+			DataAdapter.SelectCommand.Parameters.Clear();
 			var dtValues = new DataTable();
-			args.DataAdapter.Fill(dtValues);
+			DataAdapter.Fill(dtValues);
 
 			return (from DataRow dr in dtValues.Rows select dr[0]).Implode();
 		}
@@ -472,7 +466,7 @@ namespace Inforoom.ReportSystem
 			filterStr[filterStr.Length - 1] = ')';
 
 			var valuesList = new List<string>();
-			args.DataAdapter.SelectCommand.CommandText = String.Format(
+			DataAdapter.SelectCommand.CommandText = String.Format(
 				@"
 select
 	c.Name
@@ -481,9 +475,9 @@ from
 where
 	c.Id in {0}
 order by 1", filterStr);
-			args.DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.Clear();
 			var dtValues = new DataTable();
-			args.DataAdapter.Fill(dtValues);
+			DataAdapter.Fill(dtValues);
 			foreach (DataRow dr in dtValues.Rows)
 				valuesList.Add(dr[0].ToString());
 
@@ -527,6 +521,11 @@ where rg.RegionCode in (" +
 		{
 			_dtStop = DateTime.Now;
 			ReportResultLog.Log(generalReportCode, ReportCode, _dtStart, _dtStop, errDesc);
+		}
+
+		public string GetSheetName()
+		{
+			return ExcelHelper.GetSheetName(ReportCaption);
 		}
 	}
 }

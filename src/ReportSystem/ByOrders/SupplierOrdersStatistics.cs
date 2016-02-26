@@ -84,7 +84,7 @@ from
 where
 	pd.firmcode = {2}
 	and pd.IsLocal = 0
-	and oh.writetime between '{3}' and '{4}' ", selectedColumns, OrdersSchema, sourceFirmCode, dtFrom.ToString("yyyy-MM-dd HH:mm:ss"), dtTo.ToString("yyyy-MM-dd HH:mm:ss"));
+	and oh.writetime between '{3}' and '{4}' ", selectedColumns, OrdersSchema, sourceFirmCode, Begin.ToString("yyyy-MM-dd HH:mm:ss"), End.ToString("yyyy-MM-dd HH:mm:ss"));
 
 			if (!String.IsNullOrEmpty(regionsString))
 				selectCommand += String.Format("and oh.regioncode in ({0}) ", regionsString);
@@ -118,9 +118,9 @@ where
 			dtNewRes.Columns["Region"].Caption = "Регион";
 			dtNewRes.Columns["Summa"].Caption = "Сумма";
 
-			args.DataAdapter.SelectCommand.CommandText = selectCommand;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.Fill(dtNewRes);
+			DataAdapter.SelectCommand.CommandText = selectCommand;
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.Fill(dtNewRes);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
 			foreach (var t in FilterDescriptions)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);

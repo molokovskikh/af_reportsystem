@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
@@ -141,7 +141,7 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 
 		protected override void GenerateReport()
 		{
-			var connection = args.DataAdapter.SelectCommand.Connection;
+			var connection = DataAdapter.SelectCommand.Connection;
 			var supplierDeliveryIdSql = @"DROP TEMPORARY TABLE IF EXISTS reports.TempIntersection;
 CREATE TEMPORARY TABLE reports.TempIntersection (
 	AddressId INT unsigned,
@@ -212,7 +212,7 @@ from Orders.OrdersHead oh
 where oh.WriteTime > ?begin
 	and oh.WriteTime < ?end
 	and oh.RegionCode in ({0})
-group by oh.UserId", _regions.Implode()), new { begin = dtFrom, end = dtTo })
+group by oh.UserId", _regions.Implode()), new { begin = Begin, end = End })
 				.ToArray();
 
 			connection.Execute(@"
@@ -231,9 +231,9 @@ where l.UserId in ({0})
 	and l.UpdateType in (4, 11)
 	and l.RequestTime > ?begin
 	and l.RequestTime < ?end
-group by l.UserId", userIds.Implode()), new { begin = dtFrom, end = dtTo });
+group by l.UserId", userIds.Implode()), new { begin = Begin, end = End });
 
-			args.DataAdapter.SelectCommand.CommandText = String.Format(@"
+			DataAdapter.SelectCommand.CommandText = String.Format(@"
 drop temporary table if exists Reports.KeyToUser;
 create temporary table Reports.KeyToUser(
 	GroupKey int unsigned not null,
@@ -312,14 +312,14 @@ left join Reports.KeyToCount k on k.GroupKey = r.GroupKey;",
 				_grouping.Columns.Implode(c => c.Name),
 				_grouping.Columns.Implode(c => String.Format("{0} varchar(255)", c.Name)));
 
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", dtFrom);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?end", dtTo);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", Begin);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?end", End);
 
 #if DEBUG
-			ProfileHelper.WriteLine(args.DataAdapter.SelectCommand);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 #endif
-			args.DataAdapter.Fill(_dsReport, "data");
+			DataAdapter.Fill(_dsReport, "data");
 
 			connection.Execute(@"
 

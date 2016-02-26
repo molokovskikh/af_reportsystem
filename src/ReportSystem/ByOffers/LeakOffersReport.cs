@@ -32,7 +32,7 @@ namespace Inforoom.ReportSystem
 		{
 			GetOffers(_SupplierNoise);
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select c0.Code,
 c0.CodeCr,
 s.Synonym as Product,
@@ -51,15 +51,15 @@ join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c0.SynonymFirmCrCode
 join catalogs.Products pr on c0.ProductId = pr.Id
 join catalogs.Catalog cg on pr.CatalogId = cg.Id";
 			var data = new DataSet();
-			args.DataAdapter.Fill(data, "offers");
+			DataAdapter.Fill(data, "offers");
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select ap.PriceCode, supps.Name as ShortName, ap.PriceName, ap.PositionCount
 from usersettings.activeprices ap
 join Customers.suppliers supps on supps.Id = ap.FirmCode
 order by ap.PositionCount desc";
 
-			args.DataAdapter.Fill(_dsReport, "prices");
+			DataAdapter.Fill(_dsReport, "prices");
 
 			var groupByPrice = data.Tables["offers"].Rows.Cast<DataRow>().GroupBy(r => r["PriceCode"]);
 			groupByPrice = groupByPrice.OrderByDescending(p => {

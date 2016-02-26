@@ -17,7 +17,7 @@ namespace Inforoom.ReportSystem.Writers
 			results.Columns.Remove("Id");
 			DataTableToExcel(reportData.Tables["Results"], fileName, settings.ReportCode);
 
-			UseExcel.Workbook(fileName, b => {
+			ExcelHelper.Workbook(fileName, b => {
 				var sheet = ExcelHelper.GetSheet(b, settings.ReportCode);
 				sheet.Name = reportSettings.ListName;
 				sheet.Activate();

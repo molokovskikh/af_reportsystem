@@ -38,7 +38,7 @@ namespace Inforoom.ReportSystem.Writers
 		private void FormatExcel(DataSet dsReport, string fileName)
 		{
 			var row = 1;
-			UseExcel.Workbook(fileName, b => {
+			ExcelHelper.Workbook(fileName, b => {
 				var exApp = b.Application;
 				var wb = b;
 				var ws = ExcelHelper.GetSheet(wb, _reportCode);

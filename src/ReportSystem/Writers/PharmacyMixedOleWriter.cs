@@ -24,7 +24,7 @@ namespace Inforoom.ReportSystem.Writers
 		public void FormatExcel(DataSet reportData, string fileName, PharmacyMixedSettings settings)
 		{
 			ProfileHelper.Next("FormatExcel");
-			UseExcel.Workbook(fileName, b => {
+			ExcelHelper.Workbook(fileName, b => {
 				var exApp = b.Application;
 				var wb = b;
 				var ws = (_Worksheet)wb.Worksheets["rep" + settings.ReportCode.ToString()];

@@ -54,8 +54,8 @@ namespace Inforoom.ReportSystem
 		private void ProcessWeigth()
 		{
 			GetWeightCostOffers();
-			args.DataAdapter.SelectCommand.CommandType = CommandType.Text;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.CommandType = CommandType.Text;
+			DataAdapter.SelectCommand.Parameters.Clear();
 
 			var selectCommandText = String.Empty;
 
@@ -297,7 +297,7 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 			}
 
 			var sourcePc = Convert.ToInt32(
-					MySqlHelper.ExecuteScalar(args.DataAdapter.SelectCommand.Connection,
+					MySqlHelper.ExecuteScalar(DataAdapter.SelectCommand.Connection,
 						@"
 select
   pricesdata.FirmCode
@@ -306,9 +306,9 @@ from
 where
 	pricesdata.PriceCode = ?PriceCode;",
 					new MySqlParameter("?PriceCode", _priceCode)));
-			args.DataAdapter.SelectCommand.CommandText = selectCommandText;
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", sourcePc);
-			args.DataAdapter.Fill(_dsReport, "Results");
+			DataAdapter.SelectCommand.CommandText = selectCommandText;
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", sourcePc);
+			DataAdapter.Fill(_dsReport, "Results");
 			ProfileHelper.End();
 		}
 
@@ -329,19 +329,19 @@ where
 			GetOffers(_SupplierNoise);
 			var enabledPrice = Convert.ToInt32(
 				MySqlHelper.ExecuteScalar(
-					args.DataAdapter.SelectCommand.Connection,
+					DataAdapter.SelectCommand.Connection,
 					"select PriceCode from ActivePrices where PriceCode = ?PriceCode",
 					new MySqlParameter("?PriceCode", _priceCode)));
 			if (enabledPrice == 0 && !_byBaseCosts) {
 				var clientShortName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
-						args.DataAdapter.SelectCommand.Connection,
+						DataAdapter.SelectCommand.Connection,
 						@"select Name from Customers.Clients where Id = ?FirmCode",
 						new MySqlParameter("?FirmCode", _clientCode)));
 				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", clientShortName, _clientCode, customerFirmName, _priceCode));
 			}
 
-			args.DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.Clear();
 
 			var selectCommandText = String.Empty;
 
@@ -597,9 +597,9 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 				}
 			}
 
-			args.DataAdapter.SelectCommand.CommandText = selectCommandText;
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
-			args.DataAdapter.Fill(_dsReport, "Results");
+			DataAdapter.SelectCommand.CommandText = selectCommandText;
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _priceCode);
+			DataAdapter.Fill(_dsReport, "Results");
 		}
 
 		public override DataTable GetReportTable()
@@ -618,7 +618,7 @@ order by CatalogNames.Name, FullForm, Producers.Name;
 					ws = (MSExcel._Worksheet)wb.Worksheets["rep" + ReportCode.ToString()];
 
 					try {
-						ws.Name = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
+						ws.Name = GetSheetName();
 
 						//Форматируем заголовок отчета
 						ws.Cells[1, 1] = "Код";

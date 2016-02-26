@@ -250,9 +250,9 @@ order by AllSum desc";
 #endif
 
 			var selectTable = new DataTable();
-			args.DataAdapter.SelectCommand.CommandText = selectCommand;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.Fill(selectTable);
+			DataAdapter.SelectCommand.CommandText = selectCommand;
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");
 

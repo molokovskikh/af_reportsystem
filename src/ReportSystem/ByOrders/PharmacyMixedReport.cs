@@ -35,8 +35,8 @@ namespace Inforoom.ReportSystem
 
 		private ulong GetClientRegionMask()
 		{
-			args.DataAdapter.SelectCommand.CommandText = @"select OrderRegionMask from usersettings.RetClientsSet where ClientCode=" + SourceFirmCode;
-			return Convert.ToUInt64(args.DataAdapter.SelectCommand.ExecuteScalar());
+			DataAdapter.SelectCommand.CommandText = @"select OrderRegionMask from usersettings.RetClientsSet where ClientCode=" + SourceFirmCode;
+			return Convert.ToUInt64(DataAdapter.SelectCommand.ExecuteScalar());
 		}
 
 		public override void ReadReportParams()
@@ -168,9 +168,9 @@ pd.IsLocal = 0
 #endif
 
 			var selectTable = new DataTable();
-			args.DataAdapter.SelectCommand.CommandText = selectCommand;
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.Fill(selectTable);
+			DataAdapter.SelectCommand.CommandText = selectCommand;
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");
 

@@ -157,7 +157,7 @@ Provider=Microsoft.Jet.OLEDB.4.0;Password="""";User ID=Admin;Data Source=" + Exl
 			var result = reportData.Tables["Results"];
 			var reportId = settings.ReportCode;
 			var caption = settings.ReportCaption;
-			UseExcel.Workbook(file, b => {
+			ExcelHelper.Workbook(file, b => {
 				var ws = (_Worksheet)b.Worksheets["rep" + reportId.ToString()];
 				FormatExcelFile(ws, result, caption, 0);
 			});

@@ -102,16 +102,16 @@ namespace Inforoom.ReportSystem
 			}
 
 			//Добавляем к таблице Core поле CatalogCode и заполняем его
-			args.DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			DataAdapter.SelectCommand.CommandText = "alter table Core add column CatalogCode int unsigned, add key CatalogCode(CatalogCode);";
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.ExecuteNonQuery();
 			if (_calculateByCatalog)
-				args.DataAdapter.SelectCommand.CommandText = "update Core, catalogs.products set Core.CatalogCode = products.CatalogId where products.Id = Core.ProductId;";
+				DataAdapter.SelectCommand.CommandText = "update Core, catalogs.products set Core.CatalogCode = products.CatalogId where products.Id = Core.ProductId;";
 			else
-				args.DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+				DataAdapter.SelectCommand.CommandText = "update Core set CatalogCode = ProductId;";
+			DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS TmpSourceCodes;
 CREATE temporary table TmpSourceCodes(
   ID int(32) unsigned,
@@ -131,7 +131,7 @@ CREATE temporary table TmpSourceCodes(
 
 			if (enabledPrice == 0) {
 				//Если прайс-лист не включен клиентом или прайс-лист ассортиментный, то добавляем его в таблицу источников TmpSourceCodes, но с ценами NULL
-				args.DataAdapter.SelectCommand.CommandText += @"
+				DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes
 Select
   FarmCore.ID,
@@ -140,10 +140,10 @@ Select
   FarmCore.Code,
   NULL,";
 				if (_calculateByCatalog)
-					args.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
+					DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
 				else
-					args.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
-				args.DataAdapter.SelectCommand.CommandText += @"
+					DataAdapter.SelectCommand.CommandText += "Products.Id, ";
+				DataAdapter.SelectCommand.CommandText += @"
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
@@ -158,7 +158,7 @@ WHERE
 and products.id = FarmCore.ProductId;";
 			}
 			else {
-				args.DataAdapter.SelectCommand.CommandText += @"
+				DataAdapter.SelectCommand.CommandText += @"
 INSERT INTO TmpSourceCodes
 Select
   Core.ID,
@@ -167,10 +167,10 @@ Select
   FarmCore.Code,
   Core.Cost,";
 				if (_calculateByCatalog)
-					args.DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
+					DataAdapter.SelectCommand.CommandText += "Products.CatalogId, ";
 				else
-					args.DataAdapter.SelectCommand.CommandText += "Products.Id, ";
-				args.DataAdapter.SelectCommand.CommandText += @"
+					DataAdapter.SelectCommand.CommandText += "Products.Id, ";
+				DataAdapter.SelectCommand.CommandText += @"
   FarmCore.CodeFirmCr,
   FarmCore.SynonymCode,
   FarmCore.SynonymFirmCrCode
@@ -185,12 +185,12 @@ and products.id = Core.ProductId
 and Core.RegionCode = ?SourceRegionCode;";
 			}
 
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _sourcePriceCode);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", _sourceRegionCode);
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _sourcePriceCode);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", _sourceRegionCode);
+			DataAdapter.SelectCommand.ExecuteNonQuery();
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select
   Core.Id,
   Core.CatalogCode,
@@ -206,9 +206,9 @@ where
   FarmCore.Id = core.id";
 
 			//todo: изменить заполнение в другую таблицу
-			args.DataAdapter.Fill(_dsReport, "AllCoreT");
+			DataAdapter.Fill(_dsReport, "AllCoreT");
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 select
   ActivePrices.PriceCode, ActivePrices.RegionCode, ActivePrices.PriceDate, ActivePrices.FirmName
 from
@@ -216,10 +216,10 @@ from
 where
   (ActivePrices.PriceCode <> ?SourcePC or ActivePrices.RegionCode <> ?SourceRegionCode)
 order by ActivePrices.PositionCount DESC";
-			args.DataAdapter.SelectCommand.Parameters.Clear();
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _sourcePriceCode);
-			args.DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", _sourceRegionCode);
-			args.DataAdapter.Fill(_dsReport, "Prices");
+			DataAdapter.SelectCommand.Parameters.Clear();
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", _sourcePriceCode);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", _sourceRegionCode);
+			DataAdapter.Fill(_dsReport, "Prices");
 		}
 
 		protected void GetMinPrice()
@@ -302,8 +302,8 @@ order by SourcePrice.ID";
 			else
 				sql += @"
 order by FullName, FirmCr";
-			args.DataAdapter.SelectCommand.CommandText = sql;
-			args.DataAdapter.Fill(_dsReport, "Data");
+			DataAdapter.SelectCommand.CommandText = sql;
+			DataAdapter.Fill(_dsReport, "Data");
 		}
 
 		private void Transform()
@@ -362,10 +362,9 @@ order by FullName, FirmCr";
 
 		protected override void FormatExcel(string fileName)
 		{
-			UseExcel.Workbook(fileName, b => {
+			ExcelHelper.Workbook(fileName, b => {
 				var ws = (_Worksheet)b.Worksheets["rep" + ReportCode.ToString()];
-				var caption = ReportCaption.Substring(0, (ReportCaption.Length < MaxListName) ? ReportCaption.Length : MaxListName);
-				ws.Name = caption;
+				ws.Name = GetSheetName();
 				var res = _dsReport.Tables["Results"];
 				var columnCount = _dsReport.Tables["Results"].Columns.Count;
 				var rowCount = _dsReport.Tables["Results"].Rows.Count;

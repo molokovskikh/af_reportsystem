@@ -83,12 +83,12 @@ AT.FirmName as  FirmName,
 AT.PriceDate as PriceDate", sql.Alias));
 			query.Select(matrixPatr.Select);
 			query.Select(sql.Select.Trim(','));
-			args.DataAdapter.SelectCommand.CommandText = query.ToSql();
+			DataAdapter.SelectCommand.CommandText = query.ToSql();
 			if (rules.OfferMatrix.HasValue)
-				args.DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
+				DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
 
 			var result = new DataTable("Results");
-			args.DataAdapter.Fill(result);
+			DataAdapter.Fill(result);
 			foreach (DataRow row in result.Rows) {
 				row.SetAdded();
 			}

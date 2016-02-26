@@ -241,14 +241,14 @@ into @OffersSynonymCode;
 
 			if (_priceCode.HasValue) {
 				if (_reportIsFull)
-					args.DataAdapter.SelectCommand.CommandText =
+					DataAdapter.SelectCommand.CommandText =
 						headersql +
 							String.Format(sqlSetParams, _priceCode) +
 							sqlFullOffers +
 							footersqlByPrice +
 							footersql;
 				else
-					args.DataAdapter.SelectCommand.CommandText =
+					DataAdapter.SelectCommand.CommandText =
 						headersql +
 							String.Format(sqlSetParams, _priceCode) +
 							sqlByPriceCode +
@@ -256,15 +256,15 @@ into @OffersSynonymCode;
 							footersql;
 			}
 			else
-				args.DataAdapter.SelectCommand.CommandText = headersql + sqlWithoutPriceCode + footersql;
+				DataAdapter.SelectCommand.CommandText = headersql + sqlWithoutPriceCode + footersql;
 
 			if (_includeProducer)
-				args.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, ec.ProducerName, Cost;";
+				DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, ec.ProducerName, Cost;";
 			else
-				args.DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, Cost;";
+				DataAdapter.SelectCommand.CommandText += " order by ec.ProductName, Cost;";
 
 			DataTable resultTable;
-			using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
+			using (var reader = DataAdapter.SelectCommand.ExecuteReader()) {
 				ProfileHelper.Next("ProcessData");
 				resultTable = FormReportTable(reader);
 			}
@@ -276,7 +276,7 @@ into @OffersSynonymCode;
 		private void CheckPriceCode()
 		{
 			if (_priceCode.HasValue) {
-				args.DataAdapter.SelectCommand.CommandText = @"
+				DataAdapter.SelectCommand.CommandText = @"
 select
   pd.PriceCode,
   pd.PriceName,
@@ -288,7 +288,7 @@ from
   left join farm.Core0 c on c.PriceCode = pd.PriceCode
 where
   pd.PriceCode = " + _priceCode;
-				using (var reader = args.DataAdapter.SelectCommand.ExecuteReader()) {
+				using (var reader = DataAdapter.SelectCommand.ExecuteReader()) {
 					if (reader.Read() && !reader.IsDBNull(0)) {
 						var priceName = reader.GetString("PriceName");
 						var shortName = reader.GetString("ShortName");

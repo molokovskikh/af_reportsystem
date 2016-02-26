@@ -38,8 +38,8 @@ namespace Inforoom.ReportSystem
 		public List<FilterField> registredField;
 		public List<FilterField> selectedField;
 
-		protected DateTime dtFrom;
-		protected DateTime dtTo;
+		public DateTime Begin;
+		public DateTime End;
 
 		protected bool SupportProductNameOptimization;
 		protected bool IncludeProductName; // есть ли параметр Позиция "Наименования продукта" в отчете
@@ -158,21 +158,21 @@ namespace Inforoom.ReportSystem
 		{
 			base.ReadReportParams();
 			if (Interval) {
-				dtFrom = From;
-				dtTo = To;
-				dtTo = dtTo.Date.AddDays(1);
+				Begin = From;
+				End = To;
+				End = End.Date.AddDays(1);
 			}
 			else if (ByPreviousMonth) {
-				dtTo = DateTime.Today;
-				dtTo = dtTo.AddDays(-(dtTo.Day - 1)).Date; // Первое число текущего месяца
-				dtFrom = dtTo.AddMonths(-1).Date;
+				End = DateTime.Today;
+				End = End.AddDays(-(End.Day - 1)).Date; // Первое число текущего месяца
+				Begin = End.AddMonths(-1).Date;
 			}
 			else {
-				dtTo = DateTime.Today;
+				End = DateTime.Today;
 				//От текущей даты вычитаем интервал - дата начала отчета
-				dtFrom = dtTo.AddDays(-ReportInterval).Date;
+				Begin = End.AddDays(-ReportInterval).Date;
 			}
-			FilterDescriptions.Add(String.Format("Период дат: {0} - {1}", dtFrom.ToString("dd.MM.yyyy HH:mm:ss"), dtTo.ToString("dd.MM.yyyy HH:mm:ss")));
+			FilterDescriptions.Add($"Период дат: {Begin:d} - {End:d}");
 
 			LoadFilters();
 			CheckAfterLoadFields();
@@ -221,9 +221,9 @@ namespace Inforoom.ReportSystem
 			selectCommand = ApplyUserFilters(selectCommand);
 
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and ({1}.WriteTime > '{0}')",
-				dtFrom.ToString(MySqlConsts.MySQLDateFormat), alias));
+				Begin.ToString(MySqlConsts.MySQLDateFormat), alias));
 			selectCommand = String.Concat(selectCommand, String.Format(Environment.NewLine + "and ({1}.WriteTime < '{0}')",
-				dtTo.ToString(MySqlConsts.MySQLDateFormat), alias));
+				End.ToString(MySqlConsts.MySQLDateFormat), alias));
 
 			return selectCommand;
 		}
@@ -364,7 +364,7 @@ create temporary table MixedData ENGINE=MEMORY
 			var groupExpression = productField.primaryField + (producerField != null ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", producerField.primaryField) : String.Empty);
 			var selectExpression = productField.primaryField + (producerField != null ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", producerField.primaryField) : ", null ");
 
-			args.DataAdapter.SelectCommand.CommandText = @"
+			DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS ProviderCodes;
 create temporary table ProviderCodes (" +
 				(showCode ? "Code varchar(20), " : String.Empty) +
@@ -396,8 +396,8 @@ where
 	and pd.PriceCode = oh.PriceCode
 	and pd.IsLocal = 0
 	and pd.FirmCode = ", OrdersSchema) + supplierId +
-				" and oh.WriteTime > '" + dtFrom.ToString(MySqlConsts.MySQLDateFormat) + "' " +
-				" and oh.WriteTime < '" + dtTo.ToString(MySqlConsts.MySQLDateFormat) + "' " +
+				" and oh.WriteTime > '" + Begin.ToString(MySqlConsts.MySQLDateFormat) + "' " +
+				" and oh.WriteTime < '" + End.ToString(MySqlConsts.MySQLDateFormat) + "' " +
 				@")
 union
 (
@@ -436,9 +436,9 @@ group by " +
 				groupExpression;
 
 #if DEBUG
-			Debug.WriteLine(args.DataAdapter.SelectCommand.CommandText);
+			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
-			args.DataAdapter.SelectCommand.ExecuteNonQuery();
+			DataAdapter.SelectCommand.ExecuteNonQuery();
 			return " left join ProviderCodes on ProviderCodes.CatalogCode = " + productField.primaryField +
 				(producerField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", producerField.primaryField) : String.Empty);
 		}
