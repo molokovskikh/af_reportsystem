@@ -14,30 +14,6 @@ namespace ReportTuner.Test.Functional
 	[TestFixture]
 	public class OneShortReportFixture : WatinFixture2
 	{
-		[Test, Ignore]
-		public void TestOneShortReport()
-		{
-			Open("Reports/GeneralReports.aspx");
-			var row = browser.Table(Find.ByClass("DocumentDataTable HighLightCurrentRow")).TableRows.First();
-			var row2 = (TableRow)row.NextSibling;
-			var cells = row2.OwnTableCells;
-			var cell = cells[0];
-			Open("Reports/schedule.aspx?r=" + cell.Text);
-
-			browser.Button(Find.ByValue("Выполнить")).Click();
-			Assert.That(browser.Text, Is.StringContaining("Успешно запущен разовый отчет"));
-
-			var processes = Process.GetProcesses();
-			var finded = false;
-			for (int i = 0; i < 20; i++) {
-				if (processes.Any(process => process.ProcessName.Contains("ReportSystem"))) {
-					finded = true;
-				}
-				Thread.Sleep(50);
-			}
-			Assert.That(finded, Is.True);
-		}
-
 		[Test]
 		public void Task_shedule_base_test()
 		{
