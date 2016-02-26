@@ -123,31 +123,31 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.ActiveRecord, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Castle.ActiveRecord">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Castle.ActiveRecord.4.0.1\lib\net40\Castle.ActiveRecord.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="log4net">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Win32.TaskScheduler, Version=2.3.4.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Win32.TaskScheduler">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\TaskScheduler.2.3.4\lib\net40\Microsoft.Win32.TaskScheduler.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data, Version=6.9.7.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MySql.Data">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\MySql.Data.6.9.7\lib\net45\MySql.Data.dll</HintPath>
     </Reference>
-    <Reference Include="NDesk.Options, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NDesk.Options">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate, Version=4.0.0.4000, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NHibernate">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NHibernate.4.0.2.4000\lib\net40\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.Mapping.Attributes, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NHibernate.Mapping.Attributes">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NHibernate.Mapping.Attributes.4.0.0.1\lib\net40\NHibernate.Mapping.Attributes.dll</HintPath>
     </Reference>
