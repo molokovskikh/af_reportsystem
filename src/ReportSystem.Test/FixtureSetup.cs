@@ -18,7 +18,7 @@ namespace ReportSystem.Test
 		public static string ConnectionStringName;
 		public static string ConnectionString;
 
-		[SetUp]
+		[OneTimeSetUp]
 		public void SetupFixture()
 		{
 			ConnectionStringName = ConnectionHelper.GetConnectionName();

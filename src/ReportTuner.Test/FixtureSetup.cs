@@ -24,7 +24,7 @@ namespace ReportTuner.Test
 
 		public static string ConnectionString;
 
-		[SetUp]
+		[OneTimeSetUp]
 		public void SetupFixture()
 		{
 			var connectionStringName = ConnectionHelper.GetConnectionName();
@@ -62,7 +62,7 @@ namespace ReportTuner.Test
 			}
 		}
 
-		[TearDown]
+		[OneTimeTearDown]
 		public void TeardownFixture()
 		{
 			_webServer.ShutDown();

@@ -12,7 +12,7 @@ namespace Report.Data.Builder.Test.Integration
 	[SetUpFixture]
 	public class FixtureSetup
 	{
-		[SetUp]
+		[OneTimeSetUp]
 		public void Setup()
 		{
 			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();

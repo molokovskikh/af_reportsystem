@@ -22,7 +22,7 @@ namespace ReportTuner.Test.Integration
 			session.CreateSQLQuery("delete from `logs`.reportexecutelogs;").ExecuteUpdate();
 			Flush();
 			var startTime = Reports_schedule.GetStartTime(session, 1);
-			Assert.IsNullOrEmpty(startTime);
+			Assert.That(startTime, Is.Null.Or.Empty);
 			session.Save(new ReportExecuteLog { StartTime = DateTime.Now, GeneralReportCode = 1 });
 			startTime = Reports_schedule.GetStartTime(session, 1);
 			Assert.AreEqual(startTime, string.Format("Отчет запущен {0}. ", DateTime.Now));
