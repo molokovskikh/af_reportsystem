@@ -19,12 +19,17 @@ namespace ReportSystem.Test
 			var order = MakeOrder();
 			session.Save(order);
 			var report = new OrderDetails();
+			report.ReportCaption = "тест";
 			report.ClientId = order.Client.Id;
 			report.Connection = (MySqlConnection)session.Connection;
 			report.Session = session;
 			report.Begin = DateTime.Today.AddDays(-1);
 			report.End = DateTime.Today;
-			report.Write("test.xls");
+			this.report = report;
+			var sheet = ReadReport();
+			Assert.That(ToText(sheet), Does.Contain(order.Id.ToString()));
+			sheet = sheet.Workbook.GetSheetAt(1);
+			Assert.That(ToText(sheet), Does.Contain(order.Id.ToString()), "на второй странице должна быть детализация");
 		}
 	}
 }
