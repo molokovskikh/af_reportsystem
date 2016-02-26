@@ -2,17 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using Common.MySql;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
-using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using Inforoom.ReportSystem.Filters;
-
 using System.Data;
 using DataTable = System.Data.DataTable;
 using MSExcel = Microsoft.Office.Interop.Excel;
@@ -35,7 +30,7 @@ namespace Inforoom.ReportSystem
 
 	public class OrdersReport : BaseReport
 	{
-		public List<FilterField> registredField;
+		public List<FilterField> RegistredField;
 		public List<FilterField> selectedField;
 
 		public DateTime Begin;
@@ -72,8 +67,8 @@ namespace Inforoom.ReportSystem
 		private void Init()
 		{
 			selectedField = new List<FilterField>();
-			registredField = new List<FilterField>();
-			registredField.Add(new FilterField("p.Id", @"concat(cn.Name, ' ', cf.Form, ' ',
+			RegistredField = new List<FilterField>();
+			RegistredField.Add(new FilterField("p.Id", @"concat(cn.Name, ' ', cf.Form, ' ',
 			  (select
 				 ifnull(GROUP_CONCAT(ifnull(PropertyValues.Value, '')
 									order by Properties.PropertyName, PropertyValues.Value
@@ -91,7 +86,7 @@ namespace Inforoom.ReportSystem
 					whereList = "and c.Id = p.CatalogId and cn.id = c.NameId and cf.Id = c.FormId"
 				});
 
-			registredField.Add(new FilterField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName",
+			RegistredField.Add(new FilterField("c.Id", "concat(cn.Name, ' ', cf.Form) as CatalogName", "CatalogName", "FullName",
 				"Наименование и форма выпуска",
 				"catalogs.catalog c, catalogs.catalognames cn, catalogs.catalogforms cf",
 				0,
@@ -100,30 +95,30 @@ namespace Inforoom.ReportSystem
 				40) {
 					whereList = "and cn.id = c.NameId and cf.Id = c.FormId"
 				});
-			registredField.Add(new FilterField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", 0,
+			RegistredField.Add(new FilterField("cn.Id", "cn.Name as PosName", "PosName", "ShortName", "Наименование", "catalogs.catalognames cn", 0,
 				"В отчет включены следующие наименования",
 				"Следующие наименования исключены из отчета", 40));
-			registredField.Add(new FilterField("m.Id", "m.Mnn", "Mnn", "Mnn", "МНН", "catalogs.mnn m",
+			RegistredField.Add(new FilterField("m.Id", "m.Mnn", "Mnn", "Mnn", "МНН", "catalogs.mnn m",
 				41,
 				"В отчет включены следующие МНН",
 				"Следующие МНН исключены из отчета") {
 					Nullable = true,
 					width = 40
 				});
-			registredField.Add(new FilterField("cfc.Id", "cfc.Name as FirmCr", "FirmCr", "FirmCr", "Производитель", "catalogs.Producers cfc", 1,
+			RegistredField.Add(new FilterField("cfc.Id", "cfc.Name as FirmCr", "FirmCr", "FirmCr", "Производитель", "catalogs.Producers cfc", 1,
 				"В отчет включены следующие производители",
 				"Следующие производители исключены из отчета", 15));
-			registredField.Add(new FilterField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", 2,
+			RegistredField.Add(new FilterField("rg.RegionCode", "rg.Region as RegionName", "RegionName", "Region", "Регион", "farm.regions rg", 2,
 				"В отчет включены следующие регионы",
 				"Следующие регионы исключены из отчета"));
-			registredField.Add(new FilterField("prov.Id", "concat(prov.Name, ' - ', provrg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик",
+			RegistredField.Add(new FilterField("prov.Id", "concat(prov.Name, ' - ', provrg.Region) as FirmShortName", "FirmShortName", "FirmCode", "Поставщик",
 				"Customers.suppliers prov, farm.regions provrg",
 				3,
 				"В отчет включены следующие поставщики", "Следующие поставщики исключены из отчета",
 				10) {
 					whereList = "and prov.HomeRegion = provrg.RegionCode"
 				});
-			registredField.Add(new FilterField("pd.PriceCode", "concat(prov.Name , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист",
+			RegistredField.Add(new FilterField("pd.PriceCode", "concat(prov.Name , ' (', pd.PriceName, ') - ', provrg.Region) as PriceName", "PriceName", "PriceCode", "Прайс-лист",
 				"usersettings.pricesdata pd, Customers.suppliers prov, farm.regions provrg",
 				4,
 				"В отчет включены следующие прайс-листы поставщиков",
@@ -131,20 +126,20 @@ namespace Inforoom.ReportSystem
 				10) {
 					whereList = "and prov.Id = pd.FirmCode and prov.HomeRegion = provrg.RegionCode",
 				});
-			registredField.Add(new FilterField("cl.Id", "cl.Name as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "Customers.clients cl", 5,
+			RegistredField.Add(new FilterField("cl.Id", "cl.Name as ClientShortName", "ClientShortName", "ClientCode", "Аптека", "Customers.clients cl", 5,
 				"В отчет включены следующие аптеки",
 				"Следующие аптеки исключены из отчета",
 				10));
-			registredField.Add(new FilterField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", 6,
+			RegistredField.Add(new FilterField("payers.PayerId", "payers.ShortName as PayerName", "PayerName", "Payer", "Плательщик", "billing.payers", 6,
 				"В отчет включены следующие плательщики",
 				"Следующие плательщики исключены из отчета"));
-			registredField.Add(new FilterField("ad.Id", "concat(ad.Address, ' (', cl.Name, ') ') as AddressName", "AddressName", "Addresses", "Адрес доставки",
+			RegistredField.Add(new FilterField("ad.Id", "concat(ad.Address, ' (', cl.Name, ') ') as AddressName", "AddressName", "Addresses", "Адрес доставки",
 				"customers.addresses ad, Customers.Clients cl", 7,
 				"В отчет включены следующие адреса доставки",
 				"Следующие адреса доставки исключены из отчета") {
 					whereList = "and ad.ClientId = cl.Id"
 				});
-			registredField.Add(new FilterField {
+			RegistredField.Add(new FilterField {
 				primaryField = "ol.Code",
 				viewField = "ol.Code as SupplierProductCode",
 				outputField = "SupplierProductCode",
@@ -181,7 +176,7 @@ namespace Inforoom.ReportSystem
 
 		protected void LoadFilters()
 		{
-			selectedField = registredField.Where(f => f.LoadFromDB(this)).ToList();
+			selectedField = RegistredField.Where(f => f.LoadFromDB(this)).ToList();
 		}
 
 		public void SortFields()
@@ -350,13 +345,13 @@ create temporary table MixedData ENGINE=MEMORY
 			var names = new [] { "ProductName", "FullName", "ShortName" };
 			var productField = selectedField.FirstOrDefault(f => names.Contains(f.reportPropertyPreffix));
 			if (productField == null) {
-				productField = registredField.First(f => f.reportPropertyPreffix == "ProductName");
+				productField = RegistredField.First(f => f.reportPropertyPreffix == "ProductName");
 				selectedField.Insert(0, productField);
 			}
 
 			var producerField = selectedField.FirstOrDefault(f => f.reportPropertyPreffix == "FirmCr");
 			if (producerField == null && showCodeCr) {
-				producerField = registredField.First(f => f.reportPropertyPreffix == "FirmCr");
+				producerField = RegistredField.First(f => f.reportPropertyPreffix == "FirmCr");
 				selectedField.Insert(1, producerField);
 			}
 

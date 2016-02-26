@@ -49,7 +49,7 @@ namespace Inforoom.ReportSystem
 
 		public string ReadAddress(List<ulong> ids)
 		{
-			var field = registredField.First(f => f.reportPropertyPreffix.Match("Addresses"));
+			var field = RegistredField.First(f => f.reportPropertyPreffix.Match("Addresses"));
 			return ReadNames(field, ids);
 		}
 

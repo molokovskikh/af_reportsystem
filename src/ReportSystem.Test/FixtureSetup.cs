@@ -52,7 +52,7 @@ namespace ReportSystem.Test
 				foreach (var cfg in ActiveRecordMediator.GetSessionFactoryHolder().GetAllConfigurations()) {
 					cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 				}
-				Program.Factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
+				GeneralReport.Factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 			}
 		}
 	}

@@ -125,20 +125,10 @@ namespace ReportSystem.Test
 				ArHelper.WithSession(s => {
 					report.Session = s;
 					report.CheckEmptyData = false;
-					report.ReadReportParams();
-					report.ProcessReport();
+					report.Write(EnsureDeletion(type));
 				});
 			}
-			report.Write(TestHelper.EnsureDeletion(type));
-			ProfileHelper.Stop();
-		}
 
-		public static void ProcessReportWithOutDeletion(BaseReport report, ReportsTypes type)
-		{
-			ProfileHelper.Start();
-			report.CheckEmptyData = false;
-			report.ProcessReport();
-			report.Write(TestHelper.GetFileName(type));
 			ProfileHelper.Stop();
 		}
 

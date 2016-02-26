@@ -119,7 +119,7 @@ namespace ReportTuner.Models
 		{
 			var report = new OrdersReport();
 			return FilterField.Sufixes.Select(
-				s => report.registredField
+				s => report.RegistredField
 					.FirstOrDefault(f => f.reportPropertyPreffix == PropertyName.Replace(s, "")))
 				.FirstOrDefault(f => f != null);
 		}

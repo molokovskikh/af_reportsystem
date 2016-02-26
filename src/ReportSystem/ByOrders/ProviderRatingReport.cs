@@ -40,7 +40,7 @@ namespace Inforoom.ReportSystem
 			//Если поле поставщик не в выбранных параметрах, то добавляем его туда и устанавливаем "visible в true"
 			var provideNameField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCode");
 			if (provideNameField == null) {
-				provideNameField = registredField.Find(value => value.reportPropertyPreffix == "FirmCode");
+				provideNameField = RegistredField.Find(value => value.reportPropertyPreffix == "FirmCode");
 				selectedField.Add(provideNameField);
 			}
 			provideNameField.visible = true;

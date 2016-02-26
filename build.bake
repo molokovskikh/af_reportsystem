@@ -48,11 +48,6 @@ task "deploy:web", ["build:web"]:
 task "build:web", ["setup", "clean:web"]:
 	_, output, _ = GetBuildConfig(Globals, "ReportTuner")
 	BuildWeb(Globals, "ReportTuner")
-	#reportsystem использует jet, jet существует только 32-битный
-	#по этому reportsystem тоже собирается под x86
-	#но iis запускает процесс под x86_64
-	#тк функционал jet а reporttuner не используется можно смело свнять флаг
-	Sh("corflags /nologo /32BITREQ- \"$output/bin/ReportSystem.exe\"")
 
 task "clean:web":
 	CleanWeb(Globals, "ReportTuner")

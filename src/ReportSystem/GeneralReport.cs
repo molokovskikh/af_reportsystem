@@ -11,17 +11,18 @@ using log4net;
 using LumiSoft.Net.SMTP.Client;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-
 using System.IO;
 using LumiSoft.Net.Mime;
 using Inforoom.ReportSystem.Properties;
 using Common.MySql;
+using NHibernate;
 
 namespace Inforoom.ReportSystem
 {
 	[ActiveRecord("general_reports", Schema = "reports")]
 	public class GeneralReport
 	{
+		public static ISessionFactory Factory;
 		public string[] Contacts = new string[0];
 
 		private string _mainFileName;
@@ -283,11 +284,9 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 					using (new SessionScope()) {
 						ArHelper.WithSession(s => {
 							report.Session = s;
-							report.ReadReportParams();
-							report.ProcessReport();
+							report.Write(_mainFileName);
 						});
 					}
-					report.Write(_mainFileName);
 					report.ToLog(Id); // протоколируем успешное выполнение отчета
 					foreach (var warning in report.Warnings) {
 						Mailer.MailReportNotify(warning, Payer != null ? Payer.Name : "", Id, report.ReportCode);

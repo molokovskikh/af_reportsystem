@@ -51,6 +51,7 @@ namespace ReportTuner.Models
 				typeof(OrdersStatistics),
 				typeof(WaybillsStatReport),
 				typeof(OffersExport),
+				typeof(OrderDetails),
 			};
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
@@ -62,7 +63,7 @@ namespace ReportTuner.Models
 					var reportInstance = new OrdersReport();
 					if (type.GetConstructor(new Type[0]) != null)
 						reportInstance = (OrdersReport)Activator.CreateInstance(type);
-					var notExists = reportInstance.registredField.SelectMany(f => new[] {
+					var notExists = reportInstance.RegistredField.SelectMany(f => new[] {
 						f.reportPropertyPreffix + FilterField.PositionSuffix,
 						f.reportPropertyPreffix + FilterField.NonEqualSuffix,
 						f.reportPropertyPreffix + FilterField.EqualSuffix,
@@ -72,9 +73,9 @@ namespace ReportTuner.Models
 					notExists = notExists.Except(reportType.BlockedFields);
 					foreach (var notExist in notExists) {
 						if (notExist.EndsWith(FilterField.PositionSuffix)) {
-							var field = reportInstance.registredField
+							var field = reportInstance.RegistredField
 								.First(f => f.reportPropertyPreffix == notExist.Replace(FilterField.PositionSuffix, ""));
-							var property = new ReportTypeProperty(notExist, "INT", string.Format("Позиция \"{0}\" в отчете", field.outputCaption)) {
+							var property = new ReportTypeProperty(notExist, "INT", $"Позиция \"{field.outputCaption}\" в отчете") {
 								Optional = true,
 								DefaultValue = "0",
 							};
@@ -84,14 +85,14 @@ namespace ReportTuner.Models
 							reportType.AddProperty(property);
 						}
 						else if (notExist.EndsWith(FilterField.NonEqualSuffix)) {
-							var property = AddListProperty(procedures, reportInstance.registredField, reportType, notExist,
+							var property = AddListProperty(procedures, reportInstance.RegistredField, reportType, notExist,
 								FilterField.NonEqualSuffix, "Список исключений \"{0}\"");
 							log.WarnFormat("Добавил опциональный параметр '{0}' для отчета '{1}'",
 								property.DisplayName,
 								reportType.ReportTypeName);
 						}
 						else {
-							var property = AddListProperty(procedures, reportInstance.registredField, reportType, notExist,
+							var property = AddListProperty(procedures, reportInstance.RegistredField, reportType, notExist,
 								FilterField.EqualSuffix, "Список значений \"{0}\"");
 							log.WarnFormat("Добавил опциональный параметр '{0}' для отчета {1}",
 								property.DisplayName,
@@ -100,7 +101,7 @@ namespace ReportTuner.Models
 					}
 				}
 
-				CheckProperties(type, procedures);
+				CheckProperties(type, procedures, reportType);
 
 				session.Save(reportType);
 			}
@@ -172,7 +173,7 @@ namespace ReportTuner.Models
 			var prefix = property.Replace(sufix, "");
 			var field = fields.First(f => f.reportPropertyPreffix == prefix);
 			if (!procedures.ContainsKey(prefix))
-				throw new Exception(String.Format("Не задана процедура {0}", prefix));
+				throw new Exception($"Не задана процедура {prefix} для отчета {reportType.ReportClassName}");
 			var reportTypeProperty = new ReportTypeProperty(property, "LIST", string.Format(label, field.outputCaption)) {
 				Optional = true,
 				DefaultValue = "0",

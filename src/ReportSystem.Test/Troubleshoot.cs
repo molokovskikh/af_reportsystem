@@ -55,8 +55,6 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 								prop
 							});
 						bs.Session = session;
-						bs.ReadReportParams();
-						bs.ProcessReport();
 						bs.Write(Path.GetFullPath("test.xls"));
 					}
 				}

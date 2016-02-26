@@ -20,6 +20,7 @@ namespace Inforoom.ReportSystem.Models.Reports
 
 		public OrderDetails()
 		{
+			RegistredField.Clear();
 		}
 
 		public OrderDetails(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
@@ -161,13 +162,12 @@ where oh.WriteTime > ?begin
 				book.Write(stream);
 		}
 
-		private int WriteDesc(ISheet sheet, ref int rownum)
+		private void WriteDesc(ISheet sheet, ref int rownum)
 		{
 			foreach (var description in FilterDescriptions) {
 				var desc = sheet.CreateRow(rownum++);
 				desc.Cell(0, description);
 			}
-			return rownum;
 		}
 	}
 

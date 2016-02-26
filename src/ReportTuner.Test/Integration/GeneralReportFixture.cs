@@ -16,6 +16,13 @@ namespace ReportTuner.Test.Integration
 	[TestFixture]
 	public class GeneralReportFixture : IntegrationFixture
 	{
+
+		[Test]
+		public void d()
+		{
+			new UpdateReportConfig(session).Execute();
+		}
+
 		[Test]
 		public void Start_time_test()
 		{

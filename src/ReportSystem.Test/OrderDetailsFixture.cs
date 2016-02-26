@@ -4,6 +4,7 @@ using Common.Tools.Helpers;
 using Inforoom.ReportSystem.Models.Reports;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
+using ReportTuner.Models;
 using Test.Support.log4net;
 
 namespace ReportSystem.Test

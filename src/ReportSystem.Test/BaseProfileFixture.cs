@@ -1,23 +1,18 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using Castle.ActiveRecord;
 using Common.MySql;
 using Common.Web.Ui.ActiveRecordExtentions;
 using Inforoom.ReportSystem;
-using Inforoom.ReportSystem.FastReports;
 using Inforoom.ReportSystem.Helpers;
-using NHibernate;
 using NHibernate.Linq;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.Configuration;
-using System.Diagnostics;
 using Test.Support;
 using Test.Support.Suppliers;
 
@@ -94,8 +89,10 @@ namespace ReportSystem.Test
 
 		protected void BuildReport(string file = null, Type reportType = null, bool checkEmptyData = false)
 		{
-			ProcessReport(reportType, checkEmptyData);
+			CreateReport(reportType);
 
+			report.Session = session;
+			report.CheckEmptyData = checkEmptyData;
 			if (file == null)
 				file = "test.xls";
 			_fileName = file;
@@ -106,12 +103,16 @@ namespace ReportSystem.Test
 			ProfileHelper.Stop();
 		}
 
-		public void ProcessReport(Type reportType = null, bool checkEmptyData = false)
+		private void CreateReport(Type reportType)
 		{
 			session.Flush();
-			if (reportType != null && report == null) {
-				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
-			}
+			report = report ?? (BaseReport)
+				Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
+		}
+
+		public void ProcessReport(Type reportType = null, bool checkEmptyData = false)
+		{
+			CreateReport(reportType);
 
 			report.Session = session;
 			report.CheckEmptyData = checkEmptyData;
@@ -308,12 +309,10 @@ namespace ReportSystem.Test
 				File.Delete(file);
 			ProfileHelper.Start();
 			report.CheckEmptyData = checkEmptyData;
-			report.ReadReportParams();
 			ArHelper.WithSession(s => {
 				report.Session = s;
-				report.ProcessReport();
+				report.Write(Path.GetFullPath(file));
 			});
-			report.Write(Path.GetFullPath(file));
 			ProfileHelper.Stop();
 		}
 

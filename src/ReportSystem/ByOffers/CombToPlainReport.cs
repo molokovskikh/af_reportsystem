@@ -163,6 +163,8 @@ drop temporary table if exists Usersettings.MaxProducerCosts;
 
 		public override void Write(string FileName)
 		{
+			ReadReportParams();
+			ProcessReport();
 			int CopyErrorCount = 0;
 			bool CopySucces = false;
 			do {

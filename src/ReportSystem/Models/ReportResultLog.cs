@@ -27,7 +27,7 @@ namespace Inforoom.ReportSystem.Model
 
 		public static ReportResultLog Log(ulong generalReportCode, ulong reportCode, DateTime startTime, DateTime stopTime, string errorMessage)
 		{
-			using (var session = Program.Factory.OpenSession())
+			using (var session = GeneralReport.Factory.OpenSession())
 			using (var trx = session.BeginTransaction()) {
 				var log = new ReportResultLog {
 					GeneralReportCode = generalReportCode,

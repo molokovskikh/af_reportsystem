@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Reflection;
 using Castle.ActiveRecord;
-using Castle.ActiveRecord.Framework.Config;
-using Common.Models;
 using Common.MySql;
 using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
 using Common.Web.Ui.Models;
-using Common.Web.Ui.NHibernateExtentions;
-
-using Inforoom.Common;
 using Inforoom.ReportSystem.Model;
 using NDesk.Options;
 using NHibernate;
@@ -42,7 +34,6 @@ namespace Inforoom.ReportSystem
 	public class Program
 	{
 		private static ILog _log = LogManager.GetLogger(typeof(Program));
-		public static ISessionFactory Factory;
 
 		[STAThread]
 		public static int Main(string[] args)
@@ -65,7 +56,7 @@ namespace Inforoom.ReportSystem
 						cfg.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 					}
 				}
-				Factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
+				GeneralReport.Factory = ActiveRecordMediator.GetSessionFactoryHolder().GetSessionFactory(typeof(ActiveRecordBase));
 
 				if (appArgs.ReportId == -1)
 					throw new Exception("Не указан код отчета для запуска в параметре gr.");
@@ -76,7 +67,7 @@ namespace Inforoom.ReportSystem
 					return 1;
 			}
 			catch (Exception ex) {
-				_log.Error(String.Format("Ошибка при запуске отчета {0}", appArgs.ReportId), ex);
+				_log.Error($"Ошибка при запуске отчета {appArgs.ReportId}", ex);
 				Mailer.MailGlobalErr(ex);
 				return 1;
 			}
@@ -108,7 +99,7 @@ namespace Inforoom.ReportSystem
 			var result = false;
 			var reportLog = new ReportExecuteLog();
 			GeneralReport report = null;
-			using (var session = Factory.OpenSession())
+			using (var session = GeneralReport.Factory.OpenSession())
 			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				mc.Open();
 				try {
@@ -122,7 +113,7 @@ namespace Inforoom.ReportSystem
 					using(var trx = session.BeginTransaction()) {
 						report = session.Get<GeneralReport>((uint)generalReportId);
 						if (report == null)
-							throw new Exception(String.Format("Отчет с кодом {0} не существует.", generalReportId));
+							throw new Exception($"Отчет с кодом {generalReportId} не существует.");
 						if (!report.Enabled && !manual)
 							throw new ReportException("Невозможно выполнить отчет, т.к. отчет выключен.");
 
@@ -136,7 +127,7 @@ namespace Inforoom.ReportSystem
 					result = true;
 				}
 				catch(Exception e) {
-					_log.Error(String.Format("Ошибка при запуске отчета {0}", report), e);
+					_log.Error($"Ошибка при запуске отчета {report}", e);
 
 					try {
 						using(var trx = session.BeginTransaction()) {

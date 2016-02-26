@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-
 using Inforoom.ReportSystem.Helpers;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using DataTable = System.Data.DataTable;
-using MSExcel = Microsoft.Office.Interop.Excel;
 
 namespace Inforoom.ReportSystem.ByOrders
 {
@@ -29,7 +25,6 @@ namespace Inforoom.ReportSystem.ByOrders
 
 		protected override void GenerateReport()
 		{
-			ProfileHelper.Next(String.Format("CalculateOrders: dtFrom={0}, dtTo={1}", Begin.ToString(), End.ToString()));
 			FillFilterDescriptions();
 			var sql = @"
 SELECT

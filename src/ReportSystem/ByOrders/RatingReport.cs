@@ -39,7 +39,7 @@ namespace Inforoom.ReportSystem
 
 		private void Init()
 		{
-			registredField.Add(new FilterField {
+			RegistredField.Add(new FilterField {
 				primaryField = "ol.SynonymCode",
 				viewField = "if(s.SynonymCode is not null, s.Synonym, sa.Synonym) as SupplierProductName",
 				outputField = "SupplierProductName",
@@ -47,7 +47,7 @@ namespace Inforoom.ReportSystem
 				outputCaption = "Оригинальное наименование товара",
 				position = 9
 			});
-			registredField.Add(new FilterField {
+			RegistredField.Add(new FilterField {
 				primaryField = "ol.SynonymFirmCrCode",
 				viewField = "sfc.Synonym as SupplierProducerName",
 				outputField = "SupplierProducerName",
