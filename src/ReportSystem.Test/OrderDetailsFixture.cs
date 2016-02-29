@@ -23,8 +23,9 @@ namespace ReportSystem.Test
 			report.ClientId = order.Client.Id;
 			report.Connection = (MySqlConnection)session.Connection;
 			report.Session = session;
-			report.Begin = DateTime.Today.AddDays(-1);
-			report.End = DateTime.Today;
+			report.Interval = true;
+			report.From = DateTime.Today.AddDays(-1);
+			report.To = DateTime.Today;
 			this.report = report;
 			var sheet = ReadReport();
 			Assert.That(ToText(sheet), Does.Contain(order.Id.ToString()));
