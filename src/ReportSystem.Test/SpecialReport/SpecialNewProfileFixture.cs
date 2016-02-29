@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace ReportSystem.Test
 {
-	[TestFixture]
+	[TestFixture, Ignore("Требуется тестовая база данных")]
 	public class SpecialNewProfileFixture : BaseProfileFixture
 	{
 		[Test, Ignore("Требуется тестовая база данных")]
