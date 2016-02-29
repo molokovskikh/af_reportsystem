@@ -12,7 +12,7 @@ using Test.Support;
 
 namespace ReportSystem.Test
 {
-	[TestFixture]
+	[TestFixture, Ignore("Требуется тестовая база данных")]
 	public class SpecialProfileFixture : BaseProfileFixture
 	{
 		[Test]

@@ -4,7 +4,7 @@ using Inforoom.ReportSystem;
 
 namespace ReportSystem.Test
 {
-	[TestFixture]
+	[TestFixture, Ignore("Требуется тестовая база данных")]
 	public class MinCostByPriceNewProfileFixture : BaseProfileFixture
 	{
 		[Test]
