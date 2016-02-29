@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 
 namespace ReportSystem.Test
 {
-	[TestFixture]
+	[TestFixture, Ignore("Требуется тестовая база данных")]
 	public class DbfMinCostByPriceProfileFixture : BaseProfileFixture
 	{
 		[Test]

@@ -3,7 +3,7 @@ using Inforoom.ReportSystem;
 
 namespace ReportSystem.Test
 {
-	[TestFixture]
+	[TestFixture, Ignore("Требуется тестовая база данных")]
 	public class DbfMinCostByPriceNewProfileFixture : BaseProfileFixture
 	{
 		[Test]
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewDifficult);
 		}
 
-		[Test, Ignore("Разобраться")]
+		[Test]
 		public void DbfMinCostByPriceNewWithClients()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClients);
@@ -30,7 +30,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.MinCostByPriceNewWithClients);
 		}
 
-		[Test, Ignore("Разобраться")]
+		[Test]
 		public void DbfMinCostByPriceNewWithClientsWithoutAssortmentPrice()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNewWithClientsWithoutAssortmentPrice);
