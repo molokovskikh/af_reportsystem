@@ -7,7 +7,7 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class SpecialNewProfileFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore("Требуется тестовая база данных")]
 		public void SpecialNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialNew);
@@ -15,7 +15,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialNew);
 		}
 
-		[Test]
+		[Test, Ignore("Требуется тестовая база данных")]
 		public void SpecialNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialNewDifficult);
@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialNewDifficult);
 		}
 
-		[Test]
+		[Test, Ignore("Требуется тестовая база данных")]
 		public void SpecialByBaseCosts()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialByBaseCosts);
@@ -31,7 +31,7 @@ namespace ReportSystem.Test
 			TestHelper.ProcessReport(report, ReportsTypes.SpecialByBaseCosts);
 		}
 
-		[Test]
+		[Test, Ignore("Требуется тестовая база данных")]
 		public void SpecialByBaseCostsPriceCodeNonEqual()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.SpecialByBaseCostsPriceCodeNonEqual);
