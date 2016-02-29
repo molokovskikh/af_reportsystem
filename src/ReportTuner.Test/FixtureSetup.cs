@@ -27,6 +27,7 @@ namespace ReportTuner.Test
 		[OneTimeSetUp]
 		public void SetupFixture()
 		{
+			Environment.CurrentDirectory = TestContext.CurrentContext.TestDirectory;
 			var connectionStringName = ConnectionHelper.GetConnectionName();
 			ConnectionString = ConnectionHelper.GetConnectionString();
 			if (!ActiveRecordStarter.IsInitialized) {
@@ -49,8 +50,7 @@ namespace ReportTuner.Test
 			var session = holder.CreateSession(typeof(ActiveRecordBase));
 			var ownerId = uint.Parse(ConfigurationManager.AppSettings["ReportsContactGroupOwnerId"]);
 			if (session.Get<ContactGroupOwner>(ownerId) == null) {
-				session.CreateSQLQuery(String
-					.Format("Insert into contacts.contact_group_owners (Id) VALUES({0})", ownerId)).UniqueResult();
+				session.CreateSQLQuery($"Insert into contacts.contact_group_owners (Id) VALUES({ownerId})").UniqueResult();
 			}
 			holder = ActiveRecordMediator.GetSessionFactoryHolder();
 			holder.ReleaseSession(session);

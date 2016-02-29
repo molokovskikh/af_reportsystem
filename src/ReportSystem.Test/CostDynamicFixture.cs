@@ -17,7 +17,7 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class CostDynamicFixture : BaseProfileFixture
 	{
-		[Test]
+		[Test, Ignore("Требуется тестовая база данных")]
 		public void Builder_report()
 		{
 			var date = DateTime.Today.AddDays(-7);
