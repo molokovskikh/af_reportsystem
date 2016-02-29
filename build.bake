@@ -12,7 +12,7 @@ Global(
 host = "fms.adc.analit.net"
 deployTo = "\\\\${host}\\Reports"
 releaseTo = "\\\\${host}\\Reports\\ReleasePath"
-project = "ReportSystem"
+project = "src/ReportSystem/app.csproj"
 projectBoot = "ReportSystemBoot"
 
 task @setup, ["assembly:info:generate", "packages:install", "packages:fix"]

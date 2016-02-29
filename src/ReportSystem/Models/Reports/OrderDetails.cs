@@ -30,6 +30,7 @@ namespace Inforoom.ReportSystem.Models.Reports
 
 		public override void Write(string filename)
 		{
+			ReadReportParams();
 			var client = Session.Load<Client>(ClientId);
 			FilterDescriptions.Add($"Выбранный клиент: {client.Name}");
 			var sql = $@"

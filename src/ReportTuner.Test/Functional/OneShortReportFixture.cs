@@ -75,7 +75,6 @@ namespace ReportTuner.Test.Functional
 			session.Save(payer);
 			var report = new GeneralReport(session.Load<Payer>(payer.Id));
 			session.Save(report);
-			//var generalReport = GeneralReport.Find(Convert.ToUInt64(1));
 			report.LastSuccess = DateTime.Now;
 			var executelog = new ReportExecuteLog(report);
 			session.Save(executelog);
