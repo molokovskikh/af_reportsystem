@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace ReportSystem.Test.PriceCollectionForClientReport
 {
-	[TestFixture]
+	[TestFixture, Ignore("Требуется тестовая база данных")]
 	public class PriceCollectionForClientReportProfileFixture : BaseProfileFixture
 	{
 		[Test]

@@ -97,6 +97,7 @@ namespace Inforoom.ReportSystem
 
 		protected BaseReport() // конструктор для возможности тестирования
 		{
+			_dtStart = DateTime.Now;
 		}
 
 		public BaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)

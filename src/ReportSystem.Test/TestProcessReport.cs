@@ -55,9 +55,8 @@ namespace ReportSystem.Test
 
 		public class FakeReportWithReportException : FakeReport
 		{
-			protected override void GenerateReport()
+			public override void Write(string fileName)
 			{
-				base.GenerateReport();
 				throw new ReportException("Ошибка при формировании отчета.");
 			}
 		}
@@ -70,9 +69,8 @@ namespace ReportSystem.Test
 				ReportCaption = "FakeReportWithException";
 			}
 
-			protected override void GenerateReport()
+			public override void Write(string fileName)
 			{
-				base.GenerateReport();
 				throw new Exception("Системная ошибка.");
 			}
 		}

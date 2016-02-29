@@ -19,7 +19,7 @@ namespace ReportSystem.Test.SpecialReport
 {
 	public class SpecialByWeightCostFixture : BaseProfileFixture2
 	{
-		[Test]
+		[Test, Ignore("Требуется тестовая база данных")]
 		public void SpecialCountProducerByWeightCost()
 		{
 			var fileName = "SpecialCountProducerByWeightCost.xls";
@@ -38,7 +38,7 @@ namespace ReportSystem.Test.SpecialReport
 			BuildReport(fileName);
 		}
 
-		[Test]
+		[Test, Ignore("Требуется тестовая база данных")]
 		public void SpecialCountProducerByWeightCostAssort()
 		{
 			var fileName = "SpecialCountProducerByWeightCostAssort.xls";
