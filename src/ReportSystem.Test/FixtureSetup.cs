@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
@@ -6,9 +7,10 @@ using Castle.ActiveRecord.Framework.Config;
 using Common.MySql;
 using Common.Web.Ui.Models;
 using Inforoom.ReportSystem;
-using NHibernate.Cfg;
+using Inforoom.ReportSystem.Model;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
+using Environment = NHibernate.Cfg.Environment;
 
 namespace ReportSystem.Test
 {
@@ -42,7 +44,7 @@ namespace ReportSystem.Test
 				config.Add(typeof(ActiveRecordBase), nhibernateParams);
 
 				ActiveRecordStarter.Initialize(new[] {
-					Assembly.Load("ReportSystem"),
+					typeof(ReportResultLog).Assembly,
 					typeof(ContactGroup).Assembly,
 					Assembly.Load("Test.Support")
 				},

@@ -76,7 +76,7 @@ namespace Inforoom.ReportSystem
 		[Property]
 		public virtual bool SendDescriptionFile { get; set; }
 
-		[Property(ColumnType = "NHibernate.Type.EnumStringType`1[[Inforoom.ReportSystem.ReportFormats, ReportSystem]], NHibernate")]
+		[Property(ColumnType = "NHibernate.Type.EnumStringType`1[[Inforoom.ReportSystem.ReportFormats, ReportSystem.Lib]], NHibernate")]
 		public virtual ReportFormats Format { get; set; }
 
 		[Property]
