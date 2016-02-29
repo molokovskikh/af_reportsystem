@@ -7,6 +7,7 @@ using NUnit.Framework;
 using ReportTuner.Models;
 using WatiN.Core;
 using System.Diagnostics;
+using Test.Support;
 using Test.Support.Web;
 
 namespace ReportTuner.Test.Functional
@@ -70,16 +71,20 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void Send_ready_report()
 		{
-			var generalReport = GeneralReport.Find(Convert.ToUInt64(1));
-			generalReport.LastSuccess = DateTime.Now;
-			var executelog = new ReportExecuteLog(generalReport);
+			var payer = new TestPayer();
+			session.Save(payer);
+			var report = new GeneralReport(session.Load<Payer>(payer.Id));
+			session.Save(report);
+			//var generalReport = GeneralReport.Find(Convert.ToUInt64(1));
+			report.LastSuccess = DateTime.Now;
+			var executelog = new ReportExecuteLog(report);
 			session.Save(executelog);
-			session.Save(new ReportLog(generalReport, executelog));
+			session.Save(new ReportLog(report, executelog));
 			session.Flush();
 
 			executelog.BuildTestFile();
 
-			Open("/Reports/schedule.aspx?r=1");
+			Open($"/Reports/schedule.aspx?r={report.Id}");
 			browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
 			browser.TextField("mail_Text").Clear();
 			Click("Выслать готовый");
