@@ -103,6 +103,7 @@ namespace Inforoom.ReportSystem
 			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				mc.Open();
 				try {
+					mc.Execute("set interactive_timeout=3600;set wait_timeout=3600;");
 					using(var trx = session.BeginTransaction()) {
 						reportLog.GeneralReportCode = generalReportId;
 						reportLog.StartTime = DateTime.Now;
@@ -111,6 +112,7 @@ namespace Inforoom.ReportSystem
 					}
 
 					using(var trx = session.BeginTransaction()) {
+						session.CreateSQLQuery(@"set interactive_timeout=3600;set wait_timeout=3600;").ExecuteUpdate();
 						report = session.Get<GeneralReport>((uint)generalReportId);
 						if (report == null)
 							throw new Exception($"Отчет с кодом {generalReportId} не существует.");
