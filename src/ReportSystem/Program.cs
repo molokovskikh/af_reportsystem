@@ -79,7 +79,7 @@ namespace Inforoom.ReportSystem
 			var options = new OptionSet {
 				{ "help", "Выводит справку", v => help = v != null },
 				{ "gr=", "Код отчета", v => appArgs.ReportId = int.Parse(v) },
-				{ "manual=", "Флаг ручного запуска, в случае ручного запуска не производится проверка сотояния отчета", v => appArgs.Manual = bool.Parse(v) },
+				{ "manual=", "Флаг ручного запуска, в случае ручного запуска не производится проверка состояния отчета", v => appArgs.Manual = bool.Parse(v) },
 				{ "inter=", "Флаг сигнализирующей что отчет готовится за период", v => appArgs.Interval = bool.Parse(v) },
 				{ "dtFrom=", "Начало периода за который готовится отчет", v => appArgs.From = DateTime.Parse(v) },
 				{ "dtTo=", "Окончание периода за который готовится отчет", v => appArgs.To = DateTime.Parse(v) },
