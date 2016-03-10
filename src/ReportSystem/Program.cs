@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Reflection;
 using Castle.ActiveRecord;
 using Common.MySql;
@@ -103,7 +104,9 @@ namespace Inforoom.ReportSystem
 			using (var mc = new MySqlConnection(ConnectionHelper.GetConnectionString())) {
 				mc.Open();
 				try {
-					mc.Execute("set interactive_timeout=3600;set wait_timeout=3600;");
+					var timeout = ConfigurationManager.AppSettings["MySqlTimeout"];
+					if (!String.IsNullOrEmpty(timeout))
+						mc.Execute($"set interactive_timeout={timeout};set wait_timeout={timeout};");
 					using(var trx = session.BeginTransaction()) {
 						reportLog.GeneralReportCode = generalReportId;
 						reportLog.StartTime = DateTime.Now;
@@ -112,7 +115,8 @@ namespace Inforoom.ReportSystem
 					}
 
 					using(var trx = session.BeginTransaction()) {
-						session.CreateSQLQuery(@"set interactive_timeout=3600;set wait_timeout=3600;").ExecuteUpdate();
+						if (!String.IsNullOrEmpty(timeout))
+							session.CreateSQLQuery($"set interactive_timeout={timeout};set wait_timeout={timeout};").ExecuteUpdate();
 						report = session.Get<GeneralReport>((uint)generalReportId);
 						if (report == null)
 							throw new Exception($"Отчет с кодом {generalReportId} не существует.");
