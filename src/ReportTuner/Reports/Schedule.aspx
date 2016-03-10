@@ -3,14 +3,10 @@
 <asp:Content runat="server" ID="ScheduleValuesContent" ContentPlaceHolderID="ReportContentPlaceHolder">
 
 	<script type="text/javascript">
-		//	window.console = { log: function (smg) { alert(smg) } }
-
-
 		jQuery(document).ready(function ($) {
 
 			var reportScheduleFromDate = GetCookie("ReportScheduleFromDate");
 			var reportScheduleToDate = GetCookie("ReportScheduleToDate");
-			console.log("Checking cookie dates: ", reportScheduleFromDate, reportScheduleToDate);
 			if (reportScheduleFromDate && reportScheduleToDate) {
 				$('#dtFrom').val(reportScheduleFromDate);
 				$('#dtTo').val(reportScheduleToDate);
@@ -35,43 +31,6 @@
 					SetCookie("ReportScheduleToDate", dateText);
 				}
 			});
-
-			//Фикс бесконечных айфреймов
-			if (document.location.href.indexOf("iframe=true") > 0)
-				$("iframe").remove();
-			$("iframe").attr("src", document.location.href + "&iframe=true");
-
-			//Обновляем айфрейм
-			var refresh =  function () {
-				var newbody = $("iframe").contents();
-				if (newbody.find(".error").html() === undefined)
-					return;
-				//Отображаем обновленное сообщение
-				$(".error").html(newbody.find(".error").html());
-				$(".error").attr("style", newbody.find(".error").attr("style"));
-				//Если операция выполнена, то расслабляемся и останавливаем выполнение
-				console.log(newbody.find(".error").html());
-				if (newbody.find(".error").html() == "" || newbody.find(".error").html().indexOf("Операция выполнена") >= 0) {
-					console.log("Операция выполнена");
-					$(".executeMailing").removeAttr('disabled');
-					$(".execute").removeAttr('disabled');
-					$(".execute").val('Выполнить задание');
-					if (newbody.find(".error").html() == "")
-						$(".error").html("Операция завершилась");
-					//Обновляем статистику
-					var reportSend = newbody.find(".reportSendStatistic");
-					if (reportSend)
-						$(".reportSendStatistic").parent().html(reportSend.parent().html());
-					var reportRun = newbody.find(".reportRunStatistic");
-					if (reportRun)
-						$(".reportRunStatistic").parent().html(reportRun).parent().html();
-					clearInterval(int);
-					return;
-				}
-				setTimeout(function () { $("iframe").get(0).contentDocument.location.reload(true); }, 500);
-			};
-			var int = setInterval(refresh,100);
-
 		});
 	</script>
 
@@ -352,5 +311,4 @@
 		<br/>
 		<asp:Button ID="btnApply" runat="server" Text="Применить" OnClick="btnApply_Click" ValidationGroup="vgPassword" />
 	</div>
-	<iframe style="width:1px; height: 1px" src=""></iframe>
 </asp:Content>
