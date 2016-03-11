@@ -528,5 +528,10 @@ where rg.RegionCode in (" +
 		{
 			return ExcelHelper.GetSheetName(ReportCaption);
 		}
+
+		public override string ToString()
+		{
+			return $"Отчет {ReportCode} {ReportCaption} ${base.ToString()}";
+		}
 	}
 }

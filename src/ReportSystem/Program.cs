@@ -114,19 +114,17 @@ namespace Inforoom.ReportSystem
 						trx.Commit();
 					}
 
-					using(var trx = session.BeginTransaction()) {
-						if (!String.IsNullOrEmpty(timeout))
-							session.CreateSQLQuery($"set interactive_timeout={timeout};set wait_timeout={timeout};").ExecuteUpdate();
-						report = session.Get<GeneralReport>((uint)generalReportId);
-						if (report == null)
-							throw new Exception($"Отчет с кодом {generalReportId} не существует.");
-						if (!report.Enabled && !manual)
-							throw new ReportException("Невозможно выполнить отчет, т.к. отчет выключен.");
+					report = session.Get<GeneralReport>((uint)generalReportId);
+					if (report == null)
+						throw new Exception($"Отчет с кодом {generalReportId} не существует.");
+					if (!report.Enabled && !manual)
+						throw new ReportException("Невозможно выполнить отчет, т.к. отчет выключен.");
 
-						_log.DebugFormat("Запуск отчета {0}", report.Id);
-						report.ProcessReports(reportLog, mc, interval, dtFrom, dtTo);
-						report.LogSuccess();
-						_log.DebugFormat("Отчет {0} выполнился успешно", report.Id);
+					_log.DebugFormat("Запуск отчета {0}", report.Id);
+					report.ProcessReports(reportLog, mc, interval, dtFrom, dtTo);
+					_log.DebugFormat("Отчет {0} выполнился успешно", report.Id);
+
+					using(var trx = session.BeginTransaction()) {
 						reportLog.EndTime = DateTime.Now;
 						trx.Commit();
 					}

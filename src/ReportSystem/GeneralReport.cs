@@ -209,13 +209,14 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 		public void ProcessReports(ReportExecuteLog log, MySqlConnection connection, bool interval, DateTime begin, DateTime end, bool load = true)
 		{
 			Connection = connection;
-			if (load)
-				Load(interval, begin, end);
 			try {
+				if (load)
+					Load(interval, begin, end);
 				var files = ArchFile(BuildResultFile());
 				SafeCopyFileToFtp(files);
 				SendReport(files, log);
 				Historify(files, log);
+				LogSuccess();
 			}
 			finally {
 				Clean();
@@ -281,11 +282,9 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			while (Reports.Count > 0) {
 				var report = Reports.Dequeue();
 				try {
-					using (new SessionScope()) {
-						ArHelper.WithSession(s => {
-							report.Session = s;
-							report.Write(_mainFileName);
-						});
+					using (var session = Factory.OpenSession(Connection)) {
+						report.Session = session;
+						report.Write(_mainFileName);
 					}
 					report.ToLog(Id); // протоколируем успешное выполнение отчета
 					foreach (var warning in report.Warnings) {
@@ -294,13 +293,14 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 					emptyReport = false;
 				}
 				catch (Exception ex) {
+					Logger.Warn($"Ошибка при выполнении отчета {report}", ex);
 					report.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
 					if (ex is ReportException) {
 						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), Payer != null ? Payer.Name : "", Id, report.ReportCode, report.ReportCaption);
+						Mailer.MailReportErr(ex.ToString(), Payer?.Name, Id, report.ReportCode, report.ReportCaption);
 						continue; // выполняем следующий отчет
 					}
-					throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer != null ? Payer.Name : ""); // передаем наверх
+					throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer?.Name); // передаем наверх
 				}
 			}
 
