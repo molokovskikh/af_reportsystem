@@ -288,7 +288,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 					}
 					report.ToLog(Id); // протоколируем успешное выполнение отчета
 					foreach (var warning in report.Warnings) {
-						Mailer.MailReportNotify(warning, Payer != null ? Payer.Name : "", Id, report.ReportCode);
+						Mailer.MailReportNotify(warning, Payer?.Name, Id, report.ReportCode);
 					}
 					emptyReport = false;
 				}
