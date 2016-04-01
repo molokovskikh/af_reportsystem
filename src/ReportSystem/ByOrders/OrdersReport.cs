@@ -167,7 +167,7 @@ namespace Inforoom.ReportSystem
 				//От текущей даты вычитаем интервал - дата начала отчета
 				Begin = End.AddDays(-ReportInterval).Date;
 			}
-			FilterDescriptions.Add($"Период дат: {Begin:d} - {End:d}");
+			FilterDescriptions.Add($"Период дат: {Begin:dd.MM.yyyy HH:mm:ss} - {End:dd.MM.yyyy HH:mm:ss}");
 
 			LoadFilters();
 			CheckAfterLoadFields();
