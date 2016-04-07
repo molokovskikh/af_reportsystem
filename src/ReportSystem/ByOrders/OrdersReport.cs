@@ -362,8 +362,8 @@ create temporary table MixedData ENGINE=MEMORY
 			DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS ProviderCodes;
 create temporary table ProviderCodes (" +
-				(showCode ? "Code varchar(20), " : String.Empty) +
-				(showCodeCr ? "CodeCr varchar(20), " : String.Empty) +
+				(showCode ? "Code varchar(255), " : String.Empty) +
+				(showCodeCr ? "CodeCr varchar(255), " : String.Empty) +
 				"CatalogCode int unsigned, codefirmcr int unsigned," +
 				(showCode ? "key Code(Code), " : String.Empty) +
 				(showCodeCr ? "key CodeCr(CodeCr), " : String.Empty) +
