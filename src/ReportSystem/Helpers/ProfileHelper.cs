@@ -26,18 +26,6 @@ namespace Inforoom.ReportSystem.Helpers
 		private static Operation currentOperation;
 		private static DateTime firstStartedOn;
 
-		public static bool IsProfiling
-		{
-			get
-			{
-#if TESTING
-				return true;
-#else
-				return false;
-#endif
-			}
-		}
-
 		public static void Start()
 		{
 			currentOperation = null;
@@ -47,10 +35,6 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void Next(string operation)
 		{
 			End();
-			if (IsProfiling) {
-				currentOperation = new Operation(operation);
-				Console.WriteLine("Started " + operation);
-			}
 			if (log.IsDebugEnabled) {
 				currentOperation = new Operation(operation);
 				log.Debug("Started " + operation);
@@ -60,11 +44,6 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void SpendedTime(string operation)
 		{
 			var op = currentOperation;
-			if (IsProfiling) {
-				var duration = DateTime.Now.Subtract(op.startedOn);
-				Console.WriteLine(operation + duration.TotalMilliseconds + " milliseconds.");
-				currentOperation = null;
-			}
 			if (log.IsDebugEnabled) {
 				var duration = DateTime.Now.Subtract(op.startedOn);
 				log.Debug(operation + duration.TotalMilliseconds + " milliseconds.");
@@ -75,13 +54,6 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void End()
 		{
 			var operation = currentOperation;
-			if (operation == null)
-				return;
-			if (IsProfiling) {
-				var duration = DateTime.Now.Subtract(operation.startedOn);
-				Console.WriteLine(operation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
-				currentOperation = null;
-			}
 			if (log.IsDebugEnabled) {
 				var duration = DateTime.Now.Subtract(operation.startedOn);
 				log.Debug(operation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
@@ -92,10 +64,6 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void Stop()
 		{
 			End();
-			if (IsProfiling) {
-				var duration = DateTime.Now.Subtract(firstStartedOn);
-				Console.WriteLine("End!!! After " + duration.TotalMilliseconds + " milliseconds.");
-			}
 			if (log.IsDebugEnabled) {
 				var duration = DateTime.Now.Subtract(firstStartedOn);
 				log.Debug("End!!! After " + duration.TotalMilliseconds + " milliseconds.");
@@ -104,10 +72,6 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void WriteLine(MySqlCommand command)
 		{
-			if (IsProfiling) {
-				Console.WriteLine(command.CommandText + ";");
-				Console.WriteLine(command.Parameters.Cast<MySqlParameter>().Implode(p => Tuple.Create(p.ParameterName, p.Value)) + ";");
-			}
 			if (log.IsDebugEnabled) {
 				log.Debug(command.CommandText + ";");
 				log.Debug(command.Parameters.Cast<MySqlParameter>().Implode(p => Tuple.Create(p.ParameterName, p.Value)) + ";");
@@ -116,8 +80,6 @@ namespace Inforoom.ReportSystem.Helpers
 
 		public static void WriteLine(string text)
 		{
-			if (IsProfiling)
-				Console.WriteLine(text + ";");
 			if (log.IsDebugEnabled) {
 				log.Debug(text);
 			}

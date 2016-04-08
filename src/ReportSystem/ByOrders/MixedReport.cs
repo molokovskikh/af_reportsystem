@@ -267,13 +267,13 @@ order by AllSum desc";
 
 			if (!HideSupplierStat) {
 				GroupHeaders.Add(new ColumnGroupHeader(
-					String.Format("{0}", _supplierName),
+					_supplierName,
 					"SourceFirmCodeSum",
 					"SourceSuppliersSoldPosition"));
 			}
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				GroupHeaders.Add(new ColumnGroupHeader(
-					String.Format("Список поставщиков-конкурентов №{0}", i + 1),
+					$"Список поставщиков-конкурентов №{i + 1}",
 					"RivalsSum" + i,
 					"RivalsSuppliersSoldPosition" + i));
 			}

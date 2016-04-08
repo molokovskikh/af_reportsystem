@@ -441,9 +441,7 @@ from (
 	left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
 group by {groupExpression}";
 
-#if DEBUG
-			Console.WriteLine(DataAdapter.SelectCommand.CommandText);
-#endif
+			Logger.Debug(DataAdapter.SelectCommand.CommandText);
 			DataAdapter.SelectCommand.ExecuteNonQuery();
 			return " left join ProviderCodes on ProviderCodes.CatalogCode = " + productField.primaryField +
 				(producerField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", producerField.primaryField) : String.Empty);
