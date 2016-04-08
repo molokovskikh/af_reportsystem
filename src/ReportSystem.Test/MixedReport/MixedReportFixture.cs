@@ -246,6 +246,26 @@ namespace ReportSystem.Test
 			Assert.AreEqual(sum, row.GetCell(19).NumericCellValue);
 		}
 
+		[Test]
+		public void Ignore_price_codes()
+		{
+			DefaultConf();
+
+			//в orderlist поле ограничено 20 символами
+			var code = Guid.NewGuid().ToString().Substring(0, 20);
+			order.Items[0].Code = code;
+			var item = order.Items[0];
+			supplier.CreateSampleCore(session, new [] { item.Product });
+			supplier.Prices[0].Core[0].Code = Guid.NewGuid().ToString();
+			Property("CodeSource", 1);
+			Property("ShowCode", true);
+			Property("ShowCodeCr", false);
+			var sheet = ReadReport<MixedReport>();
+
+			var row = FindRowByProduct(sheet, item.Product);
+			Assert.AreEqual(code, row.GetCell(0).StringCellValue);
+		}
+
 		private static string MakeColumns(string decl)
 		{
 			var report = new OrdersReport();

@@ -16,6 +16,12 @@ using System.Drawing;
 
 namespace Inforoom.ReportSystem
 {
+	public enum CodeSource
+	{
+		[Description("Кодами из прайс-листа и истории заказов")] OrdersAndPrices,
+		[Description("Только кодами из заказов")] Orders
+	}
+
 	public class MixedReport : OrdersReport
 	{
 		[Description("Скрыть статистику поставщика")]
@@ -23,6 +29,9 @@ namespace Inforoom.ReportSystem
 
 		[Description("Исключить сроковые товары")]
 		public bool HideJunk;
+
+		[Description("Заполнять колонку код")]
+		public CodeSource CodeSource;
 		//Поставщик, по которому будет производиться отчет
 		public int SourceFirmCode;
 		//Отображать поле Code из прайс-листа поставщика?
@@ -120,7 +129,7 @@ namespace Inforoom.ReportSystem
 			}
 
 			if (ShowCode || ShowCodeCr)
-				CalculateSupplierIds(SourceFirmCode, ShowCode, ShowCodeCr);
+				CalculateSupplierIds(SourceFirmCode, ShowCode, ShowCodeCr, CodeSource);
 
 			ProfileHelper.Next("GenerateReport2");
 

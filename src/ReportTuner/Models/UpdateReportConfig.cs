@@ -137,11 +137,10 @@ namespace ReportTuner.Models
 				}
 				else if (type == typeof(int) || type == typeof(uint))
 					localType = "INT";
+				else if (type.IsEnum)
+					localType = "ENUM";
 				else
-					throw new Exception(String.Format("Не знаю как преобразовать тип {0} свойства {1} типа {2}",
-						type,
-						name,
-						type));
+					throw new Exception($"Не знаю как преобразовать тип {type} свойства {name} типа {type}");
 				try {
 					var report = Activator.CreateInstance(reportType);
 					var field = typeProperty as FieldInfo;
@@ -160,10 +159,14 @@ namespace ReportTuner.Models
 					DefaultValue = defaultValue,
 					SelectStoredProcedure = procedures.GetValueOrDefault(name)
 				};
+				if (type.IsEnum) {
+					foreach (var value in Enum.GetValues(type)) {
+						var valueName = type.GetMember(value.ToString())[0].GetCustomAttribute<DescriptionAttribute>().Description;
+						reportTypeProperty.Enum.AddValue(valueName, (int)value);
+					}
+				}
 				reportTypeModel.AddProperty(reportTypeProperty);
-				log.WarnFormat("Добавил параметр '{0}' для отчета {1}",
-					reportTypeProperty.DisplayName,
-					reportTypeModel.ReportTypeName);
+				log.Warn($"Добавил параметр '{reportTypeProperty.DisplayName}' для отчета {reportTypeModel.ReportTypeName}");
 			}
 		}
 

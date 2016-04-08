@@ -197,7 +197,7 @@ namespace Inforoom.ReportSystem
 					var value = GetReportParam(property.Name);
 					if (value == null)
 						continue;
-					if (!property.PropertyType.IsAssignableFrom(value.GetType()))
+					if (!property.PropertyType.IsInstanceOfType(value))
 						value = Convert.ChangeType(value, property.PropertyType);
 					property.SetValue(this, value, null);
 				}
@@ -207,8 +207,13 @@ namespace Inforoom.ReportSystem
 					var value = GetReportParam(field.Name);
 					if (value == null)
 						continue;
-					if (!field.FieldType.IsAssignableFrom(value.GetType()))
-						value = Convert.ChangeType(value, field.FieldType);
+					if (!field.FieldType.IsInstanceOfType(value)) {
+						if (field.FieldType.IsEnum) {
+							value = Enum.ToObject(field.FieldType, Convert.ChangeType(value, typeof(int)));
+						} else {
+							value = Convert.ChangeType(value, field.FieldType);
+						}
+					}
 					field.SetValue(this, value);
 				}
 			}

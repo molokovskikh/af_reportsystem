@@ -337,7 +337,8 @@ create temporary table MixedData ENGINE=MEMORY
 			destination.EndLoadData();
 		}
 
-		protected string CalculateSupplierIds(int supplierId, bool showCode, bool showCodeCr)
+		protected string CalculateSupplierIds(int supplierId, bool showCode, bool showCodeCr,
+			CodeSource codeSource = CodeSource.OrdersAndPrices)
 		{
 			if (!showCode && !showCodeCr)
 				return "";
@@ -356,8 +357,46 @@ create temporary table MixedData ENGINE=MEMORY
 			}
 
 			ProfileHelper.Next("FillCodes");
-			var groupExpression = productField.primaryField + (producerField != null ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", producerField.primaryField) : String.Empty);
-			var selectExpression = productField.primaryField + (producerField != null ? ", " + String.Format("if (c.Pharmacie = 1, {0}, 0)", producerField.primaryField) : ", null ");
+			var groupExpression = productField.primaryField + (producerField != null
+				? $", if (c.Pharmacie = 1, {producerField.primaryField}, 0)"
+				: String.Empty);
+			var selectExpression = productField.primaryField + (producerField != null
+				? $", if (c.Pharmacie = 1, {producerField.primaryField}, 0)"
+				: ", null ");
+			var priceCodesSql = @"
+union
+
+select
+distinct " +
+				(showCode ? "core.Code, " : String.Empty) +
+				(showCodeCr ? "core.CodeCr, " : String.Empty) +
+				$@"
+	core.ProductId,
+	core.CodeFirmCr
+from
+	usersettings.Pricesdata pd,
+	farm.Core0 core
+where
+	pd.FirmCode = {supplierId}
+	and core.PriceCode = pd.PriceCode
+	and pd.Enabled = 1
+	and exists (
+		select
+			*
+		from
+			usersettings.pricescosts pc1,
+			usersettings.priceitems pim1,
+			farm.formrules fr1
+		where
+			pc1.PriceCode = pd.PriceCode
+		and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc1.PriceCode and prd.BaseCost=pc1.CostCode limit 1)
+		and pim1.Id = pc1.PriceItemId
+		and fr1.Id = pim1.FormRuleId
+		and to_days(now())-to_days(pim1.PriceDate) < fr1.MaxOld
+	)
+";
+			if (codeSource == CodeSource.Orders)
+				priceCodesSql = "";
 
 			DataAdapter.SelectCommand.CommandText = @"
 drop temporary table IF EXISTS ProviderCodes;
@@ -374,64 +413,36 @@ select " +
 				(showCodeCr ? "CoreCodes.CodeCr, " : String.Empty) +
 				selectExpression +
 				@"
-from (((
-select
-distinct " +
-				(showCode ? "ol.Code, " : String.Empty) +
-				(showCodeCr ? "ol.CodeCr, " : String.Empty) +
-				String.Format(@"
-  ol.ProductId,
-  ol.CodeFirmCr
-from {0}.OrdersHead oh,
-  {0}.OrdersList ol,
-  usersettings.pricesdata pd
-where
-	ol.OrderID = oh.RowID
-	and ol.Junk = 0
-	and pd.PriceCode = oh.PriceCode
-	and pd.IsLocal = 0
-	and pd.FirmCode = ", OrdersSchema) + supplierId +
-				" and oh.WriteTime > '" + Begin.ToString(MySqlConsts.MySQLDateFormat) + "' " +
-				" and oh.WriteTime < '" + End.ToString(MySqlConsts.MySQLDateFormat) + "' " +
-				@")
-union
-(
-select
-distinct " +
-				(showCode ? "core.Code, " : String.Empty) +
-				(showCodeCr ? "core.CodeCr, " : String.Empty) +
-				@"
-  core.ProductId,
-  core.CodeFirmCr
-from
-  usersettings.Pricesdata pd,
-  farm.Core0 core
-where
-	pd.FirmCode = " + supplierId + @"
-	and core.PriceCode = pd.PriceCode
-and pd.Enabled = 1
-and exists (select
-  *
-from
-  usersettings.pricescosts pc1,
-  usersettings.priceitems pim1,
-  farm.formrules fr1
-where
-	pc1.PriceCode = pd.PriceCode
-and exists(select * from userSettings.pricesregionaldata prd where prd.PriceCode = pc1.PriceCode and prd.BaseCost=pc1.CostCode limit 1)
-and pim1.Id = pc1.PriceItemId
-and fr1.Id = pim1.FormRuleId
-and (to_days(now())-to_days(pim1.PriceDate)) < fr1.MaxOld)
-)) CoreCodes)
-  join catalogs.products p on p.Id = CoreCodes.ProductId
-  join catalogs.catalog c on c.Id = p.CatalogId
-  join catalogs.catalognames cn on cn.id = c.NameId
-  left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
-group by " +
-				groupExpression;
+from (
+	select
+		distinct " +
+					(showCode ? "ol.Code, " : String.Empty) +
+					(showCodeCr ? "ol.CodeCr, " : String.Empty) +
+					$@"
+		ol.ProductId,
+		ol.CodeFirmCr
+	from {OrdersSchema}.OrdersHead oh,
+		{OrdersSchema}.OrdersList ol,
+		usersettings.pricesdata pd
+	where
+		ol.OrderID = oh.RowID
+		and ol.Junk = 0
+		and pd.PriceCode = oh.PriceCode
+		and pd.IsLocal = 0
+		and pd.FirmCode = {supplierId}
+		and oh.WriteTime > '" + Begin.ToString(MySqlConsts.MySQLDateFormat) + @"'
+		and oh.WriteTime < '" + End.ToString(MySqlConsts.MySQLDateFormat) + $@"'
+
+	{priceCodesSql}
+	) as CoreCodes
+	join catalogs.products p on p.Id = CoreCodes.ProductId
+	join catalogs.catalog c on c.Id = p.CatalogId
+	join catalogs.catalognames cn on cn.id = c.NameId
+	left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
+group by {groupExpression}";
 
 #if DEBUG
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
+			Console.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
 			DataAdapter.SelectCommand.ExecuteNonQuery();
 			return " left join ProviderCodes on ProviderCodes.CatalogCode = " + productField.primaryField +
@@ -467,7 +478,7 @@ where
 				sql += " group by pd.FirmCode";
 				var count = Connection.Read(sql).Count();
 				if (count < 3) {
-					throw new ReportException(String.Format("Фактическое количество прайс листов меньше трех, получено прайс-листов {0}", count));
+					throw new ReportException($"Фактическое количество прайс листов меньше трех, получено прайс-листов {count}");
 				}
 			}
 		}
