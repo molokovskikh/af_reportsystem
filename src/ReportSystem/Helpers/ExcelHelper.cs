@@ -200,9 +200,9 @@ namespace Inforoom.ReportSystem.Helpers
 			//тк runer не ходит интерактивно у него не будет настройки разрешения
 			//и excel запустит в малом окне и если данных будет много это приведет к тому
 			//что окно при операция будет перемещаться
-			ws.Application.ActiveWindow.ScrollIntoView(0, 0, 200, 200, true);
 			//Замораживаем некоторые колонки и столбцы
 			ws.Range[begin, end].Select();
+			ws.Application.ActiveWindow.ScrollIntoView(0, 0, 200, 200, true);
 			ws.Application.ActiveWindow.FreezePanes = true;
 		}
 
