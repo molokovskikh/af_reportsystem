@@ -54,6 +54,8 @@ namespace Inforoom.ReportSystem.Helpers
 		public static void End()
 		{
 			var operation = currentOperation;
+			if (operation == null)
+				return;
 			if (log.IsDebugEnabled) {
 				var duration = DateTime.Now.Subtract(operation.startedOn);
 				log.Debug(operation.OperationName + " ended after " + duration.TotalMilliseconds + " milliseconds.");
