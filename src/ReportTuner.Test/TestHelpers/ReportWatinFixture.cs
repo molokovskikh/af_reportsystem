@@ -19,7 +19,7 @@ namespace ReportTuner.Test.TestHelpers
 
 		protected Report CreateReport(string reportType)
 		{
-			payer = new TestPayer();
+			payer = new TestPayer("Тестовый плательщик");
 			var org = new TestLegalEntity(payer, "Тестовое юр. лицо");
 			payer.Orgs.Add(org);
 			session.Save(payer);

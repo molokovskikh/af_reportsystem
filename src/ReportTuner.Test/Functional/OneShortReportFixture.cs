@@ -71,7 +71,7 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void Send_ready_report()
 		{
-			var payer = new TestPayer();
+			var payer = new TestPayer("Тестовый плательщик");
 			session.Save(payer);
 			var report = new GeneralReport(session.Load<Payer>(payer.Id));
 			session.Save(report);

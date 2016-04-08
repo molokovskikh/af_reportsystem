@@ -34,7 +34,7 @@ namespace ReportTuner.Test.Integration
 		[Test]
 		public void TestRecipientsList()
 		{
-			var payer = new TestPayer();
+			var payer = new TestPayer("Тестовый плательщик");
 			session.Save(payer);
 
 			var contactGroupOwner = new TestContactGroupOwner();
@@ -66,7 +66,7 @@ namespace ReportTuner.Test.Integration
 		{
 			var dt = DateTime.Now.ToString();
 
-			var payer = new TestPayer();
+			var payer = new TestPayer("Тестовый плательщик");
 			session.Save(payer);
 
 			var contactGroupOwner = new TestContactGroupOwner();
