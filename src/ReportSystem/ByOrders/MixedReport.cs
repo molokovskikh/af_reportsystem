@@ -424,8 +424,7 @@ order by AllSum desc";
 			if (ShowCodeCr)
 				freezeCount++;
 
-			ws.Application.ActiveWindow.SplitColumn = freezeCount;
-			ws.Application.ActiveWindow.FreezePanes = true;
+			ExcelHelper.SafeFreeze(ws, freezeCount);
 		}
 	}
 }
