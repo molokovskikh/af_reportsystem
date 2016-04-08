@@ -68,7 +68,7 @@ namespace Inforoom.ReportSystem.Filters
 			outputCaption = OutputCaption;
 			position = DefaultPosition;
 			visible = false;
-			if (String.IsNullOrEmpty(TableList))
+			if (string.IsNullOrEmpty(TableList))
 				throw new ArgumentException("Параметр не может быть null или пустой строкой.", "TableList");
 			tableList = TableList;
 			equalValuesCaption = EqualValuesCaption;
@@ -102,20 +102,20 @@ namespace Inforoom.ReportSystem.Filters
 
 		public string GetNamesSql(List<ulong> ids)
 		{
-			return String.Format("select {0} from {1} where ({2} in ({3})) {4} order by {5}",
-				viewField, tableList, primaryField, ids.Implode(), whereList, outputField);
+			return
+				$"select {viewField} from {tableList} where ({primaryField} in ({ids.Implode()})) {whereList} order by {outputField}";
 		}
 
 		public string GetEqualValues()
 		{
-			return String.Format("({0} in ({1}))", primaryField, equalValues.Implode());
+			return $"({primaryField} in ({equalValues.Implode()}))";
 		}
 
 		public string GetNonEqualValues()
 		{
 			if (Nullable)
-				return String.Format("({0} is null or {0} not in ({1}))", primaryField, nonEqualValues.Implode());
-			return String.Format("({0} not in ({1}))", primaryField, nonEqualValues.Implode());
+				return string.Format("({0} is null or {0} not in ({1}))", primaryField, nonEqualValues.Implode());
+			return $"({primaryField} not in ({nonEqualValues.Implode()}))";
 		}
 	}
 }

@@ -1212,32 +1212,6 @@ order by FullName, FirmCr";
 #endif
 		}
 
-		private string GetFromForAssortmentPrice()
-		{
-			string result = @"from
-Core AllPrices
-join farm.core0 FarmCore on FarmCore.Id = AllPrices.Id
-left join catalogs.products on products.id = AllPrices.ProductId
-";
-			if(!_reportIsFull)
-				result += "right join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode";
-			else
-				result += "left join TmpSourceCodes SourcePrice on SourcePrice.CatalogCode=AllPrices.CatalogCode";
-
-			if (_reportType > 2)
-				result += @"
-	left join catalogs.Producers cfc on cfc.Id = SourcePrice.codefirmcr";
-
-			result += @"
-left join farm.synonym s on s.SynonymCode = SourcePrice.SynonymCode
-left join farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = SourcePrice.SynonymFirmCrCode";
-
-			if (_reportType > 2)
-				result += @"
-where SourcePrice.codefirmcr=FarmCore.codefirmcr or SourcePrice.codefirmcr is null";
-			return result;
-		}
-
 		protected override void FormatExcel(string fileName)
 		{
 			ExcelHelper.Workbook(fileName, wb => {

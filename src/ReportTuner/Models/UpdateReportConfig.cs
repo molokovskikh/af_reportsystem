@@ -129,6 +129,7 @@ namespace ReportTuner.Models
 			var desc = ((DescriptionAttribute)attributes[0]).Description;
 
 			var prop = reportTypeModel.Properties.FirstOrDefault(p => p.PropertyName.Match(name));
+			var optional = false;
 			if (prop == null) {
 				var localType = "";
 				var defaultValue = "0";
@@ -137,7 +138,10 @@ namespace ReportTuner.Models
 				}
 				else if (type == typeof(int) || type == typeof(uint))
 					localType = "INT";
-				else if (type.IsEnum)
+				else if (type == typeof(int?)) {
+					localType = "INT";
+					optional = true;
+				} else if (type.IsEnum)
 					localType = "ENUM";
 				else
 					throw new Exception($"Не знаю как преобразовать тип {type} свойства {name} типа {type}");
@@ -155,7 +159,7 @@ namespace ReportTuner.Models
 					//не реализовано используем значение по умолчанию
 				}
 				var reportTypeProperty = new ReportTypeProperty(name, localType, desc) {
-					Optional = false,
+					Optional = optional,
 					DefaultValue = defaultValue,
 					SelectStoredProcedure = procedures.GetValueOrDefault(name)
 				};

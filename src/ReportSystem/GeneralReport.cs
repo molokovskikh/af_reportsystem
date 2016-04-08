@@ -293,14 +293,19 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 					emptyReport = false;
 				}
 				catch (Exception ex) {
-					Logger.Warn($"Ошибка при выполнении отчета {report}", ex);
-					report.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
-					if (ex is ReportException) {
-						// уведомление об ошибке при формировании одного из подотчетов
-						Mailer.MailReportErr(ex.ToString(), Payer?.Name, Id, report.ReportCode, report.ReportCaption);
-						continue; // выполняем следующий отчет
+					//если отчетов больше нет то нет смысла давить ошибки
+					if (Reports.Count > 0) {
+						Logger.Warn($"Ошибка при выполнении отчета {report}", ex);
+						report.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
+						if (ex is ReportException) {
+							// уведомление об ошибке при формировании одного из подотчетов
+							Mailer.MailReportErr(ex.ToString(), Payer?.Name, Id, report.ReportCode, report.ReportCaption);
+						}
+					} else {
+						if (ex is ReportException)
+							throw;
+						throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer?.Name);
 					}
-					throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer?.Name); // передаем наверх
 				}
 			}
 

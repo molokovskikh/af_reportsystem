@@ -13,6 +13,8 @@ using Inforoom.ReportSystem.Filters;
 
 using System.Collections.Generic;
 using System.Drawing;
+using Common.Models;
+using NHibernate.Linq;
 
 namespace Inforoom.ReportSystem
 {
@@ -32,6 +34,10 @@ namespace Inforoom.ReportSystem
 
 		[Description("Заполнять колонку код")]
 		public CodeSource CodeSource;
+
+		[Description("Позиция колонки \"Синоним поставщика\" в отчете")]
+		public int? SupplierSynonymPosition;
+
 		//Поставщик, по которому будет производиться отчет
 		public int SourceFirmCode;
 		//Отображать поле Code из прайс-листа поставщика?
@@ -106,13 +112,28 @@ namespace Inforoom.ReportSystem
 			//Выбираем поле "Производитель", если в настройке отчета есть соответствующий параметр
 			firmCrField = selectedField.Find(value => value.reportPropertyPreffix == "FirmCr");
 
+			if (SupplierSynonymPosition != null) {
+				selectedField.Add(
+					new FilterField {
+						visible = true,
+						position = SupplierSynonymPosition.Value,
+						primaryField = "p.Id",
+						viewField = "ifnull(s.Synonym, concat(c.Name, ' ', ifnull(p.Properties, ''))) as SupplierSynonym",
+						outputField = "SupplierSynonym",
+						outputCaption = "Наименование",
+				});
+			}
+
 			//Проверяем, что выбран один из параметров для отображения: Наименование, Полное Наименование, Продукт
 			var nameFields = selectedField.FindAll(
-				value => (value.reportPropertyPreffix == "ProductName") || value.reportPropertyPreffix == "FullName" || value.reportPropertyPreffix == "ShortName");
+				value => (value.reportPropertyPreffix == "ProductName")
+					|| value.reportPropertyPreffix == "FullName"
+					|| value.reportPropertyPreffix == "ShortName"
+					|| value.outputField == "SupplierSynonym");
 			if (nameFields.Count == 0)
-				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" не выбрано ни одно поле.");
+				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\", \"Синоним поставщика\" не выбрано ни одно поле.");
 			if (nameFields.Count > 1)
-				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\" должно быть выбрано только одно поле.");
+				throw new ReportException("Из полей \"Наименование продукта\", \"Полное наименование\", \"Наименование\", \"Синоним поставщика\" должно быть выбрано только одно поле.");
 			nameField = nameFields[0];
 		}
 
@@ -135,8 +156,8 @@ namespace Inforoom.ReportSystem
 
 			var selectCommand = BuildSelect();
 
-			//max(cfc.Name) - судя по реализации mysql игнорирует null для min или max, если cfc.Name еслть значение отличное от null
-			//мы долны выбрать его а не null
+			//max(cfc.Name) - судя по реализации mysql игнорирует null для min или max, если cfc.Name есть значение отличное от null
+			//мы должны выбрать его а не null
 			if (IncludeProducerName)
 				selectCommand = selectCommand.Replace("cfc.Id", "if(c.Pharmacie = 1, cfc.Id, 0) as cfc_id")
 					.Replace("cfc.Name", "if(c.Pharmacie = 1, max(cfc.Name), 'Нелекарственный ассортимент')");
@@ -153,6 +174,11 @@ namespace Inforoom.ReportSystem
 				FilterDescriptions.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
 			}
 
+			var priceIds = Session.Query<PriceList>().Where(x => x.Supplier.Id == SourceFirmCode)
+				.ToArray()
+				.Implode(x => x.PriceCode);
+			if (String.IsNullOrEmpty(priceIds))
+				priceIds = "0";
 			CheckSuppliersCount(filter);
 
 			for (var i = 0; i < concurrentGroups.Count; i++) {
@@ -168,17 +194,17 @@ Count(distinct if(pd.firmcode in ({1}), pd.FirmCode, NULL)) as RivalsSuppliersSo
 					i, concurrentGroups[i].Implode());
 			}
 
-			selectCommand = String.Concat(selectCommand, String.Format(@"
-sum(if(pd.firmcode = {0}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
-sum(if(pd.firmcode = {0}, ol.quantity, NULL)) SourceFirmCodeRows,
-Min(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMinCost,
-Avg(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeAvgCost,
-Max(if(pd.firmcode = {0}, ol.cost, NULL)) as SourceFirmCodeMaxCost,
-Count(distinct if(pd.firmcode = {0}, oh.RowId, NULL)) as SourceFirmDistinctOrderId,
-Count(distinct if(pd.firmcode = {0}, oh.AddressId, NULL)) as SourceFirmDistinctAddressId,
-Count(distinct if(pd.firmcode = {0}, pd.FirmCode, NULL)) as SourceSuppliersSoldPosition,
+			selectCommand += $@"
+sum(if(pd.firmcode = {SourceFirmCode}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
+sum(if(pd.firmcode = {SourceFirmCode}, ol.quantity, NULL)) SourceFirmCodeRows,
+Min(if(pd.firmcode = {SourceFirmCode}, ol.cost, NULL)) as SourceFirmCodeMinCost,
+Avg(if(pd.firmcode = {SourceFirmCode}, ol.cost, NULL)) as SourceFirmCodeAvgCost,
+Max(if(pd.firmcode = {SourceFirmCode}, ol.cost, NULL)) as SourceFirmCodeMaxCost,
+Count(distinct if(pd.firmcode = {SourceFirmCode}, oh.RowId, NULL)) as SourceFirmDistinctOrderId,
+Count(distinct if(pd.firmcode = {SourceFirmCode}, oh.AddressId, NULL)) as SourceFirmDistinctAddressId,
+Count(distinct if(pd.firmcode = {SourceFirmCode}, pd.FirmCode, NULL)) as SourceSuppliersSoldPosition,
 
-{1}
+{concurrentSqlBlock}
 
 sum(ol.cost*ol.quantity) as AllSum,
 sum(ol.quantity) AllRows,
@@ -187,10 +213,9 @@ Avg(ol.cost) as AllAvgCost,
 Max(ol.cost) as AllMaxCost,
 Count(distinct oh.RowId) as AllDistinctOrderId,
 Count(distinct pd.firmcode) as AllSuppliersSoldPosition,
-Count(distinct oh.AddressId) as AllDistinctAddressId ", SourceFirmCode, concurrentSqlBlock));
-			selectCommand += String.Format(@"
-from {0}.OrdersHead oh
-  join {0}.OrdersList ol on ol.OrderID = oh.RowID
+Count(distinct oh.AddressId) as AllDistinctAddressId
+from {OrdersSchema}.OrdersHead oh
+  join {OrdersSchema}.OrdersList ol on ol.OrderID = oh.RowID
   join catalogs.products p on p.Id = ol.ProductId
   join catalogs.catalog c on c.Id = p.CatalogId
   join catalogs.catalognames cn on cn.id = c.NameId
@@ -205,7 +230,8 @@ from {0}.OrdersHead oh
   join farm.regions provrg on provrg.RegionCode = prov.HomeRegion
   join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
-  join billing.payers on payers.PayerId = le.PayerId", OrdersSchema) +
+  join billing.payers on payers.PayerId = le.PayerId
+  left join Farm.Synonym s on s.ProductId = ol.ProductId and s.Fresh = 1 and s.PriceCode in ({priceIds})" +
 				((ShowCode || ShowCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
 					((firmCrField != null ?
 						$" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({firmCrField.primaryField}, 0), 0)"

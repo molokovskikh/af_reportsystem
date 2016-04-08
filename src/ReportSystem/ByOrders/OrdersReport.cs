@@ -249,8 +249,9 @@ namespace Inforoom.ReportSystem
 			return GetValuesFromSQL(field.GetNamesSql(ids));
 		}
 
-		protected string BuildSelect()
+		protected string BuildSelect(FilterField[] additional = null)
 		{
+			additional = additional ?? new FilterField[0];
 			var selectCommand = "";
 			if (SupportProductNameOptimization) {
 				foreach (var rf in selectedField) // В целях оптимизации при некоторых случаях используем
@@ -273,14 +274,16 @@ create temporary table MixedData ENGINE=MEMORY
 ";
 			}
 
-			return selectCommand + selectedField.Where(rf => rf.visible).Aggregate("select ", (current, rf) => String.Concat(current, rf.primaryField, ", ", rf.viewField, ", "));
+			return selectCommand + selectedField.Concat(additional).Where(rf => rf.visible)
+				.OrderBy(x => x.position)
+				.Aggregate("select ", (current, rf) => String.Concat(current, rf.primaryField, ", ", rf.viewField, ", "));
 		}
 
 		protected string ApplyGroupAndSort(string selectCommand, string sort)
 		{
 			if(selectedField.Any(f => f.visible))
 				selectCommand = String.Concat(selectCommand, Environment.NewLine + "group by ", String.Join(",", (from rf in selectedField where rf.visible select rf.primaryField).ToArray()));
-			selectCommand = String.Concat(selectCommand, Environment.NewLine + String.Format("order by {0}", sort));
+			selectCommand = String.Concat(selectCommand, Environment.NewLine + $"order by {sort}");
 			return selectCommand;
 		}
 
@@ -315,7 +318,7 @@ create temporary table MixedData ENGINE=MEMORY
 
 		protected void CopyData(DataTable source, DataTable destination)
 		{
-			int visbleCount = selectedField.Count(x => x.visible);
+			var visbleCount = selectedField.Count(x => x.visible);
 			destination.BeginLoadData();
 			foreach (DataRow dr in source.Rows) {
 				var newrow = destination.NewRow();

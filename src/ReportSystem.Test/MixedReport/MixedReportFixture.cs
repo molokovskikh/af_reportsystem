@@ -142,15 +142,9 @@ namespace ReportSystem.Test
 			Assert.AreEqual(offer.Code, row.GetCell(0).StringCellValue, text);
 		}
 
-		private static IRow FindRowByProduct(ISheet sheet, TestProduct product)
+		private static IRow FindRowByProduct(ISheet sheet, TestProduct product, int col = 1)
 		{
-			var row = sheet.Rows().FirstOrDefault(r => {
-				var cell = r.GetCell(1);
-				if (cell == null)
-					return false;
-				return cell.StringCellValue.Contains(product.Name);
-			});
-			return row;
+			return sheet.Rows().FirstOrDefault(r => r.GetCell(col)?.StringCellValue.Contains(product.Name) ?? false);
 		}
 
 		[Test]
@@ -266,6 +260,25 @@ namespace ReportSystem.Test
 			Assert.AreEqual(code, row.GetCell(0).StringCellValue);
 		}
 
+		[Test]
+		public void Show_supplier_synonym()
+		{
+			SimpleConf();
+			var item = order.Items[0];
+			var synonym = Guid.NewGuid().ToString();
+			supplier.CreateSampleCore(session, new [] { item.Product });
+			var productSynonym = supplier.Prices[0].ProductSynonyms[0];
+			productSynonym.Name = synonym;
+			productSynonym.Fresh = true;
+			Property("SupplierSynonymPosition", 2);
+
+			var sheet = ReadReport<MixedReport>();
+
+			Console.WriteLine(ToText(sheet));
+			var rowCount = sheet.Rows().Count(x => x.GetCell(0)?.StringCellValue == synonym);
+			Assert.AreEqual(1, rowCount, $"не нашли строку с синонимов {synonym}");
+		}
+
 		private static string MakeColumns(string decl)
 		{
 			var report = new OrdersReport();
@@ -300,6 +313,23 @@ namespace ReportSystem.Test
 
 			Property("SourceFirmCode", (int)supplier.Id);
 			Property("BusinessRivals", new List<long> { rival.Id });
+		}
+
+		private void SimpleConf()
+		{
+			rival = TestSupplier.CreateNaked(session);
+			supplier = TestSupplier.CreateNaked(session);
+			client = TestClient.CreateNaked(session);
+			order = new TestOrder(client.Users[0], supplier.Prices[0]);
+			var product = session.Query<TestProduct>().First(p => p.CatalogProduct.CatalogName.Mnn != null);
+			order.WriteTime = order.WriteTime.AddDays(-1);
+			order.AddItem(product, 10, 897.23f);
+			session.Save(order);
+
+			Property("ByPreviousMonth", false);
+			Property("ReportInterval", 1);
+
+			Property("SourceFirmCode", (int)supplier.Id);
 		}
 	}
 }
