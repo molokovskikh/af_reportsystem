@@ -314,12 +314,14 @@ order by AllSum desc";
 			if (ShowCode) {
 				dc = res.Columns.Add("Code", typeof(String));
 				dc.Caption = "Код";
+				dc.ExtendedProperties.Add("Width", (int?)20);
 				dc.SetOrdinal(0);
 			}
 
 			if (ShowCodeCr) {
 				dc = res.Columns.Add("CodeCr", typeof(String));
 				dc.Caption = "Код изготовителя";
+				dc.ExtendedProperties.Add("Width", (int?)20);
 				dc.SetOrdinal(1);
 			}
 
