@@ -231,7 +231,11 @@ from {OrdersSchema}.OrdersHead oh
   join Customers.addresses adr on oh.AddressId = adr.Id
   join billing.LegalEntities le on adr.LegalEntityId = le.Id
   join billing.payers on payers.PayerId = le.PayerId
-  left join Farm.Synonym s on s.ProductId = ol.ProductId and s.Fresh = 1 and s.PriceCode in ({priceIds})" +
+	left join (
+		select * from Farm.Synonym
+		where Fresh = 1 and PriceCode in ({priceIds})
+		group by ProductId
+	) as s on s.ProductId = ol.ProductId " +
 				((ShowCode || ShowCodeCr) ? " left join ProviderCodes on ProviderCodes.CatalogCode = " + nameField.primaryField +
 					((firmCrField != null ?
 						$" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({firmCrField.primaryField}, 0), 0)"
