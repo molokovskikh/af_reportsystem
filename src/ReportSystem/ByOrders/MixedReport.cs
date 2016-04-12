@@ -121,6 +121,7 @@ namespace Inforoom.ReportSystem
 						viewField = "ifnull(s.Synonym, concat(c.Name, ' ', ifnull(p.Properties, ''))) as SupplierSynonym",
 						outputField = "SupplierSynonym",
 						outputCaption = "Наименование",
+						width = 40
 				});
 			}
 
