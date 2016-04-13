@@ -300,12 +300,12 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 						if (ex is ReportException) {
 							// уведомление об ошибке при формировании одного из подотчетов
 							Mailer.MailReportErr(ex.ToString(), Payer?.Name, Id, report.ReportCode, report.ReportCaption);
+							continue;
 						}
-					} else {
-						if (ex is ReportException)
-							throw;
-						throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer?.Name);
+					} else if (ex is ReportException) {
+						throw;
 					}
+					throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer?.Name);
 				}
 			}
 

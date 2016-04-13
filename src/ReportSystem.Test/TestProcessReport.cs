@@ -124,5 +124,18 @@ namespace ReportSystem.Test
 			Assert.That(logs[3].ErrorMessage, Is.Null);
 			Assert.That(logs[4].ErrorMessage, Is.StringContaining("Системная ошибка."));
 		}
+
+		[Test]
+		public void Do_not_throw_empty_exception()
+		{
+			var gr = new FakeGeneralReport();
+			var reports = new[] {
+				new FakeReportWithReportException()
+			};
+			reports.Each(x => gr.Reports.Enqueue(x));
+
+			var ex = Assert.Throws<ReportException>(() => gr.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today, false));
+			Assert.AreEqual("Ошибка при формировании отчета.", ex.Message);
+		}
 	}
 }
