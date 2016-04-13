@@ -212,8 +212,7 @@ order by FullName, FirmCr";
 			DataAdapter.Fill(_dsReport, "MinCatalog");
 
 #if DEBUG
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
-			var cnt = _dsReport.Tables["MinCatalog"].Rows.Count;
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 #endif
 		}
 
@@ -306,8 +305,7 @@ order by FullName, FirmCr";
 			DataAdapter.Fill(_dsReport, "Catalog");
 
 #if DEBUG
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
-			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 #endif
 		}
 
@@ -414,6 +412,7 @@ order by st.Position DESC";
 			DataAdapter.SelectCommand.Parameters.Clear();
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 			DataAdapter.Fill(_dsReport, "Prices");
 		}
 
@@ -486,28 +485,13 @@ where regionCode = ?region and PriceCode = ?price;";
 			SourcePC = price.Supplier.Id;
 
 			CheckPriceActual(_priceCode);
-			SourcePriceType = Convert.ToInt32(
-				MySqlHelper.ExecuteScalar(DataAdapter.SelectCommand.Connection,
-					@"
-select
-  pricesdata.PriceType
-from
-  usersettings.pricesdata
-where
-	pricesdata.PriceCode = ?PriceCode;",
-					new MySqlParameter("?PriceCode", _priceCode)));
+			SourcePriceType = price.PriceType;
 
 			// Если отчет строится по взвешенным ценам, то используем другой источник данных
 			// Вместо идентификатора прайса используем идентификатор поставщика
 			if(_byWeightCosts) {
 				ProfileHelper.Next("PreGetOffers");
-				SourceRegionCode = Convert.ToUInt64(
-					MySqlHelper.ExecuteScalar(DataAdapter.SelectCommand.Connection,
-						@"select s.HomeRegion
-	from usersettings.PricesData pd
-	inner join Customers.suppliers s on pd.FirmCode = s.Id
-	and pd.PriceCode = ?PriceCode;",
-						new MySqlParameter("?PriceCode", _priceCode)));
+				SourceRegionCode = price.Supplier.HomeRegion.Id;
 
 				ProfileHelper.Next("GetOffers");
 				GetWeightCostOffers();
@@ -531,13 +515,7 @@ where
 			if (_byBaseCosts) {
 				// Отчет готовится по базовым ценам
 				//Заполняем код региона прайс-листа как домашний код поставщика этого прайс-листа
-				SourceRegionCode = Convert.ToUInt64(
-					MySqlHelper.ExecuteScalar(DataAdapter.SelectCommand.Connection,
-						@"select s.HomeRegion
-	from usersettings.PricesData pd
-	inner join Customers.suppliers s on pd.FirmCode = s.Id
-	and pd.PriceCode = ?PriceCode;",
-						new MySqlParameter("?PriceCode", _priceCode)));
+				SourceRegionCode = price.Supplier.HomeRegion.Id;
 			}
 			else {
 				// отчет готовится по клиенту
@@ -982,11 +960,13 @@ and Core.RegionCode = ?SourceRegionCode;";
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 
 #if DEBUG
 			DataAdapter.SelectCommand.CommandText = "select * from TmpSourceCodes";
 			DataAdapter.Fill(_dsReport, "TmpSourceCodes");
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
+			ProfileHelper.WriteLine(String.Format("TmpSourceCodes count {0}", _dsReport.Tables["TmpSourceCodes"].Rows.Count));
 #endif
 
 			DataAdapter.SelectCommand.CommandText = @"
@@ -1007,11 +987,12 @@ where
   FarmCore.Id = core.id";
 
 #if DEBUG
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 #endif
 
 			//todo: изменить заполнение в другую таблицу
 			DataAdapter.Fill(_dsReport, "AllCoreT");
+			ProfileHelper.WriteLine(String.Format("Result rows count {0}", _dsReport.Tables["AllCoreT"].Rows.Count));
 
 			DataAdapter.SelectCommand.CommandText = @"
 select
@@ -1025,7 +1006,7 @@ order by ActivePrices.PositionCount DESC";
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourcePC", SourcePC);
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SourceRegionCode", SourceRegionCode);
 #if DEBUG
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
 			DataAdapter.Fill(_dsReport, "Prices");
 		}
@@ -1118,8 +1099,7 @@ order by FullName, FirmCr";
 			DataAdapter.Fill(_dsReport, "MinCatalog");
 
 #if DEBUG
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
-			var cnt = _dsReport.Tables["MinCatalog"].Rows.Count;
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand.CommandText);
 #endif
 		}
 
@@ -1207,8 +1187,9 @@ order by FullName, FirmCr";
 			DataAdapter.Fill(_dsReport, "Catalog");
 
 #if DEBUG
-			Debug.WriteLine(DataAdapter.SelectCommand.CommandText);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand.CommandText);
 			var cnt = _dsReport.Tables["Catalog"].Rows.Count;
+			ProfileHelper.WriteLine($"catalog count {cnt}");
 #endif
 		}
 

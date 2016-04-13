@@ -195,6 +195,17 @@ Count(distinct if(pd.firmcode in ({1}), pd.FirmCode, NULL)) as RivalsSuppliersSo
 					i, concurrentGroups[i].Implode());
 			}
 
+			var groupBy = GetGroupSql();
+			if (IncludeProducerName && IncludeProductName && ShowCode && ShowCodeCr) {
+				groupBy = @"group by if(ProviderCodes.Code is null or ProviderCodes.CodeCr = '',
+concat(ol.ProductId, '\t', ifnull(cfc_id, 0)), concat(ProviderCodes.Code, '\t', ifnull(ProviderCodes.CodeCr, '')))";
+			}
+			else if (IncludeProducerName) {
+				groupBy = groupBy.Replace("cfc.Id", "cfc_id");
+			}
+
+			filter += " " + GetFilterSql();
+
 			selectCommand += $@"
 sum(if(pd.firmcode = {SourceFirmCode}, ol.cost*ol.quantity, NULL)) as SourceFirmCodeSum,
 sum(if(pd.firmcode = {SourceFirmCode}, ol.quantity, NULL)) SourceFirmCodeRows,
@@ -244,21 +255,11 @@ from {OrdersSchema}.OrdersHead oh
 				$@"
 where pd.IsLocal = 0
 	{filter}
+{groupBy}
+order by AllSum desc
 ";
 
-			selectCommand = ApplyFilters(selectCommand);
-			selectCommand = ApplyGroupAndSort(selectCommand, "AllSum desc");
-
-			if (IncludeProducerName && IncludeProductName && ShowCode && ShowCodeCr) {
-				var groupBy = @"
-group by if(ProviderCodes.Code is null or ProviderCodes.CodeCr = '', concat(ol.ProductId, '\t', ifnull(cfc_id, 0)), concat(ProviderCodes.Code, '\t', ifnull(ProviderCodes.CodeCr, '')))
-order by AllSum desc";
-				selectCommand = selectCommand.Replace(selectCommand.Substring(selectCommand.IndexOf("group by")), groupBy);
-			}
-			else if (IncludeProducerName) {
-				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
-				selectCommand = selectCommand.Replace(groupPart, groupPart.Replace("cfc.Id", "cfc_id"));
-			}
+			//selectCommand = ApplyFilters(selectCommand);
 
 			if (IncludeProductName)
 				if (isProductName)
@@ -285,13 +286,14 @@ order by AllSum desc";
 					c.Id = md.pid) CatalogName,
 				  md.*
 				from MixedData md";
-#if DEBUG
-			Debug.WriteLine(selectCommand);
-#endif
 
 			var selectTable = new DataTable();
 			DataAdapter.SelectCommand.CommandText = selectCommand;
 			DataAdapter.SelectCommand.Parameters.Clear();
+#if DEBUG
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
+#endif
+
 			DataAdapter.Fill(selectTable);
 
 			ProfileHelper.Next("GenerateReport3");

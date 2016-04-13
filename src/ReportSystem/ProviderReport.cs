@@ -233,6 +233,7 @@ and regions.RegionCode = activeprices.RegionCode";
 				selectCommand.CommandText = "Customers.GetPricesWithBaseCosts";
 				selectCommand.CommandType = CommandType.StoredProcedure;
 				selectCommand.ExecuteNonQuery();
+				ProfileHelper.WriteLine(selectCommand);
 			}
 			else {
 				// Получаем пользователя
@@ -305,6 +306,7 @@ and regions.RegionCode = activeprices.RegionCode";
 			selectCommand.CommandText = "Customers.GetOffersReports";
 			selectCommand.CommandType = CommandType.StoredProcedure;
 			selectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(selectCommand);
 		}
 
 		/// <summary>
@@ -326,6 +328,7 @@ and regions.RegionCode = activeprices.RegionCode";
 				DataAdapter.SelectCommand.Parameters.AddWithValue("?inFilter", null);
 				DataTable prices = new DataTable();
 				DataAdapter.Fill(prices);
+				ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 				_prices = new List<ulong>();
 				foreach (DataRow row in prices.Rows) {
 					ulong priceCode;
@@ -345,6 +348,7 @@ CREATE temporary table usersettings.TmpPricesRegions(
   RegionCode bigint unsigned
   ) engine=MEMORY;";
 			DataAdapter.SelectCommand.ExecuteNonQuery();
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 			DataAdapter.SelectCommand.Parameters.Clear();
 
 			foreach (var price in _prices) {
@@ -354,6 +358,7 @@ INSERT INTO usersettings.TmpPricesRegions(PriceCode, RegionCode) VALUES(?priceco
 					DataAdapter.SelectCommand.Parameters.AddWithValue("?pricecode", price);
 					DataAdapter.SelectCommand.Parameters.AddWithValue("?regioncode", region);
 					DataAdapter.SelectCommand.ExecuteNonQuery();
+					ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 					DataAdapter.SelectCommand.Parameters.Clear();
 				}
 			}

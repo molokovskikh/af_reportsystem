@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Inforoom.ReportSystem;
@@ -7,6 +8,7 @@ using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Test.Support;
+using Test.Support.log4net;
 
 namespace ReportSystem.Test
 {
@@ -23,8 +25,10 @@ namespace ReportSystem.Test
 		[Test]
 		public void Troubleshoot_general_report()
 		{
-			uint id = 111;
-			var dataAdapter = new MySqlDataAdapter("", "server=testsql.analit.net;user=system;password=newpass;default command timeout=0;");
+			Debug.Listeners.Add(new ConsoleTraceListener());
+			QueryCatcher.Catch("Inforoom.ReportSystem.Helpers");
+			uint id = 120;
+			var dataAdapter = new MySqlDataAdapter("", "server=sql.analit.net;user=;password=;default command timeout=0;");
 			dataAdapter.SelectCommand.CommandText = @"
 select
   *
@@ -38,7 +42,7 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 			var res = new DataTable();
 			dataAdapter.Fill(res);
 
-			using (var connection = new MySqlConnection("server=testsql.analit.net;user=system;password=newpass;database=usersettings;default command timeout=0;")) {
+			using (var connection = new MySqlConnection("server=sql.analit.net;user=;password=;database=usersettings;default command timeout=0;")) {
 				connection.Open();
 				foreach (DataRow drGReport in res.Rows) {
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled])) {
@@ -54,7 +58,7 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 								ReportFormats.Excel,
 								prop
 							});
-						bs.Session = session;
+						bs.Session = session.SessionFactory.OpenSession(connection);
 						bs.Write(Path.GetFullPath("test.xls"));
 					}
 				}
@@ -63,7 +67,7 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 
 		private Type GetReportTypeByName(string ReportTypeClassName)
 		{
-			Type t = Assembly.Load("ReportSystem").GetType(ReportTypeClassName);
+			Type t = typeof(GeneralReport).Assembly.GetType(ReportTypeClassName);
 			if (t == null)
 				throw new ReportException(String.Format("Неизвестный тип отчета : {0}", ReportTypeClassName));
 			return t;

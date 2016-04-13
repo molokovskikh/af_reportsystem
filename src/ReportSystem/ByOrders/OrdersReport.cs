@@ -223,6 +223,22 @@ namespace Inforoom.ReportSystem
 			return selectCommand;
 		}
 
+		protected string GetFilterSql(string alias = "oh")
+		{
+			FillFilterDescriptions();
+
+			var sql = "";
+			foreach (var rf in selectedField) {
+				if (rf.equalValues != null && rf.equalValues.Count > 0)
+					sql += Environment.NewLine + "and " + rf.GetEqualValues();
+				if ((rf.nonEqualValues != null) && (rf.nonEqualValues.Count > 0))
+					sql += Environment.NewLine + "and " + rf.GetNonEqualValues();
+			}
+
+			return $@"{sql} and ({alias}.WriteTime > '{Begin.ToString(MySqlConsts.MySQLDateFormat)}')
+and ({alias}.WriteTime < '{End.ToString(MySqlConsts.MySQLDateFormat)}') ";
+		}
+
 		protected string ApplyUserFilters(string selectCommand)
 		{
 			foreach (var rf in selectedField) {
@@ -249,9 +265,8 @@ namespace Inforoom.ReportSystem
 			return GetValuesFromSQL(field.GetNamesSql(ids));
 		}
 
-		protected string BuildSelect(FilterField[] additional = null)
+		protected string BuildSelect()
 		{
-			additional = additional ?? new FilterField[0];
 			var selectCommand = "";
 			if (SupportProductNameOptimization) {
 				foreach (var rf in selectedField) // В целях оптимизации при некоторых случаях используем
@@ -274,9 +289,16 @@ create temporary table MixedData ENGINE=MEMORY
 ";
 			}
 
-			return selectCommand + selectedField.Concat(additional).Where(rf => rf.visible)
+			return selectCommand + selectedField.Where(rf => rf.visible)
 				.OrderBy(x => x.position)
 				.Aggregate("select ", (current, rf) => String.Concat(current, rf.primaryField, ", ", rf.viewField, ", "));
+		}
+
+		protected string GetGroupSql()
+		{
+			if(selectedField.Any(f => f.visible))
+				return "group by " + String.Join(",", (from rf in selectedField where rf.visible select rf.primaryField).ToArray());
+			return "";
 		}
 
 		protected string ApplyGroupAndSort(string selectCommand, string sort)
@@ -444,7 +466,7 @@ from (
 	left join catalogs.Producers cfc on CoreCodes.CodeFirmCr = cfc.Id
 group by {groupExpression}";
 
-			Logger.Debug(DataAdapter.SelectCommand.CommandText);
+			ProfileHelper.WriteLine(DataAdapter.SelectCommand.CommandText);
 			DataAdapter.SelectCommand.ExecuteNonQuery();
 			return " left join ProviderCodes on ProviderCodes.CatalogCode = " + productField.primaryField +
 				(producerField != null ? String.Format(" and ifnull(ProviderCodes.CodeFirmCr, 0) = if(c.Pharmacie = 1, ifnull({0}, 0), 0)", producerField.primaryField) : String.Empty);
