@@ -84,7 +84,7 @@ namespace Inforoom.ReportSystem
 		//для тестов
 		public bool CheckEmptyData = true;
 
-		public ulong ReportCode { get; protected set; }
+		public ulong ReportCode { get; set; }
 		public string ReportCaption { get; set; }
 
 		public virtual bool DbfSupported { get; set; }

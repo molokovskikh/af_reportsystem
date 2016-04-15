@@ -45,7 +45,7 @@ namespace Inforoom.ReportSystem
 					subject += report.Payer.Name;
 				}
 				Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, subject,
-					String.Format("Код отчета : {0}\r\nОшибка : {1}", report.Id, ex));
+					$"Код отчета : {report.Id}\r\nОшибка : {ex}");
 			}
 			else {
 				MailGlobalErr(ex);
@@ -56,13 +56,13 @@ namespace Inforoom.ReportSystem
 		public static void MailReportErr(string errDesc, string shortName, ulong generalReportCode, ulong reportCode, string reportCaption)
 		{
 			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Ошибка при формировании одного из подотчетов для " + shortName,
-				String.Format("Код отчета : {0}\r\nКод подотчета: {1}, имя: {3}\r\nПри формировании подотчета возникла ошибка : {2}", generalReportCode, reportCode, errDesc, reportCaption));
+				string.Format("Код отчета : {0}\r\nКод подотчета: {1}, имя: {3}\r\nПри формировании подотчета возникла ошибка : {2}", generalReportCode, reportCode, errDesc, reportCaption));
 		}
 
 		public static void MailReportNotify(string msg, string shortName, ulong generalReportCode, ulong reportCode)
 		{
 			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Уведомление о событии при формировании отчета для " + shortName,
-				String.Format("Код отчета : {0}\r\nКод подотчета: {1}\r\nУведомление : {2}", generalReportCode, reportCode, msg));
+				$"Код отчета : {generalReportCode}\r\nКод подотчета: {reportCode}\r\nУведомление : {msg}");
 		}
 	}
 }

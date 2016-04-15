@@ -130,12 +130,15 @@ namespace ReportSystem.Test
 		{
 			var gr = new FakeGeneralReport();
 			var reports = new[] {
-				new FakeReportWithReportException()
+				new FakeReportWithReportException {
+					ReportCode = 1
+				}
 			};
 			reports.Each(x => gr.Reports.Enqueue(x));
 
 			var ex = Assert.Throws<ReportException>(() => gr.ProcessReports(new ReportExecuteLog(), null, false, DateTime.Today, DateTime.Today, false));
 			Assert.AreEqual("Ошибка при формировании отчета.", ex.Message);
+			Assert.AreEqual(1, ex.SubreportCode);
 		}
 	}
 }
