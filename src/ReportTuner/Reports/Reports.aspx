@@ -38,7 +38,6 @@
 				<asp:ListItem Text="Excel" Value="Excel" />
 				<asp:ListItem Text="DBF" Value="DBF" />
 				<asp:ListItem Text="CSV" Value="CSV" />
-				<asp:ListItem Text="ИнфоАптека" Value="InfoDrugstore" />
 			</asp:DropDownList>
 		  </td>
 		</tr>

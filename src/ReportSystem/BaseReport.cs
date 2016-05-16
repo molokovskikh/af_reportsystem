@@ -24,8 +24,7 @@ namespace Inforoom.ReportSystem
 	{
 		Excel,
 		DBF,
-		CSV,
-		InfoDrugstore
+		CSV
 	}
 
 	//Содержит названия полей, используемых при создании общего отчета
@@ -256,21 +255,21 @@ namespace Inforoom.ReportSystem
 
 			if (Format == ReportFormats.DBF) {
 				if(!DbfSupported)
-					throw new ReportException($"Подотчет не может готовиться в формате {Format}.");
+					throw new ReportException("Подотчет не может готовиться в формате DBF.");
 				// Формируем DBF
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".dbf");
 				ProfileHelper.Next("DataTableToDbf");
 				DataTableToDbf(reportTable, fileName);
-			} else if (Format == ReportFormats.CSV) {
+			}
+			else if (Format == ReportFormats.CSV) {
 				if (!DbfSupported)
-					throw new ReportException($"Подотчет не может готовиться в формате {Format}.");
+					throw new ReportException("Подотчет не может готовиться в формате CSV.");
 				//Формируем CSV
 				ProfileHelper.Next("CsvHelper.Save");
 				fileName = Path.Combine(Path.GetDirectoryName(fileName), ReportCaption + ".csv");
 				CsvHelper.Save(reportTable, fileName);
-			} else if (Format == ReportFormats.InfoDrugstore) {
-				WriteInfoDrugstore(Path.ChangeExtension(fileName, ".xml"));
-			} else {
+			}
+			else {
 				// Формируем Excel
 				ProfileHelper.Next("DataTableToExcel");
 				DataTableToExcel(reportTable, fileName);
@@ -281,16 +280,11 @@ namespace Inforoom.ReportSystem
 			}
 		}
 
-		public virtual void WriteInfoDrugstore(string filename)
-		{
-			throw new ReportException($"Подотчет не может готовиться в формате {Format}.");
-		}
-
 		//таблица будет пустой в двух случаях
 		//когда она на самом деле пустая и если она содержит только пусты строки
 		//пустые строки получатся из-за того что некоторые отчеты их формируют для того что бы
 		//зарезервировать место под заголовок отчета
-		protected bool IsEmpty(DataTable reportTable)
+		private bool IsEmpty(DataTable reportTable)
 		{
 			if (!CheckEmptyData)
 				return false;
@@ -330,8 +324,6 @@ namespace Inforoom.ReportSystem
 						ws.Name = GetSheetName();
 
 						var res = _dsReport.Tables["Results"];
-						if (res == null)
-							throw new Exception("Таблица результатов отчета не найдена");
 						var tableBegin = 1 + FilterDescriptions.Count;
 						var groupedHeadersLine = tableBegin;
 						if (GroupHeaders.Count > 0)
