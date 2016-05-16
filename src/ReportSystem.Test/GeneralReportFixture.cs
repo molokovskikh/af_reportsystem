@@ -129,6 +129,30 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void Subject_for_mail_per_file()
+		{
+			report.NoArchive = true;
+			report.MailPerFile = true;
+			report.Reports.Enqueue(new FakeReport {
+				OverideDefaultFilename = "1.dbf",
+				MailMetaOverride = {
+					{ "1.dbf", "Test subject 1" }
+				}
+			});
+			report.Reports.Enqueue(new FakeReport {
+				OverideDefaultFilename = "2.dbf",
+				MailMetaOverride = {
+					{ "2.dbf", "Test subject 2" }
+				}
+			});
+			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
+
+			Assert.That(report.Messages.Count, Is.EqualTo(2));
+			Assert.AreEqual("Test subject 1",report.Messages[0].MainEntity.Subject);
+			Assert.AreEqual("Test subject 2",report.Messages[1].MainEntity.Subject);
+		}
+
+		[Test]
 		public void Send_all_report_files_if_not_archive_option_set()
 		{
 			var fakeReport = new FakeReport();

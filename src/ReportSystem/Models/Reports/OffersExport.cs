@@ -99,7 +99,9 @@ drop temporary table if exists activeprices;");
 				var groups = GetReportTable().AsEnumerable().GroupBy(r => r["RlSpplrId"]);
 				foreach (var price in groups) {
 					var table = price.CopyToDataTable();
-					var filename = Path.Combine(Path.GetDirectoryName(fileName), price.Key + ".dbf");
+					var filename = price.Key + ".dbf";
+					filename = Path.Combine(Path.GetDirectoryName(fileName), filename);
+					MailMetaOverride[filename] = Session.Load<Supplier>(Convert.ToUInt32(price.Key)).Name;
 					using (var writer = new StreamWriter(filename, false, Encoding.GetEncoding(866)))
 						Dbf2.SaveAsDbf4(table, writer);
 				}

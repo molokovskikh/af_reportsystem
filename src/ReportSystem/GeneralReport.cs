@@ -23,20 +23,19 @@ namespace Inforoom.ReportSystem
 	public class GeneralReport
 	{
 		public static ISessionFactory Factory;
-		public string[] Contacts = new string[0];
 
 		private string _mainFileName;
+		private Dictionary<string, string> MailMetaOverride
+			= new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
 		//таблица отчетов, которая существует в общем отчете
 		protected DataTable _reports;
 
+		public string[] Contacts = new string[0];
 		public bool Testing;
 		public List<Mime> Messages = new List<Mime>();
-
 		public ILog Logger;
-
 		public MySqlConnection Connection;
-
 		public IDictionary<string, string> FilesForReport = new Dictionary<string, string>();
 
 		//таблица контактов, по которым надо отправить отчет
@@ -239,7 +238,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			if (MailPerFile) {
 				foreach (var file in files) {
 					foreach (var mail in mails)
-						MailWithAttach(log, mail, new[] { file });
+						MailWithAttach(log, mail, new[] { file }, MailMetaOverride.GetValueOrDefault(Path.GetFileNameWithoutExtension(file)));
 				}
 			}
 			else {
@@ -287,6 +286,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 						report.Write(_mainFileName);
 					}
 					report.ToLog(Id); // протоколируем успешное выполнение отчета
+					report.MailMetaOverride.Each(x => MailMetaOverride[Path.GetFileNameWithoutExtension(x.Key)] = x.Value);
 					foreach (var warning in report.Warnings) {
 						Mailer.MailReportNotify(warning, Payer?.Name, Id, report.ReportCode);
 					}
@@ -319,7 +319,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			return Directory.GetFiles(WorkDir);
 		}
 
-		private void MailWithAttach(ReportExecuteLog log, string address, string[] files)
+		private void MailWithAttach(ReportExecuteLog log, string address, string[] files, string subject = null)
 		{
 			var message = new Mime();
 			var mainEntry = message.MainEntity;
@@ -329,7 +329,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			mainEntry.To = new AddressList();
 			mainEntry.To.Parse(address);
 
-			mainEntry.Subject = EMailSubject;
+			mainEntry.Subject = subject ?? EMailSubject;
 
 			mainEntry.ContentType = MediaType_enum.Multipart_mixed;
 

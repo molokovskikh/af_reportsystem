@@ -95,6 +95,9 @@ namespace Inforoom.ReportSystem
 
 		public List<ColumnGroupHeader> GroupHeaders = new List<ColumnGroupHeader>();
 		public List<string> Warnings = new List<string>();
+		//тема для отправляемого письма
+		//работает если отправлять каждый файл отдельным письмом
+		public Dictionary<string, string> MailMetaOverride = new Dictionary<string, string>();
 
 		protected BaseReport() // конструктор для возможности тестирования
 		{
