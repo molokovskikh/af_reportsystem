@@ -324,6 +324,8 @@ namespace Inforoom.ReportSystem
 						ws.Name = GetSheetName();
 
 						var res = _dsReport.Tables["Results"];
+						if (res == null)
+							throw new ReportException($"Данные для отчета не сформирована, возможно отчет не может быть подготовлен в формате {Format}");
 						var tableBegin = 1 + FilterDescriptions.Count;
 						var groupedHeadersLine = tableBegin;
 						if (GroupHeaders.Count > 0)
