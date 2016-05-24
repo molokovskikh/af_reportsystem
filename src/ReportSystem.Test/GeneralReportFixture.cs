@@ -133,6 +133,7 @@ namespace ReportSystem.Test
 		{
 			report.NoArchive = true;
 			report.MailPerFile = true;
+			report.EMailSubject = "General subject";
 			report.Reports.Enqueue(new FakeReport {
 				OverideDefaultFilename = "1.dbf",
 				MailMetaOverride = {
@@ -148,8 +149,8 @@ namespace ReportSystem.Test
 			report.ProcessReports(new ReportExecuteLog(), (MySqlConnection)session.Connection, false, DateTime.Today, DateTime.Today, false);
 
 			Assert.That(report.Messages.Count, Is.EqualTo(2));
-			Assert.AreEqual("Test subject 1",report.Messages[0].MainEntity.Subject);
-			Assert.AreEqual("Test subject 2",report.Messages[1].MainEntity.Subject);
+			Assert.AreEqual("General subject Test subject 1",report.Messages[0].MainEntity.Subject);
+			Assert.AreEqual("General subject Test subject 2",report.Messages[1].MainEntity.Subject);
 		}
 
 		[Test]

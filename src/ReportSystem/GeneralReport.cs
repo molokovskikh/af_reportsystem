@@ -319,7 +319,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			return Directory.GetFiles(WorkDir);
 		}
 
-		private void MailWithAttach(ReportExecuteLog log, string address, string[] files, string subject = null)
+		private void MailWithAttach(ReportExecuteLog log, string address, string[] files, string subjectSufix = null)
 		{
 			var message = new Mime();
 			var mainEntry = message.MainEntity;
@@ -329,7 +329,12 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			mainEntry.To = new AddressList();
 			mainEntry.To.Parse(address);
 
-			mainEntry.Subject = subject ?? EMailSubject;
+			mainEntry.Subject = EMailSubject;
+			if (!String.IsNullOrEmpty(subjectSufix)) {
+				if (!String.IsNullOrEmpty(mainEntry.Subject))
+					mainEntry.Subject += " ";
+				mainEntry.Subject += subjectSufix;
+			}
 
 			mainEntry.ContentType = MediaType_enum.Multipart_mixed;
 
