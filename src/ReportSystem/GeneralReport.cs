@@ -136,10 +136,6 @@ where GeneralReport = ?GeneralReport;", new { GeneralReport = Id })
 						bs.From = dtFrom;
 						bs.To = dtTo;
 						Reports.Enqueue(bs);
-
-						//Если у общего отчета не выставлена тема письма, то берем ее у первого попавшегося отчета
-						if (String.IsNullOrEmpty(EMailSubject) && !String.IsNullOrEmpty(drGReport[BaseReportColumns.colAlternateSubject].ToString()))
-							EMailSubject = drGReport[BaseReportColumns.colAlternateSubject].ToString();
 					}
 				}
 			}
