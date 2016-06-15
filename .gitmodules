@@ -4,9 +4,6 @@
 [submodule "src/Common.Web.Ui"]
 	path = src/Common.Web.Ui
 	url = git@git.analit.net:root/common-web-ui.git
-[submodule "src/ExecuteTemplate"]
-	path = src/ExecuteTemplate
-	url = git@git.analit.net:root/executetemplate.git
 [submodule "src/Test.Support"]
 	path = src/Test.Support
 	url = git@git.analit.net:root/test-support.git
