@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -20,6 +22,62 @@ using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
+	public class EmptyList<T> : IList<T>
+	{
+		public IEnumerator<T> GetEnumerator()
+		{
+			return Enumerable.Empty<T>().GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+		public void Add(T item)
+		{
+		}
+
+		public void Clear()
+		{
+		}
+
+		public bool Contains(T item)
+		{
+			return false;
+		}
+
+		public void CopyTo(T[] array, int arrayIndex)
+		{
+		}
+
+		public bool Remove(T item)
+		{
+			return false;
+		}
+
+		public int Count => 0;
+		public bool IsReadOnly => false;
+		public int IndexOf(T item)
+		{
+			return -1;
+		}
+
+		public void Insert(int index, T item)
+		{
+		}
+
+		public void RemoveAt(int index)
+		{
+		}
+
+		public T this[int index]
+		{
+			get { return default(T); }
+			set {  }
+		}
+	}
+
 	public enum ReportFormats
 	{
 		Excel,
@@ -90,13 +148,16 @@ namespace Inforoom.ReportSystem
 		public virtual bool DbfSupported { get; set; }
 
 		//Фильтр, наложенный на рейтинговый отчет. Будет выводится на странице отчета
-		public List<string> FilterDescriptions = new List<string>();
+		public IList<string> Header = new List<string>();
 
 		public List<ColumnGroupHeader> GroupHeaders = new List<ColumnGroupHeader>();
 		public List<string> Warnings = new List<string>();
 		//тема для отправляемого письма
 		//работает если отправлять каждый файл отдельным письмом
 		public Dictionary<string, string> MailMetaOverride = new Dictionary<string, string>();
+
+		[Description("Скрыть заголовок")]
+		public bool HideHeader;
 
 		protected BaseReport() // конструктор для возможности тестирования
 		{
@@ -220,6 +281,9 @@ namespace Inforoom.ReportSystem
 					field.SetValue(this, value);
 				}
 			}
+
+			if (HideHeader)
+				Header = new EmptyList<string>();
 		}
 
 		public void ProcessReport()
@@ -326,7 +390,7 @@ namespace Inforoom.ReportSystem
 						var res = _dsReport.Tables["Results"];
 						if (res == null)
 							throw new ReportException($"Данные для отчета не сформирована, возможно отчет не может быть подготовлен в формате {Format}");
-						var tableBegin = 1 + FilterDescriptions.Count;
+						var tableBegin = 1 + Header.Count;
 						var groupedHeadersLine = tableBegin;
 						if (GroupHeaders.Count > 0)
 							tableBegin++;
@@ -357,8 +421,8 @@ namespace Inforoom.ReportSystem
 						ws.Range[ws.Cells[tableBegin, 1], ws.Cells[res.Rows.Count + 1, res.Columns.Count]].Select();
 						((Range)exApp.Selection).AutoFilter(1, Missing.Value, XlAutoFilterOperator.xlAnd, Missing.Value, true);
 
-						for (var i = 0; i < FilterDescriptions.Count; i++)
-							ws.Cells[1 + i, 1] = FilterDescriptions[i];
+						for (var i = 0; i < Header.Count; i++)
+							ws.Cells[1 + i, 1] = Header[i];
 
 						foreach (var groupHeader in GroupHeaders) {
 							var begin = ColumnIndex(res, groupHeader.BeginColumn);

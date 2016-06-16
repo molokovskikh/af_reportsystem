@@ -57,11 +57,11 @@ namespace Inforoom.ReportSystem
 		{
 			ProfileHelper.Next("GenerateReport");
 			var clientName = String.Format("Выбранная аптека : {0}", GetClientsNamesFromSQL(new List<ulong> { (ulong)SourceFirmCode }));
-			FilterDescriptions.Add(clientName);
+			Header.Add(clientName);
 			var concurentClientNames = String.Format("Список аптек-конкурентов : {0}", GetClientsNamesFromSQL(concurrentGroups[0]));
-			FilterDescriptions.Add(concurentClientNames);
+			Header.Add(concurentClientNames);
 			if (AddressRivals.Count > 0)
-				FilterDescriptions.Add(String.Format("Список адресов доставки-конкурентов : {0}", ReadAddress(AddressRivals)));
+				Header.Add(String.Format("Список адресов доставки-конкурентов : {0}", ReadAddress(AddressRivals)));
 
 			ProfileHelper.Next("GenerateReport2");
 
@@ -80,7 +80,7 @@ namespace Inforoom.ReportSystem
 			var filter = " and (oh.RegionCode & " + regionMask + @") > 0 ";
 			if (HideJunk) {
 				filter = " and ol.Junk = 0 ";
-				FilterDescriptions.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
+				Header.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
 			}
 
 			CheckSuppliersCount(filter);
@@ -308,7 +308,7 @@ pd.IsLocal = 0
 
 		protected override BaseReportSettings GetSettings()
 		{
-			return new PharmacyMixedSettings(ReportCode, ReportCaption, FilterDescriptions, selectedField, GroupHeaders);
+			return new PharmacyMixedSettings(ReportCode, ReportCaption, Header, selectedField, GroupHeaders);
 		}
 	}
 }

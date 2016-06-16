@@ -32,7 +32,7 @@ namespace Inforoom.ReportSystem.Models.Reports
 		{
 			ReadReportParams();
 			var client = Session.Load<Client>(ClientId);
-			FilterDescriptions.Add($"Выбранный клиент: {client.Name}");
+			Header.Add($"Выбранный клиент: {client.Name}");
 			var sql = $@"
 select s.Id as SupplierId, s.Name as SupplierName, oh.RowId as Id, a.Address,
 	sum(ol.Cost * ol.Quantity) as Sum
@@ -165,7 +165,7 @@ where oh.WriteTime > ?begin
 
 		private void WriteDesc(ISheet sheet, ref int rownum)
 		{
-			foreach (var description in FilterDescriptions) {
+			foreach (var description in Header) {
 				var desc = sheet.CreateRow(rownum++);
 				desc.Cell(0, description);
 			}

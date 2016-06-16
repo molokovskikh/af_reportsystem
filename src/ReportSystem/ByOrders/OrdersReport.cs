@@ -167,7 +167,7 @@ namespace Inforoom.ReportSystem
 				//От текущей даты вычитаем интервал - дата начала отчета
 				Begin = End.AddDays(-ReportInterval).Date;
 			}
-			FilterDescriptions.Add($"Период дат: {Begin:dd.MM.yyyy HH:mm:ss} - {End:dd.MM.yyyy HH:mm:ss}");
+			Header.Add($"Период дат: {Begin:dd.MM.yyyy HH:mm:ss} - {End:dd.MM.yyyy HH:mm:ss}");
 
 			LoadFilters();
 			CheckAfterLoadFields();
@@ -254,9 +254,9 @@ and ({alias}.WriteTime < '{End.ToString(MySqlConsts.MySQLDateFormat)}') ";
 		{
 			foreach (var field in selectedField) {
 				if (field.nonEqualValues != null && field.nonEqualValues.Count > 0)
-					FilterDescriptions.Add(String.Format("{0}: {1}", field.nonEqualValuesCaption, ReadNames(field, field.nonEqualValues)));
+					Header.Add(String.Format("{0}: {1}", field.nonEqualValuesCaption, ReadNames(field, field.nonEqualValues)));
 				if (field.equalValues != null && field.equalValues.Count > 0)
-					FilterDescriptions.Add(String.Format("{0}: {1}", field.equalValuesCaption, GetValuesFromSQL(field.GetNamesSql(field.equalValues))));
+					Header.Add(String.Format("{0}: {1}", field.equalValuesCaption, GetValuesFromSQL(field.GetNamesSql(field.equalValues))));
 			}
 		}
 
@@ -335,7 +335,7 @@ create temporary table MixedData ENGINE=MEMORY
 
 		public int EmptyRowCount
 		{
-			get { return FilterDescriptions.Count + (GroupHeaders.Count > 0 ? 1 : 0); }
+			get { return Header.Count + (GroupHeaders.Count > 0 ? 1 : 0); }
 		}
 
 		protected void CopyData(DataTable source, DataTable destination)

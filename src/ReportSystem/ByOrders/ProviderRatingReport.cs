@@ -142,13 +142,13 @@ where pd.IsLocal = 0", OrdersSchema));
 			var res = _dsReport.Tables["Results"];
 
 			//Выбираем диапазон, по которому будет строить диаграмму
-			(ws.Range[ws.Cells[2 + FilterDescriptions.Count, 1], ws.Cells[res.Rows.Count, 2]]).Select();
+			(ws.Range[ws.Cells[2 + Header.Count, 1], ws.Cells[res.Rows.Count, 2]]).Select();
 			Shape s;
 			s = ws.Shapes.AddChart(XlChartType.xlPie, 20, 40, 450, 230);
 
 			//Устанавливаем диаграмму справа от таблицы
 			s.Top = 5;
-			s.Left = Convert.ToSingle(((Range)ws.Cells[1 + FilterDescriptions.Count, 5]).Left);
+			s.Left = Convert.ToSingle(((Range)ws.Cells[1 + Header.Count, 5]).Left);
 
 			//Производим подсчет высоты легенды, чтобы она полностью отобразилась на диаграмме
 			double legendHeight = 0;
@@ -171,7 +171,7 @@ where pd.IsLocal = 0", OrdersSchema));
 			//Отображаем диаграмму
 			s.Fill.Visible = MsoTriState.msoTrue;
 
-			ws.Range[ws.Cells[2 + FilterDescriptions.Count, 3], ws.Cells[res.Rows.Count, 3]].NumberFormat = @"_($* #,##0_);_($* (#,##0);_($* ""-""_);_(@_)";
+			ws.Range[ws.Cells[2 + Header.Count, 3], ws.Cells[res.Rows.Count, 3]].NumberFormat = @"_($* #,##0_);_($* (#,##0);_($* ""-""_);_(@_)";
 
 			ProfileHelper.End();
 		}

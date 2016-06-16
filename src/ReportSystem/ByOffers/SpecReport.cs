@@ -1210,16 +1210,17 @@ order by FullName, FirmCr";
 				var rowCount = result.Rows.Count;
 				var columnCount = result.Columns.Count;
 
-				if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Выбранные аптеки: {0}", _clientsNames));
-				if (!String.IsNullOrEmpty(_suppliers))
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Список поставщиков: {0}", _suppliers));
-				if (!String.IsNullOrEmpty(_ignoredSuppliers))
-					tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, String.Format("Игнорируемые поставщики: {0}", _ignoredSuppliers));
+				if (HideHeader) {
+					if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
+						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Выбранные аптеки: {_clientsNames}");
+					if (!String.IsNullOrEmpty(_suppliers))
+						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Список поставщиков: {_suppliers}");
+					if (!String.IsNullOrEmpty(_ignoredSuppliers))
+						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Игнорируемые поставщики: {_ignoredSuppliers}");
 
+					ExcelHelper.FormatHeader(ws, tableBeginRowIndex, result);
+				}
 				var lastRowIndex = rowCount + tableBeginRowIndex;
-
-				ExcelHelper.FormatHeader(ws, tableBeginRowIndex, result);
 
 				//Форматирование заголовков прайс-листов
 				FormatLeaderAndPrices(ws);
@@ -1239,23 +1240,25 @@ order by FullName, FirmCr";
 				ws.Application.ActiveWindow.SplitColumn = 11;
 				ws.Application.ActiveWindow.FreezePanes = true;
 
-				//Объединяем несколько ячеек, чтобы в них написать текст
-				ws.Range["A1:K2", Missing.Value].Select();
-				((Range)wb.Application.Selection).Merge(null);
-				if(_byBaseCosts)
-					reportCaptionPreffix += " по базовым ценам";
-				else if(_byWeightCosts)
-					reportCaptionPreffix += " по взвешенным ценам по данным на " + GetStatOffersDate().ToShortDateString();
-				if (!WithoutAssortmentPrice) {
-					if (_reportType < 3)
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+				if (HideHeader) {
+					//Объединяем несколько ячеек, чтобы в них написать текст
+					ws.Range["A1:K2", Missing.Value].Select();
+					((Range)wb.Application.Selection).Merge(null);
+					if(_byBaseCosts)
+						reportCaptionPreffix += " по базовым ценам";
+					else if(_byWeightCosts)
+						reportCaptionPreffix += " по взвешенным ценам по данным на " + GetStatOffersDate().ToShortDateString();
+					if (!WithoutAssortmentPrice) {
+						if (_reportType < 3)
+							wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+						else
+							wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+					}
+					else if (_reportType < 3)
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
 					else
-						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя по прайсу " + CustomerFirmName + " создан " + DateTime.Now.ToString();
+						wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
 				}
-				else if (_reportType < 3)
-					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now.ToString();
-				else
-					wb.Application.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now.ToString();
 			});
 		}
 

@@ -19,8 +19,8 @@ namespace Inforoom.ReportSystem.ByOrders
 		{
 			base.ReadReportParams();
 
-			FilterDescriptions.Remove(FilterDescriptions.First(d => d.StartsWith("Период дат")));
-			FilterDescriptions.Insert(0, String.Format("Период дат: {0} - {1} (включительно)", Begin.ToString("dd.MM.yyyy"), End.Date.AddDays(-1).ToString("dd.MM.yyyy")));
+			Header.Remove(Header.First(d => d.StartsWith("Период дат")));
+			Header.Insert(0, String.Format("Период дат: {0} - {1} (включительно)", Begin.ToString("dd.MM.yyyy"), End.Date.AddDays(-1).ToString("dd.MM.yyyy")));
 		}
 
 		protected override void GenerateReport()
@@ -77,7 +77,7 @@ order by supps.Name, supps.Payer, rg.Region;";
 			DataAdapter.Fill(dtNewRes);
 			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
 			//Добавляем несколько пустых строк, чтобы потом вывести в них значение фильтра в Excel
-			foreach (string t in FilterDescriptions)
+			foreach (string t in Header)
 				dtNewRes.Rows.InsertAt(dtNewRes.NewRow(), 0);
 
 			var res = dtNewRes.DefaultView.ToTable();
@@ -87,7 +87,7 @@ order by supps.Name, supps.Payer, rg.Region;";
 
 		protected override void PostProcessing(Application exApp, _Worksheet ws)
 		{
-			ws.Range[ws.Cells[1 + FilterDescriptions.Count, 1], ws.Cells[1 + FilterDescriptions.Count, 1]].Select();
+			ws.Range[ws.Cells[1 + Header.Count, 1], ws.Cells[1 + Header.Count, 1]].Select();
 		}
 	}
 }

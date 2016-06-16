@@ -142,10 +142,10 @@ namespace Inforoom.ReportSystem
 		{
 			ProfileHelper.Next("GenerateReport");
 			_supplierName = String.Format("Выбранный поставщик: {0}", GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg where rg.RegionCode = supps.HomeRegion and supps.Id = " + SourceFirmCode));
-			FilterDescriptions.Add(_supplierName);
+			Header.Add(_supplierName);
 			for (var i = 0; i < concurrentGroups.Count; i++) {
 				var ids = concurrentGroups[i];
-				FilterDescriptions.Add(String.Format("Список поставщиков-конкурентов №{1}: {0}",
+				Header.Add(String.Format("Список поставщиков-конкурентов №{1}: {0}",
 					GetValuesFromSQL("select concat(supps.Name, ' - ', rg.Region) as FirmShortName from Customers.suppliers supps, farm.regions rg  where rg.RegionCode = supps.HomeRegion and supps.Id in (" + ids.Implode() + ") order by supps.Name"),
 					i + 1));
 			}
@@ -172,7 +172,7 @@ namespace Inforoom.ReportSystem
 			var filter = "";
 			if (HideJunk) {
 				filter = " and ol.Junk = 0 ";
-				FilterDescriptions.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
+				Header.Add("Из отчета исключены уцененные товары и товары с ограниченным сроком годности");
 			}
 
 			var priceIds = Session.Query<PriceList>().Where(x => x.Supplier.Id == SourceFirmCode)

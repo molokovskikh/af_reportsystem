@@ -94,8 +94,8 @@ namespace ReportSystem.Test.SpecialReport
 			var book = Load(fileName);
 			var sheet = book.GetSheetAt(0);
 			Assert.That(sheet.GetRow(0).GetCell(0).StringCellValue,
-				Is.StringContaining(String.Format("Специальный отчет по взвешенным ценам по данным на {0}", dateTime.ToShortDateString())));
-			Assert.That(sheet.GetRow(3).GetCell(1).StringCellValue, Is.StringMatching(offer.ProductSynonym.Name));
+				Does.Contain($"Специальный отчет по взвешенным ценам по данным на {dateTime.ToShortDateString()}"));
+			Assert.That(sheet.GetRow(3).GetCell(1).StringCellValue, Does.Match(offer.ProductSynonym.Name));
 		}
 	}
 }

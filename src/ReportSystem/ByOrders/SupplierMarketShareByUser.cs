@@ -348,11 +348,11 @@ drop temporary table if exists Reports.PreResult;
 			var regions = _regions
 				.Select(id => Session.Load<global::Common.Models.Region>(Convert.ToUInt64(id)));
 
-			FilterDescriptions.Add("Поставщик: " + supplier.Name);
-			FilterDescriptions.Add("Регионы: " + regions.Implode(r => r.Name));
-			FilterDescriptions.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
+			Header.Add("Поставщик: " + supplier.Name);
+			Header.Add("Регионы: " + regions.Implode(r => r.Name));
+			Header.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
 				" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
-			FilterDescriptions.Add("");
+			Header.Add("");
 
 			result.Columns["SupplierSum"].Caption = string.Format("Сумма по '{0}'", supplier.Name);
 			if (ShowAllSum)

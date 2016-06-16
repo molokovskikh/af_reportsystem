@@ -193,7 +193,7 @@ where pd.IsLocal = 0", OrdersSchema));
 		protected override void PostProcessing(Application exApp, _Worksheet ws)
 		{
 			//Замораживаем некоторые колонки и столбцы
-			ws.Range["A" + (2 + FilterDescriptions.Count), System.Reflection.Missing.Value].Select();
+			ws.Range["A" + (2 + Header.Count), System.Reflection.Missing.Value].Select();
 			exApp.ActiveWindow.FreezePanes = true;
 
 			if (BuildChart) {

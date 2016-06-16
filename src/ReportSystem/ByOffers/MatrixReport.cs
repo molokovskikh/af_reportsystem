@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Common.Models;
 using Common.Models.Helpers;
+using Common.Tools;
 using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.ByOffers
@@ -99,7 +100,7 @@ AT.PriceDate as PriceDate", sql.Alias));
 				if (row["MatrixPriceName"] is DBNull && !string.IsNullOrEmpty(whitePriceName))
 					row["MatrixPriceName"] = whitePriceName;
 			}
-			for (int i = 0; i < FilterDescriptions.Count; i++) {
+			for (int i = 0; i < Header.Count; i++) {
 				var row = result.NewRow();
 				result.Rows.InsertAt(row, 0);
 			}
@@ -113,36 +114,36 @@ AT.PriceDate as PriceDate", sql.Alias));
 
 		private void SetFilterDescriptions()
 		{
-			FilterDescriptions.AddRange(new[] {
+			Header.AddEach(new[] {
 				"Товары поставщиков, подпадающие под действие матрицы",
 				String.Format("Выбранная аптека: {0}", _client.Name),
 				String.Format("Отчет сформирован: {0}", DateTime.Now),
 			});
 			if (_reportParams.ContainsKey("FirmCodeEqual")) {
 				var ids = (List<ulong>)_reportParams["FirmCodeEqual"];
-				FilterDescriptions.Add(String.Format("Разрешенные поставщики: {0}", GetValuesFromSQL(GetSqlFromSuppliers(ids))));
+				Header.Add(String.Format("Разрешенные поставщики: {0}", GetValuesFromSQL(GetSqlFromSuppliers(ids))));
 			}
 			if (_reportParams.ContainsKey("IgnoredSuppliers")) {
 				var ids = (List<ulong>)_reportParams["IgnoredSuppliers"];
-				FilterDescriptions.Add(String.Format("Игнорируемые поставщики: {0}", GetValuesFromSQL(GetSqlFromSuppliers(ids))));
+				Header.Add(String.Format("Игнорируемые поставщики: {0}", GetValuesFromSQL(GetSqlFromSuppliers(ids))));
 			}
 			if (_reportParams.ContainsKey("PriceCodeValues")) {
 				var ids = (List<ulong>)_reportParams["PriceCodeValues"];
-				FilterDescriptions.Add(String.Format("Разрешенные прайсы: {0}", GetValuesFromSQL(GetSqlFromPrices(ids))));
+				Header.Add(String.Format("Разрешенные прайсы: {0}", GetValuesFromSQL(GetSqlFromPrices(ids))));
 			}
 			if (_reportParams.ContainsKey("PriceCodeEqual")) {
 				var ids = (List<ulong>)_reportParams["PriceCodeEqual"];
-				FilterDescriptions.Add(String.Format("Разрешенные прайсы: {0}", GetValuesFromSQL(GetSqlFromPrices(ids))));
+				Header.Add(String.Format("Разрешенные прайсы: {0}", GetValuesFromSQL(GetSqlFromPrices(ids))));
 			}
 			if (_reportParams.ContainsKey("PriceCodeNonValues")) {
 				var ids = (List<ulong>)_reportParams["PriceCodeNonValues"];
-				FilterDescriptions.Add(String.Format("Игнорируемые прайсы: {0}", GetValuesFromSQL(GetSqlFromPrices(ids))));
+				Header.Add(String.Format("Игнорируемые прайсы: {0}", GetValuesFromSQL(GetSqlFromPrices(ids))));
 			}
 			if (_reportParams.ContainsKey("RegionClientEqual")) {
 				var ids = (List<ulong>)_reportParams["RegionClientEqual"];
-				FilterDescriptions.Add(String.Format("Разрешенные регионы: {0}", GetValuesFromSQL(GetSqlFromRegions(ids))));
+				Header.Add(String.Format("Разрешенные регионы: {0}", GetValuesFromSQL(GetSqlFromRegions(ids))));
 			}
-			FilterDescriptions.Add(string.Empty);
+			Header.Add(string.Empty);
 		}
 
 		private string GetPriceForWhiteMatrix(OrderRules rules)

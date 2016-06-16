@@ -52,6 +52,7 @@ namespace ReportTuner.Models
 				typeof(WaybillsStatReport),
 				typeof(OffersExport),
 				typeof(OrderDetails),
+				typeof(SpecReport)
 			};
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
