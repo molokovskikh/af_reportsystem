@@ -23,6 +23,7 @@ namespace ReportSystem.Test
 		[OneTimeSetUp]
 		public void SetupFixture()
 		{
+			System.Environment.CurrentDirectory = TestContext.CurrentContext.TestDirectory;
 			ConnectionStringName = ConnectionHelper.GetConnectionName();
 			ConnectionString = ConnectionHelper.GetConnectionString();
 			//в тестах не может быть блокировок

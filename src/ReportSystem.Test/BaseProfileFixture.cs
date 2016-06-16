@@ -49,8 +49,8 @@ namespace ReportSystem.Test
 		[TearDown]
 		public void Stop()
 		{
-			if (File.Exists(_fileName))
-				File.Delete(_fileName);
+			//if (File.Exists(_fileName))
+			//	File.Delete(_fileName);
 			ProfileHelper.End();
 		}
 
@@ -211,15 +211,11 @@ namespace ReportSystem.Test
 			return writer.ToString();
 		}
 
-		protected TestOrder MakeOrder()
-		{
-			var supplier = TestSupplier.CreateNaked(session);
-			var client = TestClient.CreateNaked(session);
-			return MakeOrder(client, supplier);
-		}
 
-		protected TestOrder MakeOrder(TestClient client, TestSupplier supplier)
+		protected TestOrder CreateOrder(TestClient client = null, TestSupplier supplier = null)
 		{
+			supplier = supplier ?? TestSupplier.CreateNaked(session);
+			client = client ?? TestClient.CreateNaked(session);
 			var order = new TestOrder(client.Users[0], supplier.Prices[0]);
 			var product = session.Query<TestProduct>().First();
 			order.WriteTime = order.WriteTime.AddDays(-1);

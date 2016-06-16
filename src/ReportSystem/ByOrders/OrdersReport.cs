@@ -156,13 +156,11 @@ namespace Inforoom.ReportSystem
 				Begin = From;
 				End = To;
 				End = End.Date.AddDays(1);
-			}
-			else if (ByPreviousMonth) {
+			} else if (ByPreviousMonth) {
 				End = DateTime.Today;
 				End = End.AddDays(-(End.Day - 1)).Date; // Первое число текущего месяца
 				Begin = End.AddMonths(-1).Date;
-			}
-			else {
+			} else {
 				End = DateTime.Today;
 				//От текущей даты вычитаем интервал - дата начала отчета
 				Begin = End.AddDays(-ReportInterval).Date;

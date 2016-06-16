@@ -301,20 +301,49 @@ where oh.WriteTime > ?begin
 group by {1}
 order by {3};
 
-select r.*, k.RequestCount as OrderSendRequestCount
+drop temporary table if exists Reports.PrevResult;
+create temporary table Reports.PrevResult(
+	GroupKey int unsigned not null,
+	TotalSum decimal(12, 2),
+	SupplierSum decimal(12, 2),
+	primary key(GroupKey)
+) engine=memory;
+
+insert into Reports.PrevResult(GroupKey, TotalSum, SupplierSum)
+select {1} as GroupKey,
+	sum(ol.Cost * ol.Quantity) as TotalSum,
+	sum(if(pd.FirmCode = ?SupplierId, ol.Cost * ol.Quantity, 0)) as SupplierSum
+from Orders.OrdersHead oh
+	join Orders.OrdersList ol on ol.OrderId = oh.RowId
+	join Customers.Clients c on c.Id = oh.ClientCode
+	join Customers.Users u on u.ClientId = c.Id and oh.UserId = u.Id
+	join Customers.Addresses a on a.Id = oh.AddressId
+		join Billing.LegalEntities le on le.Id = a.LegalEntityId
+	join Usersettings.PricesData pd on pd.PriceCode = oh.PriceCode
+	{4}
+where oh.WriteTime > ?prevBegin
+	and oh.WriteTime < ?prevEnd
+	and oh.RegionCode in ({0})
+	and pd.IsLocal = 0
+group by {1};
+
+select r.*, k.RequestCount as OrderSendRequestCount, pr.SupplierSum as PrevSupplierSum, pr.TotalSum as PrevTotalSum
 from Reports.PreResult r
-left join Reports.KeyToCount k on k.GroupKey = r.GroupKey;",
+left join Reports.KeyToCount k on k.GroupKey = r.GroupKey
+left join Reports.PrevResult pr on pr.GroupKey = r.GroupKey;",
 				_regions.Implode(),
 				_grouping.Group,
-				_grouping.Columns.Implode(c => String.Format("{0} as {1}", c.Sql, c.Name)),
+				_grouping.Columns.Implode(c => $"{c.Sql} as {c.Name}"),
 				_grouping.Columns.Where(c => c.Order).Implode(c => c.Name),
 				_grouping.Join,
 				_grouping.Columns.Implode(c => c.Name),
-				_grouping.Columns.Implode(c => String.Format("{0} varchar(255)", c.Name)));
+				_grouping.Columns.Implode(c => $"{c.Name} varchar(255)"));
 
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", Begin);
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?end", End);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?prevBegin", Begin.AddDays(-(int)(End - Begin).TotalDays));
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?prevEnd", Begin);
 
 #if DEBUG
 			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
@@ -337,6 +366,7 @@ drop temporary table if exists Reports.PreResult;
 				dataColumn.Caption = column.Caption;
 			}
 			result.Columns.Add("Share", typeof(string));
+			result.Columns.Add("ShareDiff", typeof(string));
 			result.Columns.Add("SupplierSum", typeof(string));
 			if (ShowAllSum)
 				result.Columns.Add("TotalSum", typeof(string));
@@ -354,10 +384,11 @@ drop temporary table if exists Reports.PreResult;
 				" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
 			Header.Add("");
 
-			result.Columns["SupplierSum"].Caption = string.Format("Сумма по '{0}'", supplier.Name);
+			result.Columns["SupplierSum"].Caption = $"Сумма по '{supplier.Name}'";
 			if (ShowAllSum)
 				result.Columns["TotalSum"].Caption = "Сумма по всем поставщикам";
-			result.Columns["Share"].Caption = string.Format("Доля '{0}', %", supplier.Name);
+			result.Columns["Share"].Caption = $"Доля '{supplier.Name}', %";
+			result.Columns["ShareDiff"].Caption = "Изменение доли";
 			result.Columns["SuppliersCount"].Caption = "Кол-во поставщиков";
 			result.Columns["OrderSendRequestCount"].Caption = "Кол-во сессий отправки заказов";
 			result.Columns["LastOrder"].Caption = "Самая поздняя заявка";
@@ -382,14 +413,22 @@ drop temporary table if exists Reports.PreResult;
 
 		public void SetTotalSum(DataRow dataRow, DataRow resultRow)
 		{
-			var total = Convert.ToDouble(dataRow["TotalSum"]);
+			var total = Convert.ToDecimal(dataRow["TotalSum"]);
 			if (total <= 0)
 				resultRow["Share"] = DBNull.Value;
 			else {
-				var supplierSum = Convert.ToDouble(dataRow["SupplierSum"]);
-				var quota = Math.Round((supplierSum / total) * 100, 2);
-				resultRow["Share"] = quota.ToString();
+				var supplierSum = Convert.ToDecimal(dataRow["SupplierSum"]);
+				var share = Math.Round(supplierSum / total * 100, 2);
+				resultRow["Share"] = share.ToString();
 				resultRow["SupplierSum"] = supplierSum.ToString("C");
+
+				var prevTotalSum = dataRow["PrevTotalSum"] is DBNull ? null : (decimal?)Convert.ToDecimal(dataRow["PrevTotalSum"]);
+				var prevSum = dataRow["PrevSupplierSum"] is DBNull ? null : (decimal?)Convert.ToDecimal(dataRow["PrevSupplierSum"]);
+				if (prevTotalSum > 0) {
+					var prevShare = NullableHelper.Round(prevSum / prevTotalSum * 100, 2);
+					resultRow["ShareDiff"] = (share - prevShare).ToString();
+				}
+
 			}
 		}
 	}

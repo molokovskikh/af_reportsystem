@@ -16,7 +16,7 @@ namespace ReportSystem.Test
 		public void Export()
 		{
 			File.Delete("test.xls");
-			var order = MakeOrder();
+			var order = CreateOrder();
 			session.Save(order);
 			var report = new OrderDetails();
 			report.ReportCaption = "тест";

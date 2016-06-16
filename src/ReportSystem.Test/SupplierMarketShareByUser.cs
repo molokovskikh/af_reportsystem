@@ -1,15 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using Common.Tools;
+using Common.Tools.Helpers;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
 using Inforoom.ReportSystem.Helpers;
+using log4net.Config;
 using MySql.Data.MySqlClient;
 using NHibernate.Linq;
 using NPOI.SS.UserModel;
 using NUnit.Framework;
 using Test.Support;
+using Test.Support.log4net;
 using Test.Support.Logs;
 using Test.Support.Suppliers;
 
@@ -24,7 +30,7 @@ namespace ReportSystem.Test
 		[SetUp]
 		public void Setup()
 		{
-			order = MakeOrder();
+			order = CreateOrder();
 			supplier = order.Price.Supplier;
 			session.Save(order);
 			Property("SupplierId", supplier.Id);
@@ -74,6 +80,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Calculate_supplier_client_id()
 		{
+			QueryCatcher.Catch("Inforoom");
 			var intersection = session.Query<TestIntersection>()
 				.First(i => i.Price == order.Price && i.Client == order.Client);
 			intersection.SupplierClientId = Guid.NewGuid().ToString();
@@ -83,26 +90,45 @@ namespace ReportSystem.Test
 				RequestTime = DateTime.Now.AddDays(-1)
 			});
 
+			//Заявка должна попасть в предыдущий период
+			var prevOrder1 = CreateOrder(order.Client);
+			prevOrder1.WriteTime = DateTime.Now.AddDays(-20);
+			session.Save(prevOrder1);
+
+			var prevOrder2 = CreateOrder(order.Client, order.Price.Supplier);
+			prevOrder2.WriteTime = DateTime.Now.AddDays(-20);
+			session.Save(prevOrder2);
+
 			Property("Type", 3);
 
 			var report = ReadReport<SupplierMarketShareByUser>();
 			var result = ToText(report);
+			ProcessHelper.Open(Path.GetFullPath("test.xls"));
 			Assert.That(result, Is.StringContaining(intersection.SupplierClientId));
 			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
 			Assert.That(result, Is.StringContaining("Кол-во сессий отправки заказов"));
 			Assert.That(result, Is.StringContaining("Самая поздняя заявка"));
+			Assert.That(result, Does.Contain("Изменение доли"));
 			var rows = report.Rows().ToArray();
 			//проверяем что индексы которые используются ниже не изменились
 			var header = rows[4];
-			Assert.AreEqual("Кол-во поставщиков", header.GetCell(4).StringCellValue);
-			Assert.AreEqual("Кол-во сессий отправки заказов", header.GetCell(5).StringCellValue);
-			Assert.AreEqual("Самая поздняя заявка", header.GetCell(6).StringCellValue);
+			Assert.AreEqual("Изменение доли", header.GetCell(3).StringCellValue);
+			Assert.AreEqual("Кол-во поставщиков", header.GetCell(5).StringCellValue);
+			Assert.AreEqual("Кол-во сессий отправки заказов", header.GetCell(6).StringCellValue);
+			Assert.AreEqual("Самая поздняя заявка", header.GetCell(7).StringCellValue);
 			//проверяем что в колонке Кол-во поставщиков есть данные
 			var reportRow = rows
 				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
-			Assert.That(Convert.ToUInt32(reportRow.GetCell(4).StringCellValue), Is.GreaterThan(0));
-			Assert.AreEqual("1", reportRow.GetCell(5).StringCellValue);
-			Assert.AreEqual(order.WriteTime.ToString("HH:mm:ss"), reportRow.GetCell(6).StringCellValue);
+			Assert.AreEqual(50, NullableConvert.ToDecimal(reportRow.GetCell(3).StringCellValue));
+			Assert.That(Convert.ToUInt32(reportRow.GetCell(5).StringCellValue), Is.GreaterThan(0));
+			Assert.AreEqual("1", reportRow.GetCell(6).StringCellValue);
+			Assert.AreEqual(order.WriteTime.ToString("HH:mm:ss"), reportRow.GetCell(7).StringCellValue);
+		}
+
+		[Test]
+		public void Zero_report_interval()
+		{
+			throw new NotImplementedException();
 		}
 
 		[Test]

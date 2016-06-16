@@ -33,11 +33,11 @@ namespace ReportSystem.Test
 			supplier.AddRegion(session.Load<TestRegion>(512ul));
 
 			var client = TestClient.CreateNaked(session, 512, 512);
-			var order = MakeOrder(client, supplier);
+			var order = CreateOrder(client, supplier);
 			session.Save(order);
 
 			var client1 = TestClient.CreateNaked(session);
-			var order1 = MakeOrder(client1, supplier);
+			var order1 = CreateOrder(client1, supplier);
 			session.Save(order1);
 
 			Property("ReportInterval", 7);
