@@ -28,7 +28,7 @@ namespace Inforoom.ReportSystem
 		public string EndColumn;
 	}
 
-	public class OrdersReport : BaseReport
+	public class BaseOrdersReport : BaseReport
 	{
 		public List<FilterField> RegistredField;
 		public List<FilterField> selectedField;
@@ -44,13 +44,13 @@ namespace Inforoom.ReportSystem
 
 		private string[] nameFields = new[] { "FullName", "ShortName", "ProductName" };
 
-		public OrdersReport()
+		public BaseOrdersReport()
 		{
 			Init();
 		}
 
-		public OrdersReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, conn, format, dsProperties)
+		public BaseOrdersReport(MySqlConnection conn, DataSet dsProperties)
+			: base(conn, dsProperties)
 		{
 #if !DEBUG
 			OrdersSchema = "OrdersOld";
@@ -321,7 +321,7 @@ create temporary table MixedData ENGINE=MEMORY
 			foreach (var rf in selectedField.Where(f => f.visible)) {
 				var dataColumn = selectTable.Columns[rf.outputField];
 				if (dataColumn == null)
-					throw new Exception(String.Format("Не удалось найти колонку {0}", rf.outputField));
+					throw new Exception($"Не удалось найти колонку {rf.outputField}");
 				var dc = res.Columns.Add(rf.outputField, dataColumn.DataType);
 				dc.Caption = rf.outputCaption;
 				if (rf.width.HasValue)

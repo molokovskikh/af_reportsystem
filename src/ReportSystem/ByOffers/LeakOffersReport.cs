@@ -1,26 +1,23 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Common.Tools;
-
+using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;
 using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
-	public class LeakOffersReport : ProviderReport
+	public class LeakOffersReport : BaseOffersReport
 	{
-		public LeakOffersReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public LeakOffersReport(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 		}
 
-		public DataSet DSResult
-		{
-			get { return _dsReport; }
-		}
+		public DataSet DSResult => _dsReport;
 
 		public override void ReadReportParams()
 		{

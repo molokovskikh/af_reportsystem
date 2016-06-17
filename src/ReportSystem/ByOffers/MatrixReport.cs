@@ -10,12 +10,12 @@ using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.ByOffers
 {
-	public class MatrixReport : ProviderReport
+	public class MatrixReport : BaseOffersReport
 	{
 		private Client _client;
 
-		public MatrixReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public MatrixReport(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 		}
 

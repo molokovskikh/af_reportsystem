@@ -17,8 +17,8 @@ namespace Inforoom.ReportSystem.ByOrders
 		protected List<ulong> regions; // Список регионов
 		protected string regionsString; // Список регионов в виде строки
 
-		public SupplierOrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public SupplierOrdersStatistics(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 		}
 

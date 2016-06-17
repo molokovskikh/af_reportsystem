@@ -122,7 +122,7 @@ namespace Inforoom.ReportSystem
 		//Таблица с загруженными значениями списков-свойств
 		protected DataTable dtReportPropertyValues;
 		//Формат файла отчета
-		protected ReportFormats Format;
+		public ReportFormats Format;
 
 		protected MySqlDataAdapter DataAdapter;
 		public MySqlConnection Connection;
@@ -164,14 +164,11 @@ namespace Inforoom.ReportSystem
 			_dtStart = DateTime.Now;
 		}
 
-		public BaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
+		public BaseReport(MySqlConnection connection, DataSet dsProperties)
 			: this()
 		{
 			Logger = LogManager.GetLogger(GetType());
 			_reportParams = new Dictionary<string, object>();
-			ReportCode = reportCode;
-			ReportCaption = reportCaption;
-			Format = format;
 			_dsReport = new DataSet();
 			Connection = connection;
 
@@ -253,6 +250,11 @@ namespace Inforoom.ReportSystem
 
 		public virtual void ReadReportParams()
 		{
+			ReadProps();
+		}
+
+		public void ReadProps()
+		{
 			foreach (var property in GetType().GetProperties()) {
 				if (ReportParamExists(property.Name)) {
 					var value = GetReportParam(property.Name);
@@ -270,7 +272,7 @@ namespace Inforoom.ReportSystem
 						continue;
 					if (!field.FieldType.IsInstanceOfType(value)) {
 						if (field.FieldType.IsEnum) {
-							value = Enum.ToObject(field.FieldType, Convert.ChangeType(value, typeof(int)));
+							value = Enum.ToObject(field.FieldType, Convert.ChangeType(value, typeof (int)));
 						} else {
 							value = Convert.ChangeType(value, field.FieldType);
 						}

@@ -18,7 +18,7 @@ namespace ReportSystem.Test
 		public void RatingJunkOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingJunkOnly);
-			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new RatingReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingJunkOnly);
 		}
 
@@ -26,7 +26,7 @@ namespace ReportSystem.Test
 		public void RatingFull()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingFull);
-			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new RatingReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingFull);
 		}
 
@@ -34,7 +34,7 @@ namespace ReportSystem.Test
 		public void RatingFullWithProductByPrice()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingFullWithProductByPrice);
-			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new RatingReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingFullWithProductByPrice);
 		}
 
@@ -46,7 +46,7 @@ namespace ReportSystem.Test
 			Property("ProductNamePosition", 0);
 			Property("BuildChart", true);
 			var file = "Build_chart.xls";
-			report = new RatingReport(1, file, Conn, ReportFormats.Excel, properties);
+			report = new RatingReport(Conn, properties);
 			BuildOrderReport(file);
 		}
 
@@ -59,7 +59,7 @@ namespace ReportSystem.Test
 			Property("BuildChart", true);
 			Property("DoNotShowAbsoluteValues", true);
 			var file = "Show_only_relative_values.xls";
-			report = new RatingReport(1, file, Conn, ReportFormats.Excel, properties);
+			report = new RatingReport(Conn, properties);
 			BuildOrderReport(file);
 		}
 

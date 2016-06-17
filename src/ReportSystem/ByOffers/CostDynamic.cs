@@ -104,7 +104,7 @@ namespace Inforoom.ReportSystem.ByOffers
 		}
 	}
 
-	public class CostDynamic : OrdersReport
+	public class CostDynamic : BaseOrdersReport
 	{
 		private ulong[] regions;
 		private uint[] suppliers;
@@ -118,8 +118,8 @@ namespace Inforoom.ReportSystem.ByOffers
 		{
 		}
 
-		public CostDynamic(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public CostDynamic(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 		}
 

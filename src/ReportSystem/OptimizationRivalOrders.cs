@@ -23,8 +23,8 @@ namespace Inforoom.ReportSystem
 		private string _suppliersConcurent;
 		private string _supplierName;
 
-		public OptimizationRivalOrders(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public OptimizationRivalOrders(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 		}
 

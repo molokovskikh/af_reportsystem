@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-
 using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
-using NHibernate;
 using NHibernate.Linq;
 
 namespace Inforoom.ReportSystem.ByOrders
 {
-	public class WaybillsReport : OrdersReport
+	public class WaybillsReport : BaseOrdersReport
 	{
 		private int orgId;
 
@@ -20,8 +17,8 @@ namespace Inforoom.ReportSystem.ByOrders
 			DbfSupported = true;
 		}
 
-		public WaybillsReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, conn, format, dsProperties)
+		public WaybillsReport(MySqlConnection conn, DataSet dsProperties)
+			: base(conn, dsProperties)
 		{
 			DbfSupported = true;
 		}

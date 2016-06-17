@@ -15,7 +15,7 @@ namespace ReportSystem.Test
 		public void RatingNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingNew);
-			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new RatingReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingNew);
 		}
 
@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 		public void RatingNewWithPayerList()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingWithPayersList);
-			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new RatingReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingWithPayersList);
 		}
 
@@ -40,7 +40,7 @@ namespace ReportSystem.Test
 				3677
 			});
 
-			report = new RatingReport(1, fileName, Conn, ReportFormats.Excel, properties);
+			report = new RatingReport(Conn, properties);
 			BuildReport(fileName);
 		}
 
@@ -60,7 +60,7 @@ namespace ReportSystem.Test
 			MySqlCommand cmd = new MySqlCommand(
 				String.Format("update usersettings.pricesdata set IsLocal=1 where pricecode={0}", price), Conn);
 			cmd.ExecuteNonQuery();
-			report = new RatingReport(1, fileName, Conn, ReportFormats.Excel, properties);
+			report = new RatingReport(Conn, properties);
 			BuildReport(fileName);
 
 			// возвращаем настроки прайса как было

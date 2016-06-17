@@ -39,7 +39,7 @@ namespace ReportSystem.Test
 		{
 			Property("Type", 0);
 
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(Conn, properties);
 			BuildReport();
 		}
 
@@ -48,7 +48,7 @@ namespace ReportSystem.Test
 		{
 			Property("Type", 1);
 
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(Conn, properties);
 			BuildReport("SupplierMarketShareByUserByAddress.xls");
 		}
 
@@ -57,7 +57,7 @@ namespace ReportSystem.Test
 		{
 			Property("Type", 2);
 
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(Conn, properties);
 			BuildReport("SupplierMarketShareByUserByClient.xls");
 		}
 
@@ -66,7 +66,7 @@ namespace ReportSystem.Test
 		{
 			Property("Type", 3);
 
-			report = new SupplierMarketShareByUser(1, "SupplierMarketShareByUser.xls", Conn, ReportFormats.Excel, properties);
+			report = new SupplierMarketShareByUser(Conn, properties);
 			BuildReport("SupplierMarketShareByUserByLegalEntity.xls");
 		}
 
@@ -128,8 +128,8 @@ namespace ReportSystem.Test
 
 			Property("Type", 3);
 			TryInitReport<SupplierMarketShareByUser>();
-			((OrdersReport)report).Interval = false;
-			((OrdersReport)report).ByToday = true;
+			((BaseOrdersReport)report).Interval = false;
+			((BaseOrdersReport)report).ByToday = true;
 			var sheet = ReadReport<SupplierMarketShareByUser>();
 			Assert.AreEqual(order.Sum().ToString("C"), ValueByColumn(sheet, intersection.SupplierClientId, "Сумма по 'Тестовый поставщик'"));
 		}

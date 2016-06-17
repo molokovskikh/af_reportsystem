@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Common.Models;
 using Common.MySql;
+using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 using Microsoft.Office.Interop.Excel;
@@ -16,7 +18,7 @@ using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace Inforoom.ReportSystem
 {
-	public class OffersReport : ProviderReport
+	public class OffersReport : BaseOffersReport
 	{
 		private int _reportType;
 		private bool _calculateByCatalog;
@@ -25,10 +27,17 @@ namespace Inforoom.ReportSystem
 
 		private ulong _sourceRegionCode;
 		private int _sourcePriceCode;
-		private string _customerFirmName;
 
-		public OffersReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		[Description("Минимальное количество конкурентов")]
+		public int MinSupplierCount;
+
+		public OffersReport()
+		{
+			MinSupplierCount = 3;
+		}
+
+		public OffersReport(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 		}
 
@@ -62,11 +71,10 @@ namespace Inforoom.ReportSystem
 			}
 
 			_sourcePriceCode = _priceCode;
-			_customerFirmName = GetSupplierName(_priceCode);
 
 			CheckPriceActual((uint)_sourcePriceCode);
 			GetOffers(_SupplierNoise);
-			CheckSupplierCount();
+			CheckSupplierCount(MinSupplierCount);
 
 			//Получили предложения интересующего прайс-листа в отдельную таблицу
 			GetSourceCodes();

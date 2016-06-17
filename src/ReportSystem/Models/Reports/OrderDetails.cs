@@ -13,7 +13,7 @@ using NPOI.SS.UserModel;
 namespace Inforoom.ReportSystem.Models.Reports
 {
 	[Description("Детализация заявок")]
-	public class OrderDetails : OrdersReport
+	public class OrderDetails : BaseOrdersReport
 	{
 		[Description("Клиент")]
 		public uint ClientId { get; set; }
@@ -23,8 +23,8 @@ namespace Inforoom.ReportSystem.Models.Reports
 			RegistredField.Clear();
 		}
 
-		public OrderDetails(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, conn, format, dsProperties)
+		public OrderDetails(MySqlConnection conn, DataSet dsProperties)
+			: base(conn, dsProperties)
 		{
 		}
 

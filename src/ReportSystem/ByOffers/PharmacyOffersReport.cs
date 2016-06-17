@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-
+using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
@@ -15,7 +15,7 @@ namespace Inforoom.ReportSystem.FastReports
 		ProductAndProducer
 	}
 
-	public class PharmacyOffersReport : ProviderReport
+	public class PharmacyOffersReport : BaseOffersReport
 	{
 		private const string headersql = @"
 drop temporary table IF EXISTS ExtendedCore;
@@ -199,8 +199,8 @@ into @OffersSynonymCode;
 		private bool _reportIsFull;
 		private int? _priceCode;
 
-		public PharmacyOffersReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public PharmacyOffersReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 		}
 

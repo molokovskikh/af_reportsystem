@@ -23,8 +23,8 @@ namespace Inforoom.ReportSystem
 			AddressRivals = new List<ulong>();
 		}
 
-		public PharmacyMixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public PharmacyMixedReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 			AddressesEqual = new List<ulong>();
 			AddressRivals = new List<ulong>();

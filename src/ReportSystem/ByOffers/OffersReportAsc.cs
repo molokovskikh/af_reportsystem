@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -21,9 +22,18 @@ namespace Inforoom.ReportSystem
 		private ulong _sourceRegionCode;
 		private uint _sourcePriceCode;
 
-		public OffersReportAsc(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		[Description("Минимальное количество конкурентов")]
+		public int MinSupplierCount;
+
+		protected OffersReportAsc()
 		{
+			MinSupplierCount = 3;
+		}
+
+		public OffersReportAsc(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
+		{
+			MinSupplierCount = 3;
 			reportCaptionPreffix = "Отчет по минимальным ценам по возрастанию";
 		}
 
@@ -90,7 +100,7 @@ namespace Inforoom.ReportSystem
 				CheckPriceActual(_sourcePriceCode);
 
 				GetOffers(_SupplierNoise);
-				CheckSupplierCount();
+				CheckSupplierCount(MinSupplierCount);
 
 				_suppliers = GetShortSuppliers();
 				_ignoredSuppliers = GetIgnoredSuppliers();

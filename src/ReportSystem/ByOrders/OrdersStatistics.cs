@@ -8,10 +8,10 @@ using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem.ByOrders
 {
-	public class OrdersStatistics : OrdersReport
+	public class OrdersStatistics : BaseOrdersReport
 	{
-		public OrdersStatistics(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public OrdersStatistics(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 		}
 

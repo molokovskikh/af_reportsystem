@@ -120,6 +120,7 @@ namespace ReportSystem.Test
 
 		public static void ProcessReport(BaseReport report, ReportsTypes type)
 		{
+			report.ReportCaption = report.ReportCaption ?? "Automate Created Report";
 			ProfileHelper.Start();
 			using (new SessionScope()) {
 				ArHelper.WithSession(s => {

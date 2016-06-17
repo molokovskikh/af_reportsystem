@@ -58,7 +58,7 @@ namespace ReportSystem.Test
 		{
 			Property("ProductNamePosition", 0);
 			Property("ByPreviousMonth", false);
-			report = new WaybillsStatReport(1, "test", Conn, ReportFormats.Excel, properties);
+			report = new WaybillsStatReport(Conn, properties);
 			report.From = DateTime.Today.AddDays(-10);
 			report.To = DateTime.Today;
 			report.Interval = true;
@@ -86,7 +86,7 @@ namespace ReportSystem.Test
 			Property("ByPreviousMonth", false);
 			Property("ShowCode", true);
 			Property("SupplierId", supplier.Id);
-			report = new WaybillsStatReport(1, "test", Conn, ReportFormats.Excel, properties);
+			report = new WaybillsStatReport(Conn, properties);
 			report.From = DateTime.Today.AddDays(-10);
 			report.To = DateTime.Today;
 			report.Interval = true;

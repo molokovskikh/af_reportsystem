@@ -15,7 +15,7 @@ namespace ReportSystem.Test
 		public void MixedNew()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedNew);
-			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new MixedReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedNew);
 		}
 
@@ -23,7 +23,7 @@ namespace ReportSystem.Test
 		public void MixedNewDifficult()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedNewDifficult);
-			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new MixedReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedNewDifficult);
 		}
 
@@ -57,7 +57,7 @@ namespace ReportSystem.Test
 			//роста
 			Property("BusinessRivals", new List<long> { 216 });
 
-			report = new MixedReport(1, "", Conn, ReportFormats.Excel, properties);
+			report = new MixedReport(Conn, properties);
 			report.Interval = true;
 			report.From = new DateTime(2000, 1, 1);
 			report.To = new DateTime(2000, 1, 2);

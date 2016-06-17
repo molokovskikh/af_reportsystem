@@ -11,13 +11,13 @@ using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem.ByOrders
 {
-	public class OrderOutAllowedAssortment : OrdersReport
+	public class OrderOutAllowedAssortment : BaseOrdersReport
 	{
 		private uint _clientId;
 		private Period _period;
 
-		public OrderOutAllowedAssortment(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public OrderOutAllowedAssortment(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 		}
 

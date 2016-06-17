@@ -14,7 +14,7 @@ namespace ReportSystem.Test
 		public void MixedProductName()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedProductName);
-			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new MixedReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedProductName);
 		}
 
@@ -22,7 +22,7 @@ namespace ReportSystem.Test
 		public void MixedFullName()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedFullName);
-			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new MixedReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedFullName);
 		}
 
@@ -30,7 +30,7 @@ namespace ReportSystem.Test
 		public void MixedName()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedName);
-			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new MixedReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedName);
 		}
 
@@ -38,7 +38,7 @@ namespace ReportSystem.Test
 		public void MixedFull()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedFull);
-			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new MixedReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedFull);
 		}
 
@@ -46,7 +46,7 @@ namespace ReportSystem.Test
 		public void MixedFullNoActual()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.MixedFullNoActual);
-			var report = new MixedReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new MixedReport(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.MixedFullNoActual);
 			foreach (DataRow row in report.DSResult.Rows) {
 				Assert.That(String.IsNullOrEmpty(row["F1"].ToString()), Is.EqualTo(true));

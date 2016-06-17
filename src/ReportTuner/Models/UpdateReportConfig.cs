@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -20,15 +20,12 @@ namespace ReportTuner.Models
 	{
 		private ISession session;
 		private static ILog log = LogManager.GetLogger(typeof(UpdateReportConfig));
+		private Dictionary<string, string> procedureMap;
 
 		public UpdateReportConfig(ISession session)
 		{
 			this.session = session;
-		}
-
-		public void Execute()
-		{
-			var procedures = new Dictionary<string, string> {
+			procedureMap = new Dictionary<string, string> {
 				{"Payer", "GetPayerCode"},
 				{"Mnn", null},
 				{"Region", "GetRegion"},
@@ -42,6 +39,10 @@ namespace ReportTuner.Models
 				{"SupplierId", "GetFirmCode"},
 				{"UserId", "GetUser"}
 			};
+		}
+
+		public void Execute()
+		{
 			var rootType = typeof(BaseReport);
 			//некоторые отчеты унаследованы от базового но на самом деле они не умеют использовать общие настройки
 			var configurableReports = new[] {
@@ -52,7 +53,8 @@ namespace ReportTuner.Models
 				typeof(WaybillsStatReport),
 				typeof(OffersExport),
 				typeof(OrderDetails),
-				typeof(SpecReport)
+				typeof(SpecReport),
+				typeof(SpecShortReport),
 			};
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
@@ -60,10 +62,10 @@ namespace ReportTuner.Models
 				var reportType = session.Query<ReportType>().FirstOrDefault(r => r.ReportClassName == type.FullName)
 					?? new ReportType(type);
 
-				if (typeof(OrdersReport).IsAssignableFrom(type)) {
-					var reportInstance = new OrdersReport();
+				if (typeof(BaseOrdersReport).IsAssignableFrom(type)) {
+					var reportInstance = new BaseOrdersReport();
 					if (type.GetConstructor(new Type[0]) != null)
-						reportInstance = (OrdersReport)Activator.CreateInstance(type);
+						reportInstance = (BaseOrdersReport)Activator.CreateInstance(type);
 					var notExists = reportInstance.RegistredField.SelectMany(f => new[] {
 						f.reportPropertyPreffix + FilterField.PositionSuffix,
 						f.reportPropertyPreffix + FilterField.NonEqualSuffix,
@@ -86,14 +88,14 @@ namespace ReportTuner.Models
 							reportType.AddProperty(property);
 						}
 						else if (notExist.EndsWith(FilterField.NonEqualSuffix)) {
-							var property = AddListProperty(procedures, reportInstance.RegistredField, reportType, notExist,
+							var property = AddListProperty(procedureMap, reportInstance.RegistredField, reportType, notExist,
 								FilterField.NonEqualSuffix, "Список исключений \"{0}\"");
 							log.WarnFormat("Добавил опциональный параметр '{0}' для отчета '{1}'",
 								property.DisplayName,
 								reportType.ReportTypeName);
 						}
 						else {
-							var property = AddListProperty(procedures, reportInstance.RegistredField, reportType, notExist,
+							var property = AddListProperty(procedureMap, reportInstance.RegistredField, reportType, notExist,
 								FilterField.EqualSuffix, "Список значений \"{0}\"");
 							log.WarnFormat("Добавил опциональный параметр '{0}' для отчета {1}",
 								property.DisplayName,
@@ -102,23 +104,25 @@ namespace ReportTuner.Models
 					}
 				}
 
-				CheckProperties(type, procedures, reportType);
+				CheckProperties(type, reportType);
 
 				session.Save(reportType);
 			}
-			CheckProperties(typeof(SupplierMarketShareByUser), procedures);
+			CheckProperties(typeof(SupplierMarketShareByUser));
+			CheckProperties(typeof(OffersReport));
+			CheckProperties(typeof(OffersReportAsc));
 		}
 
-		private void CheckProperties(Type type, Dictionary<string, string> procedures, ReportType reportType = null)
+		private void CheckProperties(Type type, ReportType reportType = null)
 		{
 			reportType = reportType ?? session.Query<ReportType>().FirstOrDefault(r => r.ReportClassName == type.FullName);
-			type.GetProperties().Each(t => { CheckProperty(type, t.Name, t.PropertyType, t, reportType, procedures); });
+			type.GetProperties().Each(t => { CheckProperty(type, t.Name, t.PropertyType, t, reportType, procedureMap); });
 			var blacklist = new string[0];
 			if (type == typeof(PharmacyMixedReport)) {
 				blacklist = new[] { "HideSupplierStat" };
 			}
 			type.GetFields().Where(f => !blacklist.Contains(f.Name))
-				.Each(f => CheckProperty(type, f.Name, f.FieldType, f, reportType, procedures));
+				.Each(f => CheckProperty(type, f.Name, f.FieldType, f, reportType, procedureMap));
 		}
 
 		private static void CheckProperty(Type reportType, string name, Type type, ICustomAttributeProvider typeProperty,

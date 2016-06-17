@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using Common.MySql;
 using Common.Tools;
-
+using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
@@ -42,7 +42,7 @@ namespace Inforoom.ReportSystem
 		public List<decimal> Costs { get; set; }
 	}
 
-	public class PricesOfCompetitorsReport : ProviderReport
+	public class PricesOfCompetitorsReport : BaseOffersReport
 	{
 		protected string reportCaptionPreffix;
 		protected string regionNotInprefix;
@@ -66,8 +66,8 @@ namespace Inforoom.ReportSystem
 		protected string _suppliersNames = "";
 		protected string _regionsWhere = string.Empty;
 
-		public PricesOfCompetitorsReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public PricesOfCompetitorsReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 			reportCaptionPreffix = "Отчет по минимальным ценам конкурентов";
 		}

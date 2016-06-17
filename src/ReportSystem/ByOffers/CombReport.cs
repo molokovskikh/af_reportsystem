@@ -9,12 +9,13 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Configuration;
+using Inforoom.ReportSystem.ByOffers;
 using DataTable = System.Data.DataTable;
 
 namespace Inforoom.ReportSystem
 {
 	//Комбинированный отчет прайс-листов
-	public class CombReport : ProviderReport
+	public class CombReport : BaseOffersReport
 	{
 		/*
 		 * ReportType
@@ -39,8 +40,8 @@ namespace Inforoom.ReportSystem
 		protected string _clientsNames = "";
 		protected string _suppliersNames = "";
 
-		public CombReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public CombReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 			reportCaptionPreffix = "Комбинированный отчет";
 			DbfSupported = true;

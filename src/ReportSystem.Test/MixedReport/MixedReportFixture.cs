@@ -82,7 +82,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Ignore_mnn_without_product()
 		{
-			var report = new OrdersReport();
+			var report = new BaseOrdersReport();
 			var mnn = report.RegistredField.First(r => r.reportPropertyPreffix == "Mnn");
 			report.selectedField.Add(mnn);
 			var producer = report.RegistredField.First(r => r.reportPropertyPreffix == "FirmCr");
@@ -281,7 +281,7 @@ namespace ReportSystem.Test
 
 		private static string MakeColumns(string decl)
 		{
-			var report = new OrdersReport();
+			var report = new BaseOrdersReport();
 			var columns = decl.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < columns.Length; i++) {
 				var product = report.RegistredField.First(r => r.reportPropertyPreffix == columns[i].Trim());

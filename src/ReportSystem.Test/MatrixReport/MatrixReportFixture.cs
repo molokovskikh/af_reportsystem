@@ -64,7 +64,7 @@ value
 			clientId = client.Id;
 
 			Property("ClientCode", clientId);
-			report = new Inforoom.ReportSystem.ByOffers.MatrixReport(clientId, "test", Conn, ReportFormats.Excel, properties);
+			report = new Inforoom.ReportSystem.ByOffers.MatrixReport(Conn, properties);
 			BuildOrderReport("Rep.xls");
 			var resuleSet = DataSetHelper.CreateDataSet("Rep.xls").Tables[0];
 			Assert.That(resuleSet.Rows[4][13], Does.Contain("Удаление предложения"));

@@ -17,8 +17,8 @@ namespace Inforoom.ReportSystem.Models.Reports
 	{
 		private DataTable data;
 
-		public OffersExport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public OffersExport(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 			Init();
 		}

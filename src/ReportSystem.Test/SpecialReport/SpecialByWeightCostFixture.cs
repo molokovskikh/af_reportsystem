@@ -38,7 +38,7 @@ namespace ReportSystem.Test.SpecialReport
 			Property("CalculateByCatalog", false);
 			Property("PriceCode", (int)supplier.Prices[0].Id);
 			Property("ByWeightCosts", true);
-			report = new SpecReport(1, fileName, (MySqlConnection)session.Connection, ReportFormats.Excel, properties);
+			report = new SpecReport((MySqlConnection)session.Connection, properties);
 			report.Interval = true;
 			report.From = dateTime;
 			BuildReport(fileName);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using Common.Models;
@@ -69,13 +70,18 @@ namespace Inforoom.ReportSystem
 
 		protected List<ulong> _Clients;
 
-		protected SpecShortReport() // конструктор для возможности тестирования
+		[Description("Минимальное количество конкурентов")]
+		public int MinSupplierCount;
+
+		public SpecShortReport()
 		{
+			MinSupplierCount = 3;
 		}
 
-		public SpecShortReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public SpecShortReport(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
+			MinSupplierCount = 3;
 			reportCaptionPreffix = "Отчет по минимальным ценам";
 			_reportData = new List<SpecShortReportData>();
 			_hash = new Hashtable();
@@ -83,24 +89,12 @@ namespace Inforoom.ReportSystem
 
 		protected override void GenerateReport()
 		{
-			NewGeneratereport();
-
-			_suppliers = GetShortSuppliers();
-			_ignoredSuppliers = GetIgnoredSuppliers();
-
-			if (_Clients.Count > 1)
-				_clientsNames = GetClientsNamesFromSQL(_Clients);
-		}
-
-		public void NewGeneratereport()
-		{
 			ProfileHelper.Next("PreGetOffers");
 			if (WithoutAssortmentPrice) {
 				_priceCode = 0;
 				SourcePC = 0;
 				CustomerFirmName = String.Empty;
-			}
-			else {
+			} else {
 				//Если прайс-лист равен 0, то он не установлен, поэтому берем прайс-лист относительно клиента, для которого делается отчет
 				if (_priceCode == 0)
 					throw new ReportException("Для специального отчета не указан параметр \"Прайс-лист\".");
@@ -114,15 +108,21 @@ namespace Inforoom.ReportSystem
 				maxSuppliersCount = Math.Max(maxSuppliersCount, GetOffersByClient(Convert.ToInt32(client)));
 
 			//-1 значит что не выбрали совсем ничего
-			if (_reportParams.ContainsKey("FirmCodeEqual") && maxSuppliersCount >= 0 && maxSuppliersCount < 3) {
-				throw new ReportException(String.Format("Фактическое количество прайс" +
-					" листов меньше трех, получено прайс-листов {0}", maxSuppliersCount));
+			if (_reportParams.ContainsKey("FirmCodeEqual") && maxSuppliersCount >= 0 && maxSuppliersCount < MinSupplierCount) {
+				throw new ReportException("Фактическое количество прайс" +
+					$" листов меньше {MinSupplierCount}, получено прайс-листов {maxSuppliersCount}");
 			}
 
 			ProfileHelper.Next("Calculate");
 			GetResultTable();
 
 			ProfileHelper.End();
+
+			_suppliers = GetShortSuppliers();
+			_ignoredSuppliers = GetIgnoredSuppliers();
+
+			if (_Clients.Count > 1)
+				_clientsNames = GetClientsNamesFromSQL(_Clients);
 		}
 
 		private void GetResultTable()
@@ -281,6 +281,7 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			ReadProps();
 			if (_reportParams.ContainsKey("SupplierNoise"))
 				_SupplierNoise = (int)GetReportParam("SupplierNoise");
 			_reportType = (int)GetReportParam("ReportType");
@@ -313,8 +314,7 @@ namespace Inforoom.ReportSystem
 		protected override void Calculate()
 		{
 			base.Calculate();
-			DataTable dtNewRes;
-			dtNewRes = _dsReport.Tables["Results"].DefaultView.ToTable("Results", false,
+			var dtNewRes = _dsReport.Tables["Results"].DefaultView.ToTable("Results", false,
 				new[] { "Code", "CodeCr", "FullName", "FirmCr", "CustomerCost", "CustomerQuantity", "MinCost", "LeaderName" });
 
 			foreach (DataRow drRes in dtNewRes.Rows)
@@ -324,10 +324,7 @@ namespace Inforoom.ReportSystem
 			_dsReport.Tables.Add(dtNewRes);
 		}
 
-		public override bool DbfSupported
-		{
-			get { return true; }
-		}
+		public override bool DbfSupported => true;
 
 		protected override void DataTableToDbf(DataTable dtExport, string fileName)
 		{

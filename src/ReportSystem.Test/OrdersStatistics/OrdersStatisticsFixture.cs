@@ -19,7 +19,7 @@ namespace ReportSystem.Test
 			Property("ReportInterval", 7);
 			Property("ByPreviousMonth", false);
 
-			TestHelper.ProcessReport(new OrdersStatistics(0, "Automate Created Report", Conn, ReportFormats.Excel, properties), ReportsTypes.OrdersStatistics);
+			TestHelper.ProcessReport(new OrdersStatistics(Conn, properties), ReportsTypes.OrdersStatistics);
 		}
 
 		[Test]

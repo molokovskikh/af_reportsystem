@@ -22,8 +22,8 @@ namespace Inforoom.ReportSystem
 		private string _suppliersConcurent;
 		private string _supplierName;
 
-		public OptimizationEfficiency(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public OptimizationEfficiency(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 		}
 

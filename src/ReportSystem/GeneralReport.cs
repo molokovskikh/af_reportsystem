@@ -132,6 +132,9 @@ where GeneralReport = ?GeneralReport;", new { GeneralReport = Id })
 								Format,
 								LoadProperties(Connection, (ulong)drGReport[BaseReportColumns.colReportCode])
 							});
+						bs.ReportCode = (ulong)drGReport[BaseReportColumns.colReportCode];
+						bs.ReportCaption = drGReport[BaseReportColumns.colReportCaption].ToString();
+						bs.Format = Format;
 						bs.Interval = interval;
 						bs.From = dtFrom;
 						bs.To = dtTo;

@@ -1,31 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using Common.MySql;
 using Common.Tools;
 using Inforoom.ReportSystem.Helpers;
 using Inforoom.ReportSystem.Model;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
-
 using System.Data;
-using MSExcel = Microsoft.Office.Interop.Excel;
-using System.IO;
-using System.Configuration;
 using Common.Models;
+using Inforoom.ReportSystem.ByOffers;
 using DataTable = System.Data.DataTable;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace Inforoom.ReportSystem
 {
 	//Специальный отчет прайс-листов
-	public class SpecReport : ProviderReport
+	public class SpecReport : BaseOffersReport
 	{
 		//1 - без учета производителя и с количеством
 		//2 - без учета производителя и количеством
@@ -68,18 +62,15 @@ namespace Inforoom.ReportSystem
 		{
 		}
 
-		public SpecReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public SpecReport(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 			reportCaptionPreffix = "Специальный отчет";
 		}
 		/// <summary>
 		/// результаты отчета для тестов
 		/// </summary>
-		public DataSet DSResult
-		{
-			get { return _dsReport; }
-		}
+		public DataSet DSResult => _dsReport;
 
 		public override void ReadReportParams()
 		{

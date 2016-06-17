@@ -5,16 +5,17 @@ using Inforoom.ReportSystem.Properties;
 using MySql.Data.MySqlClient;
 
 using System.Data;
+using Inforoom.ReportSystem.ByOffers;
 
 namespace Inforoom.ReportSystem
 {
-	public class CombToPlainReport : ProviderReport
+	public class CombToPlainReport : BaseOffersReport
 	{
 		private string _filename;
 		private string _exportFilename;
 
-		public CombToPlainReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public CombToPlainReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 			if (String.IsNullOrEmpty(Settings.Default.DBDumpPath))
 				throw new ReportException("Не установлен параметр DBDumpPath в конфигурационном файле.");

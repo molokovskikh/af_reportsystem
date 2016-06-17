@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using Common.Tools.Helpers;
 using Inforoom.ReportSystem.Helpers;
@@ -8,6 +8,7 @@ using MSExcel = Microsoft.Office.Interop.Excel;
 using System.Data;
 using System.Configuration;
 using Common.MySql;
+using Inforoom.ReportSystem.ByOffers;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
 namespace Inforoom.ReportSystem
@@ -27,13 +28,13 @@ namespace Inforoom.ReportSystem
 	}
 
 	//Дефектурный отчет
-	public class DefReport : ProviderReport
+	public class DefReport : BaseOffersReport
 	{
 		protected DefReportType _reportType;
 		protected int _priceCode;
 
-		public DefReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public DefReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 		}
 

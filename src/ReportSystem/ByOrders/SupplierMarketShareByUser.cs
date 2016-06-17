@@ -75,7 +75,7 @@ namespace Inforoom.ReportSystem.ByOrders
 	}
 
 	//Доля поставщика в заказах аптек
-	public class SupplierMarketShareByUser : OrdersReport
+	public class SupplierMarketShareByUser : BaseOrdersReport
 	{
 		private uint _supplierId;
 		private List<ulong> _regions;
@@ -112,8 +112,8 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 
 		private Grouping _grouping;
 
-		public SupplierMarketShareByUser(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public SupplierMarketShareByUser(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 		}
 

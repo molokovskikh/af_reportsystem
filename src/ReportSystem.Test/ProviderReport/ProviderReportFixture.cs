@@ -10,6 +10,7 @@ using Common.Models;
 using Common.Tools;
 using Common.Web.Ui.ActiveRecordExtentions;
 using Inforoom.ReportSystem;
+using Inforoom.ReportSystem.ByOffers;
 using MySql.Data.MySqlClient;
 using NHibernate.Linq;
 using NUnit.Framework;
@@ -19,8 +20,8 @@ namespace ReportSystem.Test.ProviderReport
 {
 	public class SpecReportOldLoad : SpecShortReport
 	{
-		public SpecReportOldLoad(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public SpecReportOldLoad(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 		}
 
@@ -50,8 +51,8 @@ from
 
 	public class SpecReportNewLoad : SpecShortReport
 	{
-		public SpecReportNewLoad(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, connection, format, dsProperties)
+		public SpecReportNewLoad(MySqlConnection connection, DataSet dsProperties)
+			: base(connection, dsProperties)
 		{
 		}
 
@@ -60,9 +61,9 @@ from
 		}
 	}
 
-	public class TestClientNamesBaseReport : Inforoom.ReportSystem.ProviderReport
+	public class TestClientNamesBaseReport : BaseOffersReport
 	{
-		public TestClientNamesBaseReport(ulong reportCode, string reportCaption, MySqlConnection connection, ReportFormats format, DataSet dsProperties) : base(reportCode, reportCaption, connection, format, dsProperties)
+		public TestClientNamesBaseReport(MySqlConnection connection, DataSet dsProperties) : base(connection, dsProperties)
 		{
 		}
 
@@ -181,7 +182,7 @@ limit 1";
 			var list = query.OrderBy(c => c.Name);
 
 			var props = TestHelper.LoadProperties(ReportsTypes.MinCostByPriceNew);
-			var report = new TestClientNamesBaseReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new TestClientNamesBaseReport(Conn, props);
 
 			report.ProcessReport();
 

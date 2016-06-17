@@ -24,7 +24,7 @@ namespace Inforoom.ReportSystem
 		[Description("Только кодами из заказов")] Orders
 	}
 
-	public class MixedReport : OrdersReport
+	public class MixedReport : BaseOrdersReport
 	{
 		[Description("Скрыть статистику поставщика")]
 		public bool HideSupplierStat;
@@ -69,8 +69,8 @@ namespace Inforoom.ReportSystem
 			HideJunk = false;
 		}
 
-		public MixedReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public MixedReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 			SupportProductNameOptimization = true;
 			HideJunk = false;

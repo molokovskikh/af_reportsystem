@@ -16,7 +16,7 @@ namespace ReportSystem.Test
 		public void OptimizationEfficiencyNorman()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.OptimizationEfficiencyWithSupplier);
-			var report = new OptimizationEfficiency(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
+			var report = new OptimizationEfficiency(Conn, props);
 			TestHelper.ProcessReport(report, ReportsTypes.OptimizationEfficiencyWithSupplier);
 		}
 
@@ -27,7 +27,7 @@ namespace ReportSystem.Test
 			Property("ByPreviousMonth", false);
 			Property("ReportInterval", 70);
 			Property("FirmCode", 5);
-			report = new OptimizationEfficiency(1, fileName, Conn, ReportFormats.Excel, properties);
+			report = new OptimizationEfficiency(Conn, properties);
 			BuildReport(fileName);
 		}
 
@@ -38,7 +38,7 @@ namespace ReportSystem.Test
 			Property("ByPreviousMonth", false);
 			Property("FirmCode", 5);
 			Property("ReportInterval", 70);
-			report = new OptimizationRivalOrders(1, fileName, Conn, ReportFormats.Excel, properties);
+			report = new OptimizationRivalOrders(Conn, properties);
 			BuildReport(fileName);
 		}
 
@@ -49,7 +49,7 @@ namespace ReportSystem.Test
 			Property("ByPreviousMonth", false);
 			Property("ReportInterval", 70);
 			Property("FirmCode", 5);
-			report = new OptimizationRivalOrders(1, fileName, Conn, ReportFormats.Excel, properties);
+			report = new OptimizationRivalOrders(Conn, properties);
 			BuildReport(fileName);
 		}
 
@@ -61,7 +61,7 @@ namespace ReportSystem.Test
 			Property("ReportInterval", 70);
 			Property("FirmCode", 5);
 			Property("ClientCode", 376);
-			report = new OptimizationRivalOrders(1, fileName, Conn, ReportFormats.Excel, properties);
+			report = new OptimizationRivalOrders(Conn, properties);
 			BuildReport(fileName);
 		}
 

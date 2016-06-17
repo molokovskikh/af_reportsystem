@@ -14,25 +14,22 @@ using XlChartType = Microsoft.Office.Interop.Excel.XlChartType;
 
 namespace Inforoom.ReportSystem
 {
-	public class RatingReport : OrdersReport
+	public class RatingReport : BaseOrdersReport
 	{
 		public int JunkState { get; set; }
 		public bool BuildChart { get; set; }
 		public bool DoNotShowAbsoluteValues { get; set; }
 		public List<ulong> ProductFromPriceEqual { get; set; }
 
-		public DataTable ResultTable
-		{
-			get { return _dsReport.Tables["Results"]; }
-		}
+		public DataTable ResultTable => _dsReport.Tables["Results"];
 
 		public RatingReport()
 		{
 			Init();
 		}
 
-		public RatingReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, conn, format, dsProperties)
+		public RatingReport(MySqlConnection conn, DataSet dsProperties)
+			: base(conn, dsProperties)
 		{
 			Init();
 		}

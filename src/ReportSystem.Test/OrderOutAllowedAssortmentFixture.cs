@@ -20,7 +20,7 @@ namespace ReportSystem.Test
 			AddProperty("ReportInterval", 12);*/
 			var type = ReportsTypes.OrderOutAllowedAssortment;
 			var props = TestHelper.LoadProperties(type);
-			report = new OrderOutAllowedAssortment(1, "OrderOutAllowedAssortment.xls", Conn, ReportFormats.Excel, props);
+			report = new OrderOutAllowedAssortment(Conn, props);
 
 			BuildReport();
 		}

@@ -9,15 +9,15 @@ using MySql.Data.MySqlClient;
 namespace Inforoom.ReportSystem.Model
 {
 	[Description("Статистика накладных")]
-	public class WaybillsStatReport : OrdersReport
+	public class WaybillsStatReport : BaseOrdersReport
 	{
 		public WaybillsStatReport()
 		{
 			Init();
 		}
 
-		public WaybillsStatReport(ulong reportCode, string reportCaption, MySqlConnection conn, ReportFormats format, DataSet dsProperties)
-			: base(reportCode, reportCaption, conn, format, dsProperties)
+		public WaybillsStatReport(MySqlConnection conn, DataSet dsProperties)
+			: base(conn, dsProperties)
 		{
 			Init();
 		}

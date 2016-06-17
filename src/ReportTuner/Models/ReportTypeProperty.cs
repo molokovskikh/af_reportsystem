@@ -117,7 +117,7 @@ namespace ReportTuner.Models
 
 		public FilterField FindFilterField()
 		{
-			var report = new OrdersReport();
+			var report = new BaseOrdersReport();
 			return FilterField.Sufixes.Select(
 				s => report.RegistredField
 					.FirstOrDefault(f => f.reportPropertyPreffix == PropertyName.Replace(s, "")))

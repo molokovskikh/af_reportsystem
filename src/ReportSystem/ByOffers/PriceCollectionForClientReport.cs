@@ -5,21 +5,21 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Common.Tools;
-
+using Inforoom.ReportSystem.ByOffers;
 using Inforoom.ReportSystem.Helpers;
 using MySql.Data.MySqlClient;
 
 namespace Inforoom.ReportSystem
 {
-	public class PriceCollectionForClientReport : ProviderReport
+	public class PriceCollectionForClientReport : BaseOffersReport
 	{
 		protected List<ulong> _Clients; // список клиентов
 		protected int _supplierId; // поставщик
 
 		private List<ReportData> _reportData;
 
-		public PriceCollectionForClientReport(ulong ReportCode, string ReportCaption, MySqlConnection Conn, ReportFormats format, DataSet dsProperties)
-			: base(ReportCode, ReportCaption, Conn, format, dsProperties)
+		public PriceCollectionForClientReport(MySqlConnection Conn, DataSet dsProperties)
+			: base(Conn, dsProperties)
 		{
 			_reportData = new List<ReportData>();
 		}
