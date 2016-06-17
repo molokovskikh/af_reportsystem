@@ -188,6 +188,7 @@ namespace ReportSystem.Test
 			if (report == null) {
 				report = (BaseReport)Activator.CreateInstance(typeof(T), (MySqlConnection)session.Connection, properties);
 				report.Format = format;
+				report.ReportCaption = "test report";
 			}
 		}
 
