@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using Common.Models;
 using Common.MySql;
 using Common.Tools;
-using Common.Web.Ui.Models;
-
 using Inforoom.ReportSystem.Helpers;
-using Inforoom.ReportSystem.Model;
-using Inforoom.ReportSystem.ReportSettings;
 using Inforoom.ReportSystem.Writers;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
@@ -339,11 +333,21 @@ left join Reports.PrevResult pr on pr.GroupKey = r.GroupKey;",
 				_grouping.Columns.Implode(c => c.Name),
 				_grouping.Columns.Implode(c => $"{c.Name} varchar(255)"));
 
+			var prevBegin = Begin.AddDays(-(int)(End - Begin).TotalDays);
+			var prevEnd = Begin;
+			if (ByToday) {
+				prevBegin = Begin.AddDays(-1);
+				prevEnd = End.AddDays(-1);
+			} else if (ByPreviousMonth) {
+				prevBegin = Begin.AddMonths(-1);
+				prevEnd = End.AddMonths(-1);
+			}
+
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?SupplierId", _supplierId);
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?begin", Begin);
 			DataAdapter.SelectCommand.Parameters.AddWithValue("?end", End);
-			DataAdapter.SelectCommand.Parameters.AddWithValue("?prevBegin", Begin.AddDays(-(int)(End - Begin).TotalDays));
-			DataAdapter.SelectCommand.Parameters.AddWithValue("?prevEnd", Begin);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?prevBegin", prevBegin);
+			DataAdapter.SelectCommand.Parameters.AddWithValue("?prevEnd", prevEnd);
 
 #if DEBUG
 			ProfileHelper.WriteLine(DataAdapter.SelectCommand);
@@ -428,7 +432,6 @@ drop temporary table if exists Reports.PreResult;
 					var prevShare = NullableHelper.Round(prevSum / prevTotalSum * 100, 2);
 					resultRow["ShareDiff"] = (share - prevShare).ToString();
 				}
-
 			}
 		}
 	}

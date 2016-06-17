@@ -40,7 +40,7 @@ namespace ReportSystem.Test.SpecialReport
 				Assert.Fail("Тут должно было возникнуть исключение, так как спец. отчет не готовится в dbf");
 			}
 			catch (ReportException e) {
-				Assert.That(e.Message, Is.StringContaining("не может готовиться в формате DBF"));
+				Assert.That(e.Message, Does.Contain("не может готовиться в формате DBF"));
 			}
 
 			// Ну а теперь протестим обычкновенный вариант, который должен работать

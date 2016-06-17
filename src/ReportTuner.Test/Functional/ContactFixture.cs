@@ -38,7 +38,7 @@ namespace ReportTuner.Test.Functional
 		public void Payer_comment_contact_test()
 		{
 			Open(string.Format("Contact/EditContactGroup.rails?contactGroupId={0}", _contactGroup.Id));
-			Assert.That(browser.Html, Is.StringContaining("ContactPayer@analit.net"));
+			Assert.That(browser.Html, Does.Contain("ContactPayer@analit.net"));
 			AssertText("testPayer");
 		}
 

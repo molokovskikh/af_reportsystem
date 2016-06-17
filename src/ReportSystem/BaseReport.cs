@@ -189,9 +189,8 @@ namespace Inforoom.ReportSystem
 								_reportParams.Add(currentPropertyName, Convert.ToBoolean(Convert.ToByte(drProperty[BaseReportColumns.colPropertyValue])));
 							}
 							catch (Exception ex) {
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
-									drProperty[BaseReportColumns.colPropertyType],
-									drProperty[BaseReportColumns.colPropertyValue]), ex);
+								throw new ReportException(
+									$"Ошибка при конвертации параметра '{drProperty[BaseReportColumns.colPropertyType]}' из строки '{drProperty[BaseReportColumns.colPropertyValue]}'.", ex);
 							}
 							break;
 
@@ -203,9 +202,8 @@ namespace Inforoom.ReportSystem
 									listValues.Add(Convert.ToUInt64(drValue[BaseReportColumns.colReportPropertyValue]));
 								}
 								catch (Exception ex) {
-									throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
-										drProperty[BaseReportColumns.colPropertyType],
-										drValue[BaseReportColumns.colReportPropertyValue]), ex);
+									throw new ReportException(
+										$"Ошибка при конвертации параметра '{drProperty[BaseReportColumns.colPropertyType]}' из строки '{drValue[BaseReportColumns.colReportPropertyValue]}'.", ex);
 								}
 							}
 							_reportParams.Add(currentPropertyName, listValues);
@@ -222,9 +220,8 @@ namespace Inforoom.ReportSystem
 									_reportParams.Add(currentPropertyName, DateTime.ParseExact(drProperty[BaseReportColumns.colPropertyValue].ToString(), MySqlConsts.MySQLDateFormat, null));
 							}
 							catch (Exception ex) {
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
-									drProperty[BaseReportColumns.colPropertyType],
-									drProperty[BaseReportColumns.colPropertyValue]), ex);
+								throw new ReportException(
+									$"Ошибка при конвертации параметра '{drProperty[BaseReportColumns.colPropertyType]}' из строки '{drProperty[BaseReportColumns.colPropertyValue]}'.", ex);
 							}
 							break;
 
@@ -236,18 +233,18 @@ namespace Inforoom.ReportSystem
 									_reportParams.Add(currentPropertyName, Convert.ToInt32(drProperty[BaseReportColumns.colPropertyValue].ToString()));
 							}
 							catch (Exception ex) {
-								throw new ReportException(String.Format("Ошибка при конвертации параметра '{0}' из строки '{1}'.",
-									drProperty[BaseReportColumns.colPropertyType],
-									drProperty[BaseReportColumns.colPropertyValue]), ex);
+								throw new ReportException(
+									$"Ошибка при конвертации параметра '{drProperty[BaseReportColumns.colPropertyType]}' из строки '{drProperty[BaseReportColumns.colPropertyValue]}'.", ex);
 							}
 							break;
 
 						default:
-							throw new ReportException(String.Format("Неизвестный тип параметра : '{0}'.", drProperty[BaseReportColumns.colPropertyType].ToString()));
+							throw new ReportException(
+								$"Неизвестный тип параметра : '{drProperty[BaseReportColumns.colPropertyType].ToString()}'.");
 					}
 				}
 				else {
-					throw new ReportException(String.Format("Параметр '{0}' задан дважды.", currentPropertyName));
+					throw new ReportException($"Параметр '{currentPropertyName}' задан дважды.");
 				}
 			}
 		}
@@ -504,7 +501,7 @@ namespace Inforoom.ReportSystem
 			if (_reportParams.ContainsKey(paramName))
 				return _reportParams[paramName];
 			else
-				throw new ReportException(String.Format("Параметр '{0}' не найден.", paramName));
+				throw new ReportException($"Параметр '{paramName}' не найден.");
 		}
 
 		public bool ReportParamExists(string paramName)
@@ -524,15 +521,13 @@ namespace Inforoom.ReportSystem
 
 		public string GetCatalogProductNameSubquery(string productIdAlias)
 		{
-			return String.Format(@"
+			return $@"
 (
 	select catalog.Name
 	from catalogs.products
 		join catalogs.catalog on catalog.Id = products.CatalogId
-	where products.Id = {0}
-)
-",
-				productIdAlias);
+	where products.Id = {productIdAlias}
+)";
 		}
 
 		protected string GetClientsNamesFromSQL(List<ulong> equalValues)

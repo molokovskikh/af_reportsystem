@@ -80,7 +80,6 @@ namespace ReportSystem.Test
 		[Test]
 		public void Calculate_supplier_client_id()
 		{
-			QueryCatcher.Catch("Inforoom");
 			var intersection = session.Query<TestIntersection>()
 				.First(i => i.Price == order.Price && i.Client == order.Client);
 			intersection.SupplierClientId = Guid.NewGuid().ToString();
@@ -103,11 +102,10 @@ namespace ReportSystem.Test
 
 			var report = ReadReport<SupplierMarketShareByUser>();
 			var result = ToText(report);
-			ProcessHelper.Open(Path.GetFullPath("test.xls"));
-			Assert.That(result, Is.StringContaining(intersection.SupplierClientId));
-			Assert.That(result, Is.StringContaining("Кол-во поставщиков"));
-			Assert.That(result, Is.StringContaining("Кол-во сессий отправки заказов"));
-			Assert.That(result, Is.StringContaining("Самая поздняя заявка"));
+			Assert.That(result, Does.Contain(intersection.SupplierClientId));
+			Assert.That(result, Does.Contain("Кол-во поставщиков"));
+			Assert.That(result, Does.Contain("Кол-во сессий отправки заказов"));
+			Assert.That(result, Does.Contain("Самая поздняя заявка"));
 			Assert.That(result, Does.Contain("Изменение доли"));
 			var rows = report.Rows().ToArray();
 			//проверяем что индексы которые используются ниже не изменились
@@ -128,7 +126,29 @@ namespace ReportSystem.Test
 		[Test]
 		public void Zero_report_interval()
 		{
-			throw new NotImplementedException();
+			var intersection = session.Query<TestIntersection>()
+				.First(i => i.Price == order.Price && i.Client == order.Client);
+			intersection.SupplierClientId = Guid.NewGuid().ToString();
+			session.Save(intersection);
+
+			order.WriteTime = DateTime.Now;
+
+			Property("Type", 3);
+			TryInitReport<SupplierMarketShareByUser>();
+			((OrdersReport)report).Interval = false;
+			((OrdersReport)report).ByToday = true;
+			var sheet = ReadReport<SupplierMarketShareByUser>();
+			Assert.AreEqual(order.Sum().ToString("C"), ValueByColumn(sheet, intersection.SupplierClientId, "Сумма по 'Тестовый поставщик'"));
+		}
+
+		private object ValueByColumn(ISheet sheet, string key, string name)
+		{
+			var rows = sheet.Rows().ToArray();
+			var header = rows[4];
+			var reportRow = rows
+				.FirstOrDefault(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == key);
+			Assert.IsNotNull(reportRow, $"Не удалось найти строку с кодом {key} на листе {ToText(sheet)}");
+			return reportRow.Cells[header.Cells.IndexOf(x => x.StringCellValue == name)].StringCellValue;
 		}
 
 		[Test]
@@ -139,7 +159,7 @@ namespace ReportSystem.Test
 
 			var report = ReadReport<SupplierMarketShareByUser>();
 			var result = ToText(report);
-			Assert.That(result, Is.StringContaining("Сумма по всем поставщикам"));
+			Assert.That(result, Does.Contain("Сумма по всем поставщикам"));
 			var rows = report.Rows().ToArray();
 			var header = rows[4];
 			Assert.AreEqual("Сумма по всем поставщикам", header.GetCell(4).StringCellValue);

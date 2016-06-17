@@ -39,7 +39,7 @@ namespace ReportTuner.Test.Functional
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
 			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, 50, "", "GR");
-			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Is.StringContaining("manual:true"));
+			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Does.Contain("manual:true"));
 		}
 
 		[Test]
@@ -52,11 +52,11 @@ namespace ReportTuner.Test.Functional
 			//browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			//browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			browser.Button(Find.ByValue("Применить")).Click();
-			Assert.That(browser.Text, Is.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
+			Assert.That(browser.Text, Does.Contain("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
 			browser.TextField(Find.ByValue("0:00")).Value = "10:00";
 			browser.Button(Find.ByValue("Применить")).Click();
 			Assert.That(browser.Text, Is.Not.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
-			Assert.That(browser.Text, Is.StringContaining("Задать расписание для отчета "));
+			Assert.That(browser.Text, Does.Contain("Задать расписание для отчета "));
 
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
@@ -104,8 +104,8 @@ namespace ReportTuner.Test.Functional
 				.ExecuteUpdate();
 
 			Open("/Reports/schedule.aspx?r=1");
-			Assert.That(browser.Text, Is.StringContaining("Статистика запусков отчета"));
-			Assert.That(browser.Text, Is.StringContaining(startTime.ToString()));
+			Assert.That(browser.Text, Does.Contain("Статистика запусков отчета"));
+			Assert.That(browser.Text, Does.Contain(startTime.ToString()));
 		}
 
 		[Test]
@@ -121,7 +121,7 @@ namespace ReportTuner.Test.Functional
 			AssertText("Выбор файла");
 			FlushAndCommit();
 			browser.Button(Find.ByClass("deleteFileButton")).Click();
-			Assert.That(browser.Text, !Is.StringContaining("Выбор файла"));
+			Assert.That(browser.Text, Does.Not.Contain("Выбор файла"));
 			session.Refresh(report);
 			Assert.That(report.Files.Count, Is.EqualTo(0));
 		}
@@ -142,7 +142,7 @@ namespace ReportTuner.Test.Functional
 		{
 			var url = String.Format("/Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
 			browser = Open(url);
-			Assert.That(browser.Text, Is.StringContaining("Настройка параметров отчета"));
+			Assert.That(browser.Text, Does.Contain("Настройка параметров отчета"));
 			Assert.That(browser.Text, Is.Not.Contains("Готовить по розничному сегменту"));
 		}
 	}

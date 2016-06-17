@@ -29,7 +29,7 @@ namespace ReportSystem.Test
 		[Test]
 		public void Build()
 		{
-			InitReport<OffersExport>("test", ReportFormats.DBF);
+			TryInitReport<OffersExport>("test", ReportFormats.DBF);
 			BuildReport("tmp/test.dbf");
 			Assert.IsTrue(File.Exists("tmp/test.dbf"));
 			var data = Dbf.Load("tmp/test.dbf");
@@ -44,7 +44,7 @@ namespace ReportSystem.Test
 		public void Split_by_price()
 		{
 			Property("SplitByPrice", true);
-			InitReport<OffersExport>("test", ReportFormats.DBF);
+			TryInitReport<OffersExport>("test", ReportFormats.DBF);
 			BuildReport("tmp/test.dbf");
 			Assert.IsFalse(File.Exists("tmp/test.dbf"));
 			var resultFile = String.Format("tmp/{0}.dbf", supplier.Id);

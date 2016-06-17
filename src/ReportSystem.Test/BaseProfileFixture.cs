@@ -168,9 +168,8 @@ namespace ReportSystem.Test
 
 		protected ISheet ReadReport<T>()
 		{
-			var fileName = "test.xls";
-			InitReport<T>(fileName);
-			return ReadReport(fileName);
+			TryInitReport<T>();
+			return ReadReport();
 		}
 
 		protected ISheet ReadReport(string fileName = "test.xls")
@@ -182,9 +181,10 @@ namespace ReportSystem.Test
 			return sheet;
 		}
 
-		protected void InitReport<T>(string fileName, ReportFormats format = ReportFormats.Excel)
+		protected void TryInitReport<T>(string fileName = "test.xls", ReportFormats format = ReportFormats.Excel)
 		{
-			report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, format, properties);
+			if (report == null)
+				report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, format, properties);
 		}
 
 		public string ToText(ISheet sheet)

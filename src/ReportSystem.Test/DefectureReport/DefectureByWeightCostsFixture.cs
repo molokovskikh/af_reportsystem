@@ -85,7 +85,7 @@ namespace ReportSystem.Test.DefectureReport
 
 			var report = ReadReport<DefReport>();
 			var result = ToText(report);
-			Assert.That(result, Is.StringContaining("|Код|Наименование|Форма выпуска|Производитель|"));
+			Assert.That(result, Does.Contain("|Код|Наименование|Форма выпуска|Производитель|"));
 		}
 	}
 }

@@ -119,10 +119,10 @@ namespace ReportSystem.Test
 			var logs = session.Query<ReportResultLog>().Where(l => l.StartTime >= dtStart).OrderBy(l => l.StartTime).ToList();
 			Assert.That(logs.Count, Is.EqualTo(5));
 			Assert.That(logs[0].ErrorMessage, Is.Null);
-			Assert.That(logs[1].ErrorMessage, Is.StringContaining("Ошибка при формировании отчета."));
-			Assert.That(logs[2].ErrorMessage, Is.StringContaining("Ошибка при формировании отчета."));
+			Assert.That(logs[1].ErrorMessage, Does.Contain("Ошибка при формировании отчета."));
+			Assert.That(logs[2].ErrorMessage, Does.Contain("Ошибка при формировании отчета."));
 			Assert.That(logs[3].ErrorMessage, Is.Null);
-			Assert.That(logs[4].ErrorMessage, Is.StringContaining("Системная ошибка."));
+			Assert.That(logs[4].ErrorMessage, Does.Contain("Системная ошибка."));
 		}
 
 		[Test]

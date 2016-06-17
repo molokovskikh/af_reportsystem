@@ -67,8 +67,8 @@ value
 			report = new Inforoom.ReportSystem.ByOffers.MatrixReport(clientId, "test", Conn, ReportFormats.Excel, properties);
 			BuildOrderReport("Rep.xls");
 			var resuleSet = DataSetHelper.CreateDataSet("Rep.xls").Tables[0];
-			Assert.That(resuleSet.Rows[4][13], Is.StringContaining("Удаление предложения"));
-			Assert.That(resuleSet.Rows[4][5], Is.StringContaining(producerName));
+			Assert.That(resuleSet.Rows[4][13], Does.Contain("Удаление предложения"));
+			Assert.That(resuleSet.Rows[4][5], Does.Contain(producerName));
 		}
 	}
 }

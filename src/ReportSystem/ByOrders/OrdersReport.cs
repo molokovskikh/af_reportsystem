@@ -61,6 +61,9 @@ namespace Inforoom.ReportSystem
 		[Description("За предыдущий месяц")]
 		public bool ByPreviousMonth { get; set; }
 
+		[Description("За текущий день")]
+		public bool ByToday { get; set; }
+
 		[Description("Интервал отчета (дни) от текущей даты")]
 		public int ReportInterval { get; set; }
 
@@ -160,6 +163,9 @@ namespace Inforoom.ReportSystem
 				End = DateTime.Today;
 				End = End.AddDays(-(End.Day - 1)).Date; // Первое число текущего месяца
 				Begin = End.AddMonths(-1).Date;
+			} else if (ByToday) {
+					Begin = DateTime.Today;
+					End = DateTime.Now;
 			} else {
 				End = DateTime.Today;
 				//От текущей даты вычитаем интервал - дата начала отчета

@@ -69,7 +69,7 @@ namespace ReportSystem.Test
 				.Skip(5)
 				.Implode(Environment.NewLine);
 			Assert.That(tableText, Is.Not.StringContaining(mnn1.Mnn));
-			Assert.That(text, Is.StringContaining("Сумма по поставщику"));
+			Assert.That(text, Does.Contain("Сумма по поставщику"));
 		}
 
 		[Test]
@@ -172,7 +172,7 @@ namespace ReportSystem.Test
 
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
-			Assert.That(text, Is.StringContaining(offer.Code));
+			Assert.That(text, Does.Contain(offer.Code));
 			Assert.That(text, Is.Not.StringContaining("Из отчета исключены уцененные товары и товары с ограниченным сроком годност"));
 		}
 
@@ -206,7 +206,7 @@ namespace ReportSystem.Test
 
 			var sheet = ReadReport<MixedReport>();
 			var text = ToText(sheet);
-			Assert.That(text, Is.StringContaining("|code-1|code-cr-1|"));
+			Assert.That(text, Does.Contain("|code-1|code-cr-1|"));
 			var rowCount = sheet.Rows().Count(x => x.Cells[0].StringCellValue == "code-1"
 				&& x.Cells[1].StringCellValue == "code-cr-1");
 

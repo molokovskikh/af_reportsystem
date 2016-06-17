@@ -23,7 +23,7 @@ namespace Report.Data.Builder
 		{
 			try {
 				XmlConfigurator.Configure();
-				With.DefaultConnectionStringName = "production";
+				ConnectionHelper.DefaultConnectionStringName = "production";
 				ActiveRecordInitialize.Init("production", typeof(Job).Assembly);
 				var config = new Config();
 				ConfigReader.LoadSettings(config);

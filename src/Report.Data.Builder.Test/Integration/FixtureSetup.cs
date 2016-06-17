@@ -15,7 +15,7 @@ namespace Report.Data.Builder.Test.Integration
 		[OneTimeSetUp]
 		public void Setup()
 		{
-			With.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
+			ConnectionHelper.DefaultConnectionStringName = ConnectionHelper.GetConnectionName();
 
 			var config = new InPlaceConfigurationSource();
 			config.PluralizeTableNames = true;

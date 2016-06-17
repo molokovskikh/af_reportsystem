@@ -63,7 +63,7 @@ namespace ReportSystem.Test
 			report.To = new DateTime(2000, 1, 2);
 
 			var e = Assert.Throws<Exception>(() => BuildReport(checkEmptyData: true));
-			Assert.That(e.Message, Is.StringContaining("В результате подготовки отчета получился пустой набор данных"));
+			Assert.That(e.Message, Does.Contain("В результате подготовки отчета получился пустой набор данных"));
 		}
 	}
 }

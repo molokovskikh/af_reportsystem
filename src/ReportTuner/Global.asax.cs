@@ -45,7 +45,6 @@ namespace ReportTuner
 		{
 			ConfigReader.LoadSettings(Config);
 			ConnectionHelper.DefaultConnectionStringName = "db";
-			With.DefaultConnectionStringName = "db";
 			ActiveRecordInitialize(
 				ConnectionHelper.DefaultConnectionStringName,
 				new[] {

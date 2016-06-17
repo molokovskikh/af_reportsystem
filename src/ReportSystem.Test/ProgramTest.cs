@@ -32,7 +32,7 @@ namespace ReportSystem.Test
 			Assert.AreEqual(reportLogCount, 1);
 
 			var currentTask = helper.FindTask(report.Id);
-			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Is.StringContaining("manual:true"));
+			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Does.Contain("manual:true"));
 		}
 	}
 }

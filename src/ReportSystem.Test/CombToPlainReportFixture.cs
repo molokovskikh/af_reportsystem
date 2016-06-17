@@ -27,7 +27,7 @@ namespace ReportSystem.Test
 			}
 			var client = TestClient.CreateNaked(session);
 			Property("ClientCode", client.Id);
-			InitReport<CombToPlainReport>("test", ReportFormats.DBF);
+			TryInitReport<CombToPlainReport>("test", ReportFormats.DBF);
 			BuildReport("tmp/test.dbf");
 		}
 	}

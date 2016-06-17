@@ -81,7 +81,7 @@ namespace ReportSystem.Test
 			if (properties.Tables[0].Rows.Count == 0)
 				Property("ByPreviousMonth", false);
 
-			InitReport<OrdersStatistics>("test.xls");
+			TryInitReport<OrdersStatistics>("test.xls");
 			report.Interval = true;
 			report.From = DateTime.Today;
 			report.To = DateTime.Today.AddDays(1);
