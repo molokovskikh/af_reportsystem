@@ -110,6 +110,7 @@ namespace ReportSystem.Test
 			session.Flush();
 			report = report ?? (BaseReport)
 				Activator.CreateInstance(reportType, Conn, properties);
+			report.ReportCaption = "test report";
 		}
 
 		public void ProcessReport(Type reportType = null, bool checkEmptyData = false)
