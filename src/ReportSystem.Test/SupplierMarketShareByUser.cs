@@ -1,21 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using Common.Tools;
-using Common.Tools.Helpers;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
-using Inforoom.ReportSystem.Helpers;
-using log4net.Config;
-using MySql.Data.MySqlClient;
 using NHibernate.Linq;
 using NPOI.SS.UserModel;
 using NUnit.Framework;
 using Test.Support;
-using Test.Support.log4net;
 using Test.Support.Logs;
 using Test.Support.Suppliers;
 
@@ -174,6 +167,8 @@ namespace ReportSystem.Test
 			var table = new DataTable("testTable");
 			table.Columns.Add("TotalSum");
 			table.Columns.Add("SupplierSum");
+			table.Columns.Add("PrevTotalSum");
+			table.Columns.Add("PrevSupplierSum");
 			var dataRow = table.NewRow();
 
 			var resultTable = new DataTable("resultTable");
@@ -188,11 +183,11 @@ namespace ReportSystem.Test
 			dataRow["TotalSum"] = 100000;
 			dataRow["SupplierSum"] = 5000;
 			testReport.SetTotalSum(dataRow, resultRow);
-			Assert.AreEqual(resultRow["Share"], "5");
+			Assert.AreEqual("5,00", resultRow["Share"]);
 
 			dataRow["SupplierSum"] = 20000;
 			testReport.SetTotalSum(dataRow, resultRow);
-			Assert.AreEqual(resultRow["Share"], "20");
+			Assert.AreEqual("20,0", resultRow["Share"]);
 		}
 	}
 }
