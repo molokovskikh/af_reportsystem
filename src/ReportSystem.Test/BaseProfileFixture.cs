@@ -29,6 +29,9 @@ namespace ReportSystem.Test
 		[SetUp]
 		public void Start()
 		{
+			//не удаляем файл после завершения теста что бы можно было посмотреть на него глазами
+			if (!String.IsNullOrEmpty(_fileName) && File.Exists(_fileName))
+				File.Delete(_fileName);
 			report = null;
 			_fileName = null;
 			i = 1;
@@ -49,8 +52,6 @@ namespace ReportSystem.Test
 		[TearDown]
 		public void Stop()
 		{
-			if (File.Exists(_fileName))
-				File.Delete(_fileName);
 			ProfileHelper.End();
 		}
 
