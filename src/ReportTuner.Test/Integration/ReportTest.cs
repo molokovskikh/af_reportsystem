@@ -80,7 +80,7 @@ namespace ReportTuner.Test.Integration
 				Payer = payer,
 				ContactGroupOwner = contactGroupOwner
 			};
-			supplier.SaveAndFlush();
+			session.Save(supplier);
 
 			var client = new TestClient {
 				Status = ClientStatus.On,
@@ -92,7 +92,7 @@ namespace ReportTuner.Test.Integration
 				ContactGroupOwner = contactGroupOwner,
 				Users = new List<TestUser>()
 			};
-			client.SaveAndFlush();
+			session.Save(client);
 
 			var result1 = FillClients("GetClientCodeWithNewUsers", "", client.Id.ToString());
 			var result2 = FillClients("GetClientCodeWithNewUsers", "", supplier.Id.ToString());
