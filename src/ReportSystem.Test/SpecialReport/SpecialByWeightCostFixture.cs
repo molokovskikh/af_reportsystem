@@ -1,18 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Castle.ActiveRecord;
-using Common.Web.Ui.Models;
-using ExcelLibrary.SpreadSheet;
 using Inforoom.ReportSystem;
 using MySql.Data.MySqlClient;
-using NHibernate;
-using NHibernate.Linq;
-using NPOI.HSSF.UserModel;
 using NUnit.Framework;
-using Test.Support;
 using Test.Support.Suppliers;
 
 namespace ReportSystem.Test.SpecialReport
@@ -94,7 +84,7 @@ namespace ReportSystem.Test.SpecialReport
 			var book = Load(fileName);
 			var sheet = book.GetSheetAt(0);
 			Assert.That(sheet.GetRow(0).GetCell(0).StringCellValue,
-				Does.Contain($"Специальный отчет по взвешенным ценам по данным на {dateTime.ToShortDateString()}"));
+				Does.Contain($"Специальный отчет по взвешенным ценам по данным на {dateTime.ToShortDateString()}"), ToText(sheet));
 			Assert.That(sheet.GetRow(3).GetCell(1).StringCellValue, Does.Match(offer.ProductSynonym.Name));
 		}
 	}

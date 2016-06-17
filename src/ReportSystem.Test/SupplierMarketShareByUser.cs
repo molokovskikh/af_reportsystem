@@ -162,8 +162,8 @@ namespace ReportSystem.Test
 			Assert.That(result, Does.Contain("Сумма по всем поставщикам"));
 			var rows = report.Rows().ToArray();
 			var header = rows[4];
-			Assert.AreEqual("Сумма по всем поставщикам", header.GetCell(4).StringCellValue);
-			Assert.That(Convert.ToDecimal(rows[5].GetCell(4).StringCellValue), Is.GreaterThan(0));
+			Assert.AreEqual("Сумма по всем поставщикам", header.GetCell(5).StringCellValue);
+			Assert.That(Convert.ToDecimal(rows[5].GetCell(5).StringCellValue), Is.GreaterThan(0));
 		}
 
 		[Test]

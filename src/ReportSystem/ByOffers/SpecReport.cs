@@ -1210,7 +1210,7 @@ order by FullName, FirmCr";
 				var rowCount = result.Rows.Count;
 				var columnCount = result.Columns.Count;
 
-				if (HideHeader) {
+				if (!HideHeader) {
 					if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
 						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Выбранные аптеки: {_clientsNames}");
 					if (!String.IsNullOrEmpty(_suppliers))
@@ -1240,7 +1240,7 @@ order by FullName, FirmCr";
 				ws.Application.ActiveWindow.SplitColumn = 11;
 				ws.Application.ActiveWindow.FreezePanes = true;
 
-				if (HideHeader) {
+				if (!HideHeader) {
 					//Объединяем несколько ячеек, чтобы в них написать текст
 					ws.Range["A1:K2", Missing.Value].Select();
 					((Range)wb.Application.Selection).Merge(null);

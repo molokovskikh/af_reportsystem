@@ -648,13 +648,13 @@ limit 1", new MySqlParameter("?PriceCode", priceId))
 			return DateTime.Today.AddDays(-1);
 		}
 
-		protected void CheckSupplierCount(string message = null)
+		protected void CheckSupplierCount()
 		{
 			if (_reportParams.ContainsKey("FirmCodeEqual")) {
-				message = message ?? "Фактическое количество прайс листов меньше трех, получено прайс-листов {0}";
 				var count = Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count();
+				var message = $"Фактическое количество прайс листов меньше трех, получено прайс-листов {count}";
 				if (count < 3)
-					throw new ReportException(String.Format(message, count));
+					throw new ReportException(message);
 			}
 		}
 
