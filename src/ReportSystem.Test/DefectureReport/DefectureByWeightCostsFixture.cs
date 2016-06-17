@@ -13,7 +13,7 @@ using Test.Support.Suppliers;
 
 namespace ReportSystem.Test.DefectureReport
 {
-	public class DefectureByWeightCostsFixture : BaseProfileFixture2
+	public class DefectureByWeightCostsFixture : ReportFixture
 	{
 		[Test]
 		public void Ignore_unknown_producers()

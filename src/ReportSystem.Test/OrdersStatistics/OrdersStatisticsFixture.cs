@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
-using MySql.Data.MySqlClient;
-using NHibernate.Linq;
 using NUnit.Framework;
 using Test.Support;
 using Test.Support.Suppliers;
@@ -14,7 +11,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	internal class OrdersStatisticsFixture : BaseProfileFixture2
+	internal class OrdersStatisticsFixture : ReportFixture
 	{
 		[Test]
 		public void CheckReport()
@@ -22,8 +19,7 @@ namespace ReportSystem.Test
 			Property("ReportInterval", 7);
 			Property("ByPreviousMonth", false);
 
-			var report = new OrdersStatistics(0, "Automate Created Report", Conn, ReportFormats.Excel, properties);
-			TestHelper.ProcessReport(report, ReportsTypes.OrdersStatistics);
+			TestHelper.ProcessReport(new OrdersStatistics(0, "Automate Created Report", Conn, ReportFormats.Excel, properties), ReportsTypes.OrdersStatistics);
 		}
 
 		[Test]
@@ -81,7 +77,8 @@ namespace ReportSystem.Test
 			if (properties.Tables[0].Rows.Count == 0)
 				Property("ByPreviousMonth", false);
 
-			TryInitReport<OrdersStatistics>("test.xls");
+			report = null;
+			TryInitReport<OrdersStatistics>();
 			report.Interval = true;
 			report.From = DateTime.Today;
 			report.To = DateTime.Today.AddDays(1);

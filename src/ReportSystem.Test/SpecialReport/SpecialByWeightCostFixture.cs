@@ -7,7 +7,7 @@ using Test.Support.Suppliers;
 
 namespace ReportSystem.Test.SpecialReport
 {
-	public class SpecialByWeightCostFixture : BaseProfileFixture2
+	public class SpecialByWeightCostFixture : ReportFixture
 	{
 		[Test]
 		public void Build_data_for_interval()

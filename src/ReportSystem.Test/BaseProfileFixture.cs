@@ -18,7 +18,7 @@ using Test.Support.Suppliers;
 
 namespace ReportSystem.Test
 {
-	public class BaseProfileFixture2 : IntegrationFixture
+	public class ReportFixture : IntegrationFixture
 	{
 		protected MySqlConnection Conn;
 		protected int i;
@@ -32,6 +32,7 @@ namespace ReportSystem.Test
 			//не удаляем файл после завершения теста что бы можно было посмотреть на него глазами
 			if (!String.IsNullOrEmpty(_fileName) && File.Exists(_fileName))
 				File.Delete(_fileName);
+			File.Delete("test.xls");
 			report = null;
 			_fileName = null;
 			i = 1;
@@ -225,7 +226,7 @@ namespace ReportSystem.Test
 		}
 	}
 
-	[Obsolete("Используй BaseProfileFixture2")]
+	[Obsolete("Используй ReportFixture")]
 	public class BaseProfileFixture
 	{
 		protected MySqlConnection Conn;

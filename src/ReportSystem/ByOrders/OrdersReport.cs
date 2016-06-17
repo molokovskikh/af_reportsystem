@@ -176,6 +176,8 @@ namespace Inforoom.ReportSystem
 			LoadFilters();
 			CheckAfterLoadFields();
 			SortFields();
+			if (ByToday)
+				OrdersSchema = "Orders";
 		}
 
 		protected void LoadFilters()

@@ -14,7 +14,7 @@ using Test.Support;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	internal class TestProcessReport : IntegrationFixture
+	internal class TestProcessReport : ReportFixture
 	{
 		public class FakeEmptyReport : BaseReport
 		{

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -15,7 +15,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class SupplierMarketShareByUserFixture : BaseProfileFixture2
+	public class SupplierMarketShareByUserFixture : ReportFixture
 	{
 		private TestSupplier supplier;
 		private TestOrder order;

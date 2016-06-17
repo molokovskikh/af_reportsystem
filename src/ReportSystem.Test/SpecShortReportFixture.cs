@@ -9,7 +9,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class SpecShortReportFixture : BaseProfileFixture2
+	public class SpecShortReportFixture : ReportFixture
 	{
 		[Test]
 		public void Fail_if_suppliers_is_not_enough()

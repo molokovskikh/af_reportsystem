@@ -12,7 +12,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class RatingProfileFixture : BaseProfileFixture2
+	public class RatingProfileFixture : ReportFixture
 	{
 		[Test]
 		public void RatingJunkOnly()

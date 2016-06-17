@@ -15,7 +15,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class WaybillsReportFixture : BaseProfileFixture2
+	public class WaybillsReportFixture : ReportFixture
 	{
 		[Test]
 		public void Build()

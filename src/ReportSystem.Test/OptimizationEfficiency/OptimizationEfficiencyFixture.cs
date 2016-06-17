@@ -10,7 +10,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class OptimizationEfficiencyFixture : BaseProfileFixture2
+	public class OptimizationEfficiencyFixture : ReportFixture
 	{
 		[Test]
 		public void OptimizationEfficiencyNorman()

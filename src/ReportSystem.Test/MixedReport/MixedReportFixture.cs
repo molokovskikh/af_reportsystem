@@ -14,7 +14,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class MixedReportFixture : BaseProfileFixture2
+	public class MixedReportFixture : ReportFixture
 	{
 		private TestSupplier rival;
 		private TestSupplier supplier;

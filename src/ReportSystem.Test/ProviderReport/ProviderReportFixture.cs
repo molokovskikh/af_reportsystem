@@ -118,7 +118,7 @@ from
 	}
 
 	[TestFixture]
-	public class ProviderReportFixture : BaseProfileFixture2
+	public class ProviderReportFixture : ReportFixture
 	{
 		[Test]
 		public void GetOffersByClientIfCodesWithoutProducerTest()

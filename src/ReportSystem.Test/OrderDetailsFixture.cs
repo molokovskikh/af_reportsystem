@@ -10,7 +10,7 @@ using Test.Support.log4net;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class OrderDetailsFixture : BaseProfileFixture2
+	public class OrderDetailsFixture : ReportFixture
 	{
 		[Test]
 		public void Export()

@@ -9,7 +9,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test.MatrixReport
 {
 	[TestFixture]
-	public class MatrixReportFixture : BaseProfileFixture2
+	public class MatrixReportFixture : ReportFixture
 	{
 		[Test]
 		public void BaseTest()

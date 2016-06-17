@@ -12,7 +12,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class OffersExportFixture : BaseProfileFixture2
+	public class OffersExportFixture : ReportFixture
 	{
 		private TestSupplier supplier;
 

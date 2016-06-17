@@ -16,7 +16,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class WaybillsStatReportFixture : BaseProfileFixture2
+	public class WaybillsStatReportFixture : ReportFixture
 	{
 		private TestSupplier supplier;
 		private TestProduct product1;

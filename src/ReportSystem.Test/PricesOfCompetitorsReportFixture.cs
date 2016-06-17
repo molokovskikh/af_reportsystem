@@ -10,7 +10,7 @@ using Test.Support.Suppliers;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class PricesOfCompetitorsReportFixture : BaseProfileFixture2
+	public class PricesOfCompetitorsReportFixture : ReportFixture
 	{
 		[Test]
 		public void Check_max_supplier_count()

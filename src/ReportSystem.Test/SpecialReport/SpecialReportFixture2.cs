@@ -9,7 +9,7 @@ using Test.Support.Suppliers;
 
 namespace ReportSystem.Test.SpecialReport
 {
-	class SpecialReportFixture2 : BaseProfileFixture2
+	class SpecialReportFixture2 : ReportFixture
 	{
 		[Test(Description = "Тестирует, что в случае, если подотчет не поддерживает dbf, выполнения не происходит")]
 		public void DbfFormatFailTest()
