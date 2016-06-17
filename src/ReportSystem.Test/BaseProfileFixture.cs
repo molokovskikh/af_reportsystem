@@ -109,7 +109,7 @@ namespace ReportSystem.Test
 		{
 			session.Flush();
 			report = report ?? (BaseReport)
-				Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
+				Activator.CreateInstance(reportType, Conn, properties);
 		}
 
 		public void ProcessReport(Type reportType = null, bool checkEmptyData = false)
@@ -185,8 +185,10 @@ namespace ReportSystem.Test
 
 		protected void TryInitReport<T>(string fileName = "test.xls", ReportFormats format = ReportFormats.Excel)
 		{
-			if (report == null)
-				report = (BaseReport)Activator.CreateInstance(typeof(T), 1ul, fileName, (MySqlConnection)session.Connection, format, properties);
+			if (report == null) {
+				report = (BaseReport)Activator.CreateInstance(typeof(T), (MySqlConnection)session.Connection, properties);
+				report.Format = format;
+			}
 		}
 
 		public string ToText(ISheet sheet)
@@ -299,7 +301,7 @@ namespace ReportSystem.Test
 		protected void BuildReport(string file = null, Type reportType = null, bool checkEmptyData = false)
 		{
 			if (reportType != null && report == null)
-				report = (BaseReport)Activator.CreateInstance(reportType, 0ul, "Automate Created Report", Conn, ReportFormats.Excel, properties);
+				report = (BaseReport)Activator.CreateInstance(reportType, Conn, properties);
 
 			if (file == null)
 				file = "test.xls";

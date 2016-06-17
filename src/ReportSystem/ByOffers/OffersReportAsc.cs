@@ -25,7 +25,7 @@ namespace Inforoom.ReportSystem
 		[Description("Минимальное количество конкурентов")]
 		public int MinSupplierCount;
 
-		protected OffersReportAsc()
+		public OffersReportAsc()
 		{
 			MinSupplierCount = 3;
 		}
