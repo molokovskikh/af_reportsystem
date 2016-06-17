@@ -17,33 +17,6 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class CostDynamicFixture : BaseProfileFixture
 	{
-		[Test, Ignore("Требуется тестовая база данных")]
-		public void Builder_report()
-		{
-			var date = DateTime.Today.AddDays(-7);
-			var someDate = date.AddDays(-7);
-			Property("date", date);
-			Property("someDate", someDate);
-			Property("suppliers", new List<ulong> { 5, 7, 14 });
-			Property("regions", new List<ulong> { 1 });
-			report = new CostDynamic(1, "CostDynamic.xls", Conn, ReportFormats.Excel, properties);
-			BuildReport("CostDynamic.xls");
-		}
-
-		[Test, Ignore("Временно, выполняется слишком долго")]
-		public void Builder_report_for_all()
-		{
-			var date = DateTime.Today.AddDays(-7);
-			var someDate = date.AddDays(-7);
-			Property("date", date);
-			Property("someDate", someDate);
-
-			Property("suppliers", new List<ulong>());
-			Property("regions", new List<ulong>());
-			report = new CostDynamic(1, "CostDynamic.xls", Conn, ReportFormats.Excel, properties);
-			BuildReport("CostDynamic.xls");
-		}
-
 		[Test]
 		public void Settings_fixture()
 		{

@@ -14,28 +14,12 @@ namespace ReportSystem.Test
 	[TestFixture]
 	public class RatingProfileFixture : BaseProfileFixture2
 	{
-		[Test, Ignore("Переполнение электронной таблицы")]
-		public void Rating()
-		{
-			var props = TestHelper.LoadProperties(ReportsTypes.Rating);
-			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
-			TestHelper.ProcessReport(report, ReportsTypes.Rating);
-		}
-
 		[Test]
 		public void RatingJunkOnly()
 		{
 			var props = TestHelper.LoadProperties(ReportsTypes.RatingJunkOnly);
 			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
 			TestHelper.ProcessReport(report, ReportsTypes.RatingJunkOnly);
-		}
-
-		[Test, Ignore("Переполнение электронной таблицы")]
-		public void RatingNotJunkOnly()
-		{
-			var props = TestHelper.LoadProperties(ReportsTypes.RatingNotJunkOnly);
-			var report = new RatingReport(0, "Automate Created Report", Conn, ReportFormats.Excel, props);
-			TestHelper.ProcessReport(report, ReportsTypes.RatingNotJunkOnly);
 		}
 
 		[Test]

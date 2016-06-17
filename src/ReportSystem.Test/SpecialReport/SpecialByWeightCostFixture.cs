@@ -9,44 +9,6 @@ namespace ReportSystem.Test.SpecialReport
 {
 	public class SpecialByWeightCostFixture : BaseProfileFixture2
 	{
-		[Test, Ignore("Требуется тестовая база данных")]
-		public void SpecialCountProducerByWeightCost()
-		{
-			var fileName = "SpecialCountProducerByWeightCost.xls";
-			Property("ReportType", 2);
-			Property("RegionEqual", new List<ulong> {
-				1
-			});
-			Property("ReportIsFull", false);
-			Property("ClientCode", 5101);
-			Property("ReportSortedByPrice", false);
-			Property("ShowPercents", true);
-			Property("CalculateByCatalog", false);
-			Property("PriceCode", 5);
-			Property("ByWeightCosts", true);
-			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
-			BuildReport(fileName);
-		}
-
-		[Test, Ignore("Требуется тестовая база данных")]
-		public void SpecialCountProducerByWeightCostAssort()
-		{
-			var fileName = "SpecialCountProducerByWeightCostAssort.xls";
-			Property("ReportType", 2);
-			Property("RegionEqual", new List<ulong> {
-				1
-			});
-			Property("ReportIsFull", false);
-			Property("ClientCode", 5101);
-			Property("ReportSortedByPrice", false);
-			Property("ShowPercents", true);
-			Property("CalculateByCatalog", false);
-			Property("PriceCode", 5699);
-			Property("ByWeightCosts", true);
-			report = new SpecReport(1, fileName, Conn, ReportFormats.Excel, properties);
-			BuildReport(fileName);
-		}
-
 		[Test]
 		public void Build_data_for_interval()
 		{
