@@ -30,6 +30,7 @@ namespace ReportSystem.Test
 		public void Build()
 		{
 			TryInitReport<OffersExport>("test", ReportFormats.DBF);
+			report.ReportCaption = "test";
 			BuildReport("tmp/test.dbf");
 			Assert.IsTrue(File.Exists("tmp/test.dbf"));
 			var data = Dbf.Load("tmp/test.dbf");
@@ -45,9 +46,10 @@ namespace ReportSystem.Test
 		{
 			Property("SplitByPrice", true);
 			TryInitReport<OffersExport>("test", ReportFormats.DBF);
+			report.ReportCaption = "test";
 			BuildReport("tmp/test.dbf");
 			Assert.IsFalse(File.Exists("tmp/test.dbf"));
-			var resultFile = String.Format("tmp/{0}.dbf", supplier.Id);
+			var resultFile = $"tmp/{supplier.Id}.dbf";
 			Assert.IsTrue(File.Exists(resultFile), "должен быть {0} есть {1}", resultFile, Directory.GetFiles("tmp").Implode());
 			var data = Dbf.Load(resultFile);
 			Assert.IsTrue(data.Columns.Contains("Code"));

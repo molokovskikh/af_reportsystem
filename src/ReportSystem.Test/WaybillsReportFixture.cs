@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.ByOrders;
 using Inforoom.ReportSystem.Model;
 using NUnit.Framework;
@@ -40,10 +41,14 @@ namespace ReportSystem.Test
 			session.Save(waybill);
 			Property("ByPreviousMonth", false);
 			Property("OrgId", orgId);
-			report = new WaybillsReport(Conn, properties);
+			report = new WaybillsReport(Conn, properties) {
+				Format = ReportFormats.CSV,
+				ReportCaption = "test"
+			};
 			BuildOrderReport("test");
 			var result = File.ReadAllText("test.csv");
-			var data = String.Format("DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;{0};{1};\"4563\";10.00;61.60;70.00;76.80;0.00;{2};;\r\n", DateTime.Now.Year, DateTime.Now.Month, supplier.Id);
+			var data =
+				$"DrugID;Segment;Year;Month;Series;TotDrugQn;MnfPrice;PrcPrice;RtlPrice;Funds;VendorID;Remark;SrcOrg\r\n34413;1;{DateTime.Now.Year};{DateTime.Now.Month};\"4563\";10.00;61.60;70.00;76.80;0.00;{supplier.Id};;\r\n";
 			Assert.That(result, Is.EqualTo(data));
 		}
 

@@ -95,9 +95,7 @@ namespace ReportSystem.Test
 
 			report.Session = session;
 			report.CheckEmptyData = checkEmptyData;
-			if (file == null)
-				file = "test.xls";
-			_fileName = file;
+			file = file ?? _fileName ?? "test.xls";
 			if (File.Exists(file))
 				File.Delete(file);
 			ProfileHelper.Start();
@@ -110,7 +108,7 @@ namespace ReportSystem.Test
 			session.Flush();
 			report = report ?? (BaseReport)
 				Activator.CreateInstance(reportType, Conn, properties);
-			report.ReportCaption = "test report";
+			report.ReportCaption = report.ReportCaption ?? "test report";
 		}
 
 		public void ProcessReport(Type reportType = null, bool checkEmptyData = false)
@@ -304,6 +302,7 @@ namespace ReportSystem.Test
 		{
 			if (reportType != null && report == null)
 				report = (BaseReport)Activator.CreateInstance(reportType, Conn, properties);
+			report.ReportCaption = report.ReportCaption ?? "test report";
 
 			if (file == null)
 				file = "test.xls";
