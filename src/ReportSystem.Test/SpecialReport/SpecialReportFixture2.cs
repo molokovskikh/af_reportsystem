@@ -31,9 +31,12 @@ namespace ReportSystem.Test.SpecialReport
 			Property("CalculateByCatalog", false);
 			Property("PriceCode", (int)supplier.Prices[0].Id);
 			Property("ByWeightCosts", true);
-			report = new SpecReport((MySqlConnection)session.Connection, properties);
-			report.Interval = true;
-			report.From = dateTime;
+			report = new SpecReport((MySqlConnection) session.Connection, properties) {
+				Format = ReportFormats.DBF,
+				Interval = true,
+				From = dateTime,
+				ReportCaption = fileName
+			};
 			// На DBF должен быть эксепшен
 			try {
 				BuildReport(fileName);
@@ -44,9 +47,12 @@ namespace ReportSystem.Test.SpecialReport
 			}
 
 			// Ну а теперь протестим обычкновенный вариант, который должен работать
-			report = new SpecReport((MySqlConnection)session.Connection, properties);
-			report.Interval = true;
-			report.From = dateTime;
+			report = new SpecReport((MySqlConnection) session.Connection, properties) {
+				Format = ReportFormats.Excel,
+				Interval = true,
+				From = dateTime,
+				ReportCaption = fileName
+			};
 			BuildReport(fileName);
 		}
 	}
