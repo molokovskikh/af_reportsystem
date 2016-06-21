@@ -25,7 +25,7 @@ namespace Inforoom.ReportSystem
 		public static ISessionFactory Factory;
 
 		private string _mainFileName;
-		private Dictionary<string, string> MailMetaOverride
+		private Dictionary<string, string> _mailMetaOverride
 			= new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
 		//таблица отчетов, которая существует в общем отчете
@@ -127,9 +127,7 @@ where GeneralReport = ?GeneralReport;", new { GeneralReport = Id })
 						var bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] {
-								(ulong)drGReport[BaseReportColumns.colReportCode],
-								drGReport[BaseReportColumns.colReportCaption].ToString(), Connection,
-								Format,
+								Connection,
 								LoadProperties(Connection, (ulong)drGReport[BaseReportColumns.colReportCode])
 							});
 						bs.ReportCode = (ulong)drGReport[BaseReportColumns.colReportCode];
@@ -237,7 +235,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			if (MailPerFile) {
 				foreach (var file in files) {
 					foreach (var mail in mails)
-						MailWithAttach(log, mail, new[] { file }, MailMetaOverride.GetValueOrDefault(Path.GetFileNameWithoutExtension(file)));
+						MailWithAttach(log, mail, new[] { file }, _mailMetaOverride.GetValueOrDefault(Path.GetFileNameWithoutExtension(file)));
 				}
 			}
 			else {
@@ -285,7 +283,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 						report.Write(_mainFileName);
 					}
 					report.ToLog(Id); // протоколируем успешное выполнение отчета
-					report.MailMetaOverride.Each(x => MailMetaOverride[Path.GetFileNameWithoutExtension(x.Key)] = x.Value);
+					report.MailMetaOverride.Each(x => _mailMetaOverride[Path.GetFileNameWithoutExtension(x.Key)] = x.Value);
 					foreach (var warning in report.Warnings) {
 						Mailer.MailReportNotify(warning, Payer?.Name, Id, report.ReportCode);
 					}
@@ -328,7 +326,8 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 			mainEntry.To = new AddressList();
 			mainEntry.To.Parse(address);
 
-			mainEntry.Subject = EMailSubject;
+			if (!string.IsNullOrEmpty(EMailSubject))
+				mainEntry.Subject = EMailSubject;
 			if (!String.IsNullOrEmpty(subjectSufix)) {
 				if (!String.IsNullOrEmpty(mainEntry.Subject))
 					mainEntry.Subject += " ";

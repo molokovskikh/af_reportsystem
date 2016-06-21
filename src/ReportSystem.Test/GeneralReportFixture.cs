@@ -11,6 +11,7 @@ using Inforoom.ReportSystem.Model;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Test.Support;
+using Test.Support.Suppliers;
 using ContactType = Common.Web.Ui.Models.ContactType;
 
 namespace ReportSystem.Test
@@ -302,11 +303,39 @@ namespace ReportSystem.Test
 			Assert.AreEqual("1.dbf", LsZip("tmp/1.zip").Implode());
 		}
 
+		[Test]
+		public void Process_reports()
+		{
+			TestOrder.CreateSimple(session);
+			var id = session.CreateSQLQuery(@"
+INSERT INTO reports.general_reports(Allow) values (1);
+select LAST_INSERT_ID() as id;
+").UniqueResult();
+			session.CreateSQLQuery(@"
+INSERT INTO reports.reports
+SET
+	ReportCaption = 'test',
+	ReportTypeCode = :typeId,
+	GeneralReportCode = :id,
+	Enabled = 1;")
+				.SetParameter("id", id)
+				.SetParameter("typeId", 9)
+				.ExecuteUpdate();
+			var logs = new ReportExecuteLog();
+			session.Save(logs);
+			FlushAndCommit();
+			var report = session.Load<GeneralReport>(Convert.ToUInt32(id));
+			report.ProcessReports(logs,
+				(MySqlConnection)session.Connection,
+				true,
+				DateTime.Today.AddDays(-2),
+				DateTime.Today);
+		}
+
 		private static string[] LsZip(string result)
 		{
 			using (var zip = new ZipFile(result)) {
-				var files = zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
-				return files;
+				return zip.Cast<ZipEntry>().Select(e => e.Name).ToArray();
 			}
 		}
 
