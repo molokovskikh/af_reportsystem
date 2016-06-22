@@ -101,7 +101,8 @@
     <Compile Include="MixedReport\MixedReportFixture.cs" />
     <Compile Include="MixedReport\MixedReportNewProfileFixture.cs" />
     <Compile Include="MixedReport\MixedReportProfileFixture.cs" />
-    <Compile Include="OffersExport.cs" />
+    <Compile Include="OffersExportFixture.cs" />
+    <Compile Include="OffersReportAscFixture.cs" />
     <Compile Include="OptimizationEfficiency\OptimizationEfficiencyFixture.cs" />
     <Compile Include="OrderDetailsFixture.cs" />
     <Compile Include="OrderOutAllowedAssortmentFixture.cs" />

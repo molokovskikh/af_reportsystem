@@ -39,6 +39,7 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		public override void ReadReportParams()
 		{
+			base.ReadReportParams();
 			if (_reportParams.ContainsKey("SupplierNoise"))
 				_SupplierNoise = (int)GetReportParam("SupplierNoise");
 
