@@ -55,5 +55,25 @@ namespace ReportSystem.Test.SpecialReport
 			};
 			BuildReport(fileName);
 		}
+
+		[Test]
+		public void Hide_header()
+		{
+			var supplier = TestSupplier.CreateNaked(session);
+			Property("ReportType", 2);
+			Property("RegionEqual", new List<ulong> { 1 });
+			Property("ClientCode", 0);
+			Property("ReportIsFull", false);
+			Property("ReportSortedByPrice", false);
+			Property("ShowPercents", true);
+			Property("CalculateByCatalog", false);
+			Property("PriceCode", (int)supplier.Prices[0].Id);
+			Property("ByWeightCosts", true);
+			Property("HideHeader", true);
+
+			TryInitReport<SpecReport>();
+			var sheet = ReadReport();
+			Assert.That(ToText(sheet), Does.Not.Contains("Специальный отчет по взвешенным ценам по данным на"));
+		}
 	}
 }
