@@ -73,6 +73,11 @@ public partial class Reports_ReportProperties : BasePage
 			lblReportType.Text = report.ReportType.ReportTypeName;
 
 			PostData();
+			var property = report.Properties.FirstOrDefault(x => x.PropertyType.PropertyName == "ReportPeriod");
+			if (property != null) {
+				var value = (ReportPeriod)Convert.ToInt32(property.Value);
+				SetRowVisibility("Интервал отчета (дни) от текущей даты", value == ReportPeriod.ByInterval);
+			}
 			propertiesHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, dtOptionalParams);
 			Session[PropHelper] = propertiesHelper;
 		}
@@ -120,8 +125,7 @@ WHERE
 	rp.propertyID = rtp.ID
 	AND rtp.Optional=0
 	AND rp.reportCode=?rp
-order by rtp.Position
-";
+order by rtp.Position, rp.Id";
 		MyDA.Fill(DS, dtNonOptionalParams.TableName);
 
 		MyCn.Close();

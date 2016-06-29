@@ -185,7 +185,6 @@
     <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\CopyReportController.cs" />
-    <Compile Include="Controllers\PropertiesController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Controllers\ReportsTuningController.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
