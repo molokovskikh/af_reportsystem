@@ -28,6 +28,14 @@ namespace Inforoom.ReportSystem
 		public string EndColumn;
 	}
 
+	public enum ReportPeriod
+	{
+		[Description("За предыдущий месяц")] ByPrevMonth,
+		[Description("За текущий день")] ByToday,
+		[Description("Интервал отчета (дни) от текущей даты")] ByInterval,
+	}
+
+
 	public class BaseOrdersReport : BaseReport
 	{
 		public List<FilterField> RegistredField;
@@ -58,14 +66,11 @@ namespace Inforoom.ReportSystem
 			Init();
 		}
 
-		[Description("За предыдущий месяц")]
-		public bool ByPreviousMonth { get; set; }
-
-		[Description("За текущий день")]
-		public bool ByToday { get; set; }
+		[Description("Период подготовки отчета")]
+		public ReportPeriod ReportPeriod;
 
 		[Description("Интервал отчета (дни) от текущей даты")]
-		public int ReportInterval { get; set; }
+		public int ReportInterval;
 
 		private void Init()
 		{
@@ -159,11 +164,11 @@ namespace Inforoom.ReportSystem
 				Begin = From;
 				End = To;
 				End = End.Date.AddDays(1);
-			} else if (ByPreviousMonth) {
+			} else if (ReportPeriod == ReportPeriod.ByPrevMonth) {
 				End = DateTime.Today;
 				End = End.AddDays(-(End.Day - 1)).Date; // Первое число текущего месяца
 				Begin = End.AddMonths(-1).Date;
-			} else if (ByToday) {
+			} else if (ReportPeriod == ReportPeriod.ByToday) {
 					Begin = DateTime.Today;
 					End = DateTime.Now;
 			} else {
@@ -176,7 +181,7 @@ namespace Inforoom.ReportSystem
 			LoadFilters();
 			CheckAfterLoadFields();
 			SortFields();
-			if (ByToday)
+			if (ReportPeriod == ReportPeriod.ByToday)
 				OrdersSchema = "Orders";
 		}
 

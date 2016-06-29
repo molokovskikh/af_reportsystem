@@ -4,11 +4,8 @@ using System.Diagnostics;
 using System.Data;
 using Inforoom.ReportSystem.Filters;
 using Inforoom.ReportSystem.Helpers;
-using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
-using MSExcel = Microsoft.Office.Interop.Excel;
-
 using DataTable = System.Data.DataTable;
 using XlChartType = Microsoft.Office.Interop.Excel.XlChartType;
 

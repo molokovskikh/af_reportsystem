@@ -21,8 +21,6 @@
 						<asp:Button ID="btnListValue" runat="server" Text="..." CommandName="ShowValues" />
 						<asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTextBoxSkin"/>
 						<ajaxToolkit:CalendarExtender ID="CalendarExtender" runat="server" TargetControlID="tbDate" Format="yyyy-MM-dd"/>
-						<asp:HyperLink runat="server" ID="UploadFileUrl" Visible="False"></asp:HyperLink>
-						<asp:FileUpload runat="server" ID="UploadFile" Visible="False"/>
 					</ItemTemplate>
 				</asp:TemplateField>
 			</Columns>
@@ -52,8 +50,6 @@
 						<asp:Button ID="btnListValue" runat="server" Text="..." CommandName="ShowValues" Visible="False" />
 						<asp:TextBox ID="tbDate" runat="server" Visible="False" SkinID="dateTextBoxSkin"/>
 						<ajaxToolkit:CalendarExtender ID="CalendarExtender" runat="server" TargetControlID="tbDate" Format="yyyy-MM-dd"/>
-						<asp:HyperLink runat="server" ID="UploadFileUrl" Visible="False"></asp:HyperLink>
-						<asp:FileUpload runat="server" ID="UploadFile" Visible="False"/>
 					</ItemTemplate>
 				</asp:TemplateField>
 				<asp:TemplateField>

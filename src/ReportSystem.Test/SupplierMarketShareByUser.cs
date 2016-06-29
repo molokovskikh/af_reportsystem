@@ -128,8 +128,7 @@ namespace ReportSystem.Test
 
 			Property("Type", 3);
 			TryInitReport<SupplierMarketShareByUser>();
-			((BaseOrdersReport)report).Interval = false;
-			((BaseOrdersReport)report).ByToday = true;
+			((BaseOrdersReport)report).ReportPeriod = ReportPeriod.ByToday;
 			var sheet = ReadReport<SupplierMarketShareByUser>();
 			Assert.AreEqual(order.Sum().ToString("C"), ValueByColumn(sheet, intersection.SupplierClientId, "Сумма по 'Тестовый поставщик'"));
 		}

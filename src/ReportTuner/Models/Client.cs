@@ -6,7 +6,6 @@ using Castle.ActiveRecord;
 using Castle.ActiveRecord.Framework;
 using Common.Web.Ui.Models;
 
-
 namespace ReportTuner.Models
 {
 	[ActiveRecord("Clients", Schema = "Customers")]
@@ -34,7 +33,7 @@ namespace ReportTuner.Models
 		public virtual IList<Payer> Payers { get; set; }
 
 		[HasMany(ColumnKey = "ClientId", Inverse = true, Lazy = true, Cascade = ManyRelationCascadeEnum.All)]
-		public virtual IList<FutureUser> Users { get; set; }
+		public virtual IList<User> Users { get; set; }
 
 		[HasMany(ColumnKey = "ClientId", Lazy = true, Inverse = true, OrderBy = "Address", Cascade = ManyRelationCascadeEnum.All)]
 		public virtual IList<Address> Addresses { get; set; }
@@ -50,14 +49,8 @@ namespace ReportTuner.Models
 		}
 	}
 
-	public interface IUser
-	{
-		uint Id { get; set; }
-		string ShortNameAndId { get; }
-	}
-
 	[ActiveRecord("Users", Schema = "Customers")]
-	public class FutureUser : ActiveRecordLinqBase<FutureUser>, IUser
+	public class User : ActiveRecordLinqBase<User>
 	{
 		[PrimaryKey]
 		public virtual uint Id { get; set; }

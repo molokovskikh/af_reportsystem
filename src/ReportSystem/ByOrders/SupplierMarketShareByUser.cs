@@ -335,10 +335,10 @@ left join Reports.PrevResult pr on pr.GroupKey = r.GroupKey;",
 
 			var prevBegin = Begin.AddDays(-(int)(End - Begin).TotalDays);
 			var prevEnd = Begin;
-			if (ByToday) {
+			if (ReportPeriod == ReportPeriod.ByToday) {
 				prevBegin = Begin.AddDays(-1);
 				prevEnd = End.AddDays(-1);
-			} else if (ByPreviousMonth) {
+			} else if (ReportPeriod == ReportPeriod.ByPrevMonth) {
 				prevBegin = Begin.AddMonths(-1);
 				prevEnd = End.AddMonths(-1);
 			}

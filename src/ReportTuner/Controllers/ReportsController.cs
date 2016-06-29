@@ -20,10 +20,6 @@ namespace ReportTuner.Controllers
 
 					report.RemoveTask();
 
-					foreach (var property in report.Reports.SelectMany(r => r.Properties)) {
-						property.CleanupFiles();
-					}
-
 					DbSession.Delete(report);
 				}
 				catch (Exception e) {

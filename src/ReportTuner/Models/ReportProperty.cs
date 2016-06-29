@@ -39,26 +39,6 @@ namespace ReportTuner.Models
 		[HasMany(typeof(ReportPropertyValue), "ReportPropertyId", "report_property_values", Schema = "reports")]
 		public virtual IList<ReportPropertyValue> Values { get; set; }
 
-		public string Filename
-		{
-			get { return Path.Combine(Global.Config.SavedFilesPath, Id.ToString()); }
-		}
-
-		public void CleanupFiles()
-		{
-			if (PropertyType.PropertyType != "FILE")
-				return;
-
-			try {
-				if (File.Exists(Filename))
-					File.Delete(Filename);
-			}
-			catch (Exception e) {
-				var log = LogManager.GetLogger(typeof(ReportProperty));
-				log.Error(String.Format("Ошибка при удалении файла {0}", Filename), e);
-			}
-		}
-
 		public bool IsSupplierEditor()
 		{
 			return (Report.ReportType.ReportTypeFilePrefix != "PharmacyMixed" && IsClientOrSupplierEdit());

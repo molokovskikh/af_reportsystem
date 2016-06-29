@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Configuration;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using Common.MySql;
 using Common.Tools;
-using MySql.Data;
+using Common.Web.Ui.Helpers;
+using Inforoom.ReportSystem;
 using MySql.Data.MySqlClient;
-using ReportTuner;
 using ReportTuner.Helpers;
 using ReportTuner.Models;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 
-public partial class Reports_ReportProperties : Page
+public partial class Reports_ReportProperties : BasePage
 {
 	private MySqlConnection MyCn = new MySqlConnection(ConnectionHelper.GetConnectionString());
 	private MySqlCommand MyCmd = new MySqlCommand();
@@ -36,7 +31,6 @@ public partial class Reports_ReportProperties : Page
 	private DataColumn PPropertyName;
 	public DataTable dtEnumValues;
 	private DataColumn PStoredProc;
-	private DataTable dtClient;
 	private DataColumn CReportCaption;
 	private DataTable dtOptionalParams;
 	private DataColumn OPID;
@@ -63,43 +57,23 @@ public partial class Reports_ReportProperties : Page
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
-		if (String.IsNullOrEmpty(Request["r"]) && String.IsNullOrEmpty(Request["TemporaryId"]))
+		if (String.IsNullOrEmpty(Request["r"]))
 			Response.Redirect("GeneralReports.aspx");
 
 		if (String.IsNullOrEmpty(Request["rp"]))
 			if (!String.IsNullOrEmpty(Request["r"]))
 				Response.Redirect("Reports.aspx?r=" + Request["r"]);
-			else
-				Response.Redirect("TemporaryReport.aspx?TemporaryId=" + Request["TemporaryId"]);
 
 		btnBack.Visible = !String.IsNullOrEmpty(Request["TemporaryId"]);
 		btnNext.Visible = btnBack.Visible;
 
-		if (!(Page.IsPostBack)) {
-			MyCn.Open();
-			MyCmd.Connection = MyCn;
-			MyDA.SelectCommand = MyCmd;
-			MyCmd.Parameters.Clear();
-			MyCmd.Parameters.AddWithValue("rp", Request["rp"]);
-			MyCmd.CommandText = @"
-SELECT
-	rt.ReportCaption as CReportCaption,
-	rts.ReportTypeName as CReportType
-FROM
-	reports.reports rt,
-	reports.general_reports gr,
-	reports.reporttypes rts
-WHERE gr.GeneralReportCode=rt.GeneralReportCode
-AND ReportCode = ?rp
-and rts.ReportTypeCode = rt.ReportTypeCode
-";
-			MyDA.Fill(DS, dtClient.TableName);
-			lblReport.Text = DS.Tables[dtClient.TableName].Rows[0][CReportCaption.ColumnName].ToString();
-			lblReportType.Text = DS.Tables[dtClient.TableName].Rows[0][CReportType.ColumnName].ToString();
+		if (!IsPostBack) {
+			var report = DbSession.Load<Report>(Convert.ToUInt64(Request["rp"]));
+			lblReport.Text = report.ReportCaption;
+			lblReportType.Text = report.ReportType.ReportTypeName;
 
-			MyCn.Close();
 			PostData();
-			propertiesHelper = new PropertiesHelper(Convert.ToUInt32(Request["rp"]), dtNonOptionalParams, dtOptionalParams);
+			propertiesHelper = new PropertiesHelper(report.Id, dtNonOptionalParams, dtOptionalParams);
 			Session[PropHelper] = propertiesHelper;
 		}
 		else {
@@ -117,7 +91,7 @@ and rts.ReportTypeCode = rt.ReportTypeCode
 	{
 		FillNonOptimal();
 		FillOptimal();
-		ExtraRefresh();
+		RecalculateOptionVisibility();
 	}
 
 	protected void FillNonOptimal()
@@ -144,70 +118,10 @@ FROM
 	reports.report_properties rp, reports.report_type_properties rtp
 WHERE
 	rp.propertyID = rtp.ID
-AND rtp.Optional=0
-and rtp.PropertyName not in ('ByPreviousMonth', 'ReportInterval', 'StartDate', 'EndDate', 'RegionEqual')
-AND rp.reportCode=?rp
+	AND rtp.Optional=0
+	AND rp.reportCode=?rp
+order by rtp.Position
 ";
-		MyCmd.CommandText += @"
-union
-SELECT
-	rp.ID as PID,
-	rtp.DisplayName as PParamName,
-	rtp.PropertyType as PPropertyType,
-	rp.PropertyValue as PPropertyValue,
-	rtp.PropertyEnumID as PPropertyEnumID,
-	rtp.selectstoredprocedure as PStoredProc,
-	rtp.ReportTypeCode as PReportTypeCode,
-	rtp.PropertyName as PPropertyName
-FROM
-	reports.report_properties rp, reports.report_type_properties rtp
-WHERE
-	rp.propertyID = rtp.ID
-AND rtp.Optional=0
-and rtp.PropertyName in ('RegionEqual')
-AND rp.reportCode=?rp
-";
-		if (!String.IsNullOrEmpty(Request["TemporaryId"]))
-			MyCmd.CommandText += @"
-union
-SELECT
-	rp.ID as PID,
-	rtp.DisplayName as PParamName,
-	rtp.PropertyType as PPropertyType,
-	rp.PropertyValue as PPropertyValue,
-	rtp.PropertyEnumID as PPropertyEnumID,
-	rtp.selectstoredprocedure as PStoredProc,
-	rtp.ReportTypeCode as PReportTypeCode,
-	rtp.PropertyName as PPropertyName
-FROM
-	reports.report_properties rp, reports.report_type_properties rtp
-WHERE
-	rp.propertyID = rtp.ID
-AND rtp.Optional=0
-and rtp.PropertyName in ('StartDate', 'EndDate')
-AND rp.reportCode=?rp
-";
-		else
-			MyCmd.CommandText += @"
-union
-SELECT
-	rp.ID as PID,
-	rtp.DisplayName as PParamName,
-	rtp.PropertyType as PPropertyType,
-	rp.PropertyValue as PPropertyValue,
-	rtp.PropertyEnumID as PPropertyEnumID,
-	rtp.selectstoredprocedure as PStoredProc,
-	rtp.ReportTypeCode as PReportTypeCode,
-	rtp.PropertyName as PPropertyName
-FROM
-	reports.report_properties rp, reports.report_type_properties rtp
-WHERE
-	rp.propertyID = rtp.ID
-AND rtp.Optional=0
-and rtp.PropertyName in ('ByPreviousMonth', 'ReportInterval')
-AND rp.reportCode=?rp
-";
-
 		MyDA.Fill(DS, dtNonOptionalParams.TableName);
 
 		MyCn.Close();
@@ -244,8 +158,9 @@ FROM
 	reports.report_properties rp, reports.report_type_properties rtp
 WHERE
 	rp.propertyID = rtp.ID
-AND Optional=1
-AND rp.reportCode=?rp
+	AND Optional=1
+	AND rp.reportCode=?rp
+order by rtp.Position
 ";
 		MyDA.Fill(DS, dtOptionalParams.TableName);
 
@@ -271,7 +186,6 @@ AND rp.reportCode=?rp
 		this.PPropertyName = new System.Data.DataColumn();
 		this.PStoredProc = new System.Data.DataColumn();
 		this.PReportTypeCode = new System.Data.DataColumn();
-		this.dtClient = new System.Data.DataTable();
 		this.CReportCaption = new System.Data.DataColumn();
 		this.CReportType = new System.Data.DataColumn();
 		this.dtOptionalParams = new System.Data.DataTable();
@@ -286,7 +200,6 @@ AND rp.reportCode=?rp
 		this.OPReportTypeCode = new System.Data.DataColumn();
 		((System.ComponentModel.ISupportInitialize)(this.DS)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).BeginInit();
-		((System.ComponentModel.ISupportInitialize)(this.dtClient)).BeginInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).BeginInit();
 		//
 		// DS
@@ -294,7 +207,6 @@ AND rp.reportCode=?rp
 		this.DS.DataSetName = "NewDataSet";
 		this.DS.Tables.AddRange(new System.Data.DataTable[] {
 			this.dtNonOptionalParams,
-			this.dtClient,
 			this.dtOptionalParams
 		});
 		//
@@ -349,11 +261,6 @@ AND rp.reportCode=?rp
 		//
 		// dtClient
 		//
-		this.dtClient.Columns.AddRange(new System.Data.DataColumn[] {
-			this.CReportCaption,
-			this.CReportType
-		});
-		this.dtClient.TableName = "dtClient";
 		//
 		// CReportCaption
 		//
@@ -419,7 +326,6 @@ AND rp.reportCode=?rp
 		this.OPReportTypeCode.DataType = typeof(long);
 		((System.ComponentModel.ISupportInitialize)(this.DS)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtNonOptionalParams)).EndInit();
-		((System.ComponentModel.ISupportInitialize)(this.dtClient)).EndInit();
 		((System.ComponentModel.ISupportInitialize)(this.dtOptionalParams)).EndInit();
 	}
 
@@ -468,8 +374,7 @@ AND rp.reportCode=?rp
 				if (String.IsNullOrEmpty(clientProperty.Value))
 					return;
 				FillUserDDL(Convert.ToInt64(clientProperty.Value), ddlValues);
-			}
-			else {
+			} else {
 				FillDDL(reportProperty.PropertyType.Enum.Id);
 				ddlValues.DataSource = dtEnumValues;
 				ddlValues.DataTextField = "evName";
@@ -507,15 +412,6 @@ AND rp.reportCode=?rp
 		}
 		else if (type == "LIST") {
 			cell.FindControl("btnListValue").Visible = true;
-		}
-		else if (type == "FILE") {
-			cell.FindControl("UploadFile").Visible = true;
-			if (!String.IsNullOrEmpty(reportProperty.Value)) {
-				var link = (HyperLink)cell.FindControl("UploadFileUrl");
-				link.Visible = true;
-				link.NavigateUrl = String.Format("~/Properties/File.rails?id={0}", reportProperty.Id);
-				link.Text = reportProperty.Value;
-			}
 		}
 		else {
 			cell.FindControl("tbValue").Visible = true;
@@ -702,23 +598,8 @@ WHERE ID = ?OPID", MyCn, trans);
 				}
 			}
 
-			var optionalParameters = DS.Tables[dtOptionalParams.TableName];
-
-			var deletedFiles = requiredParameters.AsEnumerable()
-				.Where(r => r.RowState == DataRowState.Deleted)
-				.Select(r => r[PID.ColumnName, DataRowVersion.Original].ToString())
-				.Concat(optionalParameters.AsEnumerable()
-					.Where(r => r.RowState == DataRowState.Deleted)
-					.Select(r => r[OPID.ColumnName, DataRowVersion.Original].ToString()))
-				.ToArray();
-
 			ApplyNonOptimal(trans);
 			ApplyOptimal(trans);
-
-			SaveUploadedFiles(dgvNonOptional, requiredParameters);
-			SaveUploadedFiles(dgvOptional, optionalParameters);
-
-			CleanDeletedFiles(deletedFiles);
 
 			trans.Commit();
 			PostData();
@@ -734,28 +615,6 @@ WHERE ID = ?OPID", MyCn, trans);
 			btnApply.Visible = true;
 		else
 			btnApply.Visible = false;
-	}
-
-	public void CleanDeletedFiles(IEnumerable<string> files)
-	{
-		foreach (var file in files) {
-			var name = Path.Combine(Global.Config.SavedFilesPath, file);
-			if (File.Exists(name))
-				File.Delete(name);
-		}
-	}
-
-	public void SaveUploadedFiles(GridView options, DataTable table)
-	{
-		foreach (var row in options.Rows.Cast<GridViewRow>()) {
-			var allControls = row.Controls.Cast<Control>().Flat(c => c.Controls.Cast<Control>());
-			var uploads = allControls.Where(f => f.Visible).OfType<FileUpload>().Where(u => u.HasFile);
-			foreach (var fileUpload in uploads) {
-				var dataRow = table.DefaultView[row.RowIndex];
-				var property = GetReportProperty(dataRow);
-				File.WriteAllBytes(property.Filename, fileUpload.FileBytes);
-			}
-		}
 	}
 
 	private void CopyChangesToTable(GridView dgv, DataTable dt, string column)
@@ -911,16 +770,22 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	protected void ddlValue_SelectedIndexChanged(object sender, EventArgs e)
 	{
-		if (((DropDownList)sender).SelectedValue == "-1") {
-			((DropDownList)sender).Visible = false;
-			((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Visible = true;
-			((TextBox)((DropDownList)sender).Parent.FindControl("tbSearch")).Text = string.Empty;
-			((Button)((DropDownList)sender).Parent.FindControl("btnFind")).Visible = true;
+		var dropDown = (DropDownList)sender;
+		var property = ElToProperty(dropDown);
+		if (property?.PropertyType.PropertyName == "ReportPeriod") {
+			var value = (ReportPeriod)Convert.ToInt32(dropDown.SelectedValue);
+			SetRowVisibility("Интервал отчета (дни) от текущей даты", value == ReportPeriod.ByInterval);
+		}
+		if (dropDown.SelectedValue == "-1") {
+			dropDown.Visible = false;
+			((TextBox)dropDown.Parent.FindControl("tbSearch")).Visible = true;
+			((TextBox)dropDown.Parent.FindControl("tbSearch")).Text = string.Empty;
+			((Button)dropDown.Parent.FindControl("btnFind")).Visible = true;
 		}
 		foreach (GridViewRow dr in dgvNonOptional.Rows) {
 			if (dr.Cells[0].Text == "Клиент") {
 				DropDownList ddl = (DropDownList)dr.Cells[1].FindControl("ddlValue");
-				if (ddl.UniqueID == ((DropDownList)sender).UniqueID) {
+				if (ddl.UniqueID == dropDown.UniqueID) {
 					foreach (GridViewRow dro in dgvOptional.Rows) {
 						if (((Label)dro.Cells[0].FindControl("lblName")).Text == "Пользователь") {
 							DropDownList ddlo = (DropDownList)dro.Cells[1].FindControl("ddlValue");
@@ -932,17 +797,13 @@ WHERE ID = ?OPID", MyCn, trans);
 		}
 	}
 
-	protected void ExtraRefresh()
+	private ReportProperty ElToProperty(DropDownList el)
 	{
-		object obj = FindCheckBoxByKey("По базовым ценам");
-		if (obj != null)
-			chbValue_CheckedChanged(obj, null);
-		obj = FindCheckBoxByKey("За предыдущий месяц");
-		if (obj != null)
-			chbValue_CheckedChanged(obj, null);
-		obj = FindCheckBoxByKey("По взвешенным ценам");
-		if (obj != null)
-			chbValue_CheckedChanged(obj, null);
+		var index = dgvNonOptional.Rows.OfType<GridViewRow>()
+			.IndexOf(x => x.Cells[1].FindControl("ddlValue")?.UniqueID == el.UniqueID);
+		if (index < 0)
+			return null;
+		return DbSession.Load<ReportProperty>(Convert.ToUInt64(DS.Tables[dtNonOptionalParams.TableName].DefaultView[index]["PID"]));
 	}
 
 	protected object FindCheckBoxByKey(string key)
@@ -957,18 +818,23 @@ WHERE ID = ?OPID", MyCn, trans);
 
 	protected void chbValue_CheckedChanged(object sender, EventArgs e)
 	{
+		RecalculateOptionVisibility();
+	}
+
+	private void RecalculateOptionVisibility()
+	{
 		var base_costs = GetValueByLabel(dgvNonOptional.Rows, "По базовым ценам");
 		var byPreviousMonth = GetValueByLabel(dgvNonOptional.Rows, "За предыдущий месяц");
 		var weight_costs = GetValueByLabel(dgvNonOptional.Rows, "По взвешенным ценам");
 
-		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Прайс&quot;", base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Список значений &quot;Региона&quot;", base_costs || weight_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Клиент", !base_costs && !weight_costs);
-		SetRowEnablity(dgvNonOptional.Rows, "Готовить по розничному сегменту", !base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Интервал отчета (дни) от текущей даты", !byPreviousMonth);
-		SetRowVisibility(dgvNonOptional.Rows, "По взвешенным ценам", !base_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "По базовым ценам", !weight_costs);
-		SetRowVisibility(dgvNonOptional.Rows, "Продукты без учета свойств (все цвета\\вкусы объединены)", !weight_costs);
+		SetRowVisibility("Список значений &quot;Прайс&quot;", base_costs);
+		SetRowVisibility("Список значений &quot;Региона&quot;", base_costs || weight_costs);
+		SetRowVisibility("Клиент", !base_costs && !weight_costs);
+		SetRowEnablity("Готовить по розничному сегменту", !base_costs);
+		SetRowVisibility("Интервал отчета (дни) от текущей даты", !byPreviousMonth);
+		SetRowVisibility("По взвешенным ценам", !base_costs);
+		SetRowVisibility("По базовым ценам", !weight_costs);
+		SetRowVisibility("Продукты без учета свойств (все цвета\\вкусы объединены)", !weight_costs);
 
 		dgvOptional.DataSource = DS;
 		dgvOptional.DataBind();
@@ -1022,7 +888,7 @@ WHERE ID = ?OPID", MyCn, trans);
 		}
 	}
 
-	private void SetRowVisibility(GridViewRowCollection rows, string label, bool visible)
+	private void SetRowVisibility(string label, bool visible)
 	{
 		foreach (GridViewRow dr in dgvNonOptional.Rows) {
 			if (dr.Cells.Count < 1)
@@ -1042,7 +908,7 @@ WHERE ID = ?OPID", MyCn, trans);
 		}
 	}
 
-	private void SetRowEnablity(GridViewRowCollection rows, string label, bool enable)
+	private void SetRowEnablity(string label, bool enable)
 	{
 		foreach (GridViewRow dr in dgvNonOptional.Rows) {
 			if (dr.Cells.Count < 1)
@@ -1065,17 +931,6 @@ WHERE ID = ?OPID", MyCn, trans);
 			}
 		}
 		return value;
-	}
-
-	private void SetValueByLabel(GridViewRowCollection rows, string label, int value)
-	{
-		foreach (GridViewRow dr in dgvNonOptional.Rows) {
-			if (dr.Cells.Count > 1 && dr.Cells[0].Text == label) {
-				var chk = (TextBox)dr.Cells[1].FindControl("tbValue");
-				chk.Text = value.ToString();
-				break;
-			}
-		}
 	}
 
 	private void ShowSearchedParam(DropDownList ddl, TextBox tb, Button btn, DataTable data, string value = null)
@@ -1147,9 +1002,8 @@ WHERE ID = ?OPID", MyCn, trans);
 	{
 		if (clientID < 0)
 			clientID = 0;
-		var users = FutureUser.Queryable.Where(u => u.Client.Id == clientID).ToList();
-		var ulist = users.Cast<IUser>().OrderBy(u => u.ShortNameAndId).ToList();
-		ddl.DataSource = ulist;
+		var users = ReportTuner.Models.User.Queryable.Where(u => u.Client.Id == clientID).ToList().OrderBy(u => u.ShortNameAndId).ToList();
+		ddl.DataSource = users;
 		ddl.DataTextField = "ShortNameAndId";
 		ddl.DataValueField = "Id";
 		ddl.DataBind();
@@ -1161,8 +1015,8 @@ WHERE ID = ?OPID", MyCn, trans);
 		if (String.IsNullOrEmpty(property.Value))
 			return;
 
-		var user = ulist.FirstOrDefault(u => u.Id == Convert.ToUInt32(property.Value));
-		var index = ulist.IndexOf(user);
+		var user = users.FirstOrDefault(u => u.Id == Convert.ToUInt32(property.Value));
+		var index = users.IndexOf(user);
 		ddl.SelectedIndex = index;
 	}
 
