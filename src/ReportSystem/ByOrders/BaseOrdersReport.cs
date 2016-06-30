@@ -67,7 +67,7 @@ namespace Inforoom.ReportSystem
 		}
 
 		[Description("Период подготовки отчета")]
-		public ReportPeriod ReportPeriod;
+		public ReportPeriod ReportPeriod = ReportPeriod.ByInterval;
 
 		[Description("Интервал отчета (дни) от текущей даты")]
 		public int ReportInterval;
