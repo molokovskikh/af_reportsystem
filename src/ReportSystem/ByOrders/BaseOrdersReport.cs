@@ -161,6 +161,7 @@ namespace Inforoom.ReportSystem
 		{
 			base.ReadReportParams();
 			if (Interval) {
+				ReportPeriod = ReportPeriod.ByInterval;
 				Begin = From;
 				End = To;
 				End = End.Date.AddDays(1);
