@@ -117,7 +117,7 @@ namespace ReportTuner.Test.Functional
 		{
 			var gr = session.Query<GeneralReport>().ToList().First();
 			gr.FirmCode = null;
-			session.SaveOrUpdate(gr);
+			session.Save(gr);
 			Assert.IsNull(gr.FirmCode);
 			Open("Reports/Schedule.aspx?r=" + gr.Id);
 			AssertText("Выполнить отчет за указанный период и отослать по выбранным адресам");
@@ -128,8 +128,8 @@ namespace ReportTuner.Test.Functional
 		{
 			var gr = session.Query<GeneralReport>().ToList().First();
 			gr.SendDescriptionFile = false;
-			session.SaveOrUpdate(gr);
-			Open(string.Format("Reports/Reports.aspx?r={0}", gr.Id));
+			session.Save(gr);
+			Open($"Reports/Reports.aspx?r={gr.Id}");
 			Assert.IsFalse(browser.CheckBox("SendDescriptionFile").Checked);
 			browser.CheckBox("SendDescriptionFile").Checked = true;
 			Click("Применить");
@@ -141,7 +141,7 @@ namespace ReportTuner.Test.Functional
 		public void RecipietntsRemovedTest()
 		{
 			browser = Open("Reports/Reports.aspx?r=1");
-			Assert.That(browser.Text, Is.Not.Contains("Получатель отчета"));
+			AssertNoText("Получатель отчета");
 		}
 
 		[Test]
@@ -153,7 +153,8 @@ namespace ReportTuner.Test.Functional
 			session.Save(report);
 			OpenReport(report);
 
-			var select = browser.SelectList(s => s.Name.EndsWith("ddlValue"));
+			var row = browser.TableCell(Find.ByText("Юридическое лицо накладные которого будут включены в отчет")).ContainingTableRow;
+			var select = row.OwnTableCells[1].SelectLists[0];
 			Assert.That(select.SelectedItem, Is.StringEnding(org.Name));
 		}
 
