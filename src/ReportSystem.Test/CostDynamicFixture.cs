@@ -15,7 +15,7 @@ using Common.Tools;
 namespace ReportSystem.Test
 {
 	[TestFixture]
-	public class CostDynamicFixture : BaseProfileFixture
+	public class CostDynamicFixture : ReportFixture
 	{
 		[Test]
 		public void Settings_fixture()
@@ -61,7 +61,7 @@ namespace ReportSystem.Test
 			data.Tables.Add(results);
 
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", settings.Date.ToShortDateString()));
-			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => Region.Find(r).Name).Implode()));
+			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => session.Load<Region>(r).Name)).Implode());
 
 			if (File.Exists(file))
 				File.Delete(file);

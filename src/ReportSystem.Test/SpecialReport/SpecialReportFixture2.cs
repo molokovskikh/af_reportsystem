@@ -5,6 +5,7 @@ using System.Text;
 using Inforoom.ReportSystem;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
+using Test.Support;
 using Test.Support.Suppliers;
 
 namespace ReportSystem.Test.SpecialReport
@@ -59,21 +60,27 @@ namespace ReportSystem.Test.SpecialReport
 		[Test]
 		public void Hide_header()
 		{
-			var supplier = TestSupplier.CreateNaked(session);
+			var supplier1 = TestSupplier.Create(session);
+			supplier1.CreateSampleCore(session);
+			var supplier2 = TestSupplier.Create(session);
+			supplier2.CreateSampleCore(session);
+			var client = TestClient.Create(session);
 			Property("ReportType", 2);
 			Property("RegionEqual", new List<ulong> { 1 });
-			Property("ClientCode", 0);
+			Property("ClientCode", client.Id);
 			Property("ReportIsFull", false);
 			Property("ReportSortedByPrice", false);
 			Property("ShowPercents", true);
 			Property("CalculateByCatalog", false);
-			Property("PriceCode", (int)supplier.Prices[0].Id);
-			Property("ByWeightCosts", true);
+			Property("PriceCode", (int)supplier1.Prices[0].Id);
+			Property("ByWeightCosts", false);
 			Property("HideHeader", true);
 
 			TryInitReport<SpecReport>();
 			var sheet = ReadReport();
-			Assert.That(ToText(sheet), Does.Not.Contains("Специальный отчет по взвешенным ценам по данным на"));
+			var text = ToText(sheet);
+			Assert.That(text, Does.Not.Contains("Специальный отчет по взвешенным ценам по данным на"));
+			Assert.That(text, Does.Not.Contains(supplier2.Name));
 		}
 	}
 }

@@ -117,14 +117,13 @@ order by supps.Name";
 select
   SourcePrice.ID,
   SourcePrice.Code,
-  ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode, ";
-			SqlCommandText += String.Format(@"
+  ifnull(AllPrices.CatalogCode, SourcePrice.CatalogCode) as CatalogCode,
 (
 	select catalog.Name
 	from catalogs.catalog
 	where Catalog.Id = AllPrices.ProductId
 ) as FullName,
-");
+";
 			if (IsOffersReport) {
 				SqlCommandText += @"
 AllPrices.Cost,
@@ -667,13 +666,16 @@ group by c.pricecode";
 			}
 			if (priceIndex != 0)
 				priceBlockSize = (dtRes.Columns.Count - firstColumnCount) / priceIndex;
-			var newrow = dtRes.NewRow();
-			dtRes.Rows.Add(newrow);
-			newrow = dtRes.NewRow();
-			dtRes.Rows.Add(newrow);
+			if (!HideHeader) {
+				var newrow = dtRes.NewRow();
+				dtRes.Rows.Add(newrow);
+
+				newrow = dtRes.NewRow();
+				dtRes.Rows.Add(newrow);
+			}
 
 			foreach (DataRow drCatalog in _dsReport.Tables["Catalog"].Rows) {
-				newrow = dtRes.NewRow();
+				var newrow = dtRes.NewRow();
 				newrow["FullName"] = drCatalog["FullName"];
 				newrow["FirmCr"] = drCatalog["FirmCr"];
 				var drCatalog1 = new DataRow[0];
@@ -1197,11 +1199,12 @@ order by FullName, FirmCr";
 				for (var i = 0; i < result.Columns.Count; i++)
 					ws.Cells[1, i + 1] = "";
 
-				var tableBeginRowIndex = 3;
+				var tableBeginRowIndex = 1;
 				var rowCount = result.Rows.Count;
 				var columnCount = result.Columns.Count;
 
 				if (!HideHeader) {
+					tableBeginRowIndex = 3;
 					if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
 						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Выбранные аптеки: {_clientsNames}");
 					if (!String.IsNullOrEmpty(_suppliers))
@@ -1210,11 +1213,10 @@ order by FullName, FirmCr";
 						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Игнорируемые поставщики: {_ignoredSuppliers}");
 
 					ExcelHelper.FormatHeader(ws, tableBeginRowIndex, result);
+					//Форматирование заголовков прайс-листов
+					FormatLeaderAndPrices(ws);
 				}
 				var lastRowIndex = rowCount + tableBeginRowIndex;
-
-				//Форматирование заголовков прайс-листов
-				FormatLeaderAndPrices(ws);
 
 				//рисуем границы на всю таблицу
 				ws.Range[ws.Cells[tableBeginRowIndex, 1], ws.Cells[lastRowIndex, columnCount]].Borders.Weight = XlBorderWeight.xlThin;
