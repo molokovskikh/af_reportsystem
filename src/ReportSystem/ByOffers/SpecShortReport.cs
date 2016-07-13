@@ -140,6 +140,8 @@ namespace Inforoom.ReportSystem
 			dtNewRes.Columns.Add("MinCost", typeof(decimal));
 			dtNewRes.Columns.Add("LeaderName", typeof(string));
 
+			firstColumnCount = dtNewRes.Columns.Count;
+
 			dtNewRes.Columns["Code"].Caption = "Код";
 			dtNewRes.Columns["CodeWithoutProducer"].Caption = "Код без изгот.";
 
