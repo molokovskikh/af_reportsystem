@@ -82,5 +82,31 @@ namespace ReportSystem.Test.SpecialReport
 			Assert.That(text, Does.Not.Contains("Специальный отчет по взвешенным ценам по данным на"));
 			Assert.That(text, Does.Not.Contains(supplier2.Name));
 		}
+
+		[Test]
+		public void Hide_all_except4()
+		{
+			var supplier1 = TestSupplier.Create(session);
+			supplier1.CreateSampleCore(session);
+			var supplier2 = TestSupplier.Create(session);
+			supplier2.CreateSampleCore(session);
+			var client = TestClient.Create(session);
+			Property("ReportType", 3);
+			Property("RegionEqual", new List<ulong> { 1 });
+			Property("ClientCode", client.Id);
+			Property("ReportIsFull", false);
+			Property("ReportSortedByPrice", false);
+			Property("ShowPercents", false);
+			Property("CalculateByCatalog", false);
+			Property("PriceCode", (int)supplier1.Prices[0].Id);
+			Property("ByWeightCosts", false);
+			Property("HideHeader", false);
+			Property("HideAllExcept4", true);
+
+			TryInitReport<SpecReport>();
+			var sheet = ReadReport();
+			var text = ToText(sheet);
+			Assert.That(text, Does.Not.Contains("Макс. цена"));
+		}
 	}
 }

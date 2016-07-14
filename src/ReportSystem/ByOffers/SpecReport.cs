@@ -50,13 +50,15 @@ namespace Inforoom.ReportSystem
 
 		protected bool _codesWithoutProducer;
 		//количество столбцов до начала блоков прайс листов
-		private int firstColumnCount;
+		protected int firstColumnCount;
 		//количество столбцов в блоке прайс листа
 		private int priceBlockSize;
 
 		protected int SourcePriceType;
 
 		protected bool IsOffersReport = false;
+
+		protected bool HideAllExcept4 = false;
 
 		protected SpecReport() // конструктор для возможности тестирования
 		{
@@ -84,6 +86,8 @@ namespace Inforoom.ReportSystem
 			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
 			_priceCode = Convert.ToUInt32(GetReportParam("PriceCode"));
 			_selfPrice = (int)_priceCode;
+			if (_reportParams.ContainsKey("HideAllExcept4"))
+				HideAllExcept4 = (bool)GetReportParam("HideAllExcept4");
 		}
 
 		protected void ReadBaseReportParams()
@@ -820,6 +824,18 @@ group by c.pricecode";
 
 				dtRes.Rows.Add(newrow);
 			}
+
+			if (HideAllExcept4) {
+				dtRes.Columns.Remove("CustomerCost");
+				dtRes.Columns.Remove("CustomerQuantity");
+				dtRes.Columns.Remove("MinCost");
+				dtRes.Columns.Remove("LeaderName");
+				dtRes.Columns.Remove("Differ");
+				dtRes.Columns.Remove("DifferPercents");
+				dtRes.Columns.Remove("AvgCost");
+				dtRes.Columns.Remove("MaxCost");
+				firstColumnCount = firstColumnCount - 8;
+			}
 		}
 
 		private bool ShowQuantity
@@ -1206,11 +1222,11 @@ order by FullName, FirmCr";
 				if (!HideHeader) {
 					tableBeginRowIndex = 3;
 					if (!String.IsNullOrEmpty(_clientsNames)) // Добавляем строку чтобы вставить выбранные аптеки
-						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Выбранные аптеки: {_clientsNames}");
+						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, $"Выбранные аптеки: {_clientsNames}");
 					if (!String.IsNullOrEmpty(_suppliers))
-						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Список поставщиков: {_suppliers}");
+						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, $"Список поставщиков: {_suppliers}");
 					if (!String.IsNullOrEmpty(_ignoredSuppliers))
-						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, 12, $"Игнорируемые поставщики: {_ignoredSuppliers}");
+						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, $"Игнорируемые поставщики: {_ignoredSuppliers}");
 
 					ExcelHelper.FormatHeader(ws, tableBeginRowIndex, result);
 					//Форматирование заголовков прайс-листов
@@ -1230,12 +1246,12 @@ order by FullName, FirmCr";
 
 				//Замораживаем некоторые колонки и столбцы
 				ws.Activate();
-				ws.Application.ActiveWindow.SplitColumn = 11;
+				ws.Application.ActiveWindow.SplitColumn = firstColumnCount;
 				ws.Application.ActiveWindow.FreezePanes = true;
 
 				if (!HideHeader) {
 					//Объединяем несколько ячеек, чтобы в них написать текст
-					ws.Range["A1:K2", Missing.Value].Select();
+					ws.Range[ws.Cells[1, 1], ws.Cells[2, firstColumnCount]].Select();
 					((Range)wb.Application.Selection).Merge(null);
 					if(_byBaseCosts)
 						reportCaptionPreffix += " по базовым ценам";
