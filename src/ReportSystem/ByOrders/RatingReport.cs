@@ -56,11 +56,10 @@ namespace Inforoom.ReportSystem
 		public override void CheckAfterLoadFields()
 		{
 			base.CheckAfterLoadFields();
-			if (ProductFromPriceEqual != null && !ReportParamExists("SupplierProductCodePosition")) {
-				var supplierProductCode = RegistredField.Single(f => f.outputField == "SupplierProductCode");
-				supplierProductCode.position = -100;
-				supplierProductCode.visible = true;
-				selectedField.Add(supplierProductCode);
+			if (ProductFromPriceEqual != null) {
+				var productCodeCore = RegistredField.Single(f => f.outputField == "ProductCodeCore");
+				productCodeCore.visible = true;
+				selectedField.Add(productCodeCore);
 			}
 		}
 
@@ -99,9 +98,39 @@ from {0}.OrdersHead oh
   join billing.payers on payers.PayerId = le.PayerId
   left join Farm.Synonym as s on s.SynonymCode = ol.SynonymCode
   left join Farm.SynonymArchive as sa on sa.SynonymCode = ol.SynonymCode
-  left join Farm.SynonymFirmCr as sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode
-where pd.IsLocal = 0", OrdersSchema));
+  left join Farm.SynonymFirmCr as sfc on sfc.SynonymFirmCrCode = ol.SynonymFirmCrCode", OrdersSchema));
 
+			// обрабатываем параметр Список значений "Наименование продукта" из прайс-листа без учета производителя
+			if (ProductFromPriceEqual != null && !IncludeProducerName)
+			{
+				selectCommand = String.Concat(String.Format(@"drop temporary table if exists tempGetProductCode;
+					create temporary table tempGetProductCode(ProductId INT(10) UNSIGNED, CodeCore varchar(100), INDEX USING HASH (ProductId))
+					engine=memory
+					select cr.ProductId, GROUP_CONCAT(DISTINCT cr.Code ORDER BY cr.Code) as CodeCore
+					from farm.Core0 cr
+					where cr.pricecode in ({0})
+					group by cr.ProductId;",
+					String.Join(",", ProductFromPriceEqual.ToArray())), Environment.NewLine, selectCommand);
+				selectCommand = String.Concat(selectCommand, Environment.NewLine, "join tempGetProductCode tpc on tpc.ProductId = p.Id");
+			}
+
+			// обрабатываем параметр Список значений "Наименование продукта" из прайс-листа с учетом производителя
+			if (ProductFromPriceEqual != null && IncludeProducerName)
+			{
+				selectCommand = String.Concat(String.Format(@"drop temporary table if exists tempGetProductCode;
+					create temporary table tempGetProductCode(ProductId INT(10) UNSIGNED, ProducerId INT(11) UNSIGNED,
+					CodeCore varchar(100), INDEX USING HASH (ProductId, ProducerId))
+					engine=memory
+					select cr.ProductId, fcr.CodeFirmCr as ProducerId, GROUP_CONCAT(DISTINCT cr.Code ORDER BY cr.Code) as CodeCore
+					from farm.Core0 cr
+					join farm.synonymfirmcr fcr on fcr.SynonymFirmCrCode = cr.SynonymFirmCrCode
+					where cr.pricecode in ({0})
+					group by cr.ProductId, fcr.CodeFirmCr;",
+					String.Join(",", ProductFromPriceEqual.ToArray())), Environment.NewLine, selectCommand);
+				selectCommand = String.Concat(selectCommand, Environment.NewLine, "join tempGetProductCode tpc on tpc.ProductId = p.Id and tpc.ProducerId = cfc.Id");
+			}
+
+			selectCommand = String.Concat(selectCommand, Environment.NewLine, "where pd.IsLocal = 0");
 			selectCommand = ApplyFilters(selectCommand);
 
 			if (1 == JunkState)
@@ -109,26 +138,20 @@ where pd.IsLocal = 0", OrdersSchema));
 			else if (2 == JunkState)
 				selectCommand = String.Concat(selectCommand, Environment.NewLine + "and (ol.Junk = 1)");
 
-			// обрабатываем параметр Список значений "Наименование продукта" из прайс-листа
-			if(ProductFromPriceEqual != null) {
-				selectCommand = String.Concat(selectCommand, Environment.NewLine +
-					String.Format("and exists (select * from farm.Core0 cr where cr.ProductId = p.Id and cr.pricecode in ({0}))",
-						String.Join(",", ProductFromPriceEqual.ToArray())));
-				if(ReportParamExists("FirmCrPosition")) {
-					selectCommand = String.Concat(selectCommand, Environment.NewLine +
-						String.Format("and exists (select * from farm.Core0 cr join farm.synonymfirmcr fcr on cr.SynonymFirmCrCode=fcr.SynonymFirmCrCode" +
-							" where fcr.CodeFirmCr = cfc.Id and cr.pricecode in ({0}))",
-							String.Join(",", ProductFromPriceEqual.ToArray())));
-				}
-			}
-
 			//Применяем группировку и сортировку
-			selectCommand = ApplyGroupAndSort(selectCommand, "Cost desc");
+			selectCommand = ApplyGroupAndSort(selectCommand, "Cost desc;");
 			if (IncludeProducerName) {
-				var groupPart = selectCommand.Substring(selectCommand.IndexOf("group by"));
+				var search = "group by";
+				if (ProductFromPriceEqual != null)
+					search = "group by tpc.CodeCore";
+				var groupPart = selectCommand.Substring(selectCommand.IndexOf(search));
 				var new_groupPart = groupPart.Replace("cfc.Id", "cfc_id");
 				selectCommand = selectCommand.Replace(groupPart, new_groupPart);
 			}
+
+			// удалили временую таблицу
+			if (ProductFromPriceEqual != null)
+				selectCommand = String.Concat(selectCommand, Environment.NewLine, "drop temporary table if exists tempGetProductCode;");
 
 #if DEBUG
 			Debug.WriteLine(selectCommand);
