@@ -90,6 +90,33 @@ namespace ReportSystem.Test
 			Assert.AreEqual(productSynonym.Name, sheet.GetRow(3).GetCell(1).StringCellValue);
 		}
 
+		// #51954 Доработка рейтингового отчета
+		[Test]
+		public void Force_code_for_ProductFromPriceEqual()
+		{
+			var code = new string(Guid.NewGuid().ToString().Take(20).ToArray());
+			var supplier = TestSupplier.CreateNaked(session);
+			var client = TestClient.CreateNaked(session);
+			var price = supplier.Prices[0];
+			var order = new TestOrder(client.Users[0], price)
+			{
+				WriteTime = DateTime.Now.AddDays(-5)
+			};
+			var productSynonym = price.AddProductSynonym(TestProduct.Random(session).First());
+			session.Save(productSynonym);
+			var item = order.AddItem(TestProduct.RandomProducts(session).First(), 10, 456);
+			item.SynonymCode = productSynonym.Id;
+			item.Code = code;
+			session.Save(order);
+			Property("ReportInterval", 5);
+			Property("SupplierProductNamePosition", 0);
+			Property("FirmCodeEqual", new List<ulong> { supplier.Id });
+			Property("ProductFromPriceEqual", new List<ulong> { price.Id });
+			var sheet = ReadReport<RatingReport>();
+			Assert.AreEqual("Оригинальный код товара", sheet.GetRow(2).GetCell(0).StringCellValue);
+			Assert.AreEqual("Оригинальное наименование товара", sheet.GetRow(2).GetCell(1).StringCellValue);
+		}
+
 		[Test]
 		public void Group_by_supplier_product_and_supplier_producer()
 		{

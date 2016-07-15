@@ -8,6 +8,7 @@ using Microsoft.Office.Interop.Excel;
 using MySql.Data.MySqlClient;
 using DataTable = System.Data.DataTable;
 using XlChartType = Microsoft.Office.Interop.Excel.XlChartType;
+using System.Linq;
 
 namespace Inforoom.ReportSystem
 {
@@ -49,6 +50,18 @@ namespace Inforoom.ReportSystem
 				outputCaption = "Оригинальное наименование производителя",
 				position = 10
 			});
+		}
+
+		// #51954 Доработка рейтингового отчета
+		public override void CheckAfterLoadFields()
+		{
+			base.CheckAfterLoadFields();
+			if (ProductFromPriceEqual != null && !ReportParamExists("SupplierProductCodePosition")) {
+				var supplierProductCode = RegistredField.Single(f => f.outputField == "SupplierProductCode");
+				supplierProductCode.position = -100;
+				supplierProductCode.visible = true;
+				selectedField.Add(supplierProductCode);
+			}
 		}
 
 		protected override void GenerateReport()
