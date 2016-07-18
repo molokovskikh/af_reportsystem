@@ -92,7 +92,7 @@ namespace ReportSystem.Test
 
 		// #51954 Доработка рейтингового отчета
 		[Test]
-		public void Force_code_for_ProductFromPriceEqual()
+		public void CodeCore_for_ProductFromPriceEqual()
 		{
 			var code = new string(Guid.NewGuid().ToString().Take(20).ToArray());
 			var supplier = TestSupplier.CreateNaked(session);
@@ -110,10 +110,11 @@ namespace ReportSystem.Test
 			session.Save(order);
 			Property("ReportInterval", 5);
 			Property("SupplierProductNamePosition", 0);
+			Property("FirmCrPosition", 1);
 			Property("FirmCodeEqual", new List<ulong> { supplier.Id });
 			Property("ProductFromPriceEqual", new List<ulong> { price.Id });
 			var sheet = ReadReport<RatingReport>();
-			Assert.AreEqual("Оригинальный код товара", sheet.GetRow(2).GetCell(0).StringCellValue);
+			Assert.AreEqual("Код", sheet.GetRow(2).GetCell(0).StringCellValue);
 			Assert.AreEqual("Оригинальное наименование товара", sheet.GetRow(2).GetCell(1).StringCellValue);
 		}
 
