@@ -388,7 +388,7 @@ namespace Inforoom.ReportSystem
 
 						var res = _dsReport.Tables["Results"];
 						if (res == null)
-							throw new ReportException($"Данные для отчета не сформирована, возможно отчет не может быть подготовлен в формате {Format}");
+							throw new ReportException($"Данные для отчета не сформированы, возможно отчет не может быть подготовлен в формате {Format}");
 						var tableBegin = 1 + Header.Count;
 						var groupedHeadersLine = tableBegin;
 						if (GroupHeaders.Count > 0)
