@@ -126,6 +126,7 @@
     <Compile Include="TestHelper.cs" />
     <Compile Include="TestProcessReport.cs" />
     <Compile Include="Troubleshoot.cs" />
+    <Compile Include="PulsOrderReportFixture.cs" />
     <Compile Include="WaybillsReportFixture.cs" />
     <Compile Include="WaybillsStatReportFixture.cs" />
   </ItemGroup>

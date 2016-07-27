@@ -177,6 +177,7 @@
   <ItemGroup>
     <Compile Include="ByOffers\BaseOffersReport.cs" />
     <Compile Include="Models\Reports\OrderDetails.cs" />
+    <Compile Include="ByOrders\PulsOrderReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ByOffers\CostDynamic.cs" />
     <Compile Include="ByOffers\MatrixReport.cs" />

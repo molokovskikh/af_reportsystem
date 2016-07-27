@@ -55,6 +55,7 @@ namespace ReportTuner.Models
 				typeof(OrderDetails),
 				typeof(SpecReport),
 				typeof(SpecShortReport),
+				typeof(PulsOrderReport),
 			};
 			var types = rootType.Assembly.GetTypes()
 				.Where(t => t != rootType && !t.IsAbstract && rootType.IsAssignableFrom(t) && configurableReports.Contains(t));
