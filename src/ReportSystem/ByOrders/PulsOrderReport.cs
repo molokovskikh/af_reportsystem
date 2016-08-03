@@ -13,8 +13,6 @@ namespace Inforoom.ReportSystem.ByOrders
 	[Description("Индивидуальный отчет для Пульс")]
 	public class PulsOrderReport : BaseOrdersReport
 	{
-		// (oh.`regioncode` & 2 > 0)
-
 		[Description("Поставщик")]
 		public int SupplierId { get; set; }
 
