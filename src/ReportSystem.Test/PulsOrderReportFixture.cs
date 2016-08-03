@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Test.Support;
 using Test.Support.Suppliers;
@@ -30,7 +31,9 @@ namespace ReportSystem.Test
 
 			Property("ReportInterval", 5);
 			Property("SupplierId", supplier.Id);
-			Property("RegionId", 1);
+			Property("RegionEqual", new List<ulong> {
+				client.RegionCode
+			});
 
 			var AFCode = $"{item.Product.Id}_{item.CodeFirmCr ?? 0}";
 			var sheet = ReadReport<PulsOrderReport>();

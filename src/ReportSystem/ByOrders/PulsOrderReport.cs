@@ -5,19 +5,20 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using Common.Tools;
+using NHibernate.Util;
 
 namespace Inforoom.ReportSystem.ByOrders
 {
 	[Description("Индивидуальный отчет для Пульс")]
 	public class PulsOrderReport : BaseOrdersReport
 	{
-		[Description("Регион")]
-		public ulong RegionId { get; set; }
-
 		[Description("Поставщик")]
 		public int SupplierId { get; set; }
 
 		protected uint? ParentSynonym;
+
+		protected List<ulong> regions { get; set; }
 
 		public PulsOrderReport()
 		{
@@ -32,6 +33,17 @@ namespace Inforoom.ReportSystem.ByOrders
 			OrdersSchema = "OrdersOld";
 			ParentSynonym = 4600;
 #endif
+		}
+
+		public override void ReadReportParams()
+		{
+			base.ReadReportParams();
+			if (_reportParams.ContainsKey("RegionEqual"))
+			{
+				regions = (List<ulong>)GetReportParam("RegionEqual");
+				if (regions.Contains(0))
+					regions.Clear(); // все регионы
+			}
 		}
 
 		protected override void GenerateReport()
@@ -58,9 +70,12 @@ where oh.WriteTime > ?begin and oh.WriteTime < ?end
 and ol.orderid = oh.RowID
 and p.Id = ol.ProductId
 and c.Id = p.CatalogId
-and pd.PriceCode = oh.PriceCode
-and oh.RegionCode = ?regionId
-group by ol.ProductId, ol.CodeFirmCr
+and pd.PriceCode = oh.PriceCode ", OrdersSchema);
+
+if (regions != null && regions.Any())
+	selectCommand += "and oh.RegionCode in (?regions) ";
+
+selectCommand += @"group by ol.ProductId, ol.CodeFirmCr
 order by name;
 
 select AFCode, IFNULL(GROUP_CONCAT(DISTINCT c.code), '') PulsCode, name, prod, ?begin minDate, ?end maxDate, PulsSum,
@@ -70,8 +85,7 @@ from (orders o, usersettings.PricesData pd)
 left join farm.core0 c on c.PriceCode = pd.PriceCode and c.ProductId = o.ProductId and c.CodeFirmCr = o.CodeFirmCr
 where pd.ParentSynonym <=> ?parentSynonym
 group by o.ProductId, o.CodeFirmCr;
-DROP TEMPORARY TABLE IF EXISTS orders;",
-OrdersSchema);
+DROP TEMPORARY TABLE IF EXISTS orders;";
 
 #if DEBUG
 			Debug.WriteLine(selectCommand);
@@ -85,9 +99,9 @@ OrdersSchema);
 			DataAdapter.SelectCommand.Parameters["end"].Value = End;
 			DataAdapter.SelectCommand.Parameters.Add(new MySqlParameter("parentSynonym", MySqlDbType.UInt32));
 			DataAdapter.SelectCommand.Parameters["parentSynonym"].Value = ParentSynonym;
-			DataAdapter.SelectCommand.Parameters.Add(new MySqlParameter("regionId", MySqlDbType.UInt64));
-			DataAdapter.SelectCommand.Parameters["regionId"].Value = RegionId;
 			DataAdapter.SelectCommand.Parameters.AddWithValue("supplierId", SupplierId);
+			if (regions != null && regions.Any())
+				DataAdapter.SelectCommand.Parameters.AddWithValue("regions", regions.Implode());
 			DataAdapter.Fill(data);
 
 			var captions = new Dictionary<string, string>();
