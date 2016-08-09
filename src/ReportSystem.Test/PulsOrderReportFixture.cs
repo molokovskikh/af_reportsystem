@@ -31,7 +31,7 @@ namespace ReportSystem.Test
 
 			Property("ReportInterval", 5);
 			Property("SupplierId", supplier.Id);
-			Property("RegionEqual", new List<ulong> {
+			Property("Regions", new List<ulong> {
 				client.RegionCode
 			});
 
