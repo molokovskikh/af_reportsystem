@@ -38,12 +38,12 @@ namespace Inforoom.ReportSystem.ByOrders
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			if (_reportParams.ContainsKey("RegionEqual"))
-			{
-				regions = (List<ulong>)GetReportParam("RegionEqual");
-				if (regions.Contains(0))
-					regions.Clear(); // все регионы
-			}
+			if (_reportParams.ContainsKey("Regions"))
+				regions = (List<ulong>)GetReportParam("Regions");
+			if (regions == null || !regions.Any())
+				throw new ReportException("Не указан обязательный параметр Регионы.");
+			if (regions.Contains(0))
+				regions.Clear(); // все регионы
 		}
 
 		protected override void GenerateReport()
@@ -123,6 +123,10 @@ DROP TEMPORARY TABLE IF EXISTS orders;";
 
 			foreach (DataColumn col in data.Columns)
 				col.Caption = captions[col.ColumnName];
+
+			data.Columns["PulsCode"].ExtendedProperties.Add("Width", 18);
+			data.Columns["name"].ExtendedProperties.Add("Width", 45);
+			data.Columns["prod"].ExtendedProperties.Add("Width", 30);
 
 			data.TableName = "Results";
 			var result = data.DefaultView.ToTable();
