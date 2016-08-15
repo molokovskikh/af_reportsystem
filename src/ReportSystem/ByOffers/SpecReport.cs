@@ -41,6 +41,7 @@ namespace Inforoom.ReportSystem
 
 		protected string _suppliers;
 		protected string _ignoredSuppliers;
+		protected string _suppliers2;
 
 		protected string _clientsNames = "";
 
@@ -109,6 +110,26 @@ from
 group by supps.Id
 order by supps.Name";
 			using (var reader = DataAdapter.SelectCommand.ExecuteReader()) {
+				while (reader.Read())
+					suppliers.Add(Convert.ToString(reader[0]));
+			}
+			return suppliers.Distinct().Implode();
+		}
+
+		public string GetSuppliersName(List<ulong> ids)
+		{
+			if (ids == null || !ids.Any())
+				return null;
+
+			var suppliers = new List<string>();
+
+			DataAdapter.SelectCommand.CommandText = string.Format(@"
+select concat(s.Name, ' - ', rg.Region) as SupplierName
+from customers.suppliers s
+left join farm.regions rg on rg.RegionCode = s.HomeRegion
+where s.Id in ({0})", ids.Implode());
+			using (var reader = DataAdapter.SelectCommand.ExecuteReader())
+			{
 				while (reader.Read())
 					suppliers.Add(Convert.ToString(reader[0]));
 			}
@@ -1227,6 +1248,8 @@ order by FullName, FirmCr";
 						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, $"Список поставщиков: {_suppliers}");
 					if (!String.IsNullOrEmpty(_ignoredSuppliers))
 						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, $"Игнорируемые поставщики: {_ignoredSuppliers}");
+					if (!String.IsNullOrEmpty(_suppliers2))
+						tableBeginRowIndex = ExcelHelper.PutHeader(ws, tableBeginRowIndex, columnCount, $"В отчете размещены позиции, минимальные цены по которым принадлежат поставщикам: {_suppliers2}");
 
 					ExcelHelper.FormatHeader(ws, tableBeginRowIndex, result);
 					//Форматирование заголовков прайс-листов

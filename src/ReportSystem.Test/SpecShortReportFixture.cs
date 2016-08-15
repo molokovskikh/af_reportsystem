@@ -39,6 +39,10 @@ namespace ReportSystem.Test
 			Property("ReportIsFull", false);
 			Property("MinSupplierCount", 2);
 			Property("FirmCodeEqual", new List<ulong> { supplier1.Id, supplier2.Id });
+			
+			// http://redmine.analit.net/issues/52707
+			Property("FirmCodeEqual2", new List<ulong> { supplier2.Id });
+
 			Property("Clients", new List<ulong> { client.Id });
 			BuildReport(reportType: typeof(SpecShortReport));
 			Assert.IsTrue(File.Exists("test.xls"));

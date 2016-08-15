@@ -70,6 +70,9 @@ namespace Inforoom.ReportSystem
 
 		protected List<ulong> _Clients;
 
+		[Description("Оставить только позиции с мин. ценами выбранных поставщиков")]
+		public List<ulong> FirmCodeEqual2 { get; set; }
+
 		[Description("Минимальное количество конкурентов")]
 		public int MinSupplierCount;
 
@@ -120,6 +123,7 @@ namespace Inforoom.ReportSystem
 
 			_suppliers = GetShortSuppliers();
 			_ignoredSuppliers = GetIgnoredSuppliers();
+			_suppliers2 = GetSuppliersName(FirmCodeEqual2);
 
 			if (_Clients.Count > 1)
 				_clientsNames = GetClientsNamesFromSQL(_Clients);
@@ -198,6 +202,10 @@ namespace Inforoom.ReportSystem
 			if (client.Enabled == false)
 				return suppliersCount;
 			var offers = GetOffers(clientId, SourcePC, (uint?)_SupplierNoise, _reportIsFull, _calculateByCatalog, _reportType > 2);
+
+			if (FirmCodeEqual2 != null && FirmCodeEqual2.Any())
+				offers = offers.Where(x => FirmCodeEqual2.Contains(x.SupplierId)).ToList();
+
 			//для тестов
 			if (Connection != null)
 				suppliersCount = Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count();
