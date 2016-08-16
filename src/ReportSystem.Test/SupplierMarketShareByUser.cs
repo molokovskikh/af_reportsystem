@@ -38,6 +38,7 @@ namespace ReportSystem.Test
 		public void Build_report()
 		{
 			Property("Type", 0);
+			Property("ShareMoreThan", "50.67754", "PERCENT");
 
 			report = new SupplierMarketShareByUser(Conn, properties);
 			BuildReport();
