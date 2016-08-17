@@ -125,12 +125,16 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 		[Description("Показывать колонку \"Сумма по всем поставщикам\"")]
 		public bool ShowAllSum { get; set; }
 
+		private decimal? _shareMoreThan;
+
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
 			_supplierId = Convert.ToUInt32(GetReportParam("SupplierId"));
 			_regions = (List<ulong>)GetReportParam("Regions");
 			_grouping = groupings[Convert.ToInt32(GetReportParam("Type"))];
+			if (_reportParams.ContainsKey("ShareMoreThan"))
+				_shareMoreThan = Math.Round(SafeConvert.ToDecimalInvariant(GetReportParam("ShareMoreThan").ToString()), 1);
 		}
 
 		protected override void GenerateReport()
@@ -384,8 +388,13 @@ drop temporary table if exists Reports.PreResult;
 
 			Header.Add("Поставщик: " + supplier.Name);
 			Header.Add("Регионы: " + regions.Implode(r => r.Name));
-			Header.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
-				" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
+			if (_shareMoreThan.HasValue) {
+				Header.Add($"Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса, по которым доля НЕ превышает {_shareMoreThan.Value}%");
+			}
+			else {
+				Header.Add("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса," +
+									" по которым отсутствуют заказы на любых поставщиков за период формирования отчета");
+			}
 			Header.Add("");
 
 			result.Columns["SupplierSum"].Caption = $"Сумма по '{supplier.Name}'";
@@ -398,7 +407,7 @@ drop temporary table if exists Reports.PreResult;
 			result.Columns["LastOrder"].Caption = "Самая поздняя заявка";
 			foreach (var row in data.Rows.Cast<DataRow>()) {
 				var resultRow = result.NewRow();
-				SetTotalSum(row, resultRow);
+				var share = SetTotalSum(row, resultRow);
 				resultRow["SuppliersCount"] = row["SuppliersCount"];
 				resultRow["LastOrder"] = row["LastOrder"];
 				resultRow["OrderSendRequestCount"] = row["OrderSendRequestCount"];
@@ -408,21 +417,23 @@ drop temporary table if exists Reports.PreResult;
 					resultRow[column.Name] = row[column.Name];
 					resultRow[column.Name] = row[column.Name];
 				}
-				result.Rows.Add(resultRow);
+				if (!_shareMoreThan.HasValue || share > _shareMoreThan.Value)
+					result.Rows.Add(resultRow);
 			}
 			var emptyRowCount = EmptyRowCount;
 			for (var i = 0; i < emptyRowCount; i++)
 				result.Rows.InsertAt(result.NewRow(), 0);
 		}
 
-		public void SetTotalSum(DataRow dataRow, DataRow resultRow)
+		public decimal SetTotalSum(DataRow dataRow, DataRow resultRow)
 		{
+			var share = 0m;
 			var total = Convert.ToDecimal(dataRow["TotalSum"]);
 			if (total <= 0)
 				resultRow["Share"] = DBNull.Value;
 			else {
 				var supplierSum = Convert.ToDecimal(dataRow["SupplierSum"]);
-				var share = Math.Round(supplierSum / total * 100, 2);
+				share = Math.Round(supplierSum / total * 100, 2);
 				resultRow["Share"] = share.ToString();
 				resultRow["SupplierSum"] = supplierSum.ToString("C");
 
@@ -433,6 +444,7 @@ drop temporary table if exists Reports.PreResult;
 					resultRow["ShareDiff"] = (share - prevShare).ToString();
 				}
 			}
+			return share;
 		}
 	}
 }

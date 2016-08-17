@@ -35,6 +35,35 @@ namespace ReportSystem.Test
 		}
 
 		[Test]
+		public void Build_report_with_ShareMoreThan()
+		{
+			// вторая аптека заказала у этого поставщика
+			var order2 = CreateOrder(null, supplier);
+			session.Save(order2);
+
+			// вторая аптека заказала столько же у другого поставщика - доля 50%
+			var order3 = CreateOrder(order2.Client);
+			session.Save(order3);
+
+			Property("Type", 0);
+			Property("ShareMoreThan", "50", "PERCENT");
+			var rep = ReadReport<SupplierMarketShareByUser>();
+			var rows = rep.Rows().ToArray();
+
+			var firstClient = rows.First(r => r.GetCell(2) != null && r.GetCell(2).StringCellValue == order.Client.Users[0].Id.ToString());
+			// доля поставщика в заказах первой аптеки 100%
+			Assert.AreEqual(100, NullableConvert.ToDecimal(firstClient.GetCell(3).StringCellValue));
+
+			// второй аптеки нет в отчете
+			var secondClient = rows.FirstOrDefault(r => r.GetCell(2) != null && r.GetCell(2).StringCellValue == order2.Client.Users[0].Id.ToString());
+			Assert.IsNull(secondClient);
+
+			var result = ToText(rep);
+			Assert.That(result, Does.Contain("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса, по которым доля НЕ превышает 50%"));
+		}
+
+
+		[Test]
 		public void Build_report()
 		{
 			Property("Type", 0);
