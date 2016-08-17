@@ -17,16 +17,22 @@ namespace Inforoom.ReportSystem
 	public class SpecShortReportData
 	{
 		public string Code { get; set; }
+
 		public string CodeCr { get; set; }
+
 		public string ProductName { get; set; }
+
 		public string ProducerName { get; set; }
 
 		public float MinCost { get; set; }
 
 		public string AssortmentQuantity { get; set; }
+
 		public float? AssortmentMinCost { get; set; }
 
 		public string CodeWithoutProducer { get; set; }
+
+		public uint SupplierId { get; set; }
 
 		public SpecShortReportData(Offer offer)
 		{
@@ -39,6 +45,7 @@ namespace Inforoom.ReportSystem
 			if (!String.IsNullOrEmpty(offer.CodeWithoutProducer)) {
 				CodeWithoutProducer = offer.CodeWithoutProducer;
 			}
+			SupplierId = offer.SupplierId;
 		}
 
 		public void UpdateMinCost(Offer offer)
@@ -163,6 +170,9 @@ namespace Inforoom.ReportSystem
 			emptyRow = dtNewRes.NewRow();
 			dtNewRes.Rows.Add(emptyRow);
 
+			if (FirmCodeEqual2 != null && FirmCodeEqual2.Any())
+				_reportData = _reportData.Where(x => FirmCodeEqual2.Contains(x.SupplierId)).ToList();
+
 			var sorted = _reportData.OrderBy(r => r.ProductName);
 			foreach (var specShortReportData in sorted) {
 				var newRow = dtNewRes.NewRow();
@@ -202,9 +212,6 @@ namespace Inforoom.ReportSystem
 			if (client.Enabled == false)
 				return suppliersCount;
 			var offers = GetOffers(clientId, SourcePC, (uint?)_SupplierNoise, _reportIsFull, _calculateByCatalog, _reportType > 2);
-
-			if (FirmCodeEqual2 != null && FirmCodeEqual2.Any())
-				offers = offers.Where(x => FirmCodeEqual2.Contains(x.SupplierId)).ToList();
 
 			//для тестов
 			if (Connection != null)
