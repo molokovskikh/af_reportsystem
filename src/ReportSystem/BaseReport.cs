@@ -235,6 +235,20 @@ namespace Inforoom.ReportSystem
 							}
 							break;
 
+						case "PERCENT":
+							try
+							{
+								string val = drProperty[BaseReportColumns.colPropertyValue].ToString();
+								if (!String.IsNullOrEmpty(val))
+									_reportParams.Add(currentPropertyName, SafeConvert.ToDecimalInvariant(drProperty[BaseReportColumns.colPropertyValue].ToString()));
+							}
+							catch (Exception ex)
+							{
+								throw new ReportException(
+									$"Ошибка при конвертации параметра '{drProperty[BaseReportColumns.colPropertyType]}' из строки '{drProperty[BaseReportColumns.colPropertyValue]}'.", ex);
+							}
+							break;
+
 						default:
 							throw new ReportException(
 								$"Неизвестный тип параметра : '{drProperty[BaseReportColumns.colPropertyType].ToString()}'.");
