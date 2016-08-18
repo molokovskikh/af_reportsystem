@@ -17,16 +17,22 @@ namespace Inforoom.ReportSystem
 	public class SpecShortReportData
 	{
 		public string Code { get; set; }
+
 		public string CodeCr { get; set; }
+
 		public string ProductName { get; set; }
+
 		public string ProducerName { get; set; }
 
 		public float MinCost { get; set; }
 
 		public string AssortmentQuantity { get; set; }
+
 		public float? AssortmentMinCost { get; set; }
 
 		public string CodeWithoutProducer { get; set; }
+
+		public uint SupplierId { get; set; }
 
 		public SpecShortReportData(Offer offer)
 		{
@@ -39,6 +45,7 @@ namespace Inforoom.ReportSystem
 			if (!String.IsNullOrEmpty(offer.CodeWithoutProducer)) {
 				CodeWithoutProducer = offer.CodeWithoutProducer;
 			}
+			SupplierId = offer.SupplierId;
 		}
 
 		public void UpdateMinCost(Offer offer)
@@ -69,6 +76,9 @@ namespace Inforoom.ReportSystem
 		protected Hashtable _hash;
 
 		protected List<ulong> _Clients;
+
+		[Description("Оставить только позиции с мин. ценами выбранных поставщиков")]
+		public List<ulong> FirmCodeEqual2 { get; set; }
 
 		[Description("Минимальное количество конкурентов")]
 		public int MinSupplierCount;
@@ -120,6 +130,7 @@ namespace Inforoom.ReportSystem
 
 			_suppliers = GetShortSuppliers();
 			_ignoredSuppliers = GetIgnoredSuppliers();
+			_suppliers2 = GetSuppliersName(FirmCodeEqual2);
 
 			if (_Clients.Count > 1)
 				_clientsNames = GetClientsNamesFromSQL(_Clients);
@@ -158,6 +169,9 @@ namespace Inforoom.ReportSystem
 			dtNewRes.Rows.Add(emptyRow);
 			emptyRow = dtNewRes.NewRow();
 			dtNewRes.Rows.Add(emptyRow);
+
+			if (FirmCodeEqual2 != null && FirmCodeEqual2.Any())
+				_reportData = _reportData.Where(x => FirmCodeEqual2.Contains(x.SupplierId)).ToList();
 
 			var sorted = _reportData.OrderBy(r => r.ProductName);
 			foreach (var specShortReportData in sorted) {
@@ -198,6 +212,7 @@ namespace Inforoom.ReportSystem
 			if (client.Enabled == false)
 				return suppliersCount;
 			var offers = GetOffers(clientId, SourcePC, (uint?)_SupplierNoise, _reportIsFull, _calculateByCatalog, _reportType > 2);
+
 			//для тестов
 			if (Connection != null)
 				suppliersCount = Connection.Read<uint>("select count(*) from usersettings.ActivePrices group by FirmCode").Count();
