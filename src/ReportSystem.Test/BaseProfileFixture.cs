@@ -70,7 +70,9 @@ namespace ReportSystem.Test
 				type = "DATETIME";
 				row["PropertyValue"] = ((DateTime)value).ToString(MySqlConsts.MySQLDateFormat);
 			}
-			if (value is string) {
+			if (type == "PERCENT") {
+			}
+			else if (value is string) {
 				type = "STRING";
 			}
 			else if (value is IEnumerable) {

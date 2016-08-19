@@ -134,7 +134,7 @@ where TI.LegalEntityId = a.LegalEntityId)", false),
 			_regions = (List<ulong>)GetReportParam("Regions");
 			_grouping = groupings[Convert.ToInt32(GetReportParam("Type"))];
 			if (_reportParams.ContainsKey("ShareMoreThan"))
-				_shareMoreThan = Math.Round(SafeConvert.ToDecimalInvariant(GetReportParam("ShareMoreThan").ToString()), 1);
+				_shareMoreThan = (decimal)GetReportParam("ShareMoreThan");
 		}
 
 		protected override void GenerateReport()

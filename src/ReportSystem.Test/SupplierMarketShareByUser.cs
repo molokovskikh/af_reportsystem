@@ -41,12 +41,13 @@ namespace ReportSystem.Test
 			var order2 = CreateOrder(null, supplier);
 			session.Save(order2);
 
-			// вторая аптека заказала столько же у другого поставщика - доля 50%
+			// вторая аптека заказала у другого поставщика в 199 раз больше - доля 0.5%
 			var order3 = CreateOrder(order2.Client);
+			order3.Items[0].Cost *= 199;
 			session.Save(order3);
 
 			Property("Type", 0);
-			Property("ShareMoreThan", "50", "PERCENT");
+			Property("ShareMoreThan", "0.5", "PERCENT");
 			var rep = ReadReport<SupplierMarketShareByUser>();
 			var rows = rep.Rows().ToArray();
 
@@ -59,9 +60,8 @@ namespace ReportSystem.Test
 			Assert.IsNull(secondClient);
 
 			var result = ToText(rep);
-			Assert.That(result, Does.Contain("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса, по которым доля НЕ превышает 50%"));
+			Assert.That(result, Does.Contain("Из отчета ИСКЛЮЧЕНЫ юр. лица, клиенты, адреса, по которым доля НЕ превышает 0,5%"));
 		}
-
 
 		[Test]
 		public void Build_report()
