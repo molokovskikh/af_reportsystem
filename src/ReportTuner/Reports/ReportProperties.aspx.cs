@@ -58,6 +58,10 @@ public partial class Reports_ReportProperties : BasePage
 
 	protected void Page_Load(object sender, EventArgs e)
 	{
+		decimal? asdf = 0.5m;
+
+		var sdf = $"asdf {asdf.Value} sdff";
+
 		if (String.IsNullOrEmpty(Request["r"]))
 			Response.Redirect("GeneralReports.aspx");
 
@@ -419,8 +423,7 @@ order by rtp.Position
 			cell.FindControl("btnListValue").Visible = true;
 		}
 		else if (type == "PERCENT") {
-			cell.FindControl("tbValuePercent").Visible = true;
-			cell.FindControl("vtbValuePercent").Visible = true;
+			cell.FindControl("percentPanel").Visible = true;
 		}
 		else {
 			cell.FindControl("tbValue").Visible = true;
@@ -657,7 +660,7 @@ WHERE ID = ?OPID", MyCn, trans);
 					((TextBox)dr.FindControl("tbValue")).Text)
 					row[column] = ((TextBox)dr.FindControl("tbValue")).Text;
 			}
-			else if ((dr.FindControl("tbValuePercent")).Visible) {
+			else if ((dr.FindControl("percentPanel")).Visible) {
 				var valTxt = ((TextBox)dr.FindControl("tbValuePercent")).Text.Replace(",", ".");
 				var val = 0m;
 				if (value.ToString() != valTxt && decimal.TryParse(valTxt, NumberStyles.Number, CultureInfo.InvariantCulture, out val)) {

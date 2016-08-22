@@ -239,8 +239,10 @@ namespace Inforoom.ReportSystem
 							try
 							{
 								string val = drProperty[BaseReportColumns.colPropertyValue].ToString();
-								if (!String.IsNullOrEmpty(val))
-									_reportParams.Add(currentPropertyName, SafeConvert.ToDecimalInvariant(drProperty[BaseReportColumns.colPropertyValue].ToString()));
+								if (!String.IsNullOrEmpty(val)) {
+									val = val.Replace(",", ".");
+									_reportParams.Add(currentPropertyName, SafeConvert.ToDecimalInvariant(val));
+								}
 							}
 							catch (Exception ex)
 							{

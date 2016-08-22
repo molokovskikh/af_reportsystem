@@ -8,7 +8,7 @@ Default skin template. The following skins are provided as examples only.
    <AlternatingRowStyle BackColor="Blue" />
 </asp:GridView>
 
-2. Default skin. The SkinId is not defined. Only one default 
+2. Default skin. The SkinId is not defined. Only one default
    control skin per control type is allowed in the same theme.
 
 <asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
@@ -23,6 +23,7 @@ Default skin template. The following skins are provided as examples only.
 <asp:TextBox runat="server" SkinId="findTextBoxSkin" BorderStyle="Groove" Width="150"/>
 <asp:TextBox runat="server" SkinId="dateTextBoxSkin" BorderStyle="Groove" Width="100"/>
 <asp:TextBox runat="server" SkinId="paramTextBoxSkin" BorderStyle="Groove" Width="300px"/>
+<asp:TextBox runat="server" SkinId="percentTextBox" BorderStyle="Groove"/>
 
 <asp:GridView runat="server" width="100%" BackColor="#EBEBEB" BorderColor="#DADADA" BorderWidth="1px" BorderStyle="Solid" >
 	<AlternatingRowStyle HorizontalAlign="Center" VerticalAlign="Middle" BackColor="#EEF8FF" />
