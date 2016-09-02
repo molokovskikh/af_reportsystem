@@ -98,7 +98,7 @@ where
 			if (reportType == 1) {
 				dtNewRes.Columns.Add("WriteTime", typeof(string));
 				dtNewRes.Columns.Add("PriceDate", typeof(string));
-				dtNewRes.Columns.Add("FirmClientCode", typeof(int));
+				dtNewRes.Columns.Add("FirmClientCode", typeof(string));
 				dtNewRes.Columns.Add("ShortName", typeof(string));
 				dtNewRes.Columns.Add("Region", typeof(string));
 				dtNewRes.Columns.Add("RowCount", typeof(int));
@@ -108,7 +108,7 @@ where
 				dtNewRes.Columns["RowCount"].Caption = "Позиций";
 			}
 			else {
-				dtNewRes.Columns.Add("FirmClientCode", typeof(int));
+				dtNewRes.Columns.Add("FirmClientCode", typeof(string));
 				dtNewRes.Columns.Add("ShortName", typeof(string));
 				dtNewRes.Columns.Add("Region", typeof(string));
 				dtNewRes.Columns.Add("Summa", typeof(decimal));
