@@ -49,7 +49,6 @@ namespace ReportTuner.Models
 			return PropertyType.PropertyName.ToLower().StartsWith("BusinessRivals".ToLower())
 				|| String.Equals(PropertyType.PropertyName, "IgnoredSuppliers", StringComparison.InvariantCultureIgnoreCase)
 				|| String.Equals(PropertyType.PropertyName, "FirmCodeEqual", StringComparison.InvariantCultureIgnoreCase)
-				|| String.Equals(PropertyType.PropertyName, "FirmCodeEqual2", StringComparison.InvariantCultureIgnoreCase)
 				|| String.Equals(PropertyType.PropertyName, "suppliers", StringComparison.InvariantCultureIgnoreCase);
 		}
 

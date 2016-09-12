@@ -765,6 +765,24 @@ WHERE ID = ?OPID", MyCn, trans);
 				Request["r"],
 				Request["rp"],
 				e.CommandArgument);
+		// http://redmine.analit.net/issues/52707
+		else if (prop.PropertyType.PropertyName == "FirmCodeEqual2")
+		{
+			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&sortOrder=3&firmType=0",
+				Request["r"],
+				Request["rp"],
+				e.CommandArgument);
+			var propClients = prop.Report.Properties.SingleOrDefault(x => x.PropertyType.PropertyName == "Clients");
+			if (propClients != null)
+			{
+				var clientId = propClients.Values.FirstOrDefault();
+				if (clientId != null)
+				{
+					var maskRegion = Client.Find(Convert.ToUInt32(clientId.Value)).MaskRegion;
+					url += $"&region={maskRegion}";
+				}
+			}
+		}
 		else if (prop.IsClientEditor())
 			url = String.Format("../ReportsTuning/SelectClients.rails?r={0}&report={1}&rpv={2}&firmType=1",
 				Request["r"],
