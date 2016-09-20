@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Security;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
@@ -12,10 +15,11 @@ using Common.MySql;
 using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.Helpers;
+using Inforoom.ReportSystem;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;
 using ReportTuner.Helpers;
-using ReportTuner.Models;
+using GeneralReport = ReportTuner.Models.GeneralReport;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 using Page = System.Web.UI.Page;
 
@@ -362,6 +366,14 @@ Order by p.ShortName
 			//"Расписание"
 			e.Row.Cells[(int)GeneralReportFields.Schedule].ToolTip = "Расписание";
 
+			var btnDelete = e.Row.FindControl("btnDelete") as Button;
+			if (btnDelete != null)
+			{
+				var code = e.Row.Cells[0].Text;
+				var comment = ((TextBox)e.Row.FindControl("tbComment")).Text;
+				btnDelete.OnClientClick = $"return confirm('Вы действительно хотите удалить отчет №{code} {comment}?');";
+			}
+
 			if (((Label)e.Row.FindControl("lblFirmName")).Text != "") {
 				((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
 				((Button)e.Row.FindControl("btApplyCopy")).Visible = false;
@@ -395,6 +407,7 @@ Order by p.ShortName
 		var _deletedReports = new List<ulong>();
 		var _updatedReports = new List<ulong>();
 		DataTable dtInserted;
+		var sb = new StringBuilder();
 
 		MyCn.Open();
 		var trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
@@ -495,7 +508,12 @@ select last_insert_id() as GRLastInsertID;
 			DataTable dtDeleted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Deleted);
 			if (dtDeleted != null) {
 				foreach (DataRow drDeleted in dtDeleted.Rows)
-					_deletedReports.Add(Convert.ToUInt64(drDeleted[GeneralReportCode.ColumnName, DataRowVersion.Original]));
+				{
+					var code = Convert.ToUInt64(drDeleted[GeneralReportCode.ColumnName, DataRowVersion.Original]);
+					var comment = drDeleted[Comment.ColumnName, DataRowVersion.Original].ToString();
+					sb.AppendLine($"Пользователь {strUser} в {DateTime.Now} с IP {strHost} удалил отчет код {code} {comment}");
+					_deletedReports.Add(code);
+				}
 				MyDA.Update(dtDeleted);
 			}
 
@@ -519,13 +537,18 @@ select last_insert_id() as GRLastInsertID;
 
 			trans.Commit();
 		}
-		catch {
+		catch
+		{
 			trans.Rollback();
 			throw;
 		}
 		finally {
 			MyCn.Close();
 		}
+
+		var message = sb.ToString();
+		if (!string.IsNullOrEmpty(message))
+			Mail(message);
 
 		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
 		// А также включаем/выключаем задание при изменении галки "Включен"
@@ -542,6 +565,21 @@ select last_insert_id() as GRLastInsertID;
 			if (!Request.Url.OriginalString.Contains("#"))
 				Response.Redirect(Request.Url.OriginalString + "#addedPage");
 		}
+	}
+
+	private void Mail(string body)
+	{
+		var reportChangeAlertMailTo = ConfigurationManager.AppSettings["ReportChangeAlertMailTo"];
+		var message = new MailMessage("service@analit.net", reportChangeAlertMailTo)
+		{
+			Subject = "Удаление отчета",
+			Body = body,
+			IsBodyHtml = false,
+			BodyEncoding = Encoding.UTF8
+		};
+		var client = new SmtpClient();
+		client.Credentials = new NetworkCredential("maksimenko", "ZxcAsdQwe1029", "ANALIT");
+		client.Send(message);
 	}
 
 	public void UpdateTasksForGeneralReports(List<ulong> deletedReports,
