@@ -48,6 +48,7 @@ namespace ReportTuner.Test.Integration
 			var reportPage = new Reports_GeneralReports {
 				DbSession = session
 			};
+
 			comment = Generator.Name();
 			report.Comment = comment;
 			session.Save(report);
@@ -92,6 +93,31 @@ namespace ReportTuner.Test.Integration
 			var message = report1.Messages[0];
 			var sendedContent = new StreamReader(message.Attachments[0].ContentStream).ReadToEnd();
 			Assert.That(sendedContent, Is.EqualTo(content));
+		}
+
+		[Test]
+		public void Delete_report()
+		{
+			var comment = Generator.Name();
+			var payer = new Payer("Тестовый плательщик");
+			var report = new GeneralReport(payer)
+			{
+				Comment = comment
+			};
+			session.Save(payer);
+			session.Save(report);
+
+			var reportPage = new Reports_GeneralReports
+			{
+				DbSession = session,
+				UnderTest = true,
+			};
+			reportPage.SendDeleteAlert(report.Id, comment, "Test", "128.0.0.1");
+
+			var message = reportPage.Messages[0];
+			Assert.That(message.To[0].Address, Is.EqualTo("137@analit.net"));
+			Assert.That(message.Body.Contains(report.Comment), Is.True);
+			Assert.That(message.Body.Contains(report.Id.ToString()), Is.True);
 		}
 	}
 }

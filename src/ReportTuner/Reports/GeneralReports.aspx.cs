@@ -25,6 +25,9 @@ using Page = System.Web.UI.Page;
 
 public partial class Reports_GeneralReports : BasePage
 {
+	public bool UnderTest;
+	public List<MailMessage> Messages = new List<MailMessage>();
+
 	public static void Redirect(Page CurrentPage)
 	{
 		CurrentPage.Session["redirected"] = true;
@@ -407,7 +410,6 @@ Order by p.ShortName
 		var _deletedReports = new List<ulong>();
 		var _updatedReports = new List<ulong>();
 		DataTable dtInserted;
-		var sb = new StringBuilder();
 
 		MyCn.Open();
 		var trans = MyCn.BeginTransaction(IsolationLevel.ReadCommitted);
@@ -511,7 +513,7 @@ select last_insert_id() as GRLastInsertID;
 				{
 					var code = Convert.ToUInt64(drDeleted[GeneralReportCode.ColumnName, DataRowVersion.Original]);
 					var comment = drDeleted[Comment.ColumnName, DataRowVersion.Original].ToString();
-					sb.AppendLine($"Пользователь {strUser} в {DateTime.Now} с IP {strHost} удалил отчет код {code} {comment}");
+					SendDeleteAlert(code, comment, strUser, strHost);
 					_deletedReports.Add(code);
 				}
 				MyDA.Update(dtDeleted);
@@ -546,10 +548,6 @@ select last_insert_id() as GRLastInsertID;
 			MyCn.Close();
 		}
 
-		var message = sb.ToString();
-		if (!string.IsNullOrEmpty(message))
-			Mail(message);
-
 		//Удаляем задания для отчетов и обновляем комментарии в заданиях (или создаем эти задания)
 		// А также включаем/выключаем задание при изменении галки "Включен"
 		UpdateTasksForGeneralReports(_deletedReports, _updatedReports);
@@ -567,9 +565,10 @@ select last_insert_id() as GRLastInsertID;
 		}
 	}
 
-	private void Mail(string body)
+	public void SendDeleteAlert(ulong code, string comment, string user, string host)
 	{
 		var reportChangeAlertMailTo = ConfigurationManager.AppSettings["ReportChangeAlertMailTo"];
+		var body = $"Пользователь {user} в {DateTime.Now} с IP {host} удалил отчет код {code} {comment}";
 		var message = new MailMessage("service@analit.net", reportChangeAlertMailTo)
 		{
 			Subject = "Удаление отчета",
@@ -577,9 +576,16 @@ select last_insert_id() as GRLastInsertID;
 			IsBodyHtml = false,
 			BodyEncoding = Encoding.UTF8
 		};
+		SendMessage(message);
+	}
+
+	private void SendMessage(MailMessage message)
+	{
 		var client = new SmtpClient();
-		client.Credentials = new NetworkCredential("maksimenko", "ZxcAsdQwe1029", "ANALIT");
-		client.Send(message);
+		if (UnderTest)
+			Messages.Add(message);
+		else
+			client.Send(message);
 	}
 
 	public void UpdateTasksForGeneralReports(List<ulong> deletedReports,
