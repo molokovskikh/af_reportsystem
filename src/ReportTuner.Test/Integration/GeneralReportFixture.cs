@@ -115,7 +115,7 @@ namespace ReportTuner.Test.Integration
 			reportPage.SendDeleteAlert(report.Id, comment, "Test", "128.0.0.1");
 
 			var message = reportPage.Messages[0];
-			Assert.That(message.To[0].Address, Is.EqualTo("137@analit.net"));
+			Assert.That(message.To[0].Address, Is.EqualTo("kvasovtest@analit.net"));
 			Assert.That(message.Body.Contains(report.Comment), Is.True);
 			Assert.That(message.Body.Contains(report.Id.ToString()), Is.True);
 		}
