@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Security;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
@@ -12,15 +15,19 @@ using Common.MySql;
 using Common.Schedule;
 using Common.Tools;
 using Common.Web.Ui.Helpers;
+using Inforoom.ReportSystem;
 using Microsoft.Win32.TaskScheduler;
 using MySql.Data.MySqlClient;
 using ReportTuner.Helpers;
-using ReportTuner.Models;
+using GeneralReport = ReportTuner.Models.GeneralReport;
 using MySqlHelper = MySql.Data.MySqlClient.MySqlHelper;
 using Page = System.Web.UI.Page;
 
 public partial class Reports_GeneralReports : BasePage
 {
+	public bool UnderTest;
+	public List<MailMessage> Messages = new List<MailMessage>();
+
 	public static void Redirect(Page CurrentPage)
 	{
 		CurrentPage.Session["redirected"] = true;
@@ -362,6 +369,14 @@ Order by p.ShortName
 			//"Расписание"
 			e.Row.Cells[(int)GeneralReportFields.Schedule].ToolTip = "Расписание";
 
+			var btnDelete = e.Row.FindControl("btnDelete") as Button;
+			if (btnDelete != null)
+			{
+				var code = e.Row.Cells[0].Text;
+				var comment = ((TextBox)e.Row.FindControl("tbComment")).Text;
+				btnDelete.OnClientClick = $"return confirm('Вы действительно хотите удалить отчет №{code} {comment}?');";
+			}
+
 			if (((Label)e.Row.FindControl("lblFirmName")).Text != "") {
 				((TextBox)e.Row.FindControl("tbSearch")).Visible = false;
 				((Button)e.Row.FindControl("btApplyCopy")).Visible = false;
@@ -495,7 +510,12 @@ select last_insert_id() as GRLastInsertID;
 			DataTable dtDeleted = DS.Tables[dtGeneralReports.TableName].GetChanges(DataRowState.Deleted);
 			if (dtDeleted != null) {
 				foreach (DataRow drDeleted in dtDeleted.Rows)
-					_deletedReports.Add(Convert.ToUInt64(drDeleted[GeneralReportCode.ColumnName, DataRowVersion.Original]));
+				{
+					var code = Convert.ToUInt64(drDeleted[GeneralReportCode.ColumnName, DataRowVersion.Original]);
+					var comment = drDeleted[Comment.ColumnName, DataRowVersion.Original].ToString();
+					SendDeleteAlert(code, comment, strUser, strHost);
+					_deletedReports.Add(code);
+				}
 				MyDA.Update(dtDeleted);
 			}
 
@@ -519,7 +539,8 @@ select last_insert_id() as GRLastInsertID;
 
 			trans.Commit();
 		}
-		catch {
+		catch
+		{
 			trans.Rollback();
 			throw;
 		}
@@ -542,6 +563,29 @@ select last_insert_id() as GRLastInsertID;
 			if (!Request.Url.OriginalString.Contains("#"))
 				Response.Redirect(Request.Url.OriginalString + "#addedPage");
 		}
+	}
+
+	public void SendDeleteAlert(ulong code, string comment, string user, string host)
+	{
+		var reportChangeAlertMailTo = ConfigurationManager.AppSettings["ReportChangeAlertMailTo"];
+		var body = $"Пользователь {user} в {DateTime.Now} с IP {host} удалил отчет код {code} {comment}";
+		var message = new MailMessage("service@analit.net", reportChangeAlertMailTo)
+		{
+			Subject = "Удаление отчета",
+			Body = body,
+			IsBodyHtml = false,
+			BodyEncoding = Encoding.UTF8
+		};
+		SendMessage(message);
+	}
+
+	private void SendMessage(MailMessage message)
+	{
+		var client = new SmtpClient();
+		if (UnderTest)
+			Messages.Add(message);
+		else
+			client.Send(message);
 	}
 
 	public void UpdateTasksForGeneralReports(List<ulong> deletedReports,
