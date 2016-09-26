@@ -58,6 +58,15 @@
 			});
 			
 		});
+
+		function deleteAlert(reportName) {
+			var textAlert = 'Вы действительно хотите удалить отчет №' + reportName + '?';
+			if (confirm(textAlert)) {
+				alert('Отчет будет помечен к удалению. Его физическое удаление произойдет после нажатия кнопки "Применить" внизу страницы');
+				return true;
+			} 
+			return false;
+		}
 	</script>
 	<div align="center">
 		<strong style="font-size:small;">Настройка отчетов</strong><br/><br/>
