@@ -374,7 +374,7 @@ Order by p.ShortName
 			{
 				var code = e.Row.Cells[0].Text;
 				var comment = ((TextBox)e.Row.FindControl("tbComment")).Text;
-				btnDelete.OnClientClick = $"return confirm('Вы действительно хотите удалить отчет №{code} {comment}?');";
+				btnDelete.OnClientClick = $"return deleteAlert('{code} {comment}');";
 			}
 
 			if (((Label)e.Row.FindControl("lblFirmName")).Text != "") {
