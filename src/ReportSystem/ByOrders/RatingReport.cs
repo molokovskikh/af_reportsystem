@@ -30,6 +30,16 @@ namespace Inforoom.ReportSystem
 			: base(conn, dsProperties)
 		{
 			Init();
+			//это поле не настраивается в интерфейсе и формируется только
+			//в конструкторе который используется для обработки отчетов
+			RegistredField.Add(new FilterField {
+				primaryField = "tpc.CodeCore",
+				viewField = "tpc.CodeCore as ProductCodeCore",
+				outputField = "ProductCodeCore",
+				reportPropertyPreffix = "ProductCodeCore",
+				outputCaption = "Код",
+				position = -1
+			});
 		}
 
 		private void Init()

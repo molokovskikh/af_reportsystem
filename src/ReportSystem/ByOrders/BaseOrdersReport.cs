@@ -155,15 +155,6 @@ namespace Inforoom.ReportSystem
 				outputCaption = "Оригинальный код товара",
 				position = 8
 			});
-			RegistredField.Add(new FilterField
-			{
-				primaryField = "tpc.CodeCore",
-				viewField = "tpc.CodeCore as ProductCodeCore",
-				outputField = "ProductCodeCore",
-				reportPropertyPreffix = "ProductCodeCore",
-				outputCaption = "Код",
-				position = -1
-			});
 		}
 
 		public override void ReadReportParams()

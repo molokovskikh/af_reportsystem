@@ -106,13 +106,8 @@ namespace ReportTuner
 				else
 					throw new ReportTunerException("В файле Web.Config параметр TemplateReportId не существует или настроен некорректно.");
 
-				try {
-					new UpdateReportConfig(session).Execute();
-					trx.Commit();
-				}
-				catch(Exception ex) {
-					Log.Error("Ошибка при обновлении конфигурации отчетов", ex);
-				}
+				new UpdateReportConfig(session).Execute();
+				trx.Commit();
 			}
 		}
 
