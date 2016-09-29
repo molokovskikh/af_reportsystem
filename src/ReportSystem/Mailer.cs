@@ -59,10 +59,10 @@ namespace Inforoom.ReportSystem
 				string.Format("Код отчета : {0}\r\nКод подотчета: {1}, имя: {3}\r\nПри формировании подотчета возникла ошибка : {2}", generalReportCode, reportCode, errDesc, reportCaption));
 		}
 
-		public static void MailReportNotify(string msg, string shortName, ulong generalReportCode, ulong reportCode)
+		public static void MailReportNotify(GeneralReport report, BaseReport page, string msg)
 		{
-			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Уведомление о событии при формировании отчета для " + shortName,
-				$"Код отчета : {generalReportCode}\r\nКод подотчета: {reportCode}\r\nУведомление : {msg}");
+			Mail(Settings.Default.ErrorFrom, Settings.Default.ErrorReportMail, "Уведомление о событии при формировании отчета для " + report.Payer?.Name,
+				$"Код отчета : {report.Id}\r\nКод подотчета: {page.ReportCode}\r\nУведомление : {msg}");
 		}
 	}
 }

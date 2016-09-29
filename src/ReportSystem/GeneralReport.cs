@@ -285,14 +285,18 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 					report.ToLog(Id); // протоколируем успешное выполнение отчета
 					report.MailMetaOverride.Each(x => _mailMetaOverride[Path.GetFileNameWithoutExtension(x.Key)] = x.Value);
 					foreach (var warning in report.Warnings) {
-						Mailer.MailReportNotify(warning, Payer?.Name, Id, report.ReportCode);
+						Logger.Warn($"Предупреждение при формировании отчета {report} - {warning}");
+						Mailer.MailReportNotify(this, report, warning);
 					}
 					emptyReport = false;
 				}
 				catch (Exception ex) {
 					//если отчетов больше нет то нет смысла давить ошибки
 					if (Reports.Count > 0) {
-						Logger.Warn($"Ошибка при выполнении отчета {report}", ex);
+						if (ex is ReportException)
+							Logger.Warn($"Ошибка при выполнении отчета {report}", ex);
+						else
+							Logger.Error($"Ошибка при выполнении отчета {report}", ex);
 						report.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
 						if (ex is ReportException) {
 							// уведомление об ошибке при формировании одного из подотчетов

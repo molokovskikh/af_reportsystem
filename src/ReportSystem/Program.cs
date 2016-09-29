@@ -42,6 +42,7 @@ namespace Inforoom.ReportSystem
 			var appArgs = new AppArgs();
 			try {
 				XmlConfigurator.Configure();
+				GlobalContext.Properties["Version"] = Assembly.GetExecutingAssembly().GetName().Version;
 
 				if (Parse(args, appArgs))
 					return 0;
@@ -67,7 +68,7 @@ namespace Inforoom.ReportSystem
 					return 1;
 			}
 			catch (Exception ex) {
-				_log.Error($"Ошибка при запуске отчета {appArgs.ReportId}", ex);
+				_log.Error($"Ошибка при запуске отчета {appArgs.ReportId}, параметры {String.Join("  ", Environment.GetCommandLineArgs())}", ex);
 				Mailer.MailGlobalErr(ex);
 				return 1;
 			}
@@ -130,7 +131,10 @@ namespace Inforoom.ReportSystem
 					result = true;
 				}
 				catch(Exception e) {
-					_log.Error($"Ошибка при запуске отчета {report}", e);
+					if (e is ReportException)
+						_log.Warn($"Ошибка при выполнении отчета {report}", e);
+					else
+						_log.Error($"Ошибка при выполнении отчета {report}", e);
 
 					try {
 						using(var trx = session.BeginTransaction()) {
@@ -151,8 +155,7 @@ namespace Inforoom.ReportSystem
 					else {
 						Mailer.MailGeneralReportErr(report, e);
 					}
-				}
-				finally {
+				} finally {
 					//не уверен почему так но восстанавливаем состояние задачи только если отчет не выключен
 					//этого требует тест ProgramTest но логика мне не понятна
 					//подозрительно тк раньше это работало тк переменная была null и блок валился с исключением
