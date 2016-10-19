@@ -268,7 +268,7 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 
 		public string[] BuildResultFile()
 		{
-			WorkDir = Path.Combine(Path.GetTempPath(), "Rep" + Id);
+			WorkDir = Path.Combine(Path.GetTempPath(), "Rep" + Id + "_" + Guid.NewGuid());
 			FileHelper.InitDir(WorkDir);
 			_mainFileName = Path.Combine(WorkDir,
 				String.IsNullOrEmpty(ReportFileName) ? "Rep" + Id + ".xls" : ReportFileName);
