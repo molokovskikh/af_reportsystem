@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using Common.Tools;
 using Inforoom.ReportSystem;
@@ -97,6 +98,36 @@ namespace ReportSystem.Test
 
 			report = new SupplierMarketShareByUser(Conn, properties);
 			BuildReport("SupplierMarketShareByUserByLegalEntity.xls");
+		}
+
+		[Test]
+		public void Build_report_without_notAccepted_orders()
+		{
+			Property("Type", 0);
+			var order2 = CreateOrder(null, supplier);
+			order2.Deleted = true;
+			session.Save(order2);
+
+			var order3 = CreateOrder(null, supplier);
+			order3.Submited = false;
+			session.Save(order3);
+
+			report = new SupplierMarketShareByUser(Conn, properties);
+			var resfile = "RepWithoutNotAcceptedOrders.xls";
+			BuildReport(resfile);
+			Assert.IsTrue(File.Exists(resfile));
+
+			var repTable = report.GetReportTable();
+			bool acceptedOrder = false;
+			foreach (DataRow row in repTable.Rows) {
+				if (!String.IsNullOrEmpty(row.ItemArray[2].ToString())) {
+					Assert.AreNotEqual(row.ItemArray[2].ToString(), order2.User.Id.ToString());
+					Assert.AreNotEqual(row.ItemArray[2].ToString(), order3.User.Id.ToString());
+					if(order.User.Id.ToString().Equals(row.ItemArray[2].ToString()))
+						acceptedOrder = true;
+				}
+			}
+			Assert.True(acceptedOrder);
 		}
 
 		[Test]

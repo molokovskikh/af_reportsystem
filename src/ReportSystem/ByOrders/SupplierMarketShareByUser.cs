@@ -209,6 +209,8 @@ select oh.UserId
 from Orders.OrdersHead oh
 where oh.WriteTime > ?begin
 	and oh.WriteTime < ?end
+	and oh.Deleted = 0
+	and oh.Submited = 1
 	and oh.RegionCode in ({0})
 group by oh.UserId", _regions.Implode()), new { begin = Begin, end = End })
 				.ToArray();
@@ -249,6 +251,8 @@ from Orders.OrdersHead oh
 		join Billing.LegalEntities le on le.Id = a.LegalEntityId
 where oh.WriteTime > ?begin
 	and oh.WriteTime < ?end
+	and oh.Deleted = 0
+	and oh.Submited = 1
 	and oh.RegionCode in ({0})
 	and pd.IsLocal = 0
 group by {1}, UserId;
@@ -294,6 +298,8 @@ from Orders.OrdersHead oh
 	{4}
 where oh.WriteTime > ?begin
 	and oh.WriteTime < ?end
+	and oh.Deleted = 0
+	and oh.Submited = 1
 	and oh.RegionCode in ({0})
 	and pd.IsLocal = 0
 group by {1}
@@ -321,6 +327,8 @@ from Orders.OrdersHead oh
 	{4}
 where oh.WriteTime > ?prevBegin
 	and oh.WriteTime < ?prevEnd
+	and oh.Deleted = 0
+	and oh.Submited = 1
 	and oh.RegionCode in ({0})
 	and pd.IsLocal = 0
 group by {1};
