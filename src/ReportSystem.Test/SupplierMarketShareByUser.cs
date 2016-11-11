@@ -142,6 +142,10 @@ namespace ReportSystem.Test
 				RequestTime = DateTime.Now.AddDays(-1)
 			});
 
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.AnalitFNetSentOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1)
+			});
+
 			//Заявка должна попасть в предыдущий период
 			var prevOrder1 = CreateOrder(order.Client);
 			prevOrder1.WriteTime = DateTime.Now.AddDays(-20);
@@ -172,7 +176,7 @@ namespace ReportSystem.Test
 				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
 			Assert.AreEqual(50, NullableConvert.ToDecimal(reportRow.GetCell(3).StringCellValue));
 			Assert.That(Convert.ToUInt32(reportRow.GetCell(5).StringCellValue), Is.GreaterThan(0));
-			Assert.AreEqual("1", reportRow.GetCell(6).StringCellValue);
+			Assert.AreEqual("2", reportRow.GetCell(6).StringCellValue);
 			Assert.AreEqual(order.WriteTime.ToString("HH:mm:ss"), reportRow.GetCell(7).StringCellValue);
 		}
 
