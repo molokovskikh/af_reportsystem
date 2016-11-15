@@ -374,7 +374,7 @@
       <Name>ReportTuner</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test.Support\Test.Support\Test.Support.csproj">
-      <Project>{A215E837-1208-49E3-AF93-A9612223122C}</Project>
+      <Project>{a215e837-1208-49e3-af93-a9612223122c}</Project>
       <Name>Test.Support</Name>
     </ProjectReference>
   </ItemGroup>
