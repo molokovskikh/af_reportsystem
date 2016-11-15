@@ -142,8 +142,9 @@ namespace ReportSystem.Test
 				RequestTime = DateTime.Now.AddDays(-1)
 			});
 
-			session.Save(new TestAnalitFUpdateLog(TestRequestType.AnalitFNetSentOrders, order.User) {
-				RequestTime = DateTime.Now.AddDays(-1)
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1),
+				IsCompleted = true
 			});
 
 			//Заявка должна попасть в предыдущий период

@@ -218,20 +218,30 @@ group by oh.UserId", _regions.Implode()), new { begin = Begin, end = End })
 			connection.Execute(@"
 drop temporary table if exists Reports.UserStat;
 create temporary table Reports.UserStat(
+	Id int auto_increment primary key,
 	UserId int unsigned not null,
-	RequestCount int unsigned not null,
-	primary key (UserId)
+	RequestCount int unsigned not null
 ) engine=memory;");
 			if (userIds.Length > 0)
 				connection.Execute(String.Format(@"
-insert into Reports.UserStat(UserId, RequestCount)
-select l.UserId, count(*)
-from Logs.AnalitfUpdates l
-where l.UserId in ({0})
-	and l.UpdateType in (4, 11, 45)
-	and l.RequestTime > ?begin
-	and l.RequestTime < ?end
-group by l.UserId", userIds.Implode()), new { begin = Begin, end = End });
+	insert into Reports.UserStat(UserId, RequestCount)
+	select l.UserId, count(*) as analitfCount
+	from Logs.AnalitfUpdates l
+	where l.UserId in ({0})
+		and l.UpdateType in (4, 11)
+		and l.RequestTime > ?begin
+		and l.RequestTime < ?end
+	group by l.UserId
+union all
+	select r.UserId, count(*) as analitfNetCount
+	from Logs.RequestLogs r
+	where r.Userid in ({0})
+		and r.CreatedOn > ?begin
+		and r.CreatedOn < ?end
+		and r.IsCompleted = 1
+		and r.IsFaulted = 0
+		and r.UpdateType = 'OrdersController'
+	group by r.UserId", userIds.Implode()), new {begin = Begin, end = End});
 
 			DataAdapter.SelectCommand.CommandText = String.Format(@"
 drop temporary table if exists Reports.KeyToUser;
