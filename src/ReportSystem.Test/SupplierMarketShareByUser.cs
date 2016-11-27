@@ -142,11 +142,6 @@ namespace ReportSystem.Test
 				RequestTime = DateTime.Now.AddDays(-1)
 			});
 
-			session.Save(new TestRequestLog("OrdersController", order.User) {
-				CreatedOn = DateTime.Now.AddDays(-1),
-				IsCompleted = true
-			});
-
 			//Заявка должна попасть в предыдущий период
 			var prevOrder1 = CreateOrder(order.Client);
 			prevOrder1.WriteTime = DateTime.Now.AddDays(-20);
@@ -177,8 +172,125 @@ namespace ReportSystem.Test
 				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
 			Assert.AreEqual(50, NullableConvert.ToDecimal(reportRow.GetCell(3).StringCellValue));
 			Assert.That(Convert.ToUInt32(reportRow.GetCell(5).StringCellValue), Is.GreaterThan(0));
-			Assert.AreEqual("2", reportRow.GetCell(6).StringCellValue);
+			Assert.AreEqual("1", reportRow.GetCell(6).StringCellValue);
 			Assert.AreEqual(order.WriteTime.ToString("HH:mm:ss"), reportRow.GetCell(7).StringCellValue);
+		}
+
+		[Test]
+		public void Check_AnalitF_OrderSessions()
+		{
+			var intersection = session.Query<TestIntersection>()
+				.First(i => i.Price == order.Price && i.Client == order.Client);
+			intersection.SupplierClientId = Guid.NewGuid().ToString();
+			session.Save(intersection);
+
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.SendOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1)
+			});
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.SendOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1).AddMinutes(2)
+			});
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.SendOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1).AddMinutes(-1)
+			});
+
+
+			Property("Type", 3);
+
+			var report = ReadReport<SupplierMarketShareByUser>();
+			var rows = report.Rows().ToArray();
+			//проверяем что в колонке Кол-во поставщиков есть данные
+			var reportRow = rows
+				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
+			Assert.AreEqual("3", reportRow.GetCell(6).StringCellValue);
+		}
+
+		[Test]
+		public void Check_AnalitFNet_OrderSessions()
+		{
+			var intersection = session.Query<TestIntersection>()
+				.First(i => i.Price == order.Price && i.Client == order.Client);
+			intersection.SupplierClientId = Guid.NewGuid().ToString();
+			session.Save(intersection);
+
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(2),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(-1),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(-2),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(-3),
+				IsCompleted = true
+			});
+
+			Property("Type", 3);
+
+			var report = ReadReport<SupplierMarketShareByUser>();
+			var rows = report.Rows().ToArray();
+			//проверяем что в колонке Кол-во поставщиков есть данные
+			var reportRow = rows
+				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
+			Assert.AreEqual("5", reportRow.GetCell(6).StringCellValue);
+		}
+
+		[Test]
+		public void Check_Analit_OrderSessions()
+		{
+			var intersection = session.Query<TestIntersection>()
+				.First(i => i.Price == order.Price && i.Client == order.Client);
+			intersection.SupplierClientId = Guid.NewGuid().ToString();
+			session.Save(intersection);
+
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.SendOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1)
+			});
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.SendOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1).AddMinutes(2)
+			});
+			session.Save(new TestAnalitFUpdateLog(TestRequestType.SendOrders, order.User) {
+				RequestTime = DateTime.Now.AddDays(-1).AddMinutes(-1)
+			});
+
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(2),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(-1),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(-2),
+				IsCompleted = true
+			});
+			session.Save(new TestRequestLog("OrdersController", order.User) {
+				CreatedOn = DateTime.Now.AddDays(-1).AddMinutes(-3),
+				IsCompleted = true
+			});
+
+			Property("Type", 3);
+
+			var report = ReadReport<SupplierMarketShareByUser>();
+			var rows = report.Rows().ToArray();
+			//проверяем что в колонке Кол-во поставщиков есть данные
+			var reportRow = rows
+				.First(r => r.GetCell(0) != null && r.GetCell(0).StringCellValue == intersection.SupplierClientId);
+			Assert.AreEqual("8", reportRow.GetCell(6).StringCellValue);
 		}
 
 		[Test]
