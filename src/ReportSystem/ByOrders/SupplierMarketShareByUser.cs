@@ -221,8 +221,15 @@ create temporary table Reports.UserStat(
 	UserId int unsigned not null,
 	RequestCount int unsigned not null,
 	primary key (UserId)
+) engine=memory;
+
+drop temporary table if exists Reports.UserAllStat;
+create temporary table Reports.UserAllStat(
+	Id int auto_increment primary key,
+	UserId int unsigned not null,
+	RequestCount int unsigned not null
 ) engine=memory;");
-			if (userIds.Length > 0)
+			if (userIds.Length > 0) {
 				connection.Execute(String.Format(@"
 insert into Reports.UserStat(UserId, RequestCount)
 select l.UserId, count(*)
@@ -231,7 +238,23 @@ where l.UserId in ({0})
 	and l.UpdateType in (4, 11)
 	and l.RequestTime > ?begin
 	and l.RequestTime < ?end
-group by l.UserId", userIds.Implode()), new { begin = Begin, end = End });
+group by l.UserId;
+
+insert into Reports.UserAllStat(UserId, RequestCount)
+	select r.UserId, count(*)
+	from Logs.RequestLogs r
+	where r.Userid in ({0})
+		and r.CreatedOn > ?begin
+		and r.CreatedOn < ?end
+		and r.IsCompleted = 1
+		and r.IsFaulted = 0
+		and r.UpdateType = 'OrdersController'
+	group by r.UserId
+union all
+	select *
+	from Reports.UserStat s
+	group by s.UserId", userIds.Implode()), new {begin = Begin, end = End});
+			}
 
 			DataAdapter.SelectCommand.CommandText = String.Format(@"
 drop temporary table if exists Reports.KeyToUser;
@@ -265,10 +288,10 @@ create temporary table Reports.KeyToCount(
 ) engine=memory;
 
 insert into Reports.KeyToCount(GroupKey, RequestCount)
-select k.GroupKey, sum(s.RequestCount)
-from Reports.KeyToUser k
-	join Reports.UserStat s on s.UserId = k.UserId
-group by k.GroupKey;
+	select k.GroupKey, sum(s.RequestCount)
+	from Reports.KeyToUser k
+		join Reports.UserAllStat s on s.UserId = k.UserId
+	group by k.GroupKey;
 
 drop temporary table if exists Reports.PreResult;
 create temporary table Reports.PreResult(
@@ -370,6 +393,7 @@ left join Reports.PrevResult pr on pr.GroupKey = r.GroupKey;",
 
 drop temporary table if exists reports.TempIntersection;
 drop temporary table if exists reports.UserStat;
+drop temporary table if exists reports.UserAllStat;
 drop temporary table if exists Reports.KeyToCount;
 drop temporary table if exists Reports.KeyToUser;
 drop temporary table if exists Reports.PreResult;
