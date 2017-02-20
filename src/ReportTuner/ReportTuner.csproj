@@ -379,6 +379,7 @@
     <Content Include="Views\Contacts\Show.brail" />
     <Content Include="Views\Contacts\EditGroupName.brail" />
     <Content Include="Views\Contacts\NewGroup.brail" />
+    <Content Include="packages.config" />
     <None Include="Views\Layouts\Application.brail" />
     <None Include="Views\ReportsTuning\FileForReportTypes.brail" />
     <None Include="Views\ReportsTuning\SelectAddresses.brail" />
