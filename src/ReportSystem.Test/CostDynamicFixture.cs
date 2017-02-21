@@ -11,6 +11,7 @@ using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Common.Tools;
+using NHibernate.Linq;
 
 namespace ReportSystem.Test
 {
@@ -59,10 +60,12 @@ namespace ReportSystem.Test
 			results.Rows.Add(row);
 			var data = new DataSet();
 			data.Tables.Add(results);
-
+			var regionText = String.Format("Регион: {0}",
+				string.Join(",",
+					session.Query<Region>().ToList().Where(s => settings.Regions.Any(f => f == s.Id)).Select(s => s.Name).ToList()));
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", settings.Date.ToShortDateString()));
-			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => session.Load<Region>(r).Name)).Implode());
-
+			Assert.IsTrue(regionText == "Регион: Воронеж");
+			settings.Filters.Add(regionText);
 			if (File.Exists(file))
 				File.Delete(file);
 
