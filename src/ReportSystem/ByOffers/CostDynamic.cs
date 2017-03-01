@@ -6,11 +6,11 @@ using System.Linq;
 using Common.MySql;
 using Common.Tools.Calendar;
 using Common.Web.Ui.Models;
-
 using Common.Tools;
 using Inforoom.ReportSystem.Model;
 using Inforoom.ReportSystem.Writers;
 using MySql.Data.MySqlClient;
+using NHibernate.Linq;
 
 namespace Inforoom.ReportSystem.ByOffers
 {
@@ -165,7 +165,7 @@ group by pd.FirmCode", OrdersSchema, regions.Implode());
 			};
 
 			settings.Filters.Add(String.Format("Динамика уровня цен и доли рынка на {0}", date.ToShortDateString()));
-			settings.Filters.Add(String.Format("Регион {0}", settings.Regions.Select(r => Session.Load<Region>(r).Name)).Implode());
+			settings.Filters.Add(String.Format("Регион: {0}", string.Join(",", Session.Query<Region>().ToList().Where(s => settings.Regions.Any(f => f == s.Id)).Select(s => s.Name).ToList())));
 			FillFilterDescriptions();
 			settings.Filters.AddRange(Header);
 
