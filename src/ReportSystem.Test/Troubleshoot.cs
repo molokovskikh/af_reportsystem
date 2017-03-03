@@ -12,7 +12,8 @@ using Test.Support.log4net;
 
 namespace ReportSystem.Test
 {
-	[TestFixture, Ignore("Что бы подебажить отчет")]
+	//[TestFixture, Ignore("Что бы подебажить отчет")]
+	[TestFixture]
 	public class Troubleshoot : IntegrationFixture
 	{
 		[SetUp]
@@ -27,8 +28,9 @@ namespace ReportSystem.Test
 		{
 			Debug.Listeners.Add(new ConsoleTraceListener());
 			QueryCatcher.Catch("Inforoom.ReportSystem.Helpers");
-			uint id = 120;
-			var dataAdapter = new MySqlDataAdapter("", "server=sql.analit.net;user=;password=;default command timeout=0;");
+			uint id = 144;
+			var cn = "server=sql.analit.net;user=;password=;default command timeout=0;Allow user variables=true;database=usersettings";
+			var dataAdapter = new MySqlDataAdapter("", cn);
 			dataAdapter.SelectCommand.CommandText = @"
 select
   *
@@ -36,13 +38,13 @@ from
   reports.Reports r,
   reports.reporttypes rt
 where
-    r.GeneralReportCode = ?reportcode
+	r.GeneralReportCode = ?reportcode
 and rt.ReportTypeCode = r.ReportTypeCode";
 			dataAdapter.SelectCommand.Parameters.AddWithValue("?reportcode", id);
 			var res = new DataTable();
 			dataAdapter.Fill(res);
 
-			using (var connection = new MySqlConnection("server=sql.analit.net;user=;password=;database=usersettings;default command timeout=0;")) {
+			using (var connection = new MySqlConnection(cn)) {
 				connection.Open();
 				foreach (DataRow drGReport in res.Rows) {
 					if (Convert.ToBoolean(drGReport[BaseReportColumns.colEnabled])) {
@@ -50,15 +52,15 @@ and rt.ReportTypeCode = r.ReportTypeCode";
 						var reportcode = (ulong)drGReport[BaseReportColumns.colReportCode];
 						Console.WriteLine("Отчет {0}", reportcode);
 						var prop = GeneralReport.LoadProperties(connection, reportcode);
+
 						var bs = (BaseReport)Activator.CreateInstance(
 							GetReportTypeByName(drGReport[BaseReportColumns.colReportClassName].ToString()),
 							new object[] {
-								reportcode,
-								drGReport[BaseReportColumns.colReportCaption].ToString(), connection,
-								ReportFormats.Excel,
+								connection,
 								prop
 							});
 						bs.Session = session.SessionFactory.OpenSession(connection);
+						bs.ReportCaption = "rep";
 						bs.Write(Path.GetFullPath("test.xls"));
 					}
 				}
