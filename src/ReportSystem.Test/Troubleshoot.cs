@@ -12,8 +12,7 @@ using Test.Support.log4net;
 
 namespace ReportSystem.Test
 {
-	//[TestFixture, Ignore("Что бы подебажить отчет")]
-	[TestFixture]
+	[TestFixture, Ignore("Что бы подебажить отчет")]
 	public class Troubleshoot : IntegrationFixture
 	{
 		[SetUp]
