@@ -19,19 +19,19 @@ namespace ReportTuner.Test.Functional
 			Open("Reports/Reports.aspx?r=1");
 			// создвем новый отчет
 			Click("Добавить");
-			var select = new SelectElement(browser.FindElementsByClassName("select").Last());
+			var select = new SelectElement(browser.FindElementsByCssSelector("select").Last());
 			select.SelectByText("Отчет по минимальным ценам по возрастанию по прайсу");
 			var row = GetParent(browser.FindElements(By.CssSelector("td"))
-				.Last(c => !String.IsNullOrEmpty(c.Text) && c.Text.Contains("...")));
-			var name = row.FindElement(By.ClassName("td")).FindElement(By.CssSelector("input[type=\"text\"]"));
+				.Last(c => c.Text?.Contains("...") == true));
+			var name = GetCell(row, 1).FindElement(By.CssSelector("input[type=\"text\"]"));
 			var newReportName = "Для теста" + DateTime.Now.ToString(CultureInfo.InvariantCulture);
 			name.SendKeys(newReportName);
 			Click("Применить");
 
-			browser.FindElementByClassName("a").Click();
+			browser.FindElementsByCssSelector("a").Last().Click();
 			// выставляем параметр клинта
 			row = GetParent(FindCell("Клиент"));
-			var cell = row.FindElements(By.ClassName("td")).Skip(1).First();
+			var cell = row.FindElements(By.CssSelector("td")).Skip(1).First();
 			name = cell.FindElement(By.CssSelector("input[type=\"text\"]"));
 			name.SendKeys("Тест");
 			cell.FindElement(By.CssSelector("input[type=\"submit\"]")).Click();
@@ -39,26 +39,26 @@ namespace ReportTuner.Test.Functional
 
 			// проверяем, что клиент установлен
 			row = GetParent(FindCell("Клиент"));
-			cell = row.FindElements(By.ClassName("td")).Skip(1).First();
+			cell = row.FindElements(By.CssSelector("td")).Skip(1).First();
 			Assert.That(cell.FindElements(By.CssSelector("input[type=\"text\"]")).Count, Is.EqualTo(0));
-			Assert.That(cell.FindElements(By.ClassName("select")).Count, Is.EqualTo(1));
-			// сохраняем отчет с опцией по базовым ценам, после чего эту опцию снимаем
-			row = GetParent(FindCell("По базовым ценам"));
-			SetChecked(row.FindElements(By.ClassName("td")).Skip(1).First(), true);
-			Click("Применить");
+			Assert.That(cell.FindElements(By.CssSelector("select")).Count, Is.EqualTo(1));
 
-			row = GetParent(FindCell("По базовым ценам"));
-			SetChecked(GetCell(row, 1), false);
-			Click("Применить");
+			// сохраняем отчет с опцией по базовым ценам, после чего эту опцию снимаем
+			SetProperty("По базовым ценам", true);
+			HandleStatestate(() => Click("Применить"));
+
+			SetProperty("По базовым ценам", false);
+			HandleStatestate(() => Click("Применить"));
+
 			// проверяем, что настройка клиента сброшена
 			row = GetParent(FindCell("Клиент"));
 			cell = GetCell(row, 1);
 			Assert.That(cell.FindElements(By.CssSelector("input[type=\"text\"]")).Count, Is.EqualTo(1));
-			Assert.That(cell.FindElements(By.ClassName("select")).Count, Is.EqualTo(0));
+			Assert.That(cell.FindElements(By.CssSelector("select")).Count, Is.EqualTo(0));
 			// удаляем созданный отчет
 
 			Open("Reports/Reports.aspx?r=1");
-			cell = browser.FindElementsByClassName("td").Last(c => !String.IsNullOrEmpty(c.Text)
+			cell = browser.FindElementsByCssSelector("td").Last(c => !String.IsNullOrEmpty(c.Text)
 				&& c.Text.Contains("Отчет по минимальным ценам по возрастанию по прайсу"));
 			row = GetParent(cell);
 			Click(GetCell(row, 4), "Удалить");
@@ -67,54 +67,55 @@ namespace ReportTuner.Test.Functional
 
 		private static IWebElement GetCell(IWebElement row, int index)
 		{
-			return row.FindElements(By.ClassName("td")).Skip(index).First();
+			return row.FindElements(By.CssSelector("td")).Skip(index).First();
 		}
 
 		private IWebElement FindCell(string text)
 		{
-			return browser.FindElements(By.ClassName("td")).First(x => x.Text.Contains(text));
+			return browser.FindElements(By.CssSelector("td")).First(x => x.Text.Contains(text));
 		}
 
 		[Test]
 		public void BaseWeightCostTest()
 		{
-			var report = CreateReport("Spec");
-			OpenReport(report);
+			OpenReport(CreateReport("Spec"));
 
 			AssertText("По базовым ценам");
 
-			Checked("По базовым ценам", true);
+			SetProperty("По базовым ценам", true);
 			AssertNoText("По взвешенным ценам");
 			AssertText("Список значений \"Региона\"");
 			AssertNoText("Список доступных клиенту регионов");
 			Click("Применить");
 
 			AssertText("По базовым ценам");
-			Checked("По базовым ценам", false);
+			SetProperty("По базовым ценам", false);
 			AssertText("По взвешенным ценам");
-			Checked("По взвешенным ценам", true);
+			SetProperty("По взвешенным ценам", true);
 
 			AssertNoText("По базовым ценам");
 			AssertText("Список значений \"Региона\"");
 			AssertNoText("Список доступных клиенту регионов");
 			Click("Применить");
 			AssertText("По взвешенным ценам");
-			Checked("По взвешенным ценам", false);
-			Click("Применить");
-			Checked("По взвешенным ценам", true);
-			Click("Добавить параметр");
-			var select = new SelectElement(browser.FindElementsByClassName("select").Last());
+			SetProperty("По взвешенным ценам", false);
+			HandleStatestate(() => Click("Применить"));
+			SetProperty("По взвешенным ценам", true);
+			HandleStatestate(() => Click("Добавить параметр"));
+			var select = new SelectElement(browser.FindElementsByCssSelector("select").Last());
 			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
 
-			Checked("По взвешенным ценам", false);
-			Checked("По базовым ценам", true);
+			SetProperty("По взвешенным ценам", false);
+			SetProperty("По базовым ценам", true);
 
-			select = new SelectElement(browser.FindElementsByClassName("select").Last());
-			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
-			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) > 0);
-			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
+			HandleStatestate(() => {
+				select = new SelectElement(browser.FindElementsByCssSelector("select").Last());
+				Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
+				Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) > 0);
+				Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
+			});
 		}
 
 		[Test]
@@ -171,16 +172,18 @@ namespace ReportTuner.Test.Functional
 			OpenReport(report);
 
 			var row = GetParent(FindCell("Юридическое лицо накладные которого будут включены в отчет"));
-			var select = new SelectElement(row.FindElements(By.ClassName("td")).First().FindElement(By.CssSelector("select")));
+			var select = new SelectElement(GetCell(row, 1).FindElement(By.CssSelector("select")));
 			Assert.That(select.SelectedOption.Text, Is.StringEnding(org.Name));
 		}
 
-		private void Checked(string name, bool value)
+		private void SetProperty(string name, bool value)
 		{
-			var row = GetParent(FindCell(name));
-			var cell = row.FindElements(By.CssSelector("td")).Skip(1).First();
-			var checkBox = cell.FindElement(By.CssSelector("input[type=\"checkbox\"]"));
-			SetChecked(checkBox, value);
+			HandleStatestate(() => {
+				var row = GetParent(FindCell(name));
+				var cell = GetCell(row, 1);
+				var checkBox = cell.FindElement(By.CssSelector("input[type=\"checkbox\"]"));
+				SetChecked(checkBox, value);
+			});
 		}
 
 		private void SetChecked(IWebElement checkBox, bool value)

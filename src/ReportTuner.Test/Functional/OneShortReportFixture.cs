@@ -7,6 +7,7 @@ using NUnit.Framework;
 using ReportTuner.Models;
 using WatiN.Core;
 using System.Diagnostics;
+using NHibernate.Linq;
 using OpenQA.Selenium;
 using Test.Support;
 using Test.Support.Selenium;
@@ -50,7 +51,7 @@ namespace ReportTuner.Test.Functional
 			//browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			Click("Применить");
 			AssertText("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета");
-			var text = browser.FindElementsByCssSelector("input type=\"text\"").First(x => x.GetAttribute("value") == "0:00");
+			var text = browser.FindElementsByCssSelector("input[type=\"text\"]").First(x => x.GetAttribute("value") == "0:00");
 			text.Clear();
 			text.SendKeys("10:00");
 			Click("Применить");
@@ -129,10 +130,10 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void Visit_every_report_type_configuration_page()
 		{
-			var types = ReportType.FindAll();
+			var types = session.Query<ReportType>().ToArray();
 			Assert.That(types.Length, Is.GreaterThan(0), "данные для тестов не загружены, выполни bake PrepareLocal profile=reports");
 			foreach (var type in types) {
-				var report = Report.Queryable.FirstOrDefault(r => r.ReportType == type);
+				var report = session.Query<Report>().FirstOrDefault(r => r.ReportType == type);
 				if (report != null)
 					CheckReport(report);
 			}

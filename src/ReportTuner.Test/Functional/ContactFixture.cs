@@ -10,6 +10,7 @@ namespace ReportTuner.Test.Functional
 	public class ContactFixture : SeleniumFixture
 	{
 		private ContactGroup _contactGroup;
+
 		[SetUp]
 		public void SetUp()
 		{
@@ -27,21 +28,20 @@ namespace ReportTuner.Test.Functional
 			session.Save(payer);
 			var payerOwner = new PayerOwnerContact { Payer = payer, Contact = contactPayer };
 			session.Save(payerOwner);
-			Close();
 		}
 
 		[Test]
 		public void Payer_comment_contact_test()
 		{
-			Open(string.Format("Contact/EditContactGroup.rails?contactGroupId={0}", _contactGroup.Id));
-			AssertText("ContactPayer@analit.net");
+			Open($"Contact/EditContactGroup.rails?contactGroupId={_contactGroup.Id}");
+			Assert.That(Html, Does.Contain("ContactPayer@analit.net"));
 			AssertText("testPayer");
 		}
 
 		[Test(Description = "Проверяет корректность перехода по кнопке добавления контактного лица")]
 		public void AddNewPersonButtonClick()
 		{
-			Open(string.Format("Contact/EditContactGroup.rails?contactGroupId={0}", _contactGroup.Id));
+			Open($"Contact/EditContactGroup.rails?contactGroupId={_contactGroup.Id}");
 			Click("Добавить контактное лицо");
 			AssertText("Редактирование контактного лица");
 		}

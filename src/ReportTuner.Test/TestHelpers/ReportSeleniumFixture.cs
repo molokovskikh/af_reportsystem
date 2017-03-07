@@ -36,7 +36,7 @@ namespace ReportTuner.Test.TestHelpers
 			//что сработал триггер который создаст параметры
 			session.Flush();
 
-			report.Refresh();
+			session.Refresh(report);
 
 			return report;
 		}
