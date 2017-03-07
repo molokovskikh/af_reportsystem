@@ -1,64 +1,80 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using NHibernate.Linq;
 using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using ReportTuner.Models;
 using ReportTuner.Test.TestHelpers;
-using WatiN.Core;
-using WatiN.Core.Native.Windows;
 
 namespace ReportTuner.Test.Functional
 {
 	[TestFixture]
-	public class ReportsTuningFixture : ReportWatinFixture
+	public class ReportsTuningFixture : ReportSeleniumFixture
 	{
 		[Test]
 		public void ResetClientCodeIfBaseCost()
 		{
-			Open(string.Format("Reports/Reports.aspx?r=1"));
+			Open("Reports/Reports.aspx?r=1");
 			// создвем новый отчет
-			browser.Button(Find.ByValue("Добавить")).Click();
-			var select = browser.SelectLists.Last();
-			select.Select("Отчет по минимальным ценам по возрастанию по прайсу");
-			var row = browser.TableCells
-				.Last(c => !String.IsNullOrEmpty(c.Text) && c.Text.Contains("...")).ContainingTableRow;
-			var name = row.OwnTableCells[1].TextFields[0];
-			var newReportName = "Для теста" + DateTime.Now.ToString();
-			name.AppendText(newReportName);
-			browser.Button(Find.ByValue("Применить")).Click();
-			var link = browser.Links[browser.Links.Count - 1];
-			link.Click();
+			Click("Добавить");
+			var select = new SelectElement(browser.FindElementsByClassName("select").Last());
+			select.SelectByText("Отчет по минимальным ценам по возрастанию по прайсу");
+			var row = GetParent(browser.FindElements(By.CssSelector("td"))
+				.Last(c => !String.IsNullOrEmpty(c.Text) && c.Text.Contains("...")));
+			var name = row.FindElement(By.ClassName("td")).FindElement(By.CssSelector("input[type=\"text\"]"));
+			var newReportName = "Для теста" + DateTime.Now.ToString(CultureInfo.InvariantCulture);
+			name.SendKeys(newReportName);
+			Click("Применить");
+
+			browser.FindElementByClassName("a").Click();
 			// выставляем параметр клинта
-			row = browser.TableCell(Find.ByText("Клиент")).ContainingTableRow;
-			name = row.OwnTableCells[1].TextFields[0];
-			name.AppendText("Тест");
-			row.OwnTableCells[1].Buttons[0].Click();
-			browser.Button(Find.ByValue("Применить")).Click();
+			row = GetParent(FindCell("Клиент"));
+			var cell = row.FindElements(By.ClassName("td")).Skip(1).First();
+			name = cell.FindElement(By.CssSelector("input[type=\"text\"]"));
+			name.SendKeys("Тест");
+			cell.FindElement(By.CssSelector("input[type=\"submit\"]")).Click();
+			Click("Применить");
+
 			// проверяем, что клиент установлен
-			row = browser.TableCell(Find.ByText("Клиент")).ContainingTableRow;
-			Assert.That(row.OwnTableCells[1].TextFields.Count, Is.EqualTo(0));
-			Assert.That(row.OwnTableCells[1].SelectLists.Count, Is.EqualTo(1));
+			row = GetParent(FindCell("Клиент"));
+			cell = row.FindElements(By.ClassName("td")).Skip(1).First();
+			Assert.That(cell.FindElements(By.CssSelector("input[type=\"text\"]")).Count, Is.EqualTo(0));
+			Assert.That(cell.FindElements(By.ClassName("select")).Count, Is.EqualTo(1));
 			// сохраняем отчет с опцией по базовым ценам, после чего эту опцию снимаем
-			var baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = true;
-			browser.Button(Find.ByValue("Применить")).Click();
-			baseRow = browser.TableCell(Find.ByText("По базовым ценам")).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = false;
-			browser.Button(Find.ByValue("Применить")).Click();
+			row = GetParent(FindCell("По базовым ценам"));
+			SetChecked(row.FindElements(By.ClassName("td")).Skip(1).First(), true);
+			Click("Применить");
+
+			row = GetParent(FindCell("По базовым ценам"));
+			SetChecked(GetCell(row, 1), false);
+			Click("Применить");
 			// проверяем, что настройка клиента сброшена
-			row = browser.TableCell(Find.ByText("Клиент")).ContainingTableRow;
-			Assert.That(row.OwnTableCells[1].TextFields.Count, Is.EqualTo(1));
-			Assert.That(row.OwnTableCells[1].SelectLists.Count, Is.EqualTo(0));
+			row = GetParent(FindCell("Клиент"));
+			cell = GetCell(row, 1);
+			Assert.That(cell.FindElements(By.CssSelector("input[type=\"text\"]")).Count, Is.EqualTo(1));
+			Assert.That(cell.FindElements(By.ClassName("select")).Count, Is.EqualTo(0));
 			// удаляем созданный отчет
-			Open(string.Format("Reports/Reports.aspx?r=1"));
-			var cell = browser.TableCells.Last(c => !String.IsNullOrEmpty(c.Text)
+
+			Open("Reports/Reports.aspx?r=1");
+			cell = browser.FindElementsByClassName("td").Last(c => !String.IsNullOrEmpty(c.Text)
 				&& c.Text.Contains("Отчет по минимальным ценам по возрастанию по прайсу"));
-			row = cell.ContainingTableRow;
-			row.OwnTableCells[4].Button(Find.ByValue("Удалить")).Click();
+			row = GetParent(cell);
+			Click(GetCell(row, 4), "Удалить");
 			Click("Применить");
 		}
+
+		private static IWebElement GetCell(IWebElement row, int index)
+		{
+			return row.FindElements(By.ClassName("td")).Skip(index).First();
+		}
+
+		private IWebElement FindCell(string text)
+		{
+			return browser.FindElements(By.ClassName("td")).First(x => x.Text.Contains(text));
+		}
+
 		[Test]
 		public void BaseWeightCostTest()
 		{
@@ -68,9 +84,9 @@ namespace ReportTuner.Test.Functional
 			AssertText("По базовым ценам");
 
 			Checked("По базовым ценам", true);
-			Assert.That(browser.Text, Is.Not.Contains("По взвешенным ценам"));
+			AssertNoText("По взвешенным ценам");
 			AssertText("Список значений \"Региона\"");
-			Assert.That(browser.Text, Is.Not.Contains("Список доступных клиенту регионов"));
+			AssertNoText("Список доступных клиенту регионов");
 			Click("Применить");
 
 			AssertText("По базовым ценам");
@@ -78,16 +94,16 @@ namespace ReportTuner.Test.Functional
 			AssertText("По взвешенным ценам");
 			Checked("По взвешенным ценам", true);
 
-			Assert.That(browser.Text, Is.Not.Contains("По базовым ценам"));
+			AssertNoText("По базовым ценам");
 			AssertText("Список значений \"Региона\"");
-			Assert.That(browser.Text, Is.Not.Contains("Список доступных клиенту регионов"));
+			AssertNoText("Список доступных клиенту регионов");
 			Click("Применить");
 			AssertText("По взвешенным ценам");
 			Checked("По взвешенным ценам", false);
 			Click("Применить");
 			Checked("По взвешенным ценам", true);
 			Click("Добавить параметр");
-			var select = browser.SelectLists.Last();
+			var select = new SelectElement(browser.FindElementsByClassName("select").Last());
 			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
@@ -95,7 +111,7 @@ namespace ReportTuner.Test.Functional
 			Checked("По взвешенным ценам", false);
 			Checked("По базовым ценам", true);
 
-			select = browser.SelectLists.Last();
+			select = new SelectElement(browser.FindElementsByClassName("select").Last());
 			Assert.That(select.Options.Count(option => option.Text == "Пользователь") == 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("Прайс")) > 0);
 			Assert.That(select.Options.Count(option => option.Text.Contains("поставщик")) > 0);
@@ -130,8 +146,9 @@ namespace ReportTuner.Test.Functional
 			gr.SendDescriptionFile = false;
 			session.Save(gr);
 			Open($"Reports/Reports.aspx?r={gr.Id}");
-			Assert.IsFalse(browser.CheckBox("SendDescriptionFile").Checked);
-			browser.CheckBox("SendDescriptionFile").Checked = true;
+			var checkBox = browser.FindElementById("SendDescriptionFile");
+			Assert.IsFalse(checkBox.Selected);
+			checkBox.Click();
 			Click("Применить");
 			session.Refresh(gr);
 			Assert.IsTrue(gr.SendDescriptionFile);
@@ -140,7 +157,7 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void RecipietntsRemovedTest()
 		{
-			browser = Open("Reports/Reports.aspx?r=1");
+			Open("Reports/Reports.aspx?r=1");
 			AssertNoText("Получатель отчета");
 		}
 
@@ -153,15 +170,23 @@ namespace ReportTuner.Test.Functional
 			session.Save(report);
 			OpenReport(report);
 
-			var row = browser.TableCell(Find.ByText("Юридическое лицо накладные которого будут включены в отчет")).ContainingTableRow;
-			var select = row.OwnTableCells[1].SelectLists[0];
-			Assert.That(select.SelectedItem, Is.StringEnding(org.Name));
+			var row = GetParent(FindCell("Юридическое лицо накладные которого будут включены в отчет"));
+			var select = new SelectElement(row.FindElements(By.ClassName("td")).First().FindElement(By.CssSelector("select")));
+			Assert.That(select.SelectedOption.Text, Is.StringEnding(org.Name));
 		}
 
 		private void Checked(string name, bool value)
 		{
-			var baseRow = browser.TableCell(Find.ByText(name)).ContainingTableRow;
-			baseRow.OwnTableCells[1].CheckBoxes[0].Checked = value;
+			var row = GetParent(FindCell(name));
+			var cell = row.FindElements(By.CssSelector("td")).Skip(1).First();
+			var checkBox = cell.FindElement(By.CssSelector("input[type=\"checkbox\"]"));
+			SetChecked(checkBox, value);
+		}
+
+		private void SetChecked(IWebElement checkBox, bool value)
+		{
+			if (checkBox.Selected != value)
+				checkBox.Click();
 		}
 	}
 }

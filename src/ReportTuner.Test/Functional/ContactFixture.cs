@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Common.Web.Ui.Models;
 using NUnit.Framework;
 using ReportTuner.Models;
-using Test.Support.Web;
-using WatiN.Core.Native.Windows;
+using Test.Support.Selenium;
 
 namespace ReportTuner.Test.Functional
 {
 	[TestFixture]
-	public class ContactFixture : WatinFixture2
+	public class ContactFixture : SeleniumFixture
 	{
 		private ContactGroup _contactGroup;
 		[SetUp]
@@ -38,7 +34,7 @@ namespace ReportTuner.Test.Functional
 		public void Payer_comment_contact_test()
 		{
 			Open(string.Format("Contact/EditContactGroup.rails?contactGroupId={0}", _contactGroup.Id));
-			Assert.That(browser.Html, Does.Contain("ContactPayer@analit.net"));
+			AssertText("ContactPayer@analit.net");
 			AssertText("testPayer");
 		}
 

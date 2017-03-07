@@ -76,6 +76,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -91,6 +92,12 @@
     <Reference Include="WatiN.CssSelectorExtensions">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Watin.Css.0.2.0.0\lib\net40\WatiN.CssSelectorExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="WebDriver, Version=2.53.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WebDriver.Support, Version=2.53.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -111,13 +118,14 @@
     <Compile Include="Integration\ReportsBatch.cs" />
     <Compile Include="Integration\TaskSchedulerFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestHelpers\ReportWatinFixture.cs" />
+    <Compile Include="TestHelpers\ReportSeleniumFixture.cs" />
     <Compile Include="Integration\UpdateConfigFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common.Models\Common.Schedule\Common.Schedule.csproj">
@@ -144,6 +152,10 @@
       <Project>{4D9B03C7-734B-410F-9C4A-FF9A44591036}</Project>
       <Name>ReportTuner</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Test.Support\Test.Support.Selenium\Test.Support.Selenium.csproj">
+      <Project>{E37375CE-ADBA-47C9-9FA1-D7C5C704CD89}</Project>
+      <Name>Test.Support.Selenium</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Test.Support\Test.Support.Web\Test.Support.Web.csproj">
       <Project>{12258B1D-35E8-45BA-9C1E-5F7B8ACD7D37}</Project>
       <Name>Test.Support.Web</Name>
@@ -164,9 +176,7 @@
       <InProject>false</InProject>
     </StyleCopAdditionalAddinPaths>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Unit\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>

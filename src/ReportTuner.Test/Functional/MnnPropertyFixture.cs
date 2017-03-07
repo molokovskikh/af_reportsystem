@@ -3,7 +3,7 @@ using ReportTuner.Test.TestHelpers;
 
 namespace ReportTuner.Test.Functional
 {
-	public class MnnPropertyFixture : ReportWatinFixture
+	public class MnnPropertyFixture : ReportSeleniumFixture
 	{
 		[Test]
 		public void Mnn_filter()

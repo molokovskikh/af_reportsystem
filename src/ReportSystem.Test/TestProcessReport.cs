@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading;
 using Castle.ActiveRecord;
 using Common.Tools;
+using Common.Web.Ui.NHibernateExtentions;
 using Inforoom.ReportSystem;
 using Inforoom.ReportSystem.Model;
 using NHibernate.Linq;
 using NUnit.Framework;
 using Test.Support;
+using Common.NHibernate;
 
 namespace ReportSystem.Test
 {
@@ -95,6 +97,7 @@ namespace ReportSystem.Test
 		[Test, Description("Тестирует обработку различных типов исключений в процессе работы отчетов")]
 		public void TestExceptionDuringProcessReport()
 		{
+			session.DeleteEach<ReportResultLog>();
 			var dtStart = DateTime.Now;
 			var gr = new FakeGeneralReport();
 			var reports = new[] {
@@ -102,6 +105,7 @@ namespace ReportSystem.Test
 				new FakeReport(), new FakeReportWithException(), new FakeReport()
 			};
 			reports.Each(x => gr.Reports.Enqueue(x));
+			FlushAndCommit();
 
 			var ex = false;
 			try {
@@ -117,7 +121,7 @@ namespace ReportSystem.Test
 			Assert.That(ex, Is.True);
 			// Проверяем записи в логах
 			var logs = session.Query<ReportResultLog>().Where(l => l.StartTime >= dtStart).OrderBy(l => l.StartTime).ToList();
-			Assert.That(logs.Count, Is.EqualTo(5));
+			Assert.That(logs.Count, Is.EqualTo(5), $"время запуска {dtStart}");
 			Assert.That(logs[0].ErrorMessage, Is.Null);
 			Assert.That(logs[1].ErrorMessage, Does.Contain("Ошибка при формировании отчета."));
 			Assert.That(logs[2].ErrorMessage, Does.Contain("Ошибка при формировании отчета."));

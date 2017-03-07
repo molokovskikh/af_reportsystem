@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Test.Support.Selenium;
 using Test.Support.Web;
 using WatiN.Core;
 
 namespace ReportTuner.Test.Functional
 {
 	[TestFixture]
-	public class CopyReportFixture : WatinFixture2
+	public class CopyReportFixture : SeleniumFixture
 	{
 		[Test]
 		public void SelectReportLinkTest()
@@ -19,8 +20,7 @@ namespace ReportTuner.Test.Functional
 			AssertText("Тестовый отчет АК Инфорум");
 			Click("Тестовый отчет АК Инфорум");
 			AssertText("Настройка отчетов");
-			var deleteButton = browser.Buttons.Where(b => b.Value == "Удалить").Last();
-			deleteButton.Click();
+			Click("Удалить");
 			AssertText("Настройка отчетов");
 			Click("Применить");
 			AssertText("Настройка отчетов");

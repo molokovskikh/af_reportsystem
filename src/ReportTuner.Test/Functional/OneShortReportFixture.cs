@@ -7,25 +7,22 @@ using NUnit.Framework;
 using ReportTuner.Models;
 using WatiN.Core;
 using System.Diagnostics;
+using OpenQA.Selenium;
 using Test.Support;
+using Test.Support.Selenium;
 using Test.Support.Web;
 
 namespace ReportTuner.Test.Functional
 {
 	[TestFixture]
-	public class OneShortReportFixture : WatinFixture2
+	public class OneShortReportFixture : SeleniumFixture
 	{
 		[Test]
 		public void Task_shedule_base_test()
 		{
 			Open("Reports/schedule.aspx?r=1");
 			Click("Выполнить задание");
-			try {
-				WaitForText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
-			}
-			catch(WatiN.Core.Exceptions.TimeoutException e) {
-				throw new Exception(String.Format("Не удалось дождаться запуска страницы, текст страницы {0}", browser.Text), e);
-			}
+			WaitForText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
 		}
 
 		[Test]
@@ -47,16 +44,18 @@ namespace ReportTuner.Test.Functional
 		{
 			Open("/Reports/schedule.aspx?r=1");
 
-			browser.Button(Find.ByClass("addMonthItem")).Click();
+			Css(".addMonthItem").Click();
 			//Чекбоксы должны быть выбраны по-умолчанию, но на всякий случай оставляю код
 			//browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			//browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
-			browser.Button(Find.ByValue("Применить")).Click();
-			Assert.That(browser.Text, Does.Contain("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
-			browser.TextField(Find.ByValue("0:00")).Value = "10:00";
-			browser.Button(Find.ByValue("Применить")).Click();
-			Assert.That(browser.Text, Is.Not.StringContaining("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета"));
-			Assert.That(browser.Text, Does.Contain("Задать расписание для отчета "));
+			Click("Применить");
+			AssertText("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета");
+			var text = browser.FindElementsByCssSelector("input type=\"text\"").First(x => x.GetAttribute("value") == "0:00");
+			text.Clear();
+			text.SendKeys("10:00");
+			Click("Применить");
+			AssertNoText("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета");
+			AssertText("Задать расписание для отчета ");
 
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
@@ -64,8 +63,8 @@ namespace ReportTuner.Test.Functional
 			Assert.That(currentTask.Definition.Settings.RestartCount == 3);
 			Assert.That(currentTask.Definition.Settings.RestartInterval == new TimeSpan(0, 15, 0));
 			Assert.That(currentTask.Definition.Settings.StartWhenAvailable);
-			browser.Button(Find.ByClass("deleteMonthItem")).Click();
-			browser.Button(Find.ByValue("Применить")).Click();
+			Click("deleteMonthItem");
+			Click("Применить");
 		}
 
 		[Test]
@@ -84,12 +83,13 @@ namespace ReportTuner.Test.Functional
 			executelog.BuildTestFile();
 
 			Open($"/Reports/schedule.aspx?r={report.Id}");
-			browser.RadioButton(Find.ByValue("RadioMails")).Checked = true;
-			browser.TextField("mail_Text").Clear();
+			var radio = browser.FindElementsByCssSelector("input[type=\"radio\"]").First(x => x.GetAttribute("Value") == "RadioMails");
+			radio.Click();
+			browser.FindElementById("mail_Text").Clear();
 			Click("Выслать готовый");
 
 			AssertText("Укажите получателя отчета !");
-			browser.TextField("mail_Text").AppendText("KvasovTest@analit.net");
+			browser.FindElementById("mail_Text").SendKeys("KvasovTest@analit.net");
 			Click("Выслать готовый");
 			AssertText("Файл отчета успешно отправлен");
 		}
@@ -104,8 +104,8 @@ namespace ReportTuner.Test.Functional
 				.ExecuteUpdate();
 
 			Open("/Reports/schedule.aspx?r=1");
-			Assert.That(browser.Text, Does.Contain("Статистика запусков отчета"));
-			Assert.That(browser.Text, Does.Contain(startTime.ToString()));
+			AssertText("Статистика запусков отчета");
+			AssertText(startTime.ToString());
 		}
 
 		[Test]
@@ -120,8 +120,8 @@ namespace ReportTuner.Test.Functional
 			Assert.That(report.Files.Count, Is.EqualTo(1));
 			AssertText("Выбор файла");
 			FlushAndCommit();
-			browser.Button(Find.ByClass("deleteFileButton")).Click();
-			Assert.That(browser.Text, Does.Not.Contain("Выбор файла"));
+			Css(".deleteFileButton").Click();
+			AssertNoText("Выбор файла");
 			session.Refresh(report);
 			Assert.That(report.Files.Count, Is.EqualTo(0));
 		}
@@ -140,10 +140,9 @@ namespace ReportTuner.Test.Functional
 
 		private void CheckReport(Report report)
 		{
-			var url = String.Format("/Reports/ReportProperties.aspx?rp={0}&r={1}", report.Id, report.GeneralReport.Id);
-			browser = Open(url);
-			Assert.That(browser.Text, Does.Contain("Настройка параметров отчета"));
-			Assert.That(browser.Text, Is.Not.Contains("Готовить по розничному сегменту"));
+			Open($"/Reports/ReportProperties.aspx?rp={report.Id}&r={report.GeneralReport.Id}");
+			AssertText("Настройка параметров отчета");
+			AssertNoText("Готовить по розничному сегменту");
 		}
 	}
 }

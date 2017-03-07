@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Configuration;
 using Common.Web.Ui.Models;
-using NHibernate.Util;
 using NUnit.Framework;
 using ReportTuner.Models;
-using Test.Support.Web;
-using WatiN.Core;
+using Test.Support.Selenium;
 
 namespace ReportTuner.Test.Functional
 {
 	[TestFixture]
-	public class ContactsFixture : WatinFixture2
+	public class ContactsFixture : SeleniumFixture
 	{
 		private GeneralReport _report;
 		private ContactGroupOwner _contactGroupOwner;
@@ -64,7 +62,7 @@ namespace ReportTuner.Test.Functional
 			var reportSub = new ReportSubscriptionContact(payercontact, publicContact);
 			session.Save(reportSub);
 
-			Open(String.Format("/Contacts/Show?reportId={0}", _report.Id));
+			Open($"/Contacts/Show?reportId={_report.Id}");
 
 			AssertText("qwe@qwe.ru");
 			AssertText("ewq@eqw.com");
@@ -86,11 +84,14 @@ namespace ReportTuner.Test.Functional
 			};
 			session.Save(privateContact);
 
-			Open(String.Format("/Contacts/Show?reportId={0}", _report.Id));
+			Open($"/Contacts/Show?reportId={_report.Id}");
 
 			ClickLink("Редактировать имя");
 
-			browser.TextField(Find.ByValue(privateGroup.Name)).Value = "Рассылка приватная";
+			var text = browser.FindElementsByCssSelector("input[type=\"text\"]")
+				.First(x => x.GetAttribute("Value") == privateGroup.Name);
+			text.Clear();
+			text.SendKeys("Рассылка приватная");
 
 			ClickButton("Сохранить");
 
@@ -101,11 +102,13 @@ namespace ReportTuner.Test.Functional
 		[Test]
 		public void NewGroup()
 		{
-			Open(String.Format("/Contacts/Show?reportId={0}", _report.Id));
+			Open($"/Contacts/Show?reportId={_report.Id}");
 
 			ClickLink("Создать новую рассылку");
 
-			browser.TextField(Find.ByName("ContactGroup.Name")).Value = "Рассылка приватная";
+			var input = browser.FindElementByName("ContactGroup.Name");
+			input.Clear();
+			input.SendKeys("Рассылка приватная");
 
 			ClickButton("Сохранить");
 
@@ -135,7 +138,7 @@ namespace ReportTuner.Test.Functional
 			};
 			session.Save(publicContact);
 
-			Open(String.Format("/Contacts/Show?reportId={0}", _report.Id));
+			Open($"/Contacts/Show?reportId={_report.Id}");
 			Click("Отписать");
 
 			AssertNoText("qwe@qwe.ru");

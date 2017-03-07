@@ -12,6 +12,8 @@ using Common.Web.Ui.Models;
 using NUnit.Framework;
 using CassiniDev;
 using ReportTuner.Helpers;
+using Test.Support;
+using Test.Support.Selenium;
 using Test.Support.Web;
 using Settings = WatiN.Core.Settings;
 
@@ -54,8 +56,10 @@ namespace ReportTuner.Test
 			}
 			holder = ActiveRecordMediator.GetSessionFactoryHolder();
 			holder.ReleaseSession(session);
+			IntegrationFixture2.Factory = holder.GetSessionFactory(typeof(ActiveRecordBase));
 
-			_webServer = WatinSetup.StartServer();
+			_webServer = SeleniumFixture.StartServer();
+			SeleniumFixture.GlobalSetup();
 
 			using (var taskService = ScheduleHelper.GetService()) {
 				ScheduleHelper.CreateFolderIfNeeded(taskService);
@@ -66,7 +70,7 @@ namespace ReportTuner.Test
 		public void TeardownFixture()
 		{
 			_webServer.ShutDown();
-			WatinFixture2.GlobalCleanup();
+			SeleniumFixture.GlobalTearDown();
 		}
 	}
 }

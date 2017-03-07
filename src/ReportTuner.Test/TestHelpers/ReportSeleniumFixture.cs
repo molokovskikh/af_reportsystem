@@ -3,12 +3,13 @@ using NHibernate.Linq;
 using NUnit.Framework;
 using ReportTuner.Models;
 using Test.Support;
+using Test.Support.Selenium;
 using Test.Support.Web;
 
 namespace ReportTuner.Test.TestHelpers
 {
 	[TestFixture]
-	public class ReportWatinFixture : WatinFixture2
+	public class ReportSeleniumFixture : SeleniumFixture
 	{
 		protected TestPayer payer;
 
