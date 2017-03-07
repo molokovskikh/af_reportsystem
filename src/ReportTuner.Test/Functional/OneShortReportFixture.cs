@@ -5,47 +5,47 @@ using Common.Schedule;
 using Microsoft.Win32.TaskScheduler;
 using NUnit.Framework;
 using ReportTuner.Models;
-using WatiN.Core;
-using System.Diagnostics;
 using NHibernate.Linq;
 using OpenQA.Selenium;
+using ReportTuner.Test.TestHelpers;
 using Test.Support;
-using Test.Support.Selenium;
-using Test.Support.Web;
 
 namespace ReportTuner.Test.Functional
 {
 	[TestFixture]
-	public class OneShortReportFixture : SeleniumFixture
+	public class OneShortReportFixture : ReportSeleniumFixture
 	{
 		[Test]
 		public void Task_shedule_base_test()
 		{
-			Open("Reports/schedule.aspx?r=1");
+			var report = CreateReport("Mixed");
+			Open($"Reports/schedule.aspx?r={report.GeneralReport.Id}");
 			Click("Выполнить задание");
-			WaitForText("Отчет запущен ( № 1), ожидайте окончания выполнения операции.");
+			WaitForText($"Отчет запущен ( № {report.GeneralReport.Id}), ожидайте окончания выполнения операции.");
 		}
 
 		[Test]
 		public void CurrentTaskStartReport()
 		{
-			Open("/Reports/schedule.aspx?r=50");
+			var report = CreateReport("Mixed");
+			Open($"/Reports/schedule.aspx?r={report.GeneralReport.Id}");
 			Click("Выполнить задание");
 
 			Thread.Sleep(500);
 
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, 50, "", "GR");
+			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, report.GeneralReport.Id, "", "GR");
 			Assert.That(((ExecAction)currentTask.Definition.Actions[0]).Arguments, Does.Contain("manual:true"));
 		}
 
 		[Test]
 		public void Set_shedule_month()
 		{
-			Open("/Reports/schedule.aspx?r=1");
+			var report = CreateReport("Mixed");
+			Open($"/Reports/schedule.aspx?r={report.GeneralReport.Id}");
 
-			Css(".addMonthItem").Click();
+			Click("Добавить ежемесячное расписание");
 			//Чекбоксы должны быть выбраны по-умолчанию, но на всякий случай оставляю код
 			//browser.Div("firstSixMonth").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
 			//browser.Div("firstFifteenDays").ChildOfType<CheckBox>(box => !box.Checked).Checked = true;
@@ -56,15 +56,15 @@ namespace ReportTuner.Test.Functional
 			text.SendKeys("10:00");
 			Click("Применить");
 			AssertNoText("Временной промежуток от 23:00 до 4:00 является недопустимым для времени выполнения отчета");
-			AssertText("Задать расписание для отчета ");
+			AssertText("Задать расписание для отчета");
 
 			var taskService = ScheduleHelper.GetService();
 			var reportsFolder = ScheduleHelper.GetReportsFolder(taskService);
-			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, 1, "", "GR");
+			var currentTask = ScheduleHelper.GetTaskOrCreate(taskService, reportsFolder, report.GeneralReport.Id, "", "GR");
 			Assert.That(currentTask.Definition.Settings.RestartCount == 3);
 			Assert.That(currentTask.Definition.Settings.RestartInterval == new TimeSpan(0, 15, 0));
 			Assert.That(currentTask.Definition.Settings.StartWhenAvailable);
-			Click("deleteMonthItem");
+			Click(By.CssSelector(".deleteMonthItem"));
 			Click("Применить");
 		}
 

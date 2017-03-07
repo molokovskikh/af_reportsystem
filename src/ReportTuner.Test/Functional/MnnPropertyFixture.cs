@@ -11,7 +11,7 @@ namespace ReportTuner.Test.Functional
 			var report = CreateReport("Mixed");
 			OpenReport(report);
 			Click("Добавить параметр");
-			Css("#ctl00_ReportContentPlaceHolder_dgvOptional select").Select("Список значений \"МНН\"");
+			Css("#ctl00_ReportContentPlaceHolder_dgvOptional select").SelectByText("Список значений \"МНН\"");
 			Click("Применить");
 			Click(Css("#ctl00_ReportContentPlaceHolder_dgvOptional"), "...");
 			AssertText("Fusarium sambuсinum грибы");
