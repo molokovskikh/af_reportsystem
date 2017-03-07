@@ -332,6 +332,17 @@ SET
 				DateTime.Today);
 		}
 
+		[Test]
+		public void Build_report_if_last_broken()
+		{
+			var report = new GeneralReport();
+			report.NoArchive = true;
+			report.Reports.Enqueue(new FakeReport());
+			report.Reports.Enqueue(new TestProcessReport.FakeReportWithReportException());
+			var files = report.BuildResultFile();
+			Assert.AreEqual("Rep0.xls", files.Implode(x => Path.GetFileName(x)));
+		}
+
 		private static string[] LsZip(string result)
 		{
 			using (var zip = new ZipFile(result)) {

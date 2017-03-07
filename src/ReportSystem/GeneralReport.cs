@@ -285,37 +285,35 @@ and rpv.ReportPropertyID = rp.ID", BaseReportColumns.colReportCode);
 					report.ToLog(Id); // протоколируем успешное выполнение отчета
 					report.MailMetaOverride.Each(x => _mailMetaOverride[Path.GetFileNameWithoutExtension(x.Key)] = x.Value);
 					foreach (var warning in report.Warnings) {
-						Logger.Warn($"Предупреждение при формировании отчета {report} - {warning}");
+						Logger.Warn($"Предупреждение при формировании отчета {Id} подотчет {report} - {warning}");
 						Mailer.MailReportNotify(this, report, warning);
 					}
 					emptyReport = false;
 				}
 				catch (Exception ex) {
 					//если отчетов больше нет то нет смысла давить ошибки
-					if (Reports.Count > 0) {
-						if (ex is ReportException)
-							Logger.Warn($"Ошибка при выполнении отчета {report}", ex);
-						else
-							Logger.Error($"Ошибка при выполнении отчета {report}", ex);
-						report.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
-						if (ex is ReportException) {
-							// уведомление об ошибке при формировании одного из подотчетов
-							Mailer.MailReportErr(ex.ToString(), Payer?.Name, Id, report.ReportCode, report.ReportCaption);
-							continue;
-						}
+					if (ex is ReportException)
+						Logger.Warn($"Ошибка при выполнении отчета {Id} подотчет {report}", ex);
+					else
+						Logger.Error($"Ошибка при выполнении отчета {Id} подотчет {report}", ex);
+					report.ToLog(Id, ex.ToString()); // протоколируем ошибку при выполнении отчета
+					if (ex is ReportException) {
+						// уведомление об ошибке при формировании одного из подотчетов
+						Mailer.MailReportErr(ex.ToString(), Payer?.Name, Id, report.ReportCode, report.ReportCaption);
+						continue;
 					}
 					throw new ReportException(ex.Message, ex, report.ReportCode, report.ReportCaption, Payer?.Name);
 				}
 			}
+
+			if (emptyReport)
+				throw new ReportException("Отчет пуст.");
 
 			foreach (var file in FilesForReport.Keys) {
 				var source = FilesForReport[file];
 				if (File.Exists(source))
 					File.Copy(source, Path.Combine(WorkDir, file), true);
 			}
-
-			if (emptyReport)
-				throw new ReportException("Отчет пуст.");
 
 			return Directory.GetFiles(WorkDir);
 		}
