@@ -175,8 +175,10 @@ namespace ReportSystem.Test
 			return ReadReport();
 		}
 
-		protected ISheet ReadReport(string fileName = "test.xls")
+		protected ISheet ReadReport(BaseReport report = null, string fileName = "test.xls")
 		{
+			if (report != null)
+				this.report = report;
 			BuildReport(fileName);
 
 			var book = Load(fileName);

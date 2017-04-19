@@ -83,7 +83,7 @@ namespace Inforoom.ReportSystem
 			_reportIsFull = (bool)GetReportParam("ReportIsFull");
 			_reportSortedByPrice = (bool)GetReportParam("ReportSortedByPrice");
 			if (!_byBaseCosts)
-				_clientCode = (int)GetReportParam("ClientCode");
+				ClientCode = (int)GetReportParam("ClientCode");
 			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
 			_priceCode = Convert.ToUInt32(GetReportParam("PriceCode"));
 			_selfPrice = (int)_priceCode;
@@ -524,7 +524,7 @@ where regionCode = ?region and PriceCode = ?price;";
 						@"select RegionCode
 	from Customers.Clients
 where Id = ?ClientCode",
-						new MySqlParameter("?ClientCode", _clientCode)));
+						new MySqlParameter("?ClientCode", ClientCode)));
 			}
 
 			SourcePC = _priceCode;

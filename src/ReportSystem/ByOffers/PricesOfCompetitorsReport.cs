@@ -131,7 +131,7 @@ namespace Inforoom.ReportSystem
 					clientsCount--;
 					continue; // возможно, клиент был заблокирован во время подготовки отчета
 				}
-				_clientCode = Convert.ToInt32(client);
+				ClientCode = Convert.ToInt32(client);
 				InvokeGetActivePrices();
 				if (checkSuppliersCount) {
 					maxSuppliersCount = Math.Max(maxSuppliersCount,
@@ -185,7 +185,7 @@ from Usersettings.ActivePrices Prices
 					dataItem.Costs.Add(group.Min(r => r.Field<decimal>("Cost")));
 				}
 #if DEBUG
-				Console.WriteLine("Код клиента: " + _clientCode + " Строк в таблице: " + data.Count);
+				Console.WriteLine("Код клиента: " + ClientCode + " Строк в таблице: " + data.Count);
 #endif
 			}//foreach (var client in _clients)
 			if (checkSuppliersCount && maxSuppliersCount < 3) {

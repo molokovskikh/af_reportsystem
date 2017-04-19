@@ -219,7 +219,7 @@ into @OffersSynonymCode;
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_clientCode = (int)GetReportParam("ClientCode");
+			ClientCode = (int)GetReportParam("ClientCode");
 			_includeProducer = Convert.ToBoolean(GetReportParam("IncludeProducer"));
 			_includeQuantity = Convert.ToBoolean(GetReportParam("IncludeQuantity"));
 			if (ReportParamExists("CostDiffThreshold"))

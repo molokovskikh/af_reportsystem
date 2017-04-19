@@ -49,7 +49,7 @@ namespace Inforoom.ReportSystem
 				throw new ArgumentOutOfRangeException("ReportType", tmpReportType, "Значение параметра не входит в область допустимых значений.");
 
 			_priceCode = (int)GetReportParam("PriceCode");
-			_clientCode = (int)GetReportParam("ClientCode");
+			ClientCode = (int)GetReportParam("ClientCode");
 		}
 
 		private void ProcessWeigth()
@@ -338,8 +338,8 @@ where
 					MySqlHelper.ExecuteScalar(
 						DataAdapter.SelectCommand.Connection,
 						@"select Name from Customers.Clients where Id = ?FirmCode",
-						new MySqlParameter("?FirmCode", _clientCode)));
-				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", clientShortName, _clientCode, customerFirmName, _priceCode));
+						new MySqlParameter("?FirmCode", ClientCode)));
+				throw new ReportException(String.Format("Для клиента {0} ({1}) не доступен прайс-лист {2} ({3}).", clientShortName, ClientCode, customerFirmName, _priceCode));
 			}
 
 			DataAdapter.SelectCommand.Parameters.Clear();

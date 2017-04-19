@@ -36,15 +36,15 @@ namespace Inforoom.ReportSystem
 		protected override void GenerateReport()
 		{
 			foreach (var client in _Clients) {
-				_clientCode = Convert.ToInt32(client);
-				ProfileHelper.Next("GetOffers for client: " + _clientCode);
+				ClientCode = Convert.ToInt32(client);
+				ProfileHelper.Next("GetOffers for client: " + ClientCode);
 				GetOffers(); // получили предложения для клиента
 
 				string clientName = Convert.ToString(
 					MySqlHelper.ExecuteScalar(
 						DataAdapter.SelectCommand.Connection,
 						@"select FullName from Customers.Clients where Id = ?ClientCode",
-						new MySqlParameter("?ClientCode", _clientCode)));
+						new MySqlParameter("?ClientCode", ClientCode)));
 
 				var prices = new List<uint>(); // прайсы, для которых будем брать синонимы
 				DataAdapter.SelectCommand.CommandText = String.Format(@"

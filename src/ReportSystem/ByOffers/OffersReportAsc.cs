@@ -42,7 +42,7 @@ namespace Inforoom.ReportSystem
 			base.ReadBaseReportParams();
 			_reportType = (int)GetReportParam("ReportType");
 			if (!_byBaseCosts && !_byWeightCosts)
-				_clientCode = (int)GetReportParam("ClientCode");
+				ClientCode = (int)GetReportParam("ClientCode");
 			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
 			_priceCode = Convert.ToUInt32(GetReportParam("PriceCode"));
 			_reportIsFull = (bool)GetReportParam("ReportIsFull");
@@ -91,7 +91,7 @@ namespace Inforoom.ReportSystem
 				else {
 					// отчет готовится по клиенту
 					//Заполняем код региона прайс-листа как домашний код региона клиента, относительно которого строится отчет
-					_sourceRegionCode = Session.Load<Client>((uint)_clientCode).RegionCode;
+					_sourceRegionCode = Session.Load<Client>((uint)ClientCode).RegionCode;
 				}
 
 				_sourcePriceCode = _priceCode;

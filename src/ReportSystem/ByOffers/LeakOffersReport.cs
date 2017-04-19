@@ -22,7 +22,7 @@ namespace Inforoom.ReportSystem
 		public override void ReadReportParams()
 		{
 			base.ReadReportParams();
-			_clientCode = (int)GetReportParam("ClientCode");
+			ClientCode = (int)GetReportParam("ClientCode");
 		}
 
 		protected override void GenerateReport()

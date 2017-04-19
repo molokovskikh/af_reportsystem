@@ -16,7 +16,7 @@ namespace Inforoom.ReportSystem.ByOffers
 	public abstract class BaseOffersReport : BaseReport
 	{
 		//Код клиента, необходимый для получения текущих прайс-листов и предложений, относительно этого клиента
-		protected int _clientCode;
+		public int ClientCode;
 		protected int? _SupplierNoise;
 		protected int? _userCode;
 		protected bool _byBaseCosts; // строить отчет по базовым ценам
@@ -263,17 +263,17 @@ and regions.RegionCode = activeprices.RegionCode";
 			if (_userCode == null) {
 				var command = DataAdapter.SelectCommand;
 				//Проверка существования и отключения клиента
-				command.CommandText = "select * from Customers.Clients cl where cl.Id = " + _clientCode;
+				command.CommandText = "select * from Customers.Clients cl where cl.Id = " + ClientCode;
 				command.CommandType = CommandType.Text;
 				using (var reader = command.ExecuteReader()) {
 					if (!reader.Read())
-						throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", _clientCode));
+						throw new ReportException(String.Format("Невозможно найти клиента с кодом {0}.", ClientCode));
 					if (Convert.ToByte(reader["Status"]) == 0)
 						throw new ReportException(
 							String.Format("Невозможно сформировать отчет по отключенному клиенту {0} ({1}).",
-								reader["Name"], _clientCode));
+								reader["Name"], ClientCode));
 				}
-				command.CommandText = "select Id from Customers.Users where ClientId = " + _clientCode +
+				command.CommandText = "select Id from Customers.Users where ClientId = " + ClientCode +
 					" limit 1";
 				return Convert.ToUInt32(command.ExecuteScalar());
 			}
@@ -425,7 +425,7 @@ order by supps.Name", supplierIds.Implode());
 
 		public virtual List<Offer> GetOffers(int clientId, uint sourcePriceCode, uint? noiseSupplierId, bool allAssortment, bool byCatalog, bool withProducers)
 		{
-			_clientCode = clientId;
+			ClientCode = clientId;
 			InvokeGetActivePrices();
 
 			var assortmentSupplierId = Convert.ToUInt32(
@@ -443,7 +443,7 @@ where pricesdata.PriceCode = ?PriceCode
 select RegionCode
 	from Customers.Clients
 where Id = ?ClientCode",
-					new MySqlParameter("?ClientCode", _clientCode)));
+					new MySqlParameter("?ClientCode", ClientCode)));
 
 			var enabledCost = MySqlHelper.ExecuteScalar(
 				Connection,

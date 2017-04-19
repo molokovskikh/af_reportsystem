@@ -47,8 +47,8 @@ namespace Inforoom.ReportSystem.ByOffers
 
 		protected override void GenerateReport()
 		{
-			var rules = Session.Get<OrderRules>((uint)_clientCode);
-			_client = Session.Get<Client>((uint)_clientCode);
+			var rules = Session.Get<OrderRules>((uint)ClientCode);
+			_client = Session.Get<Client>((uint)ClientCode);
 
 			GetOffers();
 			SetFilterDescriptions();
@@ -86,7 +86,7 @@ AT.PriceDate as PriceDate", sql.Alias));
 			query.Select(sql.Select.Trim(','));
 			DataAdapter.SelectCommand.CommandText = query.ToSql();
 			if (rules.OfferMatrix.HasValue)
-				DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", _clientCode);
+				DataAdapter.SelectCommand.Parameters.AddWithValue("ClientCode", ClientCode);
 
 			var result = new DataTable("Results");
 			DataAdapter.Fill(result);
@@ -238,7 +238,7 @@ AT.PriceDate as PriceDate", sql.Alias));
 		public override void ReadReportParams()
 		{
 			if (_reportParams.ContainsKey("ClientCode")) {
-				_clientCode = Convert.ToInt32(GetReportParam("ClientCode"));
+				ClientCode = Convert.ToInt32(GetReportParam("ClientCode"));
 			}
 		}
 	}

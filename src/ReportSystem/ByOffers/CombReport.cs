@@ -30,10 +30,11 @@ namespace Inforoom.ReportSystem
 		 *
 		 */
 
-		protected int _reportType;
-		protected bool _showPercents;
+		public int ReportType = 1;
+		public bool ShowPercents;
 		//Рассчитывать отчет по каталогу (CatalogId, Name, Form), если не установлено, то расчет будет производится по продуктам (ProductId)
-		protected bool _calculateByCatalog;
+		public bool CalculateByCatalog;
+		public bool Configured;
 
 		protected string reportCaptionPreffix;
 
@@ -49,11 +50,14 @@ namespace Inforoom.ReportSystem
 
 		public override void ReadReportParams()
 		{
+			if (Configured)
+				return;
 			base.ReadReportParams();
-			_reportType = (int)GetReportParam("ReportType");
-			_showPercents = (bool)GetReportParam("ShowPercents");
-			_clientCode = (int)GetReportParam("ClientCode");
-			_calculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
+
+			ReportType = (int)GetReportParam("ReportType");
+			ShowPercents = (bool)GetReportParam("ShowPercents");
+			ClientCode = (int)GetReportParam("ClientCode");
+			CalculateByCatalog = (bool)GetReportParam("CalculateByCatalog");
 		}
 
 		private void ByWeightProcessing()
@@ -68,7 +72,7 @@ namespace Inforoom.ReportSystem
   Core.Quantity,
   Core.RegionCode,
   Core.PriceCode, ";
-			if (_reportType > 2) {
+			if (ReportType > 2) {
 				DataAdapter.SelectCommand.CommandText += "Core.ProducerId";
 			}
 			else {
@@ -103,7 +107,7 @@ order by CatalogCode, Cfc DESC";
   min(Core.Cost) as MinCost,
   avg(Core.Cost) as AvgCost,
   max(Core.Cost) as MaxCost, ";
-			if (_reportType > 2) {
+			if (ReportType > 2) {
 				DataAdapter.SelectCommand.CommandText += "Core.ProducerId as Cfc, left(Producers.Name, 250) as FirmCr, ";
 			}
 			else {
@@ -119,7 +123,7 @@ from
 	left join Catalogs.Mnn m on m.Id = cn.MnnId";
 
 			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
-			if (_reportType > 2)
+			if (ReportType > 2)
 				DataAdapter.SelectCommand.CommandText += @"
   left join catalogs.Producers on Producers.Id = Core.ProducerId ";
 
@@ -170,7 +174,7 @@ order by Core.Cost DESC";
 			ProfileHelper.Next("Processing1");
 			DataAdapter.SelectCommand.CommandText = "select ";
 
-			if (_calculateByCatalog)
+			if (CalculateByCatalog)
 				DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, ";
 			else
 				DataAdapter.SelectCommand.CommandText += "products.Id as CatalogCode, ";
@@ -181,7 +185,7 @@ order by Core.Cost DESC";
   FarmCore.Quantity,
   Core.RegionCode,
   Core.PriceCode, ";
-			if (_reportType > 2) {
+			if (ReportType > 2) {
 				DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr";
 			}
 			else {
@@ -211,7 +215,7 @@ order by CatalogCode, Cfc, PositionCount DESC";
 			DataAdapter.Fill(_dsReport, "Core");
 
 			DataAdapter.SelectCommand.CommandText = "select  ";
-			if (_calculateByCatalog)
+			if (CalculateByCatalog)
 				DataAdapter.SelectCommand.CommandText += "catalog.Id as CatalogCode, left(catalog.Name, 250) as Name, ";
 			else
 				DataAdapter.SelectCommand.CommandText += @"products.Id as CatalogCode, (select left(cast(concat(cn.Name, ' ', cf.Form, ' ', ifnull(group_concat(distinct pv.Value ORDER BY prop.PropertyName, pv.Value SEPARATOR ', '), '')) as CHAR), 250)
@@ -228,7 +232,7 @@ where p.id = core.productid) as Name, ";
   min(Core.Cost) as MinCost,
   avg(Core.Cost) as AvgCost,
   max(Core.Cost) as MaxCost, ";
-			if (_reportType > 2) {
+			if (ReportType > 2) {
 				DataAdapter.SelectCommand.CommandText += "FarmCore.codefirmcr as Cfc, left(Producers.Name, 250) as FirmCr, ";
 			}
 			else {
@@ -246,7 +250,7 @@ from
 	left join Catalogs.Mnn m on m.Id = cn.MnnId";
 
 			//Если отчет с учетом производителя, то пересекаем с таблицей Producers
-			if (_reportType > 2)
+			if (ReportType > 2)
 				DataAdapter.SelectCommand.CommandText += @"
   left join catalogs.Producers on Producers.Id = FarmCore.codefirmcr ";
 
@@ -323,7 +327,7 @@ order by 2, 5";
 					dtRes.Columns.Add(drPrice["PriceCode"].ToString(), typeof(decimal));
 				else
 					dtRes.Columns.Add("Cost" + priceIndex, typeof(decimal));
-				if (!_showPercents) {
+				if (!ShowPercents) {
 					if (Format == ReportFormats.DBF)
 						dtRes.Columns.Add("Q" + drPrice["PriceCode"]);
 					else
@@ -373,18 +377,18 @@ order by 2, 5";
 					if (newrow[firstColumnCount + priceIndex * 2] is DBNull && Convert.ToBoolean(dtPos["Junk"]) == false) {
 						newrow[firstColumnCount + priceIndex * 2] = dtPos["Cost"];
 
-						if (_reportType == 2 || _reportType == 4) {
-							if (_showPercents) {
+						if (ReportType == 2 || ReportType == 4) {
+							if (ShowPercents) {
 								double mincost = Convert.ToDouble(newrow["MinCost"]), pricecost = Convert.ToDouble(dtPos["Cost"]);
 								newrow[firstColumnCount + priceIndex * 2 + 1] = Math.Round(((pricecost - mincost) * 100) / pricecost, 0);
 							}
 						}
 					}
 
-					if (_reportType == 2 || _reportType == 4) {
+					if (ReportType == 2 || ReportType == 4) {
 						double quantity;
 						double columnQuantity;
-						if (!_showPercents)
+						if (!ShowPercents)
 							if(newrow[firstColumnCount + priceIndex * 2 + 1] is DBNull || !double.TryParse(newrow[firstColumnCount + priceIndex * 2 + 1].ToString(), out columnQuantity))
 								newrow[firstColumnCount + priceIndex * 2 + 1] = dtPos["Quantity"];
 							else if(!(dtPos["Quantity"] is DBNull) && double.TryParse(dtPos["Quantity"].ToString(), out quantity))
@@ -437,7 +441,7 @@ order by 2, 5";
 					reportCaptionPreffix += " по базовым ценам";
 				else if(_byWeightCosts)
 					reportCaptionPreffix += " по взвешенным ценам";
-				if (_reportType < 3)
+				if (ReportType < 3)
 					exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " без учета производителя создан " + DateTime.Now;
 				else
 					exApp.ActiveCell.FormulaR1C1 = reportCaptionPreffix + " с учетом производителя создан " + DateTime.Now;
@@ -478,7 +482,7 @@ order by 2, 5";
 				((Range)ws.Cells[1, beginColumn + priceIndex * 2 + 1]).ColumnWidth = 4;
 
 				ws.Cells[2, beginColumn + priceIndex * 2] = "Цена";
-				if (!_showPercents)
+				if (!ShowPercents)
 					ws.Cells[2, beginColumn + priceIndex * 2 + 1] = "Кол-во";
 				else
 					ws.Cells[2, beginColumn + priceIndex * 2 + 1] = "Разница в %";
@@ -490,49 +494,18 @@ order by 2, 5";
 		private void GroupActivePrices()
 		{
 			DataAdapter.SelectCommand.CommandText = @"
-DROP TEMPORARY TABLE IF EXISTS Usersettings.TempActivePrices;
-create temporary table
-Usersettings.TempActivePrices
-(
- FirmCode int Unsigned,
- PriceCode int Unsigned,
- CostCode int Unsigned,
- PriceSynonymCode int Unsigned,
- RegionCode BigInt Unsigned,
- Fresh bool,
- DelayOfPayment decimal(5,3),
- Upcost decimal(7,5),
- MaxSynonymCode Int Unsigned,
- MaxSynonymFirmCrCode Int Unsigned,
- CostType bool,
- PriceDate DateTime,
- ShowPriceName bool,
- PriceName VarChar(50),
- PositionCount int Unsigned,
- MinReq mediumint Unsigned,
- FirmCategory tinyint unsigned,
- MainFirm bool,
- VitallyImportantDelay decimal(5,3),
- OtherDelay decimal(5,3),
- unique (PriceCode, RegionCode, CostCode),
- index  (CostCode, PriceCode),
- index  (PriceSynonymCode),
- index  (MaxSynonymCode),
- index  (PriceCode),
- index  (MaxSynonymFirmCrCode)
- )engine=MEMORY
- ;
+drop temporary table if exists copy;
 
-alter table TempActivePrices add column FirmName varchar(100);
-
-insert into Usersettings.TempActivePrices
+create temporary table copy engine=memory
 select * from ActivePrices
 group by priceCode;
 
 delete from Usersettings.ActivePrices;
 
 insert into Usersettings.ActivePrices
-select * from TempActivePrices;";
+select * from copy;
+
+drop temporary table copy;";
 			DataAdapter.SelectCommand.ExecuteNonQuery();
 		}
 	}
